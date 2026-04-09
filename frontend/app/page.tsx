@@ -1441,7 +1441,7 @@ function WorkforceSnapshot({ model, f, onBack, onNavigate, viewCtx }: { model: s
         <div className="space-y-3">
           <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-2)]"><span className="text-[12px]">Manager-to-IC Ratio</span><span className="text-[18px] font-extrabold text-[var(--text-primary)]">1:{Math.max(1, Math.round((Number((data as Record<string, unknown>).employees || 1) * 0.8) / Math.max(Number((data as Record<string, unknown>).employees || 1) * 0.2, 1)))}</span></div>
           <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-2)]"><span className="text-[12px]">Avg Span of Control</span><span className="text-[18px] font-extrabold text-[var(--text-primary)]">{Math.round(Number((data as Record<string, unknown>).employees || 0) * 0.8 / Math.max(Number((data as Record<string, unknown>).employees || 0) * 0.2, 1))}</span></div>
-          <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-2)]"><span className="text-[12px]">AI Readiness Score</span><span className="text-[18px] font-extrabold" style={{color: Number((data as Record<string, unknown>).readiness || 0) >= 70 ? "var(--success)" : "var(--warning)"}}>{(data as Record<string, unknown>).readiness || "—"}/100</span></div>
+          <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-2)]"><span className="text-[12px]">AI Readiness Score</span><span className="text-[18px] font-extrabold" style={{color: Number((data as Record<string, unknown>).readiness || 0) >= 70 ? "var(--success)" : "var(--warning)"}}>{String((data as Record<string, unknown>).readiness || "—")}/100</span></div>
         </div>
       </Card>
     </div>}
