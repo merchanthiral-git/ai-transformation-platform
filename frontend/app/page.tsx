@@ -1537,7 +1537,7 @@ function JobArchitecture({ model, f, onBack, onNavigate, viewCtx, jobs }: { mode
     <InsightPanel title="Career Development" items={["Your current position is shown relative to the organizational hierarchy.", "Review the AI Opportunity Scan to see how your role may evolve.", "Use the Workforce Snapshot to understand how your profile compares."]} icon="📈" />
 
     {/* Role Analysis Summary */}
-    {data && (data as Record<string,unknown>).jobs_list && <Card title="Role Risk & Criticality Matrix">
+    {data && Array.isArray((data as Record<string,unknown>).jobs_list) && <Card title="Role Risk & Criticality Matrix">
       <div className="text-[12px] text-[var(--text-secondary)] mb-3">Each role scored by automation exposure and organizational criticality.</div>
       <div className="overflow-auto rounded-lg border border-[var(--border)]" style={{maxHeight:300}}><table className="w-full text-[11px]"><thead><tr className="bg-[var(--surface-2)]"><th className="px-3 py-2 text-left border-b border-[var(--border)]">Role</th><th className="px-2 py-2 text-center border-b border-[var(--border)]">Function</th><th className="px-2 py-2 text-center border-b border-[var(--border)]">Headcount</th><th className="px-2 py-2 text-center border-b border-[var(--border)]">AI Exposure</th><th className="px-2 py-2 text-center border-b border-[var(--border)]">Criticality</th></tr></thead>
       <tbody>{((data as Record<string,unknown>).jobs_list as string[] || []).slice(0,15).map((j, i) => {
