@@ -1361,7 +1361,7 @@ function TransformationExecDashboard({ model, f, onBack, onNavigate, decisionLog
         <div className="text-[12px] text-[var(--text-secondary)]">Aggregated risks across all modules. Add risks manually or let modules flag them.</div>
         <button onClick={() => {
           const risk = prompt("Describe the risk:");
-          if (risk) { addRisk("Manual", risk, "Medium", "Medium", "To be determined"); showToast("Risk added to register"); }
+          if (risk && addRisk) { addRisk("Manual", risk, "Medium", "Medium", "To be determined"); showToast("Risk added to register"); }
         }} className="px-3 py-1 rounded-lg text-[10px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/20 hover:bg-[var(--accent-primary)]/5 transition-all">+ Add Risk</button>
       </div>
       {riskRegister.length === 0 ? <div className="text-[12px] text-[var(--text-muted)] py-4 text-center">No risks registered. Risks are auto-flagged as you identify gaps, flight-risk managers, and low-readiness segments.</div> : <div className="space-y-2">{riskRegister.map(r => <div key={r.id} className="flex items-center gap-3 p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)]">
@@ -1369,7 +1369,7 @@ function TransformationExecDashboard({ model, f, onBack, onNavigate, decisionLog
         <div className="flex-1"><div className="text-[12px] font-semibold text-[var(--text-primary)]">{r.risk}</div><div className="text-[10px] text-[var(--text-muted)]">Source: {r.source} · Mitigation: {r.mitigation}</div></div>
         <Badge color={r.probability === "High" ? "red" : r.probability === "Medium" ? "amber" : "green"}>{r.probability}</Badge>
         <Badge color={r.impact === "High" ? "red" : r.impact === "Medium" ? "amber" : "green"}>{r.impact}</Badge>
-        <button onClick={() => updateRisk(r.id, { status: r.status === "Open" ? "Mitigated" : "Open" })} className="text-[9px] font-semibold px-2 py-1 rounded" style={{ background: r.status === "Open" ? "var(--risk)" : "var(--success)", color: "#fff" }}>{r.status}</button>
+        <button onClick={() => updateRisk?.(r.id, { status: r.status === "Open" ? "Mitigated" : "Open" })} className="text-[9px] font-semibold px-2 py-1 rounded" style={{ background: r.status === "Open" ? "var(--risk)" : "var(--success)", color: "#fff" }}>{r.status}</button>
       </div>)}</div>}
     </Card>
 
