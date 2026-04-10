@@ -1,0 +1,12 @@
+# Railway deployment configuration for AI Transformation Platform
+# This is a Python (FastAPI) backend service.
+# The frontend is deployed separately or served via Next.js standalone.
+
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "cd backend && python -m uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"
+healthcheckPath = "/api/ai/health"
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
