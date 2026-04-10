@@ -732,7 +732,7 @@ export function ViewSelector({ onSelect, employees, jobs, filterOptions, onBack 
 
   return <div style={{ position: "fixed", inset: 0, overflow: "auto", background: "#0B1120" }}>
     {/* Full bleed background */}
-    <div style={{ position: "absolute", inset: 0, backgroundImage: "url(/view_bg.png)", backgroundSize: "cover", backgroundPosition: "center center", backgroundRepeat: "no-repeat", width: "100vw", height: "100vh", background: "linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 65%, #0a0f1a 100%)" }} />
+    <div className="hub-bg" style={{ position: "absolute", inset: 0, width: "100vw", height: "100vh" }} />
     <div style={{ position: "absolute", inset: 0, background: revealed ? "rgba(8,12,24,0.75)" : "radial-gradient(ellipse at center, rgba(8,12,24,0.2) 0%, rgba(8,12,24,0.5) 60%, rgba(8,12,24,0.7) 100%)", transition: "background 0.6s ease", width: "100vw", height: "100vh" }} />
 
     {/* Back button */}

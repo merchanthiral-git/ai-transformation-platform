@@ -1094,7 +1094,7 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
   if (sandboxOpen) {
     return <div style={{ position: "fixed", inset: 0, overflow: "hidden", background: "#0B1120" }}>
       {/* Full-bleed storefront background */}
-      <div style={{ position: "absolute", inset: 0, backgroundImage: "url(/sandbox_bg.png)", backgroundSize: "cover", backgroundPosition: "center 60%", background: "linear-gradient(160deg, #0B1120 0%, #1a1a30 40%, #12182a 100%)" }} />
+      <div className="hub-bg" />
       <div style={{ position: "absolute", inset: 0, background: sandboxPanelOpen ? "rgba(8,12,24,0.55)" : "radial-gradient(ellipse at 35% 40%, rgba(8,12,24,0.1) 0%, rgba(8,12,24,0.35) 50%, rgba(8,12,24,0.6) 100%)", transition: "background 0.5s ease" }} />
 
       {/* Back button */}
@@ -1166,7 +1166,7 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
 
   return <div style={{ position: "fixed", inset: 0, overflow: "auto", background: "#0B1120" }}>
     {/* Full-bleed background */}
-    <div style={{ position: "absolute", inset: 0, backgroundImage: "url(/hero_bg.png)", backgroundSize: "cover", backgroundPosition: "center center", width: "100vw", height: "100vh", background: "linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 65%, #0a0f1a 100%)" }} />
+    <div className="hub-bg" />
     <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(11,17,32,0.25) 0%, rgba(11,17,32,0.45) 40%, rgba(11,17,32,0.7) 100%)", width: "100vw", height: "100vh" }} />
 
     {/* Content */}
@@ -1455,7 +1455,7 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
   if (successUser) {
     return (
       <div style={{ position: "fixed", inset: 0, zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ position: "absolute", inset: 0, backgroundImage: "url(/login_bg.png)", backgroundSize: "cover", backgroundPosition: "center center", background: "linear-gradient(135deg, #1a1208 0%, #2a1a0a 30%, #0f0d08 70%, #1a1510 100%)" }} />
+        <div className="auth-bg" />
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, rgba(10,8,5,0.3) 0%, rgba(10,8,5,0.75) 100%)" }} />
         <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 420, padding: "0 24px", textAlign: "center" }}>
           <div style={{ background: "rgba(15,12,8,0.7)", backdropFilter: "blur(30px)", borderRadius: 24, border: "1px solid rgba(255,255,255,0.1)", padding: "40px 32px", boxShadow: "0 32px 100px rgba(0,0,0,0.6)" }}>
@@ -1480,8 +1480,8 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
 
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <div style={{ position: "absolute", inset: 0, backgroundImage: "url(/login_bg.png)", backgroundSize: "cover", backgroundPosition: "center center", background: "linear-gradient(135deg, #1a1208 0%, #2a1a0a 30%, #0f0d08 70%, #1a1510 100%)", backgroundRepeat: "no-repeat", background: "linear-gradient(135deg, #1a1208 0%, #2a1a0a 30%, #0f0d08 70%, #1a1510 100%)" }} />
-      <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, rgba(10,8,5,0.25) 0%, rgba(10,8,5,0.7) 100%)" }} />
+      <div className="auth-bg" />
+      <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, rgba(10,8,5,0.15) 0%, rgba(10,8,5,0.6) 100%)" }} />
 
       <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 400, padding: "0 24px" }}>
         <div style={{ textAlign: "center", marginBottom: 28 }}>
