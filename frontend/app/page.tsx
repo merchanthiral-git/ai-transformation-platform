@@ -125,12 +125,17 @@ function MusicPlayer() {
 
   const fmt = (s: number) => { const m = Math.floor(s / 60); const sec = Math.floor(s % 60); return `${m}:${sec < 10 ? "0" : ""}${sec}`; };
 
-  // Initialize audio
+  // Initialize audio element once — persists across renders
   useEffect(() => {
     const audio = new Audio();
     audio.volume = volume;
     audio.preload = "auto";
     audioRef.current = audio;
+
+    // Set initial track src immediately
+    const initialTracks = ALL_TRACKS.filter(t => t.genre === "chill");
+    const initialTrack = initialTracks[trackIdx % initialTracks.length] || initialTracks[0];
+    if (initialTrack) audio.src = initialTrack.file;
 
     const onEnd = () => {
       if (repeat) { audio.currentTime = 0; audio.play().catch(() => {}); return; }
@@ -153,9 +158,13 @@ function MusicPlayer() {
     return () => { audio.pause(); audio.removeEventListener("ended", onEnd); audio.removeEventListener("loadedmetadata", onMeta); cancelAnimationFrame(animRef.current); audio.src = ""; };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Load track when trackIdx or genre changes
+  // Load new track when trackIdx or genre changes (after initial mount)
+  const prevTrackFile = useRef(track?.file || "");
   useEffect(() => {
     const a = audioRef.current; if (!a || !track) return;
+    // Only update src if it actually changed (avoid resetting on re-renders)
+    if (a.src.endsWith(track.file) && prevTrackFile.current === track.file) return;
+    prevTrackFile.current = track.file;
     a.src = track.file; a.volume = volume;
     setProgress(0); setCurTime(0); setDuration(0);
     if (playing) a.play().catch(() => {});
@@ -164,10 +173,27 @@ function MusicPlayer() {
 
   const toggle = () => {
     const a = audioRef.current; if (!a) return;
-    if (playing) { a.pause(); } else { a.play().catch(() => {}); }
-    setPlaying(!playing);
+    if (playing) {
+      a.pause();
+      setPlaying(false);
+    } else {
+      // Ensure src is set before playing
+      if (!a.src || a.src === window.location.href) {
+        if (track) a.src = track.file;
+      }
+      a.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
+    }
   };
-  const changeTrack = (idx: number) => { setTrackIdx(idx); setPlaying(true); };
+  const changeTrack = (idx: number) => {
+    const a = audioRef.current;
+    setTrackIdx(idx);
+    if (a) {
+      const gt = ALL_TRACKS.filter(t => t.genre === genre);
+      const t = gt[idx % gt.length];
+      if (t) { a.src = t.file; a.volume = volume; a.play().catch(() => {}); }
+    }
+    setPlaying(true);
+  };
   const nextTrack = () => { const gt = genreTracks; changeTrack(shuffle ? Math.floor(Math.random() * gt.length) : (trackIdx + 1) % gt.length); };
   const prevTrack = () => { const gt = genreTracks; changeTrack((trackIdx - 1 + gt.length) % gt.length); };
   const changeVolume = (v: number) => { setVolume(v); if (audioRef.current) audioRef.current.volume = v; try { localStorage.setItem("music_vol", String(v)); } catch {} };
@@ -176,7 +202,7 @@ function MusicPlayer() {
   const btnBase: React.CSSProperties = { background: "none", border: "none", cursor: "pointer", transition: "all 0.2s", display: "flex", alignItems: "center", justifyContent: "center" };
 
   // ── Mini state: small floating icon ──
-  if (viewState === "mini") return <button onClick={() => { setViewState("collapsed"); if (!playing) toggle(); }}
+  if (viewState === "mini") return <button onClick={() => { setViewState("collapsed"); toggle(); }}
     style={{ position: "fixed", bottom: 20, right: 20, zIndex: 40, width: 36, height: 36, borderRadius: 18, background: "linear-gradient(135deg, rgba(224,144,64,0.9), rgba(192,112,48,0.9))", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff", fontSize: 16, cursor: "pointer", boxShadow: "0 4px 20px rgba(224,144,64,0.3)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s" }}
     onMouseEnter={e => e.currentTarget.style.transform = "scale(1.15)"} onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}>♪</button>;
 
@@ -1109,7 +1135,7 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
   if (sandboxOpen) {
     return <div style={{ position: "fixed", inset: 0, overflow: "hidden", background: "#0B1120" }}>
       {/* Full-bleed storefront background */}
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(160deg, #0B1120 0%, #1a1a30 40%, #12182a 100%)", backgroundImage: "url(/sandbox_bg.png)", backgroundSize: "cover", backgroundPosition: "center 60%" }} />
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(160deg, #0B1120 0%, #1a1a30 40%, #12182a 100%)", backgroundImage: "url(/sandbox_bg.png)", backgroundSize: "cover", backgroundPosition: "center 60%", backgroundRepeat: "no-repeat" }} />
       <div style={{ position: "absolute", inset: 0, background: sandboxPanelOpen ? "rgba(8,12,24,0.55)" : "radial-gradient(ellipse at 35% 40%, rgba(8,12,24,0.1) 0%, rgba(8,12,24,0.35) 50%, rgba(8,12,24,0.6) 100%)", transition: "background 0.5s ease" }} />
 
       {/* Back button */}
@@ -1181,7 +1207,7 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
 
   return <div style={{ position: "fixed", inset: 0, overflow: "auto", background: "#0B1120" }}>
     {/* Full-bleed background */}
-    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 65%, #0a0f1a 100%)", backgroundImage: "url(/hero_bg.png)", backgroundSize: "cover", backgroundPosition: "center center", width: "100vw", height: "100vh" }} />
+    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 65%, #0a0f1a 100%)", backgroundImage: "url(/hero_bg.png)", backgroundSize: "cover", backgroundPosition: "center center", backgroundRepeat: "no-repeat", width: "100vw", height: "100vh" }} />
     <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(11,17,32,0.25) 0%, rgba(11,17,32,0.45) 40%, rgba(11,17,32,0.7) 100%)", width: "100vw", height: "100vh" }} />
 
     {/* Content */}
@@ -1470,7 +1496,7 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
   if (successUser) {
     return (
       <div style={{ position: "fixed", inset: 0, zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, #1a1208 0%, #2a1a0a 30%, #0f0d08 70%, #1a1510 100%)", backgroundImage: "url(/login_bg.png)", backgroundSize: "cover", backgroundPosition: "center center" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, #1a1208 0%, #2a1a0a 30%, #0f0d08 70%, #1a1510 100%)", backgroundImage: "url(/login_bg.png)", backgroundSize: "cover", backgroundPosition: "center center", backgroundRepeat: "no-repeat" }} />
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, rgba(10,8,5,0.3) 0%, rgba(10,8,5,0.75) 100%)" }} />
         <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 420, padding: "0 24px", textAlign: "center" }}>
           <div style={{ background: "rgba(15,12,8,0.7)", backdropFilter: "blur(30px)", borderRadius: 24, border: "1px solid rgba(255,255,255,0.1)", padding: "40px 32px", boxShadow: "0 32px 100px rgba(0,0,0,0.6)" }}>
@@ -1495,7 +1521,7 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
 
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, #1a1208 0%, #2a1a0a 30%, #0f0d08 70%, #1a1510 100%)", backgroundImage: "url(/login_bg.png)", backgroundSize: "cover", backgroundPosition: "center center" }} />
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, #1a1208 0%, #2a1a0a 30%, #0f0d08 70%, #1a1510 100%)", backgroundImage: "url(/login_bg.png)", backgroundSize: "cover", backgroundPosition: "center center", backgroundRepeat: "no-repeat" }} />
       <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, rgba(10,8,5,0.25) 0%, rgba(10,8,5,0.7) 100%)" }} />
 
       <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 400, padding: "0 24px" }}>
