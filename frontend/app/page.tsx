@@ -52,7 +52,6 @@ import { ExportReport } from "./components/ExportModule";
 
 import { JobArchitectureModule } from "./components/JobArchModule";
 import { PlatformHub } from "./components/PlatformHub";
-import { useGuidedTour, GuidedTourOverlay, TourHelpButton } from "./components/GuidedTour";
 
 
 /* ═══════════════════════════════════════════════════════════════
@@ -155,13 +154,14 @@ function MusicPlayer() {
   // Play: set src, load, play — all in one user-gesture handler
   const playTrack = useCallback((file: string) => {
     const a = audioRef.current;
-    if (!a) return;
+    if (!a) { console.warn("[MusicPlayer] No audio element"); return; }
+    console.log("[MusicPlayer] Loading:", file, "→", window.location.origin + file);
     a.src = file;
     a.volume = volume;
-    a.load(); // explicitly load the new source
+    a.load();
     a.play()
-      .then(() => setPlaying(true))
-      .catch(e => { console.warn("Play failed:", e.message, "src:", file); setPlaying(false); });
+      .then(() => { console.log("[MusicPlayer] Playing OK:", file); setPlaying(true); })
+      .catch(e => { console.warn("[MusicPlayer] Play failed:", e.message, "src:", a.src); setPlaying(false); });
   }, [volume]);
 
   // Toggle play/pause — the primary user interaction handler
@@ -196,43 +196,63 @@ function MusicPlayer() {
   const seek = (e: React.MouseEvent<HTMLDivElement>) => { const rect = e.currentTarget.getBoundingClientRect(); const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width)); if (audioRef.current?.duration) audioRef.current.currentTime = pct * audioRef.current.duration; };
 
   const btnBase: React.CSSProperties = { background: "none", border: "none", cursor: "pointer", transition: "all 0.2s", display: "flex", alignItems: "center", justifyContent: "center" };
+  const expandedRef = useRef<HTMLDivElement>(null);
+
+  // Escape key collapses expanded player
+  useEffect(() => {
+    if (viewState !== "expanded") return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setViewState("collapsed"); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [viewState]);
+
+  // Click outside expanded player to collapse
+  useEffect(() => {
+    if (viewState !== "expanded") return;
+    const onClick = (e: MouseEvent) => {
+      if (expandedRef.current && !expandedRef.current.contains(e.target as Node)) setViewState("collapsed");
+    };
+    // Delay listener so the expand click itself doesn't immediately collapse
+    const timer = setTimeout(() => window.addEventListener("click", onClick), 50);
+    return () => { clearTimeout(timer); window.removeEventListener("click", onClick); };
+  }, [viewState]);
 
   // ── Mini state: small floating icon ──
   if (viewState === "mini") return <button onClick={() => { setViewState("collapsed"); toggle(); }}
     style={{ position: "fixed", bottom: 20, right: 20, zIndex: 40, width: 36, height: 36, borderRadius: 18, background: "linear-gradient(135deg, rgba(224,144,64,0.9), rgba(192,112,48,0.9))", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff", fontSize: 16, cursor: "pointer", boxShadow: "0 4px 20px rgba(224,144,64,0.3)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s" }}
     onMouseEnter={e => e.currentTarget.style.transform = "scale(1.15)"} onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}>♪</button>;
 
-  // ── Collapsed state: slim bar at bottom ──
-  if (viewState === "collapsed") return <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 40, height: 44, background: "rgba(15,12,8,0.85)", backdropFilter: "blur(20px)", borderTop: "1px solid rgba(212,134,10,0.1)", display: "flex", alignItems: "center", paddingLeft: 12, paddingRight: 12, gap: 10 }}>
-    {/* Art placeholder */}
-    <div style={{ width: 32, height: 32, borderRadius: 6, background: "linear-gradient(135deg, #D4860A, #C07030)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, color: "#fff", flexShrink: 0, cursor: "pointer" }} onClick={() => setViewState("expanded")}>♪</div>
-    {/* Track info */}
-    <div style={{ flex: 1, minWidth: 0, cursor: "pointer" }} onClick={() => setViewState("expanded")}>
+  // ── Collapsed state: slim bar — entire bar is clickable to expand ──
+  if (viewState === "collapsed") return <div onClick={() => setViewState("expanded")} style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 40, height: 44, background: "rgba(15,12,8,0.85)", backdropFilter: "blur(20px)", borderTop: "1px solid rgba(212,134,10,0.1)", display: "flex", alignItems: "center", paddingLeft: 12, paddingRight: 12, gap: 10, cursor: "pointer" }}>
+    <div style={{ width: 32, height: 32, borderRadius: 6, background: "linear-gradient(135deg, #D4860A, #C07030)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, color: "#fff", flexShrink: 0 }}>♪</div>
+    <div style={{ flex: 1, minWidth: 0 }}>
       <div style={{ fontSize: 11, fontWeight: 600, color: "#f5e6d0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{track?.name || "—"}</div>
       <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)" }}>{GENRES.find(g => g.id === genre)?.label}</div>
     </div>
-    {/* Mini progress */}
-    <div onClick={seek} style={{ width: 80, height: 3, background: "rgba(255,255,255,0.08)", borderRadius: 2, cursor: "pointer", flexShrink: 0, overflow: "hidden" }}>
+    <div onClick={e => { e.stopPropagation(); seek(e); }} style={{ width: 80, height: 3, background: "rgba(255,255,255,0.08)", borderRadius: 2, cursor: "pointer", flexShrink: 0, overflow: "hidden" }}>
       <div style={{ height: "100%", borderRadius: 2, background: "#D4860A", width: `${progress * 100}%` }} />
     </div>
-    {/* Controls */}
-    <button onClick={toggle} style={{ ...btnBase, color: "#f5e6d0", fontSize: 16, width: 32, height: 32 }}>{playing ? "⏸" : "▶"}</button>
-    <button onClick={nextTrack} style={{ ...btnBase, color: "rgba(255,255,255,0.4)", fontSize: 12 }}>⏭</button>
-    <button onClick={() => setViewState("mini")} style={{ ...btnBase, color: "rgba(255,255,255,0.25)", fontSize: 10 }}>✕</button>
+    <button onClick={e => { e.stopPropagation(); toggle(); }} style={{ ...btnBase, color: "#f5e6d0", fontSize: 16, width: 32, height: 32 }}>{playing ? "⏸" : "▶"}</button>
+    <button onClick={e => { e.stopPropagation(); nextTrack(); }} style={{ ...btnBase, color: "rgba(255,255,255,0.4)", fontSize: 12 }}>⏭</button>
+    <button onClick={e => { e.stopPropagation(); setViewState("mini"); }} style={{ ...btnBase, color: "rgba(255,255,255,0.25)", fontSize: 14 }} title="Hide player">✕</button>
   </div>;
 
   // ── Expanded state: full player panel ──
-  return <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 40, background: "rgba(10,8,6,0.92)", backdropFilter: "blur(24px)", borderTop: "1px solid rgba(212,134,10,0.12)", transition: "all 0.4s cubic-bezier(0.16,1,0.3,1)" }}>
+  return <div ref={expandedRef} style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 40, background: "rgba(10,8,6,0.92)", backdropFilter: "blur(24px)", borderTop: "1px solid rgba(212,134,10,0.12)", transition: "all 0.4s cubic-bezier(0.16,1,0.3,1)" }}>
+    {/* Visible collapse/close buttons at top-right of panel */}
+    <div style={{ position: "absolute", top: 10, right: 16, display: "flex", gap: 6, zIndex: 1 }}>
+      <button onClick={() => setViewState("collapsed")} title="Minimize to bar" style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)", fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.12)"; e.currentTarget.style.color = "#f5e6d0"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; e.currentTarget.style.color = "rgba(255,255,255,0.5)"; }}>▾</button>
+      <button onClick={() => setViewState("mini")} title="Hide player" style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.4)", fontSize: 11, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.12)"; e.currentTarget.style.color = "#f5e6d0"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; e.currentTarget.style.color = "rgba(255,255,255,0.4)"; }}>✕</button>
+    </div>
+
     <div style={{ maxWidth: 900, margin: "0 auto", padding: "16px 24px 20px" }}>
       {/* Top row: art + info + controls */}
       <div style={{ display: "flex", gap: 16, alignItems: "center", marginBottom: 12 }}>
-        {/* Album art placeholder with decorative equalizer */}
         <div style={{ width: 64, height: 64, borderRadius: 12, background: "linear-gradient(135deg, #D4860A, #8B4513)", display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 2, padding: 8, flexShrink: 0, boxShadow: "0 4px 16px rgba(212,134,10,0.2)" }}>
           {[3,5,4,6,3,4,5].map((h, i) => <div key={i} style={{ width: 4, borderRadius: 2, background: "rgba(255,255,255,0.6)", height: playing ? `${h * 4 + Math.sin(Date.now() / 300 + i) * 4}px` : "4px", transition: "height 0.3s", animation: playing ? `eqBar 0.8s ease-in-out ${i * 0.1}s infinite alternate` : "none" }} />)}
         </div>
         <style>{`@keyframes eqBar { 0% { height: 6px; } 100% { height: 24px; } }`}</style>
 
-        {/* Track info */}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 15, fontWeight: 700, color: "#f5e6d0", fontFamily: "'Outfit', sans-serif", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{track?.name || "—"}</div>
           <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>{GENRES.find(g => g.id === genre)?.icon} {GENRES.find(g => g.id === genre)?.label} · Track {(trackIdx % genreTracks.length) + 1} of {genreTracks.length}</div>
@@ -252,10 +272,6 @@ function MusicPlayer() {
           <button onClick={() => changeVolume(volume > 0 ? 0 : 0.25)} style={{ ...btnBase, fontSize: 11, color: "rgba(255,255,255,0.4)" }}>{volume === 0 ? "🔇" : volume < 0.3 ? "🔈" : "🔊"}</button>
           <input type="range" min={0} max={1} step={0.02} value={volume} onChange={e => changeVolume(Number(e.target.value))} style={{ flex: 1, accentColor: "#e09040", height: 3 }} />
         </div>
-
-        {/* Collapse/close */}
-        <button onClick={() => setViewState("collapsed")} style={{ ...btnBase, color: "rgba(255,255,255,0.3)", fontSize: 10 }}>▼</button>
-        <button onClick={() => { setViewState("mini"); if (playing) { /* keep playing */ } }} style={{ ...btnBase, color: "rgba(255,255,255,0.2)", fontSize: 10 }}>✕</button>
       </div>
 
       {/* Progress bar */}
@@ -275,7 +291,6 @@ function MusicPlayer() {
         <button onClick={() => setShowList(!showList)} style={{ ...btnBase, fontSize: 9, color: "rgba(255,255,255,0.4)", fontFamily: "'IBM Plex Mono', monospace" }}>{showList ? "Hide" : "Tracks"} ▾</button>
       </div>
 
-      {/* Track list */}
       {showList && <div style={{ marginTop: 8, maxHeight: 140, overflowY: "auto", borderRadius: 8, border: "1px solid rgba(255,255,255,0.06)" }}>
         {genreTracks.map((t, i) => <button key={t.id} onClick={() => changeTrack(i)}
           style={{ width: "100%", padding: "6px 12px", background: i === trackIdx % genreTracks.length ? "rgba(212,134,10,0.1)" : "transparent", border: "none", borderBottom: "1px solid rgba(255,255,255,0.04)", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, fontSize: 11, color: i === trackIdx % genreTracks.length ? "#e09040" : "rgba(255,255,255,0.5)", transition: "all 0.15s", fontFamily: "'Outfit', sans-serif" }}
@@ -307,8 +322,8 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
   const [page, setPage] = usePersisted(`${projectId}_page`, "home");
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // Guided tour for first-time users
-  const { tourActive, tourStep, startTour, nextStep, prevStep, skipTour, dismissTour, totalSteps } = useGuidedTour();
+  // Tutorial mode — must be declared before the useEffect that references it
+  const [isTutorial] = useState(() => { try { return JSON.parse(localStorage.getItem(`${projectId}_isTutorial`) || "false"); } catch { return false; } });
 
   // On fresh login, reset to home (Overview) instead of restoring stale tab
   useEffect(() => {
@@ -339,9 +354,9 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
   }, [model, backendOk]);
 
   // Auto-select Tutorial model for sandbox/tutorial projects
-  const isTutorialProject = projectId.startsWith("tutorial_") || (() => { try { return JSON.parse(localStorage.getItem(`${projectId}_isTutorial`) || "false"); } catch { return false; } })();
   useEffect(() => {
-    if (isTutorialProject && backendOk) {
+    const shouldAutoSelect = isTutorial || projectId.startsWith("tutorial_");
+    if (shouldAutoSelect && backendOk) {
       // Read the stored model name
       try {
         const lm = JSON.parse(localStorage.getItem("lastModel") || "null");
@@ -359,7 +374,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
         }
       }
     }
-  }, [isTutorialProject, backendOk, model, setModel, projectId]);
+  }, [isTutorial, backendOk, model, setModel, projectId]);
 
   // Fetch employee names for employee view picker
   useEffect(() => {
@@ -458,6 +473,42 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
 
   const viewCtx: ViewContext = { mode: viewMode || "org", employee: viewEmployee, job: viewJob, custom: viewCustom };
 
+  // Tutorial mode state and handlers
+  const [tutorialStep, setTutorialStep] = useState(() => { try { return JSON.parse(localStorage.getItem(`${projectId}_tutorialStep`) || "0"); } catch { return 0; } });
+  const [tutorialVisible, setTutorialVisible] = useState(isTutorial);
+  const tutorialSteps = useMemo(() => buildTutorialSteps(projectId), [projectId]);
+
+  useEffect(() => {
+    if (isTutorial) { try { localStorage.setItem(`${projectId}_tutorialStep`, JSON.stringify(tutorialStep)); } catch {} }
+  }, [tutorialStep, projectId, isTutorial]);
+
+  const tutorialNext = () => {
+    if (tutorialStep < tutorialSteps.length - 1) {
+      const nextStep = tutorialStep + 1;
+      setTutorialStep(nextStep);
+      const nextPage = tutorialSteps[nextStep].page;
+      if (nextPage !== "home") setPage(nextPage);
+      else setPage("home");
+    } else {
+      setTutorialVisible(false);
+    }
+  };
+  const tutorialPrev = () => {
+    if (tutorialStep > 0) {
+      const prevStep = tutorialStep - 1;
+      setTutorialStep(prevStep);
+      const prevPage = tutorialSteps[prevStep].page;
+      if (prevPage !== "home") setPage(prevPage);
+      else setPage("home");
+    }
+  };
+  const tutorialJump = (s: number) => {
+    setTutorialStep(s);
+    const pg = tutorialSteps[s].page;
+    if (pg !== "home") setPage(pg);
+    else setPage("home");
+  };
+
   // Escape key goes back to home
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === "Escape" && page !== "home") setPage("home"); };
@@ -490,14 +541,14 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
 
   return <div className="flex min-h-screen w-full">
     {/* ── SIDEBAR ── */}
-    <aside data-tour="sidebar" className="w-[220px] min-h-screen bg-[var(--surface-1)] flex flex-col px-4 py-5 shrink-0 overflow-y-auto sticky top-0 border-r border-[var(--border)]" style={{ height: "100vh" }}>
+    <aside className="w-[220px] min-h-screen bg-[var(--surface-1)] flex flex-col px-4 py-5 shrink-0 overflow-y-auto sticky top-0 border-r border-[var(--border)]" style={{ height: "100vh" }}>
       <div className="mb-1 cursor-pointer" onClick={goHome}><div className="text-sm font-extrabold text-[var(--text-primary)]">AI Transformation</div><div className="text-[10px] font-semibold text-[var(--accent-primary)] uppercase tracking-[1.5px]">PLATFORM</div></div>
       <button onClick={() => { if (page === "home" && viewMode) { setViewMode(""); } else { onBackToHub(); } }} className="w-full text-left text-[11px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mt-1 mb-1 flex items-center gap-1 transition-colors">{page === "home" && viewMode ? "← Back to Views" : page !== "home" ? "← Back to Home" : "← Back to Projects"}</button>
       <div className="bg-[var(--surface-2)] rounded-lg px-3 py-2 mb-2 border border-[var(--border)]"><div className="text-[10px] font-bold text-[var(--accent-primary)] uppercase tracking-wider mb-0.5">Active Project</div><div className="text-[13px] font-semibold text-[var(--text-primary)] truncate">{projectName}</div>{projectMeta && <div className="text-[10px] text-[var(--text-muted)] truncate mt-0.5 italic">{projectMeta}</div>}</div>
       <div className="h-px bg-[var(--border)] my-3" />
       <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-[1.2px] mb-2">Data Intake</div>
       <input ref={fileRef} type="file" multiple accept=".xlsx,.xls,.csv" onChange={e => e.target.files && upload(e.target.files)} className="hidden" />
-      <button data-tour="upload" onClick={() => fileRef.current?.click()} className="w-full bg-[var(--accent-primary)] hover:opacity-90 text-white text-[12px] font-semibold py-1.5 rounded-md mb-1.5">⬆ Upload Files</button>
+      <button onClick={() => fileRef.current?.click()} className="w-full bg-[var(--accent-primary)] hover:opacity-90 text-white text-[12px] font-semibold py-1.5 rounded-md mb-1.5">⬆ Upload Files</button>
       <a href="/api/template" download className="block w-full bg-[var(--surface-3)] hover:bg-[var(--hover)] border border-[var(--accent-primary)] text-[var(--accent-primary)] text-[12px] font-semibold py-1.5 rounded-md mb-1.5 text-center no-underline">⬇ Export Template</a>
       <button onClick={reset} className="w-full bg-[var(--surface-2)] hover:bg-[var(--hover)] border border-[var(--border)] text-[var(--text-secondary)] text-[11px] font-semibold py-1 rounded-md">Reset</button>
       {msg && <div className="mt-1.5 text-[11px] text-[var(--accent-primary)] bg-[rgba(212,134,10,0.1)] rounded px-2 py-1">{msg}</div>}
@@ -525,7 +576,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
         <button onClick={() => setShowDecLog(!showDecLog)} className={`w-full text-left px-2 py-1.5 rounded-lg text-[11px] mb-1 flex items-center gap-2 transition-all ${showDecLog ? "bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] font-semibold" : "text-[var(--text-muted)] hover:bg-[var(--hover)]"}`}>
           <span className="text-[13px]">📝</span> Decision Log {decisionLog.length > 0 && <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] font-bold">{decisionLog.length}</span>}
         </button>
-        <button data-tour="platform-hub" onClick={() => { if (onShowPlatformHub) onShowPlatformHub(); }} className="w-full rounded-xl p-2.5 text-left transition-all group" style={{ background: "rgba(212,134,10,0.03)", border: "1px solid rgba(212,134,10,0.08)" }} onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(212,134,10,0.2)"; e.currentTarget.style.boxShadow = "0 0 12px rgba(212,134,10,0.06)"; }} onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(212,134,10,0.08)"; e.currentTarget.style.boxShadow = "none"; }}>
+        <button onClick={() => { if (onShowPlatformHub) onShowPlatformHub(); }} className="w-full rounded-xl p-2.5 text-left transition-all group" style={{ background: "rgba(212,134,10,0.03)", border: "1px solid rgba(212,134,10,0.08)" }} onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(212,134,10,0.2)"; e.currentTarget.style.boxShadow = "0 0 12px rgba(212,134,10,0.06)"; }} onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(212,134,10,0.08)"; e.currentTarget.style.boxShadow = "none"; }}>
           <div className="text-[10px] font-bold font-heading group-hover:text-[var(--accent-primary)] transition-colors" style={{ color: "rgba(212,134,10,0.6)" }}>AI Transformation</div>
           <div className="text-[9px]" style={{ color: "rgba(212,134,10,0.3)" }}>Account & Info</div>
         </button>
@@ -539,7 +590,6 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
             <div className="text-[11px] font-semibold text-[var(--text-primary)] truncate">{user.display_name || user.username}</div>
             {user.last_login && <div className="text-[8px] text-[var(--text-muted)] font-data truncate">Last: {new Date(user.last_login).toLocaleDateString()}</div>}
           </div>
-          <TourHelpButton onClick={startTour} />
         </div>}
         <button onClick={() => authApi.logout()} className="w-full text-[10px] font-semibold py-1.5 rounded-md border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--risk)] hover:border-[var(--risk)]/30 transition-colors">Sign Out</button>
         <div className="text-center text-[9px] text-[var(--text-muted)] mt-2 opacity-50">v4.0</div>
@@ -547,8 +597,8 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
     </aside>
 
     {/* ── MAIN ── */}
-    <main data-tour="main-content" className="flex-1 min-h-screen bg-[var(--bg)]">
-      {page === "home" && <div data-tour="overview">
+    <main className="flex-1 min-h-screen bg-[var(--bg)]">
+      {page === "home" && <div>
         <LandingPage onNavigate={navigate} moduleStatus={moduleStatus} hasData={hasData} viewMode={viewMode} />
       </div>}
       {page !== "home" && <div className="px-7 py-6">
@@ -588,8 +638,9 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       {!model && page !== "home" && <div className="text-center py-20"><div className="text-4xl mb-3 opacity-30">📂</div><h3 className="text-lg font-semibold mb-1">Select a model first</h3><p className="text-[13px] text-[var(--text-secondary)]">Upload data or select Demo_Model in the sidebar.</p><button onClick={goHome} className="mt-4 text-[var(--accent-primary)] text-[13px] font-semibold">← Back to Home</button></div>}
       </div>}
     </main>
-    {page !== "home" && <div data-tour="ai-espresso"><AiEspressoButton moduleId={page} contextData={buildAiContext()} viewMode={viewMode} /></div>}
-    {tourActive && <GuidedTourOverlay step={tourStep} totalSteps={totalSteps} onNext={nextStep} onPrev={prevStep} onSkip={skipTour} onDismiss={dismissTour} />}
+    {page !== "home" && <div><AiEspressoButton moduleId={page} contextData={buildAiContext()} viewMode={viewMode} /></div>}
+    {isTutorial && tutorialVisible && <TutorialOverlay step={tutorialStep} totalSteps={tutorialSteps.length} steps={tutorialSteps} onNext={tutorialNext} onPrev={tutorialPrev} onClose={() => setTutorialVisible(false)} onJump={tutorialJump} />}
+    {isTutorial && !tutorialVisible && <TutorialBadge onClick={() => setTutorialVisible(true)} step={tutorialStep} total={tutorialSteps.length} />}
 
     {/* Decision Log Slide-out Panel */}
     {showDecLog && <div className="fixed top-0 right-0 bottom-0 w-[380px] z-[9998] bg-[var(--surface-1)] border-l border-[var(--border)] shadow-2xl flex flex-col animate-slide-right" style={{ boxShadow: "-8px 0 30px rgba(0,0,0,0.3)" }}>
@@ -776,8 +827,7 @@ function getTutorialCompany(projectId: string): { name: string; employees: numbe
   return { ...co, industry, size };
 }
 
-/* buildTutorialSteps / TutorialOverlay / TutorialBadge removed — single tutorial via GuidedTour.tsx */
-function __legacyBuildTutorialSteps(projectId: string): { page: string; pos: "center"|"tr"|"tl"; icon: string; title: string; body: string; action?: string; subTab?: string }[] {
+function buildTutorialSteps(projectId: string): { page: string; pos: "center"|"tr"|"tl"; icon: string; title: string; body: string; action?: string; subTab?: string }[] {
   const co = getTutorialCompany(projectId);
   const n = co.employees;
   const nm = co.name;
@@ -841,7 +891,7 @@ function __legacyBuildTutorialSteps(projectId: string): { page: string; pos: "ce
 }
 
 // Default fallback for non-tutorial contexts
-const TUTORIAL_STEPS = __legacyBuildTutorialSteps("tutorial_mid_technology");
+const TUTORIAL_STEPS = buildTutorialSteps("tutorial_mid_technology");
 
 
 /* ═══ TUTORIAL OVERLAY — draggable, minimizable, centered window ═══ */

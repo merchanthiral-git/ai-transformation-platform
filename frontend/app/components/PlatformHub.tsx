@@ -36,10 +36,10 @@ export function PlatformHub({ user, onBack, onUpdateUser }: { user: authApi.Auth
         <span className="text-[14px]">{t.icon}</span>{t.label}
       </button>)}
       <div className="mt-auto pt-4 border-t border-[rgba(212,134,10,0.06)]">
-        <button onClick={() => { localStorage.removeItem("guidedTourCompleted"); localStorage.removeItem("guidedTourStep"); onBack(); setTimeout(() => { window.dispatchEvent(new CustomEvent("start-guided-tour")); }, 500); }}
+        <button onClick={() => { onBack(); }}
           className="w-full text-left px-3 py-2.5 rounded-xl text-[12px] mb-3 transition-all flex items-center gap-2.5 text-[var(--text-muted)] hover:text-[#e09040]"
           style={{ background: "rgba(212,134,10,0.04)", border: "1px solid rgba(212,134,10,0.08)" }}>
-          <span className="text-[14px]">?</span> Take the Tour
+          <span className="text-[14px]">🎓</span> Back to Platform
         </button>
         <div className="text-center text-[9px] opacity-40" style={{ color: "rgba(212,134,10,0.6)" }}>v4.0 · AI Transformation Platform</div>
       </div>
