@@ -934,10 +934,23 @@ function TutorialOverlay({ step, totalSteps, steps, onNext, onPrev, onClose, onJ
     <span style={{ fontSize: 10, opacity: 0.5 }}>▼</span>
   </button>;
 
-  const cardWidth = 620;
-  const cardStyle: React.CSSProperties = centered
-    ? { position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: cardWidth, zIndex: 50 }
-    : { position: "fixed", left: pos.x, top: pos.y, width: cardWidth, zIndex: 50 };
+  const cardWidth = Math.min(620, window.innerWidth - 40);
+  const cardMaxH = window.innerHeight - 40;
+
+  // When centered, clamp so the card stays within viewport
+  const centeredStyle: React.CSSProperties = {
+    position: "fixed",
+    top: "50%", left: "50%",
+    transform: visible ? "translate(-50%, -50%)" : "translate(-50%, -48%) scale(0.97)",
+    width: cardWidth, maxHeight: cardMaxH, zIndex: 50,
+  };
+  const draggedStyle: React.CSSProperties = {
+    position: "fixed",
+    left: Math.max(20, Math.min(pos.x, window.innerWidth - cardWidth - 20)),
+    top: Math.max(20, Math.min(pos.y, window.innerHeight - 200)),
+    width: cardWidth, maxHeight: cardMaxH, zIndex: 50,
+  };
+  const cardStyle = centered ? centeredStyle : draggedStyle;
 
   return <>
     {/* Light backdrop */}
@@ -946,22 +959,24 @@ function TutorialOverlay({ step, totalSteps, steps, onNext, onPrev, onClose, onJ
     {/* Card */}
     <div ref={cardRef} style={{
       ...cardStyle,
-      borderRadius: 22, overflow: "hidden",
+      borderRadius: 22,
+      display: "flex", flexDirection: "column",
       background: "var(--surface-1)", border: "1px solid rgba(139,92,246,0.2)",
       boxShadow: "0 32px 80px rgba(0,0,0,0.45), 0 0 0 1px rgba(139,92,246,0.08)",
       cursor: dragging ? "grabbing" : "default",
       transition: dragging ? "none" : "all 0.4s cubic-bezier(0.16,1,0.3,1)",
       pointerEvents: "auto",
       opacity: visible ? 1 : 0,
-      transform: centered ? (visible ? "translate(-50%, -50%)" : "translate(-50%, -48%) scale(0.97)") : undefined,
+      overflow: "hidden",
     }}>
 
-      {/* Draggable header bar */}
+      {/* Draggable header bar — always visible */}
       <div onMouseDown={onMouseDown} style={{
         padding: "18px 24px 14px",
         background: "linear-gradient(135deg, rgba(99,102,241,0.08), rgba(139,92,246,0.04))",
         cursor: dragging ? "grabbing" : "grab",
         userSelect: "none",
+        flexShrink: 0,
       }}>
         {/* Progress bar */}
         <div style={{ height: 4, borderRadius: 2, background: "var(--surface-3)", marginBottom: 14 }}>
@@ -987,21 +1002,21 @@ function TutorialOverlay({ step, totalSteps, steps, onNext, onPrev, onClose, onJ
         </div>
       </div>
 
-      {/* Body */}
-      <div style={{ padding: "18px 28px 14px" }}>
+      {/* Body — scrollable if content is tall */}
+      <div style={{ padding: "18px 28px 14px", overflowY: "auto", flex: 1, minHeight: 0 }}>
         <p style={{ fontSize: 15, lineHeight: 1.85, color: "var(--text-secondary)", margin: 0 }}>{s.body}</p>
         {s.action && <div style={{ fontSize: 14, fontWeight: 600, color: "#A78BFA", background: "rgba(139,92,246,0.05)", borderRadius: 12, padding: "12px 16px", border: "1px solid rgba(139,92,246,0.1)", marginTop: 14, display: "flex", alignItems: "flex-start", gap: 8, lineHeight: 1.6 }}>
           <span style={{ fontSize: 18, flexShrink: 0 }}>👉</span> <span>{s.action}</span>
         </div>}
       </div>
 
-      {/* Step dots */}
-      <div style={{ padding: "6px 28px 8px", display: "flex", gap: 3, justifyContent: "center", flexWrap: "wrap" }}>
+      {/* Step dots — pinned to bottom, never scrolled away */}
+      <div style={{ padding: "6px 28px 8px", display: "flex", gap: 3, justifyContent: "center", flexWrap: "wrap", flexShrink: 0 }}>
         {steps.map((ts, i) => <button key={i} onClick={() => onJump(i)} title={`Step ${i+1}: ${ts.title}`} style={{ width: i === step ? 16 : 7, height: 7, borderRadius: 4, background: i === step ? "#8B5CF6" : i < step ? "rgba(139,92,246,0.3)" : "rgba(255,255,255,0.05)", border: "none", cursor: "pointer", transition: "all 0.3s", flexShrink: 0 }} />)}
       </div>
 
-      {/* Controls */}
-      <div style={{ padding: "8px 28px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      {/* Controls — pinned to bottom, always visible and clickable */}
+      <div style={{ padding: "8px 28px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
         <button onClick={onPrev} disabled={step === 0} style={{ padding: "10px 18px", borderRadius: 12, fontSize: 13, fontWeight: 600, cursor: step === 0 ? "not-allowed" : "pointer", background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text-secondary)", opacity: step === 0 ? 0.25 : 1, transition: "all 0.2s" }}>← Previous</button>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <button onClick={() => setMinimized(true)} style={{ padding: "6px 12px", borderRadius: 8, fontSize: 11, cursor: "pointer", background: "none", border: "1px solid var(--border)", color: "var(--text-muted)" }}>Minimize</button>

@@ -188,7 +188,12 @@ export function GuidedTourOverlay({ step, totalSteps, onNext, onPrev, onSkip, on
   const isLast = step === totalSteps - 1;
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const [visible, setVisible] = useState(false);
+  const [tooltipPos, setTooltipPos] = useState<React.CSSProperties>({});
   const tooltipRef = useRef<HTMLDivElement>(null);
+
+  const EDGE_MARGIN = 20;
+  const GAP = 16;
+  const TOOLTIP_W = 380;
 
   // Find target element and get its position
   useEffect(() => {
@@ -199,7 +204,6 @@ export function GuidedTourOverlay({ step, totalSteps, onNext, onPrev, onSkip, on
         if (el) {
           const rect = el.getBoundingClientRect();
           setTargetRect(rect);
-          // Scroll into view if needed
           el.scrollIntoView({ behavior: "smooth", block: "nearest" });
         } else {
           setTargetRect(null);
@@ -212,50 +216,74 @@ export function GuidedTourOverlay({ step, totalSteps, onNext, onPrev, onSkip, on
     return () => clearTimeout(timer);
   }, [step, s.target]);
 
-  // Calculate tooltip position
-  const getTooltipStyle = (): React.CSSProperties => {
-    if (!targetRect || !s.target) {
-      // Centered modal
-      return {
-        position: "fixed",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-      };
-    }
+  // Measure tooltip after render and compute safe position
+  useEffect(() => {
+    // Run on next frame so the tooltip is rendered and measurable
+    const raf = requestAnimationFrame(() => {
+      const tooltip = tooltipRef.current;
+      if (!tooltip) return;
+      const tooltipH = tooltip.offsetHeight;
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
 
-    const pos = s.position || "bottom";
-    const pad = 16;
-    const tooltipW = 380;
+      // Centered modal when no target
+      if (!targetRect || !s.target) {
+        setTooltipPos({
+          position: "fixed",
+          top: Math.max(EDGE_MARGIN, (vh - tooltipH) / 2),
+          left: Math.max(EDGE_MARGIN, (vw - TOOLTIP_W) / 2),
+        });
+        return;
+      }
 
-    switch (pos) {
-      case "right":
-        return {
-          position: "fixed",
-          top: Math.max(20, Math.min(targetRect.top, window.innerHeight - 320)),
-          left: targetRect.right + pad,
-        };
-      case "left":
-        return {
-          position: "fixed",
-          top: Math.max(20, targetRect.top),
-          left: Math.max(20, targetRect.left - tooltipW - pad),
-        };
-      case "top":
-        return {
-          position: "fixed",
-          top: Math.max(20, targetRect.top - 200 - pad),
-          left: Math.max(20, targetRect.left + targetRect.width / 2 - tooltipW / 2),
-        };
-      case "bottom":
-      default:
-        return {
-          position: "fixed",
-          top: targetRect.bottom + pad,
-          left: Math.max(20, Math.min(targetRect.left, window.innerWidth - tooltipW - 20)),
-        };
-    }
-  };
+      const preferred = s.position || "bottom";
+
+      // Try each placement and pick the first that fits, starting with preferred
+      const placements: Array<"right" | "bottom" | "left" | "top"> =
+        preferred === "right" ? ["right", "bottom", "left", "top"] :
+        preferred === "left"  ? ["left", "bottom", "right", "top"] :
+        preferred === "top"   ? ["top", "right", "bottom", "left"] :
+                                ["bottom", "right", "top", "left"];
+
+      for (const place of placements) {
+        let top = 0, left = 0;
+
+        if (place === "right") {
+          left = targetRect.right + GAP;
+          top = targetRect.top + targetRect.height / 2 - tooltipH / 2;
+        } else if (place === "left") {
+          left = targetRect.left - TOOLTIP_W - GAP;
+          top = targetRect.top + targetRect.height / 2 - tooltipH / 2;
+        } else if (place === "bottom") {
+          left = targetRect.left + targetRect.width / 2 - TOOLTIP_W / 2;
+          top = targetRect.bottom + GAP;
+        } else {
+          left = targetRect.left + targetRect.width / 2 - TOOLTIP_W / 2;
+          top = targetRect.top - tooltipH - GAP;
+        }
+
+        // Clamp to viewport edges
+        left = Math.max(EDGE_MARGIN, Math.min(left, vw - TOOLTIP_W - EDGE_MARGIN));
+        top = Math.max(EDGE_MARGIN, Math.min(top, vh - tooltipH - EDGE_MARGIN));
+
+        // Check if the tooltip fits without overlapping the target
+        const tooltipBottom = top + tooltipH;
+        const tooltipRight = left + TOOLTIP_W;
+        const overlapsTarget =
+          left < targetRect.right + GAP / 2 &&
+          tooltipRight > targetRect.left - GAP / 2 &&
+          top < targetRect.bottom + GAP / 2 &&
+          tooltipBottom > targetRect.top - GAP / 2;
+
+        // Accept this placement if it doesn't overlap the target OR if it's the last resort
+        if (!overlapsTarget || place === placements[placements.length - 1]) {
+          setTooltipPos({ position: "fixed", top, left });
+          return;
+        }
+      }
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [targetRect, s.target, s.position, step, visible]);
 
   // Spotlight cutout dimensions (with padding)
   const spotPad = 8;
@@ -286,21 +314,25 @@ export function GuidedTourOverlay({ step, totalSteps, onNext, onPrev, onSkip, on
     {/* Click overlay to prevent interaction (except on the tooltip) */}
     <div style={{ position: "absolute", inset: 0 }} onClick={onDismiss} />
 
-    {/* Tooltip card */}
+    {/* Tooltip card — positioned by computed tooltipPos */}
     <div ref={tooltipRef} onClick={e => e.stopPropagation()} style={{
-      ...getTooltipStyle(),
+      ...tooltipPos,
       zIndex: 99991,
-      width: 380,
+      width: TOOLTIP_W,
+      maxHeight: `calc(100vh - ${EDGE_MARGIN * 2}px)`,
+      display: "flex",
+      flexDirection: "column",
       background: "linear-gradient(180deg, #faf6f0 0%, #f5ede2 100%)",
       borderRadius: 16,
       boxShadow: "0 20px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(212,134,10,0.15)",
       overflow: "hidden",
-      transition: "all 0.4s cubic-bezier(0.16,1,0.3,1)",
+      transition: "top 0.4s cubic-bezier(0.16,1,0.3,1), left 0.4s cubic-bezier(0.16,1,0.3,1), opacity 0.3s",
     }}>
       {/* Top amber accent bar */}
-      <div style={{ height: 4, background: "linear-gradient(90deg, #D4860A, #E8C547, #C07030)" }} />
+      <div style={{ height: 4, background: "linear-gradient(90deg, #D4860A, #E8C547, #C07030)", flexShrink: 0 }} />
 
-      <div style={{ padding: "20px 24px 16px" }}>
+      {/* Scrollable content area */}
+      <div style={{ padding: "20px 24px 16px", overflowY: "auto", flex: 1, minHeight: 0 }}>
         {/* Step indicator */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
           <span style={{ fontSize: 11, fontWeight: 700, color: "#C07030", letterSpacing: 1, fontFamily: "'IBM Plex Mono', monospace" }}>
@@ -322,8 +354,8 @@ export function GuidedTourOverlay({ step, totalSteps, onNext, onPrev, onSkip, on
         </p>
       </div>
 
-      {/* Progress dots */}
-      <div style={{ display: "flex", gap: 4, justifyContent: "center", padding: "0 24px 12px" }}>
+      {/* Progress dots — always visible (not scrollable) */}
+      <div style={{ display: "flex", gap: 4, justifyContent: "center", padding: "0 24px 12px", flexShrink: 0 }}>
         {TOUR_STEPS.map((_, i) => (
           <div key={i} style={{
             width: i === step ? 18 : 6,
@@ -335,8 +367,8 @@ export function GuidedTourOverlay({ step, totalSteps, onNext, onPrev, onSkip, on
         ))}
       </div>
 
-      {/* Navigation buttons */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 24px 20px", borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+      {/* Navigation buttons — always visible (not scrollable) */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 24px 20px", borderTop: "1px solid rgba(0,0,0,0.06)", flexShrink: 0 }}>
         <button onClick={onPrev} disabled={isFirst} style={{
           padding: "8px 16px", borderRadius: 10, fontSize: 12, fontWeight: 600,
           cursor: isFirst ? "not-allowed" : "pointer",
