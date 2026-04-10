@@ -131,7 +131,7 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode }: { o
 
   return <div className="relative min-h-[calc(100vh-48px)] overflow-hidden">
     {/* Full bleed background */}
-    <div className="absolute inset-0 z-0 hub-bg" />
+    <div className="absolute inset-0 z-0" style={{ background: "linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 65%, #0a0f1a 100%)", backgroundImage: "url(/landing_bg.png)", backgroundSize: "cover", backgroundPosition: "center center" }} />
     <div className="absolute inset-0 z-0" style={{ background: panelOpen ? "rgba(8,12,24,0.5)" : "radial-gradient(ellipse at 35% 40%, rgba(8,12,24,0.15) 0%, rgba(8,12,24,0.4) 50%, rgba(8,12,24,0.65) 100%)", transition: "background 0.5s ease" }} />
 
     {/* Clickable area — click anywhere to open panel */}
