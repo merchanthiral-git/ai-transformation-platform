@@ -10,6 +10,8 @@ export interface AuthUser {
   id: string;
   username: string;
   email?: string | null;
+  display_name?: string | null;
+  last_login?: string | null;
 }
 
 export interface ProjectData {
@@ -87,34 +89,84 @@ async function authFetch<T>(path: string, fallback: T, options?: RequestInit): P
 }
 
 // ─── Auth endpoints ───────────────────────────────────────────
-export async function register(username: string, password: string, passwordConfirm: string, email?: string) {
-  const res = await fetch("/api/auth/register", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      username,
-      password,
-      password_confirm: passwordConfirm,
-      email: email || null,
-    }),
+// Pydantic v2 returns detail as an array of {msg, loc, type} objects on 422
+function parseDetail(detail: unknown): string {
+  if (!detail) return "";
+  if (typeof detail === "string") return detail;
+  if (Array.isArray(detail)) {
+    const first = detail[0];
+    if (first && typeof first === "object" && "msg" in first) {
+      const msg = String((first as Record<string, unknown>).msg || "");
+      // Strip "Value error, " prefix that Pydantic v2 adds
+      return msg.replace(/^Value error,\s*/i, "");
+    }
+  }
+  return String(detail);
+}
+
+async function safeAuthFetch(path: string, body: Record<string, unknown>): Promise<{ res: Response; data: Record<string, unknown> }> {
+  let res: Response;
+  try {
+    res = await fetch(path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+  } catch (err) {
+    console.error(`[AUTH] Network error on ${path}:`, err);
+    throw new Error("Cannot connect to server — make sure the backend is running on port 8000");
+  }
+  let data: Record<string, unknown>;
+  try {
+    const text = await res.text();
+    data = JSON.parse(text);
+  } catch {
+    console.error(`[AUTH] Non-JSON response from ${path}: status ${res.status}`);
+    if (res.status === 502 || res.status === 504) {
+      throw new Error("Backend is not responding — start it with: cd backend && python3 main.py");
+    }
+    throw new Error(`Server error (${res.status}) — check that the backend is running`);
+  }
+  return { res, data };
+}
+
+export async function register(username: string, password: string, passwordConfirm: string, email?: string, displayName?: string) {
+  const { res, data } = await safeAuthFetch("/api/auth/register", {
+    username,
+    password,
+    password_confirm: passwordConfirm,
+    email: email || null,
+    display_name: displayName || null,
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.detail || "Registration failed");
-  setToken(data.token);
-  setStoredUser(data.user);
+  if (!res.ok) throw new Error(parseDetail(data.detail) || "Registration failed");
+  setToken(data.token as string);
+  setStoredUser(data.user as AuthUser);
   return data;
 }
 
+export async function checkUsername(username: string): Promise<{ available: boolean; reason: string; suggestions: string[] }> {
+  try {
+    const res = await fetch(`/api/auth/check-username?username=${encodeURIComponent(username)}`);
+    if (!res.ok) return { available: false, reason: "error", suggestions: [] };
+    return await res.json();
+  } catch { return { available: false, reason: "error", suggestions: [] }; }
+}
+
+export async function checkEmail(email: string): Promise<{ available: boolean }> {
+  try {
+    const res = await fetch(`/api/auth/check-email?email=${encodeURIComponent(email)}`);
+    if (!res.ok) return { available: true };
+    return await res.json();
+  } catch { return { available: true }; }
+}
+
 export async function login(username: string, password: string) {
-  const res = await fetch("/api/auth/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password }),
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.detail || "Login failed");
-  setToken(data.token);
-  setStoredUser(data.user);
+  const { res, data } = await safeAuthFetch("/api/auth/login", { username, password });
+  if (!res.ok) throw new Error(parseDetail(data.detail) || "Login failed");
+  setToken(data.token as string);
+  setStoredUser(data.user as AuthUser);
+  // Track last activity for session timeout
+  localStorage.setItem("last_activity", Date.now().toString());
   return data;
 }
 
@@ -126,29 +178,19 @@ export async function getMe(): Promise<AuthUser | null> {
   }
 }
 
-export async function forgotPassword(username: string) {
-  const res = await fetch("/api/auth/forgot-password", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username }),
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.detail || "Failed");
+export async function forgotPassword(email: string) {
+  const { res, data } = await safeAuthFetch("/api/auth/forgot-password", { email });
+  if (!res.ok) throw new Error(parseDetail(data.detail) || "Failed");
   return data;
 }
 
 export async function resetPassword(token: string, newPassword: string, confirmPassword: string) {
-  const res = await fetch("/api/auth/reset-password", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      token,
-      new_password: newPassword,
-      new_password_confirm: confirmPassword,
-    }),
+  const { res, data } = await safeAuthFetch("/api/auth/reset-password", {
+    token,
+    new_password: newPassword,
+    new_password_confirm: confirmPassword,
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.detail || "Reset failed");
+  if (!res.ok) throw new Error(parseDetail(data.detail) || "Reset failed");
   return data;
 }
 
@@ -205,4 +247,78 @@ export async function saveProjectState(projectId: string, state: Record<string, 
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(state),
   });
+}
+
+// ─── Profile ─────────────────────────────────────────────────
+export async function updateProfile(updates: {
+  display_name?: string;
+  email?: string;
+  current_password?: string;
+  new_password?: string;
+  new_password_confirm?: string;
+}): Promise<AuthUser> {
+  const result = await authFetch<AuthUser>("/api/auth/profile", {} as AuthUser, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(updates),
+  });
+  // Update stored user
+  const stored = getStoredUser();
+  if (stored) setStoredUser({ ...stored, ...result });
+  return result;
+}
+
+// ─── Remember Me ─────────────────────────────────────────────
+const REMEMBER_KEY = "remember_me";
+export function saveRememberedCredentials(username: string, password: string) {
+  localStorage.setItem(REMEMBER_KEY, JSON.stringify({ username, password }));
+}
+export function getRememberedCredentials(): { username: string; password: string } | null {
+  try {
+    const raw = localStorage.getItem(REMEMBER_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+export function clearRememberedCredentials() {
+  localStorage.removeItem(REMEMBER_KEY);
+}
+
+// ─── Session Management ──────────────────────────────────────
+const SESSION_TIMEOUT_MS = 24 * 60 * 60 * 1000; // 24 hours
+const SESSION_WARNING_MS = 5 * 60 * 1000; // 5 minutes before
+
+export function touchActivity() {
+  localStorage.setItem("last_activity", Date.now().toString());
+}
+
+export function getSessionTimeRemaining(): number {
+  const last = Number(localStorage.getItem("last_activity") || "0");
+  if (!last) return SESSION_TIMEOUT_MS;
+  return Math.max(0, SESSION_TIMEOUT_MS - (Date.now() - last));
+}
+
+export function isSessionExpired(): boolean {
+  return getSessionTimeRemaining() <= 0;
+}
+
+export function isSessionWarning(): boolean {
+  const remaining = getSessionTimeRemaining();
+  return remaining > 0 && remaining <= SESSION_WARNING_MS;
+}
+
+// ─── Admin API ───────────────────────────────────────────
+export async function adminGetUsers(): Promise<{ users: Record<string, unknown>[]; stats: Record<string, number> }> {
+  return authFetch("/api/auth/admin/users", { users: [], stats: {} });
+}
+
+export async function adminToggleUserStatus(userId: string, active: boolean): Promise<Record<string, unknown>> {
+  return authFetch(`/api/auth/admin/users/${userId}/status`, {}, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ active }),
+  });
+}
+
+export async function adminGetAIUsage(): Promise<Record<string, unknown>> {
+  return authFetch("/api/auth/admin/ai-usage", {});
 }

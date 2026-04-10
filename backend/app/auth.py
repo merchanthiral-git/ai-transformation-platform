@@ -27,7 +27,7 @@ bearer_scheme = HTTPBearer(auto_error=False)
 
 
 # ── Database setup (PostgreSQL via SQLAlchemy) ──────────────────
-from sqlalchemy import create_engine, Column, String, DateTime, Text, ForeignKey, JSON
+from sqlalchemy import create_engine, Column, String, DateTime, Text, ForeignKey, JSON, Boolean
 from sqlalchemy.orm import declarative_base, sessionmaker, Session, relationship
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///./app.db")
@@ -46,8 +46,13 @@ class UserDB(Base):
     id = Column(String, primary_key=True, default=lambda: uuid.uuid4().hex)
     username = Column(String(50), unique=True, nullable=False, index=True)
     password_hash = Column(String(255), nullable=False)
-    email = Column(String(255), nullable=True)  # optional recovery email
+    email = Column(String(255), nullable=True)
+    display_name = Column(String(100), nullable=True)
+    email_verified = Column(String(5), default="false")
+    verification_token = Column(String(100), nullable=True, index=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    last_login = Column(DateTime, nullable=True)
+    is_active = Column(String(5), default="true")  # "true" / "false" (SQLite compat)
     projects = relationship("ProjectDB", back_populates="owner", cascade="all, delete-orphan")
 
 
@@ -76,8 +81,32 @@ class PasswordResetDB(Base):
     used = Column(String(5), default="false")
 
 
-# Create tables
+# Create tables (will add new columns if they don't exist via migrate helper below)
 Base.metadata.create_all(bind=engine)
+
+# ── Auto-migrate: add new columns to existing DBs ──────────────
+def _migrate_add_columns():
+    """Safely add new columns to existing tables (SQLite-compatible)."""
+    from sqlalchemy import inspect, text
+    insp = inspect(engine)
+    if "users" in insp.get_table_names():
+        existing = [c["name"] for c in insp.get_columns("users")]
+        with engine.begin() as conn:
+            if "email_verified" not in existing:
+                conn.execute(text("ALTER TABLE users ADD COLUMN email_verified VARCHAR(5) DEFAULT 'false'"))
+            if "verification_token" not in existing:
+                conn.execute(text("ALTER TABLE users ADD COLUMN verification_token VARCHAR(100)"))
+            if "display_name" not in existing:
+                conn.execute(text("ALTER TABLE users ADD COLUMN display_name VARCHAR(100)"))
+            if "last_login" not in existing:
+                conn.execute(text("ALTER TABLE users ADD COLUMN last_login TIMESTAMP"))
+            if "is_active" not in existing:
+                conn.execute(text("ALTER TABLE users ADD COLUMN is_active VARCHAR(5) DEFAULT 'true'"))
+
+try:
+    _migrate_add_columns()
+except Exception as e:
+    print(f"[Migration warning] {e}")
 
 
 # ── Dependency — get DB session ─────────────────────────────────
@@ -90,11 +119,51 @@ def get_db():
 
 
 # ── Pydantic schemas ────────────────────────────────────────────
+def _validate_email_strict(v: str, required: bool = True) -> str:
+    """Validate email with strict rules to reject obviously fake addresses."""
+    v = v.strip().lower()
+    if not v:
+        if required:
+            raise ValueError("Email is required")
+        return v
+
+    # Basic format check
+    if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', v):
+        raise ValueError("Please enter a valid email address")
+
+    local, domain = v.rsplit("@", 1)
+
+    # Local part must be at least 2 characters
+    if len(local) < 2:
+        raise ValueError("Please enter a valid email address")
+
+    # Domain must have at least 4 characters (e.g. a.co)
+    if len(domain) < 4:
+        raise ValueError("Please enter a valid email address")
+
+    # Domain must have a dot and a TLD of 2+ chars
+    parts = domain.split(".")
+    if len(parts) < 2 or len(parts[-1]) < 2:
+        raise ValueError("Please enter a valid email address")
+
+    # Domain name (before TLD) must be at least 2 characters
+    if len(parts[0]) < 2:
+        raise ValueError("Please enter a valid email address")
+
+    # Reject known fake patterns
+    if domain in ("test.com", "test.test", "example.com", "example.org",
+                   "fake.com", "asdf.com", "aaa.com", "xxx.com", "temp.com"):
+        raise ValueError("Please use a real email address")
+
+    return v
+
+
 class RegisterRequest(BaseModel):
     username: str
     password: str
     password_confirm: str
-    email: Optional[str] = None
+    email: str  # required
+    display_name: Optional[str] = None
 
     @field_validator("username")
     @classmethod
@@ -123,6 +192,11 @@ class RegisterRequest(BaseModel):
             raise ValueError("Password must contain at least one special character")
         return v
 
+    @field_validator("email")
+    @classmethod
+    def validate_email(cls, v):
+        return _validate_email_strict(v, required=True)
+
 
 class LoginRequest(BaseModel):
     username: str
@@ -130,13 +204,33 @@ class LoginRequest(BaseModel):
 
 
 class ForgotPasswordRequest(BaseModel):
-    username: str
+    email: str
+
+    @field_validator("email")
+    @classmethod
+    def validate_email(cls, v):
+        return _validate_email_strict(v, required=True)
 
 
 class ResetPasswordRequest(BaseModel):
     token: str
     new_password: str
     new_password_confirm: str
+
+
+class ProfileUpdateRequest(BaseModel):
+    display_name: Optional[str] = None
+    email: Optional[str] = None
+    current_password: Optional[str] = None
+    new_password: Optional[str] = None
+    new_password_confirm: Optional[str] = None
+
+    @field_validator("email")
+    @classmethod
+    def validate_email(cls, v):
+        if v is None:
+            return v
+        return _validate_email_strict(v, required=False)
 
 
 class ProjectCreateRequest(BaseModel):

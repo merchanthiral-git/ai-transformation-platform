@@ -16,18 +16,30 @@ function filterParams(f: Filters) {
   return `func=${encodeURIComponent(f.func)}&jf=${encodeURIComponent(f.jf)}&sf=${encodeURIComponent(f.sf)}&cl=${encodeURIComponent(f.cl)}`;
 }
 
+// Toast callback — set by the app layer via setApiToast
+let _apiToast: ((msg: string) => void) | null = null;
+export function setApiToast(fn: (msg: string) => void) { _apiToast = fn; }
+
 async function fetchJSON<T>(path: string, fallback: T, options?: RequestInit): Promise<T> {
   try {
     const res = await fetch(path, options);
     if (!res.ok) {
       const text = await res.text().catch(() => "");
-      console.error(`[API ERROR] ${path} → ${res.status} ${res.statusText}`, text.slice(0, 200));
+      const detail = (() => { try { return JSON.parse(text)?.detail || ""; } catch { return ""; } })();
+      const msg = detail || `${res.status} ${res.statusText}`;
+      console.error(`[API ERROR] ${path} → ${msg}`, text.slice(0, 200));
+      if (_apiToast && res.status >= 400) {
+        _apiToast(`API error: ${msg.slice(0, 100)}`);
+      }
       return fallback;
     }
     const json = await res.json();
     return json;
   } catch (err) {
     console.error(`[API NETWORK ERROR] ${path}`, err);
+    if (_apiToast) {
+      _apiToast("Network error — check backend connection");
+    }
     return fallback;
   }
 }
@@ -79,12 +91,28 @@ export async function getOverview(modelId: string, f: Filters) {
   });
 }
 
+export async function getBenchmarks(industry: string, employees: number) {
+  return fetchJSON(`/api/benchmarks?industry=${encodeURIComponent(industry)}&employees=${employees}`, {});
+}
+
 // ─── Diagnose ────────────────────────────────────────────
 export async function getAIPriority(modelId: string, f: Filters) {
   return fetchJSON(`/api/diagnose/ai-priority?model_id=${encodeURIComponent(modelId)}&${filterParams(f)}`, {
     summary: { tasks_scored: 0, quick_wins: 0, total_time_impact: 0, avg_risk: 0 },
     top10: [],
     workstream_impact: [],
+  });
+}
+
+export async function getAIHeatmap(modelId: string, f: Filters) {
+  return fetchJSON(`/api/diagnose/heatmap?model_id=${encodeURIComponent(modelId)}&${filterParams(f)}`, {
+    cells: [], functions: [], families: [],
+  });
+}
+
+export async function getRoleClusters(modelId: string, f: Filters) {
+  return fetchJSON(`/api/diagnose/clusters?model_id=${encodeURIComponent(modelId)}&${filterParams(f)}`, {
+    clusters: [], roles: [],
   });
 }
 
@@ -148,6 +176,52 @@ export async function getOperatingModel(modelId: string, f: Filters) {
   });
 }
 
+// ─── Job Architecture ────────────────────────────────────
+export async function getJobArchitecture(modelId: string, f: Filters) {
+  return fetchJSON(`/api/job-architecture?model_id=${encodeURIComponent(modelId)}&${filterParams(f)}`, {
+    tree: [], jobs: [], stats: {}, flags: [], analytics: {}, employees: [],
+  });
+}
+
+export async function saveArchVersion(modelId: string, version: { name: string; description: string; tree: unknown[]; mappings: unknown[]; recommended: boolean }) {
+  return fetchJSON(`/api/job-architecture/versions?model_id=${encodeURIComponent(modelId)}`, {}, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(version),
+  });
+}
+
+export async function getArchVersions(modelId: string) {
+  return fetchJSON(`/api/job-architecture/versions?model_id=${encodeURIComponent(modelId)}`, { versions: [] });
+}
+
+export async function deleteArchVersion(modelId: string, versionId: string) {
+  return fetchJSON(`/api/job-architecture/versions/${versionId}?model_id=${encodeURIComponent(modelId)}`, {}, { method: "DELETE" });
+}
+
+export async function toggleArchRecommend(modelId: string, versionId: string) {
+  return fetchJSON(`/api/job-architecture/versions/${versionId}/recommend?model_id=${encodeURIComponent(modelId)}`, {}, { method: "PUT" });
+}
+
+// ─── Operating Model Taxonomy ────────────────────────────
+export async function getOMTaxonomy(industries?: string[]) {
+  const q = industries?.length ? `?industry=${industries.join(",")}` : "";
+  return fetchJSON(`/api/om-taxonomy${q}`, { taxonomy: { functions: {}, industries_applied: [] }, stats: {}, available_industries: [] });
+}
+
+export async function searchOMTaxonomy(query: string, industries?: string[]) {
+  const indQ = industries?.length ? `&industry=${industries.join(",")}` : "";
+  return fetchJSON(`/api/om-taxonomy/search?q=${encodeURIComponent(query)}${indQ}`, { results: [] });
+}
+
+export async function saveOMConfig(config: Record<string, unknown>) {
+  return fetchJSON("/api/om-taxonomy/configure", { ok: false }, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(config),
+  });
+}
+
+export async function getOMConfig(modelId: string) {
+  return fetchJSON(`/api/om-taxonomy/config/${encodeURIComponent(modelId)}`, { config: {} });
+}
+
 // ─── Simulate ────────────────────────────────────────────
 export async function getScenarios(modelId: string, f: Filters) {
   return fetchJSON(`/api/simulate/scenarios?model_id=${encodeURIComponent(modelId)}&${filterParams(f)}`, {
@@ -208,48 +282,69 @@ export async function checkAiHealth() {
   const r = await fetch("/api/ai/health");
   return r.json();
 }
-export async function getBBBA(modelId: string) {
-  const r = await fetch(`/api/bbba/${modelId}`);
+export async function getBBBA(modelId: string, f?: Filters) {
+  const q = f ? `?${filterParams(f)}` : "";
+  const r = await fetch(`/api/bbba/${modelId}${q}`);
   return r.json();
 }
 
-export async function getHeadcountPlan(modelId: string) {
-  const r = await fetch(`/api/headcount/${modelId}`);
+export async function getHeadcountPlan(modelId: string, f?: Filters) {
+  const q = f ? `?${filterParams(f)}` : "";
+  const r = await fetch(`/api/headcount/${modelId}${q}`);
   return r.json();
 }
 
-export async function getReadinessAssessment(modelId: string) {
-  const r = await fetch(`/api/readiness/${modelId}`);
+export async function getReadinessAssessment(modelId: string, f?: Filters) {
+  const q = f ? `?${filterParams(f)}` : "";
+  const r = await fetch(`/api/readiness/${modelId}${q}`);
   return r.json();
 }
 
-export async function getReskillingPathways(modelId: string) {
-  const r = await fetch(`/api/reskilling/${modelId}`);
+export async function getReskillingPathways(modelId: string, f?: Filters) {
+  const q = f ? `?${filterParams(f)}` : "";
+  const r = await fetch(`/api/reskilling/${modelId}${q}`);
   return r.json();
 }
 
-export async function getTalentMarketplace(modelId: string) {
-  const r = await fetch(`/api/marketplace/${modelId}`);
+export async function getTalentMarketplace(modelId: string, f?: Filters) {
+  const q = f ? `?${filterParams(f)}` : "";
+  const r = await fetch(`/api/marketplace/${modelId}${q}`);
   return r.json();
 }
 
-
-export async function getManagerCapability(modelId: string) {
-  const r = await fetch(`/api/manager-capability/${modelId}`);
+export async function getManagerCapability(modelId: string, f?: Filters) {
+  const q = f ? `?${filterParams(f)}` : "";
+  const r = await fetch(`/api/manager-capability/${modelId}${q}`);
   return r.json();
 }
 
-export async function getChangeReadiness(modelId: string) {
-  const r = await fetch(`/api/change-readiness/${modelId}`);
+export async function getChangeReadiness(modelId: string, f?: Filters) {
+  const q = f ? `?${filterParams(f)}` : "";
+  const r = await fetch(`/api/change-readiness/${modelId}${q}`);
   return r.json();
 }
 
-export async function getManagerDevelopment(modelId: string) {
-  const r = await fetch(`/api/manager-development/${modelId}`);
+export async function getManagerDevelopment(modelId: string, f?: Filters) {
+  const q = f ? `?${filterParams(f)}` : "";
+  const r = await fetch(`/api/manager-development/${modelId}${q}`);
   return r.json();
 }
 
-export async function getExportSummary(modelId: string) {
-  const r = await fetch(`/api/export/summary/${modelId}`);
+export async function getExportSummary(modelId: string, f?: Filters) {
+  const q = f ? `?${filterParams(f)}` : "";
+  const r = await fetch(`/api/export/summary/${modelId}${q}`);
   return r.json();
+}
+
+// ─── OM Design State ─────────────────────────────────────
+export async function getDesignState(projectId: string) {
+  return fetchJSON(`/api/projects/${encodeURIComponent(projectId)}/design-state`, null);
+}
+
+export async function saveDesignState(projectId: string, state: Record<string, unknown>) {
+  return fetchJSON(`/api/projects/${encodeURIComponent(projectId)}/design-state`, { ok: false }, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(state),
+  });
 }

@@ -7,7 +7,10 @@ openpyxl>=3.1
 pydantic>=2.0
 httpx>=0.27
 python-docx>=1.0
+python-pptx>=0.6.21
+fpdf2>=2.7
 sqlalchemy>=2.0
-psycopg2-binary>=2.9
+# psycopg2-binary>=2.9  # Only needed for PostgreSQL (Railway). Remove if using SQLite locally.
 PyJWT>=2.8
 bcrypt>=4.0
+python-dotenv

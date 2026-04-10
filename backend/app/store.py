@@ -22,28 +22,93 @@ class DataStore:
 
     # ---- DEMO DATA ----
     def _seed_demo(self):
+        import random as _rng
+        _rng.seed(42)
         m = "Demo_Model"
         self.datasets[m] = empty_bundle()
 
-        # ── WORKFORCE: 16 employees across Finance, Technology, HR ──
-        wf = pd.DataFrame([
-            {"Model ID": m, "Employee ID": "E001", "Employee Name": "Ava Patel", "Manager ID": "", "Manager Name": "", "Function ID": "Finance", "Job Family": "Corporate Functions", "Sub-Family": "Leadership", "Geography": "US", "Career Track": "Executive", "Career Level": "L10", "Job Title": "Chief Financial Officer", "Department": "Finance", "Org Unit": "Enterprise", "FTE": 1},
-            {"Model ID": m, "Employee ID": "E002", "Employee Name": "Brian Chen", "Manager ID": "E001", "Manager Name": "Ava Patel", "Function ID": "Finance", "Job Family": "Corporate Functions", "Sub-Family": "FP&A", "Geography": "US", "Career Track": "Manager", "Career Level": "L8", "Job Title": "Director, FP&A", "Department": "Finance", "Org Unit": "Finance", "FTE": 1},
-            {"Model ID": m, "Employee ID": "E003", "Employee Name": "Chris Miller", "Manager ID": "E002", "Manager Name": "Brian Chen", "Function ID": "Finance", "Job Family": "Corporate Functions", "Sub-Family": "FP&A", "Geography": "US", "Career Track": "Manager", "Career Level": "L5", "Job Title": "Finance Manager", "Department": "Finance", "Org Unit": "Finance", "FTE": 1},
-            {"Model ID": m, "Employee ID": "E004", "Employee Name": "Dana Lee", "Manager ID": "E003", "Manager Name": "Chris Miller", "Function ID": "Finance", "Job Family": "Corporate Functions", "Sub-Family": "FP&A", "Geography": "US", "Career Track": "Analyst", "Career Level": "L2", "Job Title": "Financial Analyst", "Department": "Finance", "Org Unit": "Finance", "FTE": 1},
-            {"Model ID": m, "Employee ID": "E005", "Employee Name": "Eric Wong", "Manager ID": "E003", "Manager Name": "Chris Miller", "Function ID": "Finance", "Job Family": "Corporate Functions", "Sub-Family": "FP&A", "Geography": "UK", "Career Track": "Analyst", "Career Level": "L2", "Job Title": "Financial Analyst", "Department": "Finance", "Org Unit": "Finance", "FTE": 1},
-            {"Model ID": m, "Employee ID": "E006", "Employee Name": "Fiona Reyes", "Manager ID": "E001", "Manager Name": "Ava Patel", "Function ID": "Finance", "Job Family": "Corporate Functions", "Sub-Family": "Accounting", "Geography": "US", "Career Track": "Manager", "Career Level": "L7", "Job Title": "Controller", "Department": "Finance", "Org Unit": "Finance", "FTE": 1},
-            {"Model ID": m, "Employee ID": "E007", "Employee Name": "Greg Tanaka", "Manager ID": "E006", "Manager Name": "Fiona Reyes", "Function ID": "Finance", "Job Family": "Corporate Functions", "Sub-Family": "Accounting", "Geography": "US", "Career Track": "Analyst", "Career Level": "L3", "Job Title": "Senior Accountant", "Department": "Finance", "Org Unit": "Finance", "FTE": 1},
-            {"Model ID": m, "Employee ID": "E008", "Employee Name": "Hana Kim", "Manager ID": "E006", "Manager Name": "Fiona Reyes", "Function ID": "Finance", "Job Family": "Corporate Functions", "Sub-Family": "Accounting", "Geography": "US", "Career Track": "Analyst", "Career Level": "L2", "Job Title": "Staff Accountant", "Department": "Finance", "Org Unit": "Finance", "FTE": 1},
-            {"Model ID": m, "Employee ID": "E010", "Employee Name": "Isaac Novak", "Manager ID": "", "Manager Name": "", "Function ID": "Technology", "Job Family": "Engineering", "Sub-Family": "Software Dev", "Geography": "US", "Career Track": "Executive", "Career Level": "L9", "Job Title": "VP Engineering", "Department": "Technology", "Org Unit": "Technology", "FTE": 1},
-            {"Model ID": m, "Employee ID": "E011", "Employee Name": "Julia Santos", "Manager ID": "E010", "Manager Name": "Isaac Novak", "Function ID": "Technology", "Job Family": "Engineering", "Sub-Family": "Software Dev", "Geography": "US", "Career Track": "Manager", "Career Level": "L5", "Job Title": "Engineering Manager", "Department": "Technology", "Org Unit": "Technology", "FTE": 1},
-            {"Model ID": m, "Employee ID": "E012", "Employee Name": "Kevin Park", "Manager ID": "E011", "Manager Name": "Julia Santos", "Function ID": "Technology", "Job Family": "Engineering", "Sub-Family": "Software Dev", "Geography": "US", "Career Track": "IC", "Career Level": "L3", "Job Title": "Software Engineer", "Department": "Technology", "Org Unit": "Technology", "FTE": 1},
-            {"Model ID": m, "Employee ID": "E013", "Employee Name": "Laura Zhang", "Manager ID": "E011", "Manager Name": "Julia Santos", "Function ID": "Technology", "Job Family": "Engineering", "Sub-Family": "Software Dev", "Geography": "India", "Career Track": "IC", "Career Level": "L3", "Job Title": "Software Engineer", "Department": "Technology", "Org Unit": "Technology", "FTE": 1},
-            {"Model ID": m, "Employee ID": "E014", "Employee Name": "Marco Silva", "Manager ID": "E010", "Manager Name": "Isaac Novak", "Function ID": "Technology", "Job Family": "Engineering", "Sub-Family": "Data", "Geography": "US", "Career Track": "IC", "Career Level": "L4", "Job Title": "Data Analyst", "Department": "Technology", "Org Unit": "Technology", "FTE": 1},
-            {"Model ID": m, "Employee ID": "E020", "Employee Name": "Nina Okafor", "Manager ID": "", "Manager Name": "", "Function ID": "HR", "Job Family": "People", "Sub-Family": "Talent Acquisition", "Geography": "US", "Career Track": "Manager", "Career Level": "L7", "Job Title": "Head of Talent Acquisition", "Department": "HR", "Org Unit": "HR", "FTE": 1},
-            {"Model ID": m, "Employee ID": "E021", "Employee Name": "Oscar Herrera", "Manager ID": "E020", "Manager Name": "Nina Okafor", "Function ID": "HR", "Job Family": "People", "Sub-Family": "Talent Acquisition", "Geography": "US", "Career Track": "IC", "Career Level": "L3", "Job Title": "Recruiter", "Department": "HR", "Org Unit": "HR", "FTE": 1},
-            {"Model ID": m, "Employee ID": "E022", "Employee Name": "Priya Sharma", "Manager ID": "E020", "Manager Name": "Nina Okafor", "Function ID": "HR", "Job Family": "People", "Sub-Family": "HR Ops", "Geography": "India", "Career Track": "IC", "Career Level": "L3", "Job Title": "HR Coordinator", "Department": "HR", "Org Unit": "HR", "FTE": 1},
-        ])
+        # ── WORKFORCE: ~500 employees across 5 functions (Tech Company) ──
+        _FIRST = ["Ava","Brian","Chris","Dana","Eric","Fiona","Greg","Hana","Isaac","Julia","Kevin","Laura","Marco","Nina","Oscar","Priya","Quinn","Raj","Sara","Tina","Uma","Victor","Wendy","Xander","Yuki","Zara","Alex","Blake","Casey","Devon","Ellis","Faye","Gabe","Holly","Ivan","Jade","Kai","Luna","Miles","Nora","Owen","Piper","Reed","Sky","Teo","Uri","Val","Wes","Xia","Zoe"]
+        _LAST = ["Patel","Chen","Miller","Lee","Wong","Reyes","Tanaka","Kim","Novak","Santos","Park","Zhang","Silva","Okafor","Herrera","Sharma","Murphy","Brown","Davis","Garcia","Wilson","Moore","Taylor","White","Martin","Clark","Hill","Young","Allen","King","Wright","Green","Adams","Nelson","Carter","Roberts","Turner","Collins","Morgan","Bell"]
+        _GEO = ["US","US","US","US","UK","India","Germany","Singapore"]
+        _eid = [0]
+        def _next_eid():
+            _eid[0] += 1; return f"E{_eid[0]:04d}"
+
+        # Org blueprint: (func, job_family, sub_families_with_roles)
+        _ORG = [
+            ("Technology", "Engineering", [
+                ("Software Dev", [("VP Engineering","Executive","L9"),("Engineering Manager","Manager","L6"),("Senior Software Engineer","IC","L4"),("Software Engineer","IC","L3"),("Junior Engineer","IC","L2")]),
+                ("Data", [("Director, Data","Manager","L8"),("Data Engineering Manager","Manager","L6"),("Senior Data Analyst","IC","L4"),("Data Analyst","IC","L3"),("Data Engineer","IC","L3")]),
+                ("DevOps & Cloud", [("DevOps Manager","Manager","L6"),("Senior DevOps Engineer","IC","L4"),("DevOps Engineer","IC","L3"),("Cloud Engineer","IC","L3")]),
+                ("QA", [("QA Manager","Manager","L6"),("Senior QA Engineer","IC","L4"),("QA Engineer","IC","L3")]),
+            ]),
+            ("Product", "Product & Design", [
+                ("Product Management", [("VP Product","Executive","L9"),("Senior Product Manager","Manager","L6"),("Product Manager","IC","L4"),("Associate PM","IC","L3")]),
+                ("UX Design", [("Design Director","Manager","L8"),("Senior UX Designer","IC","L4"),("UX Designer","IC","L3"),("UI Designer","IC","L2")]),
+                ("Research", [("Research Manager","Manager","L6"),("UX Researcher","IC","L3")]),
+            ]),
+            ("Finance", "Corporate Functions", [
+                ("FP&A", [("CFO","Executive","L10"),("Director, FP&A","Manager","L8"),("Finance Manager","Manager","L5"),("Senior Financial Analyst","IC","L4"),("Financial Analyst","IC","L2")]),
+                ("Accounting", [("Controller","Manager","L7"),("Senior Accountant","IC","L3"),("Staff Accountant","IC","L2")]),
+                ("Treasury", [("Treasury Manager","Manager","L6"),("Treasury Analyst","IC","L3")]),
+            ]),
+            ("HR", "People", [
+                ("Talent Acquisition", [("Head of Talent","Manager","L7"),("Senior Recruiter","IC","L4"),("Recruiter","IC","L3")]),
+                ("HR Ops", [("HR Director","Manager","L8"),("HR Business Partner","Manager","L5"),("HR Coordinator","IC","L3"),("HR Analyst","IC","L2")]),
+                ("L&D", [("L&D Manager","Manager","L6"),("L&D Specialist","IC","L3")]),
+            ]),
+            ("Sales & Marketing", "Commercial", [
+                ("Sales", [("VP Sales","Executive","L9"),("Sales Director","Manager","L7"),("Senior Account Exec","IC","L4"),("Account Executive","IC","L3"),("SDR","IC","L2")]),
+                ("Marketing", [("Marketing Director","Manager","L8"),("Senior Marketing Manager","Manager","L6"),("Marketing Specialist","IC","L3"),("Content Specialist","IC","L2")]),
+                ("Customer Success", [("CS Manager","Manager","L6"),("Customer Success Mgr","IC","L4"),("CS Associate","IC","L2")]),
+            ]),
+        ]
+        # Target headcount per function
+        _TARGETS = {"Technology": 200, "Product": 60, "Finance": 60, "HR": 50, "Sales & Marketing": 130}
+
+        employees = []
+        for func, jf, subfams in _ORG:
+            target = _TARGETS[func]
+            # Build leaders first, then fill ICs
+            func_emps = []
+            for sf, roles in subfams:
+                sf_share = target // len(subfams)
+                for title, track, level in roles:
+                    if track == "Executive":
+                        count = 1
+                    elif track == "Manager":
+                        count = max(1, sf_share // 8)
+                    else:
+                        # ICs get remaining headcount proportionally
+                        ic_roles = [r for r in roles if r[1] == "IC"]
+                        count = max(2, sf_share // len(ic_roles)) if ic_roles else 2
+                    for _ in range(count):
+                        eid = _next_eid()
+                        name = f"{_rng.choice(_FIRST)} {_rng.choice(_LAST)}"
+                        geo = _rng.choice(_GEO)
+                        func_emps.append({"Model ID": m, "Employee ID": eid, "Employee Name": name,
+                            "Manager ID": "", "Manager Name": "", "Function ID": func,
+                            "Job Family": jf, "Sub-Family": sf, "Geography": geo,
+                            "Career Track": track, "Career Level": level, "Job Title": title,
+                            "Department": func, "Org Unit": func, "FTE": 1})
+            # Wire up manager relationships within function
+            execs = [e for e in func_emps if e["Career Track"] == "Executive"]
+            mgrs = [e for e in func_emps if e["Career Track"] == "Manager"]
+            ics = [e for e in func_emps if e["Career Track"] == "IC"]
+            # Managers report to executives
+            for i, mg in enumerate(mgrs):
+                if execs:
+                    boss = execs[i % len(execs)]
+                    mg["Manager ID"] = boss["Employee ID"]; mg["Manager Name"] = boss["Employee Name"]
+            # ICs report to managers
+            for i, ic in enumerate(ics):
+                if mgrs:
+                    boss = mgrs[i % len(mgrs)]
+                    ic["Manager ID"] = boss["Employee ID"]; ic["Manager Name"] = boss["Employee Name"]
+            employees.extend(func_emps)
+
+        wf = pd.DataFrame(employees)
 
         # ── WORK DESIGN: 5 jobs × 10 tasks each ──
         wd_rows = []
@@ -127,20 +192,117 @@ class DataStore:
             ("Ad-hoc", "DA-T10", "Ad-hoc Analysis Requests", "Moderate", 4.0, 10, "Variable", "Collaborative", "Probabilistic", "Analysis", "Communication"),
         ])
 
+        # 6. Product Manager
+        add_job_tasks("Product", "Product & Design", "Product Management", "US", "IC", "L4", "Product Manager", [
+            ("Strategy", "PM-T1", "Market Research & Analysis", "Moderate", 4.0, 10, "Variable", "Interactive", "Probabilistic", "Market Analysis", "Research"),
+            ("Roadmap", "PM-T2", "Feature Prioritization & Roadmap", "Low", 5.0, 13, "Variable", "Collaborative", "Judgment-heavy", "Product Strategy", "Stakeholder Mgmt"),
+            ("Requirements", "PM-T3", "Write PRDs & User Stories", "High", 5.0, 13, "Variable", "Interactive", "Probabilistic", "Product Writing", "Requirements"),
+            ("Analytics", "PM-T4", "Product Metrics Analysis", "High", 4.0, 10, "Repetitive", "Independent", "Deterministic", "Analytics", "SQL"),
+            ("Stakeholder", "PM-T5", "Cross-Functional Alignment", "Low", 4.0, 10, "Variable", "Collaborative", "Judgment-heavy", "Communication", "Leadership"),
+            ("Discovery", "PM-T6", "User Interviews & Feedback", "Low", 3.0, 8, "Variable", "Collaborative", "Judgment-heavy", "User Research", "Empathy"),
+            ("Sprint", "PM-T7", "Sprint Ceremonies & Grooming", "Low", 3.0, 8, "Variable", "Collaborative", "Judgment-heavy", "Agile", "Facilitation"),
+            ("Competitive", "PM-T8", "Competitive Intelligence", "High", 3.0, 8, "Repetitive", "Independent", "Probabilistic", "Research", "Analysis"),
+            ("Launch", "PM-T9", "Go-to-Market Planning", "Moderate", 3.0, 8, "Variable", "Collaborative", "Probabilistic", "GTM", "Marketing"),
+            ("Reporting", "PM-T10", "Exec Status Reporting", "High", 3.0, 8, "Repetitive", "Independent", "Deterministic", "Reporting", "Presentation"),
+        ])
+
+        # 7. UX Designer
+        add_job_tasks("Product", "Product & Design", "UX Design", "US", "IC", "L3", "UX Designer", [
+            ("Research", "UX-T1", "User Research & Testing", "Low", 5.0, 13, "Variable", "Collaborative", "Judgment-heavy", "User Research", "Empathy"),
+            ("Wireframes", "UX-T2", "Wireframing & Prototyping", "Moderate", 6.0, 15, "Variable", "Interactive", "Probabilistic", "Figma", "Design Thinking"),
+            ("Design Systems", "UX-T3", "Component Library Maintenance", "High", 4.0, 10, "Repetitive", "Independent", "Deterministic", "Design Systems", "Figma"),
+            ("Visual Design", "UX-T4", "High-Fidelity Mockups", "Moderate", 5.0, 13, "Variable", "Independent", "Probabilistic", "Visual Design", "Figma"),
+            ("Handoff", "UX-T5", "Developer Handoff & Specs", "High", 3.0, 8, "Repetitive", "Interactive", "Deterministic", "Documentation", "Communication"),
+            ("Review", "UX-T6", "Design Review & Critique", "Low", 3.0, 8, "Variable", "Collaborative", "Judgment-heavy", "Design Critique", "Feedback"),
+            ("Accessibility", "UX-T7", "Accessibility Audit", "High", 3.0, 8, "Repetitive", "Independent", "Deterministic", "Accessibility", "WCAG"),
+            ("Analytics", "UX-T8", "Usage Analytics Review", "High", 3.0, 8, "Repetitive", "Independent", "Deterministic", "Analytics", "Data Analysis"),
+            ("Content", "UX-T9", "UX Copy & Microcopy", "Moderate", 3.0, 8, "Variable", "Interactive", "Probabilistic", "UX Writing", "Content Strategy"),
+            ("Planning", "UX-T10", "Design Sprint Planning", "Low", 2.0, 5, "Variable", "Collaborative", "Judgment-heavy", "Facilitation", "Planning"),
+        ])
+
+        # 8. Account Executive
+        add_job_tasks("Sales & Marketing", "Commercial", "Sales", "US", "IC", "L3", "Account Executive", [
+            ("Prospecting", "AE-T1", "Lead Research & Qualification", "High", 5.0, 13, "Repetitive", "Independent", "Probabilistic", "Research", "CRM"),
+            ("Outreach", "AE-T2", "Cold Outreach & Follow-up", "High", 4.0, 10, "Repetitive", "Independent", "Deterministic", "Communication", "Persistence"),
+            ("Discovery", "AE-T3", "Discovery Calls & Needs Analysis", "Low", 5.0, 13, "Variable", "Collaborative", "Judgment-heavy", "Consultative Selling", "Listening"),
+            ("Demo", "AE-T4", "Product Demonstrations", "Moderate", 4.0, 10, "Variable", "Interactive", "Probabilistic", "Presentation", "Product Knowledge"),
+            ("Proposal", "AE-T5", "Proposal & SOW Creation", "High", 4.0, 10, "Repetitive", "Interactive", "Deterministic", "Writing", "Pricing"),
+            ("Negotiation", "AE-T6", "Contract Negotiation", "Low", 3.0, 8, "Variable", "Collaborative", "Judgment-heavy", "Negotiation", "Legal"),
+            ("Pipeline", "AE-T7", "CRM & Pipeline Management", "High", 3.0, 8, "Repetitive", "Independent", "Deterministic", "CRM", "Data Entry"),
+            ("Forecasting", "AE-T8", "Revenue Forecasting", "Moderate", 3.0, 8, "Variable", "Interactive", "Probabilistic", "Analytics", "Forecasting"),
+            ("Relationship", "AE-T9", "Account Relationship Building", "Low", 4.0, 10, "Variable", "Collaborative", "Judgment-heavy", "Relationship Mgmt", "Trust"),
+            ("Admin", "AE-T10", "Deal Desk & Admin", "High", 3.0, 8, "Repetitive", "Independent", "Deterministic", "Process", "Documentation"),
+        ])
+
+        # 9. Marketing Specialist
+        add_job_tasks("Sales & Marketing", "Commercial", "Marketing", "US", "IC", "L3", "Marketing Specialist", [
+            ("Content", "MK-T1", "Blog & Content Creation", "High", 5.0, 13, "Variable", "Independent", "Probabilistic", "Content Writing", "SEO"),
+            ("Social", "MK-T2", "Social Media Management", "High", 4.0, 10, "Repetitive", "Independent", "Deterministic", "Social Media", "Scheduling"),
+            ("Email", "MK-T3", "Email Campaign Execution", "High", 4.0, 10, "Repetitive", "Independent", "Deterministic", "Email Marketing", "Automation"),
+            ("Analytics", "MK-T4", "Campaign Performance Analytics", "High", 4.0, 10, "Repetitive", "Independent", "Deterministic", "Analytics", "Google Analytics"),
+            ("Events", "MK-T5", "Event Planning & Coordination", "Low", 3.0, 8, "Variable", "Collaborative", "Judgment-heavy", "Event Management", "Logistics"),
+            ("SEO", "MK-T6", "SEO Optimization", "Moderate", 3.0, 8, "Variable", "Independent", "Probabilistic", "SEO", "Technical SEO"),
+            ("Design", "MK-T7", "Creative Asset Production", "Moderate", 3.0, 8, "Variable", "Independent", "Probabilistic", "Graphic Design", "Canva"),
+            ("PR", "MK-T8", "PR & Media Outreach", "Low", 3.0, 8, "Variable", "Collaborative", "Judgment-heavy", "PR", "Communication"),
+            ("Website", "MK-T9", "Website Content Updates", "High", 3.0, 8, "Repetitive", "Independent", "Deterministic", "CMS", "HTML"),
+            ("Reporting", "MK-T10", "Monthly Marketing Report", "High", 3.0, 8, "Repetitive", "Independent", "Deterministic", "Reporting", "Visualization"),
+        ])
+
+        # 10. HR Business Partner
+        add_job_tasks("HR", "People", "HR Ops", "US", "Manager", "L5", "HR Business Partner", [
+            ("Advisory", "HB-T1", "Manager Coaching & Advisory", "Low", 5.0, 13, "Variable", "Collaborative", "Judgment-heavy", "Coaching", "Leadership"),
+            ("ER", "HB-T2", "Employee Relations Cases", "Low", 5.0, 13, "Variable", "Collaborative", "Judgment-heavy", "Employee Relations", "Conflict Resolution"),
+            ("Planning", "HB-T3", "Workforce Planning Reviews", "Moderate", 4.0, 10, "Variable", "Interactive", "Probabilistic", "Workforce Planning", "Analytics"),
+            ("Performance", "HB-T4", "Performance Cycle Management", "Moderate", 4.0, 10, "Variable", "Interactive", "Probabilistic", "Performance Mgmt", "Calibration"),
+            ("Data", "HB-T5", "People Analytics & Reporting", "High", 3.0, 8, "Repetitive", "Independent", "Deterministic", "Analytics", "HRIS"),
+            ("Policy", "HB-T6", "Policy Interpretation & Guidance", "Moderate", 3.0, 8, "Variable", "Interactive", "Probabilistic", "Policy", "Compliance"),
+            ("Compensation", "HB-T7", "Comp Review Support", "Moderate", 3.0, 8, "Variable", "Interactive", "Deterministic", "Compensation", "Market Data"),
+            ("Onboarding", "HB-T8", "New Hire Integration", "Moderate", 3.0, 8, "Repetitive", "Interactive", "Deterministic", "Onboarding", "Culture"),
+            ("Change", "HB-T9", "Change Management Support", "Low", 3.0, 8, "Variable", "Collaborative", "Judgment-heavy", "Change Mgmt", "Communication"),
+            ("Admin", "HB-T10", "HRIS Updates & Compliance", "High", 3.0, 8, "Repetitive", "Independent", "Deterministic", "HRIS", "Data Entry"),
+        ])
+
         wd = pd.DataFrame(wd_rows)
 
-        jc = pd.DataFrame([
-            {"Model ID": m, "Job Code": "FIN-ANL-L2", "Job Title": "Financial Analyst", "Standard Title": "Financial Analyst", "Function ID": "Finance", "Job Family": "Corporate Functions", "Sub-Family": "FP&A", "Geography": "US", "Career Track": "Analyst", "Career Level": "L2", "Manager or IC": "IC", "Skills": "Excel;Analysis;Reporting", "Role Purpose": "Provide financial insight and reporting support."},
-            {"Model ID": m, "Job Code": "TECH-SE-L3", "Job Title": "Software Engineer", "Standard Title": "Software Engineer", "Function ID": "Technology", "Job Family": "Engineering", "Sub-Family": "Software Dev", "Geography": "US", "Career Track": "IC", "Career Level": "L3", "Manager or IC": "IC", "Skills": "Python;JavaScript;Cloud;CI/CD", "Role Purpose": "Design and build software applications."},
-            {"Model ID": m, "Job Code": "HR-REC-L3", "Job Title": "Recruiter", "Standard Title": "Recruiter", "Function ID": "HR", "Job Family": "People", "Sub-Family": "Talent Acquisition", "Geography": "US", "Career Track": "IC", "Career Level": "L3", "Manager or IC": "IC", "Skills": "Sourcing;Screening;ATS;Interviewing", "Role Purpose": "Attract and hire top talent."},
-            {"Model ID": m, "Job Code": "FIN-ACC-L2", "Job Title": "Staff Accountant", "Standard Title": "Staff Accountant", "Function ID": "Finance", "Job Family": "Corporate Functions", "Sub-Family": "Accounting", "Geography": "US", "Career Track": "Analyst", "Career Level": "L2", "Manager or IC": "IC", "Skills": "GAAP;Reconciliation;ERP;Excel", "Role Purpose": "Execute core accounting operations and close."},
-            {"Model ID": m, "Job Code": "TECH-DA-L4", "Job Title": "Data Analyst", "Standard Title": "Data Analyst", "Function ID": "Technology", "Job Family": "Engineering", "Sub-Family": "Data", "Geography": "US", "Career Track": "IC", "Career Level": "L4", "Manager or IC": "IC", "Skills": "SQL;Python;Statistics;Visualization", "Role Purpose": "Deliver data-driven insights and dashboards."},
-        ])
+        # Build job catalog from unique roles in workforce
+        jc_rows = []
+        _skill_map = {
+            "Software Engineer": "Python;JavaScript;Cloud;CI/CD", "Senior Software Engineer": "Python;System Design;Cloud;Architecture",
+            "Financial Analyst": "Excel;Analysis;Reporting;Financial Modeling", "Staff Accountant": "GAAP;Reconciliation;ERP;Excel",
+            "Data Analyst": "SQL;Python;Statistics;Visualization", "Data Engineer": "SQL;Python;Spark;ETL",
+            "Recruiter": "Sourcing;Screening;ATS;Interviewing", "Product Manager": "Strategy;Analytics;Roadmapping;Stakeholder Mgmt",
+            "UX Designer": "Figma;Prototyping;User Research;Design Systems", "Account Executive": "CRM;Negotiation;Pipeline;Presentation",
+            "Marketing Specialist": "Analytics;Content;SEO;Campaigns", "HR Coordinator": "HRIS;Compliance;Onboarding;Benefits",
+            "DevOps Engineer": "AWS;Docker;Kubernetes;Terraform", "QA Engineer": "Selenium;Testing;Automation;CI/CD",
+            "Customer Success Mgr": "CRM;Retention;Onboarding;Analytics", "HR Business Partner": "Employee Relations;Coaching;Workforce Planning",
+        }
+        _purpose_map = {
+            "Software Engineer": "Design and build software applications.", "Financial Analyst": "Provide financial insight and reporting.",
+            "Data Analyst": "Deliver data-driven insights.", "Recruiter": "Attract and hire talent.", "Staff Accountant": "Execute accounting operations.",
+            "Product Manager": "Drive product strategy and roadmap.", "UX Designer": "Design intuitive user experiences.",
+            "Account Executive": "Drive revenue through enterprise sales.", "DevOps Engineer": "Build and maintain CI/CD infrastructure.",
+        }
+        seen_titles = set()
+        for e in employees:
+            t = e["Job Title"]
+            if t in seen_titles: continue
+            seen_titles.add(t)
+            code = f"{e['Function ID'][:3].upper()}-{t[:3].upper()}-{e['Career Level']}"
+            jc_rows.append({"Model ID": m, "Job Code": code, "Job Title": t, "Standard Title": t,
+                "Function ID": e["Function ID"], "Job Family": e["Job Family"], "Sub-Family": e["Sub-Family"],
+                "Geography": "US", "Career Track": e["Career Track"], "Career Level": e["Career Level"],
+                "Manager or IC": "IC" if e["Career Track"] == "IC" else "Manager",
+                "Skills": _skill_map.get(t, "Communication;Analysis;Problem Solving;Collaboration"),
+                "Role Purpose": _purpose_map.get(t, f"Drive {e['Sub-Family']} outcomes for the organization.")})
+        jc = pd.DataFrame(jc_rows)
 
         op = pd.DataFrame([
             {"Model ID": m, "Scope": "Enterprise", "Layer": "Governance", "Level 1": "Executive Leadership", "Level 2": "Investment Committee", "Level 3": "Risk Oversight", "Level 4": "", "Function ID": "Enterprise", "Job Family": "Corporate", "Geography": "Global"},
             {"Model ID": m, "Scope": "Finance", "Layer": "Core Components", "Level 1": "Planning", "Level 2": "Forecasting", "Level 3": "Reporting", "Level 4": "", "Function ID": "Finance", "Job Family": "Corporate Functions", "Sub-Family": "FP&A", "Geography": "US"},
             {"Model ID": m, "Scope": "Technology", "Layer": "Core Components", "Level 1": "Development", "Level 2": "DevOps", "Level 3": "Data Platform", "Level 4": "", "Function ID": "Technology", "Job Family": "Engineering", "Geography": "US"},
+            {"Model ID": m, "Scope": "Product", "Layer": "Core Components", "Level 1": "Product Strategy", "Level 2": "Design", "Level 3": "Research", "Level 4": "", "Function ID": "Product", "Job Family": "Product & Design", "Geography": "US"},
+            {"Model ID": m, "Scope": "Sales", "Layer": "Core Components", "Level 1": "Revenue", "Level 2": "Marketing", "Level 3": "Customer Success", "Level 4": "", "Function ID": "Sales & Marketing", "Job Family": "Commercial", "Geography": "US"},
+            {"Model ID": m, "Scope": "HR", "Layer": "Shared Services", "Level 1": "Talent", "Level 2": "HR Operations", "Level 3": "L&D", "Level 4": "", "Function ID": "HR", "Job Family": "People", "Geography": "US"},
         ])
 
         ch = pd.DataFrame([
@@ -149,15 +311,30 @@ class DataStore:
             {"Model ID": m, "Function ID": "HR", "Job Family": "People", "Sub-Family": "Talent Acquisition", "Job Title": "Recruiter", "Task Name": "ATS Automation", "Responsible": "Recruiter", "Accountable": "TA Head", "Consulted": "IT", "Informed": "CHRO", "Initiative": "Recruiting Automation", "Owner": "Head of TA", "Priority": "Medium", "Status": "Planned", "Wave": "Wave 2", "Start": "2026-04-01", "End": "2026-06-30", "Milestone": "Phase 1", "Date": "2026-04-01"},
             {"Model ID": m, "Function ID": "Finance", "Job Family": "Corporate Functions", "Sub-Family": "Accounting", "Job Title": "Staff Accountant", "Task Name": "Close Automation", "Responsible": "Accountant", "Accountable": "Controller", "Consulted": "IT", "Informed": "CFO", "Initiative": "Month-End Acceleration", "Owner": "Controller", "Priority": "High", "Status": "Planned", "Wave": "Wave 1", "Start": "2026-01-15", "End": "2026-04-15", "Milestone": "Pilot", "Date": "2026-02-01"},
             {"Model ID": m, "Function ID": "Technology", "Job Family": "Engineering", "Sub-Family": "Data", "Job Title": "Data Analyst", "Task Name": "ETL Automation", "Responsible": "Analyst", "Accountable": "VP Eng", "Consulted": "Data Lead", "Informed": "CTO", "Initiative": "Data Pipeline Modernization", "Owner": "VP Eng", "Priority": "Medium", "Status": "Planned", "Wave": "Wave 2", "Start": "2026-04-01", "End": "2026-07-31", "Milestone": "New Pipeline", "Date": "2026-04-15"},
+            {"Model ID": m, "Function ID": "Product", "Job Family": "Product & Design", "Sub-Family": "Product Management", "Job Title": "Product Manager", "Task Name": "PRD Automation", "Responsible": "PM", "Accountable": "VP Product", "Consulted": "Engineering", "Informed": "CEO", "Initiative": "AI-Assisted Product Discovery", "Owner": "VP Product", "Priority": "Medium", "Status": "Planned", "Wave": "Wave 2", "Start": "2026-05-01", "End": "2026-08-31", "Milestone": "AI PRD Tool", "Date": "2026-05-15"},
+            {"Model ID": m, "Function ID": "Sales & Marketing", "Job Family": "Commercial", "Sub-Family": "Sales", "Job Title": "Account Executive", "Task Name": "Lead Scoring Automation", "Responsible": "AE", "Accountable": "Sales Director", "Consulted": "Marketing", "Informed": "VP Sales", "Initiative": "AI Sales Enablement", "Owner": "VP Sales", "Priority": "High", "Status": "Planned", "Wave": "Wave 1", "Start": "2026-02-01", "End": "2026-05-31", "Milestone": "AI Lead Score", "Date": "2026-03-01"},
+            {"Model ID": m, "Function ID": "Sales & Marketing", "Job Family": "Commercial", "Sub-Family": "Marketing", "Job Title": "Marketing Specialist", "Task Name": "Content Generation AI", "Responsible": "Specialist", "Accountable": "Marketing Dir", "Consulted": "Brand", "Informed": "CMO", "Initiative": "AI Content Pipeline", "Owner": "Marketing Director", "Priority": "Medium", "Status": "Planned", "Wave": "Wave 2", "Start": "2026-04-01", "End": "2026-07-31", "Milestone": "AI Content v1", "Date": "2026-04-15"},
+            {"Model ID": m, "Function ID": "Product", "Job Family": "Product & Design", "Sub-Family": "UX Design", "Job Title": "UX Designer", "Task Name": "Design System AI", "Responsible": "Designer", "Accountable": "Design Dir", "Consulted": "Engineering", "Informed": "VP Product", "Initiative": "AI Design Tools", "Owner": "Design Director", "Priority": "Low", "Status": "Planned", "Wave": "Wave 3", "Start": "2026-07-01", "End": "2026-10-31", "Milestone": "AI Prototyping", "Date": "2026-07-15"},
+            {"Model ID": m, "Function ID": "HR", "Job Family": "People", "Sub-Family": "HR Ops", "Job Title": "HR Business Partner", "Task Name": "People Analytics AI", "Responsible": "HRBP", "Accountable": "HR Director", "Consulted": "IT", "Informed": "CHRO", "Initiative": "AI People Insights", "Owner": "HR Director", "Priority": "Medium", "Status": "Planned", "Wave": "Wave 2", "Start": "2026-04-01", "End": "2026-07-31", "Milestone": "Dashboard v1", "Date": "2026-04-30"},
         ])
 
-        mk = pd.DataFrame([
-            {"Model ID": m, "Source": "Demo Survey", "Currency": "USD", "Job Match Key": "Financial Analyst", "Survey Job Title": "Financial Analyst", "Function ID": "Finance", "Job Family": "Corporate Functions", "Sub-Family": "FP&A", "Geography": "US", "Career Track": "Analyst", "Career Level": "L2", "Base 25th": 80000, "Base 50th": 95000, "Base 75th": 110000, "TCC 25th": 85000, "TCC 50th": 102000, "TCC 75th": 120000},
-            {"Model ID": m, "Source": "Demo Survey", "Currency": "USD", "Job Match Key": "Software Engineer", "Survey Job Title": "Software Engineer", "Function ID": "Technology", "Job Family": "Engineering", "Sub-Family": "Software Dev", "Geography": "US", "Career Track": "IC", "Career Level": "L3", "Base 25th": 120000, "Base 50th": 145000, "Base 75th": 170000, "TCC 25th": 130000, "TCC 50th": 160000, "TCC 75th": 190000},
-            {"Model ID": m, "Source": "Demo Survey", "Currency": "USD", "Job Match Key": "Recruiter", "Survey Job Title": "Recruiter", "Function ID": "HR", "Job Family": "People", "Sub-Family": "Talent Acquisition", "Geography": "US", "Career Track": "IC", "Career Level": "L3", "Base 25th": 65000, "Base 50th": 78000, "Base 75th": 92000, "TCC 25th": 70000, "TCC 50th": 85000, "TCC 75th": 100000},
-            {"Model ID": m, "Source": "Demo Survey", "Currency": "USD", "Job Match Key": "Staff Accountant", "Survey Job Title": "Staff Accountant", "Function ID": "Finance", "Job Family": "Corporate Functions", "Sub-Family": "Accounting", "Geography": "US", "Career Track": "Analyst", "Career Level": "L2", "Base 25th": 55000, "Base 50th": 65000, "Base 75th": 78000, "TCC 25th": 58000, "TCC 50th": 70000, "TCC 75th": 84000},
-            {"Model ID": m, "Source": "Demo Survey", "Currency": "USD", "Job Match Key": "Data Analyst", "Survey Job Title": "Data Analyst", "Function ID": "Technology", "Job Family": "Engineering", "Sub-Family": "Data", "Geography": "US", "Career Track": "IC", "Career Level": "L4", "Base 25th": 90000, "Base 50th": 110000, "Base 75th": 130000, "TCC 25th": 95000, "TCC 50th": 118000, "TCC 75th": 140000},
-        ])
+        # Build market data from job catalog
+        _comp_by_level = {
+            "L2": (55000,68000,82000), "L3": (72000,88000,105000), "L4": (95000,115000,138000),
+            "L5": (110000,135000,160000), "L6": (130000,160000,195000), "L7": (155000,190000,230000),
+            "L8": (185000,230000,280000), "L9": (250000,310000,380000), "L10": (350000,420000,520000),
+        }
+        mk_rows = []
+        for jc_row in jc_rows:
+            b25, b50, b75 = _comp_by_level.get(jc_row["Career Level"], (70000,85000,100000))
+            mk_rows.append({"Model ID": m, "Source": "Demo Survey", "Currency": "USD",
+                "Job Match Key": jc_row["Job Title"], "Survey Job Title": jc_row["Job Title"],
+                "Function ID": jc_row["Function ID"], "Job Family": jc_row["Job Family"],
+                "Sub-Family": jc_row["Sub-Family"], "Geography": "US",
+                "Career Track": jc_row["Career Track"], "Career Level": jc_row["Career Level"],
+                "Base 25th": b25, "Base 50th": b50, "Base 75th": b75,
+                "TCC 25th": int(b25*1.08), "TCC 50th": int(b50*1.1), "TCC 75th": int(b75*1.12)})
+        mk = pd.DataFrame(mk_rows)
 
         for dtype, df in [("workforce", wf), ("org_design", wf), ("work_design", wd),
                           ("job_catalog", jc), ("operating_model", op),

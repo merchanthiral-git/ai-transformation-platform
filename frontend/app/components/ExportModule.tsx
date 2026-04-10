@@ -1,0 +1,330 @@
+"use client";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import * as api from "../../lib/api";
+import type { Filters } from "../../lib/api";
+import {
+  ViewContext, COLORS, TT,
+  KpiCard, Card, Empty, Badge, InsightPanel, NarrativePanel, DataTable,
+  BarViz, DonutViz, RadarViz, TabBar, PageHeader, LoadingBar, LoadingSkeleton,
+  ModuleExportButton, NextStepBar, ContextStrip, InfoButton,
+  useApiData, usePersisted, callAI, showToast, logDec,
+  exportToCSV, EmptyWithAction
+} from "./shared";
+
+export function ExportReport({ model, f, onBack }: { model: string; f: Filters; onBack: () => void }) {
+  const [data, setData] = useState<Record<string, unknown> | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
+  const [generated, setGenerated] = useState(false);
+
+  useEffect(() => { if (!model) return; setLoading(true); api.getExportSummary(model, f).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false)); }, [model, f.func, f.jf, f.sf, f.cl]);
+
+  const generateDocx = async () => {
+    setGenerating(true);
+    try {
+      const resp = await fetch(`/api/export/docx/${model}`);
+      if (resp.ok) { const blob = await resp.blob(); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `AI_Transformation_Report.docx`; a.click(); URL.revokeObjectURL(url); setGenerated(true); showToast("📋 Word document downloaded"); }
+      else { showToast("Export failed — check backend"); }
+    } catch { showToast("Export failed — backend unavailable"); }
+    setGenerating(false);
+  };
+  const generateAiNarrative = async () => {
+    setGenerating(true);
+    const ctx = JSON.stringify(data).slice(0, 3000);
+    const report = await callAI("Write a board-ready AI Transformation Report.", `Generate from: ${ctx}. 12 sections: Exec Summary, Discovery, Skills, BBBA, Headcount, Readiness, Managers, Change, Reskilling, Investment, Risks, Next Steps.`);
+    if (report) { const blob = new Blob([report], { type: "text/plain" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "AI_Narrative_Report.txt"; a.click(); URL.revokeObjectURL(url); showToast("☕ AI narrative downloaded"); }
+    setGenerating(false);
+  };
+
+  const bbba = (data?.bbba_summary || {}) as Record<string, unknown>;
+  const reskill = (data?.reskilling_summary || {}) as Record<string, unknown>;
+  const mp = (data?.marketplace_summary || {}) as Record<string, unknown>;
+  const wf = (data?.headcount_waterfall || {}) as Record<string, unknown>;
+  const mgr = (data?.manager_summary || {}) as Record<string, unknown>;
+
+  return <div>
+    <ContextStrip items={["Generate your board-ready transformation report. All module data is summarized below."]} />
+    <PageHeader icon="📋" title="Export & Report" subtitle="Consolidated transformation report generator" onBack={onBack} />
+    {loading && <LoadingBar />}
+
+    {/* Data completeness dashboard */}
+    <Card title="Report Data Readiness">
+      <div className="grid grid-cols-4 gap-3 mb-4">
+        {[{ label: "Employees", value: data?.total_employees || 0, icon: "👥" },
+          { label: "Skills Coverage", value: `${data?.skills_coverage || 0}%`, icon: "🧠" },
+          { label: "Critical Gaps", value: data?.critical_gaps || 0, icon: "⚠️" },
+          { label: "Org Readiness", value: `${data?.org_readiness || 0}/5`, icon: "🎯" },
+          { label: "High Risk %", value: `${data?.high_risk_pct || 0}%`, icon: "📈" },
+          { label: "Build Roles", value: bbba.build || 0, icon: "🏗️" },
+          { label: "Buy Roles", value: bbba.buy || 0, icon: "🛒" },
+          { label: "Net HC Change", value: wf.net_change || 0, icon: "👥" },
+          { label: "Champions", value: mgr.champions || 0, icon: "🏆" },
+          { label: "Reskilling Cost", value: `$${(Number(reskill.total_investment || 0) / 1000).toFixed(0)}K`, icon: "📚" },
+          { label: "Total Investment", value: `$${(Number(bbba.total_investment || 0) / 1000).toFixed(0)}K`, icon: "💰" },
+          { label: "Internal Fill", value: `${mp.internal_fill || 0} roles`, icon: "🏪" },
+        ].map(k => <div key={k.label} className="bg-[var(--surface-2)] rounded-xl p-3 border border-[var(--border)] text-center transition-all hover:border-[var(--accent-primary)]/30 hover:translate-y-[-1px]">
+          <div className="text-lg mb-1">{k.icon}</div>
+          <div className="text-[16px] font-extrabold text-[var(--text-primary)]">{String(k.value)}</div>
+          <div className="text-[9px] text-[var(--text-muted)] uppercase">{k.label}</div>
+        </div>)}
+      </div>
+    </Card>
+
+    {/* Export formats */}
+    <Card title="Export Deliverables">
+      <div className="grid grid-cols-3 gap-4 mb-4">
+        {/* Word Report */}
+        <div className="bg-[var(--surface-2)] rounded-xl p-5 border border-[var(--border)] text-center card-hover">
+          <div className="text-3xl mb-2">📝</div>
+          <div className="text-[13px] font-bold text-[var(--text-primary)] font-heading mb-1">Word Report</div>
+          <div className="text-[10px] text-[var(--text-muted)] mb-3">12-section narrative with data tables</div>
+          <button onClick={generateDocx} disabled={generating} className="px-5 py-2 rounded-xl text-[11px] font-semibold text-white disabled:opacity-50" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>{generating ? "..." : "Download .docx"}</button>
+        </div>
+
+        {/* AI Narrative */}
+        <div className="bg-[var(--surface-2)] rounded-xl p-5 border border-[var(--border)] text-center card-hover">
+          <div className="text-3xl mb-2">☕</div>
+          <div className="text-[13px] font-bold text-[var(--text-primary)] font-heading mb-1">AI Narrative</div>
+          <div className="text-[10px] text-[var(--text-muted)] mb-3">Gemini-generated board-ready narrative</div>
+          <button onClick={generateAiNarrative} disabled={generating} className="px-5 py-2 rounded-xl text-[11px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 hover:bg-[var(--accent-primary)]/5">{generating ? "..." : "Generate .txt"}</button>
+        </div>
+
+        {/* Excel Workbook */}
+        <div className="bg-[var(--surface-2)] rounded-xl p-5 border border-[var(--border)] text-center card-hover">
+          <div className="text-3xl mb-2">📊</div>
+          <div className="text-[13px] font-bold text-[var(--text-primary)] font-heading mb-1">Excel Workbook</div>
+          <div className="text-[10px] text-[var(--text-muted)] mb-3">All datasets as formatted sheets</div>
+          <button onClick={async () => {
+            try {
+              const resp = await fetch(`/api/export/download/workforce?model_id=${model}&${Object.entries(f).map(([k,v])=>`${k}=${v}`).join("&")}`);
+              if (resp.ok) { const blob = await resp.blob(); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `${model}_data_export.xlsx`; a.click(); URL.revokeObjectURL(url); showToast("📊 Excel downloaded"); }
+            } catch { showToast("Export failed"); }
+          }} className="px-5 py-2 rounded-xl text-[11px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:border-[var(--accent-primary)]/30">Download .xlsx</button>
+        </div>
+      </div>
+
+      {/* Second row: PowerPoint + PDF */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* PowerPoint Deck */}
+        <div className="bg-[var(--surface-2)] rounded-xl p-4 border border-[var(--border)] flex items-center gap-4 card-hover">
+          <div className="text-2xl">📽️</div>
+          <div className="flex-1">
+            <div className="text-[13px] font-bold text-[var(--text-primary)] font-heading">PowerPoint Deck</div>
+            <div className="text-[10px] text-[var(--text-muted)]">12-slide presentation with exec summary, per-module metrics, roadmap, and next steps</div>
+          </div>
+          <button onClick={async () => {
+            setGenerating(true);
+            try {
+              const resp = await fetch(`/api/export/pptx/${model}`);
+              if (resp.ok) { const blob = await resp.blob(); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `AI_Transformation_Deck.pptx`; a.click(); URL.revokeObjectURL(url); showToast("📽️ PowerPoint downloaded"); }
+              else showToast("PowerPoint export failed");
+            } catch { showToast("Export failed — backend unavailable"); }
+            setGenerating(false);
+          }} disabled={generating} className="px-4 py-2 rounded-xl text-[11px] font-semibold text-white shrink-0 disabled:opacity-50" style={{ background: "linear-gradient(135deg, #D97706, #B8602A)" }}>{generating ? "..." : "Download .pptx"}</button>
+        </div>
+
+        {/* PDF Executive Summary */}
+        <div className="bg-[var(--surface-2)] rounded-xl p-4 border border-[var(--border)] flex items-center gap-4 card-hover">
+          <div className="text-2xl">📄</div>
+          <div className="flex-1">
+            <div className="text-[13px] font-bold text-[var(--text-primary)] font-heading">PDF Executive Summary</div>
+            <div className="text-[10px] text-[var(--text-muted)]">One-page PDF with KPIs, top findings, recommendations, FTE impact, and roadmap</div>
+          </div>
+          <button onClick={async () => {
+            setGenerating(true);
+            try {
+              const resp = await fetch(`/api/export/pdf/${model}`);
+              if (resp.ok) { const blob = await resp.blob(); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `AI_Executive_Summary.pdf`; a.click(); URL.revokeObjectURL(url); showToast("📄 PDF downloaded"); }
+              else showToast("PDF export failed");
+            } catch { showToast("Export failed — backend unavailable"); }
+            setGenerating(false);
+          }} disabled={generating} className="px-4 py-2 rounded-xl text-[11px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 hover:bg-[var(--accent-primary)]/5 shrink-0 disabled:opacity-50">{generating ? "..." : "Download .pdf"}</button>
+        </div>
+      </div>
+    </Card>
+
+    {/* Executive Summary Generator */}
+    <ExecSummaryGenerator model={model} f={f} data={data} />
+
+    {/* Help Book — consolidated guide with TOC */}
+    <Card title="📖 Platform Help Book">
+      <div className="text-[12px] text-[var(--text-secondary)] mb-4">Complete guide to every module in the AI Transformation Platform. Click any section to expand.</div>
+      <HelpBookAccordion />
+    </Card>
+  </div>;
+}
+
+
+
+/* ═══════════════════════════════════════════════════════════════
+   EXECUTIVE SUMMARY GENERATOR
+   Auto-generates a one-page exec summary pulling KPIs from all modules.
+   Exportable as PDF via browser print.
+   ═══════════════════════════════════════════════════════════════ */
+
+function ExecSummaryGenerator({ model, f, data }: { model: string; f: Filters; data: Record<string, unknown> | null }) {
+  const [summary, setSummary] = useState<{
+    headline: string;
+    overview: string;
+    findings: string[];
+    recommendations: string[];
+    projectedImpact: string[];
+    risks: string[];
+    nextSteps: string[];
+  } | null>(null);
+  const [generating, setGenerating] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+
+  const bbba = (data?.bbba_summary || {}) as Record<string, unknown>;
+  const reskill = (data?.reskilling_summary || {}) as Record<string, unknown>;
+  const wf = (data?.headcount_waterfall || {}) as Record<string, unknown>;
+  const mgr = (data?.manager_summary || {}) as Record<string, unknown>;
+
+  const generate = async () => {
+    if (!model || !data) { showToast("Load data first"); return; }
+    setGenerating(true);
+    try {
+      // Gather data from multiple endpoints
+      const [overview, priority, readiness] = await Promise.all([
+        api.getOverview(model, f),
+        api.getAIPriority(model, f),
+        api.getReadiness(model, f),
+      ]);
+      const ctx = JSON.stringify({
+        employees: (overview as Record<string, unknown>)?.kpis,
+        task_summary: (priority as Record<string, unknown>)?.summary,
+        readiness: { score: (readiness as Record<string, unknown>)?.score, tier: (readiness as Record<string, unknown>)?.tier },
+        bbba: bbba, reskilling: reskill, headcount: wf, managers: mgr,
+        skills_coverage: data?.skills_coverage, critical_gaps: data?.critical_gaps,
+      }).slice(0, 3500);
+
+      const raw = await callAI(
+        "You are a management consultant writing an executive summary. Return ONLY valid JSON.",
+        `Generate a concise executive summary for a board presentation based on this AI transformation data: ${ctx}
+
+Return JSON: {"headline":"one-line transformation headline","overview":"2-3 sentence executive overview","findings":["top finding 1","top finding 2","top finding 3","top finding 4"],"recommendations":["key rec 1","key rec 2","key rec 3"],"projectedImpact":["impact statement 1","impact statement 2","impact statement 3"],"risks":["risk 1","risk 2"],"nextSteps":["next step 1","next step 2","next step 3"]}
+
+Be specific with numbers from the data. Keep each item to 1-2 sentences max.`
+      );
+
+      try {
+        const parsed = JSON.parse(raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim());
+        setSummary(parsed);
+        setShowPreview(true);
+        showToast("📊 Executive summary generated");
+      } catch {
+        showToast("Failed to parse summary — try again");
+      }
+    } catch {
+      showToast("Error generating summary");
+    }
+    setGenerating(false);
+  };
+
+  const exportPdf = () => {
+    const el = document.getElementById("exec-summary-print");
+    if (!el) return;
+    const printWin = window.open("", "_blank");
+    if (!printWin) { showToast("Enable pop-ups to export PDF"); return; }
+    printWin.document.write(`<!DOCTYPE html><html><head><title>Executive Summary — AI Transformation</title>
+      <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Outfit', sans-serif; color: #1a1a2e; padding: 40px; max-width: 800px; margin: 0 auto; }
+        h1 { font-size: 22px; font-weight: 700; margin-bottom: 8px; color: #C07030; }
+        h2 { font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #D4860A; margin: 20px 0 8px; border-bottom: 2px solid #E8C547; padding-bottom: 4px; }
+        .subtitle { font-size: 12px; color: #666; margin-bottom: 16px; }
+        .overview { font-size: 13px; line-height: 1.6; margin-bottom: 16px; color: #333; }
+        .kpi-row { display: flex; gap: 12px; margin-bottom: 16px; }
+        .kpi { flex: 1; background: #f8f4ef; border-radius: 8px; padding: 12px; text-align: center; border-left: 3px solid #D4860A; }
+        .kpi-val { font-family: 'IBM Plex Mono', monospace; font-size: 18px; font-weight: 700; color: #C07030; }
+        .kpi-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; color: #888; margin-top: 2px; }
+        ul { padding-left: 20px; margin-bottom: 12px; }
+        li { font-size: 12px; line-height: 1.8; color: #333; }
+        .footer { margin-top: 24px; padding-top: 12px; border-top: 1px solid #ddd; font-size: 10px; color: #999; text-align: center; }
+        @media print { body { padding: 20px; } }
+      </style></head><body>${el.innerHTML}
+      <div class="footer">Generated by AI Transformation Platform · ${new Date().toLocaleDateString()}</div>
+      </body></html>`);
+    printWin.document.close();
+    setTimeout(() => { printWin.print(); }, 500);
+  };
+
+  return <Card title="📊 Executive Summary Generator">
+    {!showPreview && <div className="text-center py-8">
+      <div className="text-4xl mb-3">📊</div>
+      <h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">One-Page Executive Summary</h3>
+      <p className="text-[13px] text-[var(--text-secondary)] mb-5 max-w-lg mx-auto">
+        AI will pull KPIs from Overview, top findings from Diagnose, recommended redesigns from Design,
+        and projected impact from Simulate into a board-ready one-pager. Exportable as PDF.
+      </p>
+      <button onClick={generate} disabled={generating} className="px-6 py-3 rounded-2xl text-[14px] font-bold text-white transition-all hover:translate-y-[-2px] disabled:opacity-50" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", boxShadow: "0 4px 20px rgba(224,144,64,0.2)" }}>
+        {generating ? "Generating..." : "📊 Generate Executive Summary"}
+      </button>
+    </div>}
+
+    {showPreview && summary && <>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex gap-2">
+          <button onClick={exportPdf} className="px-4 py-2 rounded-lg text-[12px] font-semibold bg-[var(--accent-primary)] text-white hover:opacity-90">📄 Export as PDF</button>
+          <button onClick={generate} disabled={generating} className="px-4 py-2 rounded-lg text-[12px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 hover:bg-[var(--accent-primary)]/5">{generating ? "..." : "↻ Regenerate"}</button>
+        </div>
+        <button onClick={() => setShowPreview(false)} className="text-[11px] text-[var(--text-muted)] hover:text-[var(--text-primary)]">✕ Close</button>
+      </div>
+
+      {/* Preview — this div gets exported */}
+      <div id="exec-summary-print" className="bg-[var(--surface-2)] rounded-xl p-6 border border-[var(--border)]">
+        <h1 style={{ fontFamily: "'Outfit',sans-serif", fontSize: 20, fontWeight: 700, color: "#E8C547", marginBottom: 4 }}>{summary.headline}</h1>
+        <div style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 12 }}>{model} · {new Date().toLocaleDateString()} · Confidential</div>
+
+        <div style={{ fontSize: 13, lineHeight: 1.6, color: "var(--text-secondary)", marginBottom: 16 }}>{summary.overview}</div>
+
+        {/* KPI strip */}
+        <div className="grid grid-cols-6 gap-2 mb-4">
+          {[{ label: "Employees", value: data?.total_employees || 0 },
+            { label: "Skills Coverage", value: `${data?.skills_coverage || 0}%` },
+            { label: "Readiness", value: `${data?.org_readiness || 0}/5` },
+            { label: "Build Roles", value: bbba.build || 0 },
+            { label: "Net HC Δ", value: wf.net_change || 0 },
+            { label: "Investment", value: `$${(Number(bbba.total_investment || 0) / 1000).toFixed(0)}K` },
+          ].map(k => <div key={k.label} className="text-center bg-[var(--surface-1)] rounded-lg p-2 border border-[var(--border)]">
+            <div className="text-[14px] font-extrabold font-data text-[var(--accent-primary)]">{String(k.value)}</div>
+            <div className="text-[8px] text-[var(--text-muted)] uppercase">{k.label}</div>
+          </div>)}
+        </div>
+
+        {/* Sections */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <h2 style={{ fontFamily: "'Outfit',sans-serif", fontSize: 12, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: 1, color: "#D4860A", borderBottom: "2px solid #E8C547", paddingBottom: 4, marginBottom: 8 }}>Key Findings</h2>
+            <ul className="space-y-1 list-disc pl-4">{summary.findings.map((f, i) => <li key={i} className="text-[12px] text-[var(--text-secondary)] leading-relaxed">{f}</li>)}</ul>
+          </div>
+          <div>
+            <h2 style={{ fontFamily: "'Outfit',sans-serif", fontSize: 12, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: 1, color: "#D4860A", borderBottom: "2px solid #E8C547", paddingBottom: 4, marginBottom: 8 }}>Recommendations</h2>
+            <ul className="space-y-1 list-disc pl-4">{summary.recommendations.map((r, i) => <li key={i} className="text-[12px] text-[var(--text-secondary)] leading-relaxed">{r}</li>)}</ul>
+          </div>
+          <div>
+            <h2 style={{ fontFamily: "'Outfit',sans-serif", fontSize: 12, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: 1, color: "#D4860A", borderBottom: "2px solid #E8C547", paddingBottom: 4, marginBottom: 8 }}>Projected Impact</h2>
+            <ul className="space-y-1 list-disc pl-4">{summary.projectedImpact.map((p, i) => <li key={i} className="text-[12px] text-[var(--text-secondary)] leading-relaxed">{p}</li>)}</ul>
+          </div>
+          <div>
+            <h2 style={{ fontFamily: "'Outfit',sans-serif", fontSize: 12, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: 1, color: "#D4860A", borderBottom: "2px solid #E8C547", paddingBottom: 4, marginBottom: 8 }}>Risks & Next Steps</h2>
+            <ul className="space-y-1 list-disc pl-4">
+              {summary.risks.map((r, i) => <li key={i} className="text-[12px] text-[var(--risk)] leading-relaxed">⚠ {r}</li>)}
+              {summary.nextSteps.map((n, i) => <li key={i} className="text-[12px] text-[var(--success)] leading-relaxed">→ {n}</li>)}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </>}
+  </Card>;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   MODULE 4: WORK DESIGN LAB (with persistent state + job tracker)
+   This is the most complex module — it needs to persist state
+   across page switches and track job completion.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── Task Dictionary — pre-built task portfolios by role × industry ─── */
