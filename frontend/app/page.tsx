@@ -117,107 +117,78 @@ function MusicPlayer() {
   const [shuffle, setShuffle] = useState(false);
   const [repeat, setRepeat] = useState(false);
   const [showList, setShowList] = useState(false);
+  // Single Audio element — created once, never destroyed until unmount
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const animRef = useRef<number>(0);
-  const hasInteracted = useRef(false); // Track if user has clicked play at least once
 
   const genreTracks = useMemo(() => ALL_TRACKS.filter(t => t.genre === genre), [genre]);
   const track = genreTracks[trackIdx % genreTracks.length] || genreTracks[0];
-
   const fmt = (s: number) => { const m = Math.floor(s / 60); const sec = Math.floor(s % 60); return `${m}:${sec < 10 ? "0" : ""}${sec}`; };
 
-  // Initialize audio element once — set src from saved track or default to first track
+  // Create Audio once on mount. No src, no autoplay.
   useEffect(() => {
+    if (audioRef.current) return; // already created
     const audio = new Audio();
-    audio.volume = volume;
-    audio.preload = "auto";
+    audio.preload = "none"; // don't preload until user plays
     audioRef.current = audio;
 
-    // Set initial src from saved track index or default to ALL_TRACKS[0]
-    const savedIdx = trackIdx;
-    const initialTracks = ALL_TRACKS.filter(t => t.genre === "chill");
-    const initialTrack = initialTracks[savedIdx % initialTracks.length] || ALL_TRACKS[0];
-    if (initialTrack) {
-      audio.src = initialTrack.file;
-    }
-    // Never auto-play — wait for user click
-
-    const onEnd = () => {
-      if (!hasInteracted.current) return; // Don't auto-advance if user never clicked play
-      if (repeat) { audio.currentTime = 0; audio.play().catch(err => console.warn("Audio replay failed:", err)); return; }
+    // When track ends, advance to next
+    audio.addEventListener("ended", () => {
+      if (repeat) { audio.currentTime = 0; audio.play().catch(e => console.warn("Repeat failed:", e)); return; }
       setTrackIdx(prev => {
         const gt = ALL_TRACKS.filter(t => t.genre === genre);
-        const next = shuffle ? Math.floor(Math.random() * gt.length) : (prev + 1) % gt.length;
-        return next;
+        return shuffle ? Math.floor(Math.random() * gt.length) : (prev + 1) % gt.length;
       });
-    };
-    const onMeta = () => setDuration(audio.duration || 0);
-    audio.addEventListener("ended", onEnd);
-    audio.addEventListener("loadedmetadata", onMeta);
+    });
+    audio.addEventListener("loadedmetadata", () => setDuration(audio.duration || 0));
 
-    const updateProgress = () => {
-      if (audio.duration) { setProgress(audio.currentTime / audio.duration); setCurTime(audio.currentTime); }
-      animRef.current = requestAnimationFrame(updateProgress);
+    // Progress animation loop
+    const tick = () => {
+      if (audio.duration > 0) { setProgress(audio.currentTime / audio.duration); setCurTime(audio.currentTime); }
+      animRef.current = requestAnimationFrame(tick);
     };
-    animRef.current = requestAnimationFrame(updateProgress);
+    animRef.current = requestAnimationFrame(tick);
 
-    return () => { audio.pause(); audio.removeEventListener("ended", onEnd); audio.removeEventListener("loadedmetadata", onMeta); cancelAnimationFrame(animRef.current); audio.src = ""; };
+    return () => { cancelAnimationFrame(animRef.current); audio.pause(); audio.src = ""; };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Load new track when trackIdx or genre changes
-  const prevTrackFile = useRef(track?.file || "");
-  useEffect(() => {
-    const a = audioRef.current; if (!a || !track) return;
-    if (a.src.endsWith(track.file) && prevTrackFile.current === track.file) return;
-    prevTrackFile.current = track.file;
-    a.src = track.file;
+  // Play: set src, load, play — all in one user-gesture handler
+  const playTrack = useCallback((file: string) => {
+    const a = audioRef.current;
+    if (!a) return;
+    a.src = file;
     a.volume = volume;
-    setProgress(0); setCurTime(0); setDuration(0);
-    // Only auto-play on track change if user has already clicked play
-    if (playing && hasInteracted.current) {
-      a.play().catch(err => console.warn("Audio play on track change failed:", err));
-    }
-    try { localStorage.setItem("music_track", String(trackIdx)); } catch {}
-  }, [trackIdx, genre, track?.file]); // eslint-disable-line react-hooks/exhaustive-deps
+    a.load(); // explicitly load the new source
+    a.play()
+      .then(() => setPlaying(true))
+      .catch(e => { console.warn("Play failed:", e.message, "src:", file); setPlaying(false); });
+  }, [volume]);
 
-  // Toggle play/pause — the ONLY path that starts playback from user interaction
-  const toggle = () => {
+  // Toggle play/pause — the primary user interaction handler
+  const toggle = useCallback(() => {
     const a = audioRef.current; if (!a) return;
     if (playing) {
       a.pause();
       setPlaying(false);
     } else {
-      hasInteracted.current = true; // Mark that user has clicked play
-      // Ensure src is set
-      if (!a.src || a.src === "" || a.src === window.location.href) {
-        const t = track || ALL_TRACKS[0];
-        if (t) a.src = t.file;
+      // If audio has no src or a stale src, load the current track
+      if (!a.src || a.readyState === 0 || !a.src.includes("/track")) {
+        playTrack(track?.file || ALL_TRACKS[0].file);
+      } else {
+        a.play()
+          .then(() => setPlaying(true))
+          .catch(e => { console.warn("Resume failed:", e.message); playTrack(track?.file || ALL_TRACKS[0].file); });
       }
-      a.play()
-        .then(() => { setPlaying(true); })
-        .catch(err => { console.warn("Audio play failed:", err); setPlaying(false); });
     }
-  };
+  }, [playing, track, playTrack]);
 
-  // Change to a specific track — only plays if user has interacted
-  const changeTrack = (idx: number) => {
-    const a = audioRef.current;
+  const changeTrack = useCallback((idx: number) => {
     setTrackIdx(idx);
-    if (a) {
-      const gt = ALL_TRACKS.filter(t => t.genre === genre);
-      const t = gt[idx % gt.length];
-      if (t) {
-        a.src = t.file;
-        a.volume = volume;
-        if (hasInteracted.current) {
-          a.play()
-            .then(() => setPlaying(true))
-            .catch(err => { console.warn("Audio changeTrack play failed:", err); setPlaying(false); });
-        }
-      }
-    }
-    if (hasInteracted.current) setPlaying(true);
-  };
+    const gt = ALL_TRACKS.filter(t => t.genre === genre);
+    const t = gt[idx % gt.length];
+    if (t) playTrack(t.file);
+    try { localStorage.setItem("music_track", String(idx)); } catch {}
+  }, [genre, playTrack]);
 
   const nextTrack = () => { const gt = genreTracks; changeTrack(shuffle ? Math.floor(Math.random() * gt.length) : (trackIdx + 1) % gt.length); };
   const prevTrack = () => { const gt = genreTracks; changeTrack((trackIdx - 1 + gt.length) % gt.length); };
@@ -367,16 +338,10 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
     }
   }, [model, backendOk]);
 
-  // Tutorial mode — must be declared before the useEffect that references it
-  const [isTutorial] = useState(() => { try { return JSON.parse(localStorage.getItem(`${projectId}_isTutorial`) || "false"); } catch { return false; } });
-
-  // Auto-select Tutorial model for tutorial projects
+  // Auto-select Tutorial model for sandbox/tutorial projects
+  const isTutorialProject = projectId.startsWith("tutorial_") || (() => { try { return JSON.parse(localStorage.getItem(`${projectId}_isTutorial`) || "false"); } catch { return false; } })();
   useEffect(() => {
-    // Two paths to set the model:
-    // 1. isTutorial flag from localStorage (set by seedTutorialData)
-    // 2. projectId starts with "tutorial_" (direct detection)
-    const shouldAutoSelect = isTutorial || projectId.startsWith("tutorial_");
-    if (shouldAutoSelect && backendOk) {
+    if (isTutorialProject && backendOk) {
       // Read the stored model name
       try {
         const lm = JSON.parse(localStorage.getItem("lastModel") || "null");
@@ -394,7 +359,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
         }
       }
     }
-  }, [isTutorial, backendOk, model, setModel, projectId]);
+  }, [isTutorialProject, backendOk, model, setModel, projectId]);
 
   // Fetch employee names for employee view picker
   useEffect(() => {
@@ -492,42 +457,6 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
   }, [model, job, jobs, jobStates, f, page, simState]);
 
   const viewCtx: ViewContext = { mode: viewMode || "org", employee: viewEmployee, job: viewJob, custom: viewCustom };
-
-  // Tutorial mode (isTutorial declared earlier, before auto-select effect)
-  const [tutorialStep, setTutorialStep] = useState(() => { try { return JSON.parse(localStorage.getItem(`${projectId}_tutorialStep`) || "0"); } catch { return 0; } });
-  const [tutorialVisible, setTutorialVisible] = useState(isTutorial);
-  const tutorialSteps = useMemo(() => buildTutorialSteps(projectId), [projectId]);
-
-  useEffect(() => {
-    if (isTutorial) { try { localStorage.setItem(`${projectId}_tutorialStep`, JSON.stringify(tutorialStep)); } catch {} }
-  }, [tutorialStep, projectId, isTutorial]);
-
-  const tutorialNext = () => {
-    if (tutorialStep < tutorialSteps.length - 1) {
-      const nextStep = tutorialStep + 1;
-      setTutorialStep(nextStep);
-      const nextPage = tutorialSteps[nextStep].page;
-      if (nextPage !== "home") setPage(nextPage);
-      else setPage("home");
-    } else {
-      setTutorialVisible(false);
-    }
-  };
-  const tutorialPrev = () => {
-    if (tutorialStep > 0) {
-      const prevStep = tutorialStep - 1;
-      setTutorialStep(prevStep);
-      const prevPage = tutorialSteps[prevStep].page;
-      if (prevPage !== "home") setPage(prevPage);
-      else setPage("home");
-    }
-  };
-  const tutorialJump = (s: number) => {
-    setTutorialStep(s);
-    const pg = tutorialSteps[s].page;
-    if (pg !== "home") setPage(pg);
-    else setPage("home");
-  };
 
   // Escape key goes back to home
   useEffect(() => {
@@ -660,8 +589,6 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       </div>}
     </main>
     {page !== "home" && <div data-tour="ai-espresso"><AiEspressoButton moduleId={page} contextData={buildAiContext()} viewMode={viewMode} /></div>}
-    {isTutorial && tutorialVisible && <TutorialOverlay step={tutorialStep} totalSteps={tutorialSteps.length} steps={tutorialSteps} onNext={tutorialNext} onPrev={tutorialPrev} onClose={() => setTutorialVisible(false)} onJump={tutorialJump} />}
-    {isTutorial && !tutorialVisible && <TutorialBadge onClick={() => setTutorialVisible(true)} step={tutorialStep} total={tutorialSteps.length} />}
     {tourActive && <GuidedTourOverlay step={tourStep} totalSteps={totalSteps} onNext={nextStep} onPrev={prevStep} onSkip={skipTour} onDismiss={dismissTour} />}
 
     {/* Decision Log Slide-out Panel */}
@@ -849,7 +776,8 @@ function getTutorialCompany(projectId: string): { name: string; employees: numbe
   return { ...co, industry, size };
 }
 
-function buildTutorialSteps(projectId: string): { page: string; pos: "center"|"tr"|"tl"; icon: string; title: string; body: string; action?: string; subTab?: string }[] {
+/* buildTutorialSteps / TutorialOverlay / TutorialBadge removed — single tutorial via GuidedTour.tsx */
+function __legacyBuildTutorialSteps(projectId: string): { page: string; pos: "center"|"tr"|"tl"; icon: string; title: string; body: string; action?: string; subTab?: string }[] {
   const co = getTutorialCompany(projectId);
   const n = co.employees;
   const nm = co.name;
@@ -913,7 +841,7 @@ function buildTutorialSteps(projectId: string): { page: string; pos: "center"|"t
 }
 
 // Default fallback for non-tutorial contexts
-const TUTORIAL_STEPS = buildTutorialSteps("tutorial_mid_technology");
+const TUTORIAL_STEPS = __legacyBuildTutorialSteps("tutorial_mid_technology");
 
 
 /* ═══ TUTORIAL OVERLAY — draggable, minimizable, centered window ═══ */
