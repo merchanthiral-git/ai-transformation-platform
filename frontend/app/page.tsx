@@ -119,26 +119,32 @@ function MusicPlayer() {
   const [showList, setShowList] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const animRef = useRef<number>(0);
+  const hasInteracted = useRef(false); // Track if user has clicked play at least once
 
   const genreTracks = useMemo(() => ALL_TRACKS.filter(t => t.genre === genre), [genre]);
   const track = genreTracks[trackIdx % genreTracks.length] || genreTracks[0];
 
   const fmt = (s: number) => { const m = Math.floor(s / 60); const sec = Math.floor(s % 60); return `${m}:${sec < 10 ? "0" : ""}${sec}`; };
 
-  // Initialize audio element once — persists across renders
+  // Initialize audio element once — set src from saved track or default to first track
   useEffect(() => {
     const audio = new Audio();
     audio.volume = volume;
     audio.preload = "auto";
     audioRef.current = audio;
 
-    // Set initial track src immediately
+    // Set initial src from saved track index or default to ALL_TRACKS[0]
+    const savedIdx = trackIdx;
     const initialTracks = ALL_TRACKS.filter(t => t.genre === "chill");
-    const initialTrack = initialTracks[trackIdx % initialTracks.length] || initialTracks[0];
-    if (initialTrack) audio.src = initialTrack.file;
+    const initialTrack = initialTracks[savedIdx % initialTracks.length] || ALL_TRACKS[0];
+    if (initialTrack) {
+      audio.src = initialTrack.file;
+    }
+    // Never auto-play — wait for user click
 
     const onEnd = () => {
-      if (repeat) { audio.currentTime = 0; audio.play().catch(() => {}); return; }
+      if (!hasInteracted.current) return; // Don't auto-advance if user never clicked play
+      if (repeat) { audio.currentTime = 0; audio.play().catch(err => console.warn("Audio replay failed:", err)); return; }
       setTrackIdx(prev => {
         const gt = ALL_TRACKS.filter(t => t.genre === genre);
         const next = shuffle ? Math.floor(Math.random() * gt.length) : (prev + 1) % gt.length;
@@ -158,42 +164,61 @@ function MusicPlayer() {
     return () => { audio.pause(); audio.removeEventListener("ended", onEnd); audio.removeEventListener("loadedmetadata", onMeta); cancelAnimationFrame(animRef.current); audio.src = ""; };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Load new track when trackIdx or genre changes (after initial mount)
+  // Load new track when trackIdx or genre changes
   const prevTrackFile = useRef(track?.file || "");
   useEffect(() => {
     const a = audioRef.current; if (!a || !track) return;
-    // Only update src if it actually changed (avoid resetting on re-renders)
     if (a.src.endsWith(track.file) && prevTrackFile.current === track.file) return;
     prevTrackFile.current = track.file;
-    a.src = track.file; a.volume = volume;
+    a.src = track.file;
+    a.volume = volume;
     setProgress(0); setCurTime(0); setDuration(0);
-    if (playing) a.play().catch(() => {});
+    // Only auto-play on track change if user has already clicked play
+    if (playing && hasInteracted.current) {
+      a.play().catch(err => console.warn("Audio play on track change failed:", err));
+    }
     try { localStorage.setItem("music_track", String(trackIdx)); } catch {}
   }, [trackIdx, genre, track?.file]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Toggle play/pause — the ONLY path that starts playback from user interaction
   const toggle = () => {
     const a = audioRef.current; if (!a) return;
     if (playing) {
       a.pause();
       setPlaying(false);
     } else {
-      // Ensure src is set before playing
-      if (!a.src || a.src === window.location.href) {
-        if (track) a.src = track.file;
+      hasInteracted.current = true; // Mark that user has clicked play
+      // Ensure src is set
+      if (!a.src || a.src === "" || a.src === window.location.href) {
+        const t = track || ALL_TRACKS[0];
+        if (t) a.src = t.file;
       }
-      a.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
+      a.play()
+        .then(() => { setPlaying(true); })
+        .catch(err => { console.warn("Audio play failed:", err); setPlaying(false); });
     }
   };
+
+  // Change to a specific track — only plays if user has interacted
   const changeTrack = (idx: number) => {
     const a = audioRef.current;
     setTrackIdx(idx);
     if (a) {
       const gt = ALL_TRACKS.filter(t => t.genre === genre);
       const t = gt[idx % gt.length];
-      if (t) { a.src = t.file; a.volume = volume; a.play().catch(() => {}); }
+      if (t) {
+        a.src = t.file;
+        a.volume = volume;
+        if (hasInteracted.current) {
+          a.play()
+            .then(() => setPlaying(true))
+            .catch(err => { console.warn("Audio changeTrack play failed:", err); setPlaying(false); });
+        }
+      }
     }
-    setPlaying(true);
+    if (hasInteracted.current) setPlaying(true);
   };
+
   const nextTrack = () => { const gt = genreTracks; changeTrack(shuffle ? Math.floor(Math.random() * gt.length) : (trackIdx + 1) % gt.length); };
   const prevTrack = () => { const gt = genreTracks; changeTrack((trackIdx - 1 + gt.length) % gt.length); };
   const changeVolume = (v: number) => { setVolume(v); if (audioRef.current) audioRef.current.volume = v; try { localStorage.setItem("music_vol", String(v)); } catch {} };
@@ -1135,7 +1160,7 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
   if (sandboxOpen) {
     return <div style={{ position: "fixed", inset: 0, overflow: "hidden", background: "#0B1120" }}>
       {/* Full-bleed storefront background */}
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(160deg, #0B1120 0%, #1a1a30 40%, #12182a 100%)", backgroundImage: "url(/sandbox_bg.png)", backgroundSize: "cover", backgroundPosition: "center 60%", backgroundRepeat: "no-repeat" }} />
+      <div style={{ position: "absolute", inset: 0, backgroundImage: "url(/sandbox_bg.png), linear-gradient(160deg, #0B1120 0%, #1a1a30 40%, #12182a 100%)", backgroundSize: "cover, cover", backgroundPosition: "center 60%, center center", backgroundRepeat: "no-repeat, no-repeat" }} />
       <div style={{ position: "absolute", inset: 0, background: sandboxPanelOpen ? "rgba(8,12,24,0.55)" : "radial-gradient(ellipse at 35% 40%, rgba(8,12,24,0.1) 0%, rgba(8,12,24,0.35) 50%, rgba(8,12,24,0.6) 100%)", transition: "background 0.5s ease" }} />
 
       {/* Back button */}
@@ -1207,7 +1232,7 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
 
   return <div style={{ position: "fixed", inset: 0, overflow: "auto", background: "#0B1120" }}>
     {/* Full-bleed background */}
-    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 65%, #0a0f1a 100%)", backgroundImage: "url(/hero_bg.png)", backgroundSize: "cover", backgroundPosition: "center center", backgroundRepeat: "no-repeat", width: "100vw", height: "100vh" }} />
+    <div style={{ position: "absolute", inset: 0, backgroundImage: "url(/hero_bg.png), linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 65%, #0a0f1a 100%)", backgroundSize: "cover, cover", backgroundPosition: "center center, center center", backgroundRepeat: "no-repeat, no-repeat", width: "100vw", height: "100vh" }} />
     <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(11,17,32,0.25) 0%, rgba(11,17,32,0.45) 40%, rgba(11,17,32,0.7) 100%)", width: "100vw", height: "100vh" }} />
 
     {/* Content */}
@@ -1496,7 +1521,7 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
   if (successUser) {
     return (
       <div style={{ position: "fixed", inset: 0, zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, #1a1208 0%, #2a1a0a 30%, #0f0d08 70%, #1a1510 100%)", backgroundImage: "url(/login_bg.png)", backgroundSize: "cover", backgroundPosition: "center center", backgroundRepeat: "no-repeat" }} />
+        <div style={{ position: "absolute", inset: 0, backgroundImage: "url(/login_bg.png), linear-gradient(135deg, #1a1208 0%, #2a1a0a 30%, #0f0d08 70%, #1a1510 100%)", backgroundSize: "cover, cover", backgroundPosition: "center center, center center", backgroundRepeat: "no-repeat, no-repeat" }} />
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, rgba(10,8,5,0.3) 0%, rgba(10,8,5,0.75) 100%)" }} />
         <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 420, padding: "0 24px", textAlign: "center" }}>
           <div style={{ background: "rgba(15,12,8,0.7)", backdropFilter: "blur(30px)", borderRadius: 24, border: "1px solid rgba(255,255,255,0.1)", padding: "40px 32px", boxShadow: "0 32px 100px rgba(0,0,0,0.6)" }}>
@@ -1521,7 +1546,7 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
 
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, #1a1208 0%, #2a1a0a 30%, #0f0d08 70%, #1a1510 100%)", backgroundImage: "url(/login_bg.png)", backgroundSize: "cover", backgroundPosition: "center center", backgroundRepeat: "no-repeat" }} />
+      <div style={{ position: "absolute", inset: 0, backgroundImage: "url(/login_bg.png), linear-gradient(135deg, #1a1208 0%, #2a1a0a 30%, #0f0d08 70%, #1a1510 100%)", backgroundSize: "cover, cover", backgroundPosition: "center center, center center", backgroundRepeat: "no-repeat, no-repeat" }} />
       <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, rgba(10,8,5,0.25) 0%, rgba(10,8,5,0.7) 100%)" }} />
 
       <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 400, padding: "0 24px" }}>
