@@ -301,11 +301,11 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
           <div style={{ width: 96, height: 96, borderRadius: "50%", background: "#1C2B3A", display: "flex", alignItems: "center", justifyContent: "center", filter: isCurrent ? "drop-shadow(0 0 16px rgba(212,134,10,0.5))" : "drop-shadow(0 4px 16px rgba(0,0,0,0.5))", transition: "all 0.2s", opacity: isReached ? 1 : 0.6 }}>
             <img src={`/icon_${phase.id}.png`} alt={phase.label} style={{ width: 96, height: 96, objectFit: "contain", borderRadius: "50%" }} />
           </div>
-          {/* Label — frosted dark pill */}
+          {/* Label — frosted navy pill */}
           <div className="text-center mt-3" style={{ width: 180, position: "relative", left: "50%", transform: "translateX(-50%)" }}>
-            <div style={{ display: "inline-block", padding: "8px 16px", borderRadius: 12, background: "rgba(0,0,0,0.45)", backdropFilter: "blur(8px)" }}>
-              <div style={{ fontSize: 24, fontWeight: 700, fontFamily: "'Outfit', sans-serif", color: "#FFFFFF" }}>{phase.label}</div>
-              <div style={{ fontSize: 15, fontWeight: 500, color: "rgba(255,255,255,0.85)", marginTop: 2 }}>{phase.desc}</div>
+            <div style={{ display: "inline-block", padding: "10px 18px", borderRadius: 14, background: "rgba(28,43,58,0.7)", backdropFilter: "blur(12px)", border: "1px solid rgba(212,168,67,0.2)" }}>
+              <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "'Outfit', sans-serif", color: "#FFFFFF" }}>{phase.label}</div>
+              <div style={{ fontSize: 13, fontWeight: 500, color: "rgba(255,255,255,0.8)", marginTop: 2 }}>{phase.desc}</div>
             </div>
           </div>
         </button>;
