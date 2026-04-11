@@ -9,7 +9,7 @@ import {
   BarViz, DonutViz, RadarViz, TabBar, PageHeader, LoadingBar, LoadingSkeleton,
   ModuleExportButton, NextStepBar, ContextStrip, InfoButton,
   useApiData, usePersisted, callAI, showToast, logDec,
-  exportToCSV, EmptyWithAction, JobDesignState
+  exportToCSV, EmptyWithAction, JobDesignState, fmtNum
 } from "./shared";
 
 export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext }) {
@@ -27,17 +27,17 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx }: { 
     {model && <div className="flex justify-end mb-2"><ModuleExportButton model={model} module="reskilling" label="Reskilling Plans" /></div>}
     {loading && <LoadingBar />}
     <div className="grid grid-cols-5 gap-3 mb-5">
-      <KpiCard label="Employees" value={Number(summary.total_employees || 0)} /><KpiCard label="High Priority" value={Number(summary.high_priority || 0)} accent /><KpiCard label="Medium" value={Number(summary.medium_priority || 0)} /><KpiCard label="Avg Duration" value={`${summary.avg_months || "—"}mo`} /><KpiCard label="Investment" value={`$${(Number(summary.total_investment || 0)/1000).toFixed(0)}K`} />
+      <KpiCard label="Employees" value={Number(summary.total_employees || 0)} /><KpiCard label="High Priority" value={Number(summary.high_priority || 0)} accent /><KpiCard label="Medium" value={Number(summary.medium_priority || 0)} /><KpiCard label="Avg Duration" value={`${summary.avg_months || "—"}mo`} /><KpiCard label="Investment" value={fmtNum(summary.total_investment || 0)} />
     </div>
 
     {pathways.slice(0, 20).map((p, i) => <Card key={i} title={`${p.employee} → ${p.target_role}`}>
       <div className="flex items-center gap-3 mb-3">
         <Badge color={p.priority==="High"?"green":p.priority==="Medium"?"amber":"gray"}>{p.priority} Priority</Badge>
         <Badge color={p.readiness_band==="Ready Now"?"green":p.readiness_band==="Coachable"?"amber":"red"}>Readiness: {p.readiness_score}/5</Badge>
-        <span className="text-[11px] text-[var(--text-muted)]">{p.total_months} months · ${(p.estimated_cost/1000).toFixed(0)}K</span>
+        <span className="text-[11px] text-[var(--text-muted)]">{p.total_months} months · {fmtNum(p.estimated_cost)}</span>
       </div>
       {/* Skills timeline */}
-      <div className="space-y-2">{p.skills_to_develop.map(s => <div key={s.skill} className="flex items-center gap-3 p-2 rounded-lg bg-[var(--surface-2)]">
+      <div className="space-y-2">{(p.skills_to_develop || []).map(s => <div key={s.skill} className="flex items-center gap-3 p-2 rounded-lg bg-[var(--surface-2)]">
         <span className="text-[11px] font-semibold w-36 shrink-0">{s.skill}</span>
         <div className="flex items-center gap-1 text-[10px]"><span style={{color:"var(--warning)"}}>{s.current}</span><span className="text-[var(--text-muted)]">→</span><span style={{color:"var(--success)"}}>{s.target}</span></div>
         <div className="flex-1 h-2 bg-[var(--bg)] rounded-full overflow-hidden"><div className="h-full rounded-full" style={{width:`${(s.current/s.target)*100}%`,background:"var(--accent-primary)"}} /></div>
@@ -52,7 +52,7 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx }: { 
       {(() => {
         const cohorts: Record<string, typeof pathways> = {};
         pathways.forEach(p => {
-          p.skills_to_develop.forEach(s => {
+          (p.skills_to_develop || []).forEach(s => {
             if (!cohorts[s.skill]) cohorts[s.skill] = [];
             if (!cohorts[s.skill].some(c => c.employee === p.employee)) cohorts[s.skill].push(p);
           });
@@ -63,7 +63,7 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx }: { 
           return <div key={skill} className="rounded-xl p-4 bg-[var(--surface-2)] border border-[var(--border)] transition-all hover:border-[var(--accent-primary)]/30">
             <div className="text-[13px] font-bold text-[var(--text-primary)] mb-1">{skill}</div>
             <div className="text-[20px] font-extrabold text-[var(--accent-primary)] mb-1">{members.length} <span className="text-[11px] font-normal text-[var(--text-muted)]">employees</span></div>
-            <div className="text-[10px] text-[var(--text-muted)]">Avg {avgMonths}mo · ${(totalCost/1000).toFixed(0)}K total</div>
+            <div className="text-[10px] text-[var(--text-muted)]">Avg {avgMonths}mo · {fmtNum(totalCost)} total</div>
             <div className="flex gap-1 flex-wrap mt-2">{members.slice(0,4).map(m => <span key={m.employee} className="px-1.5 py-0.5 rounded text-[8px] bg-[var(--surface-1)] text-[var(--text-muted)]">{m.employee.split(" ")[0]}</span>)}{members.length > 4 && <span className="text-[8px] text-[var(--text-muted)]">+{members.length-4}</span>}</div>
           </div>;
         })}</div>;
@@ -81,7 +81,7 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx }: { 
         const cost = group.reduce((s,p) => s + p.estimated_cost, 0);
         return <div key={tier.label} className="rounded-xl p-4 text-center border border-[var(--border)]">
           <div className="text-[12px] font-semibold mb-1" style={{color:tier.color}}>{tier.label}</div>
-          <div className="text-[22px] font-extrabold text-[var(--text-primary)]">${(cost/1000).toFixed(0)}K</div>
+          <div className="text-[22px] font-extrabold text-[var(--text-primary)]">{fmtNum(cost)}</div>
           <div className="text-[10px] text-[var(--text-muted)]">{group.length} employees</div>
         </div>;
       })}</div>
@@ -91,7 +91,7 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx }: { 
       `${pathways.length} employees need reskilling across ${new Set(pathways.map(p => p.target_role)).size} target roles`,
       `High priority: ${pathways.filter(p => p.priority === "High").length} employees — start these immediately`,
       `Average pathway duration: ${Number(summary.avg_months || 0)} months`,
-      `Total reskilling investment: $${(Number(summary.total_investment || 0)/1000).toFixed(0)}K — invest in high-priority cohorts first`,
+      `Total reskilling investment: ${fmtNum(summary.total_investment || 0)} — invest in high-priority cohorts first`,
     ]} icon="📚" />
 
     <NextStepBar currentModuleId="reskill" onNavigate={onNavigate || onBack} />
@@ -152,7 +152,7 @@ export function TalentMarketplace({ model, f, onBack, onNavigate }: { model: str
         </div>
         <div className="text-[8px] text-[var(--success)] truncate">✓ {c.matching_skills.slice(0,2).join(", ")}</div>
         {c.gap_skills.length > 0 && <div className="text-[8px] text-[var(--risk)] truncate">✗ {c.gap_skills.slice(0,2).join(", ")}</div>}
-        {c.has_pathway && <div className="text-[8px] text-[var(--purple)]">📚 Pathway: ${(c.pathway_cost/1000).toFixed(0)}K</div>}
+        {c.has_pathway && <div className="text-[8px] text-[var(--purple)]">📚 Pathway: {fmtNum(c.pathway_cost)}</div>}
         <button onClick={() => setShortlisted(prev => { const l = prev[m.target_role]||[]; return {...prev, [m.target_role]: isSl ? l.filter(e=>e!==c.employee) : [...l, c.employee]}; })} className="mt-1 text-[9px] font-semibold w-full py-1 rounded text-center" style={{background:isSl?"rgba(16,185,129,0.1)":"var(--surface-1)",color:isSl?"var(--success)":"var(--text-muted)",border:`1px solid ${isSl?"var(--success)":"var(--border)"}`}}>{isSl?"★ Shortlisted":"☆ Shortlist"}</button>
       </div>; })}</div>
     </Card>)}
@@ -201,12 +201,12 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, viewCtx
     <PageHeader icon="💼" title={`Change Plan — ${viewCtx.job}`} subtitle="Initiatives affecting this role" onBack={onBack} moduleId="plan" />
     <ContextStrip items={[`Showing change initiatives relevant to ${viewCtx.job}. Switch to Org View to see the full roadmap.`]} />
     <TabBar tabs={[{ id: "road", label: "Role Roadmap" }, { id: "risk", label: "Role Risks" }]} active={sub} onChange={setSub} />
-    {sub === "road" ? (() => { const d = data as Record<string, unknown> | null; const roadmap = ((d?.roadmap ?? []) as Record<string, unknown>[]).filter(r => String(r["Job Title"] || r.initiative || "").toLowerCase().includes(viewCtx.job!.toLowerCase().split(" ")[0])); return <div>
+    {sub === "road" ? (() => { const d = data as Record<string, unknown> | null; const roadmap = ((d?.roadmap ?? []) as Record<string, unknown>[]).filter(r => String(r["Job Title"] || r.initiative || "").toLowerCase().includes((viewCtx.job || "").toLowerCase().split(" ")[0])); return <div>
       <div className="grid grid-cols-3 gap-3 mb-5"><KpiCard label="Initiatives" value={roadmap.length || "All"} accent /><KpiCard label="Source" value={String((d?.summary as Record<string, unknown>)?.source ?? "—")} /><KpiCard label="Status" value="Planned" /></div>
       <Card title={`Initiatives for ${viewCtx.job}`}>{roadmap.length ? <DataTable data={roadmap} /> : <div className="text-[13px] text-[var(--text-secondary)] py-4">No specific initiatives found for this role. Showing the full roadmap below.</div>}</Card>
       {roadmap.length === 0 && <Card title="Full Roadmap"><DataTable data={((d?.roadmap ?? []) as Record<string, unknown>[])} /></Card>}
     </div>; })() : (() => { const d = data as Record<string, unknown> | null; return <div>
-      <Card title="Risks Affecting This Role"><DataTable data={((d?.high_risk_tasks ?? []) as Record<string, unknown>[]).filter(r => String(r["Job Title"] || r.Task || "").toLowerCase().includes(viewCtx.job!.toLowerCase().split(" ")[0]))} /></Card>
+      <Card title="Risks Affecting This Role"><DataTable data={((d?.high_risk_tasks ?? []) as Record<string, unknown>[]).filter(r => String(r["Job Title"] || r.Task || "").toLowerCase().includes((viewCtx.job || "").toLowerCase().split(" ")[0]))} /></Card>
     </div>; })()}
     <NextStepBar currentModuleId="plan" onNavigate={onNavigate || onBack} />
   </div>;
@@ -330,7 +330,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, viewCtx
       {waves.length > 0 && <Card title="Transformation Timeline">
         <div className="flex items-end gap-1 h-32 mb-2">{waves.map(([name, count], i) => <div key={name} className="flex-1 flex flex-col items-center justify-end">
           <div className="text-[11px] font-bold mb-1" style={{ color: COLORS[i % COLORS.length] }}>{count}</div>
-          <div className="w-full rounded-t transition-all" style={{ height: `${Math.max((count / Math.max(...Object.values(wd))) * 100, 8)}%`, background: `${COLORS[i % COLORS.length]}40`, border: `1px solid ${COLORS[i % COLORS.length]}60` }} />
+          <div className="w-full rounded-t transition-all" style={{ height: `${Math.max((count / Math.max(...Object.values(wd), 1)) * 100, 8)}%`, background: `${COLORS[i % COLORS.length]}40`, border: `1px solid ${COLORS[i % COLORS.length]}60` }} />
           <div className="text-[10px] text-[var(--text-muted)] mt-2 font-semibold">{name}</div>
         </div>)}</div>
         <div className="flex gap-0">{waves.map(([name], i) => <div key={name} className="flex-1 h-2 first:rounded-l last:rounded-r" style={{ background: COLORS[i % COLORS.length] }} />)}</div>
@@ -713,7 +713,7 @@ export function TransformationStoryBuilder({ model, f, onBack, onNavigate }: { m
 
   return <div>
     <ContextStrip items={["Auto-generated executive narrative synthesizing all platform outputs"]} />
-    <PageHeader icon="📖" title="Transformation Story Builder" subtitle="Executive-ready narrative for board, all-hands, or investor presentations" onBack={onBack} />
+    <PageHeader icon="📖" title="Transformation Story Builder" subtitle="Executive-ready narrative for board, all-hands, or investor presentations" onBack={onBack} moduleId="story" />
 
     <div className="flex gap-2 mb-4">
       {([["board", "Board Presentation"], ["allhands", "All-Hands"], ["investor", "Investor Update"]] as const).map(([id, label]) => <button key={id} onClick={() => setTone(id)} className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold ${tone === id ? "bg-[var(--accent-primary)] text-white" : "text-[var(--text-muted)] border border-[var(--border)]"}`}>{label}</button>)}
@@ -787,7 +787,7 @@ export function ReadinessArchetypes({ model, f, onBack, onNavigate }: { model: s
 
   return <div>
     <ContextStrip items={["Consultant-grade workforce archetypes with targeted engagement playbooks"]} />
-    <PageHeader icon="🎭" title="Readiness Archetypes" subtitle="Qualitative workforce segmentation with engagement strategies" onBack={onBack} />
+    <PageHeader icon="🎭" title="Readiness Archetypes" subtitle="Qualitative workforce segmentation with engagement strategies" onBack={onBack} moduleId="archetypes" />
 
     {/* Archetype cards */}
     <div className="grid grid-cols-2 gap-4 mb-6">

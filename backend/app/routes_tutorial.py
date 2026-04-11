@@ -335,55 +335,52 @@ def _seed_tutorial_store(industry="technology", size_tier="mid"):
     
     COMPANY_DB = {
         "technology": {
-            "small":  {"name": "Spark Labs", "employees": 150, "revenue": "$25M", "hq": "Austin"},
-            "mid":    {"name": "Nexus Technology Corp", "employees": 2500, "revenue": "$450M", "hq": "San Francisco"},
-            "large":  {"name": "Titan Digital Systems", "employees": 18000, "revenue": "$4.2B", "hq": "Seattle"},
+            "small":  {"name": "Palantir Technologies", "employees": 3800, "revenue": "$2.2B", "hq": "Denver", "ticker": "PLTR"},
+            "mid":    {"name": "ServiceNow", "employees": 8000, "revenue": "$8.9B", "hq": "Santa Clara", "ticker": "NOW"},
+            "large":  {"name": "Adobe", "employees": 25000, "revenue": "$19.4B", "hq": "San Jose", "ticker": "ADBE"},
         },
         "financial_services": {
-            "small":  {"name": "Pinnacle Wealth Advisors", "employees": 200, "revenue": "$80M AUM", "hq": "Charlotte"},
-            "mid":    {"name": "Global Financial Partners", "employees": 4200, "revenue": "$1.8B", "hq": "New York"},
-            "large":  {"name": "Meridian Capital Group", "employees": 22000, "revenue": "$12B", "hq": "New York"},
+            "small":  {"name": "Evercore", "employees": 2200, "revenue": "$2.4B", "hq": "New York", "ticker": "EVR"},
+            "mid":    {"name": "Raymond James", "employees": 8000, "revenue": "$12.8B", "hq": "St. Petersburg", "ticker": "RJF"},
+            "large":  {"name": "Goldman Sachs", "employees": 25000, "revenue": "$46.3B", "hq": "New York", "ticker": "GS"},
         },
         "healthcare": {
-            "small":  {"name": "Valley Medical Center", "employees": 350, "revenue": "$120M", "hq": "Portland"},
-            "mid":    {"name": "Meridian Health System", "employees": 5500, "revenue": "$2.1B", "hq": "Chicago"},
-            "large":  {"name": "National Health Partners", "employees": 45000, "revenue": "$18B", "hq": "Nashville"},
-        },
-        "manufacturing": {
-            "small":  {"name": "Precision Components Inc", "employees": 180, "revenue": "$35M", "hq": "Cincinnati"},
-            "mid":    {"name": "Atlas Manufacturing Group", "employees": 3800, "revenue": "$950M", "hq": "Detroit"},
-            "large":  {"name": "Continental Industrial Corp", "employees": 28000, "revenue": "$8.5B", "hq": "Milwaukee"},
+            "small":  {"name": "Hims & Hers Health", "employees": 1500, "revenue": "$1.2B", "hq": "San Francisco", "ticker": "HIMS"},
+            "mid":    {"name": "Molina Healthcare", "employees": 8000, "revenue": "$33.7B", "hq": "Long Beach", "ticker": "MOH"},
+            "large":  {"name": "Elevance Health", "employees": 25000, "revenue": "$171B", "hq": "Indianapolis", "ticker": "ELV"},
         },
         "retail": {
-            "small":  {"name": "Urban Threads Boutique", "employees": 120, "revenue": "$18M", "hq": "Denver"},
-            "mid":    {"name": "Horizon Retail Group", "employees": 6000, "revenue": "$1.4B", "hq": "Minneapolis"},
-            "large":  {"name": "American Marketplace Inc", "employees": 52000, "revenue": "$22B", "hq": "Dallas"},
+            "small":  {"name": "Five Below", "employees": 3000, "revenue": "$3.1B", "hq": "Philadelphia", "ticker": "FIVE"},
+            "mid":    {"name": "Williams-Sonoma", "employees": 8000, "revenue": "$7.7B", "hq": "San Francisco", "ticker": "WSM"},
+            "large":  {"name": "Target", "employees": 25000, "revenue": "$107B", "hq": "Minneapolis", "ticker": "TGT"},
         },
-        "legal": {
-            "small":  {"name": "Barrett & Associates", "employees": 45, "revenue": "$12M", "hq": "Boston"},
-            "mid":    {"name": "Sterling Legal Group", "employees": 800, "revenue": "$280M", "hq": "Washington DC"},
-            "large":  {"name": "Global Law Alliance", "employees": 5500, "revenue": "$3.2B", "hq": "London"},
+        "manufacturing": {
+            "small":  {"name": "Axon Enterprise", "employees": 4000, "revenue": "$1.9B", "hq": "Scottsdale", "ticker": "AXON"},
+            "mid":    {"name": "Parker Hannifin", "employees": 8000, "revenue": "$19.1B", "hq": "Cleveland", "ticker": "PH"},
+            "large":  {"name": "Honeywell", "employees": 25000, "revenue": "$36.7B", "hq": "Charlotte", "ticker": "HON"},
+        },
+        "consulting": {
+            "small":  {"name": "Huron Consulting", "employees": 2500, "revenue": "$1.4B", "hq": "Chicago", "ticker": "HURN"},
+            "mid":    {"name": "Booz Allen Hamilton", "employees": 8000, "revenue": "$9.1B", "hq": "McLean", "ticker": "BAH"},
+            "large":  {"name": "Accenture", "employees": 25000, "revenue": "$64.1B", "hq": "Dublin", "ticker": "ACN"},
         },
         "energy": {
-            "small":  {"name": "SunRidge Renewables", "employees": 160, "revenue": "$45M", "hq": "Denver"},
-            "mid":    {"name": "Apex Energy Solutions", "employees": 3200, "revenue": "$2.8B", "hq": "Houston"},
-            "large":  {"name": "Pacific Energy Holdings", "employees": 35000, "revenue": "$28B", "hq": "Houston"},
+            "small":  {"name": "Shoals Technologies", "employees": 1800, "revenue": "$0.5B", "hq": "Portland TN", "ticker": "SHLS"},
+            "mid":    {"name": "Chesapeake Energy", "employees": 3000, "revenue": "$4.8B", "hq": "Oklahoma City", "ticker": "CHK"},
+            "large":  {"name": "Baker Hughes", "employees": 25000, "revenue": "$25.5B", "hq": "Houston", "ticker": "BKR"},
         },
-        "education": {
-            "small":  {"name": "Westbrook College", "employees": 120, "revenue": "$28M", "hq": "Portland"},
-            "mid":    {"name": "Pacific University System", "employees": 2800, "revenue": "$650M", "hq": "Seattle"},
-            "large":  {"name": "National University Consortium", "employees": 15000, "revenue": "$4.5B", "hq": "Philadelphia"},
+        "aerospace": {
+            "small":  {"name": "Kratos Defense", "employees": 4000, "revenue": "$1.1B", "hq": "San Diego", "ticker": "KTOS"},
+            "mid":    {"name": "L3Harris Technologies", "employees": 8000, "revenue": "$19.4B", "hq": "Melbourne FL", "ticker": "LHX"},
+            "large":  {"name": "Northrop Grumman", "employees": 25000, "revenue": "$39.3B", "hq": "Falls Church", "ticker": "NOC"},
         },
     }
 
     company = COMPANY_DB.get(industry, COMPANY_DB["technology"]).get(size_tier, COMPANY_DB["technology"]["mid"])
     target_size = company["employees"]
     
-    # Generate the actual target size for each tier
-    # Small: full generation (45-350 employees)  
-    # Mid: full generation (800-6000 employees)
-    # Large: representative sample capped at 8000 for performance (still 4-8x larger than mid)
-    gen_size = min(target_size, 8000)
+    # Generate exact target size — card count must match actual record count
+    gen_size = target_size
     
     # ═══════════════════════════════════════════════════
     # ORGANIZATIONAL BLUEPRINT — 9 functions per industry
@@ -413,12 +410,12 @@ def _seed_tutorial_store(industry="technology", size_tier="mid"):
             "Software Engineer":"Process Engineer","Data Analyst":"Quality Analyst","Product Manager":"Production Planner","SDR":"Procurement Specialist","Account Executive":"Supply Chain Analyst","UX Designer":"Industrial Engineer","IT Support":"Maintenance Technician","Security Analyst":"EHS Coordinator","DevOps Engineer":"Automation Engineer"},
         "retail": {"Engineering":"E-Commerce Tech","Product":"Merchandising","Data & Analytics":"Analytics","IT Operations":"Store Operations","Security":"Loss Prevention","Sales & Marketing":"Marketing",
             "Software Engineer":"E-Commerce Developer","Data Analyst":"Demand Planner","Product Manager":"Category Manager","SDR":"Store Associate","Account Executive":"District Manager","UX Designer":"Visual Merchandiser","IT Support":"Store Tech","Security Analyst":"LP Analyst"},
-        "legal": {"Engineering":"Legal Technology","Product":"Litigation","Data & Analytics":"Knowledge Management","IT Operations":"Legal Ops","Security":"Risk & Compliance","Sales & Marketing":"Business Development",
-            "Software Engineer":"Legal Tech Developer","Data Analyst":"eDiscovery Specialist","Product Manager":"Practice Group Lead","SDR":"BD Coordinator","Account Executive":"Client Partner","UX Designer":"Knowledge Manager","Security Analyst":"Regulatory Analyst","Accountant":"Billing Coordinator"},
-        "energy": {"Product":"Operations","Data & Analytics":"Asset Management","IT Operations":"SCADA/OT","Security":"HSE","Sales & Marketing":"Trading & Commercial",
-            "Software Engineer":"Controls Engineer","Data Analyst":"Asset Integrity Analyst","Product Manager":"Operations Superintendent","SDR":"Energy Trader","Account Executive":"Commercial Manager","UX Designer":"Renewables Analyst","DevOps Engineer":"SCADA Engineer","Security Analyst":"HSE Coordinator"},
-        "education": {"Engineering":"IT Services","Product":"Academic Affairs","Data & Analytics":"Institutional Research","IT Operations":"IT Operations","Security":"Student Services","Sales & Marketing":"Enrollment",
-            "Software Engineer":"Systems Developer","Data Analyst":"IR Analyst","Product Manager":"Curriculum Coordinator","SDR":"Admissions Counselor","Account Executive":"Enrollment Manager","UX Designer":"Instructional Designer","Security Analyst":"Student Advisor","Recruiter":"Faculty Recruiter"},
+        "consulting": {"Engineering":"Technology","Product":"Strategy & Consulting","Data & Analytics":"Analytics","IT Operations":"Operations","Security":"Risk & Compliance","Sales & Marketing":"Business Development","Legal":"Legal & Contracts",
+            "Junior Software Engineer":"Junior Consultant","Software Engineer":"Consultant","Senior Software Engineer":"Senior Consultant","Staff Engineer":"Principal","Engineering Manager":"Managing Director","Sr Engineering Manager":"Senior MD","VP Engineering":"Partner","Associate PM":"Analyst","Product Manager":"Senior Analyst","Senior PM":"Manager","UX Designer":"Specialist","SDR":"BD Analyst","Account Executive":"Account Manager","Data Analyst":"Data Consultant","Recruiter":"TA Partner"},
+        "energy": {"Product":"Operations","Data & Analytics":"Reservoir Engineering","IT Operations":"SCADA/OT","Security":"HSE","Sales & Marketing":"Land & Commercial",
+            "Software Engineer":"Controls Engineer","Data Analyst":"Reservoir Analyst","Product Manager":"Operations Superintendent","SDR":"Landman","Account Executive":"Commercial Manager","UX Designer":"Renewables Analyst","DevOps Engineer":"SCADA Engineer","Security Analyst":"HSE Coordinator"},
+        "aerospace": {"Engineering":"Engineering Systems","Product":"Mission Systems","Data & Analytics":"Systems Integration","IT Operations":"IT & Cyber","Security":"Security & Classification","Sales & Marketing":"Business Development","Finance":"Program Finance","Legal":"Contracts",
+            "Junior Software Engineer":"Associate Engineer","Software Engineer":"Systems Engineer","Senior Software Engineer":"Senior Systems Engineer","Staff Engineer":"Principal Engineer","Engineering Manager":"Engineering Lead","Sr Engineering Manager":"Program Manager","VP Engineering":"VP Engineering","Associate PM":"Program Analyst","Product Manager":"Systems Analyst","Senior PM":"Deputy Program Manager","SDR":"BD Analyst","Account Executive":"Capture Manager","Data Analyst":"Test Engineer","Recruiter":"Cleared Recruiter","Security Analyst":"Security Specialist","Compliance Analyst":"Classification Specialist"},
     }
     
     INDUSTRY_SKILLS = {
@@ -427,9 +424,9 @@ def _seed_tutorial_store(industry="technology", size_tier="mid"):
         "healthcare": ["Clinical Data Analysis","Medical Coding","EHR Systems","Regulatory Knowledge","Process Automation","Communication","Leadership","Stakeholder Mgmt","Critical Thinking","AI/ML Tools","Patient Experience","Quality Improvement","HIPAA Compliance","Digital Fluency","AI Literacy"],
         "manufacturing": ["Data Analysis","Process Engineering","Quality Control","Lean/Six Sigma","Supply Chain Mgmt","Communication","Leadership","Stakeholder Mgmt","Critical Thinking","AI/ML Tools","ERP Systems","Predictive Maintenance","Safety Compliance","Digital Fluency","AI Literacy"],
         "retail": ["Data Analysis","Demand Forecasting","Inventory Mgmt","Customer Experience","Process Automation","Communication","Leadership","Stakeholder Mgmt","Critical Thinking","AI/ML Tools","E-Commerce","Digital Marketing","Negotiation","Digital Fluency","AI Literacy"],
-        "legal": ["Legal Research","Contract Analysis","eDiscovery","Regulatory Knowledge","Process Automation","Communication","Leadership","Stakeholder Mgmt","Critical Thinking","AI/ML Tools","IP Management","Negotiation","Knowledge Mgmt","Digital Fluency","AI Literacy"],
+        "consulting": ["Data Analysis","Strategy Frameworks","Client Management","Process Design","Process Automation","Communication","Leadership","Stakeholder Mgmt","Critical Thinking","AI/ML Tools","Change Management","Financial Modeling","Industry Knowledge","Digital Fluency","AI Literacy"],
         "energy": ["Data Analysis","Process Engineering","Asset Mgmt","HSE Knowledge","Process Automation","Communication","Leadership","Stakeholder Mgmt","Critical Thinking","AI/ML Tools","SCADA Systems","Predictive Analytics","Regulatory Knowledge","Digital Fluency","AI Literacy"],
-        "education": ["Data Analysis","Student Info Systems","Enrollment Mgmt","Financial Aid","Process Automation","Communication","Leadership","Stakeholder Mgmt","Critical Thinking","AI/ML Tools","Academic Advising","Grant Mgmt","Curriculum Design","Digital Fluency","AI Literacy"],
+        "aerospace": ["Systems Engineering","Requirements Analysis","Program Management","Security Clearance Protocols","Process Automation","Communication","Leadership","Stakeholder Mgmt","Critical Thinking","AI/ML Tools","Model-Based Engineering","Test & Evaluation","DoD Acquisition","Digital Fluency","AI Literacy"],
     }
 
     # ═══ INDUSTRY-SPECIFIC JOB FAMILY / SUB-FAMILY MAPPING ═══
@@ -1078,8 +1075,10 @@ def _seed_tutorial_store(industry="technology", size_tier="mid"):
         "healthcare":           _HEALTHCARE_HIERARCHY,
         "manufacturing":        _MANUFACTURING_HIERARCHY,
         "retail":               _RETAIL_HIERARCHY,
-        "legal":                _LEGAL_HIERARCHY,
+        "consulting":           _LEGAL_HIERARCHY,  # reuse legal hierarchy as base, renames handle titles
         "energy":               _ENERGY_HIERARCHY,
+        "aerospace":            _EDUCATION_HIERARCHY,  # reuse education hierarchy as base, renames handle titles
+        "legal":                _LEGAL_HIERARCHY,
         "education":            _EDUCATION_HIERARCHY,
         "professional_services": _PROFSERV_HIERARCHY,
     }

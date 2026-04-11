@@ -200,15 +200,87 @@ function AboutTab() {
       </div>
     </div>
 
-    {/* Quote — by Stephanie Penner */}
-    <div className="rounded-2xl p-8 mb-8 relative overflow-hidden" style={{ background: "linear-gradient(135deg, rgba(212,134,10,0.04), rgba(232,197,71,0.02))", border: "1px solid rgba(212,134,10,0.1)" }}>
-      <div className="absolute top-4 left-6 text-[80px] font-serif leading-none select-none" style={{ color: "rgba(212,134,10,0.08)" }}>&ldquo;</div>
-      <div className="absolute bottom-4 right-6 text-[80px] font-serif leading-none select-none" style={{ color: "rgba(212,134,10,0.08)" }}>&rdquo;</div>
-      <div className="relative z-10 px-8">
-        <div className="text-[10px] font-bold uppercase tracking-[2px] mb-4" style={{ color: "rgba(212,134,10,0.45)" }}>What factors do you attribute to your success and advancement in your career?</div>
-        <blockquote className="text-[15px] leading-[1.9] italic mb-5" style={{ color: "rgba(232,236,244,0.75)" }}>This might seem cliché, but I&apos;ve found that the most successful people are those who find opportunity even in challenging situations, and when they encounter adversity, they&apos;re able to have resilience coupled with a positive mindset. That not only allows you to figure out how to solve for something, but you also inspire others to work through change. That outlook really helped me over the course of my career. Change is a constant in today&apos;s world, so having a muscle for it that I&apos;ve built over time has helped me accept change as part of the everyday equation.</blockquote>
-        <div className="text-[13px] font-semibold" style={{ color: "var(--accent-primary)" }}>— Stephanie Penner</div>
+    {/* ═══ QUOTES SECTION ═══ */}
+    <div className="mb-10">
+      <div className="text-center mb-8">
+        <h2 className="text-[22px] font-bold font-heading text-[var(--text-primary)] mb-2" style={{ letterSpacing: "-0.3px" }}>Words That Shape the Work</h2>
+        <p className="text-[13px]" style={{ color: "rgba(232,197,71,0.45)" }}>Three voices, one philosophy — the mindset behind the AI Transformation Platform</p>
       </div>
+
+      {/* Quote 1 — Stephanie Penner */}
+      <div className="rounded-2xl mb-6 relative overflow-hidden" style={{ padding: 40, background: "linear-gradient(135deg, rgba(212,134,10,0.04), rgba(232,197,71,0.02))", border: "1px solid rgba(212,134,10,0.1)", borderLeft: "4px solid rgba(212,134,10,0.4)" }}>
+        <div className="absolute top-3 left-8 font-serif leading-none select-none" style={{ fontSize: 60, color: "rgba(212,134,10,0.1)" }}>&ldquo;</div>
+        <div className="relative z-10" style={{ paddingLeft: 16 }}>
+          <div className="text-[10px] uppercase tracking-[2px] italic mb-4" style={{ color: "rgba(212,134,10,0.4)" }}>What factors do you attribute to your success and advancement in your career?</div>
+          <blockquote className="mb-5" style={{ fontSize: 18, fontFamily: "'Outfit', sans-serif", lineHeight: 1.8, color: "rgba(232,236,244,0.75)", fontStyle: "normal" }}>This might seem cliché, but I&apos;ve found that the most successful people are those who find opportunity even in challenging situations, and when they encounter adversity, they&apos;re able to have resilience coupled with a positive mindset. That not only allows you to figure out how to solve for something, but you also inspire others to work through change. That outlook really helped me over the course of my career. Change is a constant in today&apos;s world, so having a muscle for it that I&apos;ve built over time has helped me accept change as part of the everyday equation.</blockquote>
+          <div className="text-right" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, fontWeight: 700, color: "var(--accent-primary)" }}>— Stephanie Penner</div>
+        </div>
+      </div>
+
+      {/* Quote 2 — Jamie Dimon */}
+      <div className="rounded-2xl mb-6 relative overflow-hidden" style={{ padding: 40, background: "linear-gradient(135deg, rgba(11,17,32,0.5), rgba(26,35,64,0.3))", border: "1px solid rgba(59,130,246,0.1)", borderLeft: "4px solid rgba(59,130,246,0.35)" }}>
+        <div className="absolute top-3 left-8 font-serif leading-none select-none" style={{ fontSize: 60, color: "rgba(59,130,246,0.08)" }}>&ldquo;</div>
+        <div className="relative z-10" style={{ paddingLeft: 16 }}>
+          <div className="text-[10px] uppercase tracking-[2px] italic mb-4" style={{ color: "rgba(59,130,246,0.4)" }}>What are the most important qualities you look for in people and leaders?</div>
+          <blockquote className="mb-5" style={{ fontSize: 18, fontFamily: "'Outfit', sans-serif", lineHeight: 1.8, color: "rgba(232,236,244,0.75)", fontStyle: "normal" }}>I look for a whole bunch of things. They have to be smart, they have to have good judgment, they have to work hard… they have to be capable. But character is a sine qua non — an absolute necessity. They tell the truth, and nothing but the truth. They don&apos;t shave the truth. They don&apos;t twist it depending on who they&apos;re talking to. They have courage — they&apos;re not afraid to speak up. They care about the company, not just themselves.</blockquote>
+          <div className="text-right" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, fontWeight: 700, color: "rgba(59,130,246,0.7)" }}>— Jamie Dimon, Chairman &amp; CEO, JPMorgan Chase</div>
+        </div>
+      </div>
+
+      {/* Quote 3 — Jim Donovan */}
+      <div className="rounded-2xl mb-6 relative overflow-hidden" style={{ padding: 40, background: "linear-gradient(135deg, rgba(192,112,48,0.04), rgba(184,96,42,0.02))", border: "1px solid rgba(192,112,48,0.1)", borderLeft: "4px solid rgba(192,112,48,0.4)" }}>
+        <div className="absolute top-3 left-8 font-serif leading-none select-none" style={{ fontSize: 60, color: "rgba(192,112,48,0.08)" }}>&ldquo;</div>
+        <div className="relative z-10" style={{ paddingLeft: 16 }}>
+          <div className="text-[10px] uppercase tracking-[2px] italic mb-4" style={{ color: "rgba(192,112,48,0.45)" }}>On preparation and excellence</div>
+          <blockquote className="mb-5" style={{ fontSize: 18, fontFamily: "'Outfit', sans-serif", lineHeight: 1.8, color: "rgba(232,236,244,0.75)", fontStyle: "normal" }}>You have to take responsibility for your job. You have to do the work ahead of time. You can&apos;t just show up and expect things to work out. Always be prepared. Because you never know when you&apos;re going to be tested. It could be in a meeting, it could be when someone asks you a question, it could be when you least expect it. And if you&apos;re not prepared, it&apos;s going to show. People will know.</blockquote>
+          <div className="text-right" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, fontWeight: 700, color: "rgba(192,112,48,0.7)" }}>— Jim Donovan, Vice Chairman, Goldman Sachs</div>
+        </div>
+      </div>
+    </div>
+
+    {/* ═══ PHILOSOPHY BOX ═══ */}
+    <div className="rounded-2xl mb-10" style={{ padding: 48, background: "linear-gradient(135deg, rgba(255,248,235,0.04), rgba(212,134,10,0.02))", border: "1px solid rgba(212,134,10,0.12)" }}>
+      <h2 className="text-[20px] font-bold font-heading text-[var(--text-primary)] mb-2" style={{ letterSpacing: "-0.3px" }}>This Is About You</h2>
+      <p className="text-[12px] mb-10" style={{ color: "rgba(232,197,71,0.4)" }}>Why these principles define the transformation journey</p>
+
+      {/* Paragraph 1 — Courage */}
+      <p className="text-[14px] leading-[1.85] text-[var(--text-secondary)] mb-8">At some point in your transformation journey, you&apos;re going to sit in a room with data that tells an uncomfortable truth. Maybe it shows that 40% of tasks in your largest function are automatable. Maybe it reveals that your most tenured leaders are in the roles most exposed to AI disruption. Maybe it surfaces a pay equity gap that restructuring will either fix or amplify. In that moment, you have a choice — soften the message or <strong style={{ color: "var(--accent-primary)" }}>tell the truth</strong>. Jamie Dimon&apos;s words aren&apos;t about banking. They&apos;re about you, in that room, deciding whether to present the data as it is or shade it to make people comfortable. The organizations that transform successfully are led by people who choose truth. Not because it&apos;s easy, but because every decision built on incomplete truth compounds into a plan that doesn&apos;t work. When you use this platform and the AI impact scores tell you something hard — <strong style={{ color: "var(--accent-primary)" }}>sit with it. Don&apos;t shave it.</strong> That&apos;s where the real work begins.</p>
+
+      {/* Paragraph 2 — Resilience */}
+      <p className="text-[14px] leading-[1.85] text-[var(--text-secondary)] mb-8">Transformation is not a single moment — it&apos;s an eighteen-month, sometimes three-year grind. There will be a point where your stakeholders lose patience. Where the pilot program doesn&apos;t show results fast enough. Where employees push back harder than expected. Where a leader you were counting on as a champion suddenly becomes a skeptic. Stephanie&apos;s insight isn&apos;t motivational poster wisdom — it&apos;s operational reality. The consultants and HR leaders who deliver real transformation are the ones who <strong style={{ color: "var(--accent-primary)" }}>find opportunity in those setbacks</strong>. When 60% of your workforce scores as &ldquo;resistant to change&rdquo; in the readiness assessment, that&apos;s not a failure — that&apos;s a segmentation strategy. Those are the people who need a different engagement approach, not a louder memo. When a redesigned role gets rejected by the business, that&apos;s feedback, not defeat. You&apos;ll use this platform to run scenarios, score readiness, model impacts — and some of those outputs will be discouraging. The resilience isn&apos;t in ignoring the data. It&apos;s in asking <strong style={{ color: "var(--accent-primary)" }}>&ldquo;what does this tell me about what to do differently?&rdquo;</strong> and iterating.</p>
+
+      {/* Paragraph 3 — Preparation */}
+      <p className="text-[14px] leading-[1.85] text-[var(--text-secondary)] mb-8">Jim Donovan&apos;s advice sounds simple. Be prepared. But in transformation, preparation is everything that separates a plan that gets funded from one that gets shelved. When your CEO asks &ldquo;what&apos;s the ROI on this transformation?&rdquo; and you&apos;ve run the cost model with realistic assumptions, pressure-tested it across three scenarios, and can speak to the skill gaps, reskilling costs, and timeline — you earn credibility. When you can&apos;t, you lose the room. This platform exists so that <strong style={{ color: "var(--accent-primary)" }}>you&apos;re never caught unprepared</strong>. Every module — from the org health scorecard to the capacity waterfall to the stakeholder map — is a layer of preparation. When a board member challenges your headcount projections, you can drill into the FTE impact model and show exactly which roles are being reduced, redeployed, and created. When an employee asks &ldquo;what happens to me?&rdquo;, you can pull up the reskilling pathway and show them their transition plan. You don&apos;t get those answers from intuition. You get them from doing the work ahead of time.</p>
+
+      {/* Callout 1 */}
+      <div className="rounded-xl my-10 py-6 px-8 text-center" style={{ background: "rgba(212,134,10,0.04)", borderTop: "2px solid rgba(212,134,10,0.15)", borderBottom: "2px solid rgba(212,134,10,0.15)" }}>
+        <p className="text-[16px] italic leading-[1.8]" style={{ color: "rgba(232,197,71,0.6)", fontFamily: "'Outfit', sans-serif" }}>&ldquo;A playground is where you test assumptions without consequences. Where you model a restructuring before announcing it. Where you simulate the impact before committing budget.&rdquo;</p>
+      </div>
+
+      {/* Paragraph 4 — The Digital Playground */}
+      <p className="text-[14px] leading-[1.85] text-[var(--text-secondary)] mb-8">This is why this platform is called a Digital Playground. Not because transformation is a game — but because every athlete, every performer, every leader who excels at the real thing practices first. A playground is where you test assumptions without consequences. Where you model a restructuring before announcing it. Where you simulate the financial impact before committing budget. Where you draft the change narrative before standing in front of 5,000 employees. The leaders and practitioners who use this tool the way it&apos;s intended — <strong style={{ color: "var(--accent-primary)" }}>experimenting with scenarios, stress-testing their designs, building and rebuilding until the plan is bulletproof</strong> — they walk into the real transformation with confidence. They&apos;ve already seen every version of the future. They&apos;ve already answered the hard questions. They&apos;ve prepared, they&apos;ve built resilience through iteration, and they&apos;ve faced the data with honesty. They swing, they slide, they climb — and when the real moment comes, they&apos;re ready.</p>
+
+      {/* Callout 2 */}
+      <div className="rounded-xl my-10 py-6 px-8 text-center" style={{ background: "rgba(212,134,10,0.04)", borderTop: "2px solid rgba(212,134,10,0.15)", borderBottom: "2px solid rgba(212,134,10,0.15)" }}>
+        <p className="text-[16px] italic leading-[1.8]" style={{ color: "rgba(232,197,71,0.6)", fontFamily: "'Outfit', sans-serif" }}>&ldquo;The principles behind great leadership and great transformation are the same.&rdquo;</p>
+      </div>
+
+      {/* Paragraph 5 — Why This Matters */}
+      <p className="text-[14px] leading-[1.85] text-[var(--text-secondary)] mb-8">The reason I built this platform — and the reason these quotes live here — is because I believe the principles behind great leadership and great transformation are the same. And those principles shouldn&apos;t be locked behind expensive consulting engagements that only Fortune 500 companies can access. A 200-person healthcare system deserves the same rigor in their workforce planning as a 50,000-person bank. A first-time HR leader navigating their company&apos;s first AI initiative deserves the same strategic toolkit as a McKinsey partner. That&apos;s what <strong style={{ color: "var(--accent-primary)" }}>democratizing knowledge</strong> means. Not dumbing it down — opening it up. If Stephanie&apos;s resilience, Jamie&apos;s character, and Jim&apos;s preparation resonate with you the way they resonate with me, then you&apos;re exactly who this platform was built for. Welcome to the Digital Playground. Let&apos;s build something.</p>
+
+      {/* Signature */}
+      <div className="flex items-center gap-3 mt-10 pt-6" style={{ borderTop: "1px solid rgba(212,134,10,0.08)" }}>
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center text-[14px] font-bold text-white shrink-0" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", fontFamily: "'Outfit',sans-serif" }}>HM</div>
+        <div>
+          <div className="text-[13px] font-semibold text-[var(--text-primary)] font-heading">Hiral Merchant</div>
+          <div className="text-[10px]" style={{ color: "rgba(212,134,10,0.4)" }}>New York</div>
+        </div>
+      </div>
+    </div>
+
+    {/* Footer */}
+    <div className="text-center pb-8">
+      <p className="text-[10px]" style={{ color: "rgba(255,230,200,0.15)" }}>Built with purpose in New York. &copy; 2026</p>
     </div>
   </div>;
 }

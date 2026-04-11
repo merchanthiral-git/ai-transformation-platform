@@ -8,7 +8,7 @@ import {
   BarViz, DonutViz, RadarViz, TabBar, PageHeader, LoadingBar, LoadingSkeleton,
   ModuleExportButton, NextStepBar, ContextStrip, InfoButton,
   useApiData, usePersisted, callAI, showToast, logDec,
-  exportToCSV, EmptyWithAction
+  exportToCSV, EmptyWithAction, fmtNum
 } from "./shared";
 
 export function ExportReport({ model, f, onBack }: { model: string; f: Filters; onBack: () => void }) {
@@ -17,7 +17,8 @@ export function ExportReport({ model, f, onBack }: { model: string; f: Filters; 
   const [generating, setGenerating] = useState(false);
   const [generated, setGenerated] = useState(false);
 
-  useEffect(() => { if (!model) return; setLoading(true); api.getExportSummary(model, f).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false)); }, [model, f.func, f.jf, f.sf, f.cl]);
+  const [error, setError] = useState(false);
+  useEffect(() => { if (!model) return; setLoading(true); setError(false); api.getExportSummary(model, f).then(d => { setData(d); setLoading(false); }).catch(() => { setLoading(false); setError(true); }); }, [model, f.func, f.jf, f.sf, f.cl]);
 
   const generateDocx = async () => {
     setGenerating(true);
@@ -44,8 +45,13 @@ export function ExportReport({ model, f, onBack }: { model: string; f: Filters; 
 
   return <div>
     <ContextStrip items={["Generate your board-ready transformation report. All module data is summarized below."]} />
-    <PageHeader icon="📋" title="Export & Report" subtitle="Consolidated transformation report generator" onBack={onBack} />
+    <PageHeader icon="📋" title="Export & Report" subtitle="Consolidated transformation report generator" onBack={onBack} moduleId="export" />
     {loading && <LoadingBar />}
+    {error && <div className="bg-[var(--surface-2)] rounded-xl p-4 mb-4 border border-[var(--risk)]/20 flex items-center gap-3">
+      <span className="text-lg">⚠️</span>
+      <div className="flex-1"><div className="text-[12px] font-semibold text-[var(--risk)]">Backend unavailable</div><div className="text-[11px] text-[var(--text-muted)]">Export data could not be loaded. Downloads still work if the backend comes back online.</div></div>
+      <button onClick={() => { setLoading(true); setError(false); api.getExportSummary(model, f).then(d => { setData(d); setLoading(false); }).catch(() => { setLoading(false); setError(true); }); }} className="px-3 py-1.5 rounded-lg text-[11px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30">Retry</button>
+    </div>}
 
     {/* Data completeness dashboard */}
     <Card title="Report Data Readiness">
@@ -59,8 +65,8 @@ export function ExportReport({ model, f, onBack }: { model: string; f: Filters; 
           { label: "Buy Roles", value: bbba.buy || 0, icon: "🛒" },
           { label: "Net HC Change", value: wf.net_change || 0, icon: "👥" },
           { label: "Champions", value: mgr.champions || 0, icon: "🏆" },
-          { label: "Reskilling Cost", value: `$${(Number(reskill.total_investment || 0) / 1000).toFixed(0)}K`, icon: "📚" },
-          { label: "Total Investment", value: `$${(Number(bbba.total_investment || 0) / 1000).toFixed(0)}K`, icon: "💰" },
+          { label: "Reskilling Cost", value: fmtNum(reskill.total_investment || 0), icon: "📚" },
+          { label: "Total Investment", value: fmtNum(bbba.total_investment || 0), icon: "💰" },
           { label: "Internal Fill", value: `${mp.internal_fill || 0} roles`, icon: "🏪" },
         ].map(k => <div key={k.label} className="bg-[var(--surface-2)] rounded-xl p-3 border border-[var(--border)] text-center transition-all hover:border-[var(--accent-primary)]/30 hover:translate-y-[-1px]">
           <div className="text-lg mb-1">{k.icon}</div>
@@ -286,7 +292,7 @@ Be specific with numbers from the data. Keep each item to 1-2 sentences max.`
             { label: "Readiness", value: `${data?.org_readiness || 0}/5` },
             { label: "Build Roles", value: bbba.build || 0 },
             { label: "Net HC Δ", value: wf.net_change || 0 },
-            { label: "Investment", value: `$${(Number(bbba.total_investment || 0) / 1000).toFixed(0)}K` },
+            { label: "Investment", value: fmtNum(bbba.total_investment || 0) },
           ].map(k => <div key={k.label} className="text-center bg-[var(--surface-1)] rounded-lg p-2 border border-[var(--border)]">
             <div className="text-[14px] font-extrabold font-data text-[var(--accent-primary)]">{String(k.value)}</div>
             <div className="text-[8px] text-[var(--text-muted)] uppercase">{k.label}</div>

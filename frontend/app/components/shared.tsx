@@ -6,6 +6,21 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pi
 
 export type ViewContext = { mode: string; employee: string; job: string; custom: Record<string, string> };
 
+/** Smart number formatting: currency ($1.2M), headcount (1,200), percentage (45.3%) */
+export function fmtNum(value: number | string | null | undefined, type: "currency" | "headcount" | "percentage" = "currency"): string {
+  const n = Number(value ?? 0);
+  if (!isFinite(n)) return "—";
+  if (type === "percentage") return `${n.toFixed(1)}%`;
+  if (type === "headcount") return n >= 1e6 ? `${(n / 1e6).toFixed(1)}M` : n.toLocaleString();
+  // currency
+  const abs = Math.abs(n);
+  const sign = n < 0 ? "-" : "";
+  if (abs < 1000) return `${sign}$${Math.round(abs).toLocaleString()}`;
+  if (abs < 1e6) return `${sign}$${(abs / 1000).toFixed(abs < 10000 ? 1 : 0)}K`;
+  if (abs < 1e9) return `${sign}$${(abs / 1e6).toFixed(abs < 100e6 ? 1 : 0)}M`;
+  return `${sign}$${(abs / 1e9).toFixed(1)}B`;
+}
+
 export const COLORS = ["#D4860A","#C07030","#E8C547","#B8602A","#D97706","#F59E0B","#A0522D","#E09040"];
 
 /* ── AI Helper — routes all AI calls through backend Gemini proxy ── */
@@ -137,11 +152,30 @@ export const TT: React.CSSProperties = { background: "#1A2340", border: "1px sol
 /* ═══════════════════════════════════════════════════════════════
    ERROR BOUNDARY — prevents white screen crashes
    ═══════════════════════════════════════════════════════════════ */
-export class ErrorBoundary extends React.Component<{ children: React.ReactNode; fallback?: React.ReactNode }, { hasError: boolean; error: Error | null }> {
-  constructor(props: { children: React.ReactNode; fallback?: React.ReactNode }) { super(props); this.state = { hasError: false, error: null }; }
+export class ErrorBoundary extends React.Component<{ children: React.ReactNode; fallback?: React.ReactNode; onBack?: () => void; onNavigate?: (id: string) => void }, { hasError: boolean; error: Error | null }> {
+  constructor(props: { children: React.ReactNode; fallback?: React.ReactNode; onBack?: () => void; onNavigate?: (id: string) => void }) { super(props); this.state = { hasError: false, error: null }; }
   static getDerivedStateFromError(error: Error) { return { hasError: true, error }; }
   render() {
-    if (this.state.hasError) return this.props.fallback || <div className="p-8 text-center"><div className="text-3xl mb-3">⚠️</div><h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">Something went wrong</h3><p className="text-[13px] text-[var(--text-secondary)] mb-4 max-w-md mx-auto">{this.state.error?.message || "An unexpected error occurred. Try refreshing the page."}</p><button onClick={() => this.setState({ hasError: false, error: null })} className="px-4 py-2 rounded-lg text-[13px] font-semibold bg-[var(--accent-primary)] text-white">Try Again</button></div>;
+    if (this.state.hasError) return this.props.fallback || <div className="p-8 text-center">
+      <div className="text-3xl mb-3">⚠️</div>
+      <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">Something went wrong</h3>
+      <p className="text-[13px] text-[var(--text-secondary)] mb-4 max-w-md mx-auto">{this.state.error?.message || "An unexpected error occurred."}</p>
+      <div className="flex gap-3 justify-center flex-wrap mb-4">
+        {this.props.onBack && <button onClick={this.props.onBack} className="px-4 py-2 rounded-lg text-[13px] font-semibold border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--hover)] transition-colors">← Back to Home</button>}
+        <button onClick={() => this.setState({ hasError: false, error: null })} className="px-4 py-2 rounded-lg text-[13px] font-semibold bg-[var(--accent-primary)] text-white">Clear & Retry</button>
+      </div>
+      {this.props.onNavigate && <div className="border-t border-[var(--border)] pt-4 mt-4">
+        <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Switch Module</div>
+        <div className="flex gap-2 justify-center flex-wrap">{[
+          { id: "snapshot", label: "Overview", icon: "📊" },
+          { id: "jobarch", label: "Jobs", icon: "🏗️" },
+          { id: "scan", label: "AI Scan", icon: "🔬" },
+          { id: "design", label: "Design", icon: "✏️" },
+          { id: "simulate", label: "Simulate", icon: "⚡" },
+          { id: "plan", label: "Mobilize", icon: "🚀" },
+        ].map(m => <button key={m.id} onClick={() => { this.setState({ hasError: false, error: null }); this.props.onNavigate!(m.id); }} className="px-3 py-1.5 rounded-lg text-[11px] font-semibold border border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--accent-primary)]/30 hover:bg-[var(--hover)] transition-all">{m.icon} {m.label}</button>)}</div>
+      </div>}
+    </div>;
     return this.props.children;
   }
 }
@@ -181,6 +215,17 @@ export const MODULE_HELP: Record<string, { title: string; summary: string; pages
     { heading: "How to use", body: "Review the 6 KPI cards for a quick health check. Drill into any function bar to filter downstream modules. Use the data quality indicator to identify gaps before designing." },
   ]},
   jobs: { title: "Job Architecture", summary: "Explore job families, career tracks, levels, and role clusters across your organization." },
+  jobarch: { title: "Job Architecture", summary: "Enterprise job catalogue, hierarchy framework, career path design, and structural validation — the foundation of organizational design.", pages: [
+    { heading: "What is Job Architecture?", body: "A structured framework organizing all jobs into a coherent hierarchy: Enterprise → Function → Job Family Group → Job Family → Sub-Family → Job Title → Level. It defines how roles relate, what career paths exist, and how leveling and compensation align across the enterprise." },
+    { heading: "Key Components", body: "Job families and sub-families group related roles. Career tracks (IC, Manager, Executive) define progression paths. Career levels define scope, complexity, and autonomy at each band. Job profiles document purpose, responsibilities, skills, and KPIs. Job codes enable HRIS integration and market benchmarking." },
+    { heading: "The Hierarchy", body: "Enterprise → Function (Finance, Technology, HR) → Job Family Group (Financial Operations) → Job Family (FP&A, Accounting, Treasury) → Sub-Family (AP, AR, GL) → Job Title (Senior Accountant) → Level (L4). Each layer adds specificity. Most enterprises have 8-15 functions, 40-80 families, and 200-500 unique titles." },
+    { heading: "How to Build One", body: "Step 1: Inventory all existing roles and titles. Step 2: Define career tracks and level criteria. Step 3: Group roles into families and sub-families. Step 4: Validate with functional leaders. Step 5: Align compensation bands to levels. Step 6: Run structural validation checks. Step 7: Publish and communicate. Step 8: Establish governance cadence." },
+    { heading: "Common Frameworks", body: "Mercer IPE (International Position Evaluation) — factor-based, globally consistent. Hay/Korn Ferry — measures know-how, problem-solving, accountability. WTW (Willis Towers Watson) — global grading methodology. Radford — technology-sector focused leveling. Each provides a standardized way to evaluate and compare roles across organizations and markets." },
+    { heading: "Governance", body: "Annual full review with functional leaders. Quarterly calibration sessions for new/changed roles. Title change requests require architecture committee approval. Market benchmarking refresh every 12-18 months. Track metrics: title-to-headcount ratio (target 1:15-20), orphaned roles (target <5%), level distribution health." },
+    { heading: "Common Mistakes", body: "Title inflation (VP-level titles for individual contributors). Too many levels (>8 per track creates confusion). Inconsistent naming across functions. Orphaned roles (single-incumbent with no career path). Designing in HR without functional input. Treating it as static rather than living framework." },
+    { heading: "Glossary", body: "Span of Control: number of direct reports per manager. Career Lattice: non-linear career movement (lateral, diagonal, not just up). Dual-Track: parallel IC and Manager paths at senior levels. Broadbanding: combining multiple narrow pay grades into fewer wide bands. Job Evaluation: systematic process to determine relative worth of roles. Market Pricing: setting compensation based on external market data rather than internal equity alone." },
+    { heading: "Why It Matters for AI Transformation", body: "AI transformation redesigns roles at the task level — the job architecture determines which roles exist to be redesigned, how they relate to each other, and where career paths need to be rebuilt. Without a clean architecture, you cannot accurately model the impact of automation, plan reskilling pathways, or design the future-state organization. The architecture is the skeleton; AI transformation reshapes the muscles." },
+  ]},
   scan: { title: "AI Opportunity Scan", summary: "Identifies where AI creates the most value by scoring tasks on automation potential, time savings, and complexity." },
   readiness: { title: "AI Readiness", summary: "Individual and team readiness scores based on skill proficiency, change disposition, and current AI tool adoption." },
   mgrcap: { title: "Manager Capability", summary: "Assesses manager readiness to lead transformation — identifies champions, at-risk managers, and development needs." },
@@ -217,6 +262,38 @@ export const MODULE_HELP: Record<string, { title: string; summary: string; pages
     { heading: "Categories", body: "Quick Wins are high-impact, low-effort. Strategic Bets are high-impact but need more investment. Easy Automations are simple but lower-impact." },
   ]},
   dashboard: { title: "Transformation Dashboard", summary: "Executive summary across all transformation phases — decision log, risk register, and progress tracking." },
+  orghealth: { title: "Org Health Scorecard", summary: "Auto-calculated organizational health metrics benchmarked against industry standards across leadership, culture, digital maturity, processes, and data quality.", pages: [
+    { heading: "What it measures", body: "Composite scores across 5+ dimensions: leadership alignment, cultural adaptability, digital maturity, process standardization, and data quality. Each dimension is scored 0-100 and compared against industry benchmarks." },
+    { heading: "How to read it", body: "Green metrics are within industry benchmarks. Yellow metrics are below average but recoverable. Red metrics indicate critical gaps requiring immediate intervention. The overall health score weights all dimensions." },
+    { heading: "Benchmark comparison", body: "Select an industry to see how your organization compares. Benchmarks come from aggregated anonymized data across similar organizations by size and sector." },
+  ]},
+  heatmap: { title: "AI Impact Heatmap", summary: "Visualizes automation potential across the intersection of functions and job families — identifies hot spots where AI delivers the most value.", pages: [
+    { heading: "What it shows", body: "A matrix of functions (rows) × job families (columns). Each cell is colored by composite AI impact score: red/orange = high automation potential (quick wins), blue/green = human-intensive work requiring augmentation." },
+    { heading: "How to use it", body: "Start with the hottest cells — these represent the highest-impact automation opportunities. Click any cell to see the underlying tasks driving the score. Use this to prioritize which roles to deconstruct first in the Work Design Lab." },
+  ]},
+  clusters: { title: "Role Clustering", summary: "Groups similar roles by task composition, skill requirements, and AI impact profiles — reveals hidden redundancy and consolidation opportunities.", pages: [
+    { heading: "How clustering works", body: "Roles are compared on task overlap percentage, shared characteristics (task type, logic, interaction patterns), and AI impact similarity. Roles with >70% overlap are flagged as consolidation candidates." },
+    { heading: "What to look for", body: "Large clusters with high overlap suggest organizational redundancy — the same work being done under different titles in different functions. Consolidation candidates can be merged to reduce complexity and improve career path clarity." },
+    { heading: "Action steps", body: "Review consolidation candidates with functional leaders. Validate whether overlapping roles truly do the same work or just share surface-level characteristics. Feed confirmed consolidations into the Job Architecture redesign." },
+  ]},
+  recommendations: { title: "AI Recommendations Engine", summary: "Synthesizes data from all diagnostic modules to generate prioritized, actionable transformation recommendations with impact and effort estimates.", pages: [
+    { heading: "How it works", body: "The engine analyzes patterns across workforce snapshot, AI readiness, skills gaps, manager capability, and change readiness data. It identifies the highest-impact opportunities and most critical risks, then generates specific action items." },
+    { heading: "Recommendation types", body: "Quick Wins (high impact, low effort), Strategic Priorities (high impact, high effort), Tactical Fixes (low impact, low effort), and Watch Items (low impact but potentially growing). Each recommendation includes an impact estimate, effort level, and suggested owner." },
+  ]},
+  story: { title: "Transformation Story Builder", summary: "Auto-generates executive-ready transformation narratives for board presentations, all-hands meetings, and investor updates.", pages: [
+    { heading: "What it does", body: "Synthesizes data from every module — workforce baseline, AI impact analysis, skills gaps, change readiness, and financial projections — into a coherent narrative suitable for executive audiences." },
+    { heading: "Tone options", body: "Choose between Board Presentation (formal, data-heavy, ROI-focused), All-Hands (motivational, employee-centric, change-positive), or Investor Update (strategic, market-positioning, growth-oriented). Each tone reshapes the same data into different storytelling frameworks." },
+    { heading: "How to use", body: "Select a tone, click Generate, then review and edit the output. Export as text for inclusion in slide decks or documents. Regenerate with a different tone for different audiences." },
+  ]},
+  archetypes: { title: "Readiness Archetypes", summary: "Segments the workforce into behavioral profiles with tailored engagement strategies — from Early Adopters to Active Resistors.", pages: [
+    { heading: "The four archetypes", body: "Early Adopters (high readiness, embrace change), Pragmatic Majority (willing but need evidence), Skeptics (resistant but persuadable with data), Active Resistors (need intensive, personalized intervention). Each group requires a fundamentally different approach." },
+    { heading: "Engagement strategies", body: "Early Adopters become Champions — deploy them to lead pilots. Pragmatics need proof points and peer testimonials. Skeptics respond to data, transparency, and small wins. Resistors need one-on-one coaching and gradual exposure." },
+    { heading: "How to use", body: "Review the distribution of your workforce across archetypes. Use the engagement playbooks to design communication and change management plans targeted to each group. Cross-reference with Change Readiness quadrants for a complete picture." },
+  ]},
+  skillshift: { title: "Skill Shift Index", summary: "Tracks how skill demand is changing across the organization as AI transformation progresses — shows which skills are growing, declining, or emerging.", pages: [
+    { heading: "What it shows", body: "A ranked visualization of skills by net demand change. Rising skills (AI Literacy, Process Automation) indicate where to invest in training. Declining skills (manual data entry, routine reporting) signal automation opportunities." },
+    { heading: "How to use", body: "Compare current vs. future skill demand. Cross-reference with the Skills Gap Analysis to prioritize reskilling investments. Use the shift data to inform BBBA sourcing decisions." },
+  ]},
 };
 
 export function HelpBookAccordion() {
@@ -843,42 +920,43 @@ export function ViewEmployeePicker({ employees, onSelect, onBack }: { employees:
 
 
 export const PHASES = [
-  { id: "discover", label: "Discover", icon: "🔍", color: "#D4860A", desc: "Upload data and understand your current state", modules: ["dashboard", "snapshot", "jobs", "scan", "readiness", "mgrcap"] },
-  { id: "design", label: "Design", icon: "✏️", color: "#10B981", desc: "Redesign roles, model scenarios, reshape structure", modules: ["skills", "design", "bbba", "headcount", "simulate", "build"] },
-  { id: "deliver", label: "Deliver", icon: "🚀", color: "#F59E0B", desc: "Build your change plan and operating model", modules: ["reskill", "marketplace", "changeready", "mgrdev", "plan", "opmodel", "export"] },
+  { id: "discover", label: "Discover", icon: "🔍", color: "#D4860A", desc: "Understand where you are", guidance: "Start by understanding your organization's workforce structure, job architecture, and AI readiness.", modules: ["dashboard", "snapshot", "skillshift", "jobarch"] },
+  { id: "diagnose", label: "Diagnose", icon: "🩺", color: "#E8C547", desc: "Find what matters most", guidance: "Now that you understand the landscape, let's identify the highest-impact opportunities and biggest risks.", modules: ["orghealth", "scan", "heatmap", "readiness", "changeready", "clusters", "recommendations", "mgrcap", "skills"] },
+  { id: "design", label: "Design", icon: "✏️", color: "#10B981", desc: "Architect the future state", guidance: "Design your future state — redesign roles, restructure the operating model, and plan your workforce.", modules: ["design", "opmodel", "build", "bbba", "headcount", "quickwins", "rolecompare"] },
+  { id: "simulate", label: "Simulate", icon: "⚡", color: "#8B5CF6", desc: "Model the impact before you commit", guidance: "Model different futures before committing. Adjust assumptions, compare scenarios, and build the business case.", modules: ["simulate"] },
+  { id: "mobilize", label: "Mobilize", icon: "🚀", color: "#F59E0B", desc: "Make it happen", guidance: "Build your transformation roadmap, engage stakeholders, and generate the deliverables.", modules: ["plan", "story", "archetypes", "mgrdev", "reskill", "marketplace", "export"] },
 ];
 
 export const MODULES = [
   { id: "dashboard", icon: "🎯", title: "Transformation Dashboard", desc: "Executive summary across all phases", color: "#F59E0B", phase: "discover", views: ["org","custom"] },
-  { id: "jobarch", icon: "🏗️", title: "Job Architecture", desc: "Enterprise job catalogue, hierarchy, career framework & validation", color: "#B8602A", phase: "discover", views: ["org","job","custom"] },
+  { id: "jobarch", icon: "🏗️", title: "Job Architecture", desc: "Enterprise job catalogue, hierarchy, career framework & validation", color: "#B8602A", phase: "discover", views: ["org","job","employee","custom"], empTitle: "Career Path", jobTitle: "Role in Context", empDesc: "Your career trajectory and development", jobDesc: "Where this role sits in the hierarchy" },
   { id: "snapshot", icon: "📊", title: "Workforce Snapshot", desc: "See your people, structure, and readiness baseline", color: "#D4860A", phase: "discover", views: ["org","job","employee","custom"], empTitle: "Employee Profile", jobTitle: "Job Profile", empDesc: "Your profile, team, and AI impact", jobDesc: "Role incumbents, comp, and AI scores" },
-  { id: "jobs", icon: "🗂️", title: "Job Architecture", desc: "Explore job catalog, career tracks, and role clusters", color: "#8B5CF6", phase: "discover", views: ["org","job","employee","custom"], empTitle: "Career Path", jobTitle: "Role in Context", empDesc: "Your career trajectory and development", jobDesc: "Where this role sits in the hierarchy" },
-  { id: "orghealth", icon: "🏥", title: "Org Health Scorecard", desc: "Auto-calculated metrics with industry benchmarks", color: "#D4860A", phase: "discover", views: ["org","custom"] },
-  { id: "scan", icon: "🔬", title: "AI Opportunity Scan", desc: "Find where AI creates the most value", color: "#F97316", phase: "discover", views: ["org","job","employee","custom"], empTitle: "AI Impact on My Role", jobTitle: "AI Impact on This Job" },
-  { id: "heatmap", icon: "🔥", title: "AI Impact Heatmap", desc: "Automation potential by function × job family", color: "#EF4444", phase: "discover", views: ["org","custom"] },
-  { id: "clusters", icon: "🔗", title: "Role Clustering", desc: "Group similar roles, identify consolidation candidates", color: "#B8602A", phase: "discover", views: ["org","custom"] },
-  { id: "readiness", icon: "🎯", title: "AI Readiness", desc: "Individual and team readiness for AI transformation", color: "#C07030", phase: "discover", views: ["org","job","employee","custom"], empTitle: "My Readiness", empDesc: "Your personal AI readiness scores" },
-  { id: "mgrcap", icon: "👔", title: "Manager Capability", desc: "Assess manager readiness and identify champions", color: "#A855F7", phase: "discover", views: ["org","custom"] },
-  { id: "recommendations", icon: "🤖", title: "AI Recommendations", desc: "AI-generated transformation recommendations ranked by impact", color: "#E09040", phase: "discover", views: ["org","job","custom"] },
-  { id: "skills", icon: "🧠", title: "Skills & Talent", desc: "Inventory, gap analysis, and adjacency mapping", color: "#D97706", phase: "design", views: ["org","job","employee","custom"], empTitle: "My Skills", jobTitle: "Role Skills", empDesc: "Your skill profile and development gaps", jobDesc: "Skills required for this role" },
+  { id: "orghealth", icon: "🏥", title: "Org Health Scorecard", desc: "Auto-calculated metrics with industry benchmarks", color: "#D4860A", phase: "diagnose", views: ["org","custom"] },
+  { id: "scan", icon: "🔬", title: "AI Opportunity Scan", desc: "Find where AI creates the most value", color: "#F97316", phase: "diagnose", views: ["org","job","employee","custom"], empTitle: "AI Impact on My Role", jobTitle: "AI Impact on This Job" },
+  { id: "heatmap", icon: "🔥", title: "AI Impact Heatmap", desc: "Automation potential by function × job family", color: "#EF4444", phase: "diagnose", views: ["org","custom"] },
+  { id: "clusters", icon: "🔗", title: "Role Clustering", desc: "Group similar roles, identify consolidation candidates", color: "#B8602A", phase: "diagnose", views: ["org","custom"] },
+  { id: "readiness", icon: "🎯", title: "AI Readiness", desc: "Individual and team readiness for AI transformation", color: "#C07030", phase: "diagnose", views: ["org","job","employee","custom"], empTitle: "My Readiness", empDesc: "Your personal AI readiness scores" },
+  { id: "mgrcap", icon: "👔", title: "Manager Capability", desc: "Assess manager readiness and identify champions", color: "#A855F7", phase: "diagnose", views: ["org","custom"] },
+  { id: "recommendations", icon: "🤖", title: "AI Recommendations", desc: "AI-generated transformation recommendations ranked by impact", color: "#E09040", phase: "diagnose", views: ["org","job","custom"] },
+  { id: "skills", icon: "🧠", title: "Skills & Talent", desc: "Inventory, gap analysis, and adjacency mapping", color: "#D97706", phase: "diagnose", views: ["org","job","employee","custom"], empTitle: "My Skills", jobTitle: "Role Skills", empDesc: "Your skill profile and development gaps", jobDesc: "Skills required for this role" },
   { id: "bbba", icon: "🔀", title: "Build/Buy/Borrow/Auto", desc: "Talent sourcing strategy per redesigned role", color: "#B8602A", phase: "design", views: ["org","custom"] },
   { id: "headcount", icon: "👥", title: "Headcount Planning", desc: "Current to future workforce waterfall", color: "#8B5CF6", phase: "design", views: ["org","custom"] },
   { id: "design", icon: "✏️", title: "Work Design Lab", desc: "Redesign tasks, roles, and time allocation job by job", color: "#10B981", phase: "design", views: ["org","job","custom"] },
-  { id: "simulate", icon: "⚡", title: "Impact Simulator", desc: "Model scenarios, costs, and redeployment outcomes", color: "#D97706", phase: "design", views: ["org","job","employee","custom"], empTitle: "How AI Affects Me", jobTitle: "Role Scenario", empDesc: "Personal impact of AI transformation", jobDesc: "Scenario modeling for this specific role" },
+  { id: "simulate", icon: "⚡", title: "Impact Simulator", desc: "Model scenarios, costs, and redeployment outcomes", color: "#D97706", phase: "simulate", views: ["org","job","employee","custom"], empTitle: "How AI Affects Me", jobTitle: "Role Scenario", empDesc: "Personal impact of AI transformation", jobDesc: "Scenario modeling for this specific role" },
   { id: "build", icon: "🏗️", title: "Org Design Studio", desc: "Reshape spans, layers, and structure across the org", color: "#B8602A", phase: "design", views: ["org","job","employee","custom"], empTitle: "My Org Chart", jobTitle: "Structural Context", empDesc: "Your reporting line and team structure", jobDesc: "Where this role sits structurally" },
-  { id: "reskill", icon: "📚", title: "Reskilling Pathways", desc: "Per-employee learning plans and timelines", color: "#D97706", phase: "deliver", views: ["org","employee","custom"], empTitle: "My Learning Path", empDesc: "Your personal reskilling journey" },
-  { id: "marketplace", icon: "🏪", title: "Talent Marketplace", desc: "Match internal candidates to redesigned roles", color: "#F97316", phase: "deliver", views: ["org","custom"] },
+  { id: "reskill", icon: "📚", title: "Reskilling Pathways", desc: "Per-employee learning plans and timelines", color: "#D97706", phase: "mobilize", views: ["org","employee","custom"], empTitle: "My Learning Path", empDesc: "Your personal reskilling journey" },
+  { id: "marketplace", icon: "🏪", title: "Talent Marketplace", desc: "Match internal candidates to redesigned roles", color: "#F97316", phase: "mobilize", views: ["org","custom"] },
   { id: "skillshift", icon: "🔄", title: "Skill Shift Index", desc: "Net skill movement — declining, amplified, and net-new skills", color: "#D97706", phase: "discover", views: ["org","custom"] },
-  { id: "changeready", icon: "📈", title: "Change Readiness", desc: "4-quadrant segmentation and intervention mapping", color: "#EF4444", phase: "deliver", views: ["org","custom"] },
-  { id: "archetypes", icon: "🎭", title: "Readiness Archetypes", desc: "Consultant-grade workforce archetypes with engagement playbooks", color: "#C07030", phase: "deliver", views: ["org","custom"] },
-  { id: "story", icon: "📖", title: "Transformation Story", desc: "AI-generated executive narrative for board presentations", color: "#E09040", phase: "deliver", views: ["org","custom"] },
-  { id: "mgrdev", icon: "🎓", title: "Manager Development", desc: "Targeted development plans for people managers", color: "#A855F7", phase: "deliver", views: ["org","custom"] },
-  { id: "plan", icon: "🚀", title: "Change Planner", desc: "Sequence initiatives and manage transformation risk", color: "#EF4444", phase: "deliver", views: ["org","job","employee","custom"], empTitle: "My Change Journey", jobTitle: "Role Change Plan", empDesc: "Your personal transformation timeline", jobDesc: "Change initiatives affecting this role" },
-  { id: "export", icon: "📋", title: "Export & Report", desc: "Generate your board-ready transformation report", color: "#EF4444", phase: "deliver", views: ["org"] },
-  { id: "opmodel", icon: "🧬", title: "Operating Model Lab", desc: "Explore architecture patterns across functions", color: "#F59E0B", phase: "deliver", views: ["org","custom"] },
+  { id: "changeready", icon: "📈", title: "Change Readiness", desc: "4-quadrant segmentation and intervention mapping", color: "#EF4444", phase: "diagnose", views: ["org","custom"] },
+  { id: "archetypes", icon: "🎭", title: "Readiness Archetypes", desc: "Consultant-grade workforce archetypes with engagement playbooks", color: "#C07030", phase: "mobilize", views: ["org","custom"] },
+  { id: "story", icon: "📖", title: "Transformation Story", desc: "AI-generated executive narrative for board presentations", color: "#E09040", phase: "mobilize", views: ["org","custom"] },
+  { id: "mgrdev", icon: "🎓", title: "Manager Development", desc: "Targeted development plans for people managers", color: "#A855F7", phase: "mobilize", views: ["org","custom"] },
+  { id: "plan", icon: "🚀", title: "Change Planner", desc: "Sequence initiatives and manage transformation risk", color: "#EF4444", phase: "mobilize", views: ["org","job","employee","custom"], empTitle: "My Change Journey", jobTitle: "Role Change Plan", empDesc: "Your personal transformation timeline", jobDesc: "Change initiatives affecting this role" },
+  { id: "export", icon: "📋", title: "Export & Report", desc: "Generate your board-ready transformation report", color: "#EF4444", phase: "mobilize", views: ["org","job","employee","custom"] },
+  { id: "opmodel", icon: "🧬", title: "Operating Model Lab", desc: "Explore architecture patterns across functions", color: "#F59E0B", phase: "design", views: ["org","custom"] },
   // om_canvas is accessed from within OperatingModelLab, not as a standalone module
   { id: "rolecompare", icon: "⚖️", title: "Role Comparison", desc: "Side-by-side current vs. redesigned role analysis", color: "#C07030", phase: "design", views: ["org","job","custom"] },
-  { id: "quickwins", icon: "⚡", title: "Quick-Win Identifier", desc: "Find highest ROI, lowest effort AI opportunities", color: "#22C55E", phase: "discover", views: ["org","custom"] },
+  { id: "quickwins", icon: "⚡", title: "Quick-Win Identifier", desc: "Find highest ROI, lowest effort AI opportunities", color: "#22C55E", phase: "design", views: ["org","custom"] },
 ];
 
 

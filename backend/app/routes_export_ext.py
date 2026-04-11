@@ -846,10 +846,25 @@ async def export_module_data(model_id: str, module_name: str):
         "opmodel": "operating_model", "operating_model": "operating_model",
         "plan": "change_management", "change_management": "change_management",
         "market": "market_data", "market_data": "market_data",
+        "skills_inventory": "skills", "skills": "skills",
+        "skills_gap": "skills",
+        "readiness": "workforce",
+        "manager_capability": "workforce",
+        "change_readiness": "workforce",
+        "manager_development": "workforce",
+        "headcount": "workforce",
+        "marketplace": "skills",
     }
 
     dataset_key = module_map.get(module_name, module_name)
     df = ds.get(dataset_key, pd.DataFrame())
+
+    # For computed modules that don't have raw datasets, try work_design or workforce
+    if (df is None or (isinstance(df, pd.DataFrame) and df.empty)) and module_name in {"bbba", "reskilling", "headcount", "marketplace"}:
+        fallback_key = "work_design" if module_name in {"bbba", "headcount"} else "skills"
+        df = ds.get(fallback_key, pd.DataFrame())
+        if df is None or (isinstance(df, pd.DataFrame) and df.empty):
+            df = ds.get("workforce", pd.DataFrame())
 
     if df is None or (isinstance(df, pd.DataFrame) and df.empty):
         raise HTTPException(404, f"No data for module: {module_name}")

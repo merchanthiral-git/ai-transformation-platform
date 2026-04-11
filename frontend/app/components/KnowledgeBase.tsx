@@ -938,6 +938,75 @@ export const KNOWLEDGE_BASE: Record<string, KBEntry> = {
     scenario: "A bank compared 'Credit Analyst' and 'Risk Analyst' — roles in different departments. The comparison showed 72% task overlap, identical skill requirements, and similar AI impact scores. The team recommended consolidation into a single 'Credit & Risk Analyst' role family, eliminating 15 redundant positions across the organization and creating a clearer career path for the remaining 45 employees.",
   },
 
+  orghealth: {
+    title: "Org Health Scorecard",
+    category: "Diagnose",
+    categoryColor: CAT_COLORS["Diagnose"],
+    summary: "Auto-calculated organizational health metrics benchmarked against industry standards — a diagnostic snapshot of leadership, culture, digital maturity, process standardization, and data quality.",
+    who: [{ heading: "Who is this for?", body: "CHROs and CPOs who need a quick health check, transformation sponsors who need to understand organizational readiness before designing interventions, and HR Business Partners who want to benchmark their function against peers." }],
+    what: [
+      { heading: "What it measures", body: "Composite scores across five dimensions: leadership alignment, cultural adaptability, digital maturity, process standardization, and data quality. Each dimension is scored 0-100 and compared against industry benchmarks derived from aggregated anonymized data." },
+      { heading: "Traffic light system", body: "Green metrics are within or above industry benchmarks. Yellow metrics are below average but recoverable with targeted intervention. Red metrics indicate critical gaps requiring immediate attention before transformation can proceed." },
+    ],
+    where: [{ heading: "Position in workflow", body: "Diagnose phase — provides the baseline organizational health assessment that informs where to focus diagnostic deep-dives (AI Readiness, Manager Capability, Change Readiness)." }],
+    when: [{ heading: "When to use", body: "At the start of any engagement as a health check. Revisit quarterly during transformation to track improvement. Use before major go/no-go decisions." }],
+    why: [{ heading: "Why it matters", body: "Organizations that skip the health assessment often discover critical blockers mid-transformation — low leadership alignment, poor data quality, or rigid culture. The scorecard surfaces these risks early so they can be addressed proactively." }],
+    how: [{ heading: "How to use", body: "1. Review the overall health score. 2. Select industry benchmark for comparison. 3. Identify red/yellow dimensions. 4. Drill into each dimension to see component metrics. 5. Use findings to prioritize diagnostic deep-dives." }],
+    terminology: [
+      { term: "Digital Maturity", def: "The degree to which an organization has adopted digital tools, data-driven decision-making, and automated workflows." },
+      { term: "Process Standardization", def: "How consistently processes are defined, documented, and followed across the organization." },
+    ],
+    bestPractices: ["Run the scorecard before any transformation design work", "Compare against your specific industry, not all-industry averages"],
+    pitfalls: ["Ignoring yellow metrics because they're 'not red yet'", "Using the scorecard as a one-time assessment rather than a tracking tool"],
+    related: ["snapshot", "readiness", "changeready", "mgrcap"],
+    scenario: "A healthcare organization scored 42/100 on digital maturity and 68/100 on cultural adaptability. The low digital maturity score triggered an immediate data quality remediation before proceeding with AI-powered workforce analytics. The high cultural adaptability score gave confidence that the workforce would accept change once the digital infrastructure was in place.",
+  },
+
+  heatmap: {
+    title: "AI Impact Heatmap",
+    category: "Diagnose",
+    categoryColor: CAT_COLORS["Diagnose"],
+    summary: "Visualizes automation potential across the intersection of functions and job families — a strategic map showing where AI creates the most value and where human expertise remains essential.",
+    who: [{ heading: "Who is this for?", body: "Transformation leads deciding where to focus first, function heads evaluating their team's exposure, and strategy teams building the business case for AI investment." }],
+    what: [
+      { heading: "How it works", body: "Each cell in the function × job family matrix receives a composite AI impact score based on the task characteristics of roles at that intersection. Scores combine automation potential, time savings, and feasibility." },
+      { heading: "Color coding", body: "Red/orange cells (score 6+) indicate high automation potential — these are quick wins. Yellow cells (3.5-6) indicate moderate potential, typically augmentation rather than full automation. Green/blue cells (below 3.5) indicate human-intensive work." },
+    ],
+    where: [{ heading: "Position in workflow", body: "Diagnose phase — the heatmap provides strategic direction for the Design phase. Hot cells tell you which roles to deconstruct first in the Work Design Lab." }],
+    when: [{ heading: "When to use", body: "After uploading work design data with function and job family columns. Use it to prioritize which areas of the organization to analyze first." }],
+    why: [{ heading: "Why it matters", body: "Without a heatmap, organizations often start AI transformation in the wrong place — automating low-impact work while ignoring high-impact opportunities. The heatmap ensures you invest in the highest-value areas first." }],
+    how: [{ heading: "How to use", body: "1. Identify the hottest cells (highest scores). 2. Click any cell to see underlying task data. 3. Cross-reference with headcount to estimate total impact. 4. Use findings to prioritize Work Design Lab analysis." }],
+    terminology: [{ term: "Composite AI Score", def: "A weighted combination of automation potential (task characteristics), time impact (hours saved), and implementation feasibility." }],
+    bestPractices: ["Focus on cells with both high scores AND high headcount", "Use the heatmap to build your transformation sequencing plan"],
+    pitfalls: ["Automating everything that's red without considering organizational readiness", "Ignoring moderate-impact cells that could be quick wins due to low complexity"],
+    related: ["scan", "design", "simulate"],
+    scenario: "A manufacturing firm's heatmap showed Finance × FP&A as the hottest cell (score 8.2) while Operations × Quality Control was cool (2.1). This redirected the transformation focus from the expected target (factory floor automation) to the actual opportunity (financial process automation), saving 6 months of misdirected effort.",
+  },
+
+  clusters: {
+    title: "Role Clustering",
+    category: "Diagnose",
+    categoryColor: CAT_COLORS["Diagnose"],
+    summary: "Groups similar roles by task composition, skill requirements, and AI impact profiles — reveals hidden organizational redundancy and consolidation opportunities.",
+    who: [{ heading: "Who is this for?", body: "Org design specialists looking for structural simplification opportunities, HR leaders evaluating role proliferation, and compensation teams seeking to rationalize job families." }],
+    what: [
+      { heading: "How clustering works", body: "Roles are compared on task overlap percentage, shared characteristics (task type, logic, interaction patterns), and AI impact similarity. The algorithm groups roles that share >50% of their task DNA." },
+      { heading: "Consolidation candidates", body: "Clusters with >70% overlap are flagged as consolidation candidates. These represent roles in different functions that essentially do the same work under different titles — a common source of organizational complexity." },
+    ],
+    where: [{ heading: "Position in workflow", body: "Diagnose phase — clustering informs the Job Architecture review and Design phase. Consolidation candidates feed into role redesign and headcount planning." }],
+    when: [{ heading: "When to use", body: "After work design data is uploaded and task characteristics are populated. Most valuable before starting the Work Design Lab, as it identifies which roles can be merged." }],
+    why: [{ heading: "Why it matters", body: "Most organizations have 30-40% more unique role titles than they need. Clustering reveals this hidden redundancy, enabling simplification that improves career path clarity, reduces compensation benchmarking complexity, and makes AI transformation more tractable." }],
+    how: [{ heading: "How to use", body: "1. Review clusters by size. 2. Focus on consolidation candidates (>70% overlap). 3. Validate with functional leaders whether the overlap is real. 4. Feed confirmed consolidations into Job Architecture redesign. 5. Use merged roles as input to Work Design Lab." }],
+    terminology: [
+      { term: "Task Overlap", def: "The percentage of tasks shared between two roles, weighted by time allocation." },
+      { term: "Consolidation Candidate", def: "A cluster of roles with >70% overlap that could potentially be merged into a single role family." },
+    ],
+    bestPractices: ["Validate cluster findings with people who actually do the work", "Start with the largest clusters for maximum impact"],
+    pitfalls: ["Assuming high overlap always means the roles should merge — context matters", "Consolidating roles without considering career path implications"],
+    related: ["jobarch", "design", "headcount", "skills"],
+    scenario: "A technology company discovered that 'Business Analyst', 'Data Analyst', and 'Reporting Analyst' across three different functions shared 78% of their tasks. After merging into a single 'Analytics Specialist' family with function-specific sub-families, they reduced from 45 unique titles to 12, improved internal mobility by 40%, and simplified their compensation structure.",
+  },
+
   om_canvas: {
     title: "OM Design Canvas",
     category: "Design",
@@ -954,6 +1023,72 @@ export const KNOWLEDGE_BASE: Record<string, KBEntry> = {
     pitfalls: ["Designing the ideal structure without considering transition feasibility", "Creating too many specialized nodes — simplicity in operating models is a feature, not a limitation"],
     related: ["opmodel", "design", "jobarch"],
     scenario: "A financial services firm used the canvas to redesign their HR operating model from a decentralized structure (HR teams in each business unit) to a platform model (central CoEs + embedded HRBPs). The canvas visualization showed the FTE shift: -35 from business unit HR teams, +12 to CoEs, +8 to shared services, net -15 FTE with improved service consistency.",
+  },
+
+  story: {
+    title: "Transformation Story Builder",
+    category: "Mobilize",
+    categoryColor: CAT_COLORS["Mobilize"],
+    summary: "Auto-generates executive-ready transformation narratives synthesizing all platform data into coherent stories for board presentations, all-hands meetings, and investor updates.",
+    who: [{ heading: "Who is this for?", body: "Transformation leads preparing executive communications, CHROs presenting to the board, program managers crafting all-hands narratives, and investor relations teams framing strategic workforce changes." }],
+    what: [
+      { heading: "What it does", body: "Pulls KPIs from Overview, findings from Diagnose, redesign outcomes from Design, financial projections from Simulate, and change plans from Mobilize. Synthesizes everything into a structured narrative with headline, overview, key findings, recommendations, projected impact, risks, and next steps." },
+      { heading: "Tone options", body: "Board Presentation: formal, data-heavy, ROI-focused with financial metrics prominent. All-Hands: motivational, employee-centric, emphasizing opportunity and support. Investor Update: strategic, growth-positioning, competitive advantage framing." },
+    ],
+    where: [{ heading: "Position in workflow", body: "Mobilize phase — used after all analytical modules are complete. The story builder is most powerful when it can draw from a full dataset across all modules." }],
+    when: [{ heading: "When to use", body: "Before major stakeholder communications. Generate once the core analysis is done (Diagnose + Design + Simulate at minimum), then refine for each audience." }],
+    why: [{ heading: "Why it matters", body: "Data without narrative is noise. The most rigorous analysis fails if it can't be communicated compellingly. This tool bridges the gap between analytics and persuasion, ensuring your transformation story is both data-grounded and emotionally resonant." }],
+    how: [{ heading: "How to use", body: "1. Select a tone (Board, All-Hands, Investor). 2. Click Generate — the AI synthesizes all available data. 3. Review the narrative for accuracy. 4. Edit any sections that need refinement. 5. Copy to clipboard or use in presentations." }],
+    terminology: [{ term: "Transformation Narrative", def: "A structured story that connects the 'why' (business case), 'what' (scope of change), 'how' (implementation plan), and 'so what' (expected outcomes) of a workforce transformation." }],
+    bestPractices: ["Generate for all three tones to see which framing resonates best", "Always fact-check AI-generated numbers against your actual data"],
+    pitfalls: ["Using the raw AI output without editing — it's a starting point, not a finished product", "Presenting the same narrative to all audiences without tone adaptation"],
+    related: ["plan", "simulate", "export"],
+    scenario: "A CHRO used the Story Builder to prepare for a board meeting about their AI transformation. The Board tone generated a narrative focused on $4.2M in projected savings, 28% capacity freed for innovation, and a 10-month payback period. The same data, re-generated in All-Hands tone, emphasized career growth opportunities, new role creation, and comprehensive reskilling support. Both narratives drew from identical analytics but resonated with their respective audiences.",
+  },
+
+  archetypes: {
+    title: "Readiness Archetypes",
+    category: "Mobilize",
+    categoryColor: CAT_COLORS["Mobilize"],
+    summary: "Segments the workforce into behavioral profiles — Early Adopters, Pragmatic Majority, Skeptics, and Active Resistors — with tailored engagement strategies for each group.",
+    who: [{ heading: "Who is this for?", body: "Change management leads designing engagement strategies, HR Business Partners planning interventions, internal communications teams crafting targeted messaging, and program managers allocating support resources." }],
+    what: [
+      { heading: "The four archetypes", body: "Early Adopters (15-20% of workforce): high readiness, embrace change, actively seek new tools. Pragmatic Majority (40-50%): willing but cautious, need evidence and peer validation. Skeptics (20-25%): resistant but persuadable with data, transparency, and demonstrated wins. Active Resistors (5-15%): deeply opposed, need intensive one-on-one intervention and often have legitimate concerns worth hearing." },
+      { heading: "Engagement playbooks", body: "Each archetype has a specific engagement strategy: communication channels, message framing, support intensity, training approach, and escalation triggers. The playbooks are research-backed and drawn from large-scale transformation case studies." },
+    ],
+    where: [{ heading: "Position in workflow", body: "Mobilize phase — complements the Change Readiness quadrant analysis with a qualitative, behavioral lens. Use alongside Change Planner for a complete people strategy." }],
+    when: [{ heading: "When to use", body: "After AI Readiness and Change Readiness assessments are complete. The archetypes provide the 'personality' layer on top of the quantitative readiness scores." }],
+    why: [{ heading: "Why it matters", body: "Quantitative readiness scores tell you who is ready; archetypes tell you why they are or aren't. A Skeptic with a readiness score of 2.5 needs a fundamentally different approach than an Active Resistor with the same score. The archetype determines the intervention, not just the score." }],
+    how: [{ heading: "How to use", body: "1. Review the workforce distribution across archetypes. 2. Read each archetype's engagement playbook. 3. Cross-reference with Change Readiness quadrants. 4. Design targeted communication and support plans. 5. Assign Change Champions (from Early Adopters) to each team." }],
+    terminology: [
+      { term: "Change Champion", def: "An Early Adopter who is formally designated to advocate for transformation within their team, provide peer support, and surface concerns to leadership." },
+      { term: "Proof Point", def: "A concrete, visible success story from an early pilot that demonstrates the value of transformation — critical for converting Pragmatics and Skeptics." },
+    ],
+    bestPractices: ["Don't treat Resistors as problems — their concerns often reveal real issues that need addressing", "Deploy Champions at a 1:5 ratio (one champion per five people in their team)"],
+    pitfalls: ["Assuming archetype distribution is static — people move between archetypes as the transformation progresses", "Investing all energy in Resistors while ignoring the Pragmatic Majority who represent the largest population"],
+    related: ["changeready", "plan", "mgrdev", "reskill"],
+    scenario: "A retail organization discovered their archetype distribution was 12% Early Adopters, 48% Pragmatics, 28% Skeptics, and 12% Resistors. By deploying 60 Champions (Early Adopters) across 300 teams, running 3 visible pilot programs (Proof Points for Pragmatics), holding transparent Q&A sessions (for Skeptics), and offering 1:1 coaching for Resistors, they achieved 78% adoption within 8 months — compared to a 45% industry average for similar-scale transformations.",
+  },
+
+  skillshift: {
+    title: "Skill Shift Index",
+    category: "Overview",
+    categoryColor: CAT_COLORS["Overview"],
+    summary: "Tracks how skill demand is changing across the organization as AI transformation progresses — visualizes which skills are growing, declining, or emerging.",
+    who: [{ heading: "Who is this for?", body: "L&D teams planning training investments, talent acquisition teams adjusting hiring profiles, workforce planners forecasting capability needs, and leaders understanding how their team's skill requirements are evolving." }],
+    what: [
+      { heading: "What it shows", body: "A ranked visualization of skills by net demand change. Rising skills (AI Literacy, Process Automation, Data Analysis) indicate where to invest. Declining skills (manual data entry, routine reporting, basic administration) signal areas where AI is replacing human effort." },
+      { heading: "How it's calculated", body: "Current skill demand is weighted by time allocation from work design data. Future demand is projected based on task redistribution after AI scenarios are applied. The delta between current and future demand drives the shift index." },
+    ],
+    where: [{ heading: "Position in workflow", body: "Overview phase — provides a high-level signal about skill evolution that feeds into the Skills & Talent module's gap analysis and the Reskilling Pathways module." }],
+    when: [{ heading: "When to use", body: "After work design data is uploaded and at least one AI scenario has been run. The shift index becomes more accurate as more roles are deconstructed." }],
+    why: [{ heading: "Why it matters", body: "Skills are the currency of the future workforce. Understanding which skills are appreciating (growing in demand) and which are depreciating (declining) is essential for investment decisions in training, hiring, and organizational design." }],
+    how: [{ heading: "How to use", body: "1. Review the top rising and declining skills. 2. Cross-reference rising skills with your current skills inventory gaps. 3. Prioritize reskilling investments in high-demand, high-gap areas. 4. Use declining skills to identify automation candidates." }],
+    terminology: [{ term: "Skill Shift", def: "The net change in demand for a specific skill between the current state and the projected future state after AI transformation." }],
+    bestPractices: ["Focus on the top 5 rising skills for immediate investment", "Don't ignore declining skills — they represent automation opportunities"],
+    pitfalls: ["Assuming all declining skills can be fully automated immediately", "Investing only in technical skills while ignoring human skills that are rising (leadership, creativity, stakeholder management)"],
+    related: ["skills", "design", "reskill"],
+    scenario: "A technology company's Skill Shift Index showed AI Literacy rising by +3.2 points, Process Automation by +2.8, while Manual Testing dropped -2.5 and Report Formatting dropped -2.1. This data directly informed their $1.2M reskilling budget allocation: 60% to AI/ML training, 25% to process automation certification, and 15% to advanced analytics — perfectly aligned with where demand was heading.",
   },
 };
 
@@ -981,10 +1116,10 @@ export function KnowledgeModal({ moduleId, onClose }: { moduleId: string; onClos
     { id: "scenario", label: "Example", icon: "🏢" },
   ];
 
-  const renderSections = (items: KBSection[]) => items.map((s, i) => <div key={i} className="mb-4"><h4 className="text-[13px] font-bold text-[var(--text-primary)] font-heading mb-1">{s.heading}</h4><p className="text-[12px] text-[var(--text-secondary)] leading-relaxed">{s.body}</p></div>);
+  const renderSections = (items: KBSection[]) => items.map((s, i) => <div key={i} className="mb-5"><h4 className="text-[14px] font-bold text-[var(--text-primary)] font-heading mb-1.5">{s.heading}</h4><p className="text-[13px] text-[var(--text-secondary)] leading-relaxed">{s.body}</p></div>);
 
   return <div className="fixed inset-0 z-[99999] flex items-center justify-center" style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(6px)" }} onClick={onClose}>
-    <div className="w-full max-w-[900px] rounded-2xl border border-[var(--border)] bg-[var(--surface-1)] shadow-2xl flex animate-card-enter" style={{ maxHeight: "80vh" }} onClick={e => e.stopPropagation()}>
+    <div className="w-full rounded-2xl border border-[var(--border)] bg-[var(--surface-1)] shadow-2xl flex animate-card-enter" style={{ maxHeight: "90vh", minWidth: 800, maxWidth: 1100 }} onClick={e => e.stopPropagation()}>
 
       {/* Left sidebar — TOC */}
       <div className="w-44 shrink-0 bg-[var(--surface-2)] rounded-l-2xl border-r border-[var(--border)] py-4 px-2 overflow-y-auto">

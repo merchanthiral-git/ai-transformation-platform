@@ -190,7 +190,7 @@ function CurrentStateNode({ node, depth, jobs, employees, colorMetric, expanded,
 
     {/* Expanded children */}
     {isExpanded && hasChildren && <div>
-      {node.children!.map(child => <CurrentStateNode key={child.id} node={child} depth={depth + 1}
+      {(node.children || []).map(child => <CurrentStateNode key={child.id} node={child} depth={depth + 1}
         jobs={jobs} employees={employees} colorMetric={colorMetric}
         expanded={expanded} onToggle={onToggle} selected={selected} onSelect={onSelect}
         onDrillEmployee={onDrillEmployee} />)}
@@ -312,7 +312,7 @@ function FutureStateNode({ node, depth, onRename, onDelete, onAddChild, onSunset
     </div>}
 
     {isExpanded && hasChildren && <div>
-      {node.children!.map(child => <FutureStateNode key={child.id} node={child} depth={depth + 1}
+      {(node.children || []).map(child => <FutureStateNode key={child.id} node={child} depth={depth + 1}
         onRename={onRename} onDelete={onDelete} onAddChild={onAddChild} onSunset={onSunset}
         onSplit={onSplit} selected={selected} onSelect={onSelect} onDrop={onDrop} onAiSuggest={onAiSuggest} />)}
     </div>}

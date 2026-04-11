@@ -23,7 +23,7 @@ import {
 
 // ── Tab Module Components ──
 import {
-  LandingPage, WorkforceSnapshot, JobArchitecture,
+  LandingPage, WorkforceSnapshot,
   TransformationDashboard, TransformationExecDashboard,
   EmployeeProfileCard, EmployeeOrgChart, PersonalImpactCard,
   SkillShiftIndex,
@@ -325,12 +325,13 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
   // Tutorial mode — must be declared before the useEffect that references it
   const [isTutorial] = useState(() => { try { return JSON.parse(localStorage.getItem(`${projectId}_isTutorial`) || "false"); } catch { return false; } });
 
-  // On fresh login, reset to home (Overview) instead of restoring stale tab
+  // Always start on home (Overview) when entering a project — avoids landing on an error screen
+  // from a previously broken module. Tutorial projects are exempt since they navigate to specific pages.
+  const hasResetRef = useRef(false);
   useEffect(() => {
-    if (sessionStorage.getItem("fresh_login")) {
-      // Don't remove fresh_login here — the guided tour checks it
-      setPage("home");
-    }
+    if (hasResetRef.current) return;
+    hasResetRef.current = true;
+    if (!isTutorial) setPage("home");
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const workspace = useWorkspaceController();
   const { models, model, jobs, job, filters: f, filterOptions: fo, message: msg, backendOk, loadingModels, uploadFiles, resetWorkspace, setModel, setJob, setFilter, clearFilters } = workspace;
@@ -431,9 +432,9 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
   if (completedJobCount === jobs.length && jobs.length > 0) moduleStatus.design = "complete";
   else if (Object.values(jobStates).some(s => s.deconSubmitted)) moduleStatus.design = "in_progress";
   // Smart module completion with phase awareness
-  if (hasData) { 
-    moduleStatus.snapshot = "in_progress"; 
-    moduleStatus.jobs = "in_progress";
+  if (hasData) {
+    moduleStatus.snapshot = "in_progress";
+    moduleStatus.jobarch = "in_progress";
     moduleStatus.scan = "in_progress";
   }
   if (Object.values(jobStates).some(s => s.deconRows.length > 0)) moduleStatus.design = "in_progress";
@@ -545,6 +546,20 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       <div className="mb-1 cursor-pointer" onClick={goHome}><div className="text-sm font-extrabold text-[var(--text-primary)]">AI Transformation</div><div className="text-[10px] font-semibold text-[var(--accent-primary)] uppercase tracking-[1.5px]">PLATFORM</div></div>
       <button onClick={() => { if (page === "home" && viewMode) { setViewMode(""); } else { onBackToHub(); } }} className="w-full text-left text-[11px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mt-1 mb-1 flex items-center gap-1 transition-colors">{page === "home" && viewMode ? "← Back to Views" : page !== "home" ? "← Back to Home" : "← Back to Projects"}</button>
       <div className="bg-[var(--surface-2)] rounded-lg px-3 py-2 mb-2 border border-[var(--border)]"><div className="text-[10px] font-bold text-[var(--accent-primary)] uppercase tracking-wider mb-0.5">Active Project</div><div className="text-[13px] font-semibold text-[var(--text-primary)] truncate">{projectName}</div>{projectMeta && <div className="text-[10px] text-[var(--text-muted)] truncate mt-0.5 italic">{projectMeta}</div>}</div>
+      {/* Journey progress bar */}
+      <div className="flex items-center gap-1 mb-2 mt-1">
+        {PHASES.map((phase, pi) => {
+          const ms = phase.modules.map(id => (moduleStatus[id] || "not_started"));
+          const pStatus = ms.every(s => s === "complete") ? "complete" : ms.some(s => s !== "not_started") ? "in_progress" : "not_started";
+          return <React.Fragment key={phase.id}>
+            {pi > 0 && <div className="flex-1 h-px" style={{ background: pStatus !== "not_started" ? `${phase.color}40` : "var(--border)" }} />}
+            <button onClick={() => { setPage("home"); }} title={`Phase ${pi+1}: ${phase.label}`} className="flex items-center gap-1 shrink-0 transition-all" style={{ opacity: pStatus !== "not_started" ? 1 : 0.4 }}>
+              <div className="w-4 h-4 rounded-full flex items-center justify-center text-[7px] font-bold" style={{ background: pStatus === "complete" ? `${phase.color}20` : pStatus === "in_progress" ? `${phase.color}10` : "transparent", color: phase.color, border: `1px solid ${phase.color}${pStatus !== "not_started" ? "60" : "20"}` }}>{pStatus === "complete" ? "✓" : pStatus === "in_progress" ? "●" : "○"}</div>
+            </button>
+          </React.Fragment>;
+        })}
+      </div>
+      <div className="text-[8px] text-[var(--text-muted)] mb-1">{(() => { const ci = PHASES.findIndex(p => p.modules.some(id => (moduleStatus[id] || "not_started") !== "complete") || p.modules.every(id => (moduleStatus[id] || "not_started") === "not_started")); return ci >= 0 ? `Phase ${ci+1} of 5 — ${PHASES[ci].label}` : "Journey complete"; })()}</div>
       <div className="h-px bg-[var(--border)] my-3" />
       <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-[1.2px] mb-2">Data Intake</div>
       <input ref={fileRef} type="file" multiple accept=".xlsx,.xls,.csv" onChange={e => e.target.files && upload(e.target.files)} className="hidden" />
@@ -562,8 +577,10 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       <SidebarSelect options={hasJobs ? jobs : ["No jobs available"]} value={job || (jobs[0] || "No jobs available")} onChange={v => setJob(v === "No jobs available" ? "" : v)} />
       {job && <div className="mt-1"><Badge color="indigo">{job}</Badge></div>}</>}
       <div className="h-px bg-[var(--border)] my-3" />
-      {viewMode === "employee" && viewEmployee && <div className="bg-[rgba(139,92,246,0.1)] border border-[var(--purple)]/20 rounded-lg px-3 py-2 mb-2"><div className="text-[10px] font-bold text-[var(--purple)] uppercase tracking-wider mb-0.5">Employee View</div><div className="text-[13px] font-semibold text-[var(--text-primary)] truncate">{viewEmployee}</div><button onClick={() => setViewMode("")} className="text-[10px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mt-1">Change View ↻</button></div>}
-      {viewMode === "job" && viewJob && <div className="bg-[rgba(16,185,129,0.1)] border border-[var(--success)]/20 rounded-lg px-3 py-2 mb-2"><div className="text-[10px] font-bold text-[var(--success)] uppercase tracking-wider mb-0.5">Job View</div><div className="text-[13px] font-semibold text-[var(--text-primary)] truncate">{viewJob}</div><button onClick={() => setViewMode("")} className="text-[10px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mt-1">Change View ↻</button></div>}
+      {viewMode === "org" && <div className="bg-[rgba(212,134,10,0.06)] border border-[var(--accent-primary)]/15 rounded-lg px-3 py-2 mb-2"><div className="text-[10px] font-bold text-[var(--accent-primary)] uppercase tracking-wider mb-0.5">🏢 Organization View</div><div className="text-[11px] text-[var(--text-muted)]">Full workforce analytics</div><button onClick={() => setViewMode("")} className="text-[10px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mt-1">Change View ↻</button></div>}
+      {viewMode === "employee" && viewEmployee && <div className="bg-[rgba(139,92,246,0.1)] border border-[var(--purple)]/20 rounded-lg px-3 py-2 mb-2"><div className="text-[10px] font-bold text-[var(--purple)] uppercase tracking-wider mb-0.5">👤 Employee View</div><div className="text-[13px] font-semibold text-[var(--text-primary)] truncate">{viewEmployee}</div><button onClick={() => setViewMode("")} className="text-[10px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mt-1">Change View ↻</button></div>}
+      {viewMode === "job" && viewJob && <div className="bg-[rgba(16,185,129,0.1)] border border-[var(--success)]/20 rounded-lg px-3 py-2 mb-2"><div className="text-[10px] font-bold text-[var(--success)] uppercase tracking-wider mb-0.5">💼 Job View</div><div className="text-[13px] font-semibold text-[var(--text-primary)] truncate">{viewJob}</div><button onClick={() => setViewMode("")} className="text-[10px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mt-1">Change View ↻</button></div>}
+      {viewMode === "custom" && <div className="bg-[rgba(232,197,71,0.08)] border border-[var(--warning)]/15 rounded-lg px-3 py-2 mb-2"><div className="text-[10px] font-bold text-[var(--warning)] uppercase tracking-wider mb-0.5">⚙️ Custom Slice</div><div className="text-[11px] text-[var(--text-muted)]">Filtered view</div><button onClick={() => setViewMode("")} className="text-[10px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mt-1">Change View ↻</button></div>}
       {viewMode !== "employee" && <><div className="flex items-center justify-between mb-2"><span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-[1.2px]">Filters</span>{af > 0 && <span className="bg-[rgba(212,134,10,0.2)] text-[var(--accent-primary)] text-[11px] font-bold px-2 py-0.5 rounded-full">{af}</span>}</div>
       <SidebarSelect label="Function" options={fo.functions || ["All"]} value={f.func} onChange={v => setFilter("func", v)} />
       <SidebarSelect label="Job Family" options={fo.job_families || ["All"]} value={f.jf} onChange={v => setFilter("jf", v)} />
@@ -602,39 +619,38 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
         <LandingPage onNavigate={navigate} moduleStatus={moduleStatus} hasData={hasData} viewMode={viewMode} />
       </div>}
       {page !== "home" && <div className="px-7 py-6">
-      {page === "snapshot" && model && <ErrorBoundary><WorkforceSnapshot model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
-      {page === "jobs" && model && <ErrorBoundary><JobArchitecture model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} jobs={jobs} /></ErrorBoundary>}
-      {page === "jobarch" && model && <ErrorBoundary><JobArchitectureModule model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
-      {page === "scan" && model && <ErrorBoundary><AiOpportunityScan model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
-      {page === "mgrcap" && model && <ErrorBoundary><ManagerCapability model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
-      {page === "changeready" && model && <ErrorBoundary><ChangeReadiness model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
-      {page === "mgrdev" && model && <ErrorBoundary><ManagerDevelopment model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
-      {page === "recommendations" && model && <ErrorBoundary><AiRecommendationsEngine model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
-      {page === "orghealth" && model && <ErrorBoundary><OrgHealthScorecard model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
-      {page === "heatmap" && model && <ErrorBoundary><AIImpactHeatmap model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
-      {page === "clusters" && model && <ErrorBoundary><RoleClustering model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
-      {page === "skillshift" && model && <ErrorBoundary><SkillShiftIndex model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
-      {page === "story" && model && <ErrorBoundary><TransformationStoryBuilder model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
-      {page === "archetypes" && model && <ErrorBoundary><ReadinessArchetypes model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
-      {page === "export" && model && <ErrorBoundary><ExportReport model={model} f={f} onBack={goHome} /></ErrorBoundary>}
-      {page === "dashboard" && model && <ErrorBoundary><TransformationExecDashboard model={model} f={f} onBack={goHome} onNavigate={navigate} decisionLog={decisionLog} riskRegister={riskRegister} addRisk={addRisk} updateRisk={updateRisk} /></ErrorBoundary>}
-      {page === "readiness" && model && <ErrorBoundary><AIReadiness model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
-      {page === "bbba" && model && <ErrorBoundary><BBBAFramework model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
-      {page === "headcount" && model && <ErrorBoundary><HeadcountPlanning model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
-      {page === "reskill" && model && <ErrorBoundary><ReskillingPathways model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
-      {page === "marketplace" && model && <ErrorBoundary><TalentMarketplace model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
-      {page === "skills" && model && <ErrorBoundary><SkillsTalent model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
-      {page === "design" && model && viewCtx.mode !== "employee" && <ErrorBoundary><WorkDesignLab model={model} f={f} job={viewCtx.mode === "job" ? viewCtx.job || job : job} jobs={jobs} onBack={goHome} jobStates={jobStates} setJobState={setJobState} onSelectJob={setJob} /></ErrorBoundary>}
-      {page === "simulate" && <ErrorBoundary><ImpactSimulator onBack={goHome} onNavigate={navigate} model={model} viewCtx={viewCtx} f={f} jobStates={jobStates} simState={simState} setSimState={setSimState} /></ErrorBoundary>}
-      {page === "build" && <ErrorBoundary><OrgDesignStudio onBack={goHome} viewCtx={viewCtx} model={model} f={f} odsState={odsState} setOdsState={setOdsState} /></ErrorBoundary>}
-      {page === "plan" && model && <ErrorBoundary><ChangePlanner model={model} f={f} onBack={goHome} onNavigate={navigate} jobStates={jobStates} viewCtx={viewCtx} /></ErrorBoundary>}
+      {page === "snapshot" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate}><WorkforceSnapshot model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
+      {(page === "jobs" || page === "jobarch") && model && <ErrorBoundary onBack={goHome} onNavigate={navigate}><JobArchitectureModule model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
+      {page === "scan" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate}><AiOpportunityScan model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
+      {page === "mgrcap" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate}><ManagerCapability model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
+      {page === "changeready" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate}><ChangeReadiness model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
+      {page === "mgrdev" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate}><ManagerDevelopment model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
+      {page === "recommendations" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate}><AiRecommendationsEngine model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
+      {page === "orghealth" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate}><OrgHealthScorecard model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
+      {page === "heatmap" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate}><AIImpactHeatmap model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
+      {page === "clusters" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate}><RoleClustering model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
+      {page === "skillshift" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate}><SkillShiftIndex model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
+      {page === "story" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate}><TransformationStoryBuilder model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
+      {page === "archetypes" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate}><ReadinessArchetypes model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
+      {page === "export" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate}><ExportReport model={model} f={f} onBack={goHome} /></ErrorBoundary>}
+      {page === "dashboard" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate}><TransformationExecDashboard model={model} f={f} onBack={goHome} onNavigate={navigate} decisionLog={decisionLog} riskRegister={riskRegister} addRisk={addRisk} updateRisk={updateRisk} /></ErrorBoundary>}
+      {page === "readiness" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate}><AIReadiness model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
+      {page === "bbba" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate}><BBBAFramework model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
+      {page === "headcount" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate}><HeadcountPlanning model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
+      {page === "reskill" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate}><ReskillingPathways model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
+      {page === "marketplace" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate}><TalentMarketplace model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
+      {page === "skills" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate}><SkillsTalent model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
+      {page === "design" && model && viewCtx.mode !== "employee" && <ErrorBoundary onBack={goHome} onNavigate={navigate}><WorkDesignLab model={model} f={f} job={viewCtx.mode === "job" ? viewCtx.job || job : job} jobs={jobs} onBack={goHome} jobStates={jobStates} setJobState={setJobState} onSelectJob={setJob} /></ErrorBoundary>}
+      {page === "simulate" && <ErrorBoundary onBack={goHome} onNavigate={navigate}><ImpactSimulator onBack={goHome} onNavigate={navigate} model={model} viewCtx={viewCtx} f={f} jobStates={jobStates} simState={simState} setSimState={setSimState} /></ErrorBoundary>}
+      {page === "build" && <ErrorBoundary onBack={goHome} onNavigate={navigate}><OrgDesignStudio onBack={goHome} viewCtx={viewCtx} model={model} f={f} odsState={odsState} setOdsState={setOdsState} /></ErrorBoundary>}
+      {page === "plan" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate}><ChangePlanner model={model} f={f} onBack={goHome} onNavigate={navigate} jobStates={jobStates} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "opmodel" && viewCtx.mode === "job" && <div className="px-7 py-6"><div className="text-center py-20"><div className="text-4xl mb-3 opacity-30">🔒</div><h3 className="text-lg font-semibold mb-1">Not available in Job View</h3><p className="text-[13px] text-[var(--text-secondary)] mb-2">Operating Model Lab is available in:</p><div className="flex gap-2 justify-center mb-4"><Badge color="indigo">🏢 Organization</Badge><Badge color="amber">⚙️ Custom</Badge></div><button onClick={() => setViewMode("")} className="text-[var(--accent-primary)] text-[13px] font-semibold">Change View ↻</button></div></div>}
-      {page === "opmodel" && viewCtx.mode !== "employee" && viewCtx.mode !== "job" && <ErrorBoundary><OperatingModelLab onBack={goHome} model={model} f={f} projectId={projectId} onNavigateCanvas={() => navigate("om_canvas")} onModelChange={setModel} /></ErrorBoundary>}
+      {page === "opmodel" && viewCtx.mode !== "employee" && viewCtx.mode !== "job" && <ErrorBoundary onBack={goHome} onNavigate={navigate}><OperatingModelLab onBack={goHome} model={model} f={f} projectId={projectId} onNavigateCanvas={() => navigate("om_canvas")} onModelChange={setModel} /></ErrorBoundary>}
       {(page === "design" && viewCtx.mode === "employee") && <div className="text-center py-20"><div className="text-4xl mb-3 opacity-30">🔒</div><h3 className="text-lg font-semibold mb-1">Not available in Employee View</h3><p className="text-[13px] text-[var(--text-secondary)] mb-2">Work Design Lab is available in these views:</p><div className="flex gap-2 justify-center mb-4"><Badge color="indigo">🏢 Organization</Badge><Badge color="green">💼 Job</Badge><Badge color="amber">⚙️ Custom</Badge></div><button onClick={() => setViewMode("")} className="text-[var(--accent-primary)] text-[13px] font-semibold">Change View ↻</button></div>}
       {(page === "opmodel" && viewCtx.mode === "employee") && <div className="text-center py-20"><div className="text-4xl mb-3 opacity-30">🔒</div><h3 className="text-lg font-semibold mb-1">Not available in Employee View</h3><p className="text-[13px] text-[var(--text-secondary)] mb-2">Operating Model Lab is available in these views:</p><div className="flex gap-2 justify-center mb-4"><Badge color="indigo">🏢 Organization</Badge><Badge color="amber">⚙️ Custom</Badge></div><button onClick={() => setViewMode("")} className="text-[var(--accent-primary)] text-[13px] font-semibold">Change View ↻</button></div>}
-      {page === "om_canvas" && <ErrorBoundary><OMDesignCanvas projectId={projectId} onBack={goHome} onNavigateLab={() => navigate("opmodel")} /></ErrorBoundary>}
-      {page === "rolecompare" && model && <ErrorBoundary><RoleComparison model={model} f={f} onBack={goHome} jobs={jobs} jobStates={jobStates} /></ErrorBoundary>}
-      {page === "quickwins" && model && <ErrorBoundary><QuickWinIdentifier model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
+      {page === "om_canvas" && <ErrorBoundary onBack={goHome} onNavigate={navigate}><OMDesignCanvas projectId={projectId} onBack={goHome} onNavigateLab={() => navigate("opmodel")} /></ErrorBoundary>}
+      {page === "rolecompare" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate}><RoleComparison model={model} f={f} onBack={goHome} jobs={jobs} jobStates={jobStates} /></ErrorBoundary>}
+      {page === "quickwins" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate}><QuickWinIdentifier model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
       {!model && page !== "home" && <div className="text-center py-20"><div className="text-4xl mb-3 opacity-30">📂</div><h3 className="text-lg font-semibold mb-1">Select a model first</h3><p className="text-[13px] text-[var(--text-secondary)]">Upload data or select Demo_Model in the sidebar.</p><button onClick={goHome} className="mt-4 text-[var(--accent-primary)] text-[13px] font-semibold">← Back to Home</button></div>}
       </div>}
     </main>
@@ -804,22 +820,21 @@ function seedTutorialData(projectId: string, industry: string = "technology") {
 }
 
 
-/* ═══ TUTORIAL STEPS — 27 micro-steps with data-aware copy ═══ */
+/* ═══ TUTORIAL STEPS — 27 comprehensive steps ═══ */
 
 // Company data mirrors backend COMPANY_DB for dynamic tutorial text
-const TUTORIAL_COMPANIES: Record<string, Record<string, { name: string; employees: number }>> = {
-  technology: { small: { name: "Spark Labs", employees: 150 }, mid: { name: "Nexus Technology Corp", employees: 2500 }, large: { name: "Titan Digital Systems", employees: 18000 } },
-  financial_services: { small: { name: "Pinnacle Wealth Advisors", employees: 200 }, mid: { name: "Global Financial Partners", employees: 4200 }, large: { name: "Meridian Capital Group", employees: 22000 } },
-  healthcare: { small: { name: "Valley Medical Center", employees: 350 }, mid: { name: "Meridian Health System", employees: 5500 }, large: { name: "National Health Partners", employees: 45000 } },
-  manufacturing: { small: { name: "Precision Components Inc", employees: 180 }, mid: { name: "Atlas Manufacturing Group", employees: 3800 }, large: { name: "Continental Industrial Corp", employees: 28000 } },
-  retail: { small: { name: "Urban Threads Boutique", employees: 120 }, mid: { name: "Horizon Retail Group", employees: 6000 }, large: { name: "American Marketplace Inc", employees: 52000 } },
-  legal: { small: { name: "Barrett & Associates", employees: 45 }, mid: { name: "Sterling Legal Group", employees: 800 }, large: { name: "Global Law Alliance", employees: 5500 } },
-  energy: { small: { name: "SunRidge Renewables", employees: 160 }, mid: { name: "Apex Energy Solutions", employees: 3200 }, large: { name: "Pacific Energy Holdings", employees: 35000 } },
-  education: { small: { name: "Westbrook College", employees: 120 }, mid: { name: "Pacific University System", employees: 2800 }, large: { name: "National University Consortium", employees: 15000 } },
+const TUTORIAL_COMPANIES: Record<string, Record<string, { name: string; employees: number; ticker?: string }>> = {
+  technology: { small: { name: "Palantir Technologies", employees: 3800, ticker: "PLTR" }, mid: { name: "ServiceNow", employees: 8000, ticker: "NOW" }, large: { name: "Adobe", employees: 25000, ticker: "ADBE" } },
+  financial_services: { small: { name: "Evercore", employees: 2200, ticker: "EVR" }, mid: { name: "Raymond James", employees: 8000, ticker: "RJF" }, large: { name: "Goldman Sachs", employees: 25000, ticker: "GS" } },
+  healthcare: { small: { name: "Hims & Hers Health", employees: 1500, ticker: "HIMS" }, mid: { name: "Molina Healthcare", employees: 8000, ticker: "MOH" }, large: { name: "Elevance Health", employees: 25000, ticker: "ELV" } },
+  retail: { small: { name: "Five Below", employees: 3000, ticker: "FIVE" }, mid: { name: "Williams-Sonoma", employees: 8000, ticker: "WSM" }, large: { name: "Target", employees: 25000, ticker: "TGT" } },
+  manufacturing: { small: { name: "Axon Enterprise", employees: 4000, ticker: "AXON" }, mid: { name: "Parker Hannifin", employees: 8000, ticker: "PH" }, large: { name: "Honeywell", employees: 25000, ticker: "HON" } },
+  consulting: { small: { name: "Huron Consulting", employees: 2500, ticker: "HURN" }, mid: { name: "Booz Allen Hamilton", employees: 8000, ticker: "BAH" }, large: { name: "Accenture", employees: 25000, ticker: "ACN" } },
+  energy: { small: { name: "Shoals Technologies", employees: 1800, ticker: "SHLS" }, mid: { name: "Chesapeake Energy", employees: 3000, ticker: "CHK" }, large: { name: "Baker Hughes", employees: 25000, ticker: "BKR" } },
+  aerospace: { small: { name: "Kratos Defense", employees: 4000, ticker: "KTOS" }, mid: { name: "L3Harris Technologies", employees: 8000, ticker: "LHX" }, large: { name: "Northrop Grumman", employees: 25000, ticker: "NOC" } },
 };
 
 function getTutorialCompany(projectId: string): { name: string; employees: number; industry: string; size: string } {
-  // projectId format: tutorial_{size}_{industry} e.g. tutorial_mid_technology
   const parts = projectId.replace("tutorial_", "").split("_");
   const size = parts[0] || "mid";
   const industry = parts.slice(1).join("_") || "technology";
@@ -827,246 +842,235 @@ function getTutorialCompany(projectId: string): { name: string; employees: numbe
   return { ...co, industry, size };
 }
 
-function buildTutorialSteps(projectId: string): { page: string; pos: "center"|"tr"|"tl"; icon: string; title: string; body: string; action?: string; subTab?: string }[] {
+type TutorialStep = { page: string; icon: string; title: string; body: string };
+
+function buildTutorialSteps(projectId: string): TutorialStep[] {
   const co = getTutorialCompany(projectId);
   const n = co.employees;
   const nm = co.name;
-  // Approximate generated counts (backend caps at 2000)
   const genCount = Math.min(n, 2000);
   const fnCount = n <= 150 ? 4 : n <= 500 ? 6 : n <= 2000 ? 8 : 9;
   const mgrCount = Math.max(3, Math.round(genCount * 0.08));
 
   return [
-  // ═══ WELCOME ═══
-  { page: "home", pos: "center", icon: "🎓", title: "Welcome to Your AI Transformation Sandbox", body: `You're inside ${nm} — a ${co.industry.replace(/_/g, " ")} organization with ${n.toLocaleString()} employees, ${fnCount} functions, and multiple analyzed roles. Everything you see is real data flowing through real analytics. Explore freely — nothing you do here affects real projects.`, action: "Click Next to start the guided tour, or close this window and explore on your own" },
+  // ═══ Steps 1-3: Welcome & Orientation ═══
+  { page: "home", icon: "🎓", title: "Welcome to Your AI Transformation Sandbox",
+    body: `Welcome to ${nm}, a ${co.industry.replace(/_/g, " ")} organization with ${n.toLocaleString()} employees across ${fnCount} functions. This sandbox is a fully interactive environment loaded with realistic workforce data, AI readiness scores, skills inventories, and manager capability assessments. Everything you see is generated data flowing through real analytics engines. You can explore, modify, and experiment freely — nothing you do here affects any real project or data. Use the Next button to follow the guided tour, or close this panel and explore on your own at any time.` },
 
-  // ═══ PHASE 1: DISCOVER ═══
-  { page: "snapshot", pos: "center", icon: "📊", title: `Workforce Snapshot — ${nm} at a Glance`, body: `You're looking at ${nm}'s baseline: ${genCount.toLocaleString()} employees across ${fnCount} functions. The KPI cards show headcount, role count, task coverage, and AI readiness. These metrics are your starting point for any transformation conversation.`, action: "Look at the 6 KPI cards — each represents a key workforce metric" },
-  { page: "snapshot", pos: "center", icon: "📊", title: "Understanding the Charts", body: "The function distribution chart shows relative headcount by department. The AI Impact donut will populate once you complete Work Design. The readiness radar shows relative scores across dimensions. These visuals are what you'd put in a steering committee deck.", action: "Click the ☕ button (bottom-right) and ask: 'Give me an executive summary of this workforce'" },
+  { page: "home", icon: "🗺️", title: "Platform Overview — Six Module Architecture",
+    body: `The platform is organized into six core modules that mirror the phases of an AI transformation engagement. Overview gives you the baseline workforce picture. Diagnose uncovers organizational health, AI readiness, and change risk. Design is where you deconstruct jobs into tasks, redesign roles, and plan talent sourcing. Simulate lets you model different adoption scenarios and see financial impact. Mobilize builds the change management roadmap, reskilling pathways, and stakeholder plans. Export generates the deliverables your steering committee needs. Each module feeds data forward — decisions in Design drive what you see in Simulate, which shapes Mobilize.` },
 
-  { page: "jobs", pos: "center", icon: "🗂️", title: `Job Architecture — ${nm}'s Roles`, body: `The Job Catalog lists positions across ${fnCount} functions, from individual contributors to senior leadership. Notice the compensation range and career levels. This architecture feeds the Work Design Lab — every role here can be deconstructed into tasks.`, action: "Scroll down to see the job catalog. Then try the AI Job Profile Generator: type a role name and press Enter" },
+  { page: "home", icon: "🔬", title: "Sandbox Data & View Modes",
+    body: `The sandbox data for ${nm} was generated to be internally consistent: employee skills match their job families, readiness scores correlate with tenure and function, and manager capability reflects team size and seniority. Before entering the platform, you selected a view mode. Organization View shows aggregate data across the entire workforce. Job View focuses on a single role and its task-level detail. Employee View tracks an individual through every module. Custom Slice applies filters (function, job family, career level) so you can narrow to a specific population. You can change your view mode at any time from the sidebar.` },
 
-  { page: "scan", pos: "center", icon: "🔬", title: "AI Opportunity Scan — Task-Level Scoring", body: `This module scores every task in ${nm}'s work design data. The AI Priority tab ranks tasks by automation potential. Tasks that are Repetitive + Deterministic + Independent score highest — the trifecta of automatable work. Judgment-heavy + Collaborative tasks score lowest.`, action: "Click 'AI Priority' tab — notice how the composite score combines automation potential, time impact, and feasibility" },
-  { page: "scan", pos: "center", icon: "🔬", title: "Skills Analysis — Current vs Future", body: "The Skills tab shows current skill demand weighted by time allocation. After transformation, demand shifts: AI Literacy and Process Automation will grow while routine skills decline. This is the reskilling signal.", action: "Click the 'Skills' sub-tab to see the shift from current to future skill demand" },
+  // ═══ Steps 4-5: Overview Tab ═══
+  { page: "snapshot", icon: "📊", title: "Overview — Workforce Snapshot & KPIs",
+    body: `The Workforce Snapshot is your executive summary. Six KPI cards show headcount (${genCount.toLocaleString()} employees), role count, task coverage percentage, average AI readiness score, skills assessment completion, and transformation progress. Below the KPIs, the function distribution chart shows headcount by department, the AI impact donut summarizes how much work is automatable (populated after Work Design), and the readiness radar shows relative scores across five dimensions. The Skill Shift Index tracks how skill demand is changing across the organization. These are the visuals you would put in a steering committee deck to establish the baseline.` },
 
-  { page: "readiness", pos: "center", icon: "🎯", title: `AI Readiness — Who's Ready at ${nm}?`, body: `Each employee is scored on 5 dimensions: AI Awareness, Tool Adoption, Data Literacy, Change Openness, and AI Collaboration. High scorers are 'Ready Now' — they already work with data tools daily. Low scorers are 'At Risk' — they need intervention before transformation begins.`, action: "Switch to Individual Scores, then scroll down to see improvement plans — each dimension gets intervention type and timeline" },
+  { page: "dashboard", icon: "📈", title: "Overview — Executive Dashboard & Decision Log",
+    body: `The Transformation Executive Dashboard aggregates signals from every module into a single command center. It shows transformation progress by phase, risk register entries, recent decisions logged across modules, and key metrics trending over time. The Decision Log in the sidebar tracks every significant action you take — confirming a skills inventory, submitting a deconstruction, overriding a BBBA disposition. This audit trail is critical for governance: it shows who decided what and when. The dashboard is designed to be the first thing a program sponsor opens each morning during a live engagement.` },
 
-  { page: "mgrcap", pos: "center", icon: "👔", title: `Manager Capability — ${nm}'s ~${mgrCount} Leaders`, body: `${nm} has approximately ${mgrCount} people managers. High-scoring managers become Transformation Champions. Low-scoring managers (below 2.5) are Flight Risks — they need immediate engagement. The correlation panel shows teams under strong managers have significantly higher readiness.`, action: "Click 'Team Correlation' tab — see how teams under strong managers show higher readiness scores" },
+  // ═══ Steps 6-8: Diagnose ═══
+  { page: "orghealth", icon: "🏥", title: "Diagnose — Org Health Scorecard & AI Impact Heatmap",
+    body: `The Org Health Scorecard gives you a composite view of organizational readiness across multiple dimensions: leadership alignment, cultural adaptability, digital maturity, process standardization, and data quality. Each dimension is scored and benchmarked. The AI Impact Heatmap (accessible from the Diagnose module) visualizes which functions and job families have the highest automation potential. Hot spots (red/orange) indicate areas where AI can deliver the most value — these are your quick wins. Cool spots (blue/green) indicate human-intensive work that requires augmentation rather than automation. Together, these tools tell you where to focus first.` },
 
-  // ═══ PHASE 2: DESIGN ═══
-  { page: "skills", pos: "center", icon: "🧠", title: `Skills Inventory — ${nm}'s Proficiency Grid`, body: `You're seeing up to ${Math.min(genCount, 500)} employees × 15 skills. Experts (score 4) in core skills are your strongest assets. Employees at 1-2 in critical areas like AI/ML Tools need training. The coverage percentage shows assessment completeness — some cells may be blank.`, action: "Find any employee row and click a skill cell to update their proficiency. The edit saves instantly." },
-  { page: "skills", pos: "center", icon: "🧠", title: "Gap Analysis — Where the Gaps Are", body: "After confirming the inventory, this tab shows gaps between current average and target proficiency. Critical gaps (delta > -1.5) mean significant investment in training. Small gaps (delta < -0.5) indicate existing strength.", action: "Click 'Gap Analysis' tab. Set the disposition for critical gaps: choose 'Close Internally' if you can train up, or 'Hire Externally' if the gap is too large", subTab: "gap" },
-  { page: "skills", pos: "center", icon: "🧠", title: "Adjacency Map — Who Can Fill New Roles?", body: "Redesigned target roles are shown with adjacency scores for internal candidates. High matches (>70%) are strong Build candidates. No matches above 50% signal external hire needs. This drives your Build/Buy/Borrow/Automate strategy.", action: "Click 'Adjacency Map' tab. Set threshold to 60%. Shortlist top candidates by clicking ☆", subTab: "adjacency" },
+  { page: "readiness", icon: "🎯", title: "Diagnose — AI Readiness & Change Readiness",
+    body: `AI Readiness scores every employee on five dimensions: AI Awareness, Tool Adoption, Data Literacy, Change Openness, and AI Collaboration. Scores of 4-5 mean "Ready Now" — these employees already use data tools daily and embrace change. Scores below 2.5 are "At Risk" — they need targeted intervention before any transformation begins. The Change Readiness module adds another lens: a 4-quadrant matrix crossing readiness with impact level. High Impact + Low Readiness employees are your biggest risk — they will be most affected but least prepared. Each quadrant has a specific intervention playbook. The combination of these two assessments drives your entire people strategy.` },
 
-  { page: "design", pos: "center", icon: "✏️", title: "Work Design Lab — Task Deep Dive", body: "Select a role from the sidebar. You'll see tasks with pre-filled time allocations, work characteristics, and AI impact scores. This is the core engine: every task gets analyzed by 4 characteristics (Task Type, Logic, Interaction, AI Impact) that determine what the AI recommends.", action: "Select a role from the Active Job dropdown in the sidebar" },
-  { page: "design", pos: "center", icon: "✏️", title: "Deconstruction — How Tasks Break Down", body: "Look at the task table: tasks with Repetitive + Deterministic + Independent characteristics point to HIGH AI Impact — ~60% of time can be saved through automation. Tasks that are Judgment-heavy + Collaborative have LOW AI Impact — only ~10% savings.", action: "Study the pattern: Repetitive + Deterministic + Independent = High AI. Variable + Judgment-heavy + Collaborative = Low AI. This pattern applies to every role you'll ever analyze." },
-  { page: "design", pos: "center", icon: "✏️", title: "Redeployment — The Decision Layer", body: "Each task gets a decision: Automate (via RPA), Augment (via GenAI), or Retain (human-led). The Time Saved % column shows freed capacity per task. Total savings vary by role but typically range from 25-45% of the work week.", action: "Try changing a task from Augment to Automate — watch the Time Saved jump. Then change it back to see why Augment may be the better choice for Probabilistic tasks" },
-  { page: "design", pos: "center", icon: "✏️", title: "Reconstruction — The Future State", body: "The Impact tab shows the reconstruction: how many hours per week are released and what percentage of the role is freed up. This is the business case: either the person does more strategic work, or you need fewer people in this role.", action: "Review the Impact tab — the time release percentage is the key metric that feeds into the Simulator" },
+  { page: "recommendations", icon: "🤖", title: "Diagnose — AI Recommendations & Role Clustering",
+    body: `The AI Recommendations Engine synthesizes data from every diagnostic module and generates prioritized action items. It identifies which roles should be redesigned first, which skills gaps are most critical, which managers need immediate development, and where quick wins exist. Each recommendation includes an impact estimate and effort level. Role Clustering groups similar roles by their task composition, skill requirements, and AI impact profiles. Clusters reveal hidden patterns — roles in different functions that share 80% of their task DNA and could be consolidated. This analysis often uncovers organizational redundancy that traditional org charts miss entirely.` },
 
-  { page: "bbba", pos: "center", icon: "🔀", title: "Build/Buy/Borrow/Automate — Sourcing Strategy", body: "Based on gap analysis and adjacency scores, each redesigned role gets a recommendation. Roles with strong internal candidates get 'Build' (reskilling cost). Roles with no internal matches get 'Buy' (hiring cost). The investment summary shows total transformation cost.", action: "Click a disposition badge to override, then scroll down to see cost comparison bars and risk assessment per decision" },
+  // ═══ Steps 9-11: Job Architecture ═══
+  { page: "jobs", icon: "🗂️", title: "Job Architecture — Catalogue & Role Profiles",
+    body: `The Job Catalog lists every position in ${nm} organized by function and job family. Each role shows its career level, compensation range, headcount, and reporting structure. This is the structural backbone of the platform — every other module references this catalog. You can browse roles by function, search by title, and click into any role to see its full profile. The AI Job Profile Generator lets you type any role name and instantly generate a structured profile with typical tasks, skills, and career progression. This is useful when you need to add roles that don't exist in the current catalog, or when you want to compare your organization's role definitions against market standards.` },
 
-  { page: "headcount", pos: "center", icon: "👥", title: "Headcount Waterfall — The Board View", body: `Starting at ${genCount.toLocaleString()} headcount: automation eliminates some roles, natural attrition absorbs part of the impact, internal redeployments fill new roles, and new hires cover the rest. The Net Change % is what your CFO will focus on — it determines if this is a 'growth transformation' or a 'restructure'.`, action: "Look at the Financial Impact section below — Net Year 1 tells you if this transformation pays for itself" },
+  { page: "jobs", icon: "🏗️", title: "Job Architecture — Architecture Map & Career Framework",
+    body: `The Architecture Map visualizes the current state of ${nm}'s job structure: how many layers exist between the CEO and individual contributors, which functions have the most roles, and where career paths converge or diverge. The future state overlay (available after completing Work Design) shows how the architecture changes after AI transformation — which roles are eliminated, which are created, and how career ladders shift. This before/after comparison is one of the most powerful visuals for executive buy-in. The Career Framework Accordion shows standardized career levels with expected competencies, typical tenure, and advancement criteria for each band.` },
 
-  { page: "simulate", pos: "center", icon: "⚡", title: "Impact Simulator — Conservative vs Aggressive", body: "Conservative (30% AI adoption): small impact, safe timeline. Balanced (55%): moderate change, 10-month rollout. Aggressive (80%): maximum automation, fastest ROI but highest risk. Toggle between them and watch released hours swing from minimal to transformative. The Redeployment sliders decide WHERE freed time goes.", action: "Switch to Aggressive, then go to the Redeployment sub-tab. Set Higher-Value Work to 50% and Innovation to 30% — this is the 'growth reinvestment' strategy" },
+  { page: "jobs", icon: "🔍", title: "Job Architecture — Validation & Calibration",
+    body: `Every role in the catalog carries validation flags that indicate data quality and calibration status. Green flags mean the role has complete task data, confirmed skills, and validated compensation ranges. Yellow flags indicate partial data — the role exists but some fields need enrichment. Red flags mean critical data is missing and the role cannot be reliably analyzed in downstream modules. The calibration panel lets you compare roles side-by-side to ensure consistency: are two roles at the same career level actually equivalent in scope and compensation? This quality check is essential before running any workforce analytics, because garbage in means garbage out in every subsequent module.` },
 
-  { page: "build", pos: "center", icon: "🏗️", title: "Org Design Studio — Structural Modeling", body: `Eight views model ${nm}'s future structure. Span of Control shows manager ratios. The Cost view shows payroll distribution by function. The Scenarios comparison lets you model structural changes like flattening layers or merging functions.`, action: "Click through Overview → Span of Control → Cost — notice which functions dominate headcount and cost" },
+  // ═══ Steps 12-14: Design ═══
+  { page: "design", icon: "✏️", title: "Design — Work Design Lab (Deconstruction & Reconstruction)",
+    body: `The Work Design Lab is the analytical engine of the platform. Select a role from the sidebar to see its task portfolio. Each task is characterized by four dimensions: Task Type (Repetitive vs Variable), Logic (Deterministic vs Judgment-heavy), Interaction (Independent vs Collaborative), and AI Impact (High/Moderate/Low). Deconstruction breaks the role into individual tasks with time allocations. The pattern is clear: Repetitive + Deterministic + Independent tasks have high AI impact (60% time savings through automation), while Variable + Judgment-heavy + Collaborative tasks remain human-led. Reconstruction shows the future state — how freed capacity gets redeployed to higher-value work. The Redeployment tab assigns each task a decision: Automate, Augment, or Retain.` },
 
-  // ═══ PHASE 3: DELIVER ═══
-  { page: "reskill", pos: "center", icon: "📚", title: "Reskilling Pathways — Personal Learning Plans", body: "Each employee with skill gaps gets a personalized pathway. High-readiness employees with small gaps get short, low-cost training. Low-readiness employees with large gaps need intensive support. Priority scoring determines who gets trained first.", action: "Compare pathways across employees — notice how readiness level and gap size drive the recommended investment" },
+  { page: "opmodel", icon: "🧬", title: "Design — Operating Model & Capability Maturity",
+    body: `The Operating Model Lab configures the target organizational architecture. The Blueprint shows five layers: Governance, Core Components, Shared Services, Enabling, and Interface. Switch between archetypes — Functional (siloed departments), Platform (shared services hub), or Matrix (cross-functional teams) — to see how each layer transforms. The Capability Maturity tab lets you rate each component from 1 (Ad Hoc) to 5 (Optimized) for both current and target state. The gap between current and target drives investment estimates. A function scoring 2 today with a target of 4 needs significant investment in process, technology, and people. The Operating Model Canvas lets you drag-and-drop components to design a custom architecture.` },
 
-  { page: "marketplace", pos: "center", icon: "🏪", title: "Talent Marketplace — Internal Matching", body: "The composite score combines adjacency percentage, readiness score, and reskilling timeline. Shortlist strong matches to commit them to a pathway. For roles where no one exceeds the threshold, the tool recommends external hire — that's a signal to your TA team.", action: "Shortlist top candidates by clicking ☆. Look for roles that recommend External Fill" },
+  { page: "bbba", icon: "🔀", title: "Design — BBBA Framework, Org Design Studio & Headcount Planning",
+    body: `Build/Buy/Borrow/Automate is the sourcing strategy layer. Each redesigned role gets a recommendation based on gap analysis and adjacency scores. Build means reskilling internal candidates (lowest risk, moderate cost). Buy means external hiring (fast but expensive). Borrow means contractors or gig workers (flexible but temporary). Automate means the role is fully replaced by technology. The Org Design Studio models structural changes: span of control ratios, layer reduction, function merges. Headcount Planning shows the waterfall: starting headcount minus automation eliminations, plus natural attrition absorption, plus internal redeployments, plus new hires, equals the net change your CFO cares about. The Financial Impact section shows whether the transformation pays for itself in Year 1.` },
 
-  { page: "changeready", pos: "center", icon: "📈", title: `Change Readiness — ${nm}'s Risk Map`, body: "The 4-quadrant matrix: High Readiness + High Impact (Champions — deploy as advocates), Low Readiness + High Impact (highest risk — heavily impacted but not ready). Each quadrant has a specific intervention plan. The High Risk group needs intensive support for 6+ months.", action: "Click the red 'High Risk' quadrant to see which employees are in it — these are the people who need the most support" },
+  // ═══ Steps 15-17: Simulate ═══
+  { page: "simulate", icon: "⚡", title: "Simulate — Scenarios & Presets",
+    body: `The Impact Simulator lets you model three adoption scenarios. Conservative (30% AI adoption) produces small, safe changes over 18 months — ideal for risk-averse organizations. Balanced (55% adoption) delivers moderate transformation over 10 months — the most common starting point. Aggressive (80% adoption) maximizes automation with the fastest ROI but carries the highest change management risk. You can also create a Custom scenario by adjusting adoption rate, timeline, and per-role investment independently. Each scenario instantly recalculates every downstream metric: hours released, FTE equivalents freed, redeployment capacity, and financial returns. Toggle between scenarios to see how the numbers shift — this is the sensitivity analysis your board will ask for.` },
 
-  { page: "mgrdev", pos: "center", icon: "🎓", title: "Manager Development — Deploying Champions", body: "High-scoring managers become Change Agents — they lead transformation for their function. Low-scoring managers need immediate engagement: executive coaching on Leading Through Ambiguity. Manager investment is typically the highest-leverage spend in the entire transformation.", action: "Compare high-scoring managers (deploy as agents, minimal cost) vs low-scoring (intensive coaching). Manager investment is high-leverage." },
+  { page: "simulate", icon: "📊", title: "Simulate — Capacity Waterfall & FTE Impact",
+    body: `The Capacity Waterfall visualization shows how time is freed across the organization. Starting from total weekly hours, each bar subtracts automated tasks and augmented tasks, leaving the remaining human hours. The FTE Impact calculation translates freed hours into full-time-equivalent reductions (or reallocations). This is not necessarily a headcount reduction — the Redeployment sub-tab shows how freed time can be redirected: Higher-Value Work, Innovation, Customer Engagement, or Training. The split between these categories determines whether your transformation story is about efficiency (doing the same with less) or growth (doing more with the same). Most successful transformations aim for 60% redeployment to higher-value work and 20% to innovation.` },
 
-  { page: "plan", pos: "center", icon: "🚀", title: "Change Planner — Auto-Generated Roadmap", body: "Click 'Auto-Build Plan' and the AI generates a complete roadmap from everything you've configured: which roles change, what skills need building, who needs support, what the timeline looks like. Every row is editable — change owners, priorities, waves. The timeline visualization shows initiatives sequenced across waves.", action: "Click '☕ Auto-Build Plan' — then edit an initiative's owner and priority to see how the tool supports your planning process" },
+  { page: "simulate", icon: "💰", title: "Simulate — Cost/ROI Model & Scenario Comparison",
+    body: `The Cost/ROI Model calculates the full financial picture. Investment costs include technology licensing, implementation, reskilling programs, change management, and severance. Returns include labor cost savings from automation, productivity gains from augmentation, and revenue uplift from redeployment to growth activities. The payback period shows when cumulative returns exceed cumulative investment — typically 8-14 months for a balanced scenario. The Scenario Comparison view puts Conservative, Balanced, and Aggressive side by side across every metric. This is the slide that gets the most attention in board presentations, because it shows the trade-off between speed, risk, and return in concrete financial terms.` },
 
-  { page: "opmodel", pos: "center", icon: "🧬", title: "Operating Model — The Architecture", body: "The Blueprint shows 5 layers: Governance, Core Components, Shared Services, Enabling, and Interface. Switch between archetypes (Functional, Platform, Matrix) to see how each layer transforms. The choice of archetype drives how your functions deliver services.", action: "Switch between archetypes — notice how Core Components and Enabling layers change dramatically" },
-  { page: "opmodel", pos: "center", icon: "🧬", title: "Capability Maturity — Rate Each Component", body: "Click the Capability Maturity tab. Rate capabilities from 1 (Ad Hoc) to 5 (Optimized) for both Current and Target state. The tool calculates the gap automatically. A large gap signals heavy investment needed. Scores are persisted.", action: "Rate a few capabilities for Current and Target state — see the gap calculation update live" },
+  // ═══ Steps 18-21: Mobilize ═══
+  { page: "plan", icon: "🚀", title: "Mobilize — Change Planner & Gantt Chart",
+    body: `The Change Planner auto-generates a transformation roadmap from everything you have configured. Click "Auto-Build Plan" and the AI creates initiatives organized into waves: Foundation (assessments, tool setup), Quick Wins (high-impact, low-effort changes), Core Transformation (major role redesigns), and Optimization (fine-tuning). Each initiative has an owner, priority level, dependencies, and timeline. The Gantt chart visualization shows initiatives sequenced across waves with dependency arrows. Every row is fully editable — change owners, shift priorities, move initiatives between waves. The critical path is highlighted to show which delays would push back the entire program. Stakeholder mapping identifies who needs to approve, champion, or be informed for each initiative.` },
 
-  // ═══ FINISH ═══
-  { page: "home", pos: "center", icon: "🎉", title: "You've Mastered the Platform", body: `You've explored all 18 modules with real ${nm} data. You've seen how tasks drive AI impact scores, how skills gaps determine talent strategy, how manager capability multiplies team readiness, and how everything flows into a change plan and operating model. Now go build your own transformation.`, action: "Click '← Back to Projects' and create a New Project with your organization's data. Everything you learned here applies directly." },
-];
+  { page: "plan", icon: "⚠️", title: "Mobilize — Risk Register & Communication Plan",
+    body: `The Risk Register aggregates risks identified across all modules: skills gaps too large to close internally, managers below capability threshold, functions with low change readiness, and headcount changes that exceed natural attrition capacity. Each risk has a probability rating, impact severity, proposed mitigation, and assigned owner. The Communication Plan outlines what messages need to go to which audiences at each phase of the transformation. It distinguishes between executive sponsors (who need ROI data), middle managers (who need operational detail), and frontline employees (who need reassurance and clarity). The plan includes suggested channels, frequency, and messaging frameworks for each audience segment.` },
+
+  { page: "story", icon: "📖", title: "Mobilize — Story Builder & Readiness Archetypes",
+    body: `The Transformation Story Builder helps you craft the narrative that ties together all the analytical work. It takes your data — which roles are changing, what skills are growing, how the operating model shifts — and structures it into a compelling change story with a beginning (why we must transform), middle (what changes and how), and end (the future state and its benefits). Readiness Archetypes segment your workforce into behavioral profiles: Early Adopters (enthusiastic, ready to champion), Pragmatic Majority (willing but need evidence), Skeptics (resistant but persuadable), and Active Resistors (need intensive intervention). Each archetype has a tailored engagement strategy, communication approach, and support plan.` },
+
+  { page: "reskill", icon: "📚", title: "Mobilize — Reskilling Pathways & Talent Marketplace",
+    body: `Reskilling Pathways creates personalized learning plans for every employee with skill gaps. The system matches gap severity with readiness level to determine pathway intensity: high-readiness employees with small gaps get short, self-paced modules; low-readiness employees with large gaps need instructor-led intensive programs. Each pathway includes estimated duration, cost, and recommended providers. The Talent Marketplace matches internal candidates to redesigned roles using a composite score of skill adjacency, readiness level, and reskilling timeline. Strong matches (above 70%) are Build candidates — reskilling is cost-effective. Weak matches (below 50%) signal external hire needs. This data directly feeds the BBBA framework's sourcing recommendations.` },
+
+  // ═══ Steps 22-23: Export ═══
+  { page: "export", icon: "📦", title: "Export — Excel, PowerPoint & PDF Generation",
+    body: `The Export module generates board-ready deliverables from your analysis. Excel exports include the full data tables: employee-level skills inventories, role-by-role task deconstructions, financial models with formulas preserved, and risk registers with status tracking. PowerPoint exports create formatted slide decks with visualizations, key findings, and executive summaries — ready for steering committee presentations. PDF exports produce formatted reports suitable for stakeholder distribution. Each export type lets you select which modules to include, so you can generate a focused Skills Gap Report or a comprehensive Transformation Business Case. Data readiness indicators show which modules have complete data and which need more input before exporting.` },
+
+  { page: "export", icon: "✅", title: "Export — Data Readiness & Deliverable Quality",
+    body: `Before generating exports, the Data Readiness panel shows a checklist of what is complete and what is missing. Green checkmarks mean the module has sufficient data for a reliable export. Yellow warnings mean partial data exists but some assumptions will be made. Red flags mean critical inputs are missing and the export may contain gaps. The platform prioritizes honest reporting over impressive-looking slides — if your skills data only covers 60% of employees, the export will clearly state that limitation. Deliverable quality depends on the depth of your analysis: a transformation program that has completed Diagnose, Design, and Simulate will produce a much richer export than one that only completed Overview. The system guides you on what to complete next for maximum deliverable quality.` },
+
+  // ═══ Steps 24-25: AI Features ═══
+  { page: "home", icon: "☕", title: "AI Features — AI Espresso Chat Assistant",
+    body: `AI Espresso is the platform's built-in AI assistant, accessible via the coffee cup button in the bottom-right corner of any module. It has full context of your current view, selected model, active job, and module state. Ask it questions like "Give me an executive summary of this workforce," "What are the biggest skill gaps?," or "Draft a change communication for the finance team." It can generate analysis narratives, compare scenarios in natural language, identify patterns across modules, and draft stakeholder communications. The assistant understands the domain vocabulary — task deconstruction, BBBA dispositions, readiness archetypes, capacity waterfalls — and responds with consultant-grade language suitable for client deliverables.` },
+
+  { page: "home", icon: "💡", title: "AI Features — Insight Cards & Intelligent Recommendations",
+    body: `Throughout the platform, AI-generated insight cards appear when the system detects noteworthy patterns, risks, or opportunities in your data. These are not generic tips — they are computed from your specific workforce data. For example, if the skills gap analysis reveals that 40% of your workforce lacks AI Literacy but your readiness scores show high Change Openness, the system will recommend prioritizing AI literacy training because the workforce is receptive. Insight cards appear in the Workforce Snapshot, AI Opportunity Scan, Skills Analysis, and Change Readiness modules. They surface cross-module connections that might not be obvious when looking at each module in isolation. Think of them as a virtual analyst who has read all your data and is flagging what matters most.` },
+
+  // ═══ Step 26: Platform Hub ═══
+  { page: "home", icon: "🏠", title: "Platform Hub — Account, Knowledge Base & Resources",
+    body: `The Platform Hub (accessible from the sidebar) is your home base for account management and learning resources. The Account section manages your profile, preferences, and session history. The About section explains the platform's methodology, data model, and analytical frameworks. The Knowledge Base contains deep-dive articles on every module: what it does, how to interpret the outputs, and best practices for client conversations. The Use Cases library shows real-world examples of how the platform has been used across industries — from a 500-person tech startup to a 50,000-employee healthcare system. The Tutorials section (where this guided tour lives) offers self-paced walkthroughs for specific workflows. All resources are searchable and organized by topic.` },
+
+  // ═══ Step 27: Next Steps ═══
+  { page: "home", icon: "🎉", title: "Next Steps — You've Completed the Tour",
+    body: `Congratulations — you have explored the entire platform across all six modules. You have seen how task-level deconstruction drives AI impact scores, how skills gaps determine talent sourcing strategy, how manager capability multiplies team readiness, and how everything flows into a financial model and change management roadmap. To start a real engagement, click "Back to Projects" and create a New Project with your organization's data. Upload employee rosters, skills assessments, and task inventories using the template (downloadable from the sidebar). The platform will guide you through the same analytical journey you just experienced, but with your real data. If you need help at any point, use AI Espresso or revisit this sandbox to refresh your memory. Good luck with your transformation.` },
+  ];
 }
 
 // Default fallback for non-tutorial contexts
 const TUTORIAL_STEPS = buildTutorialSteps("tutorial_mid_technology");
 
+/* ═══ VIEW SELECTOR SCREEN — shown after sandbox company selection, before tutorial ═══ */
+function SandboxViewSelector({ companyName, onSelect }: { companyName: string; onSelect: (mode: string) => void }) {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setVisible(true), 30); return () => clearTimeout(t); }, []);
+  const views = [
+    { id: "org", icon: "🏢", label: "Organization View", desc: "Explore by organizational structure — functions, departments, teams. See aggregate KPIs, cross-cutting analytics, and the full workforce picture. Best for executive-level analysis." },
+    { id: "employee_select", icon: "👤", label: "Employee View", desc: "Explore by individual employees — skills, roles, career paths. Track a single person through every module: readiness, reskilling pathway, and impact assessment." },
+    { id: "job_select", icon: "💼", label: "Job View", desc: "Explore by job architecture — families, levels, career tracks. Focus on a single role's task portfolio, AI impact, deconstruction, and redesign." },
+    { id: "custom", icon: "⚙️", label: "Custom Slice", desc: "Create a custom view with your own filters. Narrow by function, job family, career level, or sub-family. Best for function leads who own a specific part of the org." },
+  ];
+  return <div style={{ position: "fixed", inset: 0, zIndex: 60, background: "#0B1120", display: "flex", alignItems: "center", justifyContent: "center", opacity: visible ? 1 : 0, transition: "opacity 0.5s ease" }}>
+    <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 30%, rgba(212,134,10,0.1) 0%, transparent 60%), radial-gradient(ellipse at 80% 70%, rgba(192,112,48,0.05) 0%, transparent 50%)" }} />
+    <div style={{ position: "relative", zIndex: 1, maxWidth: 720, width: "100%", padding: "0 24px", textAlign: "center", transform: visible ? "translateY(0)" : "translateY(12px)", transition: "transform 0.5s ease" }}>
+      <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(224,144,64,0.5)", letterSpacing: 2, marginBottom: 12, textTransform: "uppercase" }}>Welcome to</div>
+      <h2 style={{ fontSize: 32, fontWeight: 800, color: "#f5e6d0", fontFamily: "'Outfit', sans-serif", marginBottom: 8, textShadow: "0 2px 20px rgba(0,0,0,0.3)" }}>{companyName}</h2>
+      <p style={{ fontSize: 15, color: "rgba(255,230,200,0.45)", marginBottom: 36 }}>How would you like to explore this organization?</p>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+        {views.map((v, i) => <button key={v.id} onClick={() => onSelect(v.id)} style={{ padding: "24px", borderRadius: 18, background: "rgba(255,255,255,0.03)", backdropFilter: "blur(12px)", border: "1px solid rgba(212,134,10,0.1)", cursor: "pointer", textAlign: "left", transition: "all 0.3s cubic-bezier(0.16,1,0.3,1)", display: "flex", flexDirection: "column", gap: 10, opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(8px)", transitionDelay: `${0.15 + i * 0.06}s` }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(212,134,10,0.08)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.3)"; e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = "0 8px 32px rgba(212,134,10,0.1)"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.03)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.1)"; e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <span style={{ fontSize: 28, filter: "drop-shadow(0 2px 6px rgba(212,134,10,0.2))" }}>{v.icon}</span>
+            <span style={{ fontSize: 17, fontWeight: 700, color: "#f5e6d0", fontFamily: "'Outfit', sans-serif" }}>{v.label}</span>
+          </div>
+          <p style={{ fontSize: 12, color: "rgba(255,230,200,0.35)", lineHeight: 1.7, margin: 0 }}>{v.desc}</p>
+        </button>)}
+      </div>
+      <p style={{ fontSize: 11, color: "rgba(255,230,200,0.2)", marginTop: 24 }}>You can change your view anytime from the sidebar</p>
+    </div>
+  </div>;
+}
 
-/* ═══ TUTORIAL OVERLAY — draggable, minimizable, centered window ═══ */
+
+/* ═══ TUTORIAL PANEL — fixed-position bottom companion card ═══ */
 function TutorialOverlay({ step, totalSteps, steps, onNext, onPrev, onClose, onJump }: {
   step: number; totalSteps: number;
-  steps: { page: string; pos: "center"|"tr"|"tl"; icon: string; title: string; body: string; action?: string; subTab?: string }[];
+  steps: TutorialStep[];
   onNext: () => void; onPrev: () => void; onClose: () => void; onJump: (s: number) => void;
 }) {
   const s = steps[step];
   if (!s) return null;
   const isLast = step === totalSteps - 1;
   const pct = Math.round(((step + 1) / totalSteps) * 100);
-  const phaseIdx = step === 0 ? -1 : step <= 7 ? 0 : step <= 19 ? 1 : 2;
-  const phaseName = phaseIdx === 0 ? "Discover" : phaseIdx === 1 ? "Design" : phaseIdx === 2 ? "Deliver" : "";
-  const phaseColor = phaseIdx === 0 ? "#D4860A" : phaseIdx === 1 ? "#C07030" : "#E8C547";
+  // Phase labels based on step ranges
+  const phaseLabel = step < 3 ? "Welcome" : step < 5 ? "Overview" : step < 8 ? "Diagnose" : step < 11 ? "Job Architecture" : step < 14 ? "Design" : step < 17 ? "Simulate" : step < 21 ? "Mobilize" : step < 23 ? "Export" : step < 25 ? "AI Features" : step < 26 ? "Platform Hub" : "Finish";
+  const phaseColor = step < 3 ? "#D4860A" : step < 5 ? "#E8C547" : step < 8 ? "#C07030" : step < 11 ? "#D4860A" : step < 14 ? "#E09040" : step < 17 ? "#E8C547" : step < 21 ? "#C07030" : step < 23 ? "#D4860A" : step < 25 ? "#E09040" : step < 26 ? "#E8C547" : "#10B981";
 
-  // Mount animation
   const [visible, setVisible] = useState(false);
   useEffect(() => { setVisible(false); const t = setTimeout(() => setVisible(true), 30); return () => clearTimeout(t); }, [step]);
 
-  // Draggable state
-  const [pos, setPos] = useState({ x: 0, y: 0 });
-  const [centered, setCentered] = useState(true);
-  const [minimized, setMinimized] = useState(false);
-  const [dragging, setDragging] = useState(false);
-  const dragOffset = useRef({ x: 0, y: 0 });
-  const cardRef = useRef<HTMLDivElement>(null);
-
-  // Reset to center when step changes
-  useEffect(() => { setCentered(true); setMinimized(false); }, [step]);
-
-  // Drag handlers
-  const onMouseDown = (e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).tagName === "BUTTON") return;
-    const rect = cardRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    dragOffset.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
-    setDragging(true);
-    setCentered(false);
-    if (centered) setPos({ x: rect.left, y: rect.top });
-  };
-
+  // Escape to close
   useEffect(() => {
-    if (!dragging) return;
-    const onMove = (e: MouseEvent) => {
-      setPos({ x: e.clientX - dragOffset.current.x, y: e.clientY - dragOffset.current.y });
-    };
-    const onUp = () => setDragging(false);
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onUp);
-    return () => { window.removeEventListener("mousemove", onMove); window.removeEventListener("mouseup", onUp); };
-  }, [dragging]);
+    const h = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, [onClose]);
 
-  // Minimized state — small pill in top right
-  if (minimized) return <button onClick={() => setMinimized(false)} style={{
-    position: "fixed", top: 12, right: 12, zIndex: 50,
-    padding: "8px 16px", borderRadius: 14,
-    background: "var(--surface-1)", border: "1px solid rgba(139,92,246,0.2)",
-    color: "#A78BFA", fontSize: 12, fontWeight: 700,
-    display: "flex", alignItems: "center", gap: 8,
-    cursor: "pointer", boxShadow: "0 4px 20px rgba(0,0,0,0.25)",
-    transition: "all 0.3s",
-  }} onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.05)"; e.currentTarget.style.borderColor = "rgba(139,92,246,0.4)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.borderColor = "rgba(139,92,246,0.2)"; }}>
-    <span style={{ fontSize: 16 }}>🎓</span>
-    <span>Tutorial — Step {step + 1}/{totalSteps}</span>
-    <div style={{ width: 40, height: 4, borderRadius: 2, background: "rgba(139,92,246,0.15)", overflow: "hidden" }}>
-      <div style={{ width: `${pct}%`, height: "100%", background: "#8B5CF6", borderRadius: 2 }} />
-    </div>
-    <span style={{ fontSize: 10, opacity: 0.5 }}>▼</span>
-  </button>;
-
-  const cardWidth = Math.min(620, window.innerWidth - 40);
-  const cardMaxH = window.innerHeight - 40;
-
-  // When centered, clamp so the card stays within viewport
-  const centeredStyle: React.CSSProperties = {
-    position: "fixed",
-    top: "50%", left: "50%",
-    transform: visible ? "translate(-50%, -50%)" : "translate(-50%, -48%) scale(0.97)",
-    width: cardWidth, maxHeight: cardMaxH, zIndex: 50,
-  };
-  const draggedStyle: React.CSSProperties = {
-    position: "fixed",
-    left: Math.max(20, Math.min(pos.x, window.innerWidth - cardWidth - 20)),
-    top: Math.max(20, Math.min(pos.y, window.innerHeight - 200)),
-    width: cardWidth, maxHeight: cardMaxH, zIndex: 50,
-  };
-  const cardStyle = centered ? centeredStyle : draggedStyle;
-
-  return <>
-    {/* Light backdrop */}
-    <div style={{ position: "fixed", inset: 0, zIndex: 44, background: "rgba(0,0,0,0.25)", backdropFilter: "blur(2px)", transition: "all 0.4s", pointerEvents: "none" }} />
-
-    {/* Card */}
-    <div ref={cardRef} style={{
-      ...cardStyle,
-      borderRadius: 22,
-      display: "flex", flexDirection: "column",
-      background: "var(--surface-1)", border: "1px solid rgba(139,92,246,0.2)",
-      boxShadow: "0 32px 80px rgba(0,0,0,0.45), 0 0 0 1px rgba(139,92,246,0.08)",
-      cursor: dragging ? "grabbing" : "default",
-      transition: dragging ? "none" : "all 0.4s cubic-bezier(0.16,1,0.3,1)",
-      pointerEvents: "auto",
-      opacity: visible ? 1 : 0,
-      overflow: "hidden",
-    }}>
-
-      {/* Draggable header bar — always visible */}
-      <div onMouseDown={onMouseDown} style={{
-        padding: "18px 24px 14px",
-        background: "linear-gradient(135deg, rgba(99,102,241,0.08), rgba(139,92,246,0.04))",
-        cursor: dragging ? "grabbing" : "grab",
-        userSelect: "none",
-        flexShrink: 0,
-      }}>
-        {/* Progress bar */}
-        <div style={{ height: 4, borderRadius: 2, background: "var(--surface-3)", marginBottom: 14 }}>
-          <div style={{ height: "100%", borderRadius: 2, background: `linear-gradient(90deg, ${phaseColor || "#8B5CF6"}, #8B5CF6)`, width: `${pct}%`, transition: "width 0.6s ease" }} />
-        </div>
-
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, flex: 1 }}>
-            <span style={{ fontSize: 36 }}>{s.icon}</span>
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
-                <span style={{ fontSize: 11, fontWeight: 700, color: "#8B5CF6", letterSpacing: 1.2 }}>STEP {step + 1} OF {totalSteps}</span>
-                {phaseName && <span style={{ fontSize: 10, fontWeight: 700, color: phaseColor, background: `${phaseColor}15`, padding: "2px 8px", borderRadius: 5 }}>{phaseName}</span>}
-                <span style={{ fontSize: 10, color: "var(--text-muted)" }}>{pct}%</span>
-              </div>
-              <div style={{ fontSize: 20, fontWeight: 800, color: "var(--text-primary)", lineHeight: 1.25 }}>{s.title}</div>
+  return <div style={{
+    position: "fixed", bottom: 16, right: 16, zIndex: 50,
+    width: 440, maxHeight: "min(420px, calc(100vh - 100px))",
+    borderRadius: 18,
+    background: "rgba(15,12,8,0.92)",
+    backdropFilter: "blur(24px)",
+    border: "1px solid rgba(212,134,10,0.15)",
+    boxShadow: "0 16px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(212,134,10,0.05)",
+    display: "flex", flexDirection: "column",
+    opacity: visible ? 1 : 0,
+    transform: visible ? "translateY(0)" : "translateY(8px)",
+    transition: "opacity 0.35s ease, transform 0.35s ease",
+    overflow: "hidden",
+  }}>
+    {/* Header */}
+    <div style={{ padding: "14px 16px 10px", flexShrink: 0, borderBottom: "1px solid rgba(212,134,10,0.08)" }}>
+      {/* Progress bar */}
+      <div style={{ height: 3, borderRadius: 2, background: "rgba(255,255,255,0.06)", marginBottom: 10 }}>
+        <div style={{ height: "100%", borderRadius: 2, background: `linear-gradient(90deg, ${phaseColor}, #D4860A)`, width: `${pct}%`, transition: "width 0.5s ease" }} />
+      </div>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
+          <span style={{ fontSize: 26, flexShrink: 0 }}>{s.icon}</span>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: "#D4860A", letterSpacing: 1 }}>STEP {step + 1}/{totalSteps}</span>
+              <span style={{ fontSize: 9, fontWeight: 700, color: phaseColor, background: `${phaseColor}18`, padding: "1px 7px", borderRadius: 4 }}>{phaseLabel}</span>
+              <span style={{ fontSize: 9, color: "rgba(255,230,200,0.3)" }}>{pct}%</span>
             </div>
-          </div>
-          <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
-            <button onClick={() => setMinimized(true)} title="Minimize" style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", cursor: "pointer", color: "var(--text-muted)", fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center" }}>—</button>
-            <button onClick={onClose} title="Close tutorial" style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", cursor: "pointer", color: "var(--text-muted)", fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
+            <div style={{ fontSize: 15, fontWeight: 800, color: "#f5e6d0", fontFamily: "'Outfit', sans-serif", lineHeight: 1.2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.title}</div>
           </div>
         </div>
-      </div>
-
-      {/* Body — scrollable if content is tall */}
-      <div style={{ padding: "18px 28px 14px", overflowY: "auto", flex: 1, minHeight: 0 }}>
-        <p style={{ fontSize: 15, lineHeight: 1.85, color: "var(--text-secondary)", margin: 0 }}>{s.body}</p>
-        {s.action && <div style={{ fontSize: 14, fontWeight: 600, color: "#A78BFA", background: "rgba(139,92,246,0.05)", borderRadius: 12, padding: "12px 16px", border: "1px solid rgba(139,92,246,0.1)", marginTop: 14, display: "flex", alignItems: "flex-start", gap: 8, lineHeight: 1.6 }}>
-          <span style={{ fontSize: 18, flexShrink: 0 }}>👉</span> <span>{s.action}</span>
-        </div>}
-      </div>
-
-      {/* Step dots — pinned to bottom, never scrolled away */}
-      <div style={{ padding: "6px 28px 8px", display: "flex", gap: 3, justifyContent: "center", flexWrap: "wrap", flexShrink: 0 }}>
-        {steps.map((ts, i) => <button key={i} onClick={() => onJump(i)} title={`Step ${i+1}: ${ts.title}`} style={{ width: i === step ? 16 : 7, height: 7, borderRadius: 4, background: i === step ? "#8B5CF6" : i < step ? "rgba(139,92,246,0.3)" : "rgba(255,255,255,0.05)", border: "none", cursor: "pointer", transition: "all 0.3s", flexShrink: 0 }} />)}
-      </div>
-
-      {/* Controls — pinned to bottom, always visible and clickable */}
-      <div style={{ padding: "8px 28px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
-        <button onClick={onPrev} disabled={step === 0} style={{ padding: "10px 18px", borderRadius: 12, fontSize: 13, fontWeight: 600, cursor: step === 0 ? "not-allowed" : "pointer", background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text-secondary)", opacity: step === 0 ? 0.25 : 1, transition: "all 0.2s" }}>← Previous</button>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <button onClick={() => setMinimized(true)} style={{ padding: "6px 12px", borderRadius: 8, fontSize: 11, cursor: "pointer", background: "none", border: "1px solid var(--border)", color: "var(--text-muted)" }}>Minimize</button>
-          <button onClick={onClose} style={{ padding: "6px 12px", borderRadius: 8, fontSize: 11, cursor: "pointer", background: "none", border: "none", color: "var(--text-muted)" }}>End Tour</button>
-        </div>
-        <button onClick={onNext} style={{ padding: "10px 24px", borderRadius: 12, fontSize: 13, fontWeight: 700, cursor: "pointer", border: "none", color: "#fff", background: isLast ? "linear-gradient(135deg, #10B981, #059669)" : `linear-gradient(135deg, ${phaseColor || "#8B5CF6"}, #8B5CF6)`, boxShadow: `0 4px 14px ${isLast ? "rgba(16,185,129,0.25)" : "rgba(139,92,246,0.25)"}`, transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.transform = "translateY(-1px)"} onMouseLeave={e => e.currentTarget.style.transform = "none"}>{isLast ? "🎉 Complete Tutorial" : "Next Step →"}</button>
+        <button onClick={onClose} title="Close tutorial" style={{ width: 26, height: 26, borderRadius: 7, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", cursor: "pointer", color: "rgba(255,230,200,0.35)", fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "#f5e6d0"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; e.currentTarget.style.color = "rgba(255,230,200,0.35)"; }}>✕</button>
       </div>
     </div>
-  </>;
+
+    {/* Body — scrollable */}
+    <div style={{ padding: "12px 16px 10px", overflowY: "auto", flex: 1, minHeight: 0 }}>
+      <p style={{ fontSize: 13, lineHeight: 1.75, color: "rgba(255,230,200,0.6)", margin: 0 }}>{s.body}</p>
+    </div>
+
+    {/* Step dots */}
+    <div style={{ padding: "4px 16px 6px", display: "flex", gap: 2, justifyContent: "center", flexWrap: "wrap", flexShrink: 0 }}>
+      {steps.map((_ts, i) => <button key={i} onClick={() => onJump(i)} title={`Step ${i+1}: ${steps[i].title}`} style={{ width: i === step ? 14 : 6, height: 6, borderRadius: 3, background: i === step ? "#D4860A" : i < step ? "rgba(212,134,10,0.3)" : "rgba(255,255,255,0.06)", border: "none", cursor: "pointer", transition: "all 0.25s", flexShrink: 0, padding: 0 }} />)}
+    </div>
+
+    {/* Controls */}
+    <div style={{ padding: "8px 16px 14px", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0, gap: 8 }}>
+      <button onClick={onPrev} disabled={step === 0} style={{ padding: "8px 14px", borderRadius: 10, fontSize: 12, fontWeight: 600, cursor: step === 0 ? "not-allowed" : "pointer", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,230,200,0.5)", opacity: step === 0 ? 0.3 : 1, transition: "all 0.2s" }}>Back</button>
+      <button onClick={onClose} style={{ padding: "6px 12px", borderRadius: 8, fontSize: 10, cursor: "pointer", background: "none", border: "none", color: "rgba(255,230,200,0.25)", transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.color = "rgba(255,230,200,0.5)"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,230,200,0.25)"}>Skip Tour</button>
+      <button onClick={onNext} style={{ padding: "8px 20px", borderRadius: 10, fontSize: 12, fontWeight: 700, cursor: "pointer", border: "none", color: "#fff", background: isLast ? "linear-gradient(135deg, #10B981, #059669)" : "linear-gradient(135deg, #E09040, #C07030)", boxShadow: isLast ? "0 3px 10px rgba(16,185,129,0.25)" : "0 3px 10px rgba(224,144,64,0.2)", transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.transform = "translateY(-1px)"} onMouseLeave={e => e.currentTarget.style.transform = "none"}>{isLast ? "Finish Tour" : "Next"}</button>
+    </div>
+  </div>;
 }
 
 /* ═══ TUTORIAL BADGE — persistent reopener with progress ═══ */
 function TutorialBadge({ onClick, step, total }: { onClick: () => void; step: number; total: number }) {
   const pct = Math.round(((step + 1) / total) * 100);
-  return <button onClick={onClick} style={{ position: "fixed", bottom: 80, left: 24, zIndex: 40, padding: "8px 14px", borderRadius: 14, fontSize: 11, fontWeight: 700, cursor: "pointer", background: "var(--surface-1)", border: "1px solid rgba(139,92,246,0.15)", color: "#A78BFA", display: "flex", alignItems: "center", gap: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.2)", transition: "all 0.3s" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = "rgba(139,92,246,0.4)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "rgba(139,92,246,0.15)"; }}>
+  return <button onClick={onClick} style={{ position: "fixed", bottom: 16, right: 16, zIndex: 40, padding: "8px 14px", borderRadius: 14, fontSize: 11, fontWeight: 700, cursor: "pointer", background: "rgba(15,12,8,0.92)", backdropFilter: "blur(16px)", border: "1px solid rgba(212,134,10,0.15)", color: "#E09040", display: "flex", alignItems: "center", gap: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.3)", transition: "all 0.3s" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.35)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.15)"; }}>
     <span>🎓</span>
     <span>Tutorial</span>
     <span style={{ fontSize: 9, opacity: 0.5 }}>{pct}%</span>
-    <div style={{ width: 28, height: 3, borderRadius: 2, background: "rgba(139,92,246,0.12)", overflow: "hidden" }}><div style={{ width: `${pct}%`, height: "100%", background: "#8B5CF6", borderRadius: 2 }} /></div>
+    <div style={{ width: 28, height: 3, borderRadius: 2, background: "rgba(212,134,10,0.15)", overflow: "hidden" }}><div style={{ width: `${pct}%`, height: "100%", background: "#D4860A", borderRadius: 2 }} /></div>
   </button>;
 }
+
 
 
 
@@ -1097,6 +1101,7 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
   const [seedingId, setSeedingId] = useState<string | null>(null);
   const [sandboxOpen, setSandboxOpen] = useState(false);
   const [sandboxPanelOpen, setSandboxPanelOpen] = useState(false);
+  const [pendingSandbox, setPendingSandbox] = useState<{ id: string; name: string; meta: string } | null>(null);
 
   // Load projects from localStorage (deferred for SSR safety)
   useEffect(() => {
@@ -1110,29 +1115,60 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
     localStorage.setItem("hub_projects", JSON.stringify(projects));
   }, [projects, loaded]);
 
+  // Duplicate name check
+  const nameExists = (name: string) => projects.some(p => p.name.trim().toLowerCase() === name.trim().toLowerCase());
+  const nameTaken = newName.trim().length > 0 && nameExists(newName);
+
   const createProject = () => {
-    if (!newName.trim()) return;
+    if (!newName.trim() || nameTaken) return;
     const metaParts = [newClient, newIndustry, newSize, newLead, newDesc].filter(Boolean).join(" · ");
     const p = { id: `proj_${Date.now()}`, name: newName.trim(), meta: metaParts.trim(), client: newClient.trim(), industry: newIndustry, size: newSize, lead: newLead.trim(), created: new Date().toLocaleDateString(), status: "Not Started" };
     const updated = [...projects, p];
     setProjects(updated);
-    // Save immediately before navigating away
     localStorage.setItem("hub_projects", JSON.stringify(updated));
     setNewName(""); setNewDesc(""); setNewClient(""); setNewIndustry(""); setNewSize(""); setNewLead(""); setModalOpen(false);
     onOpenProject(p);
+  };
+
+  const cloneProject = (src: { id: string; name: string; meta: string; client?: string; industry?: string; size?: string; lead?: string; created: string; status: string }) => {
+    let ver = 2;
+    let cloneName = `${src.name} — v${ver}`;
+    while (nameExists(cloneName)) { ver++; cloneName = `${src.name} — v${ver}`; }
+    const cloneId = `proj_${Date.now()}`;
+    const clone = { ...src, id: cloneId, name: cloneName, created: new Date().toLocaleDateString(), status: "Not Started" };
+    // Copy all localStorage data from source project
+    Object.keys(localStorage).filter(k => k.startsWith(src.id)).forEach(k => {
+      const newKey = k.replace(src.id, cloneId);
+      try { localStorage.setItem(newKey, localStorage.getItem(k) || ""); } catch {}
+    });
+    const updated = [...projects, clone];
+    setProjects(updated);
+    localStorage.setItem("hub_projects", JSON.stringify(updated));
   };
 
   const deleteProject = (id: string) => {
     const updated = projects.filter(p => p.id !== id);
     setProjects(updated);
     localStorage.setItem("hub_projects", JSON.stringify(updated));
-    Object.keys(localStorage).filter(k => k.includes(id)).forEach(k => localStorage.removeItem(k));
+    Object.keys(localStorage).filter(k => k.startsWith(id) || k.includes(id)).forEach(k => localStorage.removeItem(k));
     setConfirmDelete(null);
   };
 
   // Adaptive card sizing
   const count = projects.length + 2; // +2 for sandbox + new project
   const cardWidth = count <= 3 ? 380 : count <= 5 ? 300 : count <= 7 ? 260 : 220;
+
+  // ── View selector screen — shown after sandbox company selection ──
+  if (pendingSandbox) {
+    return <SandboxViewSelector companyName={pendingSandbox.name} onSelect={(mode) => {
+      // Store the chosen view mode so Home picks it up
+      localStorage.setItem(`${pendingSandbox.id}_viewMode`, JSON.stringify(mode === "custom" ? "custom" : mode));
+      setPendingSandbox(null);
+      setSandboxOpen(false);
+      setSandboxPanelOpen(false);
+      onOpenProject(pendingSandbox);
+    }} />;
+  }
 
   // ── Sandbox full-screen picker ──
   if (sandboxOpen) {
@@ -1160,7 +1196,7 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
             <div>
               <div style={{ fontSize: 20, fontWeight: 800, color: "rgba(255,245,235,0.95)" }}>🎓 Industry Sandbox</div>
-              <div style={{ fontSize: 12, color: "rgba(200,180,255,0.4)", marginTop: 4 }}>24 pre-built organizations · 8 industries × 3 sizes</div>
+              <div style={{ fontSize: 12, color: "rgba(200,180,255,0.4)", marginTop: 4 }}>24 real companies · 8 industries × 3 market caps</div>
             </div>
             <button onClick={() => setSandboxPanelOpen(false)} style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,200,150,0.08)", cursor: "pointer", color: "rgba(255,200,150,0.4)", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
           </div>
@@ -1175,14 +1211,14 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
                 <th style={{ fontSize: 10, color: "rgba(239,68,68,0.6)", textAlign: "center", padding: "6px", fontWeight: 700 }}>LARGE-CAP</th>
               </tr></thead>
               <tbody>{[
-                { id: "technology", icon: "💻", label: "Technology", s: "Spark Labs · 150", m: "Nexus Corp · 2,500", l: "Titan Digital · 18,000" },
-                { id: "financial_services", icon: "🏦", label: "Financial Svc", s: "Pinnacle · 200", m: "Global FP · 4,200", l: "Meridian Cap · 22,000" },
-                { id: "healthcare", icon: "🏥", label: "Healthcare", s: "Valley Med · 350", m: "Meridian Health · 5,500", l: "National HP · 45,000" },
-                { id: "manufacturing", icon: "🏭", label: "Manufacturing", s: "Precision · 180", m: "Atlas Mfg · 3,800", l: "Continental · 28,000" },
-                { id: "retail", icon: "🛍️", label: "Retail", s: "Urban Threads · 120", m: "Horizon · 6,000", l: "American MP · 52,000" },
-                { id: "legal", icon: "⚖️", label: "Legal", s: "Barrett · 45", m: "Sterling · 800", l: "Global Law · 5,500" },
-                { id: "energy", icon: "⚡", label: "Energy", s: "SunRidge · 160", m: "Apex Energy · 3,200", l: "Pacific Energy · 35,000" },
-                { id: "education", icon: "🎓", label: "Education", s: "Westbrook · 120", m: "Pacific Univ · 2,800", l: "National UC · 15,000" },
+                { id: "technology", icon: "💻", label: "Technology", s: "PLTR · 3,800", m: "NOW · 8,000", l: "ADBE · 25,000" },
+                { id: "financial_services", icon: "🏦", label: "Financial Svc", s: "EVR · 2,200", m: "RJF · 8,000", l: "GS · 25,000" },
+                { id: "healthcare", icon: "🏥", label: "Healthcare", s: "HIMS · 1,500", m: "MOH · 8,000", l: "ELV · 25,000" },
+                { id: "retail", icon: "🛍️", label: "Retail", s: "FIVE · 3,000", m: "WSM · 8,000", l: "TGT · 25,000" },
+                { id: "manufacturing", icon: "🏭", label: "Manufacturing", s: "AXON · 4,000", m: "PH · 8,000", l: "HON · 25,000" },
+                { id: "consulting", icon: "💼", label: "Consulting", s: "HURN · 2,500", m: "BAH · 8,000", l: "ACN · 25,000" },
+                { id: "energy", icon: "⚡", label: "Energy", s: "SHLS · 1,800", m: "CHK · 3,000", l: "BKR · 25,000" },
+                { id: "aerospace", icon: "🚀", label: "Aerospace", s: "KTOS · 4,000", m: "LHX · 8,000", l: "NOC · 25,000" },
               ].map(ind => <tr key={ind.id}>
                 <td style={{ fontSize: 12, color: "rgba(200,180,255,0.7)", padding: "3px 10px", fontWeight: 600 }}><span style={{ marginRight: 6 }}>{ind.icon}</span>{ind.label}</td>
                 {[{size: "small", info: ind.s, color: "rgba(16,185,129,0.12)", border: "rgba(16,185,129,0.25)", text: "#6EE7B7"}, {size: "mid", info: ind.m, color: "rgba(212,134,10,0.12)", border: "rgba(212,134,10,0.25)", text: "#E8C547"}, {size: "large", info: ind.l, color: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.18)", text: "#FCA5A5"}].map(t => <td key={t.size} style={{ padding: 2 }}><button disabled={!!seedingId} onClick={async (e) => {
@@ -1192,7 +1228,7 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
                   try { await fetch(`/api/tutorial/seed?industry=${ind.id}&size=${t.size}`); } catch {}
                   seedTutorialData(tid, ind.id);
                   setSeedingId(null);
-                  onOpenProject({ id: tid, name: `${ind.icon} ${ind.label} — ${t.size === "small" ? "Small" : t.size === "mid" ? "Mid-Cap" : "Large-Cap"}`, meta: `${t.info} · Guided Tour` });
+                  setPendingSandbox({ id: tid, name: `${ind.icon} ${ind.label} — ${t.size === "small" ? "Small" : t.size === "mid" ? "Mid-Cap" : "Large-Cap"}`, meta: `${t.info} · Guided Tour` });
                 }} style={{ width: "100%", padding: "7px 8px", borderRadius: 10, fontSize: 10, fontWeight: 600, cursor: seedingId ? "wait" : "pointer", background: seedingId === `tutorial_${t.size}_${ind.id}` ? "rgba(139,92,246,0.25)" : t.color, border: `1px solid ${seedingId === `tutorial_${t.size}_${ind.id}` ? "rgba(139,92,246,0.5)" : t.border}`, color: t.text, transition: "all 0.2s", textAlign: "center", lineHeight: 1.4, opacity: seedingId && seedingId !== `tutorial_${t.size}_${ind.id}` ? 0.4 : 1 }} onMouseEnter={e => { if (!seedingId) { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.borderColor = t.text; }}} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = t.border; }}>{seedingId === `tutorial_${t.size}_${ind.id}` ? "⏳ Loading..." : t.info}</button></td>)}
               </tr>)}</tbody>
             </table>
@@ -1225,7 +1261,7 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
         <div onClick={() => setSandboxOpen(true)} style={{ width: cardWidth, minHeight: 180, borderRadius: 22, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, transition: "all 0.35s cubic-bezier(0.16,1,0.3,1)", background: "linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.08))", backdropFilter: "blur(20px)", border: "1px solid rgba(139,92,246,0.2)", position: "relative", overflow: "hidden" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-6px) scale(1.02)"; e.currentTarget.style.boxShadow = "0 24px 60px rgba(99,102,241,0.15)"; e.currentTarget.style.borderColor = "rgba(139,92,246,0.4)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.borderColor = "rgba(139,92,246,0.2)"; }}>
           <div className="text-4xl" style={{ filter: "drop-shadow(0 2px 8px rgba(139,92,246,0.3))" }}>🎓</div>
           <div className="text-[16px] font-bold text-white">Sandbox</div>
-          <div className="text-[11px]" style={{ color: "rgba(200,180,255,0.4)" }}>24 pre-built orgs</div>
+          <div className="text-[11px]" style={{ color: "rgba(200,180,255,0.4)" }}>24 real companies</div>
         </div>
 
         {/* New Project card — glassmorphic with sparkle */}
@@ -1249,7 +1285,10 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
             <div>
               <div className="flex items-start justify-between mb-1">
                 <div className="text-[17px] font-bold text-white">{p.name}</div>
-                <button onClick={e => { e.stopPropagation(); setConfirmDelete(p.id); }} style={{ opacity: 0, transition: "opacity 0.2s", color: "rgba(255,255,255,0.2)", fontSize: 14, background: "none", border: "none", cursor: "pointer" }} onMouseEnter={e => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.color = "#ef4444"; }} onMouseLeave={e => { e.currentTarget.style.opacity = "0"; }}>✕</button>
+                <div className="flex gap-1" style={{ opacity: 0, transition: "opacity 0.2s" }} onMouseEnter={e => e.currentTarget.style.opacity = "1"} onMouseLeave={e => e.currentTarget.style.opacity = "0"}>
+                  <button onClick={e => { e.stopPropagation(); cloneProject(p); }} style={{ color: "rgba(255,255,255,0.3)", fontSize: 11, background: "none", border: "none", cursor: "pointer", padding: "2px 4px" }} onMouseEnter={e => e.currentTarget.style.color = "#D4860A"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.3)"} title="Clone project">⧉</button>
+                  <button onClick={e => { e.stopPropagation(); setConfirmDelete(p.id); }} style={{ color: "rgba(255,255,255,0.3)", fontSize: 14, background: "none", border: "none", cursor: "pointer", padding: "2px 4px" }} onMouseEnter={e => e.currentTarget.style.color = "#ef4444"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.3)"} title="Delete project">✕</button>
+                </div>
               </div>
               {p.client && <div className="text-[12px] font-semibold mb-1" style={{ color: "rgba(255,220,180,0.6)" }}>{p.client}</div>}
               <div className="flex gap-1.5 flex-wrap mb-2">
@@ -1283,7 +1322,8 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
         <p className="text-[12px] text-[var(--text-muted)] mb-5">Fill in the details below to set up your workspace</p>
         <div className="space-y-3">
           <div><div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Project Name *</div>
-          <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="e.g. Acme Corp AI Transformation" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-3 text-[14px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]" autoFocus /></div>
+          <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="e.g. Acme Corp AI Transformation" className={`w-full bg-[var(--surface-2)] border rounded-xl px-4 py-3 text-[14px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] ${nameTaken ? "border-[var(--risk)]" : "border-[var(--border)]"}`} autoFocus />
+          {nameTaken && <div className="text-[11px] text-[var(--risk)] mt-1">A project with this name already exists. Please choose a different name.</div>}</div>
           <div><div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Client / Organization</div>
           <input value={newClient} onChange={e => setNewClient(e.target.value)} placeholder="e.g. Acme Corporation" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-3 text-[13px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]" /></div>
           <div className="grid grid-cols-2 gap-3">
@@ -1305,20 +1345,21 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
         </div>
         <div className="flex gap-3 justify-end mt-5">
           <button onClick={() => { setModalOpen(false); setNewName(""); setNewDesc(""); setNewClient(""); setNewIndustry(""); setNewSize(""); setNewLead(""); }} className="px-4 py-2.5 text-[13px] text-[var(--text-muted)] rounded-xl border border-[var(--border)]">Cancel</button>
-          <button onClick={createProject} disabled={!newName.trim()} className="px-6 py-2.5 rounded-xl text-[13px] font-semibold text-white disabled:opacity-40" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>Create Project</button>
+          <button onClick={createProject} disabled={!newName.trim() || nameTaken} className="px-6 py-2.5 rounded-xl text-[13px] font-semibold text-white disabled:opacity-40" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>Create Project</button>
         </div>
       </div>
     </div>}
 
     {/* Delete confirmation */}
-    {confirmDelete && <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.6)" }}>
-      <div className="rounded-2xl p-6 w-full max-w-sm text-center" style={{ background: "var(--surface-1)", border: "1px solid var(--border)" }}>
+    {confirmDelete && <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }} onClick={() => setConfirmDelete(null)}>
+      <div className="rounded-2xl p-6 w-full max-w-sm text-center" style={{ background: "var(--surface-1)", border: "1px solid var(--border)" }} onClick={e => e.stopPropagation()}>
         <div className="text-3xl mb-2">⚠️</div>
         <h3 className="text-[16px] font-bold text-[var(--text-primary)] mb-1">Delete Project?</h3>
-        <p className="text-[13px] text-[var(--text-secondary)] mb-4">This will not be recoverable.</p>
+        <p className="text-[13px] text-[var(--text-secondary)] mb-1">Are you sure you want to delete <strong className="text-[var(--text-primary)]">{projects.find(p => p.id === confirmDelete)?.name || "this project"}</strong>?</p>
+        <p className="text-[12px] text-[var(--risk)] mb-4">This cannot be undone. All project data will be permanently removed.</p>
         <div className="flex gap-3 justify-center">
-          <button onClick={() => setConfirmDelete(null)} className="px-5 py-2 rounded-xl text-[13px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">No</button>
-          <button onClick={() => deleteProject(confirmDelete)} className="px-5 py-2 rounded-xl text-[13px] font-semibold bg-[var(--risk)] text-white">Yes, Delete</button>
+          <button onClick={() => setConfirmDelete(null)} className="px-5 py-2 rounded-xl text-[13px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">Cancel</button>
+          <button onClick={() => deleteProject(confirmDelete)} className="px-5 py-2 rounded-xl text-[13px] font-semibold bg-[var(--risk)] text-white">Delete</button>
         </div>
       </div>
     </div>}

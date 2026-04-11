@@ -9,7 +9,7 @@ import {
   BarViz, DonutViz, RadarViz, TabBar, PageHeader, LoadingBar, LoadingSkeleton,
   ModuleExportButton, NextStepBar, ContextStrip, InfoButton,
   useApiData, usePersisted, callAI, showToast, logDec,
-  exportToCSV, EmptyWithAction, JobDesignState, AiInsightCard
+  exportToCSV, EmptyWithAction, JobDesignState, AiInsightCard, fmtNum
 } from "./shared";
 
 /* ═══════════════════════════════════════════════════════════════
@@ -32,7 +32,7 @@ function ScenarioNarrative({ scenario, adoption, timeline, totals, totalPct, tot
   // Top function by impact
   const byDept: Record<string, number> = {};
   scenData.forEach(j => { byDept[j.dept] = (byDept[j.dept] || 0) + j.released; });
-  const topDept = Object.entries(byDept).sort(([, a], [, b]) => b - a)[0];
+  const topDept = Object.entries(byDept).sort(([, a], [, b]) => b - a)[0] || ["Unknown", 0];
   const topDeptPct = topDept ? Math.round(topDept[1] / Math.max(totals.rel, 1) * 100) : 0;
 
   // Roles enhanced vs redesigned vs consolidated
@@ -45,7 +45,7 @@ function ScenarioNarrative({ scenario, adoption, timeline, totals, totalPct, tot
 
   // Template-based fallback narrative (always available, no AI needed)
   const templateNarrative = useMemo(() => {
-    const headline = `The ${scenario} scenario redesigns ${activeJobs.length} roles over ${timeline} months, generating $${Math.round(totals.savings / 1000)}K in annual savings at a ${totals.savings > 0 ? (totals.savings / Math.max(totalInv, 1)).toFixed(1) : "0"}x ROI.`;
+    const headline = `The ${scenario} scenario redesigns ${activeJobs.length} roles over ${timeline} months, generating ${fmtNum(totals.savings )} in annual savings at a ${totals.savings > 0 ? (totals.savings / Math.max(totalInv, 1)).toFixed(1) : "0"}x ROI.`;
 
     const opportunity = `Your highest-impact opportunity is in ${topDept?.[0] || "the organization"}, where ${topDept?.[1]?.toLocaleString() || 0} hours per month can be freed — ${topDeptPct}% of total capacity released. This represents ${totals.fte.toFixed(1)} FTE equivalents that can be redirected to higher-value strategic work.`;
 
@@ -290,8 +290,8 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
         const annualSavings = 120000; // Approximate from headcount eliminations
         const monthsToBreakeven = annualSavings > 0 ? Math.ceil((totalInvestment / annualSavings) * 12) : 0;
         return <div className="grid grid-cols-3 gap-4">
-          <div className="rounded-xl p-4 text-center border border-[var(--border)]"><div className="text-[10px] text-[var(--text-muted)] uppercase mb-1">Total Investment</div><div className="text-[24px] font-extrabold text-[var(--risk)]">${(totalInvestment/1000).toFixed(0)}K</div></div>
-          <div className="rounded-xl p-4 text-center border border-[var(--border)]"><div className="text-[10px] text-[var(--text-muted)] uppercase mb-1">Annual Savings</div><div className="text-[24px] font-extrabold text-[var(--success)]">${(annualSavings/1000).toFixed(0)}K</div></div>
+          <div className="rounded-xl p-4 text-center border border-[var(--border)]"><div className="text-[10px] text-[var(--text-muted)] uppercase mb-1">Total Investment</div><div className="text-[24px] font-extrabold text-[var(--risk)]">{fmtNum(totalInvestment)}</div></div>
+          <div className="rounded-xl p-4 text-center border border-[var(--border)]"><div className="text-[10px] text-[var(--text-muted)] uppercase mb-1">Annual Savings</div><div className="text-[24px] font-extrabold text-[var(--success)]">{fmtNum(annualSavings)}</div></div>
           <div className="rounded-xl p-4 text-center border-2 border-[var(--accent-primary)]"><div className="text-[10px] text-[var(--text-muted)] uppercase mb-1">Break-Even</div><div className="text-[24px] font-extrabold text-[var(--accent-primary)]">{monthsToBreakeven > 0 ? `Month ${monthsToBreakeven}` : "—"}</div></div>
         </div>;
       })()}
@@ -351,7 +351,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
 
       {/* Metric cards */}
       <div className="grid grid-cols-5 gap-3 mb-5">
-        <KpiCard label="Current Hours" value={`${totals.cur.toLocaleString()}h`} /><KpiCard label="Released Hours" value={`${totals.rel.toLocaleString()}h`} accent delta={`${totalPct}% of total`} /><KpiCard label="FTE Equivalent" value={totals.fte.toFixed(1)} /><KpiCard label="Annual Savings" value={`$${totals.savings.toLocaleString()}`} accent /><KpiCard label="Break-Even" value={breakEven <= 36 ? `${breakEven}mo` : "36mo+"} />
+        <KpiCard label="Current Hours" value={`${totals.cur.toLocaleString()}h`} /><KpiCard label="Released Hours" value={`${totals.rel.toLocaleString()}h`} accent delta={`${totalPct}% of total`} /><KpiCard label="FTE Equivalent" value={totals.fte.toFixed(1)} /><KpiCard label="Annual Savings" value={fmtNum(totals.savings)} accent /><KpiCard label="Break-Even" value={breakEven <= 36 ? `${breakEven}mo` : "36mo+"} />
       </div>
 
       {/* Role detail table */}
@@ -506,7 +506,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
                 <BarChart data={savedScenarios.map((s, i) => ({ name: s.name, savings: s.totals.savings, fill: COLORS[i % COLORS.length] }))}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                   <XAxis dataKey="name" tick={{ fontSize: 10, fill: "var(--text-muted)" }} />
-                  <YAxis tick={{ fontSize: 10, fill: "var(--text-muted)" }} tickFormatter={v => `$${(v/1000).toFixed(0)}K`} />
+                  <YAxis tick={{ fontSize: 10, fill: "var(--text-muted)" }} tickFormatter={v => `${fmtNum(v)}`} />
                   <Tooltip contentStyle={{ background: "#1A2340", border: "1px solid #2A3555", borderRadius: 8, fontSize: 12, color: "#E8ECF4" }} formatter={(v: number) => `$${v.toLocaleString()}`} />
                   <Bar dataKey="savings" name="Annual Savings">{savedScenarios.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Bar>
                 </BarChart>
@@ -552,9 +552,9 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
                 <td className="px-3 py-2"><div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full" style={{ background: COLORS[i % COLORS.length] }} /><span className="text-[13px] font-semibold">{s.name}</span><span className="text-[10px] text-[var(--text-muted)]">{s.savedAt}</span></div></td>
                 <td className="px-3 py-2 text-center text-[13px] font-data">{s.adoption}%</td>
                 <td className="px-3 py-2 text-center text-[13px] font-bold font-data" style={{ color: COLORS[i % COLORS.length] }}>{s.totals.fte.toFixed(1)}</td>
-                <td className="px-3 py-2 text-center text-[13px] font-bold font-data">${s.totals.savings.toLocaleString()}</td>
+                <td className="px-3 py-2 text-center text-[13px] font-bold font-data">{fmtNum(s.totals.savings)}</td>
                 <td className="px-3 py-2 text-center text-[13px] font-data">{s.totals.breakEven <= 36 ? `${s.totals.breakEven}mo` : "36mo+"}</td>
-                <td className="px-3 py-2 text-center">{delta ? <span className={`text-[12px] font-bold ${delta.savings > 0 ? "text-[var(--success)]" : "text-[var(--risk)]"}`}>{delta.savings > 0 ? "+" : ""}${delta.savings.toLocaleString()} / {delta.fte > 0 ? "+" : ""}{delta.fte.toFixed(1)} FTE</span> : <span className="text-[11px] text-[var(--text-muted)]">baseline</span>}</td>
+                <td className="px-3 py-2 text-center">{delta ? <span className={`text-[12px] font-bold ${delta.savings > 0 ? "text-[var(--success)]" : "text-[var(--risk)]"}`}>{delta.savings > 0 ? "+" : ""}${fmtNum(delta.savings)} / {delta.fte > 0 ? "+" : ""}{delta.fte.toFixed(1)} FTE</span> : <span className="text-[11px] text-[var(--text-muted)]">baseline</span>}</td>
                 <td className="px-3 py-2 text-center"><button onClick={() => { setSavedScenarios(prev => prev.filter((_, j) => j !== i)); showToast("Removed"); }} className="text-[11px] text-[var(--text-muted)] hover:text-[var(--risk)]">✕</button></td>
               </tr>;
             })}</tbody></table>
@@ -593,10 +593,10 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
       {/* Investment & ROI */}
       {scenSub === "roi" && <Card title="Investment & ROI Analysis">
         <div className="grid grid-cols-4 gap-3 mb-5">
-          <KpiCard label="Total Investment" value={`$${totalInv.toLocaleString()}`} />
-          <KpiCard label="Annual Savings" value={`$${totals.savings.toLocaleString()}`} accent />
-          <KpiCard label="Year 1 Net" value={`$${(totals.savings - totalInv).toLocaleString()}`} delta={totals.savings - totalInv > 0 ? "Positive ROI" : "Investment year"} />
-          <KpiCard label="3-Year Net Value" value={`$${(totals.savings * 3 - totalInv - Math.round(totalInv * 0.15) * 2).toLocaleString()}`} accent />
+          <KpiCard label="Total Investment" value={fmtNum(totalInv)} />
+          <KpiCard label="Annual Savings" value={fmtNum(totals.savings)} accent />
+          <KpiCard label="Year 1 Net" value={fmtNum(totals.savings - totalInv)} delta={totals.savings - totalInv > 0 ? "Positive ROI" : "Investment year"} />
+          <KpiCard label="3-Year Net Value" value={fmtNum(totals.savings * 3 - totalInv - Math.round(totalInv * 0.15) * 2)} accent />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <Card title="Cost Breakdown (Estimated)">

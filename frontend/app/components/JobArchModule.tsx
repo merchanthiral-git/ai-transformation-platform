@@ -509,7 +509,7 @@ function TreeNav({ node, depth, selectedPath, onSelect }: { node: TreeNode; dept
       <span className="text-[9px] font-data text-[var(--text-muted)] shrink-0">{node.headcount}</span>
     </div>
     {expanded && hasChildren && <div style={{ transition: "all 0.2s" }}>
-      {node.children!.map(child => <TreeNav key={child.id} node={child} depth={depth + 1} selectedPath={selectedPath} onSelect={onSelect} />)}
+      {(node.children || []).map(child => <TreeNav key={child.id} node={child} depth={depth + 1} selectedPath={selectedPath} onSelect={onSelect} />)}
     </div>}
   </div>;
 }

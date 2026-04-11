@@ -29,6 +29,7 @@ import {
   SKILLS_TAXONOMY,
   COLORS,
   AiInsightCard,
+  fmtNum,
   type ViewContext,
 } from "./shared";
 
@@ -640,7 +641,7 @@ export function ManagerDevelopment({ model, f, onBack, onNavigate }: { model: st
     {loading && <LoadingBar />}
 
     <div className="grid grid-cols-5 gap-3 mb-5">
-      <KpiCard label="Managers" value={Number(summary.total_managers || 0)} /><KpiCard label="Change Agents" value={Number(summary.change_agents || 0)} accent /><KpiCard label="Need Dev" value={Number(summary.need_development || 0)} /><KpiCard label="Avg Duration" value={`${summary.avg_duration_weeks || 0}wk`} /><KpiCard label="Investment" value={`$${(Number(summary.total_investment || 0) / 1000).toFixed(0)}K`} />
+      <KpiCard label="Managers" value={Number(summary.total_managers || 0)} /><KpiCard label="Change Agents" value={Number(summary.change_agents || 0)} accent /><KpiCard label="Need Dev" value={Number(summary.need_development || 0)} /><KpiCard label="Avg Duration" value={`${summary.avg_duration_weeks || 0}wk`} /><KpiCard label="Investment" value={fmtNum(summary.total_investment || 0)} />
     </div>
 
     {/* Category summary */}
@@ -660,7 +661,7 @@ export function ManagerDevelopment({ model, f, onBack, onNavigate }: { model: st
       <div className="flex items-center gap-3 mb-3 flex-wrap">
         <Badge color={t.category === "Transformation Champion" ? "green" : t.category === "Needs Development" ? "amber" : "red"}>{t.category}</Badge>
         <span className="text-[11px] text-[var(--text-muted)]">Score: {t.average_score}/5 · {t.direct_reports} reports</span>
-        <span className="text-[11px] font-semibold" style={{ color: catColors[t.category] }}>{t.total_weeks}wk · ${(t.total_cost / 1000).toFixed(0)}K</span>
+        <span className="text-[11px] font-semibold" style={{ color: catColors[t.category] }}>{t.total_weeks}wk · {fmtNum(t.total_cost)}</span>
       </div>
 
       {/* Role in transformation */}
@@ -670,19 +671,19 @@ export function ManagerDevelopment({ model, f, onBack, onNavigate }: { model: st
       </div>
 
       {/* Interventions */}
-      {t.interventions.length > 0 && <div className="space-y-2">{t.interventions.map((int, i) => <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] transition-all hover:border-[var(--accent-primary)]/30">
+      {(t.interventions || []).length > 0 && <div className="space-y-2">{(t.interventions || []).map((int, i) => <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] transition-all hover:border-[var(--accent-primary)]/30">
         <div className="flex-1">
           <div className="text-[12px] font-semibold text-[var(--text-primary)]">{int.dimension}</div>
           <div className="text-[11px] text-[var(--text-secondary)]">{int.intervention}</div>
         </div>
         <Badge color={int.format.includes("1:1") ? "purple" : int.format.includes("Group") ? "indigo" : "gray"}>{int.format}</Badge>
         <span className="text-[10px] text-[var(--text-muted)] shrink-0">{int.duration_weeks}wk</span>
-        <span className="text-[11px] font-bold shrink-0" style={{ color: "var(--accent-primary)" }}>${(int.cost / 1000).toFixed(0)}K</span>
+        <span className="text-[11px] font-bold shrink-0" style={{ color: "var(--accent-primary)" }}>{fmtNum(int.cost)}</span>
       </div>)}</div>}
     </Card>)}
 
     <InsightPanel title="Investment Summary" items={[
-      `Total manager development investment: $${(Number(summary.total_investment || 0) / 1000).toFixed(0)}K`,
+      `Total manager development investment: ${fmtNum(summary.total_investment || 0)}`,
       `${summary.change_agents || 0} managers ready to deploy as change agents immediately`,
       `${summary.need_development || 0} managers need ${summary.avg_duration_weeks || 0} weeks average development before they can lead transformation`,
       `Flight Risk managers should be engaged within 2 weeks — delay increases attrition probability`,
@@ -953,7 +954,7 @@ export function OrgHealthScorecard({ model, f, onBack, onNavigate, viewCtx }: { 
 
   return <div>
     <ContextStrip items={[`${metrics.filter(m => m.status === "green").length}/${metrics.length} metrics within benchmarks · vs. ${benchIndustryLabel} · Overall health: ${overallScore}%`]} />
-    <PageHeader icon="🏥" title="Org Health Scorecard" subtitle="Auto-calculated metrics with industry benchmarks" onBack={onBack} moduleId="snapshot" viewCtx={viewCtx} />
+    <PageHeader icon="🏥" title="Org Health Scorecard" subtitle="Auto-calculated metrics with industry benchmarks" onBack={onBack} moduleId="orghealth" viewCtx={viewCtx} />
 
     {/* Benchmark industry selector */}
     <div className="flex items-center gap-3 mb-4">
@@ -1072,7 +1073,7 @@ export function AIImpactHeatmap({ model, f, onBack, onNavigate, viewCtx }: { mod
 
   return <div>
     <ContextStrip items={[`${cells.length} intersections analyzed · ${cells.filter(c => c.impact === "High").length} high-impact zones`]} />
-    <PageHeader icon="🔥" title="AI Impact Heatmap" subtitle="Automation potential by function and job family" onBack={onBack} moduleId="scan" viewCtx={viewCtx} />
+    <PageHeader icon="🔥" title="AI Impact Heatmap" subtitle="Automation potential by function and job family" onBack={onBack} moduleId="heatmap" viewCtx={viewCtx} />
     {loading && <LoadingBar />}
 
     {cells.length === 0 && !loading && <Empty text="Upload work design data with Function and Job Family columns to generate the heatmap" icon="🔥" />}
@@ -1142,7 +1143,7 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
 
   return <div>
     <ContextStrip items={[`${clusters.length} clusters identified · ${clusters.filter(c => c.consolidation_candidate).length} consolidation candidates (>70% overlap)`]} />
-    <PageHeader icon="🔗" title="Role Clustering" subtitle="Group similar roles by task overlap — identify consolidation candidates" onBack={onBack} moduleId="scan" viewCtx={viewCtx} />
+    <PageHeader icon="🔗" title="Role Clustering" subtitle="Group similar roles by task overlap — identify consolidation candidates" onBack={onBack} moduleId="clusters" viewCtx={viewCtx} />
     {loading && <LoadingBar />}
 
     {clusters.length === 0 && !loading && <Empty text="No role clusters found. Upload work design data with task characteristics to enable clustering." icon="🔗" />}

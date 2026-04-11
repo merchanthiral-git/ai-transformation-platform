@@ -11,7 +11,7 @@ import {
   useApiData, usePersisted, useDebounce, callAI, showToast, logDec,
   exportToCSV, EmptyWithAction, JobDesignState, SIM_PRESETS,
   CareerFrameworkAccordion, HelpBookAccordion, ErrorBoundary,
-  AiJobSuggestButton, AiJobSuggestion,
+  AiJobSuggestButton, AiJobSuggestion, fmtNum,
 } from "./shared";
 
 export function BBBAFramework({ model, f, onBack, onNavigate }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void }) {
@@ -38,9 +38,9 @@ export function BBBAFramework({ model, f, onBack, onNavigate }: { model: string;
     <div className="grid grid-cols-2 gap-4 mb-4">
       <Card title="Disposition Mix"><DonutViz data={[{name:"Build",value:Number(summary.build||0)},{name:"Buy",value:Number(summary.buy||0)},{name:"Borrow",value:Number(summary.borrow||0)},{name:"Automate",value:Number(summary.automate||0)}]} /></Card>
       <Card title="Investment Summary"><div className="space-y-3">
-        <div className="flex justify-between p-3 rounded-lg bg-[var(--surface-2)]"><span className="text-[13px]">Reskilling (Build)</span><span className="text-[15px] font-extrabold text-[var(--success)]">${(Number(summary.reskilling_investment||0)/1000).toFixed(0)}K</span></div>
-        <div className="flex justify-between p-3 rounded-lg bg-[var(--surface-2)]"><span className="text-[13px]">Hiring (Buy)</span><span className="text-[15px] font-extrabold text-[var(--accent-primary)]">${(Number(summary.hiring_cost||0)/1000).toFixed(0)}K</span></div>
-        <div className="flex justify-between p-3 rounded-lg bg-[var(--surface-2)] border-t-2 border-[var(--text-primary)]"><span className="text-[13px] font-bold">Total Investment</span><span className="text-[17px] font-extrabold text-[var(--text-primary)]">${(Number(summary.total_investment||0)/1000).toFixed(0)}K</span></div>
+        <div className="flex justify-between p-3 rounded-lg bg-[var(--surface-2)]"><span className="text-[13px]">Reskilling (Build)</span><span className="text-[15px] font-extrabold text-[var(--success)]">{fmtNum(summary.reskilling_investment||0)}</span></div>
+        <div className="flex justify-between p-3 rounded-lg bg-[var(--surface-2)]"><span className="text-[13px]">Hiring (Buy)</span><span className="text-[15px] font-extrabold text-[var(--accent-primary)]">{fmtNum(summary.hiring_cost||0)}</span></div>
+        <div className="flex justify-between p-3 rounded-lg bg-[var(--surface-2)] border-t-2 border-[var(--text-primary)]"><span className="text-[13px] font-bold">Total Investment</span><span className="text-[17px] font-extrabold text-[var(--text-primary)]">{fmtNum(summary.total_investment||0)}</span></div>
       </div></Card>
     </div>
 
@@ -53,7 +53,7 @@ export function BBBAFramework({ model, f, onBack, onNavigate }: { model: string;
         <td className="px-2 py-2 text-[var(--text-secondary)] text-[10px]">{r.reason}</td>
         <td className="px-2 py-2 text-center">{r.strong_candidates}+{r.reskillable_candidates}</td>
         <td className="px-2 py-2 text-center font-bold">{r.fte_needed}</td>
-        <td className="px-2 py-2 text-center font-semibold">${(r.total_cost/1000).toFixed(0)}K</td>
+        <td className="px-2 py-2 text-center font-semibold">{fmtNum(r.total_cost)}</td>
         <td className="px-2 py-2 text-center">{r.timeline_months}mo</td>
       </tr>; })}</tbody></table></div>
     </Card>
@@ -70,7 +70,7 @@ export function BBBAFramework({ model, f, onBack, onNavigate }: { model: string;
         const totalByType = bar.value;
         const h = (totalByType / (maxVal * roles.length || 1)) * 100;
         return <div key={bar.label} className="flex-1 flex flex-col items-center justify-end">
-          <div className="text-[10px] font-bold mb-1" style={{color:bar.color}}>${(totalByType/1000).toFixed(0)}K</div>
+          <div className="text-[10px] font-bold mb-1" style={{color:bar.color}}>{fmtNum(totalByType)}</div>
           <div className="w-full rounded-t-lg" style={{height:`${Math.max(h*3, 8)}%`, background:`${bar.color}30`, border:`1px solid ${bar.color}50`}} />
           <div className="text-[9px] text-[var(--text-muted)] mt-1">{bar.label}</div>
         </div>;
@@ -97,8 +97,8 @@ export function BBBAFramework({ model, f, onBack, onNavigate }: { model: string;
     </Card>
 
     <InsightPanel title="Sourcing Strategy Insights" items={[
-      `${roles.filter(r => (overrides[r.role]||r.disposition)==="Build").length} Build roles — total reskilling: $${(roles.filter(r => (overrides[r.role]||r.disposition)==="Build").reduce((s,r) => s+r.total_cost,0)/1000).toFixed(0)}K`,
-      `${roles.filter(r => (overrides[r.role]||r.disposition)==="Buy").length} Buy roles — hiring cost: $${(roles.filter(r => (overrides[r.role]||r.disposition)==="Buy").reduce((s,r) => s+r.total_cost,0)/1000).toFixed(0)}K`,
+      `${roles.filter(r => (overrides[r.role]||r.disposition)==="Build").length} Build roles — total reskilling: ${fmtNum(roles.filter(r => (overrides[r.role]||r.disposition)==="Build").reduce((s,r) => s+r.total_cost,0))}`,
+      `${roles.filter(r => (overrides[r.role]||r.disposition)==="Buy").length} Buy roles — hiring cost: ${fmtNum(roles.filter(r => (overrides[r.role]||r.disposition)==="Buy").reduce((s,r) => s+r.total_cost,0))}`,
       `Build is ${Math.round(20000/85000*100)}% the cost of Buy per role — favor internal mobility where adjacency > 60%`,
       `Average transition timeline: ${Math.round(roles.reduce((s,r) => s+r.timeline_months,0)/Math.max(roles.length,1))} months across all roles`,
     ]} icon="🔀" />
@@ -172,10 +172,10 @@ export function HeadcountPlanning({ model, f, onBack, onNavigate }: { model: str
         const severance = Math.max(0, eliminated - Number(wf.natural_attrition || 0)) * avgComp * 0.25;
         const netYear1 = savings - hireCost - severance;
         return <div className="grid grid-cols-4 gap-4">
-          <div className="rounded-xl p-4 text-center border border-[var(--border)]"><div className="text-[10px] text-[var(--text-muted)] uppercase mb-1">Annual Savings</div><div className="text-[22px] font-extrabold text-[var(--success)]">${(savings/1000).toFixed(0)}K</div><div className="text-[9px] text-[var(--text-muted)]">From {eliminated} role eliminations</div></div>
-          <div className="rounded-xl p-4 text-center border border-[var(--border)]"><div className="text-[10px] text-[var(--text-muted)] uppercase mb-1">Hiring Cost</div><div className="text-[22px] font-extrabold text-[var(--risk)]">${(hireCost/1000).toFixed(0)}K</div><div className="text-[9px] text-[var(--text-muted)]">For {newHires} new roles</div></div>
-          <div className="rounded-xl p-4 text-center border border-[var(--border)]"><div className="text-[10px] text-[var(--text-muted)] uppercase mb-1">Transition Cost</div><div className="text-[22px] font-extrabold text-[var(--warning)]">${(severance/1000).toFixed(0)}K</div><div className="text-[9px] text-[var(--text-muted)]">Severance & onboarding</div></div>
-          <div className="rounded-xl p-4 text-center border-2" style={{borderColor: netYear1 >= 0 ? "var(--success)" : "var(--risk)"}}><div className="text-[10px] text-[var(--text-muted)] uppercase mb-1">Net Year 1</div><div className="text-[22px] font-extrabold" style={{color: netYear1 >= 0 ? "var(--success)" : "var(--risk)"}}>{netYear1 >= 0 ? "" : "-"}${(Math.abs(netYear1)/1000).toFixed(0)}K</div><div className="text-[9px] text-[var(--text-muted)]">{netYear1 >= 0 ? "Net positive" : "Investment year"}</div></div>
+          <div className="rounded-xl p-4 text-center border border-[var(--border)]"><div className="text-[10px] text-[var(--text-muted)] uppercase mb-1">Annual Savings</div><div className="text-[22px] font-extrabold text-[var(--success)]">{fmtNum(savings)}</div><div className="text-[9px] text-[var(--text-muted)]">From {eliminated} role eliminations</div></div>
+          <div className="rounded-xl p-4 text-center border border-[var(--border)]"><div className="text-[10px] text-[var(--text-muted)] uppercase mb-1">Hiring Cost</div><div className="text-[22px] font-extrabold text-[var(--risk)]">{fmtNum(hireCost)}</div><div className="text-[9px] text-[var(--text-muted)]">For {newHires} new roles</div></div>
+          <div className="rounded-xl p-4 text-center border border-[var(--border)]"><div className="text-[10px] text-[var(--text-muted)] uppercase mb-1">Transition Cost</div><div className="text-[22px] font-extrabold text-[var(--warning)]">{fmtNum(severance)}</div><div className="text-[9px] text-[var(--text-muted)]">Severance & onboarding</div></div>
+          <div className="rounded-xl p-4 text-center border-2" style={{borderColor: netYear1 >= 0 ? "var(--success)" : "var(--risk)"}}><div className="text-[10px] text-[var(--text-muted)] uppercase mb-1">Net Year 1</div><div className="text-[22px] font-extrabold" style={{color: netYear1 >= 0 ? "var(--success)" : "var(--risk)"}}>{netYear1 >= 0 ? "" : "-"}{fmtNum(Math.abs(netYear1))}</div><div className="text-[9px] text-[var(--text-muted)]">{netYear1 >= 0 ? "Net positive" : "Investment year"}</div></div>
         </div>;
       })()}
     </Card>
@@ -460,8 +460,8 @@ export function WorkDesignLab({
 
   // Compute reconstruction when redeployment submitted
   useEffect(() => {
-    if (!js.redeploySubmitted || !js.redeployRows.length || js.recon) return;
-    const tasks = js.redeployRows.map((row) => ({ ...row, "Time Saved %": Math.max(Number(row["Current Time Spent %"] || 0) - Number(row["New Time %"] || 0), 0) }));
+    if (!js.redeploySubmitted || !(js.redeployRows || []).length || js.recon) return;
+    const tasks = (js.redeployRows || []).map((row) => ({ ...row, "Time Saved %": Math.max(Number(row["Current Time Spent %"] || 0) - Number(row["New Time %"] || 0), 0) }));
     api.computeReconstruction(tasks, js.scenario).then((resp) => {
       const actionMix = (resp?.action_mix ?? {}) as Record<string, number>;
       const reconstruction = ((resp?.reconstruction ?? []) as Record<string, unknown>[]);
@@ -613,8 +613,8 @@ Rules:
   return <div>
     <ContextStrip items={[
       jobs.length ? `${jobs.length} jobs available from your uploaded data` : "No jobs found — upload Work Design data with Job Titles",
-      Object.values(jobStates).filter(s => s.finalized).length > 0 ? `${Object.values(jobStates).filter(s => s.finalized).length}/${jobs.length} jobs finalized` : "",
-      Object.values(jobStates).filter(s => s.deconSubmitted && !s.finalized).length > 0 ? `${Object.values(jobStates).filter(s => s.deconSubmitted && !s.finalized).length} in progress` : "",
+      Object.values(jobStates || {}).filter(s => s.finalized).length > 0 ? `${Object.values(jobStates || {}).filter(s => s.finalized).length}/${jobs.length} jobs finalized` : "",
+      Object.values(jobStates || {}).filter(s => s.deconSubmitted && !s.finalized).length > 0 ? `${Object.values(jobStates || {}).filter(s => s.deconSubmitted && !s.finalized).length} in progress` : "",
     ].filter(Boolean)} />
     {!job && <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-2xl p-8 mb-5 text-center"><div className="text-3xl mb-3 opacity-40">✏️</div><h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">Select a Job to Begin</h3><p className="text-[13px] text-[var(--text-secondary)]">Choose a job from the sidebar to start deconstructing tasks and redesigning roles.</p></div>}
     <PageHeader icon="✏️" title="Work Design Lab" subtitle={`Redesign tasks, roles, and time allocation${ctxLoading || deconLoading ? " · Loading..." : ""}`} onBack={onBack} moduleId="design" />
@@ -892,7 +892,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
     setScenarios([odsGenScenario(c, "Optimized", 0.5, 0), odsGenScenario(c, "Aggressive", 0.9, 1), odsGenScenario(c, "Conservative", 0.25, 2)]);
   }, []);
 
-  const sc = scenarios[activeScenario] || scenarios[0];
+  const sc = scenarios[activeScenario] || scenarios[0] || { id: 0, label: "Default", departments: currentData };
   const cA = useMemo(() => odsAgg(currentData), [currentData]);
   const fA = useMemo(() => odsAgg(sc?.departments || []), [sc]);
   const [selDept, setSelDept] = useState(0);
@@ -967,7 +967,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
     <div className="flex gap-3 mb-4 items-center">
       <span className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Scenario:</span>
       <select value={activeScenario} onChange={e => setActiveScenario(Number(e.target.value))} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-[13px] font-semibold text-[var(--text-primary)] outline-none focus:border-[var(--accent-primary)] min-w-[180px]">
-        {scenarios.map((s, i) => <option key={s.id} value={i}>{s.label} — {odsAgg(s.departments).hc} HC, ${(odsAgg(s.departments).cost / 1e6).toFixed(1)}M</option>)}
+        {scenarios.map((s, i) => <option key={s.id} value={i}>{s.label} — {odsAgg(s.departments).hc} HC, {fmtNum(odsAgg(s.departments).cost)}</option>)}
       </select>
       <button onClick={async () => {
         setAiOdsLoading(true);
@@ -1016,31 +1016,31 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
             <div className="text-[12px] text-[var(--text-secondary)] leading-relaxed mb-3">Total labor cost is computed by multiplying headcount at each career level by the average fully-loaded compensation for that level. This includes base salary, benefits (est. 25%), and overhead allocation.</div>
             <div className="space-y-1.5">{ODS_LEVELS.map(l => { const n = currentData.reduce((s, d) => s + (d.levelDist?.[l] || 0), 0); const comp = ODS_AVG_COMP[l] || 85000; return <div key={l} className="flex items-center justify-between text-[12px] p-2 rounded-lg bg-[var(--surface-2)]">
               <span className="text-[var(--text-secondary)]">{l}</span>
-              <span className="text-[var(--text-muted)]">{n} × ${(comp / 1000).toFixed(0)}K</span>
-              <span className="font-semibold text-[var(--accent-primary)]">${((n * comp) / 1e6).toFixed(2)}M</span>
+              <span className="text-[var(--text-muted)]">{n} × {fmtNum(comp)}</span>
+              <span className="font-semibold text-[var(--accent-primary)]">{fmtNum((n * comp))}</span>
             </div>; })}</div>
-            <div className="flex justify-between mt-2 p-2 rounded-lg bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/20 text-[13px] font-bold"><span className="text-[var(--accent-primary)]">Current Total</span><span className="text-[var(--accent-primary)]">${(cA.cost / 1e6).toFixed(2)}M</span></div>
+            <div className="flex justify-between mt-2 p-2 rounded-lg bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/20 text-[13px] font-bold"><span className="text-[var(--accent-primary)]">Current Total</span><span className="text-[var(--accent-primary)]">{fmtNum(cA.cost)}</span></div>
           </div>
           <div>
             <div className="text-[13px] font-bold text-[var(--text-primary)] mb-2">How Future Cost is Derived ({sc.label})</div>
             <div className="text-[12px] text-[var(--text-secondary)] leading-relaxed mb-3">Future cost reflects scenario adjustments: layer removal reduces management headcount, span optimization redistributes ICs, and structural changes shift the level mix. Each change is applied per-department.</div>
             <div className="space-y-1.5">{ODS_LEVELS.map(l => { const n = sc.departments.reduce((s, d) => s + (d.levelDist?.[l] || 0), 0); const cN = currentData.reduce((s, d) => s + (d.levelDist?.[l] || 0), 0); const comp = ODS_AVG_COMP[l] || 85000; const delta = n - cN; return <div key={l} className="flex items-center justify-between text-[12px] p-2 rounded-lg bg-[var(--surface-2)]">
               <span className="text-[var(--text-secondary)]">{l}</span>
-              <span className="text-[var(--text-muted)]">{n} × ${(comp / 1000).toFixed(0)}K {delta !== 0 && <span style={{ color: delta < 0 ? "var(--success)" : "var(--risk)", fontSize: 10 }}>({delta > 0 ? "+" : ""}{delta})</span>}</span>
-              <span className="font-semibold text-[var(--success)]">${((n * comp) / 1e6).toFixed(2)}M</span>
+              <span className="text-[var(--text-muted)]">{n} × {fmtNum(comp)} {delta !== 0 && <span style={{ color: delta < 0 ? "var(--success)" : "var(--risk)", fontSize: 10 }}>({delta > 0 ? "+" : ""}{delta})</span>}</span>
+              <span className="font-semibold text-[var(--success)]">{fmtNum((n * comp))}</span>
             </div>; })}</div>
-            <div className="flex justify-between mt-2 p-2 rounded-lg bg-[var(--success)]/10 border border-[var(--success)]/20 text-[13px] font-bold"><span className="text-[var(--success)]">{sc.label} Total</span><span className="text-[var(--success)]">${(fA.cost / 1e6).toFixed(2)}M</span></div>
+            <div className="flex justify-between mt-2 p-2 rounded-lg bg-[var(--success)]/10 border border-[var(--success)]/20 text-[13px] font-bold"><span className="text-[var(--success)]">{sc.label} Total</span><span className="text-[var(--success)]">{fmtNum(fA.cost)}</span></div>
           </div>
         </div>
         <div className="flex items-center justify-center gap-4 p-4 rounded-xl border border-[var(--border)] bg-[var(--surface-2)]">
-          <div className="text-center"><div className="text-[10px] text-[var(--text-muted)] uppercase">Net Change</div><div className="text-2xl font-extrabold" style={{ color: fA.cost < cA.cost ? "var(--success)" : "var(--risk)" }}>${((fA.cost - cA.cost) / 1e6).toFixed(2)}M</div></div>
+          <div className="text-center"><div className="text-[10px] text-[var(--text-muted)] uppercase">Net Change</div><div className="text-2xl font-extrabold" style={{ color: fA.cost < cA.cost ? "var(--success)" : "var(--risk)" }}>{fmtNum((fA.cost - cA.cost))}</div></div>
           <div className="text-center"><div className="text-[10px] text-[var(--text-muted)] uppercase">Percent Change</div><div className="text-2xl font-extrabold" style={{ color: fA.cost < cA.cost ? "var(--success)" : "var(--risk)" }}>{cA.cost > 0 ? (((fA.cost - cA.cost) / cA.cost) * 100).toFixed(1) : "0"}%</div></div>
           <div className="text-center"><div className="text-[10px] text-[var(--text-muted)] uppercase">HC Change</div><div className="text-2xl font-extrabold" style={{ color: fA.hc < cA.hc ? "var(--success)" : "var(--risk)" }}>{fA.hc - cA.hc}</div></div>
           <div className="text-center"><div className="text-[10px] text-[var(--text-muted)] uppercase">Cost per Head</div><div className="text-lg font-extrabold text-[var(--text-primary)]">${cA.hc > 0 ? ((cA.cost / cA.hc) / 1000).toFixed(0) : "0"}K → ${fA.hc > 0 ? ((fA.cost / fA.hc) / 1000).toFixed(0) : "0"}K</div></div>
         </div>
       </Card>
       <Card title="Cost by Department">
-        {(() => { const cCosts = currentData.map(d => { let c = 0; if (d.levelDist) Object.entries(d.levelDist).forEach(([l, n]) => { c += n * (ODS_AVG_COMP[l] || 85000); }); return c; }); const fCosts = sc.departments.map(d => { let c = 0; if (d.levelDist) Object.entries(d.levelDist).forEach(([l, n]) => { c += n * (ODS_AVG_COMP[l] || 85000); }); return c; }); const maxCost = Math.max(...cCosts, ...fCosts); return <div className="space-y-3">{currentData.map((d, i) => { const delta = fCosts[i] - cCosts[i]; return <div key={d.name} className="flex items-center gap-3"><div className="w-36 text-[12px] font-semibold text-[var(--text-secondary)] text-right shrink-0">{d.name}</div><div className="flex-1 space-y-1"><HBar value={cCosts[i]} max={maxCost} color="var(--accent-primary)" /><HBar value={fCosts[i]} max={maxCost} color="var(--success)" /></div><div className="w-24 text-right shrink-0"><div className="text-[12px] font-semibold text-[var(--text-primary)]">${(cCosts[i] / 1e6).toFixed(2)}M</div><div className="text-[10px]" style={{ color: delta < 0 ? "var(--success)" : delta > 0 ? "var(--risk)" : "var(--text-muted)" }}>{delta < 0 ? "↓" : delta > 0 ? "↑" : "→"} ${Math.abs(delta / 1e3).toFixed(0)}K</div></div></div>; })}</div>; })()}
+        {(() => { const cCosts = currentData.map(d => { let c = 0; if (d.levelDist) Object.entries(d.levelDist).forEach(([l, n]) => { c += n * (ODS_AVG_COMP[l] || 85000); }); return c; }); const fCosts = (sc.departments || []).map(d => { let c = 0; if (d.levelDist) Object.entries(d.levelDist).forEach(([l, n]) => { c += n * (ODS_AVG_COMP[l] || 85000); }); return c; }); const maxCost = Math.max(...cCosts, ...fCosts, 1); return <div className="space-y-3">{currentData.map((d, i) => { const delta = (fCosts[i] ?? 0) - (cCosts[i] ?? 0); return <div key={d.name} className="flex items-center gap-3"><div className="w-36 text-[12px] font-semibold text-[var(--text-secondary)] text-right shrink-0">{d.name}</div><div className="flex-1 space-y-1"><HBar value={cCosts[i] ?? 0} max={maxCost} color="var(--accent-primary)" /><HBar value={fCosts[i] ?? 0} max={maxCost} color="var(--success)" /></div><div className="w-24 text-right shrink-0"><div className="text-[12px] font-semibold text-[var(--text-primary)]">{fmtNum(cCosts[i] ?? 0)}</div><div className="text-[10px]" style={{ color: delta < 0 ? "var(--success)" : delta > 0 ? "var(--risk)" : "var(--text-muted)" }}>{delta < 0 ? "↓" : delta > 0 ? "↑" : "→"} ${Math.abs(delta / 1e3).toFixed(0)}K</div></div></div>; })}</div>; })()}
       </Card>
     </div>}
 
@@ -1051,8 +1051,8 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
           return { name: d.name, currentHC: d.headcount, futureHC: f?.headcount || d.headcount, newRoles: nr, removedRoles: rr, restructuredRoles: rs, retained: Math.max(0, Math.min(d.headcount, f?.headcount || d.headcount) - rr) };
         });
         const tn = gaps.reduce((s, g) => s + g.newRoles, 0); const tr = gaps.reduce((s, g) => s + g.removedRoles, 0); const ts = gaps.reduce((s, g) => s + g.restructuredRoles, 0); const tRet = gaps.reduce((s, g) => s + g.retained, 0);
-        const mostNew = [...gaps].sort((a, b) => b.newRoles - a.newRoles)[0];
-        const mostElim = [...gaps].sort((a, b) => b.removedRoles - a.removedRoles)[0];
+        const mostNew = [...gaps].sort((a, b) => b.newRoles - a.newRoles)[0] || { name: "—", newRoles: 0 };
+        const mostElim = [...gaps].sort((a, b) => b.removedRoles - a.removedRoles)[0] || { name: "—", removedRoles: 0 };
         const totalHC = gaps.reduce((s, g) => s + g.currentHC, 0);
         return <div>
           <div className="grid grid-cols-4 gap-3 mb-5">{[{ label: "New Roles", val: tn, color: "var(--success)", desc: "Created by restructuring" }, { label: "Eliminated", val: tr, color: "var(--risk)", desc: "Removed or automated" }, { label: "Restructured", val: ts, color: "var(--warning)", desc: "Scope or level changed" }, { label: "Retained", val: tRet, color: "var(--accent-primary)", desc: "Unchanged in scope" }].map(k => <div key={k.label} className="bg-[var(--surface-2)] rounded-xl p-4 border-l-[3px] border border-[var(--border)]" style={{ borderLeftColor: k.color }}><div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">{k.label}</div><div className="text-2xl font-extrabold" style={{ color: k.color }}>{k.val}</div><div className="text-[10px] text-[var(--text-muted)] mt-1">{k.desc}</div></div>)}</div>
@@ -1093,7 +1093,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
             <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase mb-3">{l}</div>
             <div className="flex justify-between text-[16px] font-extrabold mb-1"><span className="text-[var(--accent-primary)]">{cN}</span><span className="text-[var(--text-muted)]">→</span><span className="text-[var(--success)]">{fN}</span></div>
             <DChip a={cN} b={fN} inv />
-            <div className="mt-2 pt-2 border-t border-[var(--border)]"><div className="text-[9px] text-[var(--text-muted)]">Avg comp: ${(comp / 1000).toFixed(0)}K</div><div className="text-[9px] text-[var(--text-muted)]">Cost: ${((cN * comp) / 1e6).toFixed(2)}M</div></div>
+            <div className="mt-2 pt-2 border-t border-[var(--border)]"><div className="text-[9px] text-[var(--text-muted)]">Avg comp: {fmtNum(comp)}</div><div className="text-[9px] text-[var(--text-muted)]">Cost: {fmtNum((cN * comp))}</div></div>
           </div>; })}</div>
         </Card>
         <Card title={`${currentData[selDept]?.name || ""} — Workforce Composition`}>
@@ -1108,7 +1108,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
     {/* Scenario Compare — all scenarios side by side */}
     {view === "compare" && <Card title="Multi-Scenario Comparison">
       <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full"><thead><tr className="bg-[var(--surface-2)]"><th className="px-3 py-2 text-left text-[11px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Metric</th><th className="px-3 py-2 text-center text-[11px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Current</th>{scenarios.map((s, i) => <th key={s.id} className="px-3 py-2 text-center text-[11px] font-semibold border-b border-[var(--border)]" style={{ color: COLORS[i % COLORS.length] }}>{s.label}</th>)}</tr></thead>
-      <tbody>{[{ label: "Headcount", key: "hc", inv: true }, { label: "Avg Span", key: "avgS" }, { label: "Avg Layers", key: "avgL", inv: true }, { label: "Managers", key: "mgr", inv: true }, { label: "Est. Cost ($M)", key: "cost", inv: true, fmt: (v: number) => `$${(v / 1e6).toFixed(1)}M` }].map(m => {
+      <tbody>{[{ label: "Headcount", key: "hc", inv: true }, { label: "Avg Span", key: "avgS" }, { label: "Avg Layers", key: "avgL", inv: true }, { label: "Managers", key: "mgr", inv: true }, { label: "Est. Cost ($M)", key: "cost", inv: true, fmt: (v: number) => `${fmtNum(v)}` }].map(m => {
         const cVal = cA[m.key as keyof typeof cA] as number;
         return <tr key={m.label} className="border-b border-[var(--border)]"><td className="px-3 py-2 text-[13px] font-semibold">{m.label}</td><td className="px-3 py-2 text-center text-[var(--text-secondary)]">{m.fmt ? m.fmt(cVal) : cVal.toFixed(1)}</td>{scenarios.map((s, i) => { const a = odsAgg(s.departments); const v = a[m.key as keyof typeof a] as number; return <td key={s.id} className="px-3 py-2 text-center"><span className="font-bold" style={{ color: COLORS[i % COLORS.length] }}>{m.fmt ? m.fmt(v) : v.toFixed(1)}</span> <DChip a={cVal} b={v} inv={m.inv} /></td>; })}</tr>;
       })}</tbody></table></div>
@@ -1123,29 +1123,29 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       if (wide.length > 0) insights.push({ type: "alert", title: "Overextended Spans", body: `${wide.map(d => `${d.name} (${d.avgSpan}:1)`).join(", ")} — spans above 12:1 risk insufficient coaching and development. Managers lose ability to provide meaningful 1:1s above ~10 direct reports.`, color: "var(--risk)", metric: `${wide.length} dept${wide.length > 1 ? "s" : ""}` });
       const optimalSpan = currentData.filter(d => d.avgSpan >= 6 && d.avgSpan <= 10);
       if (optimalSpan.length > 0) insights.push({ type: "positive", title: "Healthy Span Functions", body: `${optimalSpan.map(d => d.name).join(", ")} — 6-10:1 span range is optimal. These functions have the right balance of oversight and autonomy.`, color: "var(--success)", metric: `${optimalSpan.length}/${currentData.length}` });
-      const layerReductions = currentData.filter((d, i) => sc.departments[i] && sc.departments[i].layers < d.layers);
+      const layerReductions = currentData.filter((d, i) => sc.departments[i]?.layers != null && sc.departments[i].layers < d.layers);
       if (layerReductions.length > 0) { const totalRemoved = layerReductions.reduce((s, d, i) => s + d.layers - (sc.departments[currentData.indexOf(d)]?.layers || d.layers), 0); insights.push({ type: "positive", title: `${totalRemoved} Layers Removed in ${sc.label}`, body: `De-layering ${layerReductions.map(d => d.name).join(", ")} compresses decision-making distance by ~${Math.round(totalRemoved / currentData.reduce((s, d) => s + d.layers, 0) * 100)}%. Expected impact: 20-30% faster decision cycles and reduced escalation burden.`, color: "var(--success)", metric: `${totalRemoved} layers` }); }
       // Manager ratio analysis
       const mgrRatio = cA.mgr / Math.max(cA.hc, 1) * 100;
       const fMgrRatio = fA.mgr / Math.max(fA.hc, 1) * 100;
       insights.push({ type: mgrRatio > 15 ? "warning" : "info", title: `Manager Ratio: ${mgrRatio.toFixed(1)}% → ${fMgrRatio.toFixed(1)}%`, body: `Current org has 1 manager per ${Math.round(cA.hc / Math.max(cA.mgr, 1))} employees. ${mgrRatio > 15 ? "Above the 12-15% benchmark — indicates over-management." : mgrRatio < 8 ? "Below 8% — may indicate insufficient leadership coverage." : "Within healthy 8-15% range."} The ${sc.label} scenario ${fMgrRatio < mgrRatio ? "improves" : "maintains"} this to ${fMgrRatio.toFixed(1)}%.`, color: mgrRatio > 15 ? "var(--warning)" : "var(--accent-primary)", metric: `${mgrRatio.toFixed(0)}%` });
       // Cost insights
-      if (fA.cost < cA.cost) { const savings = cA.cost - fA.cost; const pct = (savings / cA.cost * 100); insights.push({ type: "positive", title: `$${(savings / 1e6).toFixed(1)}M Annual Savings (${pct.toFixed(0)}%)`, body: `The ${sc.label} scenario achieves labor cost reduction through structural efficiency. At current compensation levels, removing ${cA.hc - fA.hc} positions saves $${(savings / 1e6).toFixed(2)}M/year. Break-even on restructuring costs (est. $${((cA.hc - fA.hc) * 50000 / 1e6).toFixed(1)}M severance) within ${Math.ceil(((cA.hc - fA.hc) * 50000) / savings * 12)} months.`, color: "var(--success)", metric: `$${(savings / 1e6).toFixed(1)}M` }); }
-      if (fA.cost > cA.cost) { const increase = fA.cost - cA.cost; insights.push({ type: "warning", title: `$${(increase / 1e6).toFixed(1)}M Cost Increase`, body: `The ${sc.label} scenario adds ${fA.hc - cA.hc} headcount costing $${(increase / 1e6).toFixed(2)}M/year. Verify this represents strategic investment (new capabilities, growth functions) rather than structural bloat.`, color: "var(--warning)", metric: `+$${(increase / 1e6).toFixed(1)}M` }); }
+      if (fA.cost < cA.cost) { const savings = cA.cost - fA.cost; const pct = (savings / Math.max(cA.cost, 1) * 100); insights.push({ type: "positive", title: `${fmtNum(savings)} Annual Savings (${pct.toFixed(0)}%)`, body: `The ${sc.label} scenario achieves labor cost reduction through structural efficiency. At current compensation levels, removing ${cA.hc - fA.hc} positions saves ${fmtNum(savings)}/year. Break-even on restructuring costs (est. ${fmtNum((cA.hc - fA.hc) * 50000)} severance) within ${Math.ceil(((cA.hc - fA.hc) * 50000) / Math.max(savings, 1) * 12)} months.`, color: "var(--success)", metric: `${fmtNum(savings)}` }); }
+      if (fA.cost > cA.cost) { const increase = fA.cost - cA.cost; insights.push({ type: "warning", title: `${fmtNum(increase)} Cost Increase`, body: `The ${sc.label} scenario adds ${fA.hc - cA.hc} headcount costing ${fmtNum(increase)}/year. Verify this represents strategic investment (new capabilities, growth functions) rather than structural bloat.`, color: "var(--warning)", metric: `+${fmtNum(increase)}` }); }
       // Largest department
-      const largest = [...currentData].sort((a, b) => b.headcount - a.headcount)[0];
-      const smallest = [...currentData].sort((a, b) => a.headcount - b.headcount)[0];
-      insights.push({ type: "info", title: `Concentration Risk: ${largest.name}`, body: `${largest.name} holds ${Math.round(largest.headcount / cA.hc * 100)}% of total headcount (${largest.headcount}/${cA.hc}). ${largest.headcount / cA.hc > 0.3 ? "This concentration exceeds 30% — consider whether this function warrants sub-division to improve resilience." : "Concentration is within acceptable range."} Smallest function: ${smallest.name} (${smallest.headcount}, ${Math.round(smallest.headcount / cA.hc * 100)}%).`, color: "var(--accent-primary)", metric: `${Math.round(largest.headcount / cA.hc * 100)}%` });
+      const largest = [...currentData].sort((a, b) => b.headcount - a.headcount)[0] || { name: "—", headcount: 0 };
+      const smallest = [...currentData].sort((a, b) => a.headcount - b.headcount)[0] || { name: "—", headcount: 0 };
+      insights.push({ type: "info", title: `Concentration Risk: ${largest.name}`, body: `${largest.name} holds ${Math.round(largest.headcount / Math.max(cA.hc, 1) * 100)}% of total headcount (${largest.headcount}/${cA.hc}). ${largest.headcount / Math.max(cA.hc, 1) > 0.3 ? "This concentration exceeds 30% — consider whether this function warrants sub-division to improve resilience." : "Concentration is within acceptable range."} Smallest function: ${smallest.name} (${smallest.headcount}, ${Math.round(smallest.headcount / Math.max(cA.hc, 1) * 100)}%).`, color: "var(--accent-primary)", metric: `${Math.round(largest.headcount / Math.max(cA.hc, 1) * 100)}%` });
       // IC to Manager ratio by department
-      const worstIMRatio = [...currentData].sort((a, b) => (a.ics / Math.max(a.managers, 1)) - (b.ics / Math.max(b.managers, 1)))[0];
-      const bestIMRatio = [...currentData].sort((a, b) => (b.ics / Math.max(b.managers, 1)) - (a.ics / Math.max(a.managers, 1)))[0];
+      const worstIMRatio = [...currentData].sort((a, b) => (a.ics / Math.max(a.managers, 1)) - (b.ics / Math.max(b.managers, 1)))[0] || { name: "—", ics: 0, managers: 1 };
+      const bestIMRatio = [...currentData].sort((a, b) => (b.ics / Math.max(b.managers, 1)) - (a.ics / Math.max(a.managers, 1)))[0] || { name: "—", ics: 0, managers: 1 };
       insights.push({ type: "info", title: "IC-to-Manager Disparity", body: `Widest gap: ${bestIMRatio.name} has ${(bestIMRatio.ics / Math.max(bestIMRatio.managers, 1)).toFixed(1)} ICs per manager vs ${worstIMRatio.name} at ${(worstIMRatio.ics / Math.max(worstIMRatio.managers, 1)).toFixed(1)}. Standardizing ratios could improve equity and reduce role confusion.`, color: "var(--accent-primary)" });
       // FTE ratio
       const avgFte = currentData.reduce((s, d) => s + d.fteRatio, 0) / currentData.length;
       const lowFte = currentData.filter(d => d.fteRatio < 0.8);
       if (lowFte.length > 0) insights.push({ type: "warning", title: `High Contractor Reliance`, body: `${lowFte.map(d => `${d.name} (${Math.round(d.fteRatio * 100)}% FTE)`).join(", ")} — FTE ratio below 80% indicates dependency on contingent workforce. Consider converting key contractor roles to FTE for knowledge retention.`, color: "var(--warning)", metric: `${Math.round(avgFte * 100)}% avg` });
       // Scenario-specific
-      insights.push({ type: "info", title: `${sc.label} Scenario Summary`, body: `This scenario changes headcount from ${cA.hc} → ${fA.hc} (${fA.hc > cA.hc ? "+" : ""}${fA.hc - cA.hc}), adjusts average span from ${cA.avgS.toFixed(1)} → ${fA.avgS.toFixed(1)}, and shifts cost from $${(cA.cost / 1e6).toFixed(1)}M → $${(fA.cost / 1e6).toFixed(1)}M. The primary lever is ${fA.avgL < cA.avgL ? "layer compression" : fA.hc < cA.hc ? "headcount reduction" : "span optimization"}.`, color: "var(--accent-primary)" });
+      insights.push({ type: "info", title: `${sc.label} Scenario Summary`, body: `This scenario changes headcount from ${cA.hc} → ${fA.hc} (${fA.hc > cA.hc ? "+" : ""}${fA.hc - cA.hc}), adjusts average span from ${cA.avgS.toFixed(1)} → ${fA.avgS.toFixed(1)}, and shifts cost from ${fmtNum(cA.cost)} → ${fmtNum(fA.cost)}. The primary lever is ${fA.avgL < cA.avgL ? "layer compression" : fA.hc < cA.hc ? "headcount reduction" : "span optimization"}.`, color: "var(--accent-primary)" });
 
       if (!insights.length) insights.push({ type: "info", title: "No Major Flags", body: "Current scenario changes are within normal ranges.", color: "var(--accent-primary)" });
       return <div>
@@ -1369,7 +1369,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
   const layerColors: Record<string,string> = { Governance: "var(--risk)", Core: "var(--accent-primary)", Shared: "var(--success)", Enabling: "var(--purple)", Interface: "var(--warning)" };
 
   return <div>
-    <PageHeader icon="🧬" title="Operating Model Lab" subtitle="Design your target operating model with AI-era frameworks" onBack={onBack} />
+    <PageHeader icon="🧬" title="Operating Model Lab" subtitle="Design your target operating model with AI-era frameworks" onBack={onBack} moduleId="opmodel" />
     {/* OM Lab ↔ Canvas Toggle */}
     <div className="flex items-center gap-2 mb-4">
       <div className="flex rounded-xl overflow-hidden border border-[var(--border)]" style={{ background: "var(--surface-2)" }}>
