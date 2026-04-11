@@ -329,10 +329,10 @@ const ANNO_COLORS = [
   { id: "purple", hex: "#8B5CF6", label: "Action" },
 ];
 
-export function AnnotationLayer({ annotations, moduleId, onAdd, onUpdate, onDelete, annotateMode }: {
+export function AnnotationLayer({ annotations, moduleId, onAdd, onUpdate, onDelete, annotateMode, children }: {
   annotations: Annotation[]; moduleId: string;
   onAdd: (a: Annotation) => void; onUpdate: (a: Annotation) => void; onDelete: (id: string) => void;
-  annotateMode: boolean;
+  annotateMode: boolean; children?: React.ReactNode;
 }) {
   const [creating, setCreating] = useState<{ x: number; y: number } | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -412,6 +412,7 @@ export function AnnotationLayer({ annotations, moduleId, onAdd, onUpdate, onDele
         </div>
       </motion.div>
     </div>}
+    {children}
   </div>;
 }
 
