@@ -825,9 +825,84 @@ export function AiEspressoButton({ moduleId, contextData, viewMode: vMode }: { m
 /* ═══════════════════════════════════════════════════════════════
    VIEW SELECTOR — Choose perspective before entering the tool
    ═══════════════════════════════════════════════════════════════ */
-export function ViewSelector({ onSelect, employees, jobs, filterOptions, onBack }: { 
-  onSelect: (mode: string, detail?: Record<string, string>) => void; 
-  employees: string[]; 
+/* ═══ GUIDE MODAL — role-specific guidance ═══ */
+export function GuideModal({ type, onClose }: { type: "consultant" | "hr"; onClose: () => void }) {
+  const [tab, setTab] = useState(0);
+  useEffect(() => { const h = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); }; window.addEventListener("keydown", h); return () => window.removeEventListener("keydown", h); }, [onClose]);
+
+  const consultantTabs = [
+    { label: "Analyst", icon: "📊", content: [
+      { title: "Your Role", body: "You're the engine room. Responsible for data integrity, tool execution, and deliverable production. You make sure the right data is loaded, the right analysis runs, and outputs are client-ready." },
+      { title: "What You Do in This Tool", body: "Load client data via Upload Files. Run every module in sequence: Overview → Diagnose → Design → Simulate → Mobilize. Export outputs as Excel, PowerPoint, and PDF. Maintain the decision log — document every assumption." },
+      { title: "Your Typical Day", body: "Morning: load updated data from client. Mid-day: run Diagnose modules, flag issues to your Associate. Afternoon: build slides from the Export tab, update the project tracker." },
+      { title: "Common Mistakes", body: "Not validating data before running analysis. Forgetting to document assumptions in the decision log. Sending raw tool outputs without formatting for the audience." },
+      { title: "How to Level Up", body: "Master every module deeply. Be the person who knows the tool cold. Develop a point of view on the data — don't just run it, interpret it." },
+    ]},
+    { label: "Associate", icon: "💼", content: [
+      { title: "Your Role", body: "You own workstream delivery. Running modules, interpreting outputs, and starting to have direct client interaction on your workstream." },
+      { title: "What You Do", body: "Everything an Analyst does, PLUS: interpret results and form hypotheses. Present findings in team check-ins. Draft the storyboard for client deliverables. Own specific modules end-to-end." },
+      { title: "Managing Down", body: "You may have an Analyst supporting you. Delegate data loading, QA, and formatting. Review their work before it goes to the Senior Associate." },
+      { title: "Managing Up", body: "Flag risks and surprises early. Don't wait for the weekly check-in. Come with a recommendation, not just the problem." },
+    ]},
+    { label: "Principal", icon: "🎯", content: [
+      { title: "Your Role", body: "You sell AND deliver. You own the client relationship and are accountable for quality and impact. Your team is in the tool daily — you're in it when you need to QA or prepare for a client meeting." },
+      { title: "Selling with This Tool", body: "Use sandbox demos to show prospects what's possible. Walk through a realistic scenario in a sales meeting. Focus on outcomes and insights, not features." },
+      { title: "Using Insights", body: "You rarely show the tool in client meetings. Instead, take the insights and weave them into the story: 'Our analysis shows 45% of your Finance tasks have high automation potential.'" },
+    ]},
+    { label: "Partner", icon: "👔", content: [
+      { title: "Your Role", body: "Relationships, strategy, and implications. You're not in the tool — you use the insights to guide clients on strategic decisions." },
+      { title: "How You Use This Tool", body: "Review the Transformation Dashboard for headline metrics. Read AI-generated executive summaries. Review the steering committee deck from Export. Ask your Principal: 'What surprised you?'" },
+    ]},
+  ];
+
+  const hrTabs = [
+    { label: "HRBP", icon: "🤝", content: [
+      { title: "Your Role", body: "You translate business needs into people strategies. Use this tool to understand your business unit's workforce and plan changes." },
+      { title: "Key Modules", body: "Focus on: Workforce Snapshot (filtered to your function), Change Readiness, Skills Gap Analysis, Reskilling Pathways." },
+      { title: "Presenting to Leaders", body: "Use the Export tab to generate function-specific reports. The Transformation Dashboard gives you the headline metrics your business leader needs." },
+    ]},
+    { label: "Transformation Lead", icon: "🚀", content: [
+      { title: "Your Role", body: "This is YOUR command center — you'll use every module. Structure your program using the 5 phases: Discover → Diagnose → Design → Simulate → Mobilize." },
+      { title: "Program Management", body: "Use the Change Planner Gantt chart to track timelines. The Risk Register captures and monitors program risks. The Decision Log creates accountability." },
+      { title: "Reporting", body: "The Transformation Dashboard is your steering committee update. Export it monthly. Use Scenario Comparison to show the board different options." },
+    ]},
+    { label: "CHRO", icon: "👑", content: [
+      { title: "Your Role", body: "You need the 30,000-foot view. Dashboards, executive summaries, and the business case for transformation." },
+      { title: "Key Views", body: "Focus on: Transformation Dashboard, Export (executive summary), ROI Calculator in Simulate. Use AI Espresso to ask quick questions about the data." },
+      { title: "Board Presentations", body: "The Export tab generates board-ready decks. The PDF executive summary is a one-page overview. Screenshot the Transformation Dashboard for monthly updates." },
+    ]},
+    { label: "Line Manager", icon: "👥", content: [
+      { title: "Your Role", body: "Understand how transformation affects YOUR team. Focus on impact assessments, reskilling plans, and timeline." },
+      { title: "Key Modules", body: "Workforce Snapshot (filtered to your function), Change Readiness for your team, Reskilling Pathways for your direct reports." },
+    ]},
+  ];
+
+  const tabs = type === "consultant" ? consultantTabs : hrTabs;
+  const cur = tabs[tab];
+  return <div style={{ position: "fixed", inset: 0, zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.7)", backdropFilter: "blur(6px)" }} onClick={onClose}>
+    <div style={{ width: "90%", maxWidth: 800, maxHeight: "85vh", background: "var(--surface-1)", borderRadius: 20, border: "1px solid var(--border)", overflow: "hidden", display: "flex", flexDirection: "column" }} onClick={e => e.stopPropagation()}>
+      <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
+        <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>{type === "consultant" ? "📘 Consultant Guide" : "📗 HR Professional Guide"}</h2>
+        <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: 8, background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text-muted)", fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
+      </div>
+      {/* Tabs */}
+      <div style={{ display: "flex", gap: 4, padding: "8px 16px", borderBottom: "1px solid var(--border)", flexShrink: 0, overflowX: "auto" }}>
+        {tabs.map((t, i) => <button key={t.label} onClick={() => setTab(i)} style={{ padding: "6px 14px", borderRadius: 10, fontSize: 14, fontWeight: tab === i ? 700 : 500, background: tab === i ? "rgba(212,134,10,0.1)" : "transparent", color: tab === i ? "var(--accent-primary)" : "var(--text-muted)", border: "none", cursor: "pointer", whiteSpace: "nowrap" }}>{t.icon} {t.label}</button>)}
+      </div>
+      {/* Content */}
+      <div style={{ flex: 1, overflowY: "auto", padding: "20px 24px" }}>
+        {cur && cur.content.map((s, i) => <div key={i} style={{ marginBottom: 20 }}>
+          <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)", marginBottom: 6 }}>{s.title}</h3>
+          <p style={{ fontSize: 15, lineHeight: 1.7, color: "var(--text-secondary)" }}>{s.body}</p>
+        </div>)}
+      </div>
+    </div>
+  </div>;
+}
+
+export function ViewSelector({ onSelect, employees, jobs, filterOptions, onBack }: {
+  onSelect: (mode: string, detail?: Record<string, string>) => void;
+  employees: string[];
   jobs: string[];
   filterOptions: Record<string, string[]>;
   onBack: () => void;
@@ -835,6 +910,7 @@ export function ViewSelector({ onSelect, employees, jobs, filterOptions, onBack 
   const [revealed, setRevealed] = useState(false);
   const [customExpanded, setCustomExpanded] = useState(false);
   const [customFilters, setCustomFilters] = useState({ func: "All", jf: "All", sf: "All", cl: "All", ct: "All" });
+  const [guideOpen, setGuideOpen] = useState<"consultant" | "hr" | null>(null);
 
   const views = [
     { id: "org", icon: "🏢", title: "Organization", desc: "Full org analysis — all functions, roles, and employees", color: "#D4860A", ready: true },
@@ -909,8 +985,23 @@ export function ViewSelector({ onSelect, employees, jobs, filterOptions, onBack 
             <button onClick={() => onSelect("custom", customFilters)} className="px-5 py-2.5 rounded-xl text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #F97316, #EA580C)" }}>Apply & Enter →</button>
           </div>
         </div>}
+
+        {/* Guide cards */}
+        <div className="flex gap-3 mt-4">
+          <button onClick={() => setGuideOpen("consultant")} className="flex-1 flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:translate-y-[-1px]" style={{ background: "rgba(212,134,10,0.06)", backdropFilter: "blur(12px)", border: "1px solid rgba(212,134,10,0.12)" }} onMouseEnter={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.3)"} onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.12)"}>
+            <span style={{ fontSize: 22 }}>📘</span>
+            <div className="text-left"><div className="text-[15px] font-bold" style={{ color: "rgba(255,230,200,0.8)" }}>Consultant Guide</div><div className="text-[14px]" style={{ color: "rgba(255,230,200,0.3)" }}>Role-specific guidance</div></div>
+          </button>
+          <button onClick={() => setGuideOpen("hr")} className="flex-1 flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:translate-y-[-1px]" style={{ background: "rgba(16,185,129,0.06)", backdropFilter: "blur(12px)", border: "1px solid rgba(16,185,129,0.1)" }} onMouseEnter={e => e.currentTarget.style.borderColor = "rgba(16,185,129,0.25)"} onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(16,185,129,0.1)"}>
+            <span style={{ fontSize: 22 }}>📗</span>
+            <div className="text-left"><div className="text-[15px] font-bold" style={{ color: "rgba(200,255,220,0.8)" }}>HR Professional Guide</div><div className="text-[14px]" style={{ color: "rgba(200,255,220,0.3)" }}>For HRBPs, CHROs, leads</div></div>
+          </button>
+        </div>
       </div>
     </div>}
+
+    {/* Guide modal */}
+    {guideOpen && <GuideModal type={guideOpen} onClose={() => setGuideOpen(null)} />}
   </div>;
 }
 

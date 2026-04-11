@@ -249,91 +249,128 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
   const totalExplored = PHASES.reduce((s, p) => s + p.modules.filter(id => (moduleStatus[id] || "not_started") !== "not_started").length, 0);
   const progressPct = totalModules > 0 ? Math.round((totalExplored / totalModules) * 100) : 0;
 
-  // Milestone positions matching the painted clearings on journey_bg.png (percentage-based)
-  const milestonePercents = [
-    { xPct: 12.5, yPct: 63.0 },  // Discover
-    { xPct: 29.2, yPct: 50.0 },  // Diagnose
-    { xPct: 47.9, yPct: 62.0 },  // Design
-    { xPct: 67.7, yPct: 50.9 },  // Simulate
-    { xPct: 86.5, yPct: 61.1 },  // Mobilize
+  // Milestone positions for the S-curve (percentage-based, responsive)
+  const nodes = [
+    { xPct: 12, yPct: 50 },   // Discover
+    { xPct: 30, yPct: 62 },   // Diagnose
+    { xPct: 50, yPct: 42 },   // Design
+    { xPct: 70, yPct: 60 },   // Simulate
+    { xPct: 88, yPct: 48 },   // Mobilize
   ];
 
-  // ── Journey Map — illustrated board game style ──
-  return <div className="relative min-h-[calc(100vh-48px)] overflow-hidden" style={{ backgroundImage: "url(/journey_bg.png)", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }}>
+  // SVG path through the nodes (smooth cubic beziers)
+  const svgW = 1000; const svgH = 300;
+  const svgNodes = nodes.map(n => ({ x: n.xPct / 100 * svgW, y: n.yPct / 100 * svgH }));
+  const pathSegments: string[] = [`M ${svgNodes[0].x} ${svgNodes[0].y}`];
+  for (let i = 0; i < svgNodes.length - 1; i++) {
+    const p0 = svgNodes[i]; const p1 = svgNodes[i + 1];
+    const cx = (p1.x - p0.x) * 0.4;
+    pathSegments.push(`C ${p0.x + cx} ${p0.y}, ${p1.x - cx} ${p1.y}, ${p1.x} ${p1.y}`);
+  }
+  const svgPath = pathSegments.join(" ");
 
-    {/* Scroll-up hint */}
-    {onBackToSplash && <div onClick={onBackToSplash} className="absolute top-0 left-0 right-0 z-20 flex justify-center py-2 cursor-pointer">
-      <div className="animate-pulse text-[15px]" style={{ color: "rgba(255,255,255,0.3)" }}>{"\u25B2"}</div>
-    </div>}
+  // ── Journey Map — CSS/SVG modern component ──
+  return <div className="relative min-h-[calc(100vh-48px)] flex flex-col overflow-hidden" style={{ background: "linear-gradient(180deg, #0f1729 0%, #1a2332 50%, #0f1729 100%)" }}>
+    {/* Ambient gradient orbs */}
+    <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 30% 50%, rgba(212,134,10,0.04) 0%, transparent 50%), radial-gradient(ellipse at 75% 25%, rgba(99,78,150,0.04) 0%, transparent 45%)" }} />
+    {/* Dot grid */}
+    <div className="absolute inset-0" style={{ backgroundImage: "radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px)", backgroundSize: "50px 50px" }} />
+    {/* Decorative geometry */}
+    <div className="absolute" style={{ top: "10%", right: "8%", width: 100, height: 100, border: "1px solid rgba(255,255,255,0.03)", borderRadius: 20, transform: "rotate(15deg)" }} />
+    <div className="absolute" style={{ bottom: "15%", left: "5%", width: 60, height: 60, border: "1px solid rgba(212,134,10,0.04)", transform: "rotate(45deg)" }} />
 
-    {/* Header overlay with dark gradient for readability */}
-    <div className="relative z-10 text-center pt-6 pb-4" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.15) 70%, transparent 100%)" }}>
-      {/* Breadcrumb */}
-      <div style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginBottom: 8, display: "flex", justifyContent: "center", gap: 6, alignItems: "center" }}>
-        {onBackToHub && <span onClick={onBackToHub} style={{ cursor: "pointer", transition: "color 0.2s" }} onMouseEnter={e => e.currentTarget.style.color = "#fbbf24"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.5)"}>Home</span>}
-        {onBackToHub && <span style={{ opacity: 0.4 }}>{"\u203A"}</span>}
-        {onBackToSplash && projectName && <span onClick={onBackToSplash} style={{ cursor: "pointer", transition: "color 0.2s" }} onMouseEnter={e => e.currentTarget.style.color = "#fbbf24"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.5)"}>
+    {/* Header */}
+    <div className="relative z-10 text-center pt-8 pb-2">
+      <div style={{ fontSize: 14, color: "rgba(255,255,255,0.35)", marginBottom: 10, display: "flex", justifyContent: "center", gap: 6 }}>
+        {onBackToHub && <span onClick={onBackToHub} style={{ cursor: "pointer" }} onMouseEnter={e => e.currentTarget.style.color = "#d97706"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.35)"}>Home</span>}
+        {onBackToHub && <span style={{ opacity: 0.3 }}>/</span>}
+        {onBackToSplash && projectName && <span onClick={onBackToSplash} style={{ cursor: "pointer" }} onMouseEnter={e => e.currentTarget.style.color = "#d97706"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.35)"}>
           {projectName}
         </span>}
-        {onBackToSplash && <span style={{ opacity: 0.4 }}>{"\u203A"}</span>}
-        <span style={{ color: "rgba(251,191,36,0.7)" }}>Journey Map</span>
+        {onBackToSplash && <span style={{ opacity: 0.3 }}>/</span>}
+        <span style={{ color: "rgba(217,119,6,0.6)" }}>Journey</span>
       </div>
-      <h1 style={{ fontSize: 28, fontWeight: 800, fontFamily: "'Outfit', sans-serif", color: "#fff", textShadow: "0 2px 12px rgba(0,0,0,0.5)" }}>Your Transformation Journey</h1>
-      <p style={{ fontSize: 15, color: "rgba(255,255,255,0.6)", textShadow: "0 1px 4px rgba(0,0,0,0.3)" }}>Click a milestone to explore its modules</p>
+      <h1 style={{ fontSize: 32, fontWeight: 800, fontFamily: "'Outfit', sans-serif", color: "#f0f0f5" }}>Your Transformation Journey</h1>
+      <p style={{ fontSize: 15, color: "rgba(255,255,255,0.4)", marginTop: 4 }}>Click a milestone to explore its modules</p>
     </div>
 
-    {/* Milestone game pieces — positioned on the painted clearings */}
-    <div className="absolute inset-0 z-10">
-      {PHASES.map((phase, pi) => {
-        const status = getPhaseStatus(phase);
-        const isCurrent = pi === activeIdx;
-        const isComplete = status === "complete";
-        const isReached = isComplete || isCurrent || status === "in_progress";
-        const pos = milestonePercents[pi];
-        return <button key={phase.id} onClick={() => setSelectedPhase(phase.id)} className="absolute group" style={{
-          left: `${pos.xPct}%`, top: `${pos.yPct}%`, transform: "translate(-50%, -50%)",
-          opacity: 0, animation: `msIn 0.5s ease ${0.3 + pi * 0.15}s forwards`,
-        }}>
-          {/* Game piece circle — white fill with colored border */}
-          <div style={{
-            width: 72, height: 72, borderRadius: "50%",
-            display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32,
-            background: isComplete ? "#fff" : "rgba(255,255,255,0.9)",
-            border: `3px solid ${isComplete ? "#D4860A" : isCurrent ? "#f59e0b" : "rgba(180,180,180,0.5)"}`,
-            boxShadow: isCurrent ? "0 4px 20px rgba(245,158,11,0.4), 0 0 0 4px rgba(245,158,11,0.15)" : "0 4px 16px rgba(0,0,0,0.3)",
-            transition: "all 0.2s",
-            animation: isCurrent ? "msPulse 2.5s ease-in-out infinite" : "none",
-          }}>
-            {isComplete ? <span style={{ fontSize: 28 }}>{"\u2713"}</span> : <span style={{ opacity: isReached ? 1 : 0.5 }}>{phase.icon}</span>}
-          </div>
-          {/* Label with dark background for readability */}
-          <div className="absolute left-1/2 -translate-x-1/2 text-center" style={{ top: "100%", marginTop: 6, width: 130 }}>
-            <div style={{ display: "inline-block", padding: "3px 10px", borderRadius: 8, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)" }}>
-              <div style={{ fontSize: 15, fontWeight: 700, fontFamily: "'Outfit', sans-serif", color: "#fff", textShadow: "0 1px 3px rgba(0,0,0,0.5)", whiteSpace: "nowrap" }}>{phase.label}</div>
-            </div>
-          </div>
-        </button>;
-      })}
+    {/* Roadmap area */}
+    <div className="relative z-10 flex-1 flex items-center justify-center px-8">
+      <div className="w-full" style={{ maxWidth: 1100 }}>
+        {/* SVG path */}
+        <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full" style={{ height: "auto", overflow: "visible" }}>
+          <defs>
+            <linearGradient id="pathGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#d97706" stopOpacity="0.7" />
+              <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.5" />
+            </linearGradient>
+            <filter id="pathGlow"><feGaussianBlur stdDeviation="3" /><feComposite in="SourceGraphic" /></filter>
+          </defs>
+          {/* Future path — dashed */}
+          <path d={svgPath} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="4" strokeLinecap="round" strokeDasharray="12 8" />
+          {/* Completed path — solid amber with glow */}
+          <path d={svgPath} fill="none" stroke="url(#pathGrad)" strokeWidth="6" strokeLinecap="round" style={{ filter: "url(#pathGlow)", strokeDasharray: "2000", strokeDashoffset: `${2000 - (activeIdx + 1) / 5 * 2000}`, animation: "drawPath 2s ease forwards" }} />
+        </svg>
+
+        {/* Milestone nodes — positioned over the SVG */}
+        <div className="absolute inset-0">
+          {PHASES.map((phase, pi) => {
+            const status = getPhaseStatus(phase);
+            const isCurrent = pi === activeIdx;
+            const isComplete = status === "complete";
+            const isReached = isComplete || isCurrent || status === "in_progress";
+            const n = nodes[pi];
+            return <button key={phase.id} onClick={() => setSelectedPhase(phase.id)} className="absolute group" style={{
+              left: `${n.xPct}%`, top: `${n.yPct}%`, transform: "translate(-50%, -50%)",
+              opacity: 0, animation: `nodeIn 0.5s ease ${0.4 + pi * 0.15}s forwards`,
+            }}>
+              <div className="relative">
+                {/* Glassmorphic circle */}
+                <div style={{
+                  width: 100, height: 100, borderRadius: "50%",
+                  display: "flex", alignItems: "center", justifyContent: "center", fontSize: 44,
+                  background: "rgba(255,255,255,0.04)",
+                  backdropFilter: "blur(20px)",
+                  border: `1.5px solid ${isComplete ? "#d97706" : isCurrent ? "rgba(217,119,6,0.5)" : "rgba(255,255,255,0.08)"}`,
+                  boxShadow: isCurrent ? "0 0 30px rgba(217,119,6,0.15), 0 0 60px rgba(217,119,6,0.05)" : "none",
+                  transition: "all 0.25s",
+                  animation: isCurrent ? "nodePulse 3s ease-in-out infinite" : "none",
+                  opacity: isReached ? 1 : 0.5,
+                }}>
+                  {isComplete ? <span style={{ color: "#d97706", fontSize: 36 }}>{"\u2713"}</span> : <span>{phase.icon}</span>}
+                </div>
+                {/* Completed badge */}
+                {isComplete && <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-[#10B981] flex items-center justify-center text-white text-[14px] font-bold">{"\u2713"}</div>}
+              </div>
+              {/* Label */}
+              <div className="text-center mt-3" style={{ width: 140, marginLeft: -20 }}>
+                <div style={{ fontSize: 18, fontWeight: 700, fontFamily: "'Outfit', sans-serif", color: isReached ? "#f0f0f5" : "rgba(255,255,255,0.25)" }}>{phase.label}</div>
+                <div style={{ fontSize: 14, color: isComplete ? "rgba(217,119,6,0.7)" : isCurrent ? "rgba(255,255,255,0.4)" : "rgba(255,255,255,0.12)", marginTop: 2 }}>{phase.desc}</div>
+              </div>
+            </button>;
+          })}
+        </div>
+      </div>
     </div>
 
-    {/* Bottom bar — CTA + progress */}
-    <div className="absolute bottom-0 left-0 right-0 z-20 text-center pb-5 pt-8" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)" }}>
-      <button onClick={() => setSelectedPhase(PHASES[activeIdx].id)} className="transition-all hover:translate-y-[-2px] mb-3" style={{ padding: "12px 36px", borderRadius: 14, fontSize: 15, fontWeight: 700, color: "rgba(180,100,10,1)", background: "rgba(255,255,255,0.9)", boxShadow: "0 4px 20px rgba(0,0,0,0.3)", border: "none", cursor: "pointer", backdropFilter: "blur(4px)" }}>
+    {/* Bottom: CTA + progress */}
+    <div className="relative z-10 text-center pb-8 pt-4">
+      <button onClick={() => setSelectedPhase(PHASES[activeIdx].id)} className="transition-all hover:translate-y-[-2px] mb-4" style={{ padding: "14px 40px", borderRadius: 14, fontSize: 16, fontWeight: 700, color: "#fff", background: "rgba(255,255,255,0.06)", backdropFilter: "blur(12px)", border: "1px solid rgba(217,119,6,0.3)", cursor: "pointer", boxShadow: "0 4px 20px rgba(0,0,0,0.2)" }} onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(217,119,6,0.6)"; e.currentTarget.style.boxShadow = "0 4px 24px rgba(217,119,6,0.15)"; }} onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(217,119,6,0.3)"; e.currentTarget.style.boxShadow = "0 4px 20px rgba(0,0,0,0.2)"; }}>
         {activeIdx === 0 ? "Begin with Discovery \u2192" : `Continue ${PHASES[activeIdx].label} \u2192`}
       </button>
-      <div className="inline-flex items-center gap-4 px-5 py-2 rounded-full" style={{ background: "rgba(0,0,0,0.35)", backdropFilter: "blur(4px)" }}>
-        <span style={{ fontSize: 14, fontWeight: 600, color: "rgba(251,191,36,0.8)" }}>Progress</span>
-        <div style={{ width: 60, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.15)", overflow: "hidden" }}>
-          <div style={{ width: `${progressPct}%`, height: "100%", borderRadius: 2, background: "#fbbf24" }} />
+      <div className="inline-flex items-center gap-4 px-5 py-2 rounded-full" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+        <div style={{ width: 60, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
+          <div style={{ width: `${progressPct}%`, height: "100%", borderRadius: 2, background: "#d97706" }} />
         </div>
-        <span style={{ fontSize: 14, fontWeight: 700, color: "#fbbf24" }}>{progressPct}%</span>
-        <span style={{ fontSize: 14, color: "rgba(255,255,255,0.4)" }}>{totalExplored}/{totalModules}</span>
+        <span style={{ fontSize: 14, fontWeight: 700, color: "#d97706" }}>{progressPct}%</span>
+        <span style={{ fontSize: 14, color: "rgba(255,255,255,0.3)" }}>{totalExplored}/{totalModules} modules</span>
       </div>
     </div>
 
     <style>{`
-      @keyframes msPulse { 0%,100% { box-shadow: 0 4px 20px rgba(245,158,11,0.4), 0 0 0 4px rgba(245,158,11,0.15); } 50% { box-shadow: 0 4px 28px rgba(245,158,11,0.6), 0 0 0 6px rgba(245,158,11,0.2); } }
-      @keyframes msIn { from { opacity: 0; transform: translate(-50%, -50%) scale(0.7); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+      @keyframes nodePulse { 0%,100% { box-shadow: 0 0 30px rgba(217,119,6,0.15), 0 0 60px rgba(217,119,6,0.05); border-color: rgba(217,119,6,0.5); } 50% { box-shadow: 0 0 40px rgba(217,119,6,0.25), 0 0 80px rgba(217,119,6,0.08); border-color: rgba(217,119,6,0.7); } }
+      @keyframes nodeIn { from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+      @keyframes drawPath { from { stroke-dashoffset: 2000; } }
     `}</style>
   </div>;
 }

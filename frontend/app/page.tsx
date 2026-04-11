@@ -14,7 +14,7 @@ import {
   PageHeader, LoadingBar, LoadingSkeleton, ModuleExportButton, NextStepBar,
   ContextStrip, InfoButton, ErrorBoundary, EmptyWithAction,
   ViewToggle, HelpBookAccordion, CareerFrameworkAccordion,
-  AiEspressoPanel, AiEspressoButton, ViewSelector, ViewJobPicker, ViewEmployeePicker,
+  AiEspressoPanel, AiEspressoButton, ViewSelector, ViewJobPicker, ViewEmployeePicker, GuideModal,
   usePersisted, useDebounce, useApiData, useDecisionLog, useRiskRegister,
   callAI, showToast, logDec, exportToCSV,
   setGlobalToast, setGlobalLogDecision,
@@ -365,6 +365,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
   const [showDecLog, setShowDecLog] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const accountMenuRef = useRef<HTMLDivElement>(null);
+  const [sidebarGuide, setSidebarGuide] = useState<"consultant" | "hr" | null>(null);
   const [showSplash, setShowSplash] = useState(() => {
     if (typeof window === "undefined") return false;
     try { return !sessionStorage.getItem(`${projectId}_splashSeen`); } catch { return true; }
@@ -640,6 +641,9 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
         <button onClick={() => setShowDecLog(!showDecLog)} className={`w-full text-left px-2 py-1.5 rounded-lg text-[15px] mb-1 flex items-center gap-2 transition-all ${showDecLog ? "bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] font-semibold" : "text-[var(--text-muted)] hover:bg-[var(--hover)]"}`}>
           <span className="text-[15px]">📝</span> Decision Log {decisionLog.length > 0 && <span className="text-[14px] px-1.5 py-0.5 rounded-full bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] font-bold">{decisionLog.length}</span>}
         </button>
+        <button onClick={() => setSidebarGuide("consultant")} className="w-full text-left px-2 py-1.5 rounded-lg text-[15px] mb-1 flex items-center gap-2 text-[var(--text-muted)] hover:bg-[var(--hover)] transition-all">
+          <span className="text-[15px]">📘</span> Guide
+        </button>
         <button onClick={() => { if (onShowPlatformHub) onShowPlatformHub(); }} className="w-full rounded-xl p-2.5 text-left transition-all group" style={{ background: "rgba(212,134,10,0.03)", border: "1px solid rgba(212,134,10,0.08)" }} onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(212,134,10,0.2)"; e.currentTarget.style.boxShadow = "0 0 12px rgba(212,134,10,0.06)"; }} onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(212,134,10,0.08)"; e.currentTarget.style.boxShadow = "none"; }}>
           <div className="text-[15px] font-bold font-heading group-hover:text-[var(--accent-primary)] transition-colors" style={{ color: "rgba(212,134,10,0.6)" }}>AI Transformation</div>
           <div className="text-[14px]" style={{ color: "rgba(212,134,10,0.3)" }}>Account & Info</div>
@@ -747,6 +751,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       </div>
     </div>}
 
+    {sidebarGuide && <GuideModal type={sidebarGuide} onClose={() => setSidebarGuide(null)} />}
     <ToastContainer />
   </div>;
 }
@@ -1337,18 +1342,6 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
             <div className="text-4xl" style={{ filter: "drop-shadow(0 2px 8px rgba(200,120,40,0.3))" }}>✨</div>
             <div className="text-[18px] font-bold text-white">New Project</div>
             <div className="text-[15px]" style={{ color: "rgba(255,220,180,0.4)" }}>Start a transformation</div>
-          </div>
-        </div>
-
-        {/* Guide cards — available after entering a project */}
-        <div className="flex gap-3 mb-5">
-          <div className="flex-1 flex items-center gap-3 px-5 py-3 rounded-xl" style={{ background: "rgba(212,134,10,0.04)", border: "1px solid rgba(212,134,10,0.08)" }}>
-            <span style={{ fontSize: 24 }}>📘</span>
-            <div><div className="text-[15px] font-bold" style={{ color: "rgba(255,230,200,0.7)" }}>Consultant Guide</div><div className="text-[14px]" style={{ color: "rgba(255,230,200,0.25)" }}>Available in Platform Hub after entering a project</div></div>
-          </div>
-          <div className="flex-1 flex items-center gap-3 px-5 py-3 rounded-xl" style={{ background: "rgba(16,185,129,0.04)", border: "1px solid rgba(16,185,129,0.08)" }}>
-            <span style={{ fontSize: 24 }}>📗</span>
-            <div><div className="text-[15px] font-bold" style={{ color: "rgba(200,255,220,0.7)" }}>HR Professional Guide</div><div className="text-[14px]" style={{ color: "rgba(200,255,220,0.25)" }}>Available in Platform Hub after entering a project</div></div>
           </div>
         </div>
 
