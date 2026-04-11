@@ -77,13 +77,19 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
 
 @auth_router.post("/login")
 def login(req: LoginRequest, db: Session = Depends(get_db)):
-    user = db.query(UserDB).filter(UserDB.username == req.username.lower().strip()).first()
+    try:
+        user = db.query(UserDB).filter(UserDB.username == req.username.lower().strip()).first()
+    except Exception:
+        raise HTTPException(status_code=503, detail="Login temporarily unavailable. Please try again.")
     if not user or not verify_password(req.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid username or password")
 
     prev_login = str(user.last_login) if user.last_login else None
     user.last_login = datetime.now(timezone.utc)
-    db.commit()
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
 
     token = create_access_token(user.id, user.username)
     return {

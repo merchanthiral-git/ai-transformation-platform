@@ -104,6 +104,10 @@ def _migrate_add_columns():
                 conn.execute(text("ALTER TABLE users ADD COLUMN last_login TIMESTAMP"))
             if "is_active" not in existing:
                 conn.execute(text("ALTER TABLE users ADD COLUMN is_active VARCHAR(5) DEFAULT 'true'"))
+            if "user_type" not in existing:
+                conn.execute(text("ALTER TABLE users ADD COLUMN user_type VARCHAR(50) DEFAULT ''"))
+            if "user_role" not in existing:
+                conn.execute(text("ALTER TABLE users ADD COLUMN user_role VARCHAR(100) DEFAULT ''"))
 
 try:
     _migrate_add_columns()
