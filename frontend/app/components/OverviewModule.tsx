@@ -250,7 +250,7 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode }: { o
   const pathD = `M ${milestonePts[0].x} ${milestonePts[0].y} C ${milestonePts[0].x + 100} ${milestonePts[0].y + 100}, ${milestonePts[1].x - 100} ${milestonePts[1].y}, ${milestonePts[1].x} ${milestonePts[1].y} C ${milestonePts[1].x + 100} ${milestonePts[1].y - 100}, ${milestonePts[2].x - 100} ${milestonePts[2].y}, ${milestonePts[2].x} ${milestonePts[2].y} C ${milestonePts[2].x + 100} ${milestonePts[2].y + 100}, ${milestonePts[3].x - 100} ${milestonePts[3].y}, ${milestonePts[3].x} ${milestonePts[3].y} C ${milestonePts[3].x + 100} ${milestonePts[3].y - 100}, ${milestonePts[4].x - 100} ${milestonePts[4].y}, ${milestonePts[4].x} ${milestonePts[4].y}`;
 
   // ── Journey Map (default home view) ──
-  return <div className="relative min-h-[calc(100vh-48px)] flex flex-col items-center justify-center overflow-hidden" style={{ background: "radial-gradient(ellipse at 50% 40%, rgba(30,20,10,0.95), rgba(10,8,6,1))" }}>
+  return <div className="relative min-h-[calc(100vh-48px)] flex flex-col items-center justify-center overflow-hidden" style={{ background: "radial-gradient(ellipse at 30% 60%, rgba(40,25,10,0.95) 0%, rgba(15,10,5,1) 60%), radial-gradient(ellipse at 60% 40%, rgba(212,134,10,0.04) 0%, transparent 50%)" }}>
 
     <div className="relative z-10 text-center w-full px-6" style={{ maxWidth: 1100 }}>
       <div className="text-[13px] font-bold uppercase tracking-[3px] mb-3" style={{ color: "rgba(212,134,10,0.4)" }}>Your Transformation Journey</div>

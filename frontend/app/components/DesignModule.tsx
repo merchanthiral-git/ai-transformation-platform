@@ -610,50 +610,96 @@ Rules:
   const inProgressJobs = jobs.filter(j => jobStates[j]?.deconSubmitted && !jobStates[j]?.finalized);
   const notStartedJobs = jobs.filter(j => !jobStates[j]?.deconSubmitted && !jobStates[j]?.finalized);
 
-  return <div>
-    <ContextStrip items={[
-      jobs.length ? `${jobs.length} jobs available from your uploaded data` : "No jobs found — upload Work Design data with Job Titles",
-      Object.values(jobStates || {}).filter(s => s.finalized).length > 0 ? `${Object.values(jobStates || {}).filter(s => s.finalized).length}/${jobs.length} jobs finalized` : "",
-      Object.values(jobStates || {}).filter(s => s.deconSubmitted && !s.finalized).length > 0 ? `${Object.values(jobStates || {}).filter(s => s.deconSubmitted && !s.finalized).length} in progress` : "",
-    ].filter(Boolean)} />
-    {!job && <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-2xl p-8 mb-5 text-center"><div className="text-3xl mb-3 opacity-40">✏️</div><h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">Select a Job to Begin</h3><p className="text-[13px] text-[var(--text-secondary)]">Choose a job from the sidebar to start deconstructing tasks and redesigning roles.</p></div>}
-    <PageHeader icon="✏️" title="Work Design Lab" subtitle={`Redesign tasks, roles, and time allocation${ctxLoading || deconLoading ? " · Loading..." : ""}`} onBack={onBack} moduleId="design" />
+  // ── Step definitions for the guided workflow ──
+  const steps = [
+    { id: "ctx", num: "①", label: "Context", done: js.initialized && js.deconRows.length > 0 },
+    { id: "decon", num: "②", label: "Deconstruction", done: js.deconSubmitted },
+    { id: "redeploy", num: "③", label: "Work Options", done: js.redeploySubmitted },
+    { id: "recon", num: "④", label: "Reconstruction", done: !!js.recon },
+    { id: "impact", num: "⑤", label: "Impact Summary", done: js.finalized },
+  ];
+  const [jobSearch, setJobSearch] = useState("");
+  const filteredJobs = jobSearch ? jobs.filter(j => j.toLowerCase().includes(jobSearch.toLowerCase())) : jobs;
 
-    {/* Job Inventory */}
-    <div className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl p-5 mb-5">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-[14px] font-bold font-heading text-[var(--text-primary)]">Job Inventory</h3>
-        <span className="text-[13px] text-[var(--text-secondary)]">{completedJobs.length}/{jobs.length} complete</span>
+  // ── STEP 0: Job Selector (no job selected) ──
+  if (!job) return <div style={{ background: "radial-gradient(ellipse at 50% 30%, rgba(212,134,10,0.04) 0%, transparent 60%)", minHeight: "calc(100vh - 48px)" }}>
+    <PageHeader icon="✏️" title="Work Design Lab" subtitle="Mercer Work Design methodology — select a job to begin analysis" onBack={onBack} moduleId="design" />
+
+    <div className="max-w-3xl mx-auto px-6">
+      <div className="text-center mb-8">
+        <div className="text-4xl mb-4">✏️</div>
+        <h2 className="text-[24px] font-bold font-heading text-[var(--text-primary)] mb-2">Select a Job to Analyze</h2>
+        <p className="text-[14px] text-[var(--text-secondary)]">Pick a role from your organization to walk through the structured work redesign process.</p>
       </div>
-      <div className="h-2 bg-[var(--surface-2)] rounded-full overflow-hidden mb-4">
-        <div className="h-full bg-[var(--success)] rounded-full transition-all" style={{ width: `${jobs.length ? (completedJobs.length / jobs.length) * 100 : 0}%` }} />
+
+      {/* Search */}
+      <div className="flex gap-3 mb-6">
+        <input value={jobSearch} onChange={e => setJobSearch(e.target.value)} placeholder="Search jobs..." className="flex-1 bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-3 text-[14px] text-[var(--text-primary)] outline-none focus:border-[var(--accent-primary)]/40 placeholder:text-[var(--text-muted)]" />
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-        {jobs.map(j => {
+
+      {/* Recently Analyzed */}
+      {(completedJobs.length > 0 || inProgressJobs.length > 0) && <div className="mb-6">
+        <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Recently Analyzed</div>
+        <div className="flex gap-2 flex-wrap">
+          {[...inProgressJobs, ...completedJobs].slice(0, 6).map(j => {
+            const st = jobStates[j]; const done = st?.finalized;
+            return <button key={j} onClick={() => onSelectJob(j)} className="px-3 py-2 rounded-lg border text-[12px] font-semibold transition-all hover:border-[var(--accent-primary)]/40" style={{ background: done ? "rgba(16,185,129,0.06)" : "rgba(212,134,10,0.06)", borderColor: done ? "rgba(16,185,129,0.2)" : "rgba(212,134,10,0.2)", color: done ? "var(--success)" : "var(--accent-primary)" }}>
+              {done ? "✓ " : "◐ "}{j}
+            </button>;
+          })}
+        </div>
+      </div>}
+
+      {/* Job Grid */}
+      <div className="grid grid-cols-2 gap-2">
+        {filteredJobs.map(j => {
           const st = jobStates[j];
           const status = st?.finalized ? "complete" : st?.deconSubmitted ? "in_progress" : "not_started";
-          const dot = status === "complete" ? "●" : status === "in_progress" ? "◐" : "○";
           const dotColor = status === "complete" ? "var(--success)" : status === "in_progress" ? "var(--accent-primary)" : "var(--text-muted)";
-          const label = status === "complete" ? "Finalized" : status === "in_progress" ? (st?.redeploySubmitted ? "Redeployed" : "Decon submitted") : "Not started";
-          const isActive = j === job;
-          return <div key={j} onClick={() => onSelectJob(j)} className={`px-3 py-2 rounded-lg border text-[12px] cursor-pointer hover:border-[var(--accent-primary)]/50 transition-all ${isActive ? "border-[var(--accent-primary)] bg-[rgba(212,134,10,0.08)]" : "border-[var(--border)] bg-[var(--surface-2)]"}`}>
-            <div className="flex items-center gap-2"><span style={{ color: dotColor }} className="text-[14px]">{dot}</span><span className={`font-semibold truncate ${isActive ? "text-[var(--accent-primary)]" : "text-[var(--text-primary)]"}`}>{j}</span></div>
-            <div className="text-[11px] text-[var(--text-muted)] mt-0.5 pl-5">{label}</div>
-          </div>;
+          return <button key={j} onClick={() => onSelectJob(j)} className="text-left px-4 py-3 rounded-xl border border-[var(--border)] bg-[var(--surface-1)] transition-all hover:border-[var(--accent-primary)]/40 hover:translate-y-[-1px]">
+            <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full shrink-0" style={{ background: dotColor }} /><span className="text-[13px] font-semibold text-[var(--text-primary)] truncate">{j}</span></div>
+          </button>;
         })}
       </div>
       {!jobs.length && <Empty text="No jobs found — upload Work Design data with Job Titles" icon="📭" />}
+
+      {/* Progress */}
+      {jobs.length > 0 && <div className="mt-6 text-center text-[11px] text-[var(--text-muted)]">{completedJobs.length}/{jobs.length} jobs finalized · {inProgressJobs.length} in progress</div>}
+    </div>
+  </div>;
+
+  // ── Main Workspace (job selected) ──
+  return <div className="flex gap-0" style={{ minHeight: "calc(100vh - 48px)" }}>
+    {/* Left: Step Navigator */}
+    <div className="w-48 shrink-0 bg-[var(--surface-1)] border-r border-[var(--border)] py-5 px-3 flex flex-col">
+      <button onClick={() => onSelectJob("")} className="text-[11px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mb-4 transition-colors">← All Jobs</button>
+      <div className="text-[10px] font-bold text-[var(--accent-primary)] uppercase tracking-wider mb-1 truncate">{job}</div>
+      <div className="text-[9px] text-[var(--text-muted)] mb-4">{meta.Function || "—"} · {meta["Career Level"] || "—"}</div>
+      <div className="space-y-1 flex-1">
+        {steps.map((s, si) => {
+          const isActive = wdTab === s.id;
+          const canGo = si === 0 || steps[si - 1].done;
+          return <button key={s.id} onClick={() => canGo && setWdTab(s.id)} className="w-full text-left px-3 py-2 rounded-lg text-[11px] transition-all flex items-center gap-2" style={{ background: isActive ? "rgba(212,134,10,0.1)" : "transparent", color: isActive ? "var(--accent-primary)" : canGo ? "var(--text-secondary)" : "var(--text-muted)", cursor: canGo ? "pointer" : "not-allowed", opacity: canGo ? 1 : 0.4 }}>
+            <span className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0" style={{ background: s.done ? "var(--success)" : isActive ? "var(--accent-primary)" : "var(--surface-2)", color: s.done || isActive ? "#fff" : "var(--text-muted)", border: `1.5px solid ${s.done ? "var(--success)" : isActive ? "var(--accent-primary)" : "var(--border)"}` }}>{s.done ? "✓" : si + 1}</span>
+            <span className="font-semibold truncate">{s.label}</span>
+          </button>;
+        })}
+      </div>
+      <div className="mt-auto pt-3 border-t border-[var(--border)]">
+        <div className="text-[9px] text-[var(--text-muted)] mb-1">{steps.filter(s => s.done).length}/{steps.length} steps complete</div>
+        <div className="h-1 bg-[var(--surface-2)] rounded-full overflow-hidden"><div className="h-full rounded-full bg-[var(--success)] transition-all" style={{ width: `${(steps.filter(s => s.done).length / steps.length) * 100}%` }} /></div>
+      </div>
     </div>
 
-    {!job ? <Empty text="Select a job from the sidebar to begin" icon="✏️" /> : <>
-      {/* Active job bar */}
-      <div className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl px-5 py-3 mb-4 flex items-center gap-4 flex-wrap">
-        <span className="font-semibold text-[14px] text-[var(--accent-primary)]">{job}</span>
-        <span className="text-[13px] text-[var(--text-secondary)]">{js.deconRows.length} tasks · {String(k.hours_week ?? 0)}h/wk · Scenario: {js.scenario}</span>
-        <div className="ml-auto flex items-center gap-2"><Badge color={js.deconSubmitted ? "green" : "gray"}>Decon {js.deconSubmitted ? "✓" : "○"}</Badge><Badge color={js.redeploySubmitted ? "green" : "gray"}>Redeploy {js.redeploySubmitted ? "✓" : "○"}</Badge><Badge color={js.finalized ? "green" : "gray"}>Final {js.finalized ? "✓" : "○"}</Badge></div>
-      </div>
-
-      <TabBar tabs={[{ id: "ctx", label: "① Context" }, { id: "decon", label: "② Deconstruction" }, { id: "redeploy", label: "③ Redeployment" }, { id: "recon", label: "④ Reconstruction" }, { id: "impact", label: "⑤ Impact" }]} active={wdTab} onChange={setWdTab} />
+    {/* Right: Content */}
+    <div className="flex-1 overflow-auto">
+      <div className="px-6 py-5">
+        {/* Active job confirmation bar */}
+        <div className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl px-5 py-3 mb-4 flex items-center gap-4 flex-wrap">
+          <span className="font-semibold text-[14px] text-[var(--accent-primary)]">{job}</span>
+          <span className="text-[13px] text-[var(--text-secondary)]">{js.deconRows.length} tasks · {String(k.hours_week ?? 0)}h/wk · Scenario: {js.scenario}</span>
+          <div className="ml-auto flex items-center gap-2"><Badge color={js.deconSubmitted ? "green" : "gray"}>Decon {js.deconSubmitted ? "✓" : "○"}</Badge><Badge color={js.redeploySubmitted ? "green" : "gray"}>Redeploy {js.redeploySubmitted ? "✓" : "○"}</Badge><Badge color={js.finalized ? "green" : "gray"}>Final {js.finalized ? "✓" : "○"}</Badge></div>
+        </div>
 
       {wdTab === "ctx" && <div>
         {js.deconRows.length === 0 && <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-xl px-5 py-3 mb-4 flex items-center justify-between">
@@ -792,8 +838,9 @@ Rules:
       {wdTab === "recon" && (() => { const r = js.recon; const ac = ((r?.action_counts ?? {}) as Record<string, number>); const wf = ((r?.waterfall ?? {}) as Record<string, number>); const detail = ((r?.reconstruction ?? []) as Record<string, unknown>[]); const rollup = ((r?.rollup ?? []) as Record<string, unknown>[]); const recs = ((r?.recommendations ?? []) as string[]); return !js.redeploySubmitted ? <Empty text="Submit Redeployment first" icon="🔒" /> : <div><div className="grid grid-cols-4 gap-3 mb-5"><KpiCard label="Automate" value={ac.Automate ?? 0} accent /><KpiCard label="Augment" value={ac.Augment ?? 0} /><KpiCard label="Redesign" value={ac.Redesign ?? 0} /><KpiCard label="Retain" value={ac.Retain ?? 0} /></div><div className="grid grid-cols-12 gap-4 mb-5"><div className="col-span-5"><Card title="Reconstruction Rollup">{rollup.length ? <DataTable data={rollup} /> : <Empty text="Building..." icon="🧱" />}</Card></div><div className="col-span-3"><Card title="Capacity Waterfall">{Object.keys(wf).length ? <div className="flex items-end gap-2 h-40">{Object.entries(wf).map(([n, v], i) => <div key={n} className="flex-1 flex flex-col items-center justify-end"><div className="text-[11px] font-semibold text-[var(--text-secondary)] mb-1">{Number(v).toFixed(1)}h</div><div className="w-full rounded-t" style={{ height: `${Math.max((Number(v) / Math.max(Number(wf.current) || 1, 1)) * 100, 4)}%`, background: COLORS[i % COLORS.length] }} /><div className="text-[10px] text-[var(--text-muted)] mt-1 truncate w-full text-center">{n}</div></div>)}</div> : <Empty text="Building..." icon="📊" />}</Card></div><div className="col-span-4"><InsightPanel title="Recommendations" items={recs.length ? recs : ["Building..."]} icon="🎯" /></div></div><Card title="Future-State Detail"><DataTable data={detail} /></Card><div className="mt-4 flex justify-end"><button disabled={!js.redeploySubmitted || js.finalized} onClick={() => setJobState(job, { finalized: true })} className={`px-4 py-2 rounded-md text-[13px] font-semibold ${js.finalized ? "bg-[var(--success)] text-white" : "bg-[var(--success)] text-white hover:opacity-90"}`}>{js.finalized ? "✓ Finalized" : "Finalize Work Design"}</button></div></div>; })()}
 
       {wdTab === "impact" && (() => { const r = js.recon; const ins = ((r?.insights ?? []) as Record<string, unknown>[]); const vm = ((r?.value_model ?? {}) as Record<string, unknown>); return !js.redeploySubmitted ? <Empty text="Submit Redeployment to unlock" icon="🔒" /> : <div><div className="grid grid-cols-4 gap-3 mb-5"><KpiCard label="Current" value={r?.total_current_hrs as number ?? 0} /><KpiCard label="Future" value={r?.total_future_hrs as number ?? 0} /><KpiCard label="Released" value={((r?.total_current_hrs as number ?? 0) - (r?.total_future_hrs as number ?? 0)).toFixed(1)} accent /><KpiCard label="Evolution" value={String(r?.evolution ?? "—")} /></div><div className="grid grid-cols-2 gap-4"><Card title="Transformation Insights"><DataTable data={ins} cols={["Category", "Metric", "Value", "Interpretation"]} /></Card><Card title="Value Model">{Object.keys(vm).length ? <div className="space-y-2">{Object.entries(vm).map(([n, v]) => <div key={n} className="flex justify-between text-[13px]"><span className="text-[var(--text-secondary)]">{n}</span><span className="font-semibold">{String(v)}</span></div>)}</div> : <Empty text="Computing..." />}</Card></div></div>; })()}
-    </>}
     <NextStepBar currentModuleId="design" onNavigate={onBack} />
+      </div>
+    </div>
   </div>;
 }
 

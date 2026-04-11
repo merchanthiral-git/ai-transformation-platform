@@ -365,6 +365,10 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
   const [showDecLog, setShowDecLog] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const accountMenuRef = useRef<HTMLDivElement>(null);
+  const [showSplash, setShowSplash] = useState(() => {
+    if (typeof window === "undefined") return false;
+    try { return !sessionStorage.getItem(`${projectId}_splashSeen`); } catch { return true; }
+  });
   const [decLogFilter, setDecLogFilter] = useState("All");
   setGlobalToast(toast);
   setGlobalLogDecision(logDecision);
@@ -574,6 +578,28 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
 
   // Platform Hub — handled by parent Page component now
   if (page === "hub" && onShowPlatformHub) { onShowPlatformHub(); setPage("home"); }
+
+  // ── Landing splash screen — full-screen background, click to enter ──
+  if (showSplash && page === "home") {
+    const viewLabel = viewMode === "employee" ? "Employee View" : viewMode === "job" ? "Job View" : viewMode === "custom" ? "Custom Slice" : "Organization View";
+    return <div onClick={() => { setShowSplash(false); try { sessionStorage.setItem(`${projectId}_splashSeen`, "1"); } catch {} }} style={{ position: "fixed", inset: 0, cursor: "pointer", zIndex: 30 }}>
+      <div style={{ position: "absolute", inset: 0, backgroundImage: "url(/landing_bg.png)", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat", animation: "splashIn 0.8s ease" }} />
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0.5) 100%)" }} />
+      <div style={{ position: "relative", zIndex: 1, height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "48px 40px" }}>
+        <div>
+          <h1 style={{ fontSize: 36, fontWeight: 800, color: "#fff", fontFamily: "'Outfit', sans-serif", textShadow: "0 2px 24px rgba(0,0,0,0.5)", marginBottom: 8 }}>{projectName}</h1>
+          <div style={{ fontSize: 15, color: "rgba(255,230,200,0.7)", textShadow: "0 1px 8px rgba(0,0,0,0.3)" }}>{viewLabel}</div>
+        </div>
+        <div style={{ textAlign: "center" }}>
+          <div className="animate-pulse" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 28px", borderRadius: 20, background: "rgba(0,0,0,0.3)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,200,150,0.15)" }}>
+            <span style={{ color: "rgba(255,230,200,0.8)", fontSize: 15, fontWeight: 600 }}>Click anywhere to begin your journey</span>
+            <span style={{ fontSize: 16 }}>→</span>
+          </div>
+        </div>
+      </div>
+      <style>{`@keyframes splashIn { from { opacity: 0; transform: scale(1.02); } to { opacity: 1; transform: scale(1); } }`}</style>
+    </div>;
+  }
 
   return <div className="flex min-h-screen w-full">
     {/* ── SIDEBAR ── */}

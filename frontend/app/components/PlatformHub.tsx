@@ -25,45 +25,49 @@ export function PlatformHub({ user, onBack, onUpdateUser }: { user: authApi.Auth
     ...(isAdmin ? [{ id: "admin", icon: "🛡️", label: "Admin" }] : []),
   ];
 
-  return <div className="flex min-h-screen w-full" style={{ background: "linear-gradient(135deg, #0B1120 0%, #12182a 50%, #0f1525 100%)" }}>
-    {/* Sidebar — warm amber accents */}
-    <aside className="w-[210px] min-h-screen flex flex-col px-3 py-5 shrink-0" style={{ height: "100vh", position: "sticky", top: 0, background: "rgba(15,18,30,0.95)", borderRight: "1px solid rgba(212,134,10,0.08)" }}>
+  return <div className="flex min-h-screen w-full" style={{ background: "radial-gradient(ellipse at 30% 20%, rgba(30,18,8,0.6) 0%, transparent 50%), linear-gradient(135deg, #0B1120 0%, #12182a 50%, #0f1525 100%)" }}>
+    {/* Sidebar — premium warm amber design */}
+    <aside className="w-[220px] min-h-screen flex flex-col px-3 py-5 shrink-0" style={{ height: "100vh", position: "sticky", top: 0, background: "rgba(12,10,8,0.95)", borderRight: "1px solid rgba(212,134,10,0.06)" }}>
       <button onClick={onBack} className="text-[11px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mb-5 flex items-center gap-1.5 transition-colors font-semibold group">
         <span className="group-hover:-translate-x-0.5 transition-transform">←</span> Back to Platform
       </button>
-      <div className="text-[9px] font-bold uppercase tracking-[2px] mb-4 px-3" style={{ color: "rgba(212,134,10,0.5)" }}>Platform Hub</div>
-      {tabs.map(t => <button key={t.id} onClick={() => setTab(t.id)} className={`w-full text-left px-3 py-2.5 rounded-xl text-[12px] mb-1 transition-all flex items-center gap-2.5 ${tab === t.id ? "font-semibold" : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"}`} style={tab === t.id ? { background: "rgba(212,134,10,0.1)", color: "#e09040", boxShadow: "inset 0 0 12px rgba(212,134,10,0.05), 0 0 8px rgba(212,134,10,0.03)" } : {}}>
-        <span className="text-[14px]">{t.icon}</span>{t.label}
-      </button>)}
-      <div className="mt-auto pt-4 border-t border-[rgba(212,134,10,0.06)]">
-        <button onClick={() => { onBack(); }}
-          className="w-full text-left px-3 py-2.5 rounded-xl text-[12px] mb-3 transition-all flex items-center gap-2.5 text-[var(--text-muted)] hover:text-[#e09040]"
-          style={{ background: "rgba(212,134,10,0.04)", border: "1px solid rgba(212,134,10,0.08)" }}>
-          <span className="text-[14px]">🎓</span> Back to Platform
-        </button>
-        <div className="text-center text-[9px] opacity-40" style={{ color: "rgba(212,134,10,0.6)" }}>v4.0 · AI Transformation Platform</div>
+      <div className="flex items-center gap-2.5 mb-6 px-2">
+        <div style={{ width: 32, height: 32, borderRadius: 10, background: "linear-gradient(135deg, #e09040, #c07030)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 800, color: "#fff", fontFamily: "'Outfit', sans-serif" }}>AI</div>
+        <div>
+          <div className="text-[12px] font-bold" style={{ color: "rgba(255,245,235,0.9)" }}>Platform Hub</div>
+          <div className="text-[9px]" style={{ color: "rgba(212,134,10,0.4)" }}>v4.0</div>
+        </div>
+      </div>
+      <div className="space-y-0.5 relative">
+        {tabs.map(t => {
+          const active = tab === t.id;
+          return <button key={t.id} onClick={() => setTab(t.id)} className="w-full text-left px-3 py-2.5 rounded-xl text-[12px] transition-all flex items-center gap-2.5 relative" style={{ background: active ? "rgba(212,134,10,0.1)" : "transparent", color: active ? "#e09040" : "rgba(255,230,200,0.35)", fontWeight: active ? 600 : 400, borderLeft: active ? "3px solid #D4860A" : "3px solid transparent" }} onMouseEnter={e => { if (!active) e.currentTarget.style.color = "rgba(255,230,200,0.6)"; }} onMouseLeave={e => { if (!active) e.currentTarget.style.color = "rgba(255,230,200,0.35)"; }}>
+            <span className="text-[15px]">{t.icon}</span>{t.label}
+          </button>;
+        })}
+      </div>
+      <div className="mt-auto pt-4">
+        <div className="text-center text-[9px] opacity-30" style={{ color: "rgba(212,134,10,0.6)" }}>AI Transformation Platform</div>
       </div>
     </aside>
 
-    {/* Main content */}
+    {/* Main content — full width, magazine layout */}
     <main className="flex-1 overflow-y-auto">
-      <div className="px-10 py-8 max-w-[880px]" key={tab} style={{ animation: "fadeIn 0.3s ease-out" }}>
-        {/* Breadcrumb */}
-        <div className="text-[11px] mb-5" style={{ color: "rgba(212,134,10,0.35)" }}>
-          <span className="hover:text-[var(--accent-primary)] cursor-pointer transition-colors" onClick={onBack}>Platform</span>
-          <span className="mx-2">›</span>
-          <span style={{ color: "var(--accent-primary)" }}>{tabs.find(t => t.id === tab)?.label}</span>
-        </div>
-
-        {tab === "account" && <AccountTab user={user} onUpdate={onUpdateUser} />}
+      <div key={tab} style={{ animation: "hubFade 0.25s ease-out" }}>
+        {tab === "account" && <div className="px-10 py-8 max-w-[880px]"><AccountTab user={user} onUpdate={onUpdateUser} /></div>}
         {tab === "about" && <AboutTab />}
-        {tab === "kb" && <KnowledgeBaseTab />}
-        {tab === "usecases" && <UseCasesTab />}
-        {tab === "tutorials" && <TutorialsTab />}
-        {tab === "releases" && <ReleasesTab />}
-        {tab === "feedback" && <FeedbackTab user={user} />}
-        {tab === "admin" && isAdmin && <AdminTab />}
+        {tab === "kb" && <div className="px-10 py-8 max-w-[880px]"><KnowledgeBaseTab /></div>}
+        {tab === "usecases" && <div className="px-10 py-8 max-w-[880px]"><UseCasesTab /></div>}
+        {tab === "tutorials" && <div className="px-10 py-8 max-w-[880px]"><TutorialsTab /></div>}
+        {tab === "releases" && <div className="px-10 py-8 max-w-[880px]"><ReleasesTab /></div>}
+        {tab === "feedback" && <div className="px-10 py-8 max-w-[880px]"><FeedbackTab user={user} /></div>}
+        {tab === "admin" && isAdmin && <div className="px-10 py-8 max-w-[880px]"><AdminTab /></div>}
       </div>
+      {/* Footer */}
+      <div className="px-10 py-6 text-center border-t" style={{ borderColor: "rgba(212,134,10,0.06)" }}>
+        <div className="text-[10px]" style={{ color: "rgba(255,230,200,0.15)" }}>Built with purpose in New York {"\u00B7"} {"\u00A9"} 2026 Hiral Merchant</div>
+      </div>
+      <style>{`@keyframes hubFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }`}</style>
     </main>
   </div>;
 }
@@ -129,117 +133,94 @@ function AccountTab({ user, onUpdate }: { user: authApi.AuthUser; onUpdate: (u: 
   </div>;
 }
 
-/* ═══ ABOUT TAB ═══ */
+/* ═══ ABOUT TAB — Magazine-style full-width layout ═══ */
 function AboutTab() {
+  const [quoteIdx, setQuoteIdx] = useState(0);
+  useEffect(() => { const t = setInterval(() => setQuoteIdx(p => (p + 1) % 3), 12000); return () => clearInterval(t); }, []);
+
   return <div>
-    {/* Hero */}
-    <div className="text-center mb-12">
-      <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl mb-5" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", boxShadow: "0 12px 32px rgba(212,134,10,0.3)" }}><span className="text-3xl font-black text-white" style={{ fontFamily: "'Outfit',sans-serif" }}>AI</span></div>
-      <h1 className="text-[32px] font-bold font-heading text-[var(--text-primary)] mb-3" style={{ letterSpacing: "-0.5px" }}>AI Transformation Platform</h1>
-      <p className="text-[15px] max-w-lg mx-auto leading-relaxed" style={{ color: "rgba(232,197,71,0.6)" }}>Data-driven workforce transformation, from diagnosis to deployment</p>
-    </div>
-
-    <div className="rounded-2xl p-7 mb-7" style={{ background: "rgba(255,250,240,0.02)", border: "1px solid rgba(212,134,10,0.08)" }}>
-      <p className="text-[14px] text-[var(--text-secondary)] leading-[1.8] mb-6">The AI Transformation Platform is an enterprise consulting tool that helps organizations navigate AI transformation through workforce analysis, job architecture design, role redesign, and change management planning. Built for internal HR/People Analytics teams and management consultants, it provides the analytical rigor of a top-tier consulting engagement in a self-service platform.</p>
-      <div className="grid grid-cols-4 gap-3">
-        {[{ icon: "📊", title: "Diagnose", desc: "Assess workforce state and AI readiness" },
-          { icon: "🏗️", title: "Architecture", desc: "Build enterprise job frameworks" },
-          { icon: "✏️", title: "Design", desc: "Redesign roles for AI augmentation" },
-          { icon: "⚡", title: "Simulate", desc: "Model scenarios and build the case" },
-          { icon: "🚀", title: "Mobilize", desc: "Plan change and deployment" },
-          { icon: "🧬", title: "Op Model", desc: "Industry-specific operating models" },
-          { icon: "📋", title: "Export", desc: "Board-ready transformation reports" },
-          { icon: "🤖", title: "AI Insights", desc: "Gemini-powered recommendations" },
-        ].map(m => <div key={m.title} className="rounded-xl p-3.5 text-center transition-all hover:translate-y-[-1px]" style={{ background: "rgba(212,134,10,0.04)", border: "1px solid rgba(212,134,10,0.06)" }}>
-          <div className="text-xl mb-1.5">{m.icon}</div>
-          <div className="text-[11px] font-bold text-[var(--text-primary)] font-heading">{m.title}</div>
-          <div className="text-[9px] mt-0.5" style={{ color: "rgba(212,134,10,0.4)" }}>{m.desc}</div>
-        </div>)}
-      </div>
-    </div>
-
-    {/* Methodology */}
-    <div className="rounded-2xl p-7 mb-7" style={{ background: "rgba(255,250,240,0.02)", border: "1px solid rgba(212,134,10,0.08)" }}>
-      <h3 className="text-[15px] font-bold font-heading text-[var(--text-primary)] mb-5" style={{ letterSpacing: "0.3px" }}>Methodology</h3>
-      <div className="flex items-center gap-3">
-        {[{ phase: "Discover", icon: "🔍", color: "#D4860A" }, { phase: "Design", icon: "✏️", color: "#E8C547" }, { phase: "Simulate", icon: "⚡", color: "#D97706" }, { phase: "Mobilize", icon: "🚀", color: "#C07030" }].map((p, i) => <React.Fragment key={p.phase}>
-          {i > 0 && <div className="flex-1 h-0.5 rounded-full" style={{ background: `linear-gradient(90deg, ${[{ color: "#D4860A" }, { color: "#E8C547" }, { color: "#D97706" }, { color: "#C07030" }][i-1].color}40, ${p.color}40)` }} />}
-          <div className="text-center shrink-0">
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-xl mb-1.5 mx-auto" style={{ background: `${p.color}10`, border: `1.5px solid ${p.color}30` }}>{p.icon}</div>
-            <div className="text-[10px] font-bold" style={{ color: p.color }}>{p.phase}</div>
-          </div>
-        </React.Fragment>)}
-      </div>
-    </div>
-
-    {/* Tech */}
-    <div className="rounded-2xl p-7 mb-10" style={{ background: "rgba(255,250,240,0.02)", border: "1px solid rgba(212,134,10,0.08)" }}>
-      <h3 className="text-[15px] font-bold font-heading text-[var(--text-primary)] mb-4" style={{ letterSpacing: "0.3px" }}>Technology</h3>
-      <div className="flex gap-3 text-[11px]">
-        {["Next.js 16 + React 19", "FastAPI + Python", "Recharts Visualizations", "Google Gemini AI"].map(t => <span key={t} className="px-4 py-2 rounded-xl transition-all hover:translate-y-[-1px]" style={{ background: "rgba(212,134,10,0.04)", border: "1px solid rgba(212,134,10,0.08)", color: "var(--text-secondary)" }}>{t}</span>)}
-      </div>
-    </div>
-
-    {/* Author */}
-    <div className="rounded-2xl p-7 mb-7" style={{ background: "linear-gradient(135deg, rgba(212,134,10,0.06), rgba(192,112,48,0.03))", border: "1px solid rgba(212,134,10,0.12)" }}>
-      <h3 className="text-[15px] font-bold font-heading text-[var(--text-primary)] mb-5" style={{ letterSpacing: "0.3px" }}>About the Author</h3>
-      <div className="flex items-start gap-6">
-        {/* TODO: Replace with actual headshot when available */}
-        <div className="w-24 h-24 rounded-2xl flex items-center justify-center text-[32px] font-bold text-white shrink-0" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", fontFamily: "'Outfit',sans-serif", boxShadow: "0 12px 32px rgba(212,134,10,0.3)" }}>HM</div>
+    {/* Hero Banner — full-width warm gradient */}
+    <div className="relative overflow-hidden" style={{ height: 280, background: "linear-gradient(135deg, #3d2000 0%, #C07030 40%, #D4860A 70%, #E8C547 100%)" }}>
+      <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 30% 60%, rgba(0,0,0,0.2) 0%, transparent 70%)" }} />
+      <div className="relative z-10 flex items-center gap-8 h-full px-12">
+        <div style={{ width: 120, height: 120, borderRadius: "50%", background: "rgba(0,0,0,0.25)", backdropFilter: "blur(12px)", border: "4px solid rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 48, fontWeight: 800, color: "#fff", fontFamily: "'Outfit', sans-serif", boxShadow: "0 0 40px rgba(212,134,10,0.3)", flexShrink: 0 }}>HM</div>
         <div>
-          <div className="text-[18px] font-bold text-[var(--text-primary)] font-heading mb-1">Hiral Merchant</div>
-          <div className="text-[12px] mb-1" style={{ color: "var(--accent-primary)" }}>Consultant at Mercer · New York</div>
-          <div className="text-[10px] mb-3" style={{ color: "rgba(212,134,10,0.4)" }}>Originally from Hendersonville, NC · BS, UNC Charlotte</div>
-          <p className="text-[13px] text-[var(--text-secondary)] leading-[1.8] mb-4">Born in Montreal and raised in the mountains of Western North Carolina, Hiral is now based in New York as a Consultant at Mercer. He holds a Bachelor of Science from the University of North Carolina at Charlotte. Passionate about the intersection and unity of AI and people, and the democratization of knowledge that enables a more confident workforce — this platform is a reflection of that mission.</p>
-          {/* LinkedIn */}
-          <a href="https://www.linkedin.com/in/hiral-merchant-6a0416b1/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-[11px] font-semibold transition-all hover:translate-y-[-1px]" style={{ background: "rgba(212,134,10,0.06)", border: "1px solid rgba(212,134,10,0.15)", color: "var(--accent-primary)" }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-            LinkedIn
-          </a>
+          <h1 style={{ fontSize: 36, fontWeight: 800, color: "#fff", fontFamily: "'Outfit', sans-serif", textShadow: "0 2px 16px rgba(0,0,0,0.3)", marginBottom: 4 }}>Hiral Merchant</h1>
+          <div style={{ fontSize: 18, color: "rgba(255,230,200,0.85)", fontWeight: 500 }}>Consultant at Mercer &middot; New York</div>
+          <div className="flex gap-2 mt-4">
+            <a href="https://www.linkedin.com/in/hiral-merchant-6a0416b1/" target="_blank" rel="noopener noreferrer" style={{ padding: "6px 16px", borderRadius: 10, fontSize: 12, fontWeight: 600, background: "rgba(0,0,0,0.2)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6 }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+              LinkedIn
+            </a>
+          </div>
         </div>
       </div>
     </div>
 
-    {/* ═══ QUOTES SECTION ═══ */}
-    <div className="mb-10">
+    {/* Bio Section — two-column layout */}
+    <div className="px-10 py-10" style={{ maxWidth: 960 }}>
+      <div className="flex gap-8">
+        {/* Left: Bio text (60%) */}
+        <div className="flex-1">
+          <p style={{ fontSize: 17, lineHeight: 1.85, color: "var(--text-secondary)" }}>Born in Montreal and raised in the mountains of Western North Carolina, Hiral is now based in <strong style={{ color: "var(--accent-primary)" }}>New York</strong> as a Consultant at <strong style={{ color: "var(--accent-primary)" }}>Mercer</strong>. He holds a Bachelor of Science from the University of North Carolina at Charlotte.</p>
+          <p style={{ fontSize: 17, lineHeight: 1.85, color: "var(--text-secondary)", marginTop: 16 }}>Passionate about the intersection of <strong style={{ color: "var(--accent-primary)" }}>AI and people</strong>, and the democratization of knowledge that enables a more confident workforce — this platform is a reflection of that mission. The AI Transformation Platform provides the analytical rigor of a top-tier consulting engagement in a self-service tool that any organization can use.</p>
+        </div>
+        {/* Right: At a Glance card (40%) */}
+        <div style={{ width: 280, flexShrink: 0, borderRadius: 18, padding: 24, background: "rgba(255,255,255,0.02)", backdropFilter: "blur(12px)", border: "1px solid rgba(212,134,10,0.1)" }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(212,134,10,0.5)", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 16 }}>At a Glance</div>
+          {[
+            { icon: "🎓", label: "UNC Charlotte — BS" },
+            { icon: "📍", label: "New York, NY" },
+            { icon: "🏢", label: "Mercer — Workforce Transformation" },
+            { icon: "🌐", label: "LinkedIn", link: "https://www.linkedin.com/in/hiral-merchant-6a0416b1/" },
+            { icon: "📧", label: "merchanthiral@gmail.com" },
+          ].map(item => <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, fontSize: 12, color: "var(--text-secondary)" }}>
+            <span style={{ fontSize: 15 }}>{item.icon}</span>
+            {item.link ? <a href={item.link} target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent-primary)", textDecoration: "none" }}>{item.label}</a> : <span>{item.label}</span>}
+          </div>)}
+        </div>
+      </div>
+    </div>
+
+    {/* ═══ QUOTES SECTION — Interactive Carousel ═══ */}
+    <div className="px-10 py-10">
       <div className="text-center mb-8">
-        <h2 className="text-[22px] font-bold font-heading text-[var(--text-primary)] mb-2" style={{ letterSpacing: "-0.3px" }}>Words That Shape the Work</h2>
-        <p className="text-[13px]" style={{ color: "rgba(232,197,71,0.45)" }}>Three voices, one philosophy — the mindset behind the AI Transformation Platform</p>
+        <h2 style={{ fontSize: 28, fontWeight: 700, fontFamily: "'Outfit', sans-serif", color: "var(--text-primary)", marginBottom: 4 }}>Words That Shape the Work</h2>
+        <div style={{ width: 60, height: 3, borderRadius: 2, background: "#D4860A", margin: "8px auto 0" }} />
+        <p className="text-[14px] mt-3" style={{ color: "rgba(232,197,71,0.4)" }}>Three voices, one philosophy</p>
       </div>
 
       {/* Quote 1 — Stephanie Penner */}
-      <div className="rounded-2xl mb-6 relative overflow-hidden" style={{ padding: 40, background: "linear-gradient(135deg, rgba(212,134,10,0.04), rgba(232,197,71,0.02))", border: "1px solid rgba(212,134,10,0.1)", borderLeft: "4px solid rgba(212,134,10,0.4)" }}>
-        <div className="absolute top-3 left-8 font-serif leading-none select-none" style={{ fontSize: 60, color: "rgba(212,134,10,0.1)" }}>&ldquo;</div>
-        <div className="relative z-10" style={{ paddingLeft: 16 }}>
-          <div className="text-[10px] uppercase tracking-[2px] italic mb-4" style={{ color: "rgba(212,134,10,0.4)" }}>What factors do you attribute to your success and advancement in your career?</div>
-          <blockquote className="mb-5" style={{ fontSize: 18, fontFamily: "'Outfit', sans-serif", lineHeight: 1.8, color: "rgba(232,236,244,0.75)", fontStyle: "normal" }}>This might seem cliché, but I&apos;ve found that the most successful people are those who find opportunity even in challenging situations, and when they encounter adversity, they&apos;re able to have resilience coupled with a positive mindset. That not only allows you to figure out how to solve for something, but you also inspire others to work through change. That outlook really helped me over the course of my career. Change is a constant in today&apos;s world, so having a muscle for it that I&apos;ve built over time has helped me accept change as part of the everyday equation.</blockquote>
-          <div className="text-right" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, fontWeight: 700, color: "var(--accent-primary)" }}>— Stephanie Penner</div>
-        </div>
-      </div>
-
-      {/* Quote 2 — Jamie Dimon */}
-      <div className="rounded-2xl mb-6 relative overflow-hidden" style={{ padding: 40, background: "linear-gradient(135deg, rgba(11,17,32,0.5), rgba(26,35,64,0.3))", border: "1px solid rgba(59,130,246,0.1)", borderLeft: "4px solid rgba(59,130,246,0.35)" }}>
-        <div className="absolute top-3 left-8 font-serif leading-none select-none" style={{ fontSize: 60, color: "rgba(59,130,246,0.08)" }}>&ldquo;</div>
-        <div className="relative z-10" style={{ paddingLeft: 16 }}>
-          <div className="text-[10px] uppercase tracking-[2px] italic mb-4" style={{ color: "rgba(59,130,246,0.4)" }}>What are the most important qualities you look for in people and leaders?</div>
-          <blockquote className="mb-5" style={{ fontSize: 18, fontFamily: "'Outfit', sans-serif", lineHeight: 1.8, color: "rgba(232,236,244,0.75)", fontStyle: "normal" }}>I look for a whole bunch of things. They have to be smart, they have to have good judgment, they have to work hard… they have to be capable. But character is a sine qua non — an absolute necessity. They tell the truth, and nothing but the truth. They don&apos;t shave the truth. They don&apos;t twist it depending on who they&apos;re talking to. They have courage — they&apos;re not afraid to speak up. They care about the company, not just themselves.</blockquote>
-          <div className="text-right" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, fontWeight: 700, color: "rgba(59,130,246,0.7)" }}>— Jamie Dimon, Chairman &amp; CEO, JPMorgan Chase</div>
-        </div>
-      </div>
-
-      {/* Quote 3 — Jim Donovan */}
-      <div className="rounded-2xl mb-6 relative overflow-hidden" style={{ padding: 40, background: "linear-gradient(135deg, rgba(192,112,48,0.04), rgba(184,96,42,0.02))", border: "1px solid rgba(192,112,48,0.1)", borderLeft: "4px solid rgba(192,112,48,0.4)" }}>
-        <div className="absolute top-3 left-8 font-serif leading-none select-none" style={{ fontSize: 60, color: "rgba(192,112,48,0.08)" }}>&ldquo;</div>
-        <div className="relative z-10" style={{ paddingLeft: 16 }}>
-          <div className="text-[10px] uppercase tracking-[2px] italic mb-4" style={{ color: "rgba(192,112,48,0.45)" }}>On preparation and excellence</div>
-          <blockquote className="mb-5" style={{ fontSize: 18, fontFamily: "'Outfit', sans-serif", lineHeight: 1.8, color: "rgba(232,236,244,0.75)", fontStyle: "normal" }}>You have to take responsibility for your job. You have to do the work ahead of time. You can&apos;t just show up and expect things to work out. Always be prepared. Because you never know when you&apos;re going to be tested. It could be in a meeting, it could be when someone asks you a question, it could be when you least expect it. And if you&apos;re not prepared, it&apos;s going to show. People will know.</blockquote>
-          <div className="text-right" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, fontWeight: 700, color: "rgba(192,112,48,0.7)" }}>— Jim Donovan, Vice Chairman, Goldman Sachs</div>
-        </div>
-      </div>
+      {/* Quote Carousel */}
+      {(() => {
+        const quotes = [
+          { q: "What factors do you attribute to your success and advancement in your career?", text: "This might seem cliché, but I've found that the most successful people are those who find opportunity even in challenging situations, and when they encounter adversity, they're able to have resilience coupled with a positive mindset. That not only allows you to figure out how to solve for something, but you also inspire others to work through change. That outlook really helped me over the course of my career. Change is a constant in today's world, so having a muscle for it that I've built over time has helped me accept change as part of the everyday equation.", author: "Stephanie Penner", bg: "linear-gradient(135deg, rgba(212,134,10,0.06), rgba(232,197,71,0.03))", accent: "#D4860A", border: "rgba(212,134,10,0.15)" },
+          { q: "What are the most important qualities you look for in people and leaders?", text: "I look for a whole bunch of things. They have to be smart, they have to have good judgment, they have to work hard… they have to be capable. But character is a sine qua non — an absolute necessity. They tell the truth, and nothing but the truth. They don't shave the truth. They don't twist it depending on who they're talking to. They have courage — they're not afraid to speak up. They care about the company, not just themselves.", author: "Jamie Dimon, Chairman & CEO, JPMorgan Chase", bg: "linear-gradient(135deg, rgba(11,17,32,0.6), rgba(26,35,64,0.4))", accent: "#3B82F6", border: "rgba(59,130,246,0.12)" },
+          { q: "On preparation and excellence", text: "You have to take responsibility for your job. You have to do the work ahead of time. You can't just show up and expect things to work out. Always be prepared. Because you never know when you're going to be tested. It could be in a meeting, it could be when someone asks you a question, it could be when you least expect it. And if you're not prepared, it's going to show. People will know.", author: "Jim Donovan, Vice Chairman, Goldman Sachs", bg: "linear-gradient(135deg, rgba(192,112,48,0.06), rgba(184,96,42,0.03))", accent: "#C07030", border: "rgba(192,112,48,0.12)" },
+        ];
+        const cur = quotes[quoteIdx];
+        return <div className="relative" style={{ maxWidth: 800, margin: "0 auto" }}>
+          {/* Arrows */}
+          <button onClick={() => setQuoteIdx((quoteIdx + 2) % 3)} style={{ position: "absolute", left: -48, top: "50%", transform: "translateY(-50%)", width: 40, height: 40, borderRadius: 12, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", color: "var(--text-muted)", fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} onMouseEnter={e => e.currentTarget.style.color = "#D4860A"} onMouseLeave={e => e.currentTarget.style.color = "var(--text-muted)"}>←</button>
+          <button onClick={() => setQuoteIdx((quoteIdx + 1) % 3)} style={{ position: "absolute", right: -48, top: "50%", transform: "translateY(-50%)", width: 40, height: 40, borderRadius: 12, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", color: "var(--text-muted)", fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} onMouseEnter={e => e.currentTarget.style.color = "#D4860A"} onMouseLeave={e => e.currentTarget.style.color = "var(--text-muted)"}>→</button>
+          {/* Quote card */}
+          <div key={quoteIdx} className="rounded-2xl relative overflow-hidden" style={{ padding: "40px 48px", background: cur.bg, border: `1px solid ${cur.border}`, borderLeft: `4px solid ${cur.accent}`, animation: "quoteFade 0.5s ease" }}>
+            <div className="absolute top-4 left-10 font-serif leading-none select-none" style={{ fontSize: 80, color: `${cur.accent}12` }}>&ldquo;</div>
+            <div className="relative z-10">
+              <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: 2, fontStyle: "italic", color: `${cur.accent}80`, marginBottom: 16 }}>{cur.q}</div>
+              <blockquote style={{ fontSize: 20, fontFamily: "'Outfit', sans-serif", lineHeight: 1.8, color: "rgba(232,236,244,0.75)", fontStyle: "italic", marginBottom: 20 }}>{cur.text}</blockquote>
+              <div style={{ textAlign: "right", fontFamily: "'IBM Plex Mono', monospace", fontSize: 14, fontWeight: 700, color: cur.accent }}>— {cur.author}</div>
+            </div>
+          </div>
+          {/* Dots */}
+          <div className="flex justify-center gap-2 mt-4">{[0,1,2].map(i => <button key={i} onClick={() => setQuoteIdx(i)} style={{ width: i === quoteIdx ? 20 : 8, height: 8, borderRadius: 4, background: i === quoteIdx ? "#D4860A" : "rgba(255,255,255,0.06)", border: "none", cursor: "pointer", transition: "all 0.25s", padding: 0 }} />)}</div>
+          <style>{`@keyframes quoteFade { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: translateX(0); } }`}</style>
+        </div>;
+      })()}
     </div>
 
     {/* ═══ PHILOSOPHY BOX ═══ */}
-    <div className="rounded-2xl mb-10" style={{ padding: 48, background: "linear-gradient(135deg, rgba(255,248,235,0.04), rgba(212,134,10,0.02))", border: "1px solid rgba(212,134,10,0.12)" }}>
+    <div className="mx-10 rounded-2xl mb-10" style={{ padding: 48, background: "linear-gradient(135deg, rgba(255,248,235,0.04), rgba(212,134,10,0.02))", border: "1px solid rgba(212,134,10,0.12)" }}>
       <h2 className="text-[20px] font-bold font-heading text-[var(--text-primary)] mb-2" style={{ letterSpacing: "-0.3px" }}>This Is About You</h2>
       <p className="text-[12px] mb-10" style={{ color: "rgba(232,197,71,0.4)" }}>Why these principles define the transformation journey</p>
 
@@ -280,7 +261,7 @@ function AboutTab() {
 
     {/* Footer */}
     <div className="text-center pb-8">
-      <p className="text-[10px]" style={{ color: "rgba(255,230,200,0.15)" }}>Built with purpose in New York. &copy; 2026</p>
+      <p className="text-[10px]" style={{ color: "rgba(255,230,200,0.15)" }}>Built with purpose in New York. {"\u00A9"} 2026</p>
     </div>
   </div>;
 }
@@ -397,7 +378,7 @@ function TutorialsTab() {
     <div className="rounded-2xl p-8 text-center mb-5" style={{ background: "linear-gradient(135deg, rgba(212,134,10,0.06), rgba(192,112,48,0.03))", border: "1px solid rgba(212,134,10,0.1)", minHeight: 180 }}>
       <div className="text-5xl mb-3 opacity-30">▶️</div>
       <div className="text-[14px] font-semibold text-[var(--text-primary)]">Video Coming Soon</div>
-      <div className="text-[12px] mt-1" style={{ color: "rgba(212,134,10,0.4)" }}>{tut.title} · {tut.duration}</div>
+      <div className="text-[12px] mt-1" style={{ color: "rgba(212,134,10,0.4)" }}>{tut.title} &middot; {tut.duration}</div>
     </div>
     <div className="rounded-2xl p-6" style={{ background: "rgba(255,250,240,0.02)", border: "1px solid rgba(212,134,10,0.08)" }}>
       <h2 className="text-[18px] font-bold font-heading text-[var(--text-primary)] mb-2">{tut.title}</h2>
@@ -484,7 +465,7 @@ function FeedbackTab({ user }: { user: authApi.AuthUser }) {
     {submitted.length > 0 && <div className="rounded-2xl p-6" style={{ background: "rgba(255,250,240,0.02)", border: "1px solid rgba(212,134,10,0.08)" }}>
       <h3 className="text-[15px] font-bold font-heading text-[var(--text-primary)] mb-4">My Submissions</h3>
       <div className="space-y-2">{submitted.map((s, i) => <div key={i} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "rgba(212,134,10,0.03)", border: "1px solid rgba(212,134,10,0.05)" }}>
-        <div className="flex-1"><div className="text-[12px] font-semibold text-[var(--text-primary)]">{s.subject}</div><div className="text-[9px]" style={{ color: "rgba(212,134,10,0.35)" }}>{s.cat} · {new Date(s.date).toLocaleDateString()}</div></div>
+        <div className="flex-1"><div className="text-[12px] font-semibold text-[var(--text-primary)]">{s.subject}</div><div className="text-[9px]" style={{ color: "rgba(212,134,10,0.35)" }}>{s.cat} &middot; {new Date(s.date).toLocaleDateString()}</div></div>
         <span className="text-[9px] px-2 py-0.5 rounded-full font-semibold" style={{ background: "rgba(212,134,10,0.08)", color: "var(--accent-primary)" }}>{s.status}</span>
       </div>)}</div>
     </div>}
