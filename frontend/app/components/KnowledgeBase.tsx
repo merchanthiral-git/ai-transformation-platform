@@ -1167,19 +1167,30 @@ function SlideViewer({ slides, accentColor }: { slides: Slide[]; accentColor: st
   </div>;
 }
 
-/* ═══ Slide content helpers — clean, visual layouts ═══ */
-function SlidePoints({ items, icons }: { items: string[]; icons?: string[] }) {
-  const defaultIcons = ["📊", "🎯", "⚡", "🔍", "💡", "🏗️"];
-  return <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>{items.slice(0, 4).map((t, i) => <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-    <span style={{ fontSize: 20, flexShrink: 0, marginTop: 2 }}>{(icons || defaultIcons)[i % (icons || defaultIcons).length]}</span>
-    <span style={{ fontSize: 15, lineHeight: 1.6 }}>{t}</span>
+/* ═══ Slide visual layouts — presentation quality ═══ */
+
+/* Layout A — Icon Bullets: icon + bold title + description */
+function IconBullets({ items }: { items: { icon: string; title: string; desc: string }[] }) {
+  return <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>{items.map((it, i) => <div key={i} style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+    <span style={{ fontSize: 24, flexShrink: 0 }}>{it.icon}</span>
+    <div><div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", marginBottom: 2 }}>{it.title}</div><div style={{ fontSize: 15, color: "var(--text-secondary)", lineHeight: 1.6 }}>{it.desc}</div></div>
   </div>)}</div>;
 }
 
-function SlideCards({ items }: { items: { title: string; body: string }[] }) {
-  return <div style={{ display: "grid", gridTemplateColumns: items.length <= 2 ? "1fr 1fr" : "1fr 1fr 1fr", gap: 10 }}>{items.slice(0, 6).map((c, i) => <div key={i} style={{ background: "var(--surface-2)", borderRadius: 12, padding: 14, border: "1px solid var(--border)" }}>
+/* Layout B — Callout Card: amber border highlight */
+function CalloutCard({ term, body }: { term: string; body: string }) {
+  return <div style={{ borderLeft: "4px solid var(--accent-primary)", background: "var(--surface-2)", borderRadius: "0 12px 12px 0", padding: "16px 20px" }}>
+    <div style={{ fontSize: 16, fontWeight: 700, color: "var(--accent-primary)", marginBottom: 6 }}>{term}</div>
+    <div style={{ fontSize: 15, color: "var(--text-secondary)", lineHeight: 1.7 }}>{body}</div>
+  </div>;
+}
+
+/* Layout F — Visual Grid: cards in 2-3 columns */
+function SlideCards({ items }: { items: { title: string; body: string; icon?: string }[] }) {
+  return <div style={{ display: "grid", gridTemplateColumns: items.length <= 2 ? "1fr 1fr" : "1fr 1fr 1fr", gap: 12 }}>{items.slice(0, 6).map((c, i) => <div key={i} style={{ background: "var(--surface-2)", borderRadius: 12, padding: 16, border: "1px solid var(--border)" }}>
+    {c.icon && <div style={{ fontSize: 24, marginBottom: 6 }}>{c.icon}</div>}
     <div style={{ fontSize: 15, fontWeight: 700, color: "var(--accent-primary)", marginBottom: 4 }}>{c.title}</div>
-    <div style={{ fontSize: 15, color: "var(--text-secondary)", lineHeight: 1.5 }}>{c.body}</div>
+    <div style={{ fontSize: 14, color: "var(--text-secondary)", lineHeight: 1.5 }}>{c.body}</div>
   </div>)}</div>;
 }
 
@@ -1200,32 +1211,78 @@ function buildSlides(entry: KBEntry, sectionId: string): Slide[] {
       { title: "Overview", content: <div style={{ fontSize: 16, lineHeight: 1.8 }}>{entry.summary}</div> },
     ];
     if (entry.related.length > 0) slides.push({ title: "Related Modules", content: <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>{entry.related.map(r => { const rel = KNOWLEDGE_BASE[r]; return rel ? <div key={r} style={{ padding: "10px 16px", borderRadius: 10, background: "var(--surface-2)", border: "1px solid var(--border)" }}><div style={{ fontSize: 15, fontWeight: 600, color: "var(--text-primary)" }}>{rel.title}</div><div style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 2 }}>{rel.category}</div></div> : null; })}</div> });
-    // Individual concept slides from What
+    // Individual concept slides from What — use CalloutCard for long text
     if (entry.what.length > 0) {
       slides.push(divider("what"));
-      entry.what.forEach(w => slides.push({ title: w.heading, content: <div style={{ fontSize: 16, lineHeight: 1.8 }}>{w.body}</div> }));
+      entry.what.forEach(w => slides.push({ title: w.heading, content: w.body.length > 120 ? <CalloutCard term={w.heading} body={w.body} /> : <div style={{ fontSize: 16, lineHeight: 1.8 }}>{w.body}</div> }));
     }
     if (entry.why.length > 0) {
       slides.push(divider("why"));
-      entry.why.forEach(w => slides.push({ title: w.heading, content: <div style={{ fontSize: 16, lineHeight: 1.8 }}>{w.body}</div> }));
+      entry.why.forEach(w => slides.push({ title: w.heading, content: w.body.length > 120 ? <CalloutCard term={w.heading} body={w.body} /> : <div style={{ fontSize: 16, lineHeight: 1.8 }}>{w.body}</div> }));
     }
     if (entry.how.length > 0) {
       slides.push(divider("how"));
-      entry.how.forEach((h, i) => slides.push({ title: `Step ${i + 1}: ${h.heading}`, content: <div style={{ fontSize: 16, lineHeight: 1.8 }}>{h.body}</div> }));
+      // Auto-split numbered lists, only use "Step N" when multiple steps exist
+      const howParts: { title: string; body: string }[] = [];
+      entry.how.forEach(h => {
+        const numbered = h.body.match(/\d+\.\s+/g);
+        if (numbered && numbered.length >= 3) {
+          h.body.split(/(?=\d+\.\s+)/).filter(p => p.trim()).forEach(part => {
+            const clean = part.replace(/^\d+\.\s*/, "").trim();
+            const t = clean.split(/[.—–:]/).filter(Boolean)[0]?.trim() || clean.slice(0, 50);
+            howParts.push({ title: t, body: clean });
+          });
+        } else {
+          howParts.push({ title: h.heading, body: h.body });
+        }
+      });
+      const useStepNumbers = howParts.length > 1;
+      howParts.forEach((hp, i) => slides.push({
+        title: useStepNumbers ? `Step ${i + 1}: ${hp.title}` : hp.title,
+        content: hp.body.length > 120 ? <CalloutCard term={hp.title} body={hp.body} /> : <div style={{ fontSize: 16, lineHeight: 1.8 }}>{hp.body}</div>,
+      }));
     }
     return slides;
   }
 
   // 5W1H sections: divider → one slide per item
+  // Auto-split: if a single body contains "1. ... 2. ... 3. ..." numbered list, break into individual slides
   const sectionMap: Record<string, KBSection[]> = { who: entry.who, what: entry.what, where: entry.where, when: entry.when, why: entry.why, how: entry.how };
   if (sectionMap[sectionId]) {
-    const items = sectionMap[sectionId];
-    if (items.length === 0) return [divider(sectionId)];
+    const rawItems = sectionMap[sectionId];
+    if (rawItems.length === 0) return [divider(sectionId)];
+
+    // Expand: split any item whose body contains numbered lists into individual items
+    const expanded: KBSection[] = [];
+    rawItems.forEach(s => {
+      const numbered = s.body.match(/\d+\.\s+/g);
+      if (numbered && numbered.length >= 3) {
+        // Split by numbered pattern: "1. xxx 2. yyy 3. zzz"
+        const parts = s.body.split(/(?=\d+\.\s+)/).filter(p => p.trim());
+        parts.forEach(part => {
+          const clean = part.replace(/^\d+\.\s*/, "").trim();
+          if (clean) {
+            // Extract a short title from the first phrase
+            const firstSentence = clean.split(/[.—–:]/).filter(Boolean)[0]?.trim() || clean.slice(0, 50);
+            expanded.push({ heading: firstSentence, body: clean });
+          }
+        });
+      } else {
+        expanded.push(s);
+      }
+    });
+
     const slides: Slide[] = [divider(sectionId)];
-    items.forEach((s, i) => slides.push({
-      title: sectionId === "how" ? `Step ${i + 1}: ${s.heading}` : s.heading,
-      content: <div style={{ fontSize: 16, lineHeight: 1.8 }}>{s.body}</div>,
-    }));
+    const isMultiStep = sectionId === "how" && expanded.length > 1;
+    expanded.forEach((s, i) => {
+      const title = isMultiStep ? `Step ${i + 1}: ${s.heading}` : s.heading;
+      // Auto-detect content that lists items with commas/semicolons and format as callout
+      const hasLongText = s.body.length > 120;
+      const content = hasLongText
+        ? <CalloutCard term={s.heading} body={s.body} />
+        : <div style={{ fontSize: 16, lineHeight: 1.8 }}>{s.body}</div>;
+      slides.push({ title, content });
+    });
     return slides;
   }
 
@@ -1241,20 +1298,30 @@ function buildSlides(entry: KBEntry, sectionId: string): Slide[] {
     return slides;
   }
 
-  // Best practices: divider for practices → one slide each, divider for pitfalls → one slide each
+  // Best practices: divider → callout card per practice, divider → callout card per pitfall
   if (sectionId === "practices") {
     const slides: Slide[] = [
       { title: "Best Practices", subtitle: "What to do", isTitle: true, content: null },
     ];
-    entry.bestPractices.forEach((p, i) => slides.push({
-      title: `Practice ${i + 1}`,
-      content: <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}><span style={{ fontSize: 24, color: "var(--success)", flexShrink: 0 }}>✓</span><div style={{ fontSize: 16, lineHeight: 1.8 }}>{p}</div></div>,
-    }));
+    entry.bestPractices.forEach((p, i) => {
+      const shortTitle = p.split(/[.—–]/).filter(Boolean)[0]?.trim().slice(0, 60) || `Practice ${i + 1}`;
+      slides.push({
+        title: entry.bestPractices.length > 1 ? shortTitle : "Best Practice",
+        content: <div style={{ borderLeft: "4px solid var(--success)", background: "rgba(16,185,129,0.06)", borderRadius: "0 12px 12px 0", padding: "16px 20px" }}>
+          <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><span style={{ fontSize: 24, color: "var(--success)", flexShrink: 0 }}>✓</span><div style={{ fontSize: 16, lineHeight: 1.8, color: "var(--text-secondary)" }}>{p}</div></div>
+        </div>,
+      });
+    });
     slides.push({ title: "Common Pitfalls", subtitle: "What to avoid", isTitle: true, content: null });
-    entry.pitfalls.forEach((p, i) => slides.push({
-      title: `Pitfall ${i + 1}`,
-      content: <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}><span style={{ fontSize: 24, color: "var(--risk)", flexShrink: 0 }}>✗</span><div style={{ fontSize: 16, lineHeight: 1.8 }}>{p}</div></div>,
-    }));
+    entry.pitfalls.forEach((p, i) => {
+      const shortTitle = p.split(/[.—–]/).filter(Boolean)[0]?.trim().slice(0, 60) || `Pitfall ${i + 1}`;
+      slides.push({
+        title: entry.pitfalls.length > 1 ? shortTitle : "Common Pitfall",
+        content: <div style={{ borderLeft: "4px solid var(--risk)", background: "rgba(239,68,68,0.06)", borderRadius: "0 12px 12px 0", padding: "16px 20px" }}>
+          <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><span style={{ fontSize: 24, color: "var(--risk)", flexShrink: 0 }}>✗</span><div style={{ fontSize: 16, lineHeight: 1.8, color: "var(--text-secondary)" }}>{p}</div></div>
+        </div>,
+      });
+    });
     return slides;
   }
 

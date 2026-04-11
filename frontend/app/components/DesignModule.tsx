@@ -406,7 +406,10 @@ export function WorkDesignLab({
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
   }, []);
-  const [wdTab, setWdTab] = useState("inventory");
+  const [wdTab, setWdTab] = useState("ctx");
+  const [weeklyHours, setWeeklyHours] = useState(40);
+  // Reset to Context tab when job changes
+  useEffect(() => { if (job) setWdTab("ctx"); }, [job]);
   const js = jobStates[job] || { deconRows: [], redeployRows: [], scenario: "Balanced", deconSubmitted: false, redeploySubmitted: false, finalized: false, recon: null, initialized: false };
 
   const [ctx, ctxLoading] = useApiData(() => job ? api.getJobContext(model, job, f) : Promise.resolve(null), [model, job, f.func, f.jf, f.sf, f.cl]);
@@ -756,11 +759,39 @@ Rules:
           <h3 className="text-[15px] font-bold font-heading text-[var(--text-primary)] mb-1">AI is analyzing the {job} role...</h3>
           <p className="text-[15px] text-[var(--text-secondary)]">Generating task breakdown with AI impact scores, time estimates, and skill requirements</p>
         </div>}
-        {/* Time tracker */}
-        <div className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl px-5 py-3 mb-4">
-          <div className="flex items-center justify-between mb-2"><span className="text-[14px] font-semibold">Time Allocation</span><span className="text-[15px] font-bold" style={{ color: deconTotal === 100 ? "var(--success)" : deconTotal > 100 ? "var(--risk)" : "var(--accent-primary)" }}>{deconTotal}% <span className="text-[15px] font-normal text-[var(--text-muted)]">/ 100%</span></span></div>
-          <div className="h-3 bg-[var(--surface-2)] rounded-full overflow-hidden"><div className="h-full rounded-full transition-all duration-300" style={{ width: `${Math.min(deconTotal, 100)}%`, background: deconTotal === 100 ? "var(--success)" : deconTotal > 100 ? "var(--risk)" : "var(--accent-primary)" }} /></div>
-        </div>
+        {/* Hours Budget Control */}
+        {(() => {
+          const allocatedHrs = Math.round(deconTotal * weeklyHours / 100 * 10) / 10;
+          const remainingHrs = Math.round((weeklyHours - allocatedHrs) * 10) / 10;
+          const humanHrs = js.deconRows.filter(r => String(r["AI Impact"]) === "Low").reduce((s, r) => s + Number(r["Current Time Spent %"] || 0), 0) * weeklyHours / 100;
+          const augHrs = js.deconRows.filter(r => String(r["AI Impact"]) === "Moderate").reduce((s, r) => s + Number(r["Current Time Spent %"] || 0), 0) * weeklyHours / 100;
+          const autoHrs = js.deconRows.filter(r => String(r["AI Impact"]) === "High").reduce((s, r) => s + Number(r["Current Time Spent %"] || 0), 0) * weeklyHours / 100;
+          return <div className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl px-5 py-3 mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-3">
+                <span className="text-[14px] font-semibold">Hours Budget:</span>
+                <input type="number" value={weeklyHours} onChange={e => setWeeklyHours(Math.max(1, Number(e.target.value) || 40))} className="w-16 bg-[var(--surface-2)] border border-[var(--border)] rounded px-2 py-1 text-[15px] text-[var(--text-primary)] text-center outline-none" /> <span className="text-[14px] text-[var(--text-muted)]">hrs/wk</span>
+              </div>
+              <div className="flex items-center gap-4 text-[15px]">
+                <span>Allocated: <strong>{allocatedHrs}h</strong></span>
+                <span style={{ color: remainingHrs >= 0 ? "var(--success)" : "var(--risk)" }}>Remaining: <strong>{remainingHrs}h</strong></span>
+                <span className="font-bold" style={{ color: deconTotal === 100 ? "var(--success)" : deconTotal > 100 ? "var(--risk)" : "var(--accent-primary)" }}>{deconTotal}%</span>
+              </div>
+            </div>
+            {/* Segmented progress bar */}
+            <div className="h-3 bg-[var(--surface-2)] rounded-full overflow-hidden flex">
+              {humanHrs > 0 && <div className="h-full" style={{ width: `${(humanHrs / weeklyHours) * 100}%`, background: "var(--success)" }} />}
+              {augHrs > 0 && <div className="h-full" style={{ width: `${(augHrs / weeklyHours) * 100}%`, background: "var(--warning)" }} />}
+              {autoHrs > 0 && <div className="h-full" style={{ width: `${(autoHrs / weeklyHours) * 100}%`, background: "var(--risk)" }} />}
+            </div>
+            <div className="flex gap-4 mt-2 text-[14px] text-[var(--text-muted)]">
+              <span><span className="inline-block w-2 h-2 rounded-full bg-[var(--success)] mr-1" />Human: {humanHrs.toFixed(1)}h</span>
+              <span><span className="inline-block w-2 h-2 rounded-full bg-[var(--warning)] mr-1" />AI-Augmented: {augHrs.toFixed(1)}h</span>
+              <span><span className="inline-block w-2 h-2 rounded-full bg-[var(--risk)] mr-1" />Automated: {autoHrs.toFixed(1)}h</span>
+            </div>
+            {deconTotal !== 100 && deconTotal > 0 && <div className="mt-2 text-[14px] font-semibold" style={{ color: "var(--risk)" }}>Total is {deconTotal}% — must equal 100% to proceed</div>}
+          </div>;
+        })()}
         <div className="grid grid-cols-12 gap-4 mb-5"><div className="col-span-4"><Card title="AI Impact"><DonutViz data={aid} /></Card></div><div className="col-span-4"><Card title="AI Priority"><BarViz data={aip} labelKey="Task Name" valueKey="AI Priority" color="var(--accent-scenario)" /></Card></div><div className="col-span-4"><InsightPanel title="Validation" items={[deconTotal === 100 ? "✓ Time = 100%" : `✗ Time = ${deconTotal}%`, blankRequired === 0 ? "✓ All fields filled" : `✗ ${blankRequired} blank`, deconValid ? "✓ Ready to submit" : "○ Fix issues above"]} icon="📋" /></div></div>
         <Card title="Task Inventory — Editable">
           <div className="flex items-center justify-between mb-3">
@@ -768,7 +799,7 @@ Rules:
             <div className="flex gap-2">
               <button onClick={generateTasks} disabled={aiGenerating || js.finalized} className={`px-3 py-1.5 rounded-md text-[15px] font-semibold transition-all ${aiGenerating ? "animate-pulse" : ""}`} style={{ background: "linear-gradient(135deg, #e09040, #c07030)", color: "#fff", opacity: aiGenerating || js.finalized ? 0.5 : 1 }}>{aiGenerating ? "✨ Generating..." : "✨ Auto-Generate Tasks"}</button>
               {dictEntries.length > 0 && <button onClick={() => setShowTaskDict(d => !d)} className="px-3 py-1.5 rounded-md text-[15px] font-semibold bg-[rgba(139,92,246,0.1)] border border-[rgba(139,92,246,0.3)] text-[var(--purple)]" style={{ opacity: js.finalized ? 0.5 : 1 }}>📖 Dictionary ({dictEntries.length})</button>}
-              <button onClick={() => setJobState(job, { deconRows: [...js.deconRows, { "Task ID": `T${js.deconRows.length + 1}`, "Task Name": "", Workstream: "", "AI Impact": "Low", "Est Hours/Week": 0, "Current Time Spent %": 0, "Time Saved %": 0, "Task Type": "Variable", Interaction: "Interactive", Logic: "Probabilistic", "Primary Skill": "", "Secondary Skill": "" }], deconSubmitted: false, redeploySubmitted: false, finalized: false, recon: null, redeployRows: [] })} className="px-3 py-1.5 bg-[var(--surface-3)] rounded-md text-[15px] font-semibold text-[var(--text-secondary)]">+ Add Task</button>
+              <button onClick={() => { const maxId = js.deconRows.reduce((m, r) => { const n = parseInt(String(r["Task ID"] || "T0").replace("T", ""), 10); return n > m ? n : m; }, 0); setJobState(job, { deconRows: [...js.deconRows, { "Task ID": `T${String(maxId + 1).padStart(3, "0")}`, "Task Name": "", Workstream: "", "AI Impact": "Low", "Est Hours/Week": 0, "Current Time Spent %": 0, "Time Saved %": 0, "Task Type": "Variable", Interaction: "Interactive", Logic: "Probabilistic", "Primary Skill": "", "Secondary Skill": "" }], deconSubmitted: false, redeploySubmitted: false, finalized: false, recon: null, redeployRows: [] }); }} className="px-3 py-1.5 bg-[var(--surface-3)] rounded-md text-[15px] font-semibold text-[var(--text-secondary)]">+ Add Task</button>
               <button disabled={!deconValid || js.finalized} onClick={() => { setJobState(job, { deconSubmitted: true, redeploySubmitted: false, finalized: false, recon: null, redeployRows: [] }); setWdTab("redeploy"); }} className={`px-3 py-1.5 rounded-md text-[15px] font-semibold ${!deconValid || js.finalized ? "bg-[var(--border)] text-[var(--text-muted)]" : "bg-[var(--accent-primary)] text-white hover:opacity-90"}`}>{js.deconSubmitted ? "Update" : "Submit"} Deconstruction</button>
             </div>
           </div>
@@ -804,7 +835,24 @@ Rules:
               </div>)}
             </div>
           </div>}
-          <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full text-left text-[15px]"><thead><tr className="bg-[var(--surface-2)]">{["Task ID","Task Name","Workstream","AI Impact","Est Hrs/Wk","Time %","Type","Interaction","Logic","Skill 1","Skill 2"].map(c => <th key={c} className="px-2 py-2 border-b border-[var(--border)] text-[15px] uppercase text-[var(--text-muted)] whitespace-nowrap font-semibold">{c}</th>)}</tr></thead><tbody>{js.deconRows.map((row, idx) => <tr key={idx} className="border-b border-[var(--border)] hover:bg-[var(--hover)]"><td className="px-2 py-2 min-w-[70px]"><EditableCell value={row["Task ID"]} onChange={v => updateDeconCell(idx, "Task ID", v)} /></td><td className="px-2 py-2 min-w-[160px]"><EditableCell value={row["Task Name"]} onChange={v => updateDeconCell(idx, "Task Name", v)} /></td><td className="px-2 py-2 min-w-[110px]"><EditableCell value={row.Workstream} onChange={v => updateDeconCell(idx, "Workstream", v)} /></td><td className="px-2 py-2 min-w-[90px]"><SelectCell value={row["AI Impact"]} onChange={v => updateDeconCell(idx, "AI Impact", v)} options={["High","Moderate","Low"]} /></td><td className="px-2 py-2 min-w-[80px]"><EditableCell type="number" value={row["Est Hours/Week"]} onChange={v => updateDeconCell(idx, "Est Hours/Week", v)} suffix="h" /></td><td className="px-2 py-2 min-w-[80px]"><EditableCell type="number" value={row["Current Time Spent %"]} onChange={v => updateDeconCell(idx, "Current Time Spent %", v)} suffix="%" /></td><td className="px-2 py-2 min-w-[90px]"><SelectCell value={row["Task Type"]} onChange={v => updateDeconCell(idx, "Task Type", v)} options={["Repetitive","Variable"]} /></td><td className="px-2 py-2 min-w-[100px]"><SelectCell value={row.Interaction} onChange={v => updateDeconCell(idx, "Interaction", v)} options={["Independent","Interactive","Collaborative"]} /></td><td className="px-2 py-2 min-w-[110px]"><SelectCell value={row.Logic} onChange={v => updateDeconCell(idx, "Logic", v)} options={["Deterministic","Probabilistic","Judgment-heavy"]} /></td><td className="px-2 py-2 min-w-[100px]"><EditableCell value={row["Primary Skill"]} onChange={v => updateDeconCell(idx, "Primary Skill", v)} /></td><td className="px-2 py-2 min-w-[100px]"><EditableCell value={row["Secondary Skill"]} onChange={v => updateDeconCell(idx, "Secondary Skill", v)} /></td></tr>)}</tbody></table></div>
+          <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full text-left text-[15px]"><thead><tr className="bg-[var(--surface-2)]">{["ID","Task Name","Time %","Est Hrs","AI Impact","Type","Interaction","Logic","Skill"].map(c => <th key={c} className="px-2 py-2 border-b border-[var(--border)] text-[14px] uppercase text-[var(--text-muted)] whitespace-nowrap font-semibold">{c}</th>)}<th className="w-8" /></tr></thead><tbody>{js.deconRows.map((row, idx) => {
+            const timePct = Math.round(Number(row["Current Time Spent %"] || 0));
+            const estHrs = Math.round(timePct * weeklyHours / 100 * 10) / 10;
+            const impactColor = String(row["AI Impact"]) === "High" ? "var(--risk)" : String(row["AI Impact"]) === "Moderate" ? "var(--warning)" : "var(--success)";
+            return <tr key={idx} className="border-b border-[var(--border)] hover:bg-[var(--hover)]">
+              <td className="px-2 py-2 text-[14px] font-data text-[var(--text-muted)] w-16">{String(row["Task ID"] || `T${String(idx + 1).padStart(3, "0")}`)}</td>
+              <td className="px-2 py-2 min-w-[180px]"><EditableCell value={row["Task Name"]} onChange={v => updateDeconCell(idx, "Task Name", v)} /></td>
+              <td className="px-2 py-2 w-20"><EditableCell type="number" value={row["Current Time Spent %"]} onChange={v => updateDeconCell(idx, "Current Time Spent %", v)} suffix="%" /></td>
+              <td className="px-2 py-2 w-16 text-[15px] font-data text-[var(--text-muted)]">{estHrs}h</td>
+              <td className="px-2 py-2 w-24"><SelectCell value={row["AI Impact"]} onChange={v => updateDeconCell(idx, "AI Impact", v)} options={["High","Moderate","Low"]} /></td>
+              <td className="px-2 py-2 w-24"><SelectCell value={row["Task Type"]} onChange={v => updateDeconCell(idx, "Task Type", v)} options={["Repetitive","Variable"]} /></td>
+              <td className="px-2 py-2 w-28"><SelectCell value={row.Interaction} onChange={v => updateDeconCell(idx, "Interaction", v)} options={["Independent","Interactive","Collaborative"]} /></td>
+              <td className="px-2 py-2 w-28"><SelectCell value={row.Logic} onChange={v => updateDeconCell(idx, "Logic", v)} options={["Deterministic","Probabilistic","Judgment-heavy"]} /></td>
+              <td className="px-2 py-2 min-w-[100px]"><EditableCell value={row["Primary Skill"]} onChange={v => updateDeconCell(idx, "Primary Skill", v)} /></td>
+              <td className="px-2 py-2 w-8"><button onClick={() => { const newRows = js.deconRows.filter((_, i) => i !== idx); setJobState(job, { deconRows: newRows, deconSubmitted: false, redeploySubmitted: false, finalized: false, recon: null, redeployRows: [] }); }} className="text-[var(--text-muted)] hover:text-[var(--risk)] text-[15px]">{"\u00D7"}</button></td>
+            </tr>; })}</tbody>
+            <tfoot><tr className="bg-[var(--surface-2)]"><td className="px-2 py-2 text-[14px] font-bold text-[var(--text-muted)]" colSpan={2}>Total</td><td className="px-2 py-2 text-[15px] font-bold" style={{ color: deconTotal === 100 ? "var(--success)" : "var(--risk)" }}>{deconTotal}%</td><td className="px-2 py-2 text-[15px] font-bold text-[var(--text-muted)]">{(deconTotal * weeklyHours / 100).toFixed(1)}h</td><td colSpan={6} /></tr></tfoot>
+          </table></div>
         </Card>
       </div>}
 
@@ -853,8 +901,8 @@ Rules:
 
 
 const ODS_DEPTS = ["Executive Office","Finance & Accounting","Human Resources","Marketing","Product Design","Supply Chain","IT & Digital","Sales & Commercial","Legal & Compliance","Operations"];
-const ODS_LEVELS = ["C-Suite","SVP","VP","Director","Manager","IC"];
-const ODS_AVG_COMP: Record<string, number> = { "C-Suite": 420000, SVP: 310000, VP: 235000, Director: 175000, Manager: 125000, IC: 85000 };
+const ODS_LEVELS = ["E3","E2","E1","M5","M4","M3","M2","M1","P5","P4","P3","P2","P1","T4","T3","T2","T1","S2","S1"];
+const ODS_AVG_COMP: Record<string, number> = { "E4": 500000, "E3": 420000, "E2": 310000, "E1": 235000, "M5": 200000, "M4": 175000, "M3": 145000, "M2": 125000, "M1": 105000, "P6": 220000, "P5": 180000, "P4": 150000, "P3": 120000, "P2": 95000, "P1": 75000, "T6": 250000, "T5": 200000, "T4": 170000, "T3": 140000, "T2": 115000, "T1": 90000, "S4": 75000, "S3": 65000, "S2": 55000, "S1": 48000 };
 let _odsSeed = 42;
 
 function odsRand() { _odsSeed = (_odsSeed * 16807 + 0) % 2147483647; return _odsSeed / 2147483647; }

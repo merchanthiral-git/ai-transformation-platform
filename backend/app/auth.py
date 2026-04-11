@@ -53,6 +53,8 @@ class UserDB(Base):
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     last_login = Column(DateTime, nullable=True)
     is_active = Column(String(5), default="true")  # "true" / "false" (SQLite compat)
+    user_type = Column(String(50), default="")  # "consultant" or "industry"
+    user_role = Column(String(100), default="")  # e.g., "analyst", "principal", "hrbp", "chro"
     projects = relationship("ProjectDB", back_populates="owner", cascade="all, delete-orphan")
 
 
@@ -224,6 +226,8 @@ class ProfileUpdateRequest(BaseModel):
     current_password: Optional[str] = None
     new_password: Optional[str] = None
     new_password_confirm: Optional[str] = None
+    user_type: Optional[str] = None  # "consultant" or "industry"
+    user_role: Optional[str] = None  # specific role within type
 
     @field_validator("email")
     @classmethod

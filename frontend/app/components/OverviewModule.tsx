@@ -251,11 +251,11 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
 
   // Milestone positions matching the painted clearings on journey_bg.png (percentage-based)
   const milestonePercents = [
-    { xPct: 12.3, yPct: 65.4 },  // Discover
-    { xPct: 30.2, yPct: 54.2 },  // Diagnose
-    { xPct: 49.9, yPct: 70.3 },  // Design
-    { xPct: 69.6, yPct: 86.5 },  // Simulate
-    { xPct: 87.6, yPct: 75.4 },  // Mobilize
+    { xPct: 12.5, yPct: 63.0 },  // Discover
+    { xPct: 29.2, yPct: 50.0 },  // Diagnose
+    { xPct: 47.9, yPct: 62.0 },  // Design
+    { xPct: 67.7, yPct: 50.9 },  // Simulate
+    { xPct: 86.5, yPct: 61.1 },  // Mobilize
   ];
 
   // ── Journey Map — illustrated board game style ──

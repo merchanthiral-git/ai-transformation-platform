@@ -192,9 +192,110 @@ export function TalentMarketplace({ model, f, onBack, onNavigate }: { model: str
    MODULE: MANAGER CAPABILITY ASSESSMENT
    ═══════════════════════════════════════════════════════════════ */
 
+const CHANGE_PLAYBOOKS = [
+  { name: "AI-First Transformation", desc: "12-month playbook for organizations going heavy on AI adoption across core operations", industry: "Cross-Industry",
+    waves: [
+      { wave: "Foundation", time: "M1-M3", initiatives: [{ name: "AI readiness assessment" }, { name: "Data infrastructure audit" }, { name: "Change champion network setup" }, { name: "Executive alignment workshop" }] },
+      { wave: "Pilot", time: "M3-M6", initiatives: [{ name: "2-3 high-impact pilot deployments" }, { name: "Skills gap analysis for affected roles" }, { name: "Quick-win communication campaign" }] },
+      { wave: "Scale", time: "M6-M10", initiatives: [{ name: "Enterprise-wide AI tool rollout" }, { name: "Reskilling program execution" }, { name: "Process redesign implementation" }, { name: "Manager capability building" }] },
+      { wave: "Optimize", time: "M10-M12", initiatives: [{ name: "ROI measurement and reporting" }, { name: "Continuous improvement framework" }, { name: "Knowledge transfer to BAU teams" }] },
+    ]},
+  { name: "Restructuring & Delayering", desc: "Playbook for organizational redesign — flattening layers, adjusting spans, and restructuring reporting lines", industry: "Cross-Industry",
+    waves: [
+      { wave: "Diagnose", time: "M1-M2", initiatives: [{ name: "Current state org analysis" }, { name: "Span of control benchmarking" }, { name: "Layer count assessment" }] },
+      { wave: "Design", time: "M2-M4", initiatives: [{ name: "Target operating model design" }, { name: "Role mapping (current → future)" }, { name: "Impact assessment per function" }] },
+      { wave: "Consult", time: "M4-M6", initiatives: [{ name: "Manager notification and coaching" }, { name: "Employee communication" }, { name: "Selection and placement process" }] },
+      { wave: "Implement", time: "M6-M9", initiatives: [{ name: "Reporting line changes effective" }, { name: "Transition support programs" }, { name: "Performance monitoring" }] },
+    ]},
+  { name: "Skills-Based Transformation", desc: "Shift from job-based to skills-based talent architecture — rethinking how work gets done", industry: "Cross-Industry",
+    waves: [
+      { wave: "Taxonomy", time: "M1-M3", initiatives: [{ name: "Enterprise skills taxonomy build" }, { name: "Skills-to-job mapping" }, { name: "Assessment framework design" }] },
+      { wave: "Assessment", time: "M3-M6", initiatives: [{ name: "Organization-wide skills assessment" }, { name: "Gap analysis and prioritization" }, { name: "Career pathway design" }] },
+      { wave: "Integration", time: "M6-M9", initiatives: [{ name: "Skills in hiring processes" }, { name: "Skills-based development plans" }, { name: "Internal marketplace launch" }] },
+      { wave: "Maturity", time: "M9-M12", initiatives: [{ name: "Skills governance model" }, { name: "Continuous assessment cadence" }, { name: "Skills analytics dashboard" }] },
+    ]},
+  { name: "Digital Transformation", desc: "Technology modernization playbook focused on workforce impact of digital tools and automation", industry: "Cross-Industry",
+    waves: [
+      { wave: "Vision", time: "M1-M2", initiatives: [{ name: "Digital maturity assessment" }, { name: "Technology roadmap alignment" }, { name: "Workforce impact modeling" }] },
+      { wave: "Build", time: "M2-M5", initiatives: [{ name: "Platform selection and procurement" }, { name: "Integration architecture" }, { name: "Digital skills baseline" }] },
+      { wave: "Adopt", time: "M5-M8", initiatives: [{ name: "Phased user rollout" }, { name: "Digital champions program" }, { name: "Change resistance management" }] },
+      { wave: "Scale", time: "M8-M12", initiatives: [{ name: "Advanced feature adoption" }, { name: "Process automation expansion" }, { name: "ROI realization tracking" }] },
+    ]},
+];
+
 export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; jobStates?: Record<string, JobDesignState>; viewCtx?: ViewContext }) {
   const [sub, setSub] = useState("road");
   const [aiChangePlan, setAiChangePlan] = useState<Record<string, unknown>[]>([]);
+  // Gantt chart state
+  const defaultGanttPhases = [
+    { id: "assess", label: "Assess", start: 0, duration: 3, color: "#D4860A", activities: ["Workforce baseline", "AI readiness scan", "Stakeholder mapping", "Risk assessment"], status: "on_track" as string },
+    { id: "design", label: "Design", start: 2, duration: 4, color: "#E8C547", activities: ["Role redesign", "Job architecture", "Operating model", "Skill gap analysis"], status: "on_track" as string },
+    { id: "pilot", label: "Pilot", start: 5, duration: 3, color: "#C07030", activities: ["Wave 1 rollout", "Training delivery", "Tool deployment", "Feedback collection"], status: "not_started" as string },
+    { id: "scale", label: "Scale", start: 7, duration: 5, color: "#D97706", activities: ["Wave 2-3 rollout", "Process optimization", "Manager development", "Performance tracking"], status: "not_started" as string },
+    { id: "sustain", label: "Sustain", start: 11, duration: 4, color: "#B8602A", activities: ["Continuous improvement", "Capability maturity", "Knowledge transfer", "BAU transition"], status: "not_started" as string },
+  ];
+  const [ganttPhases, setGanttPhases] = usePersisted<typeof defaultGanttPhases>(`${model}_ganttPhases`, defaultGanttPhases);
+  const [ganttDuration, setGanttDuration] = useState(18);
+  const [ganttMilestones, setGanttMilestones] = usePersisted<{ id: string; label: string; month: number }[]>(`${model}_ganttMilestones`, [
+    { id: "m1", label: "Steering Committee Approval", month: 1 },
+    { id: "m2", label: "Go-Live (Wave 1)", month: 6 },
+    { id: "m3", label: "Phase 1 Complete", month: 9 },
+  ]);
+  const [editingPhase, setEditingPhase] = useState<string | null>(null);
+  const ganttEdited = JSON.stringify(ganttPhases) !== JSON.stringify(defaultGanttPhases);
+  // Workstream state
+  type WsActivity = { id: string; activity: string; owner: string; status: string; priority: string; pct: number };
+  type Workstream = { id: string; name: string; icon: string; color: string; collapsed: boolean; items: WsActivity[] };
+  const defaultWorkstreams: Workstream[] = [
+    { id: "tech", name: "Technology", icon: "💻", color: "#D4860A", collapsed: false, items: [
+      { id: "t1", activity: "AI tool selection & procurement", owner: "CTO", status: "In Progress", priority: "High", pct: 40 },
+      { id: "t2", activity: "Data pipeline modernization", owner: "VP Engineering", status: "Planned", priority: "High", pct: 0 },
+      { id: "t3", activity: "Integration testing", owner: "QA Lead", status: "Not Started", priority: "Medium", pct: 0 },
+      { id: "t4", activity: "Security review & compliance", owner: "CISO", status: "In Progress", priority: "High", pct: 30 },
+    ]},
+    { id: "people", name: "People & Change", icon: "👥", color: "#C07030", collapsed: false, items: [
+      { id: "p1", activity: "Reskilling program design", owner: "L&D Director", status: "In Progress", priority: "High", pct: 50 },
+      { id: "p2", activity: "Change champion network activation", owner: "Change Lead", status: "Complete", priority: "High", pct: 100 },
+      { id: "p3", activity: "Role transition planning", owner: "HRBPs", status: "Planned", priority: "Medium", pct: 0 },
+      { id: "p4", activity: "Employee communication rollout", owner: "Comms Director", status: "In Progress", priority: "Medium", pct: 25 },
+    ]},
+    { id: "process", name: "Process & Operations", icon: "⚙️", color: "#E8C547", collapsed: false, items: [
+      { id: "r1", activity: "Process mapping & documentation", owner: "Process Excellence", status: "Complete", priority: "Medium", pct: 100 },
+      { id: "r2", activity: "AI workflow design", owner: "Process Lead", status: "In Progress", priority: "High", pct: 60 },
+      { id: "r3", activity: "Standard operating procedure updates", owner: "Operations", status: "Not Started", priority: "Medium", pct: 0 },
+    ]},
+    { id: "gov", name: "Governance & Compliance", icon: "🏛️", color: "#D97706", collapsed: false, items: [
+      { id: "g1", activity: "AI governance framework", owner: "Chief Risk Officer", status: "In Progress", priority: "High", pct: 35 },
+      { id: "g2", activity: "Decision rights matrix (RACI)", owner: "COO", status: "Planned", priority: "Medium", pct: 0 },
+      { id: "g3", activity: "KPI & measurement framework", owner: "Strategy Lead", status: "Planned", priority: "Medium", pct: 0 },
+    ]},
+  ];
+  const [workstreams, setWorkstreams] = usePersisted<Workstream[]>(`${model}_workstreams`, defaultWorkstreams);
+  const [wsFilter, setWsFilter] = useState("All");
+  const [wsSearch, setWsSearch] = useState("");
+  // Stakeholder state (moved from IIFE to prevent hooks violation)
+  const [stakeholders, setStakeholders] = usePersisted<{name:string;role:string;quadrant:string;influence:number;sentiment:string}[]>(`${model}_stakeholders`, [
+    { name: "CEO", role: "Executive Sponsor", quadrant: "manage", influence: 5, sentiment: "Supportive" },
+    { name: "CHRO", role: "Transformation Lead", quadrant: "manage", influence: 5, sentiment: "Champion" },
+    { name: "CFO", role: "Budget Holder", quadrant: "satisfy", influence: 4, sentiment: "Cautious" },
+    { name: "CTO", role: "Technology Lead", quadrant: "manage", influence: 4, sentiment: "Supportive" },
+    { name: "VP Operations", role: "Most Impacted", quadrant: "manage", influence: 3, sentiment: "Resistant" },
+    { name: "Union Rep", role: "Employee Voice", quadrant: "inform", influence: 3, sentiment: "Concerned" },
+    { name: "Middle Managers", role: "Change Agents", quadrant: "inform", influence: 2, sentiment: "Mixed" },
+    { name: "Board Members", role: "Governance", quadrant: "satisfy", influence: 5, sentiment: "Neutral" },
+  ]);
+  const [dragOverQuad, setDragOverQuad] = useState<string | null>(null);
+  // Risk register state (moved from IIFE)
+  const [riskItems, setRiskItems] = usePersisted<{id:string;name:string;category:string;prob:number;impact:number;mitigation:string;contingency:string;owner:string;status:string}[]>(`${model}_risk_register`, [
+    { id: "r1", name: "Workforce resistance to AI adoption exceeds projections", category: "People", prob: 4, impact: 4, mitigation: "Deploy change champions at 1:5 ratio, run pilot programs", contingency: "Slow rollout timeline, increase training budget", owner: "CHRO", status: "Open" },
+    { id: "r2", name: "Critical skill gaps cannot be closed internally", category: "People", prob: 3, impact: 5, mitigation: "Identify external hiring needs early, partner with training providers", contingency: "Engage contractors for bridge period", owner: "L&D Director", status: "Open" },
+    { id: "r3", name: "Technology integration delays", category: "Technology", prob: 3, impact: 4, mitigation: "Parallel workstreams for integration testing", contingency: "Manual workarounds during transition", owner: "CTO", status: "Open" },
+    { id: "r4", name: "Budget overrun on reskilling investment", category: "Financial", prob: 2, impact: 4, mitigation: "Phase investments across quarters, track ROI monthly", contingency: "Prioritize highest-impact cohorts only", owner: "CFO", status: "Open" },
+    { id: "r5", name: "Regulatory compliance gaps during transition", category: "Regulatory", prob: 2, impact: 5, mitigation: "Early engagement with legal and compliance teams", contingency: "Pause AI deployment in regulated areas", owner: "General Counsel", status: "Open" },
+  ]);
+  const [riskSortCol, setRiskSortCol] = useState("score");
+  const [addingRisk, setAddingRisk] = useState(false);
+  const [newRiskForm, setNewRiskForm] = useState({name:"",category:"People",prob:3,impact:3,mitigation:"",contingency:"",owner:""});
   const [data, cpLoading] = useApiData(() => sub === "road" ? api.getRoadmap(model, f) : api.getRisk(model, f), [sub, model, f.func, f.jf, f.sf, f.cl]);
   // Job view: filter to this role
   if (viewCtx?.mode === "job" && viewCtx?.job) return <div>
@@ -232,7 +333,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, viewCtx
   return <div>
     <ContextStrip items={["Phase 3: Deliver — Your transformation roadmap. Auto-generates from Phase 2 decisions or upload your own change plan."]} />
     <PageHeader icon="🚀" title="Change Planner" subtitle="Sequence initiatives and manage transformation risk" onBack={onBack} moduleId="plan" />
-    <TabBar tabs={[{ id: "road", label: "Roadmap" }, { id: "gantt", label: "📅 Gantt" }, { id: "workstreams", label: "🔧 Workstreams" }, { id: "stakeholders", label: "👥 Stakeholders" }, { id: "risks", label: "⚠️ Risk Register" }, { id: "comms", label: "📣 Comms Plan" }, { id: "risk", label: "Risk Analysis" }, { id: "playbook", label: "📖 Playbooks" }]} active={sub} onChange={setSub} />
+    <TabBar tabs={[{ id: "road", label: "Roadmap" }, { id: "gantt", label: "📅 Gantt" }, { id: "workstreams", label: "🔧 Workstreams" }, { id: "stakeholders", label: "👥 Stakeholders" }, { id: "risks", label: "⚠️ Risk Register" }, { id: "comms", label: "📣 Comms Plan" }, { id: "playbook", label: "📖 Playbooks" }]} active={sub} onChange={setSub} />
     {sub === "road" && <div className="bg-gradient-to-r from-[rgba(224,144,64,0.06)] to-transparent border border-[rgba(224,144,64,0.15)] rounded-xl p-4 mb-4 flex items-center justify-between">
       <div><div className="text-[15px] font-bold text-[var(--text-primary)]">☕ AI can build your change roadmap</div><div className="text-[15px] text-[var(--text-muted)]">Generates initiatives, waves, owners, and risks from your transformation decisions</div></div>
       <button onClick={async () => {
@@ -336,157 +437,169 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, viewCtx
         <div className="flex gap-0">{waves.map(([name], i) => <div key={name} className="flex-1 h-2 first:rounded-l last:rounded-r" style={{ background: COLORS[i % COLORS.length] }} />)}</div>
         <div className="flex justify-between mt-1 text-[15px] text-[var(--text-muted)]"><span>Start</span><span>End</span></div>
       </Card>}<div className="grid grid-cols-12 gap-4"><div className="col-span-7"><Card title="Change Plan"><DataTable data={((d?.roadmap ?? []) as Record<string, unknown>[])} /></Card></div><div className="col-span-5"><Card title="Priority"><DonutViz data={Object.entries(pd).map(([n, v]) => ({ name: n, value: v }))} /></Card><Card title="Waves"><BarViz data={Object.entries(wd).map(([n, v]) => ({ Wave: n, Count: v }))} labelKey="Wave" valueKey="Count" color="var(--warning)" /></Card></div></div></div>; })() : (() => { const d = data as Record<string, unknown> | null; if (d && (d as Record<string, unknown>).empty) return <Empty text="Upload work design data" icon="⚠️" />; const s = ((d?.summary ?? {}) as Record<string, unknown>); return <div><div className="grid grid-cols-4 gap-3 mb-5"><KpiCard label="High Risk" value={s.high_risk_count as number ?? 0} /><KpiCard label="Do Not Automate" value={s.no_automate_count as number ?? 0} accent /><KpiCard label="Avg Risk" value={s.avg_risk as number ?? 0} /><KpiCard label="Assessed" value={s.total_assessed as number ?? 0} /></div><div className="grid grid-cols-2 gap-4"><Card title="Risk by Workstream"><BarViz data={((d?.risk_by_workstream ?? []) as Record<string, unknown>[])} labelKey="Workstream" valueKey="Risk Score" color="var(--risk)" /></Card><Card title="High Risk Tasks"><DataTable data={((d?.high_risk_tasks ?? []) as Record<string, unknown>[])} /></Card></div></div>; })()}
-    {/* ═══ GANTT CHART ═══ */}
-    {sub === "gantt" && <Card title="Transformation Gantt Chart">
-      <div className="text-[15px] text-[var(--text-secondary)] mb-4">Phases and key activities across the transformation timeline. {aiChangePlan.length > 0 ? "Generated from your roadmap data." : "Default template — build a roadmap to customize."}</div>
-      {(() => {
-        // Build phases from roadmap data if available, else use defaults
-        const defaultPhases = [
-          { id: "assess", label: "Assess", start: 0, duration: 3, color: "#D4860A", activities: ["Workforce baseline", "AI readiness scan", "Stakeholder mapping", "Risk assessment"] },
-          { id: "design", label: "Design", start: 2, duration: 4, color: "#E8C547", activities: ["Role redesign", "Job architecture", "Operating model", "Skill gap analysis"] },
-          { id: "pilot", label: "Pilot", start: 5, duration: 3, color: "#C07030", activities: ["Wave 1 rollout", "Training delivery", "Tool deployment", "Feedback collection"] },
-          { id: "scale", label: "Scale", start: 7, duration: 5, color: "#D97706", activities: ["Wave 2-3 rollout", "Process optimization", "Manager development", "Performance tracking"] },
-          { id: "sustain", label: "Sustain", start: 11, duration: 4, color: "#B8602A", activities: ["Continuous improvement", "Capability maturity", "Knowledge transfer", "BAU transition"] },
-        ];
-        const waveColors = ["#D4860A", "#E8C547", "#C07030", "#D97706", "#B8602A"];
-        let phases = defaultPhases;
-        if (aiChangePlan.length > 0) {
-          const byWave: Record<string, string[]> = {};
-          aiChangePlan.forEach((item: Record<string, unknown>) => {
-            const wave = String(item.wave || item.Wave || "Wave 1");
-            if (!byWave[wave]) byWave[wave] = [];
-            byWave[wave].push(String(item.initiative || item.Initiative || item.name || ""));
-          });
-          const waveEntries = Object.entries(byWave);
-          if (waveEntries.length > 0) {
-            let monthOffset = 0;
-            phases = waveEntries.map(([wave, activities], i) => {
-              const dur = Math.max(2, Math.ceil(activities.length * 0.8));
-              const phase = { id: wave, label: wave, start: monthOffset, duration: dur, color: waveColors[i % waveColors.length], activities: activities.slice(0, 5) };
-              monthOffset += Math.max(1, dur - 1);
-              return phase;
-            });
-          }
-        }
-        const totalMonths = Math.max(15, ...phases.map(p => p.start + p.duration));
-        return <div>
-          {/* Month headers */}
-          <div className="flex mb-2 ml-28">
-            {Array.from({length: totalMonths}, (_, i) => <div key={i} className="flex-1 text-[14px] text-[var(--text-muted)] text-center font-data">M{i+1}</div>)}
+    {/* ═══ INTERACTIVE GANTT CHART ═══ */}
+    {sub === "gantt" && <div>
+      <Card title={ganttEdited ? "Custom Transformation Roadmap" : "Transformation Gantt Chart"}>
+        {/* Toolbar */}
+        <div className="flex items-center gap-4 mb-4 flex-wrap">
+          <div className="flex items-center gap-2">
+            <span className="text-[14px] text-[var(--text-muted)]">Duration:</span>
+            <select value={ganttDuration} onChange={e => setGanttDuration(Number(e.target.value))} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-[15px] text-[var(--text-primary)] outline-none">
+              {[12, 15, 18, 24, 36].map(m => <option key={m} value={m}>{m} months</option>)}
+            </select>
           </div>
-          {/* Phase bars */}
-          <div className="space-y-3">
-            {phases.map(p => <div key={p.id}>
-              <div className="flex items-center mb-1">
-                <div className="w-28 text-[15px] font-semibold font-heading shrink-0" style={{ color: p.color }}>{p.label}</div>
-                <div className="flex-1 relative h-7">
-                  <div className="absolute h-full rounded-lg flex items-center px-2 text-[14px] font-bold text-white transition-all hover:opacity-90" style={{ left: `${(p.start / totalMonths) * 100}%`, width: `${(p.duration / totalMonths) * 100}%`, background: p.color }}>
-                    {p.duration}mo
+          <div className="flex gap-2 ml-auto">
+            <button onClick={() => { const id = `p${Date.now()}`; const colors = ["#D4860A","#E8C547","#C07030","#D97706","#B8602A","#8B5CF6"]; setGanttPhases(prev => [...prev, { id, label: "New Phase", start: Math.max(0, ...prev.map(p => p.start + p.duration)), duration: 2, color: colors[prev.length % colors.length], activities: ["Define activities..."], status: "not_started" }]); }} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 hover:bg-[var(--accent-primary)]/5 transition-all">+ Add Phase</button>
+            <button onClick={() => { const id = `m${Date.now()}`; setGanttMilestones(prev => [...prev, { id, label: "New Milestone", month: 6 }]); }} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:border-[var(--accent-primary)]/30 transition-all">+ Milestone</button>
+            {ganttEdited && <button onClick={() => setGanttPhases(defaultGanttPhases)} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">Reset</button>}
+          </div>
+        </div>
+
+        {/* Month headers */}
+        <div className="overflow-x-auto">
+          <div style={{ minWidth: Math.max(800, ganttDuration * 50) }}>
+            {/* Milestones row */}
+            <div className="flex mb-1 ml-32 relative h-6">
+              {ganttMilestones.map(ms => <div key={ms.id} className="absolute flex flex-col items-center group" style={{ left: `${(ms.month / ganttDuration) * 100}%`, transform: "translateX(-50%)" }}>
+                <div style={{ width: 10, height: 10, background: "#EF4444", transform: "rotate(45deg)" }} />
+                <div className="text-[13px] text-[var(--risk)] font-semibold whitespace-nowrap mt-1 opacity-70 group-hover:opacity-100">{ms.label}</div>
+              </div>)}
+            </div>
+
+            {/* Month labels */}
+            <div className="flex mb-2 ml-32">
+              {Array.from({ length: ganttDuration }, (_, i) => {
+                const d = new Date(); d.setMonth(d.getMonth() + i);
+                return <div key={i} className="flex-1 text-[13px] text-[var(--text-muted)] text-center font-data border-l border-[var(--border)]" style={{ borderColor: i === 0 ? "transparent" : undefined }}>{d.toLocaleDateString("en", { month: "short", year: "2-digit" })}</div>;
+              })}
+            </div>
+
+            {/* Phase bars */}
+            <div className="space-y-2">
+              {ganttPhases.map((p, pi) => {
+                const statusTint = p.status === "complete" ? "rgba(16,185,129,0.08)" : p.status === "at_risk" ? "rgba(239,68,68,0.06)" : "transparent";
+                return <div key={p.id} style={{ background: statusTint, borderRadius: 8, padding: "4px 0" }}>
+                  <div className="flex items-center">
+                    <div className="w-32 shrink-0 flex items-center gap-2 px-2">
+                      <span className="text-[15px] font-semibold truncate" style={{ color: p.color }}>{p.label}</span>
+                      <button onClick={() => setEditingPhase(editingPhase === p.id ? null : p.id)} className="text-[14px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] shrink-0 opacity-0 group-hover:opacity-100" style={{ opacity: editingPhase === p.id ? 1 : undefined }} title="Edit">✎</button>
+                    </div>
+                    <div className="flex-1 relative h-8">
+                      {/* Grid lines */}
+                      {Array.from({ length: ganttDuration }, (_, i) => <div key={i} className="absolute top-0 bottom-0 border-l border-[var(--border)]" style={{ left: `${(i / ganttDuration) * 100}%`, opacity: 0.3 }} />)}
+                      {/* Phase bar */}
+                      <div className="absolute h-full rounded-lg flex items-center px-3 text-[14px] font-bold text-white cursor-pointer transition-all hover:brightness-110" style={{ left: `${(p.start / ganttDuration) * 100}%`, width: `${Math.max((p.duration / ganttDuration) * 100, 3)}%`, background: `linear-gradient(135deg, ${p.color}, ${p.color}cc)`, boxShadow: `0 2px 8px ${p.color}30` }} onClick={() => setEditingPhase(editingPhase === p.id ? null : p.id)}>
+                        {p.duration}mo
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-              <div className="flex ml-28">
-                {p.activities.map((a, i) => <div key={i} className="text-[14px] text-[var(--text-muted)] mr-4">· {a}</div>)}
-              </div>
-            </div>)}
+                  {/* Inline edit panel */}
+                  {editingPhase === p.id && <div className="ml-32 mt-2 mb-2 p-4 rounded-xl bg-[var(--surface-2)] border border-[var(--border)]">
+                    <div className="grid grid-cols-4 gap-3 mb-3">
+                      <div><div className="text-[13px] text-[var(--text-muted)] mb-1">Name</div><input value={p.label} onChange={e => setGanttPhases(prev => prev.map(x => x.id === p.id ? { ...x, label: e.target.value } : x))} className="w-full bg-[var(--surface-1)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-[15px] text-[var(--text-primary)] outline-none" /></div>
+                      <div><div className="text-[13px] text-[var(--text-muted)] mb-1">Start Month</div><input type="number" min={0} max={ganttDuration - 1} value={p.start} onChange={e => setGanttPhases(prev => prev.map(x => x.id === p.id ? { ...x, start: Math.max(0, Number(e.target.value)) } : x))} className="w-full bg-[var(--surface-1)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-[15px] text-[var(--text-primary)] outline-none" /></div>
+                      <div><div className="text-[13px] text-[var(--text-muted)] mb-1">Duration (months)</div><input type="number" min={1} max={24} value={p.duration} onChange={e => setGanttPhases(prev => prev.map(x => x.id === p.id ? { ...x, duration: Math.max(1, Number(e.target.value)) } : x))} className="w-full bg-[var(--surface-1)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-[15px] text-[var(--text-primary)] outline-none" /></div>
+                      <div><div className="text-[13px] text-[var(--text-muted)] mb-1">Status</div><select value={p.status} onChange={e => setGanttPhases(prev => prev.map(x => x.id === p.id ? { ...x, status: e.target.value } : x))} className="w-full bg-[var(--surface-1)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-[15px] text-[var(--text-primary)] outline-none">
+                        <option value="not_started">Not Started</option><option value="on_track">On Track</option><option value="at_risk">At Risk</option><option value="delayed">Delayed</option><option value="complete">Complete</option>
+                      </select></div>
+                    </div>
+                    <div className="text-[13px] text-[var(--text-muted)] mb-1">Activities</div>
+                    <div className="space-y-1 mb-2">{p.activities.map((a, ai) => <div key={ai} className="flex items-center gap-2">
+                      <input value={a} onChange={e => { const acts = [...p.activities]; acts[ai] = e.target.value; setGanttPhases(prev => prev.map(x => x.id === p.id ? { ...x, activities: acts } : x)); }} className="flex-1 bg-[var(--surface-1)] border border-[var(--border)] rounded px-2 py-1 text-[14px] text-[var(--text-primary)] outline-none" />
+                      <button onClick={() => { const acts = p.activities.filter((_, i) => i !== ai); setGanttPhases(prev => prev.map(x => x.id === p.id ? { ...x, activities: acts } : x)); }} className="text-[var(--text-muted)] hover:text-[var(--risk)] text-[15px]">✕</button>
+                    </div>)}</div>
+                    <div className="flex gap-2">
+                      <button onClick={() => setGanttPhases(prev => prev.map(x => x.id === p.id ? { ...x, activities: [...x.activities, "New activity"] } : x))} className="text-[14px] text-[var(--accent-primary)]">+ Add activity</button>
+                      <button onClick={() => { if (confirm("Delete this phase?")) setGanttPhases(prev => prev.filter(x => x.id !== p.id)); setEditingPhase(null); }} className="ml-auto text-[14px] text-[var(--risk)]">Delete Phase</button>
+                    </div>
+                  </div>}
+                  {/* Activities (read-only when not editing) */}
+                  {editingPhase !== p.id && <div className="flex ml-32 mt-1 flex-wrap gap-x-4">
+                    {p.activities.slice(0, 4).map((a, i) => <div key={i} className="text-[14px] text-[var(--text-muted)]">{"·"} {a}</div>)}
+                    {p.activities.length > 4 && <span className="text-[14px] text-[var(--text-muted)] opacity-50">+{p.activities.length - 4} more</span>}
+                  </div>}
+                </div>;
+              })}
+            </div>
+
+            {/* Legend */}
+            <div className="flex gap-4 mt-4 pt-3 border-t border-[var(--border)] flex-wrap">
+              {ganttPhases.map(p => <div key={p.id} className="flex items-center gap-1.5 text-[14px] text-[var(--text-muted)]"><div className="w-3 h-2 rounded-sm" style={{ background: p.color }} />{p.label} ({p.duration}mo)</div>)}
+              <div className="flex items-center gap-1.5 text-[14px] text-[var(--text-muted)] ml-auto"><div style={{ width: 8, height: 8, background: "#EF4444", transform: "rotate(45deg)" }} /> Milestone</div>
+            </div>
           </div>
-          {/* Legend */}
-          <div className="flex gap-4 mt-4 pt-3 border-t border-[var(--border)]">
-            {phases.map(p => <div key={p.id} className="flex items-center gap-1.5 text-[14px] text-[var(--text-muted)]"><div className="w-3 h-2 rounded-sm" style={{ background: p.color }} />{p.label} ({p.duration}mo)</div>)}
-          </div>
-        </div>;
-      })()}
-    </Card>}
+        </div>
+      </Card>
+    </div>}
 
     {/* ═══ WORKSTREAMS ═══ */}
-    {sub === "workstreams" && <div className="animate-tab-enter">
-      {(() => {
-        // Build workstreams from roadmap data or use defaults
-        const defaultWS = [
-          { name: "Technology", icon: "💻", color: "#D4860A", items: [
-            { activity: "AI tool selection & procurement", owner: "CTO", status: "In Progress", deps: "None" },
-            { activity: "Data pipeline modernization", owner: "VP Engineering", status: "Planned", deps: "AI tool selection" },
-            { activity: "Integration testing", owner: "QA Lead", status: "Not Started", deps: "Data pipeline" },
-            { activity: "Security review", owner: "CISO", status: "In Progress", deps: "None" },
-          ]},
-          { name: "People", icon: "👥", color: "#C07030", items: [
-            { activity: "Reskilling program design", owner: "L&D Director", status: "In Progress", deps: "Skills gap analysis" },
-            { activity: "Change champion network", owner: "Change Lead", status: "Complete", deps: "Manager assessment" },
-            { activity: "Role transition plans", owner: "HRBPs", status: "Planned", deps: "Work design completion" },
-            { activity: "Employee communications", owner: "Comms Director", status: "In Progress", deps: "Stakeholder map" },
-          ]},
-          { name: "Process", icon: "⚙️", color: "#E8C547", items: [
-            { activity: "Process mapping & documentation", owner: "Process Excellence", status: "Complete", deps: "None" },
-            { activity: "AI workflow design", owner: "Process Lead", status: "In Progress", deps: "Process mapping" },
-            { activity: "SOP updates", owner: "Operations", status: "Not Started", deps: "AI workflow design" },
-            { activity: "Quality assurance framework", owner: "QA Manager", status: "Planned", deps: "SOP updates" },
-          ]},
-          { name: "Governance", icon: "🏛️", color: "#D97706", items: [
-            { activity: "AI governance framework", owner: "Chief Risk Officer", status: "In Progress", deps: "None" },
-            { activity: "Decision rights matrix (RACI)", owner: "COO", status: "Planned", deps: "Operating model" },
-            { activity: "Compliance review", owner: "Legal", status: "Not Started", deps: "AI governance" },
-            { activity: "KPI & measurement framework", owner: "Strategy", status: "Planned", deps: "Decision rights" },
-          ]},
-        ];
-        // If we have roadmap data, group initiatives into workstream categories
-        let workstreams = defaultWS;
-        if (aiChangePlan.length > 0) {
-          const wsIcons: Record<string, string> = { Technology: "💻", People: "👥", Process: "⚙️", Governance: "🏛️" };
-          const wsColors: Record<string, string> = { Technology: "#D4860A", People: "#C07030", Process: "#E8C547", Governance: "#D97706" };
-          const grouped: Record<string, { activity: string; owner: string; status: string; deps: string }[]> = {};
-          aiChangePlan.forEach((item: Record<string, unknown>) => {
-            const cat = String(item.category || item.workstream || "Process");
-            const bucket = ["Technology", "People", "Process", "Governance"].find(w => cat.toLowerCase().includes(w.toLowerCase())) || "Process";
-            if (!grouped[bucket]) grouped[bucket] = [];
-            const waveNum = parseInt(String(item.wave || "1").replace(/\D/g, ""), 10) || 1;
-            grouped[bucket].push({
-              activity: String(item.initiative || item.name || item.Initiative || ""),
-              owner: String(item.owner || item.Owner || "TBD"),
-              status: waveNum <= 1 ? "In Progress" : waveNum <= 2 ? "Planned" : "Not Started",
-              deps: "Per roadmap",
-            });
-          });
-          if (Object.keys(grouped).length > 0) {
-            workstreams = Object.entries(grouped).map(([name, items]) => ({
-              name, icon: wsIcons[name] || "📋", color: wsColors[name] || "#D4860A", items: items.slice(0, 6),
-            }));
-          }
-        }
-        return workstreams;
-      })().map(ws => <Card key={ws.name} title={<span className="flex items-center gap-2"><span>{ws.icon}</span>{ws.name} Workstream</span>}>
-        <div className="overflow-x-auto">
-          <table className="w-full text-[15px]"><thead><tr className="bg-[var(--surface-2)]">
-            <th className="px-3 py-2 text-left text-[15px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Activity</th>
-            <th className="px-3 py-2 text-left text-[15px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Owner</th>
-            <th className="px-3 py-2 text-center text-[15px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Status</th>
-            <th className="px-3 py-2 text-left text-[15px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Dependencies</th>
-          </tr></thead>
-          <tbody>{ws.items.map((item, i) => {
-            const statusColor = item.status === "Complete" ? "var(--success)" : item.status === "In Progress" ? "var(--accent-primary)" : item.status === "Blocked" ? "var(--risk)" : "var(--text-muted)";
-            return <tr key={i} className="border-b border-[var(--border)] hover:bg-[var(--hover)]">
-              <td className="px-3 py-2 text-[var(--text-primary)]">{item.activity}</td>
-              <td className="px-3 py-2 text-[var(--text-secondary)]">{item.owner}</td>
-              <td className="px-3 py-2 text-center"><span className="text-[15px] px-2 py-0.5 rounded-full font-semibold" style={{ color: statusColor, background: `${statusColor}15` }}>{item.status}</span></td>
-              <td className="px-3 py-2 text-[var(--text-muted)] text-[15px]">{item.deps}</td>
-            </tr>;
-          })}</tbody></table>
+    {sub === "workstreams" && (() => {
+      const totalActs = workstreams.reduce((s, ws) => s + ws.items.length, 0);
+      const completedActs = workstreams.reduce((s, ws) => s + ws.items.filter(a => a.status === "Complete").length, 0);
+      const atRiskActs = workstreams.reduce((s, ws) => s + ws.items.filter(a => a.status === "At Risk" || a.status === "Blocked").length, 0);
+      const overallPct = totalActs > 0 ? Math.round((completedActs / totalActs) * 100) : 0;
+      const statuses = ["Not Started", "Planned", "In Progress", "Complete", "At Risk", "Blocked"];
+      const statusColors: Record<string, string> = { Complete: "var(--success)", "In Progress": "var(--accent-primary)", Planned: "var(--warning)", "Not Started": "var(--text-muted)", "At Risk": "var(--risk)", Blocked: "var(--risk)" };
+      const priorities = ["High", "Medium", "Low"];
+      const priColors: Record<string, string> = { High: "var(--risk)", Medium: "var(--warning)", Low: "var(--success)" };
+      const updateActivity = (wsId: string, actId: string, field: string, value: string | number) => {
+        setWorkstreams(prev => prev.map(ws => ws.id === wsId ? { ...ws, items: ws.items.map(a => a.id === actId ? { ...a, [field]: value } : a) } : ws));
+      };
+
+      return <div>
+        {/* Summary KPIs */}
+        <div className="grid grid-cols-5 gap-3 mb-5">
+          <KpiCard label="Workstreams" value={workstreams.length} /><KpiCard label="Activities" value={totalActs} /><KpiCard label="Complete" value={`${overallPct}%`} accent /><KpiCard label="At Risk" value={atRiskActs} /><KpiCard label="High Priority" value={workstreams.reduce((s, ws) => s + ws.items.filter(a => a.priority === "High").length, 0)} />
         </div>
-      </Card>)}
-    </div>}
+
+        {/* Toolbar */}
+        <div className="flex items-center gap-3 mb-4 flex-wrap">
+          <input value={wsSearch} onChange={e => setWsSearch(e.target.value)} placeholder="Search activities..." className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-[15px] text-[var(--text-primary)] outline-none w-48" />
+          <select value={wsFilter} onChange={e => setWsFilter(e.target.value)} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-[15px] text-[var(--text-primary)] outline-none">
+            <option value="All">All Statuses</option>{statuses.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+          <div className="ml-auto flex gap-2">
+            <button onClick={() => { const id = `ws${Date.now()}`; const colors = ["#8B5CF6","#D4860A","#C07030","#E8C547","#D97706"]; setWorkstreams(prev => [...prev, { id, name: "New Workstream", icon: "📋", color: colors[prev.length % colors.length], collapsed: false, items: [{ id: `${id}_a1`, activity: "Define activities...", owner: "TBD", status: "Not Started", priority: "Medium", pct: 0 }] }]); }} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30">+ Workstream</button>
+          </div>
+        </div>
+
+        {/* Workstream cards */}
+        {workstreams.map(ws => {
+          const wsComplete = ws.items.length > 0 ? Math.round(ws.items.filter(a => a.status === "Complete").length / ws.items.length * 100) : 0;
+          const filtered = ws.items.filter(a => (wsFilter === "All" || a.status === wsFilter) && (!wsSearch || a.activity.toLowerCase().includes(wsSearch.toLowerCase())));
+          return <div key={ws.id} className="mb-4 rounded-xl border overflow-hidden" style={{ borderColor: `${ws.color}20`, borderLeft: `4px solid ${ws.color}` }}>
+            {/* Header — click to collapse */}
+            <button onClick={() => setWorkstreams(prev => prev.map(w => w.id === ws.id ? { ...w, collapsed: !w.collapsed } : w))} className="w-full flex items-center gap-3 px-4 py-3 bg-[var(--surface-1)] hover:bg-[var(--hover)] transition-all text-left">
+              <span className="text-xl">{ws.icon}</span>
+              <span className="text-[16px] font-bold text-[var(--text-primary)] flex-1">{ws.name}</span>
+              <span className="text-[14px] text-[var(--text-muted)]">{ws.items.length} activities</span>
+              <div className="w-16 h-2 rounded-full bg-[var(--surface-2)] overflow-hidden"><div className="h-full rounded-full bg-[var(--success)]" style={{ width: `${wsComplete}%` }} /></div>
+              <span className="text-[14px] font-bold" style={{ color: wsComplete === 100 ? "var(--success)" : "var(--text-muted)" }}>{wsComplete}%</span>
+              <span className="text-[14px] text-[var(--text-muted)]">{ws.collapsed ? "▸" : "▾"}</span>
+            </button>
+            {/* Activities table */}
+            {!ws.collapsed && <div className="px-4 pb-3">
+              <table className="w-full text-[15px]"><thead><tr className="bg-[var(--surface-2)]">
+                {["Activity", "Owner", "Status", "Priority", "Progress"].map(h => <th key={h} className="px-2 py-1.5 text-left text-[14px] font-semibold text-[var(--text-muted)] uppercase">{h}</th>)}
+                <th className="w-8" />
+              </tr></thead>
+              <tbody>{filtered.map(item => <tr key={item.id} className="border-t border-[var(--border)] hover:bg-[var(--hover)]">
+                <td className="px-2 py-2"><input value={item.activity} onChange={e => updateActivity(ws.id, item.id, "activity", e.target.value)} className="bg-transparent text-[var(--text-primary)] outline-none w-full text-[15px]" /></td>
+                <td className="px-2 py-2"><input value={item.owner} onChange={e => updateActivity(ws.id, item.id, "owner", e.target.value)} className="bg-transparent text-[var(--text-secondary)] outline-none w-full text-[15px]" style={{ maxWidth: 140 }} /></td>
+                <td className="px-2 py-2"><select value={item.status} onChange={e => updateActivity(ws.id, item.id, "status", e.target.value)} className="bg-[var(--surface-2)] border-none rounded px-2 py-1 text-[14px] font-semibold outline-none" style={{ color: statusColors[item.status] || "var(--text-muted)" }}>{statuses.map(s => <option key={s} value={s}>{s}</option>)}</select></td>
+                <td className="px-2 py-2"><select value={item.priority} onChange={e => updateActivity(ws.id, item.id, "priority", e.target.value)} className="bg-[var(--surface-2)] border-none rounded px-2 py-1 text-[14px] font-semibold outline-none" style={{ color: priColors[item.priority] || "var(--text-muted)" }}>{priorities.map(p => <option key={p} value={p}>{p}</option>)}</select></td>
+                <td className="px-2 py-2"><div className="flex items-center gap-2"><div className="w-16 h-2 rounded-full bg-[var(--surface-2)] overflow-hidden"><div className="h-full rounded-full bg-[var(--success)]" style={{ width: `${item.pct}%` }} /></div><span className="text-[14px] text-[var(--text-muted)] w-8">{item.pct}%</span></div></td>
+                <td><button onClick={() => setWorkstreams(prev => prev.map(w => w.id === ws.id ? { ...w, items: w.items.filter(a => a.id !== item.id) } : w))} className="text-[var(--text-muted)] hover:text-[var(--risk)] text-[15px]">{"×"}</button></td>
+              </tr>)}</tbody></table>
+              <button onClick={() => { const newId = `${ws.id}_${Date.now()}`; setWorkstreams(prev => prev.map(w => w.id === ws.id ? { ...w, items: [...w.items, { id: newId, activity: "New activity", owner: "TBD", status: "Not Started", priority: "Medium", pct: 0 }] } : w)); }} className="text-[14px] text-[var(--accent-primary)] mt-2">+ Add Activity</button>
+            </div>}
+          </div>;
+        })}
+      </div>;
+    })()}
 
     {/* ═══ STAKEHOLDER MAP — Draggable ═══ */}
     {sub === "stakeholders" && (() => {
-      const [stakeholders, setStakeholders] = usePersisted<{name:string;role:string;quadrant:string;influence:number;sentiment:string}[]>(`${model}_stakeholders`, [
-        { name: "CEO", role: "Executive Sponsor", quadrant: "manage", influence: 5, sentiment: "Supportive" },
-        { name: "CHRO", role: "Transformation Lead", quadrant: "manage", influence: 5, sentiment: "Champion" },
-        { name: "CFO", role: "Budget Holder", quadrant: "satisfy", influence: 4, sentiment: "Cautious" },
-        { name: "CTO", role: "Technology Lead", quadrant: "manage", influence: 4, sentiment: "Supportive" },
-        { name: "VP Operations", role: "Most Impacted", quadrant: "manage", influence: 3, sentiment: "Resistant" },
-        { name: "Union Rep", role: "Employee Voice", quadrant: "inform", influence: 3, sentiment: "Concerned" },
-        { name: "Middle Managers", role: "Change Agents", quadrant: "inform", influence: 2, sentiment: "Mixed" },
-        { name: "Board Members", role: "Governance", quadrant: "satisfy", influence: 5, sentiment: "Neutral" },
-      ]);
-      const [dragOverQuad, setDragOverQuad] = useState<string | null>(null);
       const quads = [
         { id: "manage", label: "Manage Closely", desc: "High Power + High Interest", color: "#EF4444", bg: "rgba(239,68,68,0.05)" },
         { id: "satisfy", label: "Keep Satisfied", desc: "High Power + Low Interest", color: "#D4860A", bg: "rgba(212,134,10,0.05)" },
@@ -535,16 +648,9 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, viewCtx
 
     {/* ═══ RISK REGISTER ═══ */}
     {sub === "risks" && (() => {
-      const [risks, setRisks] = usePersisted<{id:string;name:string;category:string;prob:number;impact:number;mitigation:string;contingency:string;owner:string;status:string}[]>(`${model}_risk_register`, [
-        { id: "R1", name: "AI tool adoption resistance", category: "People", prob: 4, impact: 4, mitigation: "Deploy change champions at 1:5 ratio", contingency: "Extend timeline, add support resources", owner: "Change Lead", status: "Open" },
-        { id: "R2", name: "Data quality gaps", category: "Technology", prob: 3, impact: 5, mitigation: "Data quality sprint before Phase 2", contingency: "Manual data validation process", owner: "Data Lead", status: "Mitigating" },
-        { id: "R3", name: "Key person departure", category: "People", prob: 2, impact: 5, mitigation: "Knowledge capture program, succession planning", contingency: "External hire pipeline ready", owner: "CHRO", status: "Open" },
-        { id: "R4", name: "Budget overrun", category: "Governance", prob: 3, impact: 3, mitigation: "Monthly variance reviews, contingency fund", contingency: "Phase descoping protocol", owner: "CFO", status: "Open" },
-        { id: "R5", name: "Regulatory compliance gap", category: "Governance", prob: 2, impact: 4, mitigation: "Legal review at each phase gate", contingency: "Pause affected workstreams", owner: "Legal", status: "Open" },
-      ]);
-      const [sortCol, setSortCol] = useState("score");
-      const [addingRisk, setAddingRisk] = useState(false);
-      const [newRisk, setNewRisk] = useState({name:"",category:"People",prob:3,impact:3,mitigation:"",contingency:"",owner:""});
+      const risks = riskItems; const setRisks = setRiskItems;
+      const sortCol = riskSortCol; const setSortCol = setRiskSortCol;
+      const newRisk = newRiskForm; const setNewRisk = setNewRiskForm;
       const sorted = [...risks].sort((a, b) => sortCol === "score" ? (b.prob * b.impact) - (a.prob * a.impact) : a.name.localeCompare(b.name));
       const riskColor = (score: number) => score >= 16 ? "var(--risk)" : score >= 9 ? "var(--warning)" : "var(--success)";
       const addRisk = () => {

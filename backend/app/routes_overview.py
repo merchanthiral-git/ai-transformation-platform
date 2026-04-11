@@ -206,7 +206,7 @@ def get_overview(model_id: str, fn: str = Query("All", alias="func"), jf: str = 
     return _safe({
         "kpis": {
             "employees": int(len(wf)) if not wf.empty else int(len(org)),
-            "roles": int(len(jc)),
+            "roles": int(get_series(wf, "Job Title").nunique()) if not wf.empty else int(len(jc)),
             "tasks_mapped": int(len(wd)),
             "avg_span": float(avg_span),
             "high_ai_pct": float(high_ai),

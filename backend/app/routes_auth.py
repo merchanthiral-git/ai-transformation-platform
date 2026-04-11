@@ -20,6 +20,12 @@ from app.email_service import (
 auth_router = APIRouter(prefix="/api/auth", tags=["auth"])
 project_router = APIRouter(prefix="/api/projects", tags=["projects"])
 
+def _user_dict(user: UserDB) -> dict:
+    return {"id": user.id, "username": user.username, "email": user.email,
+            "display_name": user.display_name, "last_login": str(user.last_login),
+            "user_type": getattr(user, "user_type", "") or "",
+            "user_role": getattr(user, "user_role", "") or ""}
+
 
 # ═══════════════════════════════════════════════════════════════
 # AUTH ROUTES
@@ -65,8 +71,7 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
 
     return {
         "token": token,
-        "user": {"id": user.id, "username": user.username, "email": user.email,
-                 "display_name": user.display_name, "last_login": str(user.last_login)},
+        "user": _user_dict(user),
     }
 
 
@@ -83,17 +88,13 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
     token = create_access_token(user.id, user.username)
     return {
         "token": token,
-        "user": {"id": user.id, "username": user.username, "email": user.email,
-                 "display_name": user.display_name or user.username,
-                 "last_login": prev_login},
+        "user": {**_user_dict(user), "display_name": user.display_name or user.username, "last_login": prev_login},
     }
 
 
 @auth_router.get("/me")
 def get_me(user: UserDB = Depends(get_current_user)):
-    return {"id": user.id, "username": user.username, "email": user.email,
-            "display_name": user.display_name or user.username,
-            "last_login": str(user.last_login) if user.last_login else None}
+    return _user_dict(user)
 
 
 @auth_router.get("/check-username")
@@ -199,6 +200,11 @@ def update_profile(req: ProfileUpdateRequest, user: UserDB = Depends(get_current
             raise HTTPException(status_code=400, detail="Email already in use by another account")
         user.email = email_clean
 
+    if req.user_type is not None:
+        user.user_type = req.user_type.strip()
+    if req.user_role is not None:
+        user.user_role = req.user_role.strip()
+
     if req.new_password:
         if not req.current_password:
             raise HTTPException(status_code=400, detail="Current password is required to set a new password")
@@ -212,8 +218,7 @@ def update_profile(req: ProfileUpdateRequest, user: UserDB = Depends(get_current
 
     db.commit()
     db.refresh(user)
-    return {"id": user.id, "username": user.username, "email": user.email,
-            "display_name": user.display_name or user.username}
+    return _user_dict(user)
 
 
 # ═══════════════════════════════════════════════════════════════

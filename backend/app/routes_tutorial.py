@@ -199,7 +199,7 @@ def _generate_sandbox_dataset(industry: str, size: str):
 
     # CEO
     ceo_id = f"EMP{str(emp_id).zfill(4)}"
-    employees.append({"Employee ID": ceo_id, "Name": f"{random.choice(first_names)} {random.choice(last_names)}", "Job Title": "CEO", "Function": "Executive", "Sub-Function": "C-Suite", "Career Level": levels[-1], "Career Track": "Manager", "Manager ID": "", "Compensation": int(cfg["functions"][functions_list[0]]["comp_base"] * 3.5 * sc["comp_mult"]), "Tenure": random.randint(5, 15), "Location": random.choice(["New York", "San Francisco", "Chicago", "London"])})
+    employees.append({"Employee ID": ceo_id, "Name": f"{random.choice(first_names)} {random.choice(last_names)}", "Job Title": "CEO", "Function": "Executive", "Sub-Function": "C-Suite", "Career Level": "E4", "Career Track": "E", "Manager ID": "", "Compensation": int(cfg["functions"][functions_list[0]]["comp_base"] * 3.5 * sc["comp_mult"]), "Tenure": random.randint(5, 15), "Location": random.choice(["New York", "San Francisco", "Chicago", "London"])})
     emp_id += 1
 
     # VPs per function
@@ -207,7 +207,7 @@ def _generate_sandbox_dataset(industry: str, size: str):
         vp_id = f"EMP{str(emp_id).zfill(4)}"
         vp_level = levels[-2] if len(levels) >= 2 else levels[-1]
         comp_base = cfg["functions"][func]["comp_base"]
-        employees.append({"Employee ID": vp_id, "Name": f"{random.choice(first_names)} {random.choice(last_names)}", "Job Title": f"VP {func}", "Function": func, "Sub-Function": f"{func} Leadership", "Career Level": vp_level, "Career Track": "Manager", "Manager ID": ceo_id, "Compensation": int(comp_base * 2.0 * sc["comp_mult"]), "Tenure": random.randint(4, 12), "Location": random.choice(["New York", "San Francisco", "Chicago", "London", "Austin"])})
+        employees.append({"Employee ID": vp_id, "Name": f"{random.choice(first_names)} {random.choice(last_names)}", "Job Title": f"VP {func}", "Function": func, "Sub-Function": f"{func} Leadership", "Career Level": "E1", "Career Track": "E", "Manager ID": ceo_id, "Compensation": int(comp_base * 2.0 * sc["comp_mult"]), "Tenure": random.randint(4, 12), "Location": random.choice(["New York", "San Francisco", "Chicago", "London", "Austin"])})
         managers[func] = vp_id
         emp_id += 1
 
@@ -226,7 +226,7 @@ def _generate_sandbox_dataset(industry: str, size: str):
         for _ in range(num_directors):
             d_id = f"EMP{str(emp_id).zfill(4)}"
             d_level = levels[-3] if len(levels) >= 3 else levels[-2]
-            employees.append({"Employee ID": d_id, "Name": f"{random.choice(first_names)} {random.choice(last_names)}", "Job Title": f"Director, {func}", "Function": func, "Sub-Function": f"{func} Management", "Career Level": d_level, "Career Track": "Manager", "Manager ID": mgr_id, "Compensation": int(comp_base * 1.5 * sc["comp_mult"]), "Tenure": random.randint(3, 10), "Location": random.choice(["New York", "San Francisco", "Chicago", "London", "Austin", "Seattle"])})
+            employees.append({"Employee ID": d_id, "Name": f"{random.choice(first_names)} {random.choice(last_names)}", "Job Title": f"Director, {func}", "Function": func, "Sub-Function": f"{func} Management", "Career Level": "M4", "Career Track": "M", "Manager ID": mgr_id, "Compensation": int(comp_base * 1.5 * sc["comp_mult"]), "Tenure": random.randint(3, 10), "Location": random.choice(["New York", "San Francisco", "Chicago", "London", "Austin", "Seattle"])})
             director_ids.append(d_id)
             emp_id += 1
 
@@ -328,6 +328,62 @@ def _seed_tutorial_store(industry="technology", size_tier="mid"):
     
     # Always regenerate — don't cache, to ensure schema changes are picked up
     random.seed(hash(f"{industry}_{size_tier}") % 2**31)
+
+    # ═══════════════════════════════════════════════════
+    # CAREER TRACK SYSTEM
+    # S=Support, P=Professional, T=Technical, ST=Scientific, M=Management, E=Executive
+    # ═══════════════════════════════════════════════════
+    CAREER_TRACKS = {
+        "S": {"name": "Support", "levels": {"S1": "Support Associate", "S2": "Senior Support Associate", "S3": "Support Specialist", "S4": "Senior Support Specialist"}},
+        "P": {"name": "Professional", "levels": {"P1": "Analyst/Associate", "P2": "Senior Analyst", "P3": "Specialist/Consultant", "P4": "Senior Specialist", "P5": "Principal/Lead", "P6": "Distinguished"}},
+        "T": {"name": "Technical", "levels": {"T1": "Engineer I", "T2": "Engineer II", "T3": "Senior Engineer", "T4": "Staff Engineer", "T5": "Principal Engineer", "T6": "Distinguished Engineer"}},
+        "M": {"name": "Management", "levels": {"M1": "Team Lead", "M2": "Manager", "M3": "Senior Manager", "M4": "Director", "M5": "Senior Director/VP"}},
+        "E": {"name": "Executive", "levels": {"E1": "Vice President", "E2": "Senior Vice President", "E3": "EVP/C-Suite", "E4": "CEO/President"}},
+    }
+
+    # Map old L-levels to new track+level based on role track
+    LEVEL_MAP_IC = {"L2": "P1", "L3": "P2", "L4": "P3", "L5": "P5", "L6": "P6"}
+    LEVEL_MAP_TECH = {"L2": "T1", "L3": "T2", "L4": "T3", "L5": "T4", "L6": "T6"}
+    LEVEL_MAP_MGR = {"L2": "M1", "L3": "M1", "L4": "M2", "L5": "M4", "L6": "M5"}
+    LEVEL_MAP_EXEC = {"L6": "E1"}
+    LEVEL_MAP_SUPPORT = {"L2": "S1", "L3": "S2"}
+
+    # Which industries get T-track and/or ST-track
+    TECH_INDUSTRIES = {"technology", "aerospace", "manufacturing", "energy"}
+
+    # Roles that should be T-track (technical) vs P-track (professional)
+    TECH_ROLE_KEYWORDS = {"engineer", "developer", "devops", "sre", "architect", "data scientist", "ml ", "security engineer", "pen tester", "analyst"}
+    SUPPORT_ROLE_KEYWORDS = {"coordinator", "associate", "specialist", "support", "clerk", "assistant", "ap/ar"}
+    EXEC_ROLE_KEYWORDS = {"vp ", "cfo", "cto", "ciso", "general counsel", "chro", "ceo", "chief"}
+
+    def assign_career_track(title: str, old_level: str, old_track: str, ind: str) -> tuple:
+        """Returns (career_track, career_level, career_level_name)"""
+        title_lower = title.lower()
+
+        # Executive track
+        if any(kw in title_lower for kw in EXEC_ROLE_KEYWORDS) or old_level == "L6":
+            if old_track == "Manager" or old_level in ("L5", "L6"):
+                level = LEVEL_MAP_EXEC.get(old_level, "E1")
+                return ("E", level, CAREER_TRACKS["E"]["levels"].get(level, "Executive"))
+
+        # Management track
+        if old_track == "Manager" and old_level != "L6":
+            level = LEVEL_MAP_MGR.get(old_level, "M2")
+            return ("M", level, CAREER_TRACKS["M"]["levels"].get(level, "Manager"))
+
+        # Support track
+        if any(kw in title_lower for kw in SUPPORT_ROLE_KEYWORDS) and old_level in ("L2", "L3"):
+            level = LEVEL_MAP_SUPPORT.get(old_level, "S1")
+            return ("S", level, CAREER_TRACKS["S"]["levels"].get(level, "Support"))
+
+        # Technical track (only for tech-heavy industries)
+        if ind in TECH_INDUSTRIES and any(kw in title_lower for kw in TECH_ROLE_KEYWORDS):
+            level = LEVEL_MAP_TECH.get(old_level, "T2")
+            return ("T", level, CAREER_TRACKS["T"]["levels"].get(level, "Engineer"))
+
+        # Default: Professional track
+        level = LEVEL_MAP_IC.get(old_level, "P2")
+        return ("P", level, CAREER_TRACKS["P"]["levels"].get(level, "Professional"))
 
     # ═══════════════════════════════════════════════════
     # 24 COMPANIES — 8 industries × 3 sizes
@@ -1137,15 +1193,17 @@ def _seed_tutorial_store(industry="technology", size_tier="mid"):
                 # Use hierarchy-specified level if available, else blueprint default
                 allowed = _get_level_for_role(title)
                 actual_level = random.choice(allowed) if allowed else level
+                # Apply career track system
+                ct, cl, cl_name = assign_career_track(real_title, actual_level, track, industry)
                 employees.append({
                     "Employee ID": eid, "Name": name, "Job Title": real_title,
                     "Function": real_func, "Job Family": jf, "Sub-Function": sf,
-                    "Career Level": actual_level, "Career Track": track,
+                    "Career Level": cl, "Career Track": ct,
                     "Manager ID": "", "Compensation": comp,
                     "Tenure": random.randint(0, 20),
                     "Location": random.choice(LOCATIONS),
                 })
-                if track == "Manager": func_mgrs.append(eid)
+                if ct in ("M", "E"): func_mgrs.append(eid)
                 emp_id += 1
         
         mgr_map[real_func] = func_mgrs

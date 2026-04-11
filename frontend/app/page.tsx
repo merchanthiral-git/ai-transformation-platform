@@ -1340,6 +1340,18 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
           </div>
         </div>
 
+        {/* Guide cards — available after entering a project */}
+        <div className="flex gap-3 mb-5">
+          <div className="flex-1 flex items-center gap-3 px-5 py-3 rounded-xl" style={{ background: "rgba(212,134,10,0.04)", border: "1px solid rgba(212,134,10,0.08)" }}>
+            <span style={{ fontSize: 24 }}>📘</span>
+            <div><div className="text-[15px] font-bold" style={{ color: "rgba(255,230,200,0.7)" }}>Consultant Guide</div><div className="text-[14px]" style={{ color: "rgba(255,230,200,0.25)" }}>Available in Platform Hub after entering a project</div></div>
+          </div>
+          <div className="flex-1 flex items-center gap-3 px-5 py-3 rounded-xl" style={{ background: "rgba(16,185,129,0.04)", border: "1px solid rgba(16,185,129,0.08)" }}>
+            <span style={{ fontSize: 24 }}>📗</span>
+            <div><div className="text-[15px] font-bold" style={{ color: "rgba(200,255,220,0.7)" }}>HR Professional Guide</div><div className="text-[14px]" style={{ color: "rgba(200,255,220,0.25)" }}>Available in Platform Hub after entering a project</div></div>
+          </div>
+        </div>
+
         {/* My Projects section */}
         {projects.length > 0 && <div style={{ borderRadius: 22, background: "rgba(255,255,255,0.03)", backdropFilter: "blur(16px)", border: "1px solid rgba(255,255,255,0.06)", padding: "20px 24px", marginTop: 4 }}>
           <div className="flex items-center justify-between mb-4">

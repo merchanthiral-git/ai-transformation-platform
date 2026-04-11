@@ -12,6 +12,8 @@ export interface AuthUser {
   email?: string | null;
   display_name?: string | null;
   last_login?: string | null;
+  user_type?: string | null;  // "consultant" or "industry"
+  user_role?: string | null;  // specific role within type
 }
 
 export interface ProjectData {
