@@ -284,8 +284,8 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
       <p style={{ fontSize: 15, color: "rgba(255,255,255,0.5)", textShadow: "0 1px 6px rgba(0,0,0,0.4)" }}>Click a milestone to explore its modules</p>
     </div>
 
-    {/* Milestone icons — directly on road, no circles */}
-    <div className="absolute inset-0 z-10" style={{ pointerEvents: "none" }}>
+    {/* Milestone icons */}
+    <div className="absolute inset-0 z-30" style={{ pointerEvents: "none" }}>
       {PHASES.map((phase, pi) => {
         const status = getPhaseStatus(phase);
         const isCurrent = pi === activeIdx;
@@ -294,11 +294,10 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
         const n = nodes[pi];
         return <button key={phase.id} onClick={() => setSelectedPhase(phase.id)} className="absolute group" style={{
           left: `${n.xPct}%`, top: `${n.yPct}%`, transform: "translate(-50%, -50%)",
-          opacity: 0, animation: `nodeIn 0.5s ease ${0.3 + pi * 0.15}s forwards`,
           pointerEvents: "auto",
         }}>
           {/* Icon image with solid navy circle background */}
-          <div style={{ width: 96, height: 96, borderRadius: "50%", background: "#1C2B3A", display: "flex", alignItems: "center", justifyContent: "center", filter: isCurrent ? "drop-shadow(0 0 16px rgba(212,134,10,0.5))" : "drop-shadow(0 4px 16px rgba(0,0,0,0.5))", transition: "all 0.2s", opacity: isReached ? 1 : 0.6 }}>
+          <div style={{ width: 96, height: 96, borderRadius: "50%", background: "#1C2B3A", display: "flex", alignItems: "center", justifyContent: "center", filter: isCurrent ? "drop-shadow(0 0 16px rgba(212,134,10,0.5))" : isReached ? "drop-shadow(0 4px 16px rgba(0,0,0,0.5))" : "grayscale(0.5) drop-shadow(0 4px 16px rgba(0,0,0,0.5))", transition: "all 0.2s" }}>
             <img src={`/icon_${phase.id}.png`} alt={phase.label} style={{ width: 96, height: 96, objectFit: "contain", borderRadius: "50%" }} />
           </div>
           {/* Label — frosted navy pill */}
@@ -313,7 +312,7 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
     </div>
 
     {/* Bottom: CTA + progress */}
-    <div className="absolute bottom-0 left-0 right-0 z-20 text-center pb-6 pt-10" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)" }}>
+    <div className="absolute bottom-0 left-0 right-0 text-center pb-6 pt-10" style={{ zIndex: 5, background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)" }}>
       <button onClick={() => setSelectedPhase(PHASES[activeIdx].id)} className="transition-all hover:translate-y-[-2px] mb-3" style={{ padding: "14px 40px", borderRadius: 14, fontSize: 16, fontWeight: 700, color: "#fff", background: "rgba(212,134,10,0.15)", backdropFilter: "blur(12px)", border: "1px solid rgba(212,134,10,0.4)", cursor: "pointer", textShadow: "0 1px 4px rgba(0,0,0,0.4)" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(212,134,10,0.25)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.7)"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(212,134,10,0.15)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.4)"; }}>
         {activeIdx === 0 ? "Begin with Discovery \u2192" : `Continue ${PHASES[activeIdx].label} \u2192`}
       </button>
@@ -328,7 +327,6 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
 
     <style>{`
       @keyframes nodePulse { 0%,100% { box-shadow: 0 0 24px rgba(212,134,10,0.2), 0 0 48px rgba(212,134,10,0.08); } 50% { box-shadow: 0 0 32px rgba(212,134,10,0.3), 0 0 64px rgba(212,134,10,0.12); } }
-      @keyframes nodeIn { from { opacity: 0; transform: translate(-50%, -50%) scale(0.7); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
     `}</style>
   </div>;
 }
