@@ -110,7 +110,7 @@ export function TransformationDashboard({ data, jobStates, simState, viewCtx }: 
   </div>;
 }
 
-export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, projectName, onBackToHub, onBackToSplash }: { onNavigate: (id: string) => void; moduleStatus: Record<string, string>; hasData: boolean; viewMode?: string; projectName?: string; onBackToHub?: () => void; onBackToSplash?: () => void }) {
+export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, projectName, onBackToHub, onBackToSplash, cardBackgrounds, phaseBackgrounds }: { onNavigate: (id: string) => void; moduleStatus: Record<string, string>; hasData: boolean; viewMode?: string; projectName?: string; onBackToHub?: () => void; onBackToSplash?: () => void; cardBackgrounds?: Record<string, string>; phaseBackgrounds?: Record<string, string> }) {
   const [selectedPhase, setSelectedPhase] = useState<string | null>(null);
 
   // Escape key: go back to splash or deselect phase
@@ -160,9 +160,11 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
       marketplace: "linear-gradient(135deg, #1a0800 0%, #2d1200 100%)", export: "linear-gradient(135deg, #1a0505 0%, #2a0a0a 100%)",
     };
 
+    const phaseBg = phaseBackgrounds?.[phase.id];
     return <div className="relative min-h-[calc(100vh-48px)] overflow-hidden">
-      {/* Background glow */}
-      <div className="absolute inset-0 z-0" style={{ background: `radial-gradient(ellipse at 40% 30%, ${phase.color}08 0%, transparent 60%), radial-gradient(ellipse at 70% 80%, ${phase.color}04 0%, transparent 50%)` }} />
+      {/* Phase background image */}
+      {phaseBg && <div className="absolute inset-0 z-0" style={{ backgroundImage: `url(${phaseBg})`, backgroundSize: "cover", backgroundPosition: "center" }} />}
+      <div className="absolute inset-0 z-0" style={{ background: phaseBg ? `linear-gradient(135deg, rgba(11,17,32,0.82) 0%, rgba(11,17,32,0.7) 50%, rgba(11,17,32,0.82) 100%)` : `radial-gradient(ellipse at 40% 30%, ${phase.color}08 0%, transparent 60%), radial-gradient(ellipse at 70% 80%, ${phase.color}04 0%, transparent 50%)` }} />
 
       <div className="relative z-10 px-7 py-6">
         {/* Back button */}
@@ -211,25 +213,31 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
             const statusLabel = status === "complete" ? "Complete" : status === "in_progress" ? "In Progress" : "";
             const mTitle = viewMode === "employee" && (m as Record<string, unknown>).empTitle ? String((m as Record<string, unknown>).empTitle) : viewMode === "job" && (m as Record<string, unknown>).jobTitle ? String((m as Record<string, unknown>).jobTitle) : m.title;
             const mDesc = viewMode === "employee" && (m as Record<string, unknown>).empDesc ? String((m as Record<string, unknown>).empDesc) : viewMode === "job" && (m as Record<string, unknown>).jobDesc ? String((m as Record<string, unknown>).jobDesc) : m.desc;
-            const grad = cardGrad[m.id] || "linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%)";
+            const tileBg = cardBackgrounds?.[m.id];
             return <button key={m.id} onClick={() => onNavigate(m.id)} className="text-left transition-all group" style={{
-              background: grad, borderRadius: 18, padding: "24px 24px 20px", minHeight: 200,
+              backgroundImage: tileBg ? `url(${tileBg})` : undefined,
+              backgroundSize: "cover", backgroundPosition: "center",
+              borderRadius: 18, padding: 0, minHeight: 200,
               border: `1px solid ${m.color}15`, position: "relative", overflow: "hidden", cursor: "pointer",
-              display: "flex", flexDirection: "column", justifyContent: "space-between",
+              display: "flex", flexDirection: "column", justifyContent: "stretch",
               opacity: 0, animation: `cardFadeIn 0.5s ease ${0.1 + mi * 0.08}s forwards`,
             }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-4px) scale(1.02)"; e.currentTarget.style.borderColor = `${m.color}40`; e.currentTarget.style.boxShadow = `0 16px 48px ${m.color}15`; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = `${m.color}15`; e.currentTarget.style.boxShadow = "none"; }}>
+              {/* Dark overlay for text readability */}
+              <div className="absolute inset-0" style={{ background: tileBg ? "linear-gradient(135deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0.55) 100%)" : "none" }} />
               {/* Glow overlay */}
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: `radial-gradient(ellipse at 30% 20%, ${m.color}08 0%, transparent 70%)` }} />
-              <div className="relative z-10">
-                <div className="flex items-start justify-between mb-4">
-                  <div style={{ fontSize: 48, filter: `drop-shadow(0 4px 12px ${m.color}30)`, lineHeight: 1 }}>{m.icon}</div>
-                  {statusLabel && <div className="flex items-center gap-1.5 shrink-0"><div className="w-2 h-2 rounded-full" style={{ background: statusColor }} /><span className="text-[14px] font-bold uppercase" style={{ color: statusColor }}>{statusLabel}</span></div>}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: `radial-gradient(ellipse at 30% 20%, ${m.color}15 0%, transparent 70%)` }} />
+              <div className="relative z-10 flex flex-col justify-between flex-1" style={{ padding: "24px 24px 20px" }}>
+                <div>
+                  <div className="flex items-start justify-between mb-4">
+                    <div style={{ fontSize: 48, filter: `drop-shadow(0 4px 12px rgba(0,0,0,0.5))`, lineHeight: 1 }}>{m.icon}</div>
+                    {statusLabel && <div className="flex items-center gap-1.5 shrink-0"><div className="w-2 h-2 rounded-full" style={{ background: statusColor }} /><span className="text-[14px] font-bold uppercase" style={{ color: statusColor, textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>{statusLabel}</span></div>}
+                  </div>
+                  <div style={{ fontSize: 20, fontWeight: 700, fontFamily: "'Outfit', sans-serif", color: "#ffffff", marginBottom: 6, textShadow: "0 1px 6px rgba(0,0,0,0.5)" }}>{mTitle}</div>
+                  <div style={{ fontSize: 15, color: "rgba(255,255,255,0.65)", lineHeight: 1.6, textShadow: "0 1px 4px rgba(0,0,0,0.4)" }}>{mDesc}</div>
                 </div>
-                <div style={{ fontSize: 20, fontWeight: 700, fontFamily: "'Outfit', sans-serif", color: "#f5e6d0", marginBottom: 6 }}>{mTitle}</div>
-                <div style={{ fontSize: 15, color: "rgba(255,230,200,0.4)", lineHeight: 1.6 }}>{mDesc}</div>
-              </div>
-              <div className="relative z-10 mt-4 flex items-center gap-2 text-[15px] font-semibold transition-all group-hover:gap-3" style={{ color: m.color }}>
-                <span>{status === "complete" ? "Review" : status === "in_progress" ? "Continue" : "Explore"} →</span>
+                <div className="mt-4 flex items-center gap-2 text-[15px] font-semibold transition-all group-hover:gap-3" style={{ color: m.color, textShadow: "0 1px 4px rgba(0,0,0,0.4)" }}>
+                  <span>{status === "complete" ? "Review" : status === "in_progress" ? "Continue" : "Explore"} →</span>
+                </div>
               </div>
             </button>;
           })}

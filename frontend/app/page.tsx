@@ -7,7 +7,7 @@ import { useWorkspaceController } from "../lib/workspace";
 
 // ── Shared components & hooks ──
 import {
-  ViewContext, COLORS, TT, PHASES, MODULES,
+  ViewContext, COLORS, TT, PHASES, MODULES, PHASE_BACKGROUNDS, generateCardBackgrounds,
   SIM_PRESETS, SIM_DIMS, SIM_JOBS, SIM_READINESS,
   KpiCard, Card, Empty, Badge, InsightPanel, NarrativePanel, DataTable,
   BarViz, DonutViz, RadarViz, TabBar, SidebarSelect, ReadinessDot,
@@ -341,6 +341,14 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
   const [viewMode, setViewMode] = usePersisted<string>(`${projectId}_viewMode`, "");
   const [viewEmployee, setViewEmployee] = usePersisted<string>(`${projectId}_viewEmployee`, "");
   const [viewJob, setViewJob] = usePersisted<string>(`${projectId}_viewJob`, "");
+
+  // Card & phase background images — generate for existing projects on first load
+  const [cardBgs, setCardBgs] = usePersisted<Record<string, string>>(`${projectId}_cardBackgrounds`, {});
+  const [phaseBgs, setPhaseBgs] = usePersisted<Record<string, string>>(`${projectId}_phaseBackgrounds`, {});
+  useEffect(() => {
+    if (!cardBgs || Object.keys(cardBgs).length === 0) setCardBgs(generateCardBackgrounds());
+    if (!phaseBgs || Object.keys(phaseBgs).length === 0) setPhaseBgs({ ...PHASE_BACKGROUNDS });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const [viewCustom, setViewCustom] = usePersisted<Record<string, string>>(`${projectId}_viewCustom`, { func: "All", jf: "All", sf: "All", cl: "All", ct: "All" });
   const [employees, setEmployees] = useState<string[]>([]);
   const [page, setPage] = usePersisted(`${projectId}_page`, "home");
@@ -685,7 +693,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
     {/* ── MAIN ── */}
     <main className="flex-1 min-h-screen bg-[var(--bg)]">
       {page === "home" && <div>
-        <LandingPage onNavigate={navigate} moduleStatus={moduleStatus} hasData={hasData} viewMode={viewMode} projectName={projectName} onBackToHub={onBackToHub} onBackToSplash={() => { setShowSplash(true); try { sessionStorage.removeItem(`${projectId}_splashSeen`); } catch {} }} />
+        <LandingPage onNavigate={navigate} moduleStatus={moduleStatus} hasData={hasData} viewMode={viewMode} projectName={projectName} onBackToHub={onBackToHub} onBackToSplash={() => { setShowSplash(true); try { sessionStorage.removeItem(`${projectId}_splashSeen`); } catch {} }} cardBackgrounds={cardBgs} phaseBackgrounds={phaseBgs} />
       </div>}
       {page !== "home" && <div className="px-7 py-6">
       {page === "snapshot" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><WorkforceSnapshot model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
@@ -1192,7 +1200,7 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
   const createProject = () => {
     if (!newName.trim() || nameTaken) return;
     const metaParts = [newClient, newIndustry, newSize, newLead, newDesc].filter(Boolean).join(" · ");
-    const p = { id: `proj_${Date.now()}`, name: newName.trim(), meta: metaParts.trim(), client: newClient.trim(), industry: newIndustry, size: newSize, lead: newLead.trim(), created: new Date().toLocaleDateString(), status: "Not Started" };
+    const p = { id: `proj_${Date.now()}`, name: newName.trim(), meta: metaParts.trim(), client: newClient.trim(), industry: newIndustry, size: newSize, lead: newLead.trim(), created: new Date().toLocaleDateString(), status: "Not Started", cardBackgrounds: generateCardBackgrounds(), phaseBackgrounds: { ...PHASE_BACKGROUNDS } };
     const updated = [...projects, p];
     setProjects(updated);
     localStorage.setItem("hub_projects", JSON.stringify(updated));

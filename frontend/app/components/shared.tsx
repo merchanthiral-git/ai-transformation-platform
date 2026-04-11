@@ -1086,6 +1086,33 @@ export const MODULES = [
   { id: "quickwins", icon: "⚡", title: "Quick-Win Identifier", desc: "Find highest ROI, lowest effort AI opportunities", color: "#22C55E", phase: "design", views: ["org","custom"] },
 ];
 
+export const PHASE_BACKGROUNDS: Record<string, string> = {
+  discover: "/cards/backgrounds/discover.png",
+  diagnose: "/cards/backgrounds/diagnose.png",
+  design: "/cards/backgrounds/design.png",
+  simulate: "/cards/backgrounds/simulate.png",
+  mobilize: "/cards/backgrounds/mobilize.png",
+};
+
+const TILE_IMAGES = Array.from({ length: 12 }, (_, i) => `/cards/tiles/tile_${String(i + 1).padStart(2, "0")}.png`);
+
+/** Generate a seeded-shuffle mapping of card IDs → tile images */
+export function generateCardBackgrounds(): Record<string, string> {
+  // Build a pool: repeat tiles enough to cover all modules, then shuffle
+  const pool: string[] = [];
+  while (pool.length < MODULES.length) pool.push(...TILE_IMAGES);
+  // Fisher-Yates shuffle with simple seed from timestamp
+  const seed = Date.now();
+  let s = seed;
+  const rng = () => { s = (s * 1664525 + 1013904223) & 0xffffffff; return (s >>> 0) / 0xffffffff; };
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  const result: Record<string, string> = {};
+  MODULES.forEach((m, i) => { result[m.id] = pool[i]; });
+  return result;
+}
 
 export const SIM_DIMS = ["Data Readiness","Process Standardization","Technology Enablement","Talent Readiness","Leadership Alignment"];
 export const SIM_PRESETS: Record<string, { label: string; adoption: number; timeline: number; ramp: number; color: string }> = {
