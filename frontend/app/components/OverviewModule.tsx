@@ -298,7 +298,7 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
           pointerEvents: "auto",
         }}>
           {/* Icon image */}
-          <img src={isComplete ? `/icon_${phase.id === "discover" ? "discover" : phase.id === "diagnose" ? "diagnose" : phase.id === "design" ? "design" : phase.id === "simulate" ? "simulate" : "mobilize"}.png` : `/icon_${phase.id === "discover" ? "discover" : phase.id === "diagnose" ? "diagnose" : phase.id === "design" ? "design" : phase.id === "simulate" ? "simulate" : "mobilize"}.png`} alt={phase.label} style={{ width: 96, height: 96, objectFit: "contain", filter: isCurrent ? "drop-shadow(0 0 16px rgba(212,134,10,0.5))" : "drop-shadow(0 4px 16px rgba(0,0,0,0.5))", transition: "all 0.2s", opacity: isReached ? 1 : 0.35 }} />
+          <img src={`/icon_${phase.id}.png`} alt={phase.label} style={{ width: 96, height: 96, objectFit: "contain", filter: isCurrent ? "drop-shadow(0 0 16px rgba(212,134,10,0.5))" : "drop-shadow(0 4px 16px rgba(0,0,0,0.5))", transition: "all 0.2s", opacity: isReached ? 1 : 0.35 }} />
           {/* Label with background pill */}
           <div className="text-center mt-3" style={{ width: 180, marginLeft: -50 }}>
             <div style={{ display: "inline-block", padding: "4px 14px", borderRadius: 10, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(4px)" }}>

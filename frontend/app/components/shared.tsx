@@ -1096,21 +1096,20 @@ export const PHASE_BACKGROUNDS: Record<string, string> = {
 
 const TILE_IMAGES = Array.from({ length: 12 }, (_, i) => `/cards/tiles/tile_${String(i + 1).padStart(2, "0")}.png`);
 
-/** Generate a seeded-shuffle mapping of card IDs → tile images */
+/** Generate a mapping of card IDs → tile images, unique within each phase group */
 export function generateCardBackgrounds(): Record<string, string> {
-  // Build a pool: repeat tiles enough to cover all modules, then shuffle
-  const pool: string[] = [];
-  while (pool.length < MODULES.length) pool.push(...TILE_IMAGES);
-  // Fisher-Yates shuffle with simple seed from timestamp
-  const seed = Date.now();
-  let s = seed;
-  const rng = () => { s = (s * 1664525 + 1013904223) & 0xffffffff; return (s >>> 0) / 0xffffffff; };
-  for (let i = pool.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1));
-    [pool[i], pool[j]] = [pool[j], pool[i]];
-  }
   const result: Record<string, string> = {};
-  MODULES.forEach((m, i) => { result[m.id] = pool[i]; });
+  // For each phase, shuffle all 12 tiles and assign one unique tile per card
+  for (const phase of PHASES) {
+    const pool = [...TILE_IMAGES];
+    // Fisher-Yates shuffle
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    const phaseMods = MODULES.filter(m => m.phase === phase.id);
+    phaseMods.forEach((m, i) => { result[m.id] = pool[i]; });
+  }
   return result;
 }
 
