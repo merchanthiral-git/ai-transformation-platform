@@ -128,21 +128,33 @@ const ALL_TRACKS: Track[] = [
   { id: 47, name: "Snow Piano", file: "/track47.mp3", genre: "focus" },
 ];
 
-function MusicPlayer() {
-  const [genre, setGenre] = useState("chill");
+function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
+  // Default to jazz genre, start on "Acid Jazz II"
+  const ACID_JAZZ_II_IDX = useMemo(() => {
+    const jazzTracks = ALL_TRACKS.filter(t => t.genre === "jazz");
+    return jazzTracks.findIndex(t => t.name === "Acid Jazz II");
+  }, []);
+  const [genre, setGenre] = useState("jazz");
   const [playing, setPlaying] = useState(false);
-  const [trackIdx, setTrackIdx] = useState(() => { try { return Number(localStorage.getItem("music_track") || "0"); } catch { return 0; } });
+  const [trackIdx, setTrackIdx] = useState(() => { try { const saved = localStorage.getItem("music_track"); return saved ? Number(saved) : ACID_JAZZ_II_IDX; } catch { return ACID_JAZZ_II_IDX; } });
   const [volume, setVolume] = useState(() => { try { return Number(localStorage.getItem("music_vol") || "0.25"); } catch { return 0.25; } });
   const [viewState, setViewState] = useState<"mini" | "collapsed" | "expanded">("mini");
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurTime] = useState(0);
-  const [shuffle, setShuffle] = useState(false);
+  const [shuffle, setShuffle] = useState(true);
   const [repeat, setRepeat] = useState(false);
   const [showList, setShowList] = useState(false);
+  const [hasPlayedFirst, setHasPlayedFirst] = useState(false);
+  const autoPlayTriggeredRef = useRef(false);
   // Single Audio element — created once, never destroyed until unmount
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const animRef = useRef<number>(0);
+  // Refs for values needed inside the "ended" closure (which captures stale state)
+  const shuffleRef = useRef(shuffle);
+  shuffleRef.current = shuffle;
+  const genreRef = useRef(genre);
+  genreRef.current = genre;
 
   const genreTracks = useMemo(() => ALL_TRACKS.filter(t => t.genre === genre), [genre]);
   const track = genreTracks[trackIdx % genreTracks.length] || genreTracks[0];
@@ -155,13 +167,27 @@ function MusicPlayer() {
     audio.preload = "none"; // don't preload until user plays
     audioRef.current = audio;
 
-    // When track ends, advance to next
+    // When track ends, advance to next — shuffle picks from ALL genres
     audio.addEventListener("ended", () => {
       if (repeat) { audio.currentTime = 0; audio.play().catch(e => console.warn("Repeat failed:", e)); return; }
-      setTrackIdx(prev => {
-        const gt = ALL_TRACKS.filter(t => t.genre === genre);
-        return shuffle ? Math.floor(Math.random() * gt.length) : (prev + 1) % gt.length;
-      });
+      setHasPlayedFirst(true);
+      if (shuffleRef.current) {
+        // Cross-genre shuffle: pick any track from the full library
+        const idx = Math.floor(Math.random() * ALL_TRACKS.length);
+        const picked = ALL_TRACKS[idx];
+        const newGenreTracks = ALL_TRACKS.filter(t => t.genre === picked.genre);
+        const idxInGenre = newGenreTracks.findIndex(t => t.id === picked.id);
+        setGenre(picked.genre);
+        setTrackIdx(idxInGenre >= 0 ? idxInGenre : 0);
+        audio.src = picked.file;
+        audio.load();
+        audio.play().catch(e => console.warn("Shuffle play failed:", e));
+      } else {
+        setTrackIdx(prev => {
+          const gt = ALL_TRACKS.filter(t => t.genre === genreRef.current);
+          return (prev + 1) % gt.length;
+        });
+      }
     });
     audio.addEventListener("loadedmetadata", () => setDuration(audio.duration || 0));
 
@@ -174,6 +200,26 @@ function MusicPlayer() {
 
     return () => { cancelAnimationFrame(animRef.current); audio.pause(); audio.src = ""; };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Auto-play when entering a project (or sandbox)
+  useEffect(() => {
+    if (projectActive && !playing && !autoPlayTriggeredRef.current) {
+      autoPlayTriggeredRef.current = true;
+      const a = audioRef.current;
+      if (a) {
+        const t = genreTracks[trackIdx % genreTracks.length] || genreTracks[0];
+        if (t) {
+          a.src = t.file;
+          a.volume = volume;
+          a.load();
+          a.play()
+            .then(() => setPlaying(true))
+            .catch(e => console.warn("[MusicPlayer] Auto-play blocked by browser:", e.message));
+        }
+      }
+    }
+    if (!projectActive) autoPlayTriggeredRef.current = false;
+  }, [projectActive]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Play: set src, load, play — all in one user-gesture handler
   const playTrack = useCallback((file: string) => {
@@ -214,8 +260,26 @@ function MusicPlayer() {
     try { localStorage.setItem("music_track", String(idx)); } catch {}
   }, [genre, playTrack]);
 
-  const nextTrack = () => { const gt = genreTracks; changeTrack(shuffle ? Math.floor(Math.random() * gt.length) : (trackIdx + 1) % gt.length); };
-  const prevTrack = () => { const gt = genreTracks; changeTrack((trackIdx - 1 + gt.length) % gt.length); };
+  // Cross-genre shuffle: pick a random track from ALL_TRACKS, switch genre to match
+  const shuffleAny = useCallback(() => {
+    const idx = Math.floor(Math.random() * ALL_TRACKS.length);
+    const picked = ALL_TRACKS[idx];
+    if (picked.genre !== genre) {
+      setGenre(picked.genre);
+      const newGenreTracks = ALL_TRACKS.filter(t => t.genre === picked.genre);
+      const idxInGenre = newGenreTracks.findIndex(t => t.id === picked.id);
+      setTrackIdx(idxInGenre >= 0 ? idxInGenre : 0);
+      playTrack(picked.file);
+      try { localStorage.setItem("music_track", String(idxInGenre >= 0 ? idxInGenre : 0)); } catch {}
+    } else {
+      const idxInGenre = genreTracks.findIndex(t => t.id === picked.id);
+      changeTrack(idxInGenre >= 0 ? idxInGenre : 0);
+    }
+    setHasPlayedFirst(true);
+  }, [genre, genreTracks, changeTrack, playTrack]);
+
+  const nextTrack = () => { if (shuffle) { shuffleAny(); return; } const gt = genreTracks; changeTrack((trackIdx + 1) % gt.length); };
+  const prevTrack = () => { if (shuffle) { shuffleAny(); return; } const gt = genreTracks; changeTrack((trackIdx - 1 + gt.length) % gt.length); };
   const changeVolume = (v: number) => { setVolume(v); if (audioRef.current) audioRef.current.volume = v; try { localStorage.setItem("music_vol", String(v)); } catch {} };
   const seek = (e: React.MouseEvent<HTMLDivElement>) => { const rect = e.currentTarget.getBoundingClientRect(); const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width)); if (audioRef.current?.duration) audioRef.current.currentTime = pct * audioRef.current.duration; };
 
@@ -1927,8 +1991,8 @@ export default function Page() {
   // Platform Hub — accessible from BOTH the project selection page and inside the app
   if (showPlatformHub) return <PlatformHub user={user} onBack={() => setShowPlatformHub(false)} onUpdateUser={u => setUser(u)} />;
 
-  if (!activeProject) return <>{hubAccountBar}{profileModal}<ProjectHub onOpenProject={setActiveProject} /><MusicPlayer /></>;
-  return <>{profileModal}<Home key={activeProject.id} projectId={activeProject.id} projectName={activeProject.name} projectMeta={activeProject.meta} onBackToHub={() => setActiveProject(null)} user={user} onShowProfile={() => setShowProfile(true)} onShowPlatformHub={() => setShowPlatformHub(true)} /><MusicPlayer /></>;
+  if (!activeProject) return <>{hubAccountBar}{profileModal}<ProjectHub onOpenProject={setActiveProject} /><MusicPlayer projectActive={false} /></>;
+  return <>{profileModal}<Home key={activeProject.id} projectId={activeProject.id} projectName={activeProject.name} projectMeta={activeProject.meta} onBackToHub={() => setActiveProject(null)} user={user} onShowProfile={() => setShowProfile(true)} onShowPlatformHub={() => setShowPlatformHub(true)} /><MusicPlayer projectActive={true} /></>;
 }
 
 
