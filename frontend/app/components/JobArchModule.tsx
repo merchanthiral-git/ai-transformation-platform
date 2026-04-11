@@ -27,6 +27,553 @@ type Employee = {
 };
 
 /* ═══════════════════════════════════════════════════════════════
+   ORG CHART BUILDER — Visual interactive org chart
+   ═══════════════════════════════════════════════════════════════ */
+
+type OrgNode = { id: string; name: string; title: string; function: string; level: string; track: string; managerId: string; children: OrgNode[]; headcount: number; collapsed: boolean; performance: string; flightRisk: string };
+
+const ORG_FUNC_COLORS: Record<string, string> = {
+  Technology: "#0891B2", Finance: "#D4860A", HR: "#8B5CF6", Operations: "#F59E0B",
+  Marketing: "#EC4899", Legal: "#EF4444", Product: "#10B981", Sales: "#6366F1",
+  "Customer Service": "#14B8A6", Strategy: "#A855F7", Risk: "#F43F5E", Executive: "#D4860A",
+};
+
+function OrgChartBuilder({ employees, jobs }: { employees: Employee[]; jobs: Job[] }) {
+  const [zoom, setZoom] = useState(0.7);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [dragging, setDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [viewMode, setViewMode] = useState<"full" | "managers" | "span" | "function">("full");
+  const [funcFilter, setFuncFilter] = useState("All");
+  const [showHeadcount, setShowHeadcount] = useState(true);
+  const [stateMode, setStateMode] = useState<"current" | "future">("current");
+  const [futureChanges, setFutureChanges] = useState<Record<string, string>>({});
+  const [changeCount, setChangeCount] = useState(0);
+  const [showCompare, setShowCompare] = useState(false);
+  const canvasRef = React.useRef<HTMLDivElement>(null);
+
+  // Build person-level org tree from employee data
+  const orgTree = useMemo(() => {
+    if (!employees.length) return [];
+    const byName: Record<string, OrgNode> = {};
+    // Create nodes
+    employees.forEach(e => {
+      byName[e.name] = { id: e.id, name: e.name, title: e.title, function: e.function, level: e.level, track: e.track, managerId: e.manager, children: [], headcount: 0, collapsed: false, performance: e.performance, flightRisk: e.flight_risk };
+    });
+    // Link children to parents
+    const roots: OrgNode[] = [];
+    Object.values(byName).forEach(node => {
+      const parent = byName[node.managerId];
+      if (parent && parent.id !== node.id) { parent.children.push(node); }
+      else { roots.push(node); }
+    });
+    // Count headcount recursively
+    const countHC = (n: OrgNode): number => { n.headcount = n.children.reduce((s, c) => s + countHC(c), 0) + 1; return n.headcount; };
+    roots.forEach(r => countHC(r));
+    // Sort children by headcount desc
+    const sortChildren = (n: OrgNode) => { n.children.sort((a, b) => b.headcount - a.headcount); n.children.forEach(sortChildren); };
+    roots.forEach(sortChildren);
+    return roots;
+  }, [employees]);
+
+  // Collapsed state
+  const [collapsedIds, setCollapsedIds] = useState<Set<string>>(new Set());
+  const toggleCollapse = (id: string) => setCollapsedIds(prev => { const next = new Set(prev); if (next.has(id)) next.delete(id); else next.add(id); return next; });
+  const expandAll = () => setCollapsedIds(new Set());
+  const collapseAll = () => { const ids = new Set<string>(); const walk = (n: OrgNode) => { if (n.children.length > 0) ids.add(n.id); n.children.forEach(walk); }; orgTree.forEach(walk); setCollapsedIds(ids); };
+
+  // Search
+  const searchMatch = useMemo(() => {
+    if (!search.trim()) return null;
+    const q = search.toLowerCase();
+    const find = (n: OrgNode): OrgNode | null => { if (n.name.toLowerCase().includes(q) || n.title.toLowerCase().includes(q)) return n; for (const c of n.children) { const r = find(c); if (r) return r; } return null; };
+    for (const root of orgTree) { const r = find(root); if (r) return r; }
+    return null;
+  }, [search, orgTree]);
+
+  // Auto-select and expand path to search result
+  React.useEffect(() => { if (searchMatch) { setSelectedId(searchMatch.id); } }, [searchMatch]);
+
+  // Breadcrumb path to selected
+  const breadcrumb = useMemo(() => {
+    if (!selectedId) return [];
+    const path: OrgNode[] = [];
+    const find = (n: OrgNode, trail: OrgNode[]): boolean => { if (n.id === selectedId) { path.push(...trail, n); return true; } for (const c of n.children) { if (find(c, [...trail, n])) return true; } return false; };
+    for (const root of orgTree) { if (find(root, [])) break; }
+    return path;
+  }, [selectedId, orgTree]);
+
+  const selectedNode = useMemo(() => {
+    if (!selectedId) return null;
+    const find = (n: OrgNode): OrgNode | null => { if (n.id === selectedId) return n; for (const c of n.children) { const r = find(c); if (r) return r; } return null; };
+    for (const root of orgTree) { const r = find(root); if (r) return r; }
+    return null;
+  }, [selectedId, orgTree]);
+
+  // Filter tree for view modes
+  const filterTree = (nodes: OrgNode[]): OrgNode[] => {
+    if (viewMode === "managers") return nodes.map(n => ({ ...n, children: filterTree(n.children.filter(c => c.children.length > 0 || c.track === "Manager" || c.track === "Executive")) })).filter(n => n.children.length > 0 || n.track === "Manager" || n.track === "Executive");
+    if (viewMode === "function" && funcFilter !== "All") {
+      const filterFunc = (n: OrgNode): OrgNode | null => {
+        const filteredChildren = n.children.map(filterFunc).filter(Boolean) as OrgNode[];
+        if (n.function === funcFilter || filteredChildren.length > 0) return { ...n, children: filteredChildren };
+        return null;
+      };
+      return nodes.map(filterFunc).filter(Boolean) as OrgNode[];
+    }
+    return nodes;
+  };
+  const displayTree = filterTree(orgTree);
+
+  // Drag to pan
+  const handleMouseDown = (e: React.MouseEvent) => { if (e.target === canvasRef.current || (e.target as HTMLElement).classList.contains("org-canvas-bg")) { setDragging(true); setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y }); } };
+  const handleMouseMove = (e: React.MouseEvent) => { if (dragging) setPan({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y }); };
+  const handleMouseUp = () => setDragging(false);
+  const handleWheel = (e: React.WheelEvent) => { e.preventDefault(); setZoom(z => Math.max(0.2, Math.min(2, z - e.deltaY * 0.001))); };
+  const fitToScreen = () => { setZoom(0.7); setPan({ x: 0, y: 0 }); };
+
+  // Drag-and-drop reporting line change (future state)
+  const [dragNode, setDragNode] = useState<string | null>(null);
+  const [dropTarget, setDropTarget] = useState<string | null>(null);
+  const handleDrop = (targetId: string) => {
+    if (dragNode && dragNode !== targetId && stateMode === "future") {
+      const draggedNode = (() => { const find = (n: OrgNode): OrgNode | null => { if (n.id === dragNode) return n; for (const c of n.children) { const r = find(c); if (r) return r; } return null; }; for (const r of orgTree) { const found = find(r); if (found) return found; } return null; })();
+      if (draggedNode) {
+        setFutureChanges(prev => ({ ...prev, [dragNode]: targetId }));
+        setChangeCount(c => c + 1);
+        showToast(`Moved ${draggedNode.name} to report to new manager`);
+      }
+    }
+    setDragNode(null); setDropTarget(null);
+  };
+
+  // Span of control color
+  const spanColor = (n: OrgNode) => {
+    const direct = n.children.length;
+    if (direct === 0) return "var(--text-muted)";
+    if (direct >= 1 && direct <= 3) return "var(--warning)"; // narrow
+    if (direct >= 4 && direct <= 8) return "var(--success)"; // healthy
+    if (direct >= 9 && direct <= 12) return "var(--warning)"; // wide
+    return "var(--risk)"; // too wide
+  };
+
+  // Render a single org node
+  const renderNode = (node: OrgNode, depth: number): React.ReactNode => {
+    const isCollapsed = collapsedIds.has(node.id);
+    const isSelected = selectedId === node.id;
+    const funcColor = ORG_FUNC_COLORS[node.function] || "#888";
+    const hasChildren = node.children.length > 0;
+    const isDragOver = dropTarget === node.id && dragNode !== node.id;
+    const scale = Math.min(1, 0.85 + (node.headcount / Math.max(...orgTree.map(r => r.headcount), 1)) * 0.15);
+    const isSearchMatch = searchMatch?.id === node.id;
+
+    return <div key={node.id} className="flex flex-col items-center" style={{ minWidth: 0 }}>
+      {/* Node card */}
+      <div
+        className="relative cursor-pointer transition-all"
+        style={{ transform: `scale(${scale})`, transformOrigin: "top center" }}
+        draggable={stateMode === "future"}
+        onDragStart={e => { e.dataTransfer.effectAllowed = "move"; setDragNode(node.id); }}
+        onDragOver={e => { e.preventDefault(); setDropTarget(node.id); }}
+        onDragLeave={() => setDropTarget(null)}
+        onDrop={e => { e.preventDefault(); handleDrop(node.id); }}
+        onClick={e => { e.stopPropagation(); setSelectedId(node.id); }}
+        onDoubleClick={e => { e.stopPropagation(); if (hasChildren) toggleCollapse(node.id); }}
+      >
+        <div className="rounded-xl px-4 py-2.5 border-2 transition-all" style={{
+          width: 170, minHeight: 70,
+          background: "rgba(30,30,30,0.6)",
+          backdropFilter: "blur(12px)",
+          borderColor: isSelected ? "#e09040" : isDragOver ? (stateMode === "future" ? "var(--success)" : "var(--risk)") : isSearchMatch ? "#e09040" : `${funcColor}40`,
+          boxShadow: isSelected ? "0 0 20px rgba(224,144,64,0.2)" : isDragOver && stateMode === "future" ? "0 0 15px rgba(16,185,129,0.2)" : "0 2px 8px rgba(0,0,0,0.15)",
+        }}>
+          {/* Function color bar */}
+          <div className="absolute top-0 left-3 right-3 h-1 rounded-b" style={{ background: viewMode === "span" ? spanColor(node) : funcColor }} />
+          <div className="text-[13px] font-bold text-[var(--text-primary)] truncate mt-1">{node.name}</div>
+          <div className="text-[11px] text-[var(--text-muted)] truncate">{node.title}</div>
+          <div className="flex items-center justify-between mt-1">
+            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded" style={{ background: `${funcColor}15`, color: funcColor }}>{node.function.slice(0, 12)}</span>
+            {showHeadcount && hasChildren && <span className="text-[11px] font-bold" style={{ color: viewMode === "span" ? spanColor(node) : "var(--text-muted)" }}>{node.children.length} direct · {node.headcount - 1} total</span>}
+          </div>
+        </div>
+        {/* Collapse indicator */}
+        {hasChildren && <button className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-[var(--surface-2)] border border-[var(--border)] text-[10px] font-bold text-[var(--text-muted)] flex items-center justify-center hover:text-[var(--accent-primary)] z-10" onClick={e => { e.stopPropagation(); toggleCollapse(node.id); }}>{isCollapsed ? `+${node.headcount - 1}` : "−"}</button>}
+      </div>
+      {/* Children */}
+      {hasChildren && !isCollapsed && <div className="mt-6 relative">
+        {/* Vertical line down from parent */}
+        <div className="absolute top-[-16px] left-1/2 w-0.5 h-4" style={{ background: "rgba(255,255,255,0.08)" }} />
+        {/* Horizontal line across children */}
+        {node.children.length > 1 && <div className="absolute top-0 h-0.5" style={{ background: "rgba(255,255,255,0.08)", left: `${100 / (node.children.length * 2)}%`, right: `${100 / (node.children.length * 2)}%` }} />}
+        <div className="flex gap-3 justify-center">
+          {node.children.map(child => <div key={child.id} className="relative">
+            {/* Vertical line down to child */}
+            <div className="absolute top-0 left-1/2 w-0.5 h-4 -translate-x-1/2" style={{ background: "rgba(255,255,255,0.08)" }} />
+            <div className="pt-4">{renderNode(child, depth + 1)}</div>
+          </div>)}
+        </div>
+      </div>}
+    </div>;
+  };
+
+  if (!employees.length) return <div className="text-center py-20"><div className="text-[40px] mb-3">🏢</div><div className="text-[15px] font-semibold text-[var(--text-primary)] mb-1">No Employee Data</div><div className="text-[14px] text-[var(--text-muted)]">Upload workforce data with Manager ID fields to generate the org chart.</div></div>;
+
+  return <div className="animate-tab-enter">
+    {/* Toolbar */}
+    <div className="flex items-center gap-2 mb-3 flex-wrap">
+      <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search name or title..." className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-[14px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] w-56" />
+      <div className="flex rounded-lg overflow-hidden border border-[var(--border)]">
+        {(["full", "managers", "span", "function"] as const).map(m => <button key={m} onClick={() => setViewMode(m)} className="px-3 py-1.5 text-[13px] font-semibold transition-all" style={{ background: viewMode === m ? "rgba(212,134,10,0.12)" : "var(--surface-2)", color: viewMode === m ? "#e09040" : "var(--text-muted)" }}>{m === "full" ? "Full Org" : m === "managers" ? "Managers" : m === "span" ? "Span Analysis" : "Function"}</button>)}
+      </div>
+      {viewMode === "function" && <select value={funcFilter} onChange={e => setFuncFilter(e.target.value)} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-2 py-1.5 text-[13px] text-[var(--text-primary)] outline-none">
+        <option value="All">All Functions</option>{Array.from(new Set(employees.map(e => e.function))).sort().map(f => <option key={f}>{f}</option>)}
+      </select>}
+      <div className="flex rounded-lg overflow-hidden border border-[var(--border)] ml-auto">
+        <button onClick={() => setStateMode("current")} className="px-3 py-1.5 text-[13px] font-semibold" style={{ background: stateMode === "current" ? "rgba(16,185,129,0.12)" : "var(--surface-2)", color: stateMode === "current" ? "var(--success)" : "var(--text-muted)" }}>Current</button>
+        <button onClick={() => setStateMode("future")} className="px-3 py-1.5 text-[13px] font-semibold" style={{ background: stateMode === "future" ? "rgba(139,92,246,0.12)" : "var(--surface-2)", color: stateMode === "future" ? "var(--purple)" : "var(--text-muted)" }}>Future</button>
+      </div>
+      <label className="flex items-center gap-1.5 text-[13px] text-[var(--text-muted)] cursor-pointer"><input type="checkbox" checked={showHeadcount} onChange={e => setShowHeadcount(e.target.checked)} className="rounded" />Headcount</label>
+      <button onClick={expandAll} className="px-2 py-1 rounded text-[12px] text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--accent-primary)]">Expand All</button>
+      <button onClick={collapseAll} className="px-2 py-1 rounded text-[12px] text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--accent-primary)]">Collapse All</button>
+      <button onClick={fitToScreen} className="px-2 py-1 rounded text-[12px] text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--accent-primary)]">Fit</button>
+      {stateMode === "future" && changeCount > 0 && <span className="px-2 py-1 rounded-full text-[12px] font-bold bg-[rgba(139,92,246,0.1)] text-[var(--purple)]">{changeCount} changes</span>}
+    </div>
+
+    {/* Breadcrumb */}
+    {breadcrumb.length > 0 && <div className="flex items-center gap-1 mb-2 text-[13px]">
+      {breadcrumb.map((n, i) => <React.Fragment key={n.id}>{i > 0 && <span className="text-[var(--text-muted)]">→</span>}<button onClick={() => setSelectedId(n.id)} className="font-semibold" style={{ color: i === breadcrumb.length - 1 ? "#e09040" : "var(--text-muted)" }}>{n.name}</button></React.Fragment>)}
+    </div>}
+
+    {/* Main area: Canvas + Detail Panel */}
+    <div className="flex gap-4" style={{ height: "calc(100vh - 320px)", minHeight: 500 }}>
+      {/* Canvas */}
+      <div ref={canvasRef} className="flex-1 rounded-xl border border-[var(--border)] overflow-hidden relative" style={{ background: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0)", backgroundSize: "24px 24px" }}
+        onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} onWheel={handleWheel}>
+        <div className="org-canvas-bg absolute inset-0" style={{ cursor: dragging ? "grabbing" : "grab" }}>
+          <div style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: "top center", paddingTop: 40, display: "flex", justifyContent: "center", minWidth: "100%", transition: dragging ? "none" : "transform 0.15s ease" }}>
+            {displayTree.length > 0 ? displayTree.map(root => renderNode(root, 0)) : <div className="text-[var(--text-muted)] text-center py-20">No employees match the current filters</div>}
+          </div>
+        </div>
+        {/* Zoom indicator */}
+        <div className="absolute bottom-3 left-3 flex items-center gap-2 bg-[rgba(0,0,0,0.5)] rounded-lg px-3 py-1.5 backdrop-blur">
+          <button onClick={() => setZoom(z => Math.min(2, z + 0.1))} className="text-[14px] text-white/60 hover:text-white">+</button>
+          <span className="text-[12px] text-white/60">{Math.round(zoom * 100)}%</span>
+          <button onClick={() => setZoom(z => Math.max(0.2, z - 0.1))} className="text-[14px] text-white/60 hover:text-white">−</button>
+        </div>
+        {stateMode === "future" && <div className="absolute top-3 left-3 px-3 py-1.5 rounded-lg text-[13px] font-semibold bg-[rgba(139,92,246,0.15)] text-[var(--purple)] border border-[var(--purple)]/20">Editing Future State — drag nodes to change reporting lines</div>}
+      </div>
+
+      {/* Detail panel */}
+      {selectedNode && <div className="w-72 shrink-0 rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4 overflow-y-auto">
+        <div className="flex items-center justify-between mb-3">
+          <div className="text-[16px] font-bold text-[var(--text-primary)]">{selectedNode.name}</div>
+          <button onClick={() => setSelectedId(null)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)]">×</button>
+        </div>
+        <div className="space-y-3">
+          <div><div className="text-[12px] text-[var(--text-muted)] uppercase">Title</div><div className="text-[14px] text-[var(--text-primary)] font-semibold">{selectedNode.title}</div></div>
+          <div className="grid grid-cols-2 gap-2">
+            <div><div className="text-[12px] text-[var(--text-muted)] uppercase">Function</div><div className="text-[14px] font-semibold" style={{ color: ORG_FUNC_COLORS[selectedNode.function] || "#888" }}>{selectedNode.function}</div></div>
+            <div><div className="text-[12px] text-[var(--text-muted)] uppercase">Level</div><div className="text-[14px] text-[var(--text-primary)]">{selectedNode.level}</div></div>
+            <div><div className="text-[12px] text-[var(--text-muted)] uppercase">Track</div><div className="text-[14px] text-[var(--text-primary)]">{selectedNode.track}</div></div>
+            <div><div className="text-[12px] text-[var(--text-muted)] uppercase">Reports to</div><div className="text-[14px] text-[var(--text-primary)]">{selectedNode.managerId || "—"}</div></div>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div><div className="text-[12px] text-[var(--text-muted)] uppercase">Performance</div><div className="text-[14px] font-semibold" style={{ color: selectedNode.performance === "Exceeds" ? "var(--success)" : selectedNode.performance === "Meets" ? "var(--accent-primary)" : "var(--warning)" }}>{selectedNode.performance}</div></div>
+            <div><div className="text-[12px] text-[var(--text-muted)] uppercase">Flight Risk</div><div className="text-[14px] font-semibold" style={{ color: selectedNode.flightRisk === "High" ? "var(--risk)" : selectedNode.flightRisk === "Medium" ? "var(--warning)" : "var(--success)" }}>{selectedNode.flightRisk}</div></div>
+          </div>
+          {selectedNode.children.length > 0 && <>
+            <div><div className="text-[12px] text-[var(--text-muted)] uppercase">Span of Control</div><div className="text-[14px] font-bold" style={{ color: spanColor(selectedNode) }}>{selectedNode.children.length} direct reports</div></div>
+            <div><div className="text-[12px] text-[var(--text-muted)] uppercase">Total Organization</div><div className="text-[14px] text-[var(--text-primary)]">{selectedNode.headcount - 1} people</div></div>
+            <div><div className="text-[12px] text-[var(--text-muted)] uppercase mb-1">Direct Reports</div><div className="space-y-1 max-h-[200px] overflow-y-auto">{selectedNode.children.map(c => <button key={c.id} onClick={() => setSelectedId(c.id)} className="w-full text-left px-2 py-1.5 rounded-lg hover:bg-[var(--bg)] transition-all flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full shrink-0" style={{ background: ORG_FUNC_COLORS[c.function] || "#888" }} />
+              <div className="min-w-0"><div className="text-[13px] font-semibold text-[var(--text-primary)] truncate">{c.name}</div><div className="text-[11px] text-[var(--text-muted)] truncate">{c.title}</div></div>
+            </button>)}</div></div>
+          </>}
+        </div>
+      </div>}
+    </div>
+
+    {/* Span analysis legend */}
+    {viewMode === "span" && <div className="flex gap-4 mt-2 text-[13px] text-[var(--text-muted)]">
+      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full bg-[var(--warning)]" />1-3 (narrow)</span>
+      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full bg-[var(--success)]" />4-8 (healthy)</span>
+      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full bg-[var(--warning)]" />9-12 (wide)</span>
+      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full bg-[var(--risk)]" />13+ (too wide)</span>
+    </div>}
+
+    {/* Function color legend */}
+    <div className="flex gap-2 flex-wrap mt-2">{Array.from(new Set(employees.map(e => e.function))).sort().map(f => <span key={f} className="flex items-center gap-1 text-[12px]"><span className="w-2.5 h-2.5 rounded-full" style={{ background: ORG_FUNC_COLORS[f] || "#888" }} /><span style={{ color: ORG_FUNC_COLORS[f] || "#888" }}>{f}</span></span>)}</div>
+  </div>;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   JOB PROFILE LIBRARY — AI-generated job descriptions
+   ═══════════════════════════════════════════════════════════════ */
+
+type JobProfile = {
+  purpose: string; responsibilities: string[]; skills: { technical: string[]; functional: string[]; leadership: string[]; digital: string[] };
+  experience: string; kpis: string[]; reportsTo: string; manages: string; careerPath: string[]; aiImpact: string;
+};
+
+const JP_TEMPLATES: Record<string, Partial<JobProfile>> = {
+  "Software Engineer": { purpose: "Design, develop, and maintain software applications that deliver business value.", responsibilities: ["Write clean, maintainable code following best practices", "Participate in code reviews and technical design", "Collaborate with product managers on requirements", "Build and maintain CI/CD pipelines", "Debug and resolve production issues", "Mentor junior engineers"], skills: { technical: ["Python", "JavaScript/TypeScript", "SQL", "Cloud (AWS/GCP)", "Git"], functional: ["Agile methodology", "System design", "Testing"], leadership: ["Mentoring", "Technical communication"], digital: ["AI/ML basics", "DevOps", "API design"] }, experience: "3-5 years in software development", kpis: ["Code quality (bug rate)", "Sprint velocity", "Deployment frequency", "Customer satisfaction"], careerPath: ["Senior Software Engineer", "Staff Engineer", "Engineering Manager"] },
+  "Data Scientist": { purpose: "Apply statistical and machine learning methods to extract insights from data and build predictive models.", responsibilities: ["Develop ML models for business problems", "Clean, transform, and analyze large datasets", "Present findings to stakeholders", "Collaborate with engineering on model deployment", "Design A/B tests and experiments"], skills: { technical: ["Python", "R", "SQL", "TensorFlow/PyTorch"], functional: ["Statistics", "Experiment design", "Data visualization"], leadership: ["Stakeholder management"], digital: ["MLOps", "Cloud ML services"] }, experience: "3-5 years in data science or analytics", kpis: ["Model accuracy", "Business impact of insights", "Experiment success rate"], careerPath: ["Senior Data Scientist", "Lead Data Scientist", "Head of Data Science"] },
+  "Financial Analyst": { purpose: "Provide financial analysis, forecasting, and decision support to drive informed business decisions.", responsibilities: ["Build financial models and forecasts", "Analyze variance to budget and prior year", "Prepare monthly financial reports", "Support budget planning process", "Conduct ad-hoc financial analysis"], skills: { technical: ["Excel/Financial modeling", "SQL", "BI tools"], functional: ["GAAP/IFRS", "Budgeting", "Forecasting"], leadership: ["Presentation skills"], digital: ["ERP systems", "Automation tools"] }, experience: "2-4 years in finance or accounting", kpis: ["Forecast accuracy", "Report timeliness", "Analysis turnaround time"], careerPath: ["Senior Financial Analyst", "FP&A Manager", "Finance Director"] },
+  "HR Business Partner": { purpose: "Partner with business leaders to align people strategy with business objectives.", responsibilities: ["Advise leaders on talent strategy", "Drive organizational effectiveness", "Support workforce planning", "Manage employee relations", "Lead change management initiatives", "Analyze people data for insights"], skills: { technical: ["HRIS systems", "People analytics"], functional: ["Employment law", "Organizational design", "Compensation"], leadership: ["Coaching", "Influence", "Conflict resolution"], digital: ["HR tech", "Data analysis"] }, experience: "5-8 years in HR with business partnering experience", kpis: ["Employee engagement score", "Turnover rate", "Time-to-fill", "Manager satisfaction"], careerPath: ["Senior HRBP", "HR Director", "VP of People"] },
+  "Product Manager": { purpose: "Define product vision and strategy, prioritize features, and drive product development to market success.", responsibilities: ["Define product roadmap and strategy", "Gather and prioritize requirements", "Work with engineering and design teams", "Analyze market and competitive landscape", "Define success metrics and track KPIs", "Conduct user research"], skills: { technical: ["SQL", "Analytics tools", "Prototyping"], functional: ["Market research", "Roadmap planning", "Agile/Scrum"], leadership: ["Cross-functional leadership", "Stakeholder management"], digital: ["A/B testing", "Product analytics"] }, experience: "3-6 years in product management or related field", kpis: ["Feature adoption rate", "Customer NPS", "Revenue impact", "Time-to-market"], careerPath: ["Senior PM", "Group PM", "VP Product", "CPO"] },
+  "Operations Manager": { purpose: "Oversee daily operations, optimize processes, and ensure efficient delivery of services.", responsibilities: ["Manage operational teams and workflows", "Identify and implement process improvements", "Monitor KPIs and operational metrics", "Manage vendor relationships", "Ensure compliance with standards", "Lead capacity planning"], skills: { technical: ["Process mapping tools", "ERP systems"], functional: ["Lean/Six Sigma", "Supply chain", "Quality management"], leadership: ["Team management", "Problem-solving"], digital: ["Automation", "Analytics"] }, experience: "5-7 years in operations management", kpis: ["Operational efficiency", "Cost per unit", "Quality metrics", "SLA compliance"], careerPath: ["Senior Operations Manager", "Director of Operations", "VP Operations", "COO"] },
+};
+
+function JobProfileLibrary({ jobs, model }: { jobs: Job[]; model: string }) {
+  const [profiles, setProfiles] = usePersisted<Record<string, JobProfile>>(`${model}_job_profiles`, {});
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
+  const [profileView, setProfileView] = useState<"library" | "detail">("library");
+  const [libraryViewMode, setLibraryViewMode] = useState<"grid" | "list">("grid");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterFunc, setFilterFunc] = useState("All");
+  const [filterComplete, setFilterComplete] = useState("All");
+  const [generating, setGenerating] = useState(false);
+  const [bulkGenerating, setBulkGenerating] = useState(false);
+  const [bulkProgress, setBulkProgress] = useState(0);
+  const [showTemplates, setShowTemplates] = useState(false);
+  const [compareJobs, setCompareJobs] = useState<string[]>([]);
+  const [showCompare, setShowCompare] = useState(false);
+  const [editingField, setEditingField] = useState<string | null>(null);
+
+  const emptyProfile: JobProfile = { purpose: "", responsibilities: [], skills: { technical: [], functional: [], leadership: [], digital: [] }, experience: "", kpis: [], reportsTo: "", manages: "", careerPath: [], aiImpact: "" };
+
+  const getProfile = (jobId: string) => profiles[jobId] || emptyProfile;
+  const completeness = (jobId: string): number => {
+    const p = getProfile(jobId);
+    const fields = [p.purpose, p.responsibilities.length > 0, p.skills.technical.length > 0, p.experience, p.kpis.length > 0, p.reportsTo, p.careerPath.length > 0, p.aiImpact];
+    return Math.round((fields.filter(Boolean).length / fields.length) * 100);
+  };
+  const statusBadge = (jobId: string) => {
+    const pct = completeness(jobId);
+    if (pct >= 90) return { label: "Complete", color: "var(--success)" };
+    if (pct > 0) return { label: "Draft", color: "var(--warning)" };
+    return { label: "Empty", color: "var(--text-muted)" };
+  };
+
+  const selectedJob = jobs.find(j => j.id === selectedJobId);
+  const selectedProfile = selectedJobId ? getProfile(selectedJobId) : emptyProfile;
+
+  const updateProfile = (jobId: string, field: string, value: unknown) => {
+    setProfiles(prev => ({ ...prev, [jobId]: { ...getProfile(jobId), [field]: value } }));
+  };
+
+  // AI Generate
+  const generateProfile = async (job: Job) => {
+    setGenerating(true);
+    try {
+      const prompt = `Generate a complete job profile for "${job.title}" in the ${job.function} function at career level ${job.level} (${job.track} track). Return ONLY valid JSON: {"purpose":"2-3 sentences","responsibilities":["8 specific responsibilities"],"skills":{"technical":["5 skills"],"functional":["4 skills"],"leadership":["3 skills"],"digital":["3 skills"]},"experience":"years and requirements","kpis":["5 measurable KPIs"],"reportsTo":"typical reporting title","manages":"description of reports","careerPath":["3-4 next moves"],"aiImpact":"2-3 sentences on which responsibilities are automatable/augmentable"}`;
+      const raw = await callAI("You are an HR expert. Generate realistic, specific job profiles — not generic descriptions.", prompt);
+      const parsed = JSON.parse(raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim());
+      if (parsed.purpose) setProfiles(prev => ({ ...prev, [job.id]: { ...emptyProfile, ...parsed } }));
+    } catch { showToast("Generation failed — try again"); }
+    setGenerating(false);
+  };
+
+  const bulkGenerate = async () => {
+    const empty = jobs.filter(j => completeness(j.id) === 0);
+    if (empty.length === 0) { showToast("All profiles already have content"); return; }
+    setBulkGenerating(true); setBulkProgress(0);
+    for (let i = 0; i < Math.min(empty.length, 20); i++) {
+      await generateProfile(empty[i]);
+      setBulkProgress(Math.round(((i + 1) / Math.min(empty.length, 20)) * 100));
+    }
+    setBulkGenerating(false); showToast(`Generated ${Math.min(empty.length, 20)} profiles`);
+  };
+
+  // Apply template
+  const applyTemplate = (jobId: string, templateKey: string) => {
+    const tmpl = JP_TEMPLATES[templateKey];
+    if (tmpl) {
+      setProfiles(prev => ({ ...prev, [jobId]: { ...emptyProfile, ...tmpl } as JobProfile }));
+      showToast(`Applied ${templateKey} template`);
+    }
+  };
+
+  // Filtered jobs
+  const filteredJobs = useMemo(() => {
+    let result = [...jobs];
+    if (searchQuery) { const q = searchQuery.toLowerCase(); result = result.filter(j => j.title.toLowerCase().includes(q) || j.function.toLowerCase().includes(q)); }
+    if (filterFunc !== "All") result = result.filter(j => j.function === filterFunc);
+    if (filterComplete === "Complete") result = result.filter(j => completeness(j.id) >= 90);
+    else if (filterComplete === "Draft") result = result.filter(j => { const c = completeness(j.id); return c > 0 && c < 90; });
+    else if (filterComplete === "Empty") result = result.filter(j => completeness(j.id) === 0);
+    return result;
+  }, [jobs, searchQuery, filterFunc, filterComplete, profiles]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Summary stats
+  const complete = jobs.filter(j => completeness(j.id) >= 90).length;
+  const drafts = jobs.filter(j => { const c = completeness(j.id); return c > 0 && c < 90; }).length;
+  const empty = jobs.filter(j => completeness(j.id) === 0).length;
+
+  if (profileView === "detail" && selectedJob) {
+    const p = selectedProfile;
+    const badge = statusBadge(selectedJob.id);
+    const EditableList = ({ items, field, placeholder }: { items: string[]; field: string; placeholder: string }) => {
+      const [adding, setAdding] = useState(false);
+      const [newItem, setNewItem] = useState("");
+      return <div>
+        <div className="space-y-1">{items.map((item, i) => <div key={i} className="flex items-center gap-2 group text-[14px]"><span className="text-[var(--accent-primary)]">•</span><span className="text-[var(--text-secondary)] flex-1">{item}</span><button onClick={() => { const next = items.filter((_, idx) => idx !== i); updateProfile(selectedJob.id, field, next); }} className="text-[var(--text-muted)] opacity-0 group-hover:opacity-100 hover:text-[var(--risk)] text-[12px]">×</button></div>)}</div>
+        {adding ? <div className="flex gap-2 mt-2"><input value={newItem} onChange={e => setNewItem(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && newItem.trim()) { updateProfile(selectedJob.id, field, [...items, newItem.trim()]); setNewItem(""); } if (e.key === "Escape") setAdding(false); }} placeholder={placeholder} className="flex-1 bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-[14px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]" autoFocus /><button onClick={() => setAdding(false)} className="text-[13px] text-[var(--text-muted)]">Done</button></div> : <button onClick={() => setAdding(true)} className="text-[13px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mt-1">+ Add</button>}
+      </div>;
+    };
+    const EditableText = ({ value, field, placeholder, multiline }: { value: string; field: string; placeholder: string; multiline?: boolean }) => {
+      const isEditing = editingField === `${selectedJob.id}_${field}`;
+      if (isEditing) {
+        const El = multiline ? "textarea" : "input";
+        return <El value={value} onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => updateProfile(selectedJob.id, field, e.target.value)} onBlur={() => setEditingField(null)} className={`w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-[14px] text-[var(--text-primary)] outline-none ${multiline ? "resize-none" : ""}`} rows={multiline ? 3 : undefined} autoFocus />;
+      }
+      return <div onClick={() => setEditingField(`${selectedJob.id}_${field}`)} className="text-[14px] cursor-pointer hover:bg-[var(--surface-2)] rounded-lg px-2 py-1 -mx-2 transition-all" style={{ color: value ? "var(--text-secondary)" : "var(--text-muted)" }}>{value || placeholder}</div>;
+    };
+
+    return <div className="animate-tab-enter">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <button onClick={() => setProfileView("library")} className="text-[14px] text-[var(--text-muted)] hover:text-[var(--accent-primary)]">← Library</button>
+          <div className="text-[18px] font-bold text-[var(--text-primary)]">{selectedJob.title}</div>
+          <span className="px-2 py-0.5 rounded-full text-[12px] font-bold" style={{ background: `${badge.color}12`, color: badge.color }}>{badge.label} · {completeness(selectedJob.id)}%</span>
+        </div>
+        <div className="flex gap-2">
+          <button onClick={() => generateProfile(selectedJob)} disabled={generating} className="px-4 py-2 rounded-lg text-[14px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: generating ? 0.5 : 1 }}>{generating ? "Generating..." : completeness(selectedJob.id) > 0 ? "✨ Regenerate" : "✨ Generate Profile"}</button>
+          {compareJobs.length < 3 && !compareJobs.includes(selectedJob.id) && <button onClick={() => { setCompareJobs(prev => [...prev, selectedJob.id]); showToast("Added to comparison"); }} className="px-3 py-2 rounded-lg text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">+ Compare</button>}
+        </div>
+      </div>
+      {/* Job metadata */}
+      <div className="grid grid-cols-8 gap-2 mb-4">
+        {[{ l: "Function", v: selectedJob.function }, { l: "Family", v: selectedJob.family }, { l: "Sub-Family", v: selectedJob.sub_family }, { l: "Track", v: selectedJob.track }, { l: "Level", v: selectedJob.level }, { l: "Headcount", v: String(selectedJob.headcount) }, { l: "AI Impact", v: selectedJob.ai_impact }, { l: "AI Score", v: selectedJob.ai_score?.toFixed(1) }].map(m => <div key={m.l} className="rounded-lg bg-[var(--surface-2)] px-3 py-2 text-center"><div className="text-[11px] text-[var(--text-muted)] uppercase">{m.l}</div><div className="text-[14px] font-semibold text-[var(--text-primary)] truncate">{m.v || "—"}</div></div>)}
+      </div>
+      {/* Profile sections */}
+      <div className="grid grid-cols-2 gap-4">
+        <Card title="Purpose"><EditableText value={p.purpose} field="purpose" placeholder="Click to add purpose statement..." multiline /></Card>
+        <Card title="Reporting Relationships">
+          <div className="space-y-2">
+            <div><span className="text-[12px] text-[var(--text-muted)] uppercase">Reports to: </span><EditableText value={p.reportsTo} field="reportsTo" placeholder="Title of manager..." /></div>
+            <div><span className="text-[12px] text-[var(--text-muted)] uppercase">Manages: </span><EditableText value={p.manages} field="manages" placeholder="e.g. 5 direct reports, team of 12..." /></div>
+          </div>
+        </Card>
+        <Card title="Key Responsibilities"><EditableList items={p.responsibilities} field="responsibilities" placeholder="Add responsibility..." /></Card>
+        <Card title="Key Performance Indicators"><EditableList items={p.kpis} field="kpis" placeholder="Add KPI..." /></Card>
+        <Card title="Required Skills">
+          <div className="space-y-3">
+            {(["technical", "functional", "leadership", "digital"] as const).map(cat => {
+              const catColors: Record<string, string> = { technical: "var(--accent-primary)", functional: "var(--success)", leadership: "var(--purple)", digital: "var(--warning)" };
+              return <div key={cat}><div className="text-[13px] font-bold uppercase mb-1" style={{ color: catColors[cat] }}>{cat}</div><div className="flex flex-wrap gap-1">{(p.skills[cat] || []).map((sk, i) => <span key={i} className="px-2 py-0.5 rounded-full text-[13px] font-semibold group cursor-default" style={{ background: `${catColors[cat]}12`, color: catColors[cat] }}>{sk}<button onClick={() => { const next = p.skills[cat].filter((_, idx) => idx !== i); updateProfile(selectedJob.id, "skills", { ...p.skills, [cat]: next }); }} className="ml-1 opacity-0 group-hover:opacity-100 text-[11px]">×</button></span>)}<button onClick={() => { const sk = prompt(`Add ${cat} skill:`); if (sk) updateProfile(selectedJob.id, "skills", { ...p.skills, [cat]: [...(p.skills[cat] || []), sk] }); }} className="px-2 py-0.5 rounded-full text-[12px] text-[var(--text-muted)] border border-dashed border-[var(--border)] hover:text-[var(--accent-primary)]">+</button></div></div>;
+            })}
+          </div>
+        </Card>
+        <Card title="Experience & Education"><EditableText value={p.experience} field="experience" placeholder="Click to add experience requirements..." multiline /></Card>
+        <Card title="Career Path"><EditableList items={p.careerPath} field="careerPath" placeholder="Add next career move..." /></Card>
+        <Card title="AI Impact Assessment"><EditableText value={p.aiImpact} field="aiImpact" placeholder="Click to add AI impact assessment..." multiline /></Card>
+      </div>
+    </div>;
+  }
+
+  // Compare view
+  if (showCompare && compareJobs.length >= 2) {
+    const compJobs = compareJobs.map(id => jobs.find(j => j.id === id)).filter(Boolean) as Job[];
+    return <div className="animate-tab-enter">
+      <div className="flex items-center justify-between mb-4">
+        <div className="text-[18px] font-bold text-[var(--text-primary)]">Job Profile Comparison</div>
+        <button onClick={() => { setShowCompare(false); setCompareJobs([]); }} className="text-[14px] text-[var(--text-muted)] hover:text-[var(--accent-primary)]">← Back to Library</button>
+      </div>
+      <div className={`grid gap-4`} style={{ gridTemplateColumns: `repeat(${compJobs.length}, 1fr)` }}>
+        {compJobs.map(job => {
+          const p = getProfile(job.id);
+          return <div key={job.id} className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4 space-y-3">
+            <div className="text-[16px] font-bold text-[var(--text-primary)]">{job.title}</div>
+            <div className="text-[13px] text-[var(--text-muted)]">{job.function} · {job.level} · {job.track}</div>
+            <div><div className="text-[12px] font-bold text-[var(--text-muted)] uppercase mb-1">Purpose</div><div className="text-[13px] text-[var(--text-secondary)]">{p.purpose || "—"}</div></div>
+            <div><div className="text-[12px] font-bold text-[var(--text-muted)] uppercase mb-1">Responsibilities ({p.responsibilities.length})</div>{p.responsibilities.slice(0, 5).map((r, i) => <div key={i} className="text-[13px] text-[var(--text-secondary)]">• {r}</div>)}</div>
+            <div><div className="text-[12px] font-bold text-[var(--text-muted)] uppercase mb-1">Skills</div><div className="flex flex-wrap gap-1">{[...p.skills.technical, ...p.skills.functional].slice(0, 8).map((s, i) => <span key={i} className="px-1.5 py-0.5 rounded text-[11px] bg-[var(--bg)] text-[var(--text-secondary)]">{s}</span>)}</div></div>
+            <div><div className="text-[12px] font-bold text-[var(--text-muted)] uppercase mb-1">KPIs ({p.kpis.length})</div>{p.kpis.slice(0, 4).map((k, i) => <div key={i} className="text-[13px] text-[var(--text-secondary)]">• {k}</div>)}</div>
+          </div>;
+        })}
+      </div>
+    </div>;
+  }
+
+  // Library view
+  return <div className="animate-tab-enter">
+    {/* Toolbar */}
+    <div className="flex items-center gap-2 mb-4 flex-wrap">
+      <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search jobs..." className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-[14px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] w-48" />
+      <select value={filterFunc} onChange={e => setFilterFunc(e.target.value)} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-2 py-1.5 text-[14px] text-[var(--text-primary)] outline-none"><option value="All">All Functions</option>{Array.from(new Set(jobs.map(j => j.function))).sort().map(f => <option key={f}>{f}</option>)}</select>
+      <select value={filterComplete} onChange={e => setFilterComplete(e.target.value)} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-2 py-1.5 text-[14px] text-[var(--text-primary)] outline-none"><option value="All">All Status</option><option>Complete</option><option>Draft</option><option>Empty</option></select>
+      <div className="flex rounded-lg overflow-hidden border border-[var(--border)]">
+        <button onClick={() => setLibraryViewMode("grid")} className="px-3 py-1.5 text-[13px]" style={{ background: libraryViewMode === "grid" ? "rgba(212,134,10,0.12)" : "var(--surface-2)", color: libraryViewMode === "grid" ? "#e09040" : "var(--text-muted)" }}>Grid</button>
+        <button onClick={() => setLibraryViewMode("list")} className="px-3 py-1.5 text-[13px]" style={{ background: libraryViewMode === "list" ? "rgba(212,134,10,0.12)" : "var(--surface-2)", color: libraryViewMode === "list" ? "#e09040" : "var(--text-muted)" }}>List</button>
+      </div>
+      <div className="ml-auto flex gap-2">
+        <button onClick={() => setShowTemplates(true)} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--accent-primary)]">Browse Templates</button>
+        {compareJobs.length >= 2 && <button onClick={() => setShowCompare(true)} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold text-[var(--purple)] border border-[var(--purple)]/30">Compare ({compareJobs.length})</button>}
+        <button onClick={bulkGenerate} disabled={bulkGenerating} className="px-4 py-1.5 rounded-lg text-[14px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: bulkGenerating ? 0.5 : 1 }}>{bulkGenerating ? `Generating... ${bulkProgress}%` : "✨ Generate All Empty"}</button>
+      </div>
+    </div>
+    {/* Bulk progress */}
+    {bulkGenerating && <div className="h-2 bg-[var(--surface-2)] rounded-full overflow-hidden mb-4"><div className="h-full rounded-full bg-[var(--accent-primary)] transition-all" style={{ width: `${bulkProgress}%` }} /></div>}
+    {/* KPIs */}
+    <div className="grid grid-cols-4 gap-3 mb-4">
+      <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold text-[var(--text-primary)]">{jobs.length}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">Total Roles</div></div>
+      <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold text-[var(--success)]">{complete}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">Complete</div></div>
+      <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold text-[var(--warning)]">{drafts}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">Draft</div></div>
+      <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold text-[var(--text-muted)]">{empty}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">Empty</div></div>
+    </div>
+    {/* Template modal */}
+    {showTemplates && <div className="fixed inset-0 bg-black/60 z-[9999] flex items-center justify-center p-4" onClick={() => setShowTemplates(false)}>
+      <div className="bg-[var(--bg)] rounded-2xl border border-[var(--border)] max-w-[800px] w-full max-h-[80vh] overflow-y-auto p-6" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-4"><div className="text-[18px] font-bold text-[var(--text-primary)]">Job Profile Templates</div><button onClick={() => setShowTemplates(false)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-[20px]">×</button></div>
+        <div className="grid grid-cols-2 gap-3">{Object.entries(JP_TEMPLATES).map(([key, tmpl]) => <div key={key} className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4">
+          <div className="text-[15px] font-bold text-[var(--text-primary)] mb-1">{key}</div>
+          <div className="text-[13px] text-[var(--text-muted)] mb-2 line-clamp-2">{tmpl.purpose}</div>
+          <div className="flex flex-wrap gap-1 mb-3">{tmpl.skills?.technical?.slice(0, 4).map(s => <span key={s} className="px-1.5 py-0.5 rounded text-[11px] bg-[var(--bg)] text-[var(--text-secondary)]">{s}</span>)}</div>
+          <select onChange={e => { if (e.target.value) { applyTemplate(e.target.value, key); setShowTemplates(false); } }} className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-lg px-2 py-1.5 text-[13px] text-[var(--text-primary)] outline-none"><option value="">Apply to job...</option>{jobs.map(j => <option key={j.id} value={j.id}>{j.title} ({j.function})</option>)}</select>
+        </div>)}</div>
+      </div>
+    </div>}
+    {/* Grid / List view */}
+    {libraryViewMode === "grid" ? <div className="grid grid-cols-3 lg:grid-cols-4 gap-3">{filteredJobs.map(job => {
+      const badge = statusBadge(job.id);
+      const pct = completeness(job.id);
+      const isInCompare = compareJobs.includes(job.id);
+      return <div key={job.id} className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-3 cursor-pointer hover:border-[var(--accent-primary)]/30 transition-all" onClick={() => { setSelectedJobId(job.id); setProfileView("detail"); }}>
+        <div className="flex items-center justify-between mb-2">
+          <span className="px-2 py-0.5 rounded-full text-[11px] font-bold" style={{ background: `${badge.color}12`, color: badge.color }}>{badge.label}</span>
+          <button onClick={e => { e.stopPropagation(); setCompareJobs(prev => isInCompare ? prev.filter(id => id !== job.id) : prev.length < 3 ? [...prev, job.id] : prev); }} className="text-[12px]" style={{ color: isInCompare ? "var(--purple)" : "var(--text-muted)" }}>{isInCompare ? "✓ Compare" : "+ Compare"}</button>
+        </div>
+        <div className="text-[14px] font-bold text-[var(--text-primary)] mb-1 truncate">{job.title}</div>
+        <div className="text-[12px] text-[var(--text-muted)] mb-2">{job.function} · {job.level}</div>
+        <div className="h-1.5 bg-[var(--bg)] rounded-full overflow-hidden"><div className="h-full rounded-full" style={{ width: `${pct}%`, background: pct >= 90 ? "var(--success)" : pct > 0 ? "var(--warning)" : "var(--text-muted)" }} /></div>
+        <div className="text-[11px] text-[var(--text-muted)] mt-1">{pct}% complete</div>
+      </div>;
+    })}</div> : <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full text-[14px]"><thead><tr className="bg-[var(--surface-2)]">
+      {["Title", "Function", "Family", "Level", "Track", "HC", "Status", "Complete", ""].map(h => <th key={h} className="px-2 py-2 text-left text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">{h}</th>)}
+    </tr></thead><tbody>
+      {filteredJobs.map(job => {
+        const badge = statusBadge(job.id);
+        return <tr key={job.id} className="border-b border-[var(--border)] hover:bg-[var(--surface-2)]/50 cursor-pointer" onClick={() => { setSelectedJobId(job.id); setProfileView("detail"); }}>
+          <td className="px-2 py-2 font-semibold text-[var(--text-primary)]">{job.title}</td>
+          <td className="px-2 py-2 text-[var(--text-secondary)]">{job.function}</td>
+          <td className="px-2 py-2 text-[var(--text-muted)]">{job.family}</td>
+          <td className="px-2 py-2">{job.level}</td>
+          <td className="px-2 py-2 text-[var(--text-muted)]">{job.track}</td>
+          <td className="px-2 py-2">{job.headcount}</td>
+          <td className="px-2 py-2"><span className="px-1.5 py-0.5 rounded-full text-[11px] font-bold" style={{ background: `${badge.color}12`, color: badge.color }}>{badge.label}</span></td>
+          <td className="px-2 py-2">{completeness(job.id)}%</td>
+          <td className="px-2 py-2"><button onClick={e => { e.stopPropagation(); generateProfile(job); }} className="text-[12px] text-[var(--accent-primary)]">✨</button></td>
+        </tr>;
+      })}
+    </tbody></table></div>}
+  </div>;
+}
+
+/* ═══════════════════════════════════════════════════════════════
    JOB ARCHITECTURE MODULE — premium consulting-grade experience
    ═══════════════════════════════════════════════════════════════ */
 
@@ -122,6 +669,8 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
 
     <TabBar tabs={[
       { id: "catalogue", label: "📋 Job Catalogue" },
+      { id: "orgchart", label: "🏢 Org Chart" },
+      { id: "profiles", label: "📄 Job Profiles" },
       { id: "map", label: "🗺️ Architecture Map" },
       { id: "validation", label: "✅ Validation" },
       { id: "analytics", label: "📊 Analytics" },
@@ -357,6 +906,12 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
         </div>
       </div>}
     </div>}
+
+    {/* ═══ ORG CHART TAB — Visual Org Chart Builder ═══ */}
+    {tab === "orgchart" && <OrgChartBuilder employees={employees} jobs={jobs} />}
+
+    {/* ═══ JOB PROFILES TAB ═══ */}
+    {tab === "profiles" && <JobProfileLibrary jobs={jobs} model={model} />}
 
     {/* ═══ ARCHITECTURE MAP TAB — strategic mapping workspace ═══ */}
     {tab === "map" && <ArchitectureMapTab tree={tree} jobs={jobs} employees={employees} model={model} />}

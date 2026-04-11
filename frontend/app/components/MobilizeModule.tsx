@@ -296,6 +296,36 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, viewCtx
   const [riskSortCol, setRiskSortCol] = useState("score");
   const [addingRisk, setAddingRisk] = useState(false);
   const [newRiskForm, setNewRiskForm] = useState({name:"",category:"People",prob:3,impact:3,mitigation:"",contingency:"",owner:""});
+  // ── ADKAR state ──
+  const ADKAR_DIMS = ["Awareness", "Desire", "Knowledge", "Ability", "Reinforcement"] as const;
+  const ADKAR_GROUPS = ["Executives", "Senior Leaders", "Middle Managers", "Frontline Managers", "Tech ICs", "Finance ICs", "HR ICs", "Operations ICs"] as const;
+  const ADKAR_COLORS: Record<string, string> = { Awareness: "#D4860A", Desire: "#C07030", Knowledge: "#8B5CF6", Ability: "#10B981", Reinforcement: "#0891B2" };
+  const ADKAR_RECS: Record<string, { title: string; actions: string[] }> = {
+    Awareness: { title: "Build Awareness — Communicate the Why", actions: ["Host town halls explaining the business case for change", "Create FAQ documents addressing common concerns", "Share success stories from similar transformations", "Send personalized impact statements to each group", "Appoint visible executive sponsors who model the change narrative"] },
+    Desire: { title: "Build Desire — Address What's In It For Me", actions: ["Involve resistors in co-designing the solution", "Identify and activate change champions in each team", "Address personal fears: job security, skill relevance, status", "Show career advancement opportunities in the new model", "Create incentives aligned with adoption (recognition, development)"] },
+    Knowledge: { title: "Build Knowledge — Teach How to Change", actions: ["Develop role-specific learning pathways", "Create hands-on practice environments (sandboxes)", "Pair learners with mentors who've already transitioned", "Provide just-in-time resources at the point of need", "Certify competency before expecting performance"] },
+    Ability: { title: "Build Ability — Support the Doing", actions: ["Provide on-the-job coaching during the first 90 days", "Create feedback loops so people can adjust in real-time", "Remove process and system obstacles blocking new behaviors", "Adjust performance expectations during the transition period", "Build peer support networks for shared problem-solving"] },
+    Reinforcement: { title: "Sustain the Change — Lock In New Behaviors", actions: ["Celebrate and publicize early wins loudly", "Update KPIs and scorecards to reflect new ways of working", "Hold managers accountable for reinforcing new behaviors", "Embed the change in onboarding, policies, and processes", "Run periodic health checks and course-correct quickly"] },
+  };
+  type AdkarScore = { score: number; justification: string };
+  const [adkarScores, setAdkarScores] = usePersisted<Record<string, Record<string, AdkarScore>>>(`${model}_adkar_scores`, {});
+  const [adkarActions, setAdkarActions] = usePersisted<{ id: string; priority: number; group: string; dim: string; action: string; owner: string; timeline: string; status: string }[]>(`${model}_adkar_actions`, []);
+  const [adkarView, setAdkarView] = useState<"assess" | "heatmap" | "actions" | "track">("assess");
+  const [adkarAiGenerating, setAdkarAiGenerating] = useState(false);
+  const [adkarEditingCell, setAdkarEditingCell] = useState<string | null>(null);
+
+  const getAdkarScore = (group: string, dim: string) => adkarScores[group]?.[dim] || { score: 0, justification: "" };
+  const setAdkarScore = (group: string, dim: string, val: Partial<AdkarScore>) => {
+    setAdkarScores(prev => ({ ...prev, [group]: { ...(prev[group] || {}), [dim]: { ...getAdkarScore(group, dim), ...val } } }));
+  };
+  const getBarrierPoint = (group: string): string | null => {
+    for (const dim of ADKAR_DIMS) {
+      const s = getAdkarScore(group, dim).score;
+      if (s > 0 && s <= 2) return dim;
+    }
+    return null;
+  };
+
   const [data, cpLoading] = useApiData(() => sub === "road" ? api.getRoadmap(model, f) : api.getRisk(model, f), [sub, model, f.func, f.jf, f.sf, f.cl]);
   // Job view: filter to this role
   if (viewCtx?.mode === "job" && viewCtx?.job) return <div>
@@ -333,7 +363,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, viewCtx
   return <div>
     <ContextStrip items={["Phase 3: Deliver — Your transformation roadmap. Auto-generates from Phase 2 decisions or upload your own change plan."]} />
     <PageHeader icon="🚀" title="Change Planner" subtitle="Sequence initiatives and manage transformation risk" onBack={onBack} moduleId="plan" />
-    <TabBar tabs={[{ id: "road", label: "Roadmap" }, { id: "gantt", label: "📅 Gantt" }, { id: "workstreams", label: "🔧 Workstreams" }, { id: "stakeholders", label: "👥 Stakeholders" }, { id: "risks", label: "⚠️ Risk Register" }, { id: "comms", label: "📣 Comms Plan" }, { id: "playbook", label: "📖 Playbooks" }]} active={sub} onChange={setSub} />
+    <TabBar tabs={[{ id: "road", label: "Roadmap" }, { id: "gantt", label: "📅 Gantt" }, { id: "workstreams", label: "🔧 Workstreams" }, { id: "adkar", label: "🔄 ADKAR" }, { id: "stakeholders", label: "👥 Stakeholders" }, { id: "risks", label: "⚠️ Risk Register" }, { id: "comms", label: "📣 Comms Plan" }, { id: "playbook", label: "📖 Playbooks" }]} active={sub} onChange={setSub} />
     {sub === "road" && <div className="bg-gradient-to-r from-[rgba(224,144,64,0.06)] to-transparent border border-[rgba(224,144,64,0.15)] rounded-xl p-4 mb-4 flex items-center justify-between">
       <div><div className="text-[15px] font-bold text-[var(--text-primary)]">☕ AI can build your change roadmap</div><div className="text-[15px] text-[var(--text-muted)]">Generates initiatives, waves, owners, and risks from your transformation decisions</div></div>
       <button onClick={async () => {
@@ -597,6 +627,225 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, viewCtx
         })}
       </div>;
     })()}
+
+    {/* ═══ ADKAR ASSESSMENT ═══ */}
+    {sub === "adkar" && <div className="animate-tab-enter space-y-5">
+      {/* Intro */}
+      <div className="rounded-xl bg-[rgba(212,134,10,0.05)] border border-[rgba(212,134,10,0.15)] p-4">
+        <div className="text-[15px] font-bold text-[var(--accent-primary)] mb-2">ADKAR Change Management Framework</div>
+        <div className="grid grid-cols-5 gap-2">
+          {ADKAR_DIMS.map(dim => <div key={dim} className="rounded-lg p-2 text-center" style={{ background: `${ADKAR_COLORS[dim]}08`, border: `1px solid ${ADKAR_COLORS[dim]}20` }}>
+            <div className="text-[16px] font-extrabold" style={{ color: ADKAR_COLORS[dim] }}>{dim[0]}</div>
+            <div className="text-[13px] font-bold" style={{ color: ADKAR_COLORS[dim] }}>{dim}</div>
+            <div className="text-[11px] text-[var(--text-muted)]">{dim === "Awareness" ? "Understand WHY" : dim === "Desire" ? "WANT to change" : dim === "Knowledge" ? "Know HOW" : dim === "Ability" ? "CAN do it" : "SUSTAIN it"}</div>
+          </div>)}
+        </div>
+      </div>
+
+      {/* Sub-nav */}
+      <div className="flex gap-1 rounded-xl bg-[var(--surface-2)] p-1 border border-[var(--border)]">
+        {([
+          { id: "assess" as const, label: "Assessment", icon: "📊" },
+          { id: "heatmap" as const, label: "Heatmap", icon: "🗺" },
+          { id: "actions" as const, label: "Action Plan", icon: "📋" },
+          { id: "track" as const, label: "Progress", icon: "📈" },
+        ]).map(v => <button key={v.id} onClick={() => setAdkarView(v.id)} className="flex-1 px-3 py-2 rounded-lg text-[14px] font-semibold transition-all" style={{ background: adkarView === v.id ? "rgba(212,134,10,0.12)" : "transparent", color: adkarView === v.id ? "#e09040" : "var(--text-muted)" }}>{v.icon} {v.label}</button>)}
+      </div>
+
+      {/* ─── ASSESSMENT ─── */}
+      {adkarView === "assess" && <div className="space-y-4">
+        <Card title="ADKAR Scoring — By Stakeholder Group">
+          <div className="text-[15px] text-[var(--text-secondary)] mb-4">Score each group 1-5 on each ADKAR dimension. The lowest score in the sequence is the barrier point — focus there first.</div>
+          <div className="space-y-4">
+            {ADKAR_GROUPS.map(group => {
+              const barrier = getBarrierPoint(group);
+              const hasScores = ADKAR_DIMS.some(d => getAdkarScore(group, d).score > 0);
+              const radarData = ADKAR_DIMS.map(d => ({ subject: d, current: getAdkarScore(group, d).score, max: 5 }));
+              return <div key={group} className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="text-[15px] font-bold text-[var(--text-primary)]">{group}</div>
+                  {barrier && <span className="px-3 py-1 rounded-full text-[13px] font-bold bg-[rgba(239,68,68,0.1)] text-[var(--risk)]">Barrier: {barrier} ({getAdkarScore(group, barrier).score}/5)</span>}
+                </div>
+                <div className="flex gap-2 mb-3">
+                  {ADKAR_DIMS.map(dim => {
+                    const s = getAdkarScore(group, dim);
+                    const isBarrier = dim === barrier;
+                    return <div key={dim} className="flex-1">
+                      <div className="text-[12px] font-bold text-center mb-1" style={{ color: ADKAR_COLORS[dim] }}>{dim[0]}</div>
+                      <div className="flex justify-center gap-0.5">{[1,2,3,4,5].map(n => <button key={n} onClick={() => setAdkarScore(group, dim, { score: getAdkarScore(group, dim).score === n ? 0 : n })} className="w-6 h-6 rounded text-[12px] font-bold transition-all" style={{
+                        background: s.score >= n ? `${n <= 2 ? "var(--risk)" : n <= 3 ? "var(--warning)" : "var(--success)"}20` : "var(--bg)",
+                        color: s.score >= n ? (n <= 2 ? "var(--risk)" : n <= 3 ? "var(--warning)" : "var(--success)") : "var(--text-muted)",
+                        border: isBarrier && s.score >= n ? "2px solid var(--risk)" : s.score >= n ? `1px solid ${n <= 2 ? "var(--risk)" : n <= 3 ? "var(--warning)" : "var(--success)"}` : "1px solid var(--border)",
+                      }}>{n}</button>)}</div>
+                      {adkarEditingCell === `${group}_${dim}` ? <input value={s.justification} onChange={e => setAdkarScore(group, dim, { justification: e.target.value })} onBlur={() => setAdkarEditingCell(null)} placeholder="Why this score..." className="w-full mt-1 bg-[var(--bg)] border border-[var(--border)] rounded px-1 py-0.5 text-[11px] outline-none text-center placeholder:text-[var(--text-muted)]" autoFocus /> : <button onClick={() => setAdkarEditingCell(`${group}_${dim}`)} className="w-full text-[11px] text-[var(--text-muted)] mt-1 truncate hover:text-[var(--accent-primary)]">{s.justification || "Add note"}</button>}
+                    </div>;
+                  })}
+                </div>
+                {/* Barrier recommendation */}
+                {barrier && <div className="rounded-lg bg-[rgba(239,68,68,0.04)] border border-[var(--risk)]/15 p-3">
+                  <div className="text-[13px] font-bold text-[var(--risk)] mb-1">{ADKAR_RECS[barrier].title}</div>
+                  <div className="text-[13px] text-[var(--text-secondary)]">{ADKAR_RECS[barrier].actions[0]}</div>
+                </div>}
+                {/* Mini radar for groups with scores */}
+                {hasScores && <div className="h-[120px] mt-2"><RadarViz data={radarData} /></div>}
+              </div>;
+            })}
+          </div>
+        </Card>
+      </div>}
+
+      {/* ─── HEATMAP ─── */}
+      {adkarView === "heatmap" && <Card title="ADKAR Heatmap — All Groups × All Dimensions">
+        <div className="text-[15px] text-[var(--text-secondary)] mb-4">Red (1-2) = barrier, Amber (3) = developing, Green (4-5) = strong. Click any cell to drill in.</div>
+        <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full"><thead><tr className="bg-[var(--surface-2)]">
+          <th className="px-3 py-2 text-left text-[13px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)] min-w-[150px]">Group</th>
+          {ADKAR_DIMS.map(d => <th key={d} className="px-2 py-2 text-center text-[13px] font-bold border-b border-[var(--border)] min-w-[80px]" style={{ color: ADKAR_COLORS[d] }}>{d}</th>)}
+          <th className="px-2 py-2 text-center text-[13px] font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Avg</th>
+          <th className="px-2 py-2 text-center text-[13px] font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Barrier</th>
+        </tr></thead><tbody>
+          {ADKAR_GROUPS.map(group => {
+            const scores = ADKAR_DIMS.map(d => getAdkarScore(group, d).score);
+            const avg = scores.filter(s => s > 0).length ? (scores.filter(s => s > 0).reduce((a, b) => a + b, 0) / scores.filter(s => s > 0).length) : 0;
+            const barrier = getBarrierPoint(group);
+            return <tr key={group} className="border-b border-[var(--border)]">
+              <td className="px-3 py-2 text-[14px] font-semibold text-[var(--text-primary)]">{group}</td>
+              {ADKAR_DIMS.map(dim => {
+                const s = getAdkarScore(group, dim).score;
+                const isBarrier = dim === barrier;
+                return <td key={dim} className="px-2 py-2 text-center" onClick={() => { setAdkarView("assess"); }}>
+                  <div className="w-10 h-10 rounded-lg mx-auto flex items-center justify-center text-[16px] font-bold cursor-pointer transition-all" style={{
+                    background: s === 0 ? "var(--surface-2)" : s <= 2 ? "rgba(239,68,68,0.15)" : s <= 3 ? "rgba(245,158,11,0.15)" : "rgba(16,185,129,0.15)",
+                    color: s === 0 ? "var(--text-muted)" : s <= 2 ? "var(--risk)" : s <= 3 ? "var(--warning)" : "var(--success)",
+                    border: isBarrier ? "2px solid var(--risk)" : "none",
+                  }}>{s || "—"}</div>
+                </td>;
+              })}
+              <td className="px-2 py-2 text-center text-[14px] font-bold" style={{ color: avg >= 4 ? "var(--success)" : avg >= 3 ? "var(--warning)" : avg > 0 ? "var(--risk)" : "var(--text-muted)" }}>{avg > 0 ? avg.toFixed(1) : "—"}</td>
+              <td className="px-2 py-2 text-center"><span className="text-[13px] font-bold" style={{ color: barrier ? "var(--risk)" : "var(--success)" }}>{barrier || "None"}</span></td>
+            </tr>;
+          })}
+        </tbody></table></div>
+        {/* Overall org summary */}
+        {(() => {
+          const allScores = ADKAR_GROUPS.flatMap(g => ADKAR_DIMS.map(d => getAdkarScore(g, d).score)).filter(s => s > 0);
+          if (allScores.length === 0) return null;
+          const orgAvg = allScores.reduce((a, b) => a + b, 0) / allScores.length;
+          const dimAvgs = ADKAR_DIMS.map(d => ({ dim: d, avg: (() => { const s = ADKAR_GROUPS.map(g => getAdkarScore(g, d).score).filter(x => x > 0); return s.length ? s.reduce((a, b) => a + b, 0) / s.length : 0; })() }));
+          const weakestDim = dimAvgs.filter(d => d.avg > 0).sort((a, b) => a.avg - b.avg)[0];
+          return <div className="mt-4 grid grid-cols-3 gap-3">
+            <div className="rounded-xl p-4 bg-[var(--surface-2)] text-center"><div className="text-[24px] font-extrabold" style={{ color: orgAvg >= 3.5 ? "var(--success)" : orgAvg >= 2.5 ? "var(--warning)" : "var(--risk)" }}>{orgAvg.toFixed(1)}</div><div className="text-[13px] text-[var(--text-muted)] uppercase">Org ADKAR Avg</div></div>
+            <div className="rounded-xl p-4 bg-[var(--surface-2)] text-center"><div className="text-[24px] font-extrabold" style={{ color: "var(--risk)" }}>{weakestDim?.dim || "—"}</div><div className="text-[13px] text-[var(--text-muted)] uppercase">Weakest Dimension ({weakestDim?.avg.toFixed(1) || "—"})</div></div>
+            <div className="rounded-xl p-4 bg-[var(--surface-2)] text-center"><div className="text-[24px] font-extrabold text-[var(--risk)]">{ADKAR_GROUPS.filter(g => getBarrierPoint(g)).length}</div><div className="text-[13px] text-[var(--text-muted)] uppercase">Groups with Barriers</div></div>
+          </div>;
+        })()}
+      </Card>}
+
+      {/* ─── ACTION PLAN ─── */}
+      {adkarView === "actions" && <Card title="ADKAR Action Plan">
+        <div className="text-[15px] text-[var(--text-secondary)] mb-4">Prioritized actions based on barrier points. Resolve barriers in ADKAR sequence — you can{"'"}t skip ahead.</div>
+        {/* Auto-generate from barrier points */}
+        {(() => {
+          const barriers = ADKAR_GROUPS.map(g => ({ group: g, barrier: getBarrierPoint(g), score: getBarrierPoint(g) ? getAdkarScore(g, getBarrierPoint(g)!).score : 5 })).filter(b => b.barrier).sort((a, b) => a.score - b.score);
+          return <>
+            {barriers.length > 0 && adkarActions.length === 0 && <div className="rounded-xl bg-[rgba(212,134,10,0.06)] border border-[rgba(212,134,10,0.15)] p-4 mb-4">
+              <div className="text-[15px] font-bold text-[var(--accent-primary)] mb-2">Auto-Generated Priorities from Barrier Points</div>
+              <div className="space-y-3">
+                {barriers.map((b, i) => <div key={b.group} className="rounded-lg bg-[var(--surface-2)] p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-6 h-6 rounded-full flex items-center justify-center text-[12px] font-bold text-white" style={{ background: "var(--accent-primary)" }}>P{i + 1}</span>
+                    <span className="text-[14px] font-bold text-[var(--text-primary)]">Build {b.barrier} among {b.group} (currently {b.score}/5)</span>
+                  </div>
+                  <div className="space-y-1 ml-8">{ADKAR_RECS[b.barrier!].actions.slice(0, 3).map((a, ai) => <div key={ai} className="text-[13px] text-[var(--text-secondary)]">• {a}</div>)}</div>
+                </div>)}
+              </div>
+              <button onClick={() => {
+                const actions = barriers.flatMap((b, i) => ADKAR_RECS[b.barrier!].actions.slice(0, 3).map((a, ai) => ({
+                  id: `adkar_${Date.now()}_${i}_${ai}`, priority: i + 1, group: b.group, dim: b.barrier!, action: a, owner: "", timeline: "", status: "Not Started",
+                })));
+                setAdkarActions(actions);
+                showToast(`Generated ${actions.length} ADKAR actions`);
+              }} className="mt-3 w-full px-4 py-2 rounded-lg text-[14px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>Convert to Editable Action Plan</button>
+            </div>}
+            {/* AI generate */}
+            <button onClick={async () => {
+              setAdkarAiGenerating(true);
+              try {
+                const context = barriers.map(b => `${b.group}: ${b.barrier} = ${b.score}/5`).join("; ");
+                const raw = await callAI("Return ONLY valid JSON array.", `Generate 12 specific change management actions to address these ADKAR barriers: ${context}. Each action: {"priority":1,"group":"group name","dim":"ADKAR dimension","action":"specific action","owner":"suggested role","timeline":"Week X-Y","status":"Not Started"}. Be specific and practical.`);
+                const actions = JSON.parse(raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim());
+                if (Array.isArray(actions)) { setAdkarActions(actions.map((a: Record<string, unknown>, i: number) => ({ ...a, id: `adkar_ai_${i}` })) as typeof adkarActions); showToast(`Generated ${actions.length} AI actions`); }
+              } catch { showToast("AI generation failed"); }
+              setAdkarAiGenerating(false);
+            }} disabled={adkarAiGenerating || barriers.length === 0} className="px-4 py-2 rounded-lg text-[14px] font-semibold text-white mb-4" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: adkarAiGenerating || barriers.length === 0 ? 0.4 : 1 }}>{adkarAiGenerating ? "Generating..." : "✨ AI Generate Actions"}</button>
+          </>;
+        })()}
+        {/* Action table */}
+        {adkarActions.length > 0 && <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full text-[14px]"><thead><tr className="bg-[var(--surface-2)]">
+          {["P", "Group", "Dim", "Action", "Owner", "Timeline", "Status", ""].map(h => <th key={h} className="px-2 py-2 text-left text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">{h}</th>)}
+        </tr></thead><tbody>
+          {adkarActions.sort((a, b) => a.priority - b.priority).map(act => {
+            const statusColors: Record<string, string> = { "Not Started": "var(--text-muted)", "In Progress": "var(--warning)", Complete: "var(--success)" };
+            return <tr key={act.id} className="border-b border-[var(--border)]">
+              <td className="px-2 py-2 text-center"><span className="w-5 h-5 rounded-full inline-flex items-center justify-center text-[11px] font-bold text-white" style={{ background: "var(--accent-primary)" }}>{act.priority}</span></td>
+              <td className="px-2 py-2 text-[13px] text-[var(--text-secondary)]">{act.group}</td>
+              <td className="px-2 py-2"><span className="text-[12px] font-bold" style={{ color: ADKAR_COLORS[act.dim] || "var(--text-muted)" }}>{act.dim}</span></td>
+              <td className="px-2 py-2 text-[13px] text-[var(--text-primary)] max-w-[250px]">{act.action}</td>
+              <td className="px-2 py-2"><input value={act.owner} onChange={e => setAdkarActions(prev => prev.map(a => a.id === act.id ? {...a, owner: e.target.value} : a))} className="bg-[var(--bg)] border border-[var(--border)] rounded px-1 py-0.5 text-[12px] w-20 outline-none" placeholder="Assign..." /></td>
+              <td className="px-2 py-2"><input value={act.timeline} onChange={e => setAdkarActions(prev => prev.map(a => a.id === act.id ? {...a, timeline: e.target.value} : a))} className="bg-[var(--bg)] border border-[var(--border)] rounded px-1 py-0.5 text-[12px] w-16 outline-none" placeholder="Wk 1-4" /></td>
+              <td className="px-2 py-2"><button onClick={() => { const cycle = ["Not Started", "In Progress", "Complete"]; setAdkarActions(prev => prev.map(a => a.id === act.id ? {...a, status: cycle[(cycle.indexOf(a.status) + 1) % 3]} : a)); }} className="px-2 py-0.5 rounded-full text-[11px] font-bold" style={{ background: `${statusColors[act.status]}12`, color: statusColors[act.status] }}>{act.status}</button></td>
+              <td className="px-2 py-2"><button onClick={() => setAdkarActions(prev => prev.filter(a => a.id !== act.id))} className="text-[var(--text-muted)] hover:text-[var(--risk)] text-[12px]">×</button></td>
+            </tr>;
+          })}
+        </tbody></table></div>}
+      </Card>}
+
+      {/* ─── PROGRESS TRACKING ─── */}
+      {adkarView === "track" && <Card title="ADKAR Progress Tracking">
+        <div className="text-[15px] text-[var(--text-secondary)] mb-4">Track ADKAR scores over time. Re-assess monthly to measure improvement.</div>
+        {/* Current snapshot */}
+        <div className="grid grid-cols-5 gap-3 mb-5">
+          {ADKAR_DIMS.map(dim => {
+            const scores = ADKAR_GROUPS.map(g => getAdkarScore(g, dim).score).filter(s => s > 0);
+            const avg = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
+            return <div key={dim} className="rounded-xl p-4 text-center" style={{ background: `${ADKAR_COLORS[dim]}08`, border: `1px solid ${ADKAR_COLORS[dim]}20` }}>
+              <div className="text-[24px] font-extrabold" style={{ color: ADKAR_COLORS[dim] }}>{avg > 0 ? avg.toFixed(1) : "—"}</div>
+              <div className="text-[13px] font-bold" style={{ color: ADKAR_COLORS[dim] }}>{dim}</div>
+              <div className="text-[11px] text-[var(--text-muted)]">Org average</div>
+            </div>;
+          })}
+        </div>
+        {/* Per-group progress bars */}
+        <div className="space-y-3">
+          {ADKAR_GROUPS.map(group => {
+            const scores = ADKAR_DIMS.map(d => getAdkarScore(group, d).score);
+            const hasData = scores.some(s => s > 0);
+            if (!hasData) return null;
+            return <div key={group} className="rounded-lg bg-[var(--surface-2)] p-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[14px] font-semibold text-[var(--text-primary)]">{group}</span>
+                <span className="text-[13px] text-[var(--text-muted)]">{(scores.filter(s => s > 0).reduce((a, b) => a + b, 0) / Math.max(scores.filter(s => s > 0).length, 1)).toFixed(1)} avg</span>
+              </div>
+              <div className="flex gap-1 h-6 rounded-lg overflow-hidden">
+                {ADKAR_DIMS.map(dim => {
+                  const s = getAdkarScore(group, dim).score;
+                  return <div key={dim} className="flex-1 flex items-center justify-center text-[11px] font-bold text-white" style={{
+                    background: s === 0 ? "var(--surface-2)" : s <= 2 ? "var(--risk)" : s <= 3 ? "var(--warning)" : "var(--success)",
+                  }}>{s > 0 ? `${dim[0]}${s}` : ""}</div>;
+                })}
+              </div>
+            </div>;
+          })}
+        </div>
+        {/* Action completion */}
+        {adkarActions.length > 0 && <div className="mt-5 rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[14px] font-bold text-[var(--text-primary)]">Action Completion</span>
+            <span className="text-[14px] font-bold" style={{ color: "var(--success)" }}>{adkarActions.filter(a => a.status === "Complete").length}/{adkarActions.length}</span>
+          </div>
+          <div className="h-3 bg-[var(--bg)] rounded-full overflow-hidden"><div className="h-full rounded-full bg-[var(--success)] transition-all" style={{ width: `${(adkarActions.filter(a => a.status === "Complete").length / Math.max(adkarActions.length, 1)) * 100}%` }} /></div>
+        </div>}
+      </Card>}
+    </div>}
 
     {/* ═══ STAKEHOLDER MAP — Draggable ═══ */}
     {sub === "stakeholders" && (() => {

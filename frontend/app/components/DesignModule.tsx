@@ -2750,7 +2750,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
           {(() => { const scores = Object.values(maturityScores).filter(v => v > 0); const avg = scores.length ? (scores.reduce((a,b) => a+b, 0) / scores.length).toFixed(1) : "—"; const tScores = Object.values(targetScores).filter(v => v > 0); const tAvg = tScores.length ? (tScores.reduce((a,b) => a+b, 0) / tScores.length).toFixed(1) : "—"; return <div className="flex gap-4 mb-4">{[{label:"Current Avg",val:avg,color:"var(--accent-primary)"},{label:"Target Avg",val:tAvg,color:"var(--success)"},{label:"Capabilities Rated",val:`${scores.length}/${allCaps.length}`,color:"var(--text-secondary)"},{label:"Gap",val:scores.length && tScores.length ? (Number(tAvg)-Number(avg)).toFixed(1) : "—",color:"var(--warning)"}].map(k => <div key={k.label} className="flex-1 rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[18px] font-extrabold" style={{color:k.color}}>{k.val}</div><div className="text-[14px] text-[var(--text-muted)] uppercase">{k.label}</div></div>)}</div>; })()}
           <div className="text-[15px] text-[var(--text-secondary)] mb-3">Rate current state (left) and target state (right) for each capability.</div>
           <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full"><thead><tr className="bg-[var(--surface-2)]"><th className="px-3 py-2 text-left text-[15px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Capability</th><th className="px-2 py-2 text-center text-[15px] font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Layer</th>{[1,2,3,4,5].map(n => <th key={n} className="px-2 py-2 text-center text-[15px] border-b border-[var(--border)] text-[var(--text-muted)]">{n}</th>)}<th className="px-1 py-2 text-center text-[14px] border-b border-[var(--border)] text-[var(--text-muted)]">|</th>{[1,2,3,4,5].map(n => <th key={`t${n}`} className="px-2 py-2 text-center text-[15px] border-b border-[var(--border)] text-[var(--success)]">{n}</th>)}<th className="px-2 py-2 text-center text-[15px] border-b border-[var(--border)] text-[var(--text-muted)]">AI</th></tr></thead>
-          <tbody>{allCaps.map(cap => { const sc = maturityScores[cap.name]||0; const ai = getAiTier(cap.name); return <tr key={cap.name} className="border-b border-[var(--border)]"><td className="px-3 py-1.5 text-[15px] font-semibold">{cap.name}</td><td className="px-2 py-1.5 text-center"><span className="text-[14px] px-1.5 py-0.5 rounded-full" style={{ background: `${layerColors[cap.layer]}12`, color: layerColors[cap.layer] }}>{cap.layer}</span></td>{[1,2,3,4,5].map(n => <td key={n} className="px-2 py-1.5 text-center"><button onClick={() => setMaturityScores(p => ({...p,[cap.name]:n}))} className="w-6 h-6 rounded text-[15px] font-bold" style={{ background: sc>=n ? `${n<=2?"var(--risk)":n<=3?"var(--warning)":"var(--success)"}20` : "var(--surface-2)", color: sc>=n ? (n<=2?"var(--risk)":n<=3?"var(--warning)":"var(--success)") : "var(--text-muted)" }}>{n}</button></td>)}<td className="px-1 py-1.5 text-center text-[var(--border)]">│</td>{[1,2,3,4,5].map(n => <td key={`t${n}`} className="px-2 py-1.5 text-center"><button onClick={() => setTargetScores(p => ({...p,[cap.name]:n}))} className="w-6 h-6 rounded text-[15px] font-bold" style={{ background: (targetScores[cap.name]||0)>=n ? `${n<=2?"var(--risk)":n<=3?"var(--warning)":"var(--success)"}20` : "var(--surface-2)", color: (targetScores[cap.name]||0)>=n ? (n<=2?"var(--risk)":n<=3?"var(--warning)":"var(--success)") : "var(--text-muted)" }}>{n}</button></td>)}<td className="px-2 py-1.5 text-center"><span className="text-[14px]" style={{ color: ai.color }}>{ai.tier}</span></td></tr>; })}</tbody></table></div>
+          <tbody>{allCaps.map(cap => { const sc = maturityScores[cap.name]||0; const ai = getAiTier(cap.name); return <tr key={cap.name} className="border-b border-[var(--border)]"><td className="px-3 py-1.5 text-[15px] font-semibold">{cap.name}</td><td className="px-2 py-1.5 text-center"><span className="text-[14px] px-1.5 py-0.5 rounded-full" style={{ background: `${layerColors[cap.layer]}12`, color: layerColors[cap.layer] }}>{cap.layer}</span></td>{[1,2,3,4,5].map(n => <td key={n} className="px-2 py-1.5 text-center"><button onClick={() => setMaturityScores(p => ({...p,[cap.name]: p[cap.name] === n ? 0 : n}))} className="w-6 h-6 rounded text-[15px] font-bold" style={{ background: sc>=n ? `${n<=2?"var(--risk)":n<=3?"var(--warning)":"var(--success)"}20` : "var(--surface-2)", color: sc>=n ? (n<=2?"var(--risk)":n<=3?"var(--warning)":"var(--success)") : "var(--text-muted)" }}>{n}</button></td>)}<td className="px-1 py-1.5 text-center text-[var(--border)]">│</td>{[1,2,3,4,5].map(n => <td key={`t${n}`} className="px-2 py-1.5 text-center"><button onClick={() => setTargetScores(p => ({...p,[cap.name]: p[cap.name] === n ? 0 : n}))} className="w-6 h-6 rounded text-[15px] font-bold" style={{ background: (targetScores[cap.name]||0)>=n ? `${n<=2?"var(--risk)":n<=3?"var(--warning)":"var(--success)"}20` : "var(--surface-2)", color: (targetScores[cap.name]||0)>=n ? (n<=2?"var(--risk)":n<=3?"var(--warning)":"var(--success)") : "var(--text-muted)" }}>{n}</button></td>)}<td className="px-2 py-1.5 text-center"><span className="text-[14px]" style={{ color: ai.color }}>{ai.tier}</span></td></tr>; })}</tbody></table></div>
           <div className="flex gap-3 mt-2 text-[14px] text-[var(--text-muted)]">{["1=Ad Hoc","2=Emerging","3=Defined","4=Managed","5=Optimized"].map(l => <span key={l}>{l}</span>)}</div>
         </Card>}
 
@@ -2952,7 +2952,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
                 </tr></thead><tbody>
                   {outsourceFuncs.map(f => {
                     const scores = svcOutsourceScores[f.id] || { strategic: 3, availability: 3, costSavings: 3, risk: 3 };
-                    const setScore = (field: keyof SvcOutscoreCard, val: number) => setSvcOutsourceScores(prev => ({ ...prev, [f.id]: { ...scores, [field]: val } }));
+                    const setScore = (field: keyof SvcOutscoreCard, val: number) => setSvcOutsourceScores(prev => ({ ...prev, [f.id]: { ...scores, [field]: scores[field] === val ? 0 : val } }));
                     const rec = scores.strategic <= 2 && scores.costSavings >= 4 ? "Outsource" : scores.strategic >= 4 ? "Keep In-House" : "Evaluate";
                     const recColor = rec === "Outsource" ? "var(--success)" : rec === "Keep In-House" ? "var(--purple)" : "var(--warning)";
                     return <tr key={f.id} className="border-b border-[var(--border)]">
@@ -3623,7 +3623,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
                 const gap = proc.maturity > 0 ? proc.maturity - proc.industryBenchmark : 0;
                 return <tr key={proc.id} className="border-b border-[var(--border)]">
                   <td className="px-3 py-2 text-[14px] font-semibold text-[var(--text-primary)]">{proc.name}<div className="text-[12px] text-[var(--text-muted)]">{proc.owner}</div></td>
-                  {[1,2,3,4,5].map(n => <td key={n} className="px-2 py-2 text-center"><button onClick={() => setProcProcesses(prev => prev.map(p => p.id === proc.id ? { ...p, maturity: n } : p))} className="w-7 h-7 rounded-lg text-[14px] font-bold transition-all" style={{
+                  {[1,2,3,4,5].map(n => <td key={n} className="px-2 py-2 text-center"><button onClick={() => setProcProcesses(prev => prev.map(p => p.id === proc.id ? { ...p, maturity: p.maturity === n ? 0 : n } : p))} className="w-7 h-7 rounded-lg text-[14px] font-bold transition-all" style={{
                     background: proc.maturity >= n ? `${n <= 2 ? "var(--risk)" : n <= 3 ? "var(--warning)" : "var(--success)"}20` : "var(--surface-2)",
                     color: proc.maturity >= n ? (n <= 2 ? "var(--risk)" : n <= 3 ? "var(--warning)" : "var(--success)") : "var(--text-muted)",
                   }}>{n}</button></td>)}
@@ -4135,14 +4135,14 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
                   {/* Current */}
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-[12px] text-[var(--text-muted)] w-16 shrink-0 uppercase">Current</span>
-                    <div className="flex gap-1 flex-1 justify-center">{[1,2,3,4,5].map(n => <button key={n} onClick={() => setCultureCurrent(p => ({...p, [dim.id]: n}))} className="w-9 h-7 rounded-lg text-[14px] font-bold transition-all" style={{
+                    <div className="flex gap-1 flex-1 justify-center">{[1,2,3,4,5].map(n => <button key={n} onClick={() => setCultureCurrent(p => ({...p, [dim.id]: p[dim.id] === n ? 0 : n}))} className="w-9 h-7 rounded-lg text-[14px] font-bold transition-all" style={{
                       background: cur >= n ? "rgba(212,134,10,0.15)" : "var(--bg)", color: cur >= n ? "var(--accent-primary)" : "var(--text-muted)", border: cur >= n ? "1px solid var(--accent-primary)" : "1px solid var(--border)",
                     }}>{n}</button>)}</div>
                   </div>
                   {/* Target */}
                   <div className="flex items-center gap-2">
                     <span className="text-[12px] text-[var(--text-muted)] w-16 shrink-0 uppercase">Required</span>
-                    <div className="flex gap-1 flex-1 justify-center">{[1,2,3,4,5].map(n => <button key={n} onClick={() => setCultureTarget(p => ({...p, [dim.id]: n}))} className="w-9 h-7 rounded-lg text-[14px] font-bold transition-all" style={{
+                    <div className="flex gap-1 flex-1 justify-center">{[1,2,3,4,5].map(n => <button key={n} onClick={() => setCultureTarget(p => ({...p, [dim.id]: p[dim.id] === n ? 0 : n}))} className="w-9 h-7 rounded-lg text-[14px] font-bold transition-all" style={{
                       background: tgt >= n ? "rgba(16,185,129,0.15)" : "var(--bg)", color: tgt >= n ? "var(--success)" : "var(--text-muted)", border: tgt >= n ? "1px solid var(--success)" : "1px solid var(--border)",
                     }}>{n}</button>)}</div>
                   </div>
@@ -4216,13 +4216,13 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <span className="text-[12px] text-[var(--text-muted)] uppercase">Current Strength</span>
-                      <div className="flex gap-1 mt-1">{[1,2,3,4,5].map(n => <button key={n} onClick={() => setLeadershipScores(p => ({...p, [comp.id]: { ...scores, current: n }}))} className="w-8 h-6 rounded text-[13px] font-bold transition-all" style={{
+                      <div className="flex gap-1 mt-1">{[1,2,3,4,5].map(n => <button key={n} onClick={() => setLeadershipScores(p => ({...p, [comp.id]: { ...scores, current: scores.current === n ? 0 : n }}))} className="w-8 h-6 rounded text-[13px] font-bold transition-all" style={{
                         background: scores.current >= n ? "rgba(212,134,10,0.15)" : "var(--bg)", color: scores.current >= n ? "var(--accent-primary)" : "var(--text-muted)", border: scores.current >= n ? "1px solid var(--accent-primary)" : "1px solid var(--border)",
                       }}>{n}</button>)}</div>
                     </div>
                     <div>
                       <span className="text-[12px] text-[var(--text-muted)] uppercase">Required Level</span>
-                      <div className="flex gap-1 mt-1">{[1,2,3,4,5].map(n => <button key={n} onClick={() => setLeadershipScores(p => ({...p, [comp.id]: { ...scores, required: n }}))} className="w-8 h-6 rounded text-[13px] font-bold transition-all" style={{
+                      <div className="flex gap-1 mt-1">{[1,2,3,4,5].map(n => <button key={n} onClick={() => setLeadershipScores(p => ({...p, [comp.id]: { ...scores, required: scores.required === n ? 0 : n }}))} className="w-8 h-6 rounded text-[13px] font-bold transition-all" style={{
                         background: scores.required >= n ? "rgba(16,185,129,0.15)" : "var(--bg)", color: scores.required >= n ? "var(--success)" : "var(--text-muted)", border: scores.required >= n ? "1px solid var(--success)" : "1px solid var(--border)",
                       }}>{n}</button>)}</div>
                     </div>
@@ -4258,7 +4258,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
                 </div>
                 <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4">
                   <label className="text-[14px] font-bold text-[var(--text-primary)] block mb-2">Change Fatigue Level</label>
-                  <div className="flex gap-1">{[1,2,3,4,5].map(n => <button key={n} onClick={() => setChangeLoad(p => ({...p, fatigue: n}))} className="flex-1 py-2 rounded-lg text-[14px] font-bold transition-all" style={{
+                  <div className="flex gap-1">{[1,2,3,4,5].map(n => <button key={n} onClick={() => setChangeLoad(p => ({...p, fatigue: p.fatigue === n ? 0 : n}))} className="flex-1 py-2 rounded-lg text-[14px] font-bold transition-all" style={{
                     background: changeLoad.fatigue >= n ? `${n <= 2 ? "var(--success)" : n <= 3 ? "var(--warning)" : "var(--risk)"}15` : "var(--bg)",
                     color: changeLoad.fatigue >= n ? (n <= 2 ? "var(--success)" : n <= 3 ? "var(--warning)" : "var(--risk)") : "var(--text-muted)",
                     border: changeLoad.fatigue >= n ? `1px solid ${n <= 2 ? "var(--success)" : n <= 3 ? "var(--warning)" : "var(--risk)"}` : "1px solid var(--border)",
@@ -4267,7 +4267,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
                 </div>
                 <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4">
                   <label className="text-[14px] font-bold text-[var(--text-primary)] block mb-2">Change Infrastructure</label>
-                  <div className="flex gap-1">{[1,2,3,4,5].map(n => <button key={n} onClick={() => setChangeLoad(p => ({...p, infrastructure: n}))} className="flex-1 py-2 rounded-lg text-[14px] font-bold transition-all" style={{
+                  <div className="flex gap-1">{[1,2,3,4,5].map(n => <button key={n} onClick={() => setChangeLoad(p => ({...p, infrastructure: p.infrastructure === n ? 0 : n}))} className="flex-1 py-2 rounded-lg text-[14px] font-bold transition-all" style={{
                     background: changeLoad.infrastructure >= n ? `${n <= 2 ? "var(--risk)" : n <= 3 ? "var(--warning)" : "var(--success)"}15` : "var(--bg)",
                     color: changeLoad.infrastructure >= n ? (n <= 2 ? "var(--risk)" : n <= 3 ? "var(--warning)" : "var(--success)") : "var(--text-muted)",
                     border: changeLoad.infrastructure >= n ? `1px solid ${n <= 2 ? "var(--risk)" : n <= 3 ? "var(--warning)" : "var(--success)"}` : "1px solid var(--border)",
@@ -4276,7 +4276,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
                 </div>
                 <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4">
                   <label className="text-[14px] font-bold text-[var(--text-primary)] block mb-2">Historical Change Success</label>
-                  <div className="flex gap-1">{[1,2,3,4,5].map(n => <button key={n} onClick={() => setChangeLoad(p => ({...p, history: n}))} className="flex-1 py-2 rounded-lg text-[14px] font-bold transition-all" style={{
+                  <div className="flex gap-1">{[1,2,3,4,5].map(n => <button key={n} onClick={() => setChangeLoad(p => ({...p, history: p.history === n ? 0 : n}))} className="flex-1 py-2 rounded-lg text-[14px] font-bold transition-all" style={{
                     background: changeLoad.history >= n ? `${n <= 2 ? "var(--risk)" : n <= 3 ? "var(--warning)" : "var(--success)"}15` : "var(--bg)",
                     color: changeLoad.history >= n ? (n <= 2 ? "var(--risk)" : n <= 3 ? "var(--warning)" : "var(--success)") : "var(--text-muted)",
                     border: changeLoad.history >= n ? `1px solid ${n <= 2 ? "var(--risk)" : n <= 3 ? "var(--warning)" : "var(--success)"}` : "1px solid var(--border)",
@@ -4346,8 +4346,8 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
             <div className="grid grid-cols-2 gap-5">
               <div className="space-y-4">
                 <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4"><label className="text-[14px] font-bold text-[var(--text-primary)] block mb-2">Active Change Initiatives</label><input value={changeLoad.active} onChange={e => setChangeLoad(p => ({...p, active: e.target.value}))} placeholder="e.g. ERP migration, org restructure, AI rollout..." className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-lg px-3 py-2 text-[14px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]" /><div className="text-[12px] text-[var(--text-muted)] mt-1">Count: {changeLoad.active ? changeLoad.active.split(",").filter(Boolean).length : 0}</div></div>
-                <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4"><label className="text-[14px] font-bold text-[var(--text-primary)] block mb-2">Change Fatigue (1-5)</label><div className="flex gap-1">{[1,2,3,4,5].map(n => <button key={n} onClick={() => setChangeLoad(p => ({...p, fatigue: n}))} className="flex-1 py-2 rounded-lg text-[14px] font-bold" style={{ background: changeLoad.fatigue >= n ? `${n <= 2 ? "var(--success)" : n <= 3 ? "var(--warning)" : "var(--risk)"}15` : "var(--bg)", color: changeLoad.fatigue >= n ? (n <= 2 ? "var(--success)" : n <= 3 ? "var(--warning)" : "var(--risk)") : "var(--text-muted)", border: changeLoad.fatigue >= n ? `1px solid ${n <= 2 ? "var(--success)" : n <= 3 ? "var(--warning)" : "var(--risk)"}` : "1px solid var(--border)" }}>{n}</button>)}</div></div>
-                <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4"><label className="text-[14px] font-bold text-[var(--text-primary)] block mb-2">Change Infrastructure (1-5)</label><div className="flex gap-1">{[1,2,3,4,5].map(n => <button key={n} onClick={() => setChangeLoad(p => ({...p, infrastructure: n}))} className="flex-1 py-2 rounded-lg text-[14px] font-bold" style={{ background: changeLoad.infrastructure >= n ? `${n <= 2 ? "var(--risk)" : n <= 3 ? "var(--warning)" : "var(--success)"}15` : "var(--bg)", color: changeLoad.infrastructure >= n ? (n <= 2 ? "var(--risk)" : n <= 3 ? "var(--warning)" : "var(--success)") : "var(--text-muted)", border: changeLoad.infrastructure >= n ? `1px solid ${n <= 2 ? "var(--risk)" : n <= 3 ? "var(--warning)" : "var(--success)"}` : "1px solid var(--border)" }}>{n}</button>)}</div></div>
+                <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4"><label className="text-[14px] font-bold text-[var(--text-primary)] block mb-2">Change Fatigue (1-5)</label><div className="flex gap-1">{[1,2,3,4,5].map(n => <button key={n} onClick={() => setChangeLoad(p => ({...p, fatigue: p.fatigue === n ? 0 : n}))} className="flex-1 py-2 rounded-lg text-[14px] font-bold" style={{ background: changeLoad.fatigue >= n ? `${n <= 2 ? "var(--success)" : n <= 3 ? "var(--warning)" : "var(--risk)"}15` : "var(--bg)", color: changeLoad.fatigue >= n ? (n <= 2 ? "var(--success)" : n <= 3 ? "var(--warning)" : "var(--risk)") : "var(--text-muted)", border: changeLoad.fatigue >= n ? `1px solid ${n <= 2 ? "var(--success)" : n <= 3 ? "var(--warning)" : "var(--risk)"}` : "1px solid var(--border)" }}>{n}</button>)}</div></div>
+                <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4"><label className="text-[14px] font-bold text-[var(--text-primary)] block mb-2">Change Infrastructure (1-5)</label><div className="flex gap-1">{[1,2,3,4,5].map(n => <button key={n} onClick={() => setChangeLoad(p => ({...p, infrastructure: p.infrastructure === n ? 0 : n}))} className="flex-1 py-2 rounded-lg text-[14px] font-bold" style={{ background: changeLoad.infrastructure >= n ? `${n <= 2 ? "var(--risk)" : n <= 3 ? "var(--warning)" : "var(--success)"}15` : "var(--bg)", color: changeLoad.infrastructure >= n ? (n <= 2 ? "var(--risk)" : n <= 3 ? "var(--warning)" : "var(--success)") : "var(--text-muted)", border: changeLoad.infrastructure >= n ? `1px solid ${n <= 2 ? "var(--risk)" : n <= 3 ? "var(--warning)" : "var(--success)"}` : "1px solid var(--border)" }}>{n}</button>)}</div></div>
               </div>
               <div className="space-y-4">
                 {(() => { const activeCount = changeLoad.active ? changeLoad.active.split(",").filter(Boolean).length : 0; const capacity = Math.max(1, Math.round((changeLoad.infrastructure || 1) * 1.5 + (changeLoad.history || 1) * 0.5 - (changeLoad.fatigue || 3) * 0.5 + 1)); const status = activeCount > capacity * 1.2 ? "Over Capacity" : activeCount > capacity * 0.8 ? "At Capacity" : activeCount > 0 ? "Has Room" : "Not Assessed"; const statusColor = activeCount > capacity * 1.2 ? "var(--risk)" : activeCount > capacity * 0.8 ? "var(--warning)" : "var(--success)"; return <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-6 text-center"><div className="text-[14px] text-[var(--text-muted)] uppercase mb-2">Change Capacity</div><div className="text-[32px] font-extrabold mb-1" style={{ color: statusColor }}>{status}</div><div className="text-[14px] text-[var(--text-secondary)]">Can absorb ~{capacity} concurrent initiatives.{activeCount > 0 && <> Currently have <strong>{activeCount}</strong>.</>}</div></div>; })()}
@@ -4374,39 +4374,42 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
 
           {/* ─── 1. ACTIVITY-BASED COSTING ─── */}
           {finView === "abc" && <Card title="Activity-Based Costing — Current vs. Target ($K)">
-            <div className="text-[15px] text-[var(--text-secondary)] mb-4">Edit cost components per function. Values in thousands ($K). Target state reflects your operating model design.</div>
+            <div className="text-[16px] text-[var(--text-secondary)] mb-5" style={{ fontFamily: "'Outfit', sans-serif" }}>Cost components per function in thousands ($K). Click any cell to edit.</div>
             {(() => {
               const totalCur = FIN_FUNCS.reduce((s, f) => { const c = finCosts[f]; return s + (c?.people||0) + (c?.technology||0) + (c?.outsourcing||0) + (c?.facilities||0); }, 0);
               const totalTgt = FIN_FUNCS.reduce((s, f) => { const c = finCosts[f]; return s + (c?.peopleTgt||0) + (c?.technologyTgt||0) + (c?.outsourcingTgt||0) + (c?.facilitiesTgt||0); }, 0);
               const delta = totalTgt - totalCur;
+              const funcColors: Record<string, string> = { Finance: "#D4860A", HR: "#8B5CF6", Technology: "#0891B2", Operations: "#F59E0B", Marketing: "#EC4899", Legal: "#EF4444", Product: "#10B981", Executive: "#A855F7" };
               return <>
-                <div className="grid grid-cols-3 gap-3 mb-4">
-                  <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold text-[var(--text-primary)]">${fmtK(totalCur)}</div><div className="text-[13px] text-[var(--text-muted)] uppercase">Current Total</div></div>
-                  <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold text-[var(--accent-primary)]">${fmtK(totalTgt)}</div><div className="text-[13px] text-[var(--text-muted)] uppercase">Target Total</div></div>
-                  <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold" style={{ color: delta <= 0 ? "var(--success)" : "var(--risk)" }}>{delta <= 0 ? "-" : "+"}${fmtK(Math.abs(delta))}</div><div className="text-[13px] text-[var(--text-muted)] uppercase">{delta <= 0 ? "Savings" : "Investment"}</div></div>
+                {/* Glass KPI cards */}
+                <div className="grid grid-cols-3 gap-4 mb-6">
+                  <div className="kpi-glass"><div className="text-[24px] font-extrabold font-data text-[var(--text-primary)]" style={{ animation: "countUp 0.5s ease-out" }}>${fmtK(totalCur)}</div><div className="text-[13px] text-[var(--text-muted)] uppercase tracking-wider mt-1" style={{ fontFamily: "'Outfit', sans-serif" }}>Current Total</div></div>
+                  <div className="kpi-glass" style={{ background: "linear-gradient(135deg, rgba(14,165,233,0.08), rgba(19,27,46,0.9))" }}><div className="text-[24px] font-extrabold font-data" style={{ color: "#0EA5E9", animation: "countUp 0.5s ease-out" }}>${fmtK(totalTgt)}</div><div className="text-[13px] text-[var(--text-muted)] uppercase tracking-wider mt-1" style={{ fontFamily: "'Outfit', sans-serif" }}>Target Total</div></div>
+                  <div className="kpi-glass" style={{ background: `linear-gradient(135deg, ${delta <= 0 ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)"}, rgba(19,27,46,0.9))` }}><div className="flex items-center justify-center gap-2"><span className="text-[18px]">{delta <= 0 ? "↓" : "↑"}</span><span className="text-[24px] font-extrabold font-data" style={{ color: delta <= 0 ? "var(--success)" : "var(--risk)", animation: "countUp 0.5s ease-out" }}>${fmtK(Math.abs(delta))}</span></div><div className="text-[13px] text-[var(--text-muted)] uppercase tracking-wider mt-1" style={{ fontFamily: "'Outfit', sans-serif" }}>{delta <= 0 ? "Annual Savings" : "Additional Cost"}</div></div>
                 </div>
-                <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full text-[14px]"><thead><tr className="bg-[var(--surface-2)]">
-                  <th className="px-3 py-2 text-left text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Function</th>
-                  {["People","Tech","Outsource","Facilities"].map(h => <th key={h} className="px-1 py-2 text-center text-[11px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]" colSpan={2}>{h}<div className="flex justify-center gap-1 mt-0.5"><span className="text-[10px] text-[var(--accent-primary)]">Now</span><span className="text-[10px] text-[var(--success)]">Tgt</span></div></th>)}
-                  <th className="px-2 py-2 text-center text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Total Now</th>
-                  <th className="px-2 py-2 text-center text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Total Tgt</th>
-                  <th className="px-2 py-2 text-center text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Delta</th>
+                {/* Premium table */}
+                <div className="overflow-x-auto rounded-2xl border border-[var(--border)]" style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.15)" }}><table className="w-full"><thead><tr style={{ background: "linear-gradient(135deg, var(--surface-2), var(--surface-3))" }}>
+                  <th className="px-4 py-3 text-left text-[13px] font-bold text-[var(--text-muted)] uppercase tracking-wider border-b border-[var(--border)]" style={{ fontFamily: "'Outfit', sans-serif" }}>Function</th>
+                  {["People","Technology","Outsource","Facilities"].map(h => <th key={h} className="px-2 py-3 text-center text-[12px] font-bold text-[var(--text-muted)] uppercase tracking-wider border-b border-[var(--border)]" colSpan={2} style={{ fontFamily: "'Outfit', sans-serif" }}>{h}<div className="flex justify-center gap-2 mt-1"><span className="text-[11px] font-semibold" style={{ color: "var(--accent-primary)" }}>Now</span><span className="text-[11px] font-semibold" style={{ color: "#0EA5E9" }}>Target</span></div></th>)}
+                  <th className="px-3 py-3 text-center text-[12px] font-bold text-[var(--text-muted)] uppercase border-b border-[var(--border)]" style={{ fontFamily: "'Outfit', sans-serif" }}>Total</th>
+                  <th className="px-3 py-3 text-center text-[12px] font-bold uppercase border-b border-[var(--border)]" style={{ color: "#0EA5E9", fontFamily: "'Outfit', sans-serif" }}>Target</th>
+                  <th className="px-3 py-3 text-center text-[12px] font-bold text-[var(--text-muted)] uppercase border-b border-[var(--border)]" style={{ fontFamily: "'Outfit', sans-serif" }}>Delta</th>
                 </tr></thead><tbody>
-                  {FIN_FUNCS.map(f => {
+                  {FIN_FUNCS.map((f, fi) => {
                     const c = finCosts[f] || { people: 0, technology: 0, outsourcing: 0, facilities: 0, peopleTgt: 0, technologyTgt: 0, outsourcingTgt: 0, facilitiesTgt: 0 };
                     const curTotal = c.people + c.technology + c.outsourcing + c.facilities;
                     const tgtTotal = c.peopleTgt + c.technologyTgt + c.outsourcingTgt + c.facilitiesTgt;
                     const d = tgtTotal - curTotal;
-                    const inp = (field: keyof FinFuncCost) => <input type="number" value={c[field] || ""} onChange={e => setFinCosts(prev => ({...prev, [f]: {...c, [field]: Number(e.target.value) || 0}}))} className="bg-[var(--bg)] border border-[var(--border)] rounded px-1 py-0.5 text-[13px] text-center outline-none w-16" />;
-                    return <tr key={f} className="border-b border-[var(--border)]">
-                      <td className="px-3 py-2 font-semibold text-[var(--text-primary)]">{f}</td>
-                      <td className="px-1 py-1.5 text-center">{inp("people")}</td><td className="px-1 py-1.5 text-center">{inp("peopleTgt")}</td>
-                      <td className="px-1 py-1.5 text-center">{inp("technology")}</td><td className="px-1 py-1.5 text-center">{inp("technologyTgt")}</td>
-                      <td className="px-1 py-1.5 text-center">{inp("outsourcing")}</td><td className="px-1 py-1.5 text-center">{inp("outsourcingTgt")}</td>
-                      <td className="px-1 py-1.5 text-center">{inp("facilities")}</td><td className="px-1 py-1.5 text-center">{inp("facilitiesTgt")}</td>
-                      <td className="px-2 py-2 text-center text-[14px] font-semibold">${fmtK(curTotal)}</td>
-                      <td className="px-2 py-2 text-center text-[14px] font-semibold text-[var(--accent-primary)]">${fmtK(tgtTotal)}</td>
-                      <td className="px-2 py-2 text-center text-[14px] font-bold" style={{ color: d <= 0 ? "var(--success)" : "var(--risk)" }}>{d <= 0 ? "" : "+"}{fmtK(d)}</td>
+                    const inp = (field: keyof FinFuncCost, isTgt?: boolean) => <input type="number" value={c[field] || ""} onChange={e => setFinCosts(prev => ({...prev, [f]: {...c, [field]: Number(e.target.value) || 0}}))} className="bg-transparent border-b border-transparent hover:border-[var(--border)] rounded-none px-1 py-1 text-[15px] text-right outline-none w-16 font-data transition-all" style={{ color: isTgt ? "#0EA5E9" : "var(--text-primary)" }} />;
+                    return <tr key={f} className="border-b border-[var(--border)] transition-colors" style={{ background: fi % 2 === 0 ? "rgba(212,134,10,0.02)" : "transparent" }}>
+                      <td className="px-4 py-3 text-[16px] font-bold text-[var(--text-primary)]" style={{ fontFamily: "'Outfit', sans-serif", borderLeft: `3px solid ${funcColors[f] || "#888"}` }}>{f}</td>
+                      <td className="px-2 py-2 text-right">{inp("people")}</td><td className="px-2 py-2 text-right">{inp("peopleTgt", true)}</td>
+                      <td className="px-2 py-2 text-right">{inp("technology")}</td><td className="px-2 py-2 text-right">{inp("technologyTgt", true)}</td>
+                      <td className="px-2 py-2 text-right">{inp("outsourcing")}</td><td className="px-2 py-2 text-right">{inp("outsourcingTgt", true)}</td>
+                      <td className="px-2 py-2 text-right">{inp("facilities")}</td><td className="px-2 py-2 text-right">{inp("facilitiesTgt", true)}</td>
+                      <td className="px-3 py-3 text-right text-[16px] font-bold font-data text-[var(--text-primary)]">${fmtK(curTotal)}</td>
+                      <td className="px-3 py-3 text-right text-[16px] font-bold font-data" style={{ color: "#0EA5E9" }}>${fmtK(tgtTotal)}</td>
+                      <td className="px-3 py-3 text-right"><span className="text-[16px] font-extrabold font-data px-2 py-0.5 rounded-lg" style={{ color: d <= 0 ? "var(--success)" : "var(--risk)", background: d <= 0 ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)" }}>{d <= 0 ? "" : "+"}{fmtK(d)}</span></td>
                     </tr>;
                   })}
                 </tbody></table></div>
@@ -4416,42 +4419,59 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
 
           {/* ─── 2. COST-TO-SERVE ─── */}
           {finView === "cts" && <Card title="Cost-to-Serve Analysis — Service Functions">
-            <div className="text-[15px] text-[var(--text-secondary)] mb-4">For shared service functions, cost per employee served vs. industry benchmark.</div>
-            <div className="space-y-4">
+            <div className="text-[16px] text-[var(--text-secondary)] mb-6" style={{ fontFamily: "'Outfit', sans-serif" }}>Cost per employee served vs. industry benchmark, by function.</div>
+            <div className="space-y-5">
               {Object.entries(finCts).map(([func, data]) => {
                 const gap = data.costPerEmp - data.benchmark;
                 const gapPct = data.benchmark > 0 ? Math.round((gap / data.benchmark) * 100) : 0;
-                const totalCost = data.headcount > 0 ? data.costPerEmp * (data.headcount > 0 ? Math.round((finCosts[func]?.people || 5000) / data.costPerEmp * data.headcount) : 100) : 0;
-                return <div key={func} className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="text-[16px] font-bold text-[var(--text-primary)]">{func}</div>
-                    <div className="flex gap-3 text-[14px]">
-                      <span className="text-[var(--text-muted)]">{data.headcount} staff</span>
+                const maxVal = Math.max(data.costPerEmp, data.benchmark, 1);
+                const costPct = (data.costPerEmp / maxVal) * 100;
+                const benchPct = (data.benchmark / maxVal) * 100;
+                // Ring gauge: 0-100% of circumference
+                const ringRadius = 40; const ringCirc = 2 * Math.PI * ringRadius;
+                const ringFill = (data.costPerEmp / (data.benchmark * 1.5 || 1)) * 100;
+                const ringOffset = ringCirc - (Math.min(ringFill, 100) / 100) * ringCirc;
+                // Gradient bar position: benchmark at center (50%), cost position relative
+                const barPos = data.benchmark > 0 ? Math.min(95, Math.max(5, 50 + (gap / data.benchmark) * 50)) : 50;
+                return <div key={func} className="glass-card p-6">
+                  <div className="flex gap-6">
+                    {/* Left: Ring gauge */}
+                    <div className="shrink-0 flex flex-col items-center justify-center" style={{ width: 120 }}>
+                      <svg width="100" height="100" viewBox="0 0 100 100" className="transform -rotate-90">
+                        <circle cx="50" cy="50" r={ringRadius} fill="none" stroke="var(--surface-2)" strokeWidth="8" />
+                        <circle cx="50" cy="50" r={ringRadius} fill="none" stroke={gap > 0 ? "var(--risk)" : "var(--success)"} strokeWidth="8" strokeDasharray={ringCirc} strokeDashoffset={ringOffset} strokeLinecap="round" style={{ transition: "stroke-dashoffset 0.8s ease-out" }} />
+                        {/* Benchmark marker */}
+                        <circle cx="50" cy="50" r={ringRadius} fill="none" stroke="var(--accent-primary)" strokeWidth="2" strokeDasharray={`2 ${ringCirc - 2}`} strokeDashoffset={ringCirc - (Math.min(100, benchPct / 1.5 * 100 / maxVal) / 100) * ringCirc} opacity="0.6" />
+                      </svg>
+                      <div className="absolute text-center" style={{ marginTop: -4 }}>
+                        <div className="text-[18px] font-extrabold font-data" style={{ color: gap > 0 ? "var(--risk)" : "var(--success)" }}>{gap > 0 ? "+" : ""}${Math.abs(gap)}</div>
+                        <div className="text-[10px] text-[var(--text-muted)] uppercase">gap</div>
+                      </div>
+                    </div>
+                    {/* Right: details */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="text-[22px] font-bold text-[var(--text-primary)]" style={{ fontFamily: "'Outfit', sans-serif" }}>{func}</span>
+                        <span className="px-2.5 py-1 rounded-full text-[12px] font-semibold bg-[var(--surface-2)] text-[var(--text-muted)]">{data.headcount} staff</span>
+                      </div>
+                      <div className="flex items-baseline gap-4 mb-3 text-[16px]">
+                        <span className="font-data"><span className="text-[var(--text-muted)] text-[13px] uppercase mr-1">Yours</span><input type="number" value={data.costPerEmp} onChange={e => setFinCts(prev => ({...prev, [func]: {...data, costPerEmp: Number(e.target.value) || 0}}))} className="font-extrabold text-[var(--text-primary)] bg-transparent outline-none w-20 border-b border-transparent hover:border-[var(--border)] font-data text-[16px]" /><span className="text-[var(--text-muted)] text-[13px]">/emp</span></span>
+                        <span className="text-[var(--text-muted)]">vs.</span>
+                        <span className="font-data"><span className="text-[var(--text-muted)] text-[13px] uppercase mr-1">Benchmark</span><input type="number" value={data.benchmark} onChange={e => setFinCts(prev => ({...prev, [func]: {...data, benchmark: Number(e.target.value) || 0}}))} className="font-extrabold text-[var(--accent-primary)] bg-transparent outline-none w-20 border-b border-transparent hover:border-[var(--border)] font-data text-[16px]" /><span className="text-[var(--text-muted)] text-[13px]">/emp</span></span>
+                        <span className="font-extrabold font-data" style={{ color: gap > 0 ? "var(--risk)" : "var(--success)" }}>({gapPct > 0 ? "+" : ""}{gapPct}%)</span>
+                      </div>
+                      {/* Gradient zone bar */}
+                      <div className="relative mb-3">
+                        <div className="gradient-bar-zones" />
+                        <div className="absolute top-[-3px] w-3 h-3 rounded-full border-2 border-white" style={{ left: `calc(${barPos}% - 6px)`, background: gap > 0 ? "var(--risk)" : gap < 0 ? "var(--success)" : "var(--warning)", boxShadow: "0 1px 4px rgba(0,0,0,0.3)", transition: "left 0.5s ease-out" }} />
+                        <div className="flex justify-between mt-1 text-[11px] text-[var(--text-muted)]"><span>Below benchmark</span><span>At benchmark</span><span>Above</span></div>
+                      </div>
+                      {/* Insight */}
+                      {gap > 0 && <div className="text-[15px] text-[var(--text-secondary)] border-l-2 pl-3 mt-2" style={{ borderColor: "var(--accent-primary)" }}>
+                        {func === "HR" ? "Implementing shared services and AI-assisted onboarding could reduce cost-to-serve by 25%." : func === "Technology" ? "Consolidating service desk and automating L1 support could reduce cost by 20%." : "Standardizing processes and automating reporting could close the gap."}
+                      </div>}
                     </div>
                   </div>
-                  <div className="grid grid-cols-3 gap-3 mb-3">
-                    <div className="rounded-lg p-3 bg-[var(--bg)] text-center">
-                      <div className="text-[12px] text-[var(--text-muted)] uppercase mb-1">Your Cost/Employee</div>
-                      <input type="number" value={data.costPerEmp} onChange={e => setFinCts(prev => ({...prev, [func]: {...data, costPerEmp: Number(e.target.value) || 0}}))} className="text-[20px] font-extrabold text-[var(--text-primary)] bg-transparent text-center outline-none w-24 border-b border-[var(--border)]" />
-                    </div>
-                    <div className="rounded-lg p-3 bg-[var(--bg)] text-center">
-                      <div className="text-[12px] text-[var(--text-muted)] uppercase mb-1">Industry Benchmark</div>
-                      <input type="number" value={data.benchmark} onChange={e => setFinCts(prev => ({...prev, [func]: {...data, benchmark: Number(e.target.value) || 0}}))} className="text-[20px] font-extrabold text-[var(--accent-primary)] bg-transparent text-center outline-none w-24 border-b border-[var(--border)]" />
-                    </div>
-                    <div className="rounded-lg p-3 bg-[var(--bg)] text-center">
-                      <div className="text-[12px] text-[var(--text-muted)] uppercase mb-1">Gap</div>
-                      <div className="text-[20px] font-extrabold" style={{ color: gap > 0 ? "var(--risk)" : "var(--success)" }}>{gap > 0 ? "+" : ""}${gap}</div>
-                      <div className="text-[13px]" style={{ color: gap > 0 ? "var(--risk)" : "var(--success)" }}>{gapPct > 0 ? "+" : ""}{gapPct}% vs. benchmark</div>
-                    </div>
-                  </div>
-                  {/* Cost bar */}
-                  <div className="h-3 bg-[var(--bg)] rounded-full overflow-hidden relative mb-2">
-                    <div className="h-full rounded-full" style={{ width: `${Math.min(100, (data.costPerEmp / Math.max(data.costPerEmp, data.benchmark) * 100))}%`, background: gap > 0 ? "var(--risk)" : "var(--success)" }} />
-                    <div className="absolute top-0 h-full w-0.5 bg-[var(--accent-primary)]" style={{ left: `${(data.benchmark / Math.max(data.costPerEmp, data.benchmark) * 100)}%` }} title="Benchmark" />
-                  </div>
-                  {gap > 0 && <div className="text-[14px] text-[var(--text-secondary)]">
-                    <span className="text-[var(--accent-primary)]">→</span> Your {func} cost-to-serve is ${data.costPerEmp}/employee vs. industry benchmark ${data.benchmark}. {func === "HR" ? "Implementing shared services and AI-assisted onboarding could reduce cost-to-serve by 25%." : func === "Technology" ? "Consolidating service desk and automating L1 support could reduce cost by 20%." : "Standardizing processes and automating reporting could close the gap."}
-                  </div>}
                 </div>;
               })}
               <button onClick={() => {
@@ -4462,55 +4482,72 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
           </Card>}
 
           {/* ─── 3. RUN / CHANGE / GROW ─── */}
-          {finView === "rcg" && <Card title="Run / Change / Grow Budget Allocation (%)">
-            <div className="text-[15px] text-[var(--text-secondary)] mb-4">Allocate budget across Run (BAU), Change (transformation), and Grow (innovation). Best-in-class: 60% Run / 25% Change / 15% Grow.</div>
-            {/* Benchmark bar */}
-            <div className="flex items-center gap-2 mb-4 rounded-lg bg-[var(--surface-2)] p-3">
-              <span className="text-[13px] text-[var(--text-muted)] shrink-0">Benchmark:</span>
-              <div className="flex-1 h-5 rounded-full overflow-hidden flex">
-                <div className="h-full flex items-center justify-center text-[11px] font-bold text-white" style={{ width: "60%", background: "var(--accent-primary)" }}>Run 60%</div>
-                <div className="h-full flex items-center justify-center text-[11px] font-bold text-white" style={{ width: "25%", background: "var(--warning)" }}>Change 25%</div>
-                <div className="h-full flex items-center justify-center text-[11px] font-bold text-white" style={{ width: "15%", background: "var(--success)" }}>Grow 15%</div>
-              </div>
-            </div>
-            {/* Per-function bars */}
-            <div className="space-y-4">
+          {finView === "rcg" && <Card title="Run / Change / Grow Budget Allocation">
+            <div className="text-[16px] text-[var(--text-secondary)] mb-4" style={{ fontFamily: "'Outfit', sans-serif" }}>Allocate budget across Run (BAU), Change (transformation), and Grow (innovation).</div>
+            {/* Summary row */}
+            {(() => {
+              const totals = FIN_FUNCS.reduce((s, f) => { const r = finRcg[f] || { run: 65, change: 20, grow: 15, runTgt: 55, changeTgt: 25, growTgt: 20 }; return { run: s.run + r.run, change: s.change + r.change, grow: s.grow + r.grow, runTgt: s.runTgt + r.runTgt, changeTgt: s.changeTgt + r.changeTgt, growTgt: s.growTgt + r.growTgt }; }, { run: 0, change: 0, grow: 0, runTgt: 0, changeTgt: 0, growTgt: 0 });
+              const n = FIN_FUNCS.length || 1;
+              const avgR = Math.round(totals.runTgt / n); const avgC = Math.round(totals.changeTgt / n); const avgG = Math.round(totals.growTgt / n);
+              return <div className="glass-card p-4 mb-5">
+                <div className="flex items-center justify-between flex-wrap gap-3">
+                  <div className="text-[15px] text-[var(--text-muted)]">Target Avg: <span className="font-bold font-data" style={{ color: "var(--accent-primary)" }}>Run {avgR}%</span> · <span className="font-bold font-data" style={{ color: "#0EA5E9" }}>Change {avgC}%</span> · <span className="font-bold font-data" style={{ color: "var(--success)" }}>Grow {avgG}%</span></div>
+                  <div className="flex gap-3 text-[13px] text-[var(--text-muted)]">
+                    <span>Benchmark: 60/25/15</span>
+                    <span className="font-semibold" style={{ color: avgR <= 60 ? "var(--success)" : "var(--warning)" }}>Run {avgR > 60 ? `+${avgR - 60}%` : `${avgR - 60}%`}</span>
+                    <span className="font-semibold" style={{ color: avgG >= 15 ? "var(--success)" : "var(--warning)" }}>Grow {avgG >= 15 ? "✓" : `${avgG - 15}%`}</span>
+                  </div>
+                </div>
+              </div>;
+            })()}
+            {/* Function cards as vertical allocation bars */}
+            <div className="grid grid-cols-4 lg:grid-cols-8 gap-3">
               {FIN_FUNCS.map(f => {
                 const r = finRcg[f] || { run: 65, change: 20, grow: 15, runTgt: 55, changeTgt: 25, growTgt: 20 };
                 const update = (field: keyof FinRcgEntry, val: number) => setFinRcg(prev => ({...prev, [f]: {...r, [field]: val}}));
-                return <div key={f} className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-3">
-                  <div className="text-[14px] font-bold text-[var(--text-primary)] mb-2">{f}</div>
-                  {/* Current */}
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[12px] text-[var(--text-muted)] w-12 shrink-0">Now</span>
-                    <div className="flex-1 h-6 rounded-full overflow-hidden flex">
-                      <div className="h-full flex items-center justify-center text-[11px] font-bold text-white" style={{ width: `${r.run}%`, background: "var(--accent-primary)" }}>{r.run}%</div>
-                      <div className="h-full flex items-center justify-center text-[11px] font-bold text-white" style={{ width: `${r.change}%`, background: "var(--warning)" }}>{r.change}%</div>
-                      <div className="h-full flex items-center justify-center text-[11px] font-bold text-white" style={{ width: `${r.grow}%`, background: "var(--success)" }}>{r.grow}%</div>
+                // Benchmark overlay
+                const benchRun = 60, benchChange = 25, benchGrow = 15;
+                return <div key={f} className="glass-card p-3 flex flex-col">
+                  <div className="text-[14px] font-bold text-[var(--text-primary)] text-center mb-2" style={{ fontFamily: "'Outfit', sans-serif" }}>{f.slice(0, 8)}</div>
+                  {/* Vertical stacked bar */}
+                  <div className="relative flex-1 min-h-[180px] rounded-xl overflow-hidden border border-[var(--border)]">
+                    {/* Grow (top) */}
+                    <div className="absolute bottom-0 left-0 right-0 flex flex-col">
+                      <div className="flex items-center justify-center transition-all" style={{ height: `${r.growTgt * 1.8}px`, background: "rgba(16,185,129,0.25)" }}>
+                        <span className="text-[12px] font-bold text-[var(--success)]">{r.growTgt}%</span>
+                      </div>
+                      <div className="flex items-center justify-center transition-all" style={{ height: `${r.changeTgt * 1.8}px`, background: "rgba(14,165,233,0.2)" }}>
+                        <span className="text-[12px] font-bold" style={{ color: "#0EA5E9" }}>{r.changeTgt}%</span>
+                      </div>
+                      <div className="flex items-center justify-center transition-all" style={{ height: `${r.runTgt * 1.8}px`, background: "rgba(212,134,10,0.15)" }}>
+                        <span className="text-[12px] font-bold text-[var(--accent-primary)]">{r.runTgt}%</span>
+                      </div>
+                    </div>
+                    {/* Benchmark dashed overlay */}
+                    <div className="absolute bottom-0 left-0 right-0 pointer-events-none">
+                      <div style={{ height: `${benchGrow * 1.8}px` }} className="border-t border-dashed border-white/10" />
+                      <div style={{ height: `${benchChange * 1.8}px` }} className="border-t border-dashed border-white/10" />
                     </div>
                   </div>
-                  {/* Target */}
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-[12px] text-[var(--success)] w-12 shrink-0">Target</span>
-                    <div className="flex-1 h-6 rounded-full overflow-hidden flex">
-                      <div className="h-full flex items-center justify-center text-[11px] font-bold text-white" style={{ width: `${r.runTgt}%`, background: "var(--accent-primary)" }}>{r.runTgt}%</div>
-                      <div className="h-full flex items-center justify-center text-[11px] font-bold text-white" style={{ width: `${r.changeTgt}%`, background: "var(--warning)" }}>{r.changeTgt}%</div>
-                      <div className="h-full flex items-center justify-center text-[11px] font-bold text-white" style={{ width: `${r.growTgt}%`, background: "var(--success)" }}>{r.growTgt}%</div>
-                    </div>
-                  </div>
-                  {/* Sliders */}
-                  <div className="grid grid-cols-6 gap-1 text-[12px]">
+                  {/* Inline editors */}
+                  <div className="mt-2 space-y-1">
                     {(["run", "change", "grow"] as const).map(k => {
-                      const colors = { run: "var(--accent-primary)", change: "var(--warning)", grow: "var(--success)" };
-                      const labels = { run: "Run", change: "Change", grow: "Grow" };
-                      return <React.Fragment key={k}>
-                        <div className="flex items-center gap-1"><span style={{ color: colors[k] }}>{labels[k]}</span><input type="number" value={r[k]} onChange={e => update(k, Number(e.target.value) || 0)} className="w-10 bg-[var(--bg)] border border-[var(--border)] rounded px-1 py-0.5 text-[12px] text-center outline-none" /></div>
-                        <div className="flex items-center gap-1"><span style={{ color: colors[k] }}>Tgt</span><input type="number" value={r[`${k}Tgt` as keyof FinRcgEntry]} onChange={e => update(`${k}Tgt` as keyof FinRcgEntry, Number(e.target.value) || 0)} className="w-10 bg-[var(--bg)] border border-[var(--border)] rounded px-1 py-0.5 text-[12px] text-center outline-none" /></div>
-                      </React.Fragment>;
+                      const colors = { run: "var(--accent-primary)", change: "#0EA5E9", grow: "var(--success)" };
+                      return <div key={k} className="flex items-center justify-between">
+                        <span className="text-[11px] font-bold uppercase" style={{ color: colors[k] }}>{k[0]}</span>
+                        <input type="number" value={r[`${k}Tgt` as keyof FinRcgEntry]} onChange={e => update(`${k}Tgt` as keyof FinRcgEntry, Number(e.target.value) || 0)} className="w-10 bg-transparent border-b border-transparent hover:border-[var(--border)] text-[12px] text-right outline-none font-data text-[var(--text-primary)]" />
+                      </div>;
                     })}
                   </div>
                 </div>;
               })}
+            </div>
+            {/* Legend */}
+            <div className="flex gap-4 mt-3 text-[13px] text-[var(--text-muted)]">
+              <span className="flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ background: "rgba(212,134,10,0.15)" }} />Run (BAU)</span>
+              <span className="flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ background: "rgba(14,165,233,0.2)" }} />Change</span>
+              <span className="flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ background: "rgba(16,185,129,0.25)" }} />Grow</span>
+              <span className="flex items-center gap-1"><span className="w-3 h-0.5 border-t border-dashed border-white/30" style={{ width: 12 }} />Benchmark</span>
             </div>
           </Card>}
 
@@ -4843,7 +4880,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
                 return <div key={dim.id} className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4">
                   <div className="flex items-center justify-between mb-2">
                     <div><div className="text-[15px] font-bold text-[var(--text-primary)]">{dim.name}</div><div className="text-[13px] text-[var(--text-muted)]">{dim.desc}</div></div>
-                    <div className="flex gap-1">{[1,2,3,4,5].map(n => <button key={n} onClick={() => setPerfHealth(p => ({...p, [dim.id]: n}))} className="w-9 h-7 rounded-lg text-[14px] font-bold transition-all" style={{
+                    <div className="flex gap-1">{[1,2,3,4,5].map(n => <button key={n} onClick={() => setPerfHealth(p => ({...p, [dim.id]: p[dim.id] === n ? 0 : n}))} className="w-9 h-7 rounded-lg text-[14px] font-bold transition-all" style={{
                       background: score >= n ? `${n <= 2 ? "var(--risk)" : n <= 3 ? "var(--warning)" : "var(--success)"}15` : "var(--bg)",
                       color: score >= n ? (n <= 2 ? "var(--risk)" : n <= 3 ? "var(--warning)" : "var(--success)") : "var(--text-muted)",
                       border: score >= n ? `1px solid ${n <= 2 ? "var(--risk)" : n <= 3 ? "var(--warning)" : "var(--success)"}` : "1px solid var(--border)",

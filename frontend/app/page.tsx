@@ -19,7 +19,14 @@ import {
   callAI, showToast, logDec, exportToCSV,
   setGlobalToast, setGlobalLogDecision,
   JobDesignState, Toast, useToast,
+  PageTransition, AnimatedNumber, AnimatedBar, StaggerGrid, StaggerItem,
+  useTheme, ThemeToggle,
+  useKeyboardShortcuts, KeyboardShortcutsPanel, ShortcutDef,
+  CommandPalette, CmdAction,
+  AnnotationLayer, AnnotationPanel, Annotation,
+  AiCoPilot, StoryEngine,
 } from "./components/shared";
+import { motion, AnimatePresence } from "framer-motion";
 
 // ── Tab Module Components ──
 import {
@@ -402,6 +409,18 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
    HOME — Main workspace
    ═══════════════════════════════════════════════════════════════ */
 function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowProfile, onShowPlatformHub }: { projectId: string; projectName: string; projectMeta: string; onBackToHub: () => void; user?: authApi.AuthUser; onShowProfile?: () => void; onShowPlatformHub?: () => void }) {
+  const { theme, toggle: toggleTheme } = useTheme();
+  const [showShortcuts, setShowShortcuts] = useState(false);
+  const [showCmdPalette, setShowCmdPalette] = useState(false);
+  const [cmdRecentIds, setCmdRecentIds] = usePersisted<string[]>(`${projectId}_cmd_recent`, []);
+  const [annotations, setAnnotations] = usePersisted<Annotation[]>(`${projectId}_annotations`, []);
+  const [annotateMode, setAnnotateMode] = useState(false);
+  const [showAnnoPanel, setShowAnnoPanel] = useState(false);
+  const [showCoPilot, setShowCoPilot] = useState(false);
+  const [presentMode, setPresentMode] = useState(false);
+  const [showStoryEngine, setShowStoryEngine] = useState(false);
+  const [presentStartTime, setPresentStartTime] = useState(0);
+  const [presentNotes, setPresentNotes] = useState(false);
   const [viewMode, setViewMode] = usePersisted<string>(`${projectId}_viewMode`, "");
   const [viewEmployee, setViewEmployee] = usePersisted<string>(`${projectId}_viewEmployee`, "");
   const [viewJob, setViewJob] = usePersisted<string>(`${projectId}_viewJob`, "");
@@ -506,11 +525,111 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
   const [visited, setVisited] = usePersisted<Record<string, boolean>>(`${projectId}_visited`, {});
   const navigate = useCallback((id: string) => { setPage(id); setVisited(prev => ({ ...prev, [id]: true })); }, [setPage, setVisited]);
 
+  // ── Smart Import Wizard ──
+  const [showImportWizard, setShowImportWizard] = useState(false);
+  const [wizStep, setWizStep] = useState(1);
+  const [wizFiles, setWizFiles] = useState<File[]>([]);
+  const [wizPreview, setWizPreview] = useState<{ name: string; size: string; rows: number; cols: number; headers: string[]; sample: string[][] } | null>(null);
+  const [wizMappings, setWizMappings] = useState<Record<string, string>>({});
+  const [wizAutoMapCount, setWizAutoMapCount] = useState(0);
+  const [wizValidation, setWizValidation] = useState<{ type: "pass" | "warn" | "error"; msg: string }[]>([]);
+  const [wizImporting, setWizImporting] = useState(false);
+  const [wizTemplate, setWizTemplate] = useState("custom");
+  const [wizImportHistory, setWizImportHistory] = usePersisted<{ date: string; file: string; rows: number; quality: number }[]>(`${projectId}_import_history`, []);
+
+  const WIZ_TARGET_FIELDS = ["Employee ID", "Employee Name", "Job Title", "Function ID", "Job Family", "Sub-Family", "Career Track", "Career Level", "Manager ID", "Manager Name", "Base Pay", "FTE", "Hire Date", "Geography", "Performance", "Skills", "Model ID", "Job Code", "Job Family Group", "Gender", "Age Band", "Tenure"];
+  const WIZ_ALIASES: Record<string, string> = {
+    "employee_id": "Employee ID", "emp_id": "Employee ID", "worker_id": "Employee ID", "employee id": "Employee ID", "employee number": "Employee ID", "employee_number": "Employee ID", "emplid": "Employee ID",
+    "employee_name": "Employee Name", "full_name": "Employee Name", "name": "Employee Name", "worker": "Employee Name", "employee name": "Employee Name", "preferred name": "Employee Name",
+    "job_title": "Job Title", "position": "Job Title", "role": "Job Title", "title": "Job Title", "job title": "Job Title", "position title": "Job Title",
+    "department": "Function ID", "dept": "Function ID", "function": "Function ID", "org_unit": "Function ID", "business_unit": "Function ID", "cost_center": "Function ID",
+    "job_family": "Job Family", "job family": "Job Family", "family": "Job Family", "job_family_group": "Job Family Group",
+    "sub_family": "Sub-Family", "sub family": "Sub-Family", "sub-function": "Sub-Family", "sub function": "Sub-Family", "subfamily": "Sub-Family",
+    "career_track": "Career Track", "track": "Career Track", "track_type": "Career Track", "career track": "Career Track", "job_category": "Career Track",
+    "career_level": "Career Level", "level": "Career Level", "grade": "Career Level", "pay_grade": "Career Level", "job_level": "Career Level", "career level": "Career Level",
+    "manager_id": "Manager ID", "supervisor_id": "Manager ID", "reports_to_id": "Manager ID", "manager id": "Manager ID", "mgr_id": "Manager ID",
+    "manager_name": "Manager Name", "supervisor": "Manager Name", "reports_to": "Manager Name", "manager": "Manager Name", "manager name": "Manager Name",
+    "base_pay": "Base Pay", "salary": "Base Pay", "compensation": "Base Pay", "annual_salary": "Base Pay", "base pay": "Base Pay", "base salary": "Base Pay",
+    "fte": "FTE", "headcount": "FTE",
+    "hire_date": "Hire Date", "start_date": "Hire Date", "date_of_hire": "Hire Date", "original_hire_date": "Hire Date", "hire date": "Hire Date",
+    "geography": "Geography", "location": "Geography", "region": "Geography", "country": "Geography", "work_location": "Geography", "office": "Geography",
+    "performance": "Performance", "performance_rating": "Performance", "rating": "Performance", "review_rating": "Performance",
+    "skills": "Skills", "competencies": "Skills", "skill_set": "Skills",
+    "model_id": "Model ID", "scenario": "Model ID", "company": "Model ID",
+    "gender": "Gender", "sex": "Gender",
+    "age_band": "Age Band", "age": "Age Band", "age_group": "Age Band",
+    "tenure": "Tenure", "years_of_service": "Tenure", "service_years": "Tenure",
+  };
+
+  const wizAutoMap = (headers: string[]) => {
+    const mappings: Record<string, string> = {};
+    let count = 0;
+    headers.forEach(h => {
+      const norm = h.toLowerCase().replace(/[^a-z0-9_ ]/g, "").trim();
+      const match = WIZ_ALIASES[norm];
+      if (match) { mappings[h] = match; count++; }
+      else {
+        // Fuzzy: check if header contains a target field name
+        const fuzzy = WIZ_TARGET_FIELDS.find(t => norm.includes(t.toLowerCase().replace(/ /g, "_")) || norm.includes(t.toLowerCase().replace(/ /g, "")));
+        if (fuzzy) { mappings[h] = fuzzy; count++; }
+      }
+    });
+    setWizMappings(mappings);
+    setWizAutoMapCount(count);
+  };
+
+  const wizParseFile = async (file: File) => {
+    // Read file to get headers and row count
+    const text = await file.text();
+    const lines = text.split("\n").filter(l => l.trim());
+    const delim = file.name.endsWith(".tsv") ? "\t" : ",";
+    const headers = lines[0]?.split(delim).map(h => h.replace(/"/g, "").trim()) || [];
+    const sampleRows = lines.slice(1, 6).map(l => l.split(delim).map(c => c.replace(/"/g, "").trim()));
+    setWizPreview({ name: file.name, size: file.size > 1024 * 1024 ? `${(file.size / 1024 / 1024).toFixed(1)} MB` : `${Math.round(file.size / 1024)} KB`, rows: lines.length - 1, cols: headers.length, headers, sample: sampleRows });
+    wizAutoMap(headers);
+  };
+
+  const wizRunValidation = () => {
+    const checks: { type: "pass" | "warn" | "error"; msg: string }[] = [];
+    const mapped = Object.values(wizMappings);
+    if (mapped.includes("Employee ID")) checks.push({ type: "pass", msg: "Employee ID mapped" });
+    else checks.push({ type: "error", msg: "Employee ID not mapped — required field" });
+    if (mapped.includes("Employee Name")) checks.push({ type: "pass", msg: "Employee Name mapped" });
+    else checks.push({ type: "error", msg: "Employee Name not mapped — required field" });
+    if (mapped.includes("Job Title")) checks.push({ type: "pass", msg: "Job Title mapped" });
+    else checks.push({ type: "warn", msg: "Job Title not mapped — recommended for analysis" });
+    if (mapped.includes("Function ID")) checks.push({ type: "pass", msg: "Function mapped" });
+    else checks.push({ type: "warn", msg: "Function not mapped — org structure will be limited" });
+    if (mapped.includes("Manager ID") || mapped.includes("Manager Name")) checks.push({ type: "pass", msg: "Manager relationship mapped" });
+    else checks.push({ type: "warn", msg: "No manager field mapped — org hierarchy unavailable" });
+    if (mapped.includes("Career Level")) checks.push({ type: "pass", msg: "Career Level mapped" });
+    else checks.push({ type: "warn", msg: "Career Level not mapped — leveling analysis unavailable" });
+    const unmapped = (wizPreview?.headers || []).filter(h => !wizMappings[h]).length;
+    if (unmapped > 0) checks.push({ type: "pass", msg: `${unmapped} column(s) skipped — not needed for analysis` });
+    checks.push({ type: "pass", msg: `${wizPreview?.rows || 0} rows ready for import` });
+    setWizValidation(checks);
+  };
+
+  const wizDoImport = async () => {
+    if (wizFiles.length === 0) return;
+    setWizImporting(true);
+    try {
+      const dt = new DataTransfer();
+      wizFiles.forEach(f => dt.items.add(f));
+      await uploadFiles(dt.files);
+      const quality = Math.round((wizValidation.filter(v => v.type === "pass").length / Math.max(wizValidation.length, 1)) * 100);
+      setWizImportHistory(prev => [...prev, { date: new Date().toISOString().split("T")[0], file: wizFiles[0]?.name || "", rows: wizPreview?.rows || 0, quality }]);
+      toast("Data imported successfully", "success");
+      setShowImportWizard(false);
+      setWizStep(1); setWizFiles([]); setWizPreview(null);
+    } catch { toast("Import failed — check file format", "error"); }
+    setWizImporting(false);
+  };
+
   const upload = async (files: FileList) => {
     try {
       await uploadFiles(files);
       toast("Data uploaded successfully", "success");
-      // Validate data quality after upload
       if (model) {
         try {
           const dq = await api.getDataQuality(model);
@@ -519,7 +638,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
           const issues = Number(summary?.total_issues ?? 0);
           if (missing > 0) toast(`${missing} dataset(s) still missing — check Data Quality in AI Opportunity Scan`, "warning");
           else if (issues > 0) toast(`${issues} data issue(s) detected — review in AI Opportunity Scan > Data Quality`, "warning");
-        } catch { /* data quality check is optional */ }
+        } catch {}
       }
     } catch { toast("Upload failed — check file format and required columns", "error"); }
   };
@@ -612,12 +731,63 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
     else setPage("home");
   };
 
-  // Escape key goes back to home
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === "Escape" && page !== "home") setPage("home"); };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [page, setPage]);
+  // ── Keyboard shortcuts ──
+  const PHASE_FIRST_MODULES: Record<string, string> = { "1": "snapshot", "2": "scan", "3": "design", "4": "simulate", "5": "plan" };
+  const shortcutDefs: ShortcutDef[] = useMemo(() => [
+    // Command palette
+    { key: "k", ctrl: true, label: "Open command palette", action: () => setShowCmdPalette(true), category: "Tools" },
+    { key: "p", ctrl: true, label: "Toggle presentation mode", action: () => { if (presentMode) { setPresentMode(false); } else { setPresentMode(true); setPresentStartTime(Date.now()); setShowCoPilot(false); setShowAnnoPanel(false); setAnnotateMode(false); } }, category: "Tools" },
+    // Global navigation
+    { key: "h", ctrl: true, label: "Go to Home", action: () => setPage("home"), category: "Navigation" },
+    { key: "1", ctrl: true, label: "Discover phase", action: () => navigate("snapshot"), category: "Navigation" },
+    { key: "2", ctrl: true, label: "Diagnose phase", action: () => navigate("scan"), category: "Navigation" },
+    { key: "3", ctrl: true, label: "Design phase", action: () => navigate("design"), category: "Navigation" },
+    { key: "4", ctrl: true, label: "Simulate phase", action: () => navigate("simulate"), category: "Navigation" },
+    { key: "5", ctrl: true, label: "Mobilize phase", action: () => navigate("plan"), category: "Navigation" },
+    { key: "e", ctrl: true, label: "Export", action: () => navigate("export"), category: "Navigation" },
+    { key: "Escape", label: "Close / Go back", action: () => { if (showCmdPalette) setShowCmdPalette(false); else if (showShortcuts) setShowShortcuts(false); else if (showImportWizard) setShowImportWizard(false); else if (page !== "home") setPage("home"); }, category: "Navigation" },
+    // Tools
+    { key: "d", ctrl: true, label: "Toggle dark/light mode", action: toggleTheme, category: "Tools" },
+    { key: "/", ctrl: true, label: "Show keyboard shortcuts", action: () => setShowShortcuts(true), category: "Tools" },
+    { key: "?", label: "Show keyboard shortcuts", action: () => setShowShortcuts(true), category: "Tools" },
+    { key: "f", ctrl: true, label: "Focus search/filter", action: () => { const el = document.querySelector<HTMLInputElement>("input[placeholder*='earch'], input[placeholder*='ilter']"); if (el) el.focus(); }, category: "Tools" },
+  ], [navigate, setPage, toggleTheme, showShortcuts, showImportWizard, showCmdPalette, page]); // eslint-disable-line react-hooks/exhaustive-deps
+  useKeyboardShortcuts(shortcutDefs);
+
+  // Command palette actions catalog
+  const cmdActions: CmdAction[] = useMemo(() => {
+    const navAction = (id: string, label: string, icon: string, desc: string, shortcut?: string, kw?: string): CmdAction => ({
+      id: `nav_${id}`, icon, label, desc, category: "Navigation", shortcut,
+      action: () => { navigate(id); setCmdRecentIds(prev => [id, ...prev.filter(x => x !== id)].slice(0, 8)); },
+      keywords: kw,
+    });
+    const items: CmdAction[] = [
+      // Navigation — all modules
+      ...MODULES.map(m => navAction(m.id, m.title, m.icon, m.desc, undefined, `${m.phase} ${m.id}`)),
+      navAction("home", "Home", "🏠", "Go to the landing page", "Cmd+H"),
+      // Phase shortcuts
+      { id: "phase_discover", icon: "🔍", label: "Discover Phase", desc: "Workforce snapshot, job architecture, skill shift", category: "Navigation", shortcut: "Cmd+1", action: () => navigate("snapshot"), keywords: "discover phase 1" },
+      { id: "phase_diagnose", icon: "🩺", label: "Diagnose Phase", desc: "AI scan, heatmap, org health, readiness", category: "Navigation", shortcut: "Cmd+2", action: () => navigate("scan"), keywords: "diagnose phase 2" },
+      { id: "phase_design", icon: "✏️", label: "Design Phase", desc: "Work design, operating model, BBBA, headcount", category: "Navigation", shortcut: "Cmd+3", action: () => navigate("design"), keywords: "design phase 3" },
+      { id: "phase_simulate", icon: "⚡", label: "Simulate Phase", desc: "Impact modeling, scenarios, ROI", category: "Navigation", shortcut: "Cmd+4", action: () => navigate("simulate"), keywords: "simulate phase 4" },
+      { id: "phase_mobilize", icon: "🚀", label: "Mobilize Phase", desc: "Change planner, reskilling, talent marketplace", category: "Navigation", shortcut: "Cmd+5", action: () => navigate("plan"), keywords: "mobilize phase 5" },
+      // Actions
+      { id: "act_upload", icon: "📂", label: "Upload Data", desc: "Open the smart import wizard", category: "Actions", action: () => { setShowImportWizard(true); setShowCmdPalette(false); } },
+      { id: "act_theme", icon: theme === "dark" ? "☀️" : "🌙", label: theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode", desc: "Toggle the color theme", category: "Actions", shortcut: "Cmd+D", action: toggleTheme, keywords: "dark light mode theme toggle" },
+      { id: "act_shortcuts", icon: "⌨️", label: "Keyboard Shortcuts", desc: "View all keyboard shortcuts", category: "Actions", shortcut: "Cmd+/", action: () => { setShowCmdPalette(false); setShowShortcuts(true); } },
+      { id: "act_export", icon: "📤", label: "Export Report", desc: "Generate and download deliverables", category: "Actions", action: () => navigate("export"), keywords: "export download pdf pptx docx" },
+      { id: "act_story", icon: "📖", label: "Generate Executive Story", desc: "AI-generated data narrative for client presentation", category: "Actions", action: () => { setShowStoryEngine(true); setShowCmdPalette(false); }, keywords: "story narrative executive report generate AI" },
+      { id: "act_present", icon: "🖥️", label: "Enter Presentation Mode", desc: "Full-screen client-ready presentation", category: "Actions", shortcut: "Cmd+P", action: () => { setPresentMode(true); setPresentStartTime(Date.now()); setShowCmdPalette(false); setShowCoPilot(false); if (page === "home") navigate("snapshot"); }, keywords: "present presentation slides client meeting" },
+      { id: "act_reset", icon: "🔄", label: "Reset Data", desc: "Clear all data and start fresh", category: "Actions", action: () => { if (confirm("Reset all data? This cannot be undone.")) reset(); }, keywords: "reset clear" },
+      // Data — jobs
+      ...jobs.slice(0, 50).map(j => ({
+        id: `job_${j}`, icon: "💼", label: j, desc: "Job title — click to view in Work Design Lab", category: "Data",
+        action: () => { setJob(j); navigate("design"); setCmdRecentIds(prev => [`job_${j}`, ...prev.filter(x => x !== `job_${j}`)].slice(0, 8)); },
+        keywords: `job role title ${j}`,
+      })),
+    ];
+    return items;
+  }, [navigate, jobs, theme, toggleTheme, setJob, reset]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Account dropdown close-on-click-outside
   useEffect(() => {
@@ -659,10 +829,212 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
     </div>;
   }
 
+  // Presentation mode module sequence
+  const PRESENT_MODULES = ["snapshot", "scan", "heatmap", "jobarch", "design", "opmodel", "simulate", "plan", "export"];
+  const presentIdx = PRESENT_MODULES.indexOf(page);
+  const presentPrev = () => { if (presentIdx > 0) navigate(PRESENT_MODULES[presentIdx - 1]); };
+  const presentNext = () => { if (presentIdx < PRESENT_MODULES.length - 1) navigate(PRESENT_MODULES[presentIdx + 1]); else if (page === "home") navigate(PRESENT_MODULES[0]); };
+
+  // Presentation mode keyboard handler
+  useEffect(() => {
+    if (!presentMode) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") { e.preventDefault(); presentNext(); }
+      else if (e.key === "ArrowLeft") { e.preventDefault(); presentPrev(); }
+      else if (e.key === "n" || e.key === "N") { if ((e.target as HTMLElement).tagName !== "INPUT" && (e.target as HTMLElement).tagName !== "TEXTAREA") setPresentNotes(p => !p); }
+      else if (e.key === "Escape") { setPresentMode(false); }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [presentMode, presentIdx]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Set data-present attribute
+  useEffect(() => {
+    document.documentElement.setAttribute("data-present", presentMode ? "true" : "false");
+    return () => document.documentElement.removeAttribute("data-present");
+  }, [presentMode]);
+
   return <div className="flex min-h-screen w-full">
+    {/* ── COMMAND PALETTE ── */}
+    <AnimatePresence>{showCmdPalette && <CommandPalette actions={cmdActions} recentIds={cmdRecentIds} onClose={() => setShowCmdPalette(false)} />}</AnimatePresence>
+
+    {/* ── KEYBOARD SHORTCUTS PANEL ── */}
+    {showShortcuts && <KeyboardShortcutsPanel shortcuts={shortcutDefs} onClose={() => setShowShortcuts(false)} />}
+
+    {/* ── SMART IMPORT WIZARD MODAL ── */}
+    {showImportWizard && <div className="fixed inset-0 bg-black/60 z-[99999] flex items-center justify-center p-4">
+      <div className="bg-[var(--bg)] rounded-2xl border border-[var(--border)] w-full max-w-[800px] max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)]">
+          <div><div className="text-[18px] font-bold text-[var(--text-primary)]">Smart Data Import</div><div className="text-[13px] text-[var(--text-muted)]">Step {wizStep} of 4</div></div>
+          <button onClick={() => setShowImportWizard(false)} className="text-[20px] text-[var(--text-muted)] hover:text-[var(--text-primary)]">×</button>
+        </div>
+        {/* Progress */}
+        <div className="flex gap-1 px-6 pt-3">{[1,2,3,4].map(s => <div key={s} className="flex-1 h-1.5 rounded-full" style={{ background: s <= wizStep ? "var(--accent-primary)" : "var(--surface-2)" }} />)}</div>
+
+        <div className="px-6 py-5">
+          {/* STEP 1: File Selection */}
+          {wizStep === 1 && <div className="space-y-4">
+            <div className="text-[15px] font-bold text-[var(--text-primary)]">Select & Upload Your Data File</div>
+            {/* Format templates */}
+            <div className="flex gap-2 flex-wrap">
+              {[{ id: "custom", label: "Generic / Custom" }, { id: "workday", label: "Workday" }, { id: "sap", label: "SAP SuccessFactors" }, { id: "oracle", label: "Oracle HCM" }, { id: "adp", label: "ADP" }].map(t => <button key={t.id} onClick={() => setWizTemplate(t.id)} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold transition-all" style={{ background: wizTemplate === t.id ? "rgba(212,134,10,0.12)" : "var(--surface-2)", color: wizTemplate === t.id ? "#e09040" : "var(--text-muted)", border: wizTemplate === t.id ? "1px solid rgba(212,134,10,0.3)" : "1px solid var(--border)" }}>{t.label}</button>)}
+            </div>
+            {/* Drop zone */}
+            <div className="border-2 border-dashed border-[var(--border)] rounded-xl p-10 text-center hover:border-[var(--accent-primary)] transition-all cursor-pointer" onDragOver={e => e.preventDefault()} onDrop={e => { e.preventDefault(); const files = Array.from(e.dataTransfer.files); if (files.length) { setWizFiles(files); wizParseFile(files[0]); } }} onClick={() => { const input = document.createElement("input"); input.type = "file"; input.accept = ".xlsx,.xls,.csv,.tsv"; input.multiple = true; input.onchange = () => { const files = Array.from(input.files || []); if (files.length) { setWizFiles(files); wizParseFile(files[0]); } }; input.click(); }}>
+              <div className="text-[32px] mb-2">📂</div>
+              <div className="text-[15px] font-semibold text-[var(--text-primary)]">Drag & drop your file here</div>
+              <div className="text-[14px] text-[var(--text-muted)] mt-1">or click to browse · .xlsx, .xls, .csv, .tsv</div>
+            </div>
+            {/* Preview */}
+            {wizPreview && <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-[15px] font-bold text-[var(--text-primary)]">{wizPreview.name}</div>
+                <span className="text-[13px] text-[var(--text-muted)]">{wizPreview.size}</span>
+              </div>
+              <div className="text-[14px] text-[var(--success)] mb-2">Detected <strong>{wizPreview.rows.toLocaleString()}</strong> rows and <strong>{wizPreview.cols}</strong> columns</div>
+              <div className="flex flex-wrap gap-1">{wizPreview.headers.slice(0, 15).map(h => <span key={h} className="px-2 py-0.5 rounded text-[12px] bg-[var(--bg)] text-[var(--text-secondary)]">{h}</span>)}{wizPreview.headers.length > 15 && <span className="text-[12px] text-[var(--text-muted)]">+{wizPreview.headers.length - 15} more</span>}</div>
+            </div>}
+            {wizPreview && <button onClick={() => setWizStep(2)} className="w-full px-4 py-2.5 rounded-xl text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>Continue to Column Mapping →</button>}
+          </div>}
+
+          {/* STEP 2: Column Mapping */}
+          {wizStep === 2 && <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="text-[15px] font-bold text-[var(--text-primary)]">Column Mapping</div>
+              <div className="text-[14px] font-semibold" style={{ color: wizAutoMapCount > 0 ? "var(--success)" : "var(--text-muted)" }}>Mapped {wizAutoMapCount} of {wizPreview?.headers.length || 0} columns automatically ({wizPreview?.headers.length ? Math.round((wizAutoMapCount / wizPreview.headers.length) * 100) : 0}%)</div>
+            </div>
+            <div className="overflow-y-auto rounded-lg border border-[var(--border)]" style={{ maxHeight: 400 }}>
+              <table className="w-full text-[14px]"><thead><tr className="bg-[var(--surface-2)] sticky top-0">
+                <th className="px-3 py-2 text-left text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Your Column</th>
+                <th className="px-3 py-2 text-left text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Sample Data</th>
+                <th className="px-3 py-2 text-left text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Maps To</th>
+              </tr></thead><tbody>
+                {(wizPreview?.headers || []).map((h, hi) => {
+                  const mapped = wizMappings[h] || "";
+                  const samples = (wizPreview?.sample || []).map(r => r[hi] || "").filter(Boolean).slice(0, 3);
+                  return <tr key={h} className="border-b border-[var(--border)]">
+                    <td className="px-3 py-2 font-semibold text-[var(--text-primary)]">{h}</td>
+                    <td className="px-3 py-2 text-[13px] text-[var(--text-muted)]">{samples.join(", ") || "—"}</td>
+                    <td className="px-3 py-2"><select value={mapped} onChange={e => setWizMappings(prev => ({ ...prev, [h]: e.target.value }))} className="bg-[var(--bg)] border rounded-lg px-2 py-1 text-[13px] outline-none w-full" style={{ borderColor: mapped ? "var(--success)" : "var(--border)", color: mapped ? "var(--success)" : "var(--text-muted)" }}>
+                      <option value="">Skip</option>{WIZ_TARGET_FIELDS.map(f => <option key={f} value={f}>{f}</option>)}
+                    </select></td>
+                  </tr>;
+                })}
+              </tbody></table>
+            </div>
+            {/* Preview mapped */}
+            {Object.keys(wizMappings).length > 0 && <div className="rounded-lg border border-[var(--border)] bg-[var(--surface-2)] p-3">
+              <div className="text-[13px] font-bold text-[var(--text-muted)] uppercase mb-2">Preview (first 3 rows with mapped names)</div>
+              <div className="overflow-x-auto"><table className="w-full text-[13px]"><thead><tr>{Object.entries(wizMappings).filter(([,v]) => v).slice(0, 8).map(([,v]) => <th key={v} className="px-2 py-1 text-left text-[var(--success)] font-semibold">{v}</th>)}</tr></thead><tbody>{(wizPreview?.sample || []).slice(0, 3).map((row, ri) => <tr key={ri}>{Object.entries(wizMappings).filter(([,v]) => v).slice(0, 8).map(([k,v]) => { const ci = wizPreview?.headers.indexOf(k) ?? -1; return <td key={v} className="px-2 py-1 text-[var(--text-secondary)]">{ci >= 0 ? row[ci] || "—" : "—"}</td>; })}</tr>)}</tbody></table></div>
+            </div>}
+            <div className="flex gap-2">
+              <button onClick={() => setWizStep(1)} className="px-4 py-2 rounded-lg text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">← Back</button>
+              <button onClick={() => { wizRunValidation(); setWizStep(3); }} className="flex-1 px-4 py-2.5 rounded-xl text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>Validate Data →</button>
+            </div>
+          </div>}
+
+          {/* STEP 3: Validation */}
+          {wizStep === 3 && <div className="space-y-4">
+            <div className="text-[15px] font-bold text-[var(--text-primary)]">Data Validation</div>
+            <div className="space-y-2">{wizValidation.map((v, i) => {
+              const icons = { pass: "✅", warn: "⚠️", error: "❌" };
+              const colors = { pass: "var(--success)", warn: "var(--warning)", error: "var(--risk)" };
+              return <div key={i} className="flex items-center gap-3 px-4 py-2.5 rounded-lg" style={{ background: `${colors[v.type]}06`, border: `1px solid ${colors[v.type]}20` }}>
+                <span className="text-[16px]">{icons[v.type]}</span>
+                <span className="text-[14px] text-[var(--text-secondary)] flex-1">{v.msg}</span>
+              </div>;
+            })}</div>
+            {/* Quality score */}
+            {(() => {
+              const errors = wizValidation.filter(v => v.type === "error").length;
+              const passes = wizValidation.filter(v => v.type === "pass").length;
+              const score = wizValidation.length ? Math.round((passes / wizValidation.length) * 100) : 0;
+              return <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4 text-center">
+                <div className="text-[28px] font-extrabold" style={{ color: score >= 80 ? "var(--success)" : score >= 50 ? "var(--warning)" : "var(--risk)" }}>{score}%</div>
+                <div className="text-[14px] text-[var(--text-muted)]">Data Quality Score</div>
+                {errors > 0 && <div className="text-[14px] text-[var(--risk)] mt-2">{errors} error(s) must be resolved before import</div>}
+              </div>;
+            })()}
+            <div className="flex gap-2">
+              <button onClick={() => setWizStep(2)} className="px-4 py-2 rounded-lg text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">← Back</button>
+              <button onClick={() => setWizStep(4)} disabled={wizValidation.some(v => v.type === "error")} className="flex-1 px-4 py-2.5 rounded-xl text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: wizValidation.some(v => v.type === "error") ? 0.4 : 1 }}>Confirm & Import →</button>
+            </div>
+          </div>}
+
+          {/* STEP 4: Confirm & Import */}
+          {wizStep === 4 && <div className="space-y-4">
+            <div className="text-[15px] font-bold text-[var(--text-primary)]">Confirm Import</div>
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-6">
+              <div className="grid grid-cols-3 gap-4 mb-4">
+                <div className="text-center"><div className="text-[22px] font-extrabold text-[var(--text-primary)]">{wizPreview?.rows.toLocaleString()}</div><div className="text-[13px] text-[var(--text-muted)] uppercase">Rows</div></div>
+                <div className="text-center"><div className="text-[22px] font-extrabold text-[var(--accent-primary)]">{Object.values(wizMappings).filter(Boolean).length}</div><div className="text-[13px] text-[var(--text-muted)] uppercase">Fields Mapped</div></div>
+                <div className="text-center"><div className="text-[22px] font-extrabold text-[var(--success)]">{Math.round((wizValidation.filter(v => v.type === "pass").length / Math.max(wizValidation.length, 1)) * 100)}%</div><div className="text-[13px] text-[var(--text-muted)] uppercase">Quality</div></div>
+              </div>
+              <div className="text-[14px] text-[var(--text-secondary)] text-center">Ready to import <strong>{wizPreview?.name}</strong> with {Object.values(wizMappings).filter(Boolean).length} mapped fields.</div>
+            </div>
+            {/* Import history */}
+            {wizImportHistory.length > 0 && <div className="rounded-lg border border-[var(--border)] bg-[var(--surface-2)] p-3">
+              <div className="text-[13px] font-bold text-[var(--text-muted)] uppercase mb-2">Previous Imports</div>
+              {wizImportHistory.slice(-3).reverse().map((h, i) => <div key={i} className="flex justify-between text-[13px] text-[var(--text-secondary)] py-1">{h.date} — {h.file} ({h.rows} rows, {h.quality}% quality)</div>)}
+            </div>}
+            <div className="flex gap-2">
+              <button onClick={() => setWizStep(3)} className="px-4 py-2 rounded-lg text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">← Back</button>
+              <button onClick={wizDoImport} disabled={wizImporting} className="flex-1 px-4 py-3 rounded-xl text-[16px] font-bold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: wizImporting ? 0.5 : 1 }}>{wizImporting ? "Importing..." : "🚀 Import Data"}</button>
+            </div>
+            {wizImporting && <div className="h-2 bg-[var(--surface-2)] rounded-full overflow-hidden"><div className="h-full rounded-full bg-[var(--accent-primary)] animate-pulse" style={{ width: "80%" }} /></div>}
+          </div>}
+        </div>
+      </div>
+    </div>}
+
     {/* ── SIDEBAR ── */}
-    <aside className="w-[220px] min-h-screen bg-[var(--surface-1)] flex flex-col px-4 py-5 shrink-0 overflow-y-auto sticky top-0 border-r border-[var(--border)]" style={{ height: "100vh" }}>
-      <div className="mb-1 cursor-pointer" onClick={goHome}><div className="text-sm font-extrabold text-[var(--text-primary)]">AI Transformation</div><div className="text-[15px] font-semibold text-[var(--accent-primary)] uppercase tracking-[1.5px]">PLATFORM</div></div>
+    {/* Presentation mode top bar */}
+    {presentMode && <div className="fixed top-0 left-0 right-0 z-[9996] flex items-center justify-between px-6 py-3" style={{ background: "linear-gradient(180deg, rgba(6,10,20,0.95), rgba(6,10,20,0.7))", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(212,134,10,0.1)" }}>
+      <div className="flex items-center gap-4">
+        <button onClick={presentPrev} disabled={presentIdx <= 0} className="text-[18px] text-white/40 hover:text-white disabled:opacity-20 transition-all">←</button>
+        <div><div className="text-[18px] font-bold text-white font-heading">{MODULES.find(m => m.id === page)?.title || "Home"}</div><div className="text-[13px] text-white/40">{presentIdx >= 0 ? `Slide ${presentIdx + 1} of ${PRESENT_MODULES.length}` : "Presentation Mode"}</div></div>
+        <button onClick={presentNext} disabled={presentIdx >= PRESENT_MODULES.length - 1} className="text-[18px] text-white/40 hover:text-white disabled:opacity-20 transition-all">→</button>
+      </div>
+      <div className="flex items-center gap-4">
+        <span className="text-[13px] text-white/30 font-data">{Math.floor((Date.now() - presentStartTime) / 60000)} min</span>
+        <button onClick={() => setPresentNotes(p => !p)} className="text-[13px] text-white/40 hover:text-white transition-all px-2 py-1 rounded border border-white/10">Notes (N)</button>
+        <button onClick={() => setPresentMode(false)} className="text-[13px] font-semibold text-white/60 hover:text-white transition-all px-3 py-1.5 rounded-lg border border-white/15 hover:border-white/30">Exit Presentation</button>
+      </div>
+    </div>}
+
+    {/* Presentation mode bottom navigator */}
+    {presentMode && <div className="fixed bottom-0 left-0 right-0 z-[9996] h-12 flex items-center justify-center gap-2 px-6" style={{ background: "linear-gradient(0deg, rgba(6,10,20,0.95), rgba(6,10,20,0.7))", backdropFilter: "blur(12px)", borderTop: "1px solid rgba(212,134,10,0.1)" }}>
+      {PRESENT_MODULES.map((m, i) => {
+        const mod = MODULES.find(x => x.id === m);
+        const isCurrent = page === m;
+        return <button key={m} onClick={() => navigate(m)} className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[12px] font-semibold transition-all" style={{ background: isCurrent ? "rgba(212,134,10,0.15)" : "transparent", color: isCurrent ? "#f0a050" : "rgba(255,255,255,0.3)", border: isCurrent ? "1px solid rgba(212,134,10,0.3)" : "1px solid transparent" }}>
+          <span className="text-[14px]">{mod?.icon}</span>
+          <span className="hidden lg:inline">{mod?.title?.split(" ").slice(0, 2).join(" ") || m}</span>
+        </button>;
+      })}
+    </div>}
+
+    {/* Presenter notes overlay */}
+    {presentMode && presentNotes && <div className="fixed bottom-12 left-0 right-0 z-[9995] px-8 py-4" style={{ background: "rgba(6,10,20,0.85)", backdropFilter: "blur(8px)", borderTop: "1px solid rgba(212,134,10,0.1)" }}>
+      <div className="text-[14px] text-white/60 italic">
+        {page === "snapshot" ? "Key metrics to highlight: total headcount, function distribution, AI readiness score. Note any anomalies in the data." :
+         page === "scan" ? "Focus on the top 3 highest-impact findings. Walk through the AI impact matrix — which functions have the most automation potential?" :
+         page === "design" ? "Walk through the Work Design Lab results for the top 2 roles. Show before/after time allocation." :
+         page === "simulate" ? "Compare Conservative vs. Balanced vs. Transformative. Highlight the risk-adjusted returns." :
+         page === "plan" ? "Show the Gantt timeline. Walk through the ADKAR assessment results for leadership buy-in." :
+         page === "opmodel" ? "Start with strategic priorities, then walk through the capability maturity gaps." :
+         page === "heatmap" ? "The heatmap shows AI impact by function × job family. Red cells = highest transformation priority." :
+         page === "export" ? "Offer to generate the deliverable pack: executive summary, detailed report, and transformation roadmap." :
+         "Talking points for this module — press N to toggle notes."}
+      </div>
+    </div>}
+
+    <aside className={`w-[220px] min-h-screen bg-[var(--surface-1)] flex flex-col px-4 py-5 shrink-0 overflow-y-auto sticky top-0 border-r border-[var(--border)] transition-all duration-300 ${presentMode ? "-ml-[220px] opacity-0 pointer-events-none" : ""}`} style={{ height: "100vh" }}>
+      <div className="flex items-center justify-between mb-1">
+        <div className="cursor-pointer" onClick={goHome}><div className="text-sm font-extrabold text-[var(--text-primary)]">AI Transformation</div><div className="text-[15px] font-semibold text-[var(--accent-primary)] uppercase tracking-[1.5px]">PLATFORM</div></div>
+        <ThemeToggle theme={theme} onToggle={toggleTheme} />
+      </div>
       <button onClick={() => { if (page === "home" && viewMode) { setViewMode(""); } else { onBackToHub(); } }} className="w-full text-left text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mt-1 mb-1 flex items-center gap-1 transition-colors">{page === "home" && viewMode ? "← Back to Views" : page !== "home" ? "← Back to Home" : "← Back to Projects"}</button>
       <div className="bg-[var(--surface-2)] rounded-lg px-3 py-2 mb-2 border border-[var(--border)]"><div className="text-[15px] font-bold text-[var(--accent-primary)] uppercase tracking-wider mb-0.5">Active Project</div><div className="text-[15px] font-semibold text-[var(--text-primary)] truncate">{projectName}</div>{projectMeta && <div className="text-[15px] text-[var(--text-muted)] truncate mt-0.5 italic">{projectMeta}</div>}</div>
       {/* Journey progress bar */}
@@ -681,8 +1053,8 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       <div className="text-[15px] text-[var(--text-muted)] mb-1">{(() => { const ci = PHASES.findIndex(p => p.modules.some(id => (moduleStatus[id] || "not_started") !== "complete") || p.modules.every(id => (moduleStatus[id] || "not_started") === "not_started")); return ci >= 0 ? `Phase ${ci+1} of 5 — ${PHASES[ci].label}` : "Journey complete"; })()}</div>
       <div className="h-px bg-[var(--border)] my-3" />
       <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-[1.2px] mb-2">Data Intake</div>
-      <input ref={fileRef} type="file" multiple accept=".xlsx,.xls,.csv" onChange={e => e.target.files && upload(e.target.files)} className="hidden" />
-      <button onClick={() => fileRef.current?.click()} className="w-full bg-[var(--accent-primary)] hover:opacity-90 text-white text-[15px] font-semibold py-1.5 rounded-md mb-1.5">⬆ Upload Files</button>
+      <input ref={fileRef} type="file" multiple accept=".xlsx,.xls,.csv,.tsv" onChange={e => e.target.files && upload(e.target.files)} className="hidden" />
+      <button onClick={() => { setShowImportWizard(true); setWizStep(1); setWizFiles([]); setWizPreview(null); setWizMappings({}); setWizValidation([]); }} className="w-full bg-[var(--accent-primary)] hover:opacity-90 text-white text-[15px] font-semibold py-1.5 rounded-md mb-1.5">⬆ Smart Import</button>
       <a href="/api/template" download className="block w-full bg-[var(--surface-3)] hover:bg-[var(--hover)] border border-[var(--accent-primary)] text-[var(--accent-primary)] text-[15px] font-semibold py-1.5 rounded-md mb-1.5 text-center no-underline">⬇ Export Template</a>
       <button onClick={reset} className="w-full bg-[var(--surface-2)] hover:bg-[var(--hover)] border border-[var(--border)] text-[var(--text-secondary)] text-[15px] font-semibold py-1 rounded-md">Reset</button>
       {msg && <div className="mt-1.5 text-[15px] text-[var(--accent-primary)] bg-[rgba(212,134,10,0.1)] rounded px-2 py-1">{msg}</div>}
@@ -709,6 +1081,21 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       {/* Decision Log + Platform Hub */}
       <div className="mt-auto">
         <div className="h-px bg-[var(--border)] my-3" />
+        <button onClick={() => setShowStoryEngine(true)} className="w-full text-left px-2 py-1.5 rounded-lg text-[15px] mb-1 flex items-center gap-2 text-[var(--text-muted)] hover:bg-[var(--hover)] transition-all">
+          <span className="text-[15px]">📖</span> Generate Story
+        </button>
+        <button onClick={() => { setPresentMode(true); setPresentStartTime(Date.now()); setShowCoPilot(false); setShowAnnoPanel(false); setAnnotateMode(false); if (page === "home") navigate("snapshot"); }} className="w-full text-left px-2 py-1.5 rounded-lg text-[15px] mb-1 flex items-center gap-2 text-[var(--text-muted)] hover:bg-[var(--hover)] transition-all">
+          <span className="text-[15px]">🖥️</span> Present
+        </button>
+        <button onClick={() => setShowCoPilot(!showCoPilot)} className={`w-full text-left px-2 py-1.5 rounded-lg text-[15px] mb-1 flex items-center gap-2 transition-all ${showCoPilot ? "bg-[rgba(212,134,10,0.1)] text-[var(--accent-primary)] font-semibold" : "text-[var(--text-muted)] hover:bg-[var(--hover)]"}`}>
+          <span className="text-[15px]">🤖</span> AI Co-Pilot
+        </button>
+        <button onClick={() => setAnnotateMode(!annotateMode)} className={`w-full text-left px-2 py-1.5 rounded-lg text-[15px] mb-1 flex items-center gap-2 transition-all ${annotateMode ? "bg-[rgba(59,130,246,0.1)] text-[#3B82F6] font-semibold" : "text-[var(--text-muted)] hover:bg-[var(--hover)]"}`}>
+          <span className="text-[15px]">💬</span> {annotateMode ? "Annotating..." : "Annotate"}
+        </button>
+        <button onClick={() => setShowAnnoPanel(!showAnnoPanel)} className={`w-full text-left px-2 py-1.5 rounded-lg text-[15px] mb-1 flex items-center gap-2 transition-all ${showAnnoPanel ? "bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] font-semibold" : "text-[var(--text-muted)] hover:bg-[var(--hover)]"}`}>
+          <span className="text-[15px]">📋</span> Notes {annotations.length > 0 && <span className="text-[14px] px-1.5 py-0.5 rounded-full bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] font-bold">{annotations.length}</span>}
+        </button>
         <button onClick={() => setShowDecLog(!showDecLog)} className={`w-full text-left px-2 py-1.5 rounded-lg text-[15px] mb-1 flex items-center gap-2 transition-all ${showDecLog ? "bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] font-semibold" : "text-[var(--text-muted)] hover:bg-[var(--hover)]"}`}>
           <span className="text-[15px]">📝</span> Decision Log {decisionLog.length > 0 && <span className="text-[14px] px-1.5 py-0.5 rounded-full bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] font-bold">{decisionLog.length}</span>}
         </button>
@@ -750,11 +1137,15 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
           <span className="text-[14px] text-[var(--text-muted)]">{accountMenuOpen ? "▾" : "▸"}</span>
         </button>}
         <div className="text-center text-[14px] text-[var(--text-muted)] mt-1 opacity-50">v4.0</div>
+        <button onClick={() => setShowShortcuts(true)} className="text-[12px] text-[var(--text-muted)] opacity-40 hover:opacity-80 transition-opacity mt-1 flex items-center justify-center gap-1"><span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: 18, height: 16, padding: "0 4px", borderRadius: 4, background: "var(--surface-2)", border: "1px solid var(--border)", fontSize: 10, fontFamily: "'IBM Plex Mono', monospace" }}>⌘/</span> shortcuts</button>
       </div>
     </aside>
 
     {/* ── MAIN ── */}
-    <main className="flex-1 min-h-screen bg-[var(--bg)]">
+    <main className={`flex-1 min-h-screen bg-[var(--bg)] ${presentMode ? "present-scale" : ""}`} style={presentMode ? { paddingTop: 60, paddingBottom: 56 } : undefined}>
+      <AnnotationLayer annotations={annotations} moduleId={page} annotateMode={annotateMode} onAdd={a => setAnnotations(prev => [...prev, a])} onUpdate={a => setAnnotations(prev => prev.map(x => x.id === a.id ? a : x))} onDelete={id => setAnnotations(prev => prev.filter(x => x.id !== id))}>
+      <AnimatePresence mode="wait">
+      <motion.div key={page} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.25, ease: "easeOut" }}>
       {page === "home" && <div>
         <LandingPage onNavigate={navigate} moduleStatus={moduleStatus} hasData={hasData} viewMode={viewMode} projectName={projectName} onBackToHub={onBackToHub} onBackToSplash={() => { setShowSplash(true); try { sessionStorage.removeItem(`${projectId}_splashSeen`); } catch {} }} cardBackgrounds={cardBgs} phaseBackgrounds={phaseBgs} />
       </div>}
@@ -793,8 +1184,14 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       {page === "quickwins" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><QuickWinIdentifier model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
       {!model && page !== "home" && <div className="text-center py-20"><div className="text-4xl mb-3 opacity-30">📂</div><h3 className="text-lg font-semibold mb-1">Select a model first</h3><p className="text-[15px] text-[var(--text-secondary)]">Upload data or select Demo_Model in the sidebar.</p><button onClick={goHome} className="mt-4 text-[var(--accent-primary)] text-[15px] font-semibold">← Back to Home</button></div>}
       </div>}
+      </motion.div>
+      </AnimatePresence>
+      </AnnotationLayer>
     </main>
-    {page !== "home" && <div><AiEspressoButton moduleId={page} contextData={buildAiContext()} viewMode={viewMode} /></div>}
+    {/* AI Co-Pilot sidebar */}
+    <AnimatePresence>{showCoPilot && <AiCoPilot moduleId={page} contextData={buildAiContext()} open={showCoPilot} onClose={() => setShowCoPilot(false)} onNavigate={navigate} />}</AnimatePresence>
+    <AnimatePresence>{showAnnoPanel && <AnnotationPanel annotations={annotations} onUpdate={a => setAnnotations(prev => prev.map(x => x.id === a.id ? a : x))} onDelete={id => setAnnotations(prev => prev.filter(x => x.id !== id))} onClose={() => setShowAnnoPanel(false)} />}</AnimatePresence>
+    <AnimatePresence>{showStoryEngine && <StoryEngine projectName={projectName} model={model} contextData={buildAiContext()} onClose={() => setShowStoryEngine(false)} onNavigate={navigate} />}</AnimatePresence>
     {isTutorial && tutorialVisible && <TutorialOverlay step={tutorialStep} totalSteps={tutorialSteps.length} steps={tutorialSteps} onNext={tutorialNext} onPrev={tutorialPrev} onClose={() => setTutorialVisible(false)} onJump={tutorialJump} />}
     {isTutorial && !tutorialVisible && <TutorialBadge onClick={() => setTutorialVisible(true)} step={tutorialStep} total={tutorialSteps.length} />}
 

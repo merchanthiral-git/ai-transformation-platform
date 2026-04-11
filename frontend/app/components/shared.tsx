@@ -3,8 +3,455 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from "react"
 import * as api from "../../lib/api";
 import type { Filters } from "../../lib/api";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, CartesianGrid, Legend } from "recharts";
+import { motion, AnimatePresence } from "framer-motion";
 
 export type ViewContext = { mode: string; employee: string; job: string; custom: Record<string, string> };
+
+/* ═══════════════════════════════════════════════════════════════
+   ANIMATION COMPONENTS — Premium transitions & micro-interactions
+   ═══════════════════════════════════════════════════════════════ */
+
+// Page/view transition wrapper
+export function PageTransition({ children, id }: { children: React.ReactNode; id: string }) {
+  return <AnimatePresence mode="wait">
+    <motion.div key={id} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.28, ease: "easeOut" }}>
+      {children}
+    </motion.div>
+  </AnimatePresence>;
+}
+
+// Staggered card grid — children animate in with delay
+export function StaggerGrid({ children, className }: { children: React.ReactNode; className?: string }) {
+  return <motion.div className={className} initial="hidden" animate="visible" variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.07 } } }}>
+    {children}
+  </motion.div>;
+}
+
+export function StaggerItem({ children, className }: { children: React.ReactNode; className?: string }) {
+  return <motion.div className={className} variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" } } }}>
+    {children}
+  </motion.div>;
+}
+
+// Scroll-triggered reveal
+export function ScrollReveal({ children, className, delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+  return <motion.div className={className} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-40px" }} transition={{ duration: 0.45, delay, ease: "easeOut" }}>
+    {children}
+  </motion.div>;
+}
+
+// Animated number counter
+export function AnimatedNumber({ value, duration = 900, prefix = "", suffix = "", decimals = 0 }: { value: number; duration?: number; prefix?: string; suffix?: string; decimals?: number }) {
+  const [display, setDisplay] = useState(0);
+  const prevValue = useRef(0);
+  useEffect(() => {
+    const startVal = prevValue.current;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = startVal + (value - startVal) * eased;
+      setDisplay(current);
+      if (progress < 1) requestAnimationFrame(tick);
+      else prevValue.current = value;
+    };
+    requestAnimationFrame(tick);
+  }, [value, duration]);
+  return <span>{prefix}{decimals > 0 ? display.toFixed(decimals) : Math.round(display).toLocaleString()}{suffix}</span>;
+}
+
+// Animated progress bar
+export function AnimatedBar({ value, color = "var(--accent-primary)", height = 8, className, delay = 0 }: { value: number; color?: string; height?: number; className?: string; delay?: number }) {
+  return <div className={`bg-[var(--surface-2)] rounded-full overflow-hidden ${className || ""}`} style={{ height }}>
+    <motion.div className="h-full rounded-full" style={{ background: color }} initial={{ width: "0%" }} animate={{ width: `${Math.min(value, 100)}%` }} transition={{ duration: 0.7, delay, ease: "easeOut" }} />
+  </div>;
+}
+
+// Modal wrapper with animations
+export function AnimatedModal({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
+  return <motion.div className="fixed inset-0 z-[99999] flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+    <motion.div className="absolute inset-0 bg-black/60" onClick={onClose} initial={{ opacity: 0 }} animate={{ opacity: 1 }} />
+    <motion.div className="relative" initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.97, y: 5 }} transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }} onClick={e => e.stopPropagation()}>
+      {children}
+    </motion.div>
+  </motion.div>;
+}
+
+// Interactive button with press feedback
+export function PressButton({ children, onClick, className, style, disabled, title }: { children: React.ReactNode; onClick?: (e: React.MouseEvent) => void; className?: string; style?: React.CSSProperties; disabled?: boolean; title?: string }) {
+  return <motion.button onClick={onClick} className={className} style={style} disabled={disabled} title={title} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400, damping: 17 }}>
+    {children}
+  </motion.button>;
+}
+
+// Hover card with lift effect
+export function HoverCard({ children, className, style, onClick }: { children: React.ReactNode; className?: string; style?: React.CSSProperties; onClick?: () => void }) {
+  return <motion.div className={className} style={style} onClick={onClick} whileHover={{ y: -3, boxShadow: "0 8px 28px rgba(0,0,0,0.2)" }} transition={{ type: "spring", stiffness: 300, damping: 20 }}>
+    {children}
+  </motion.div>;
+}
+
+// ── Theme System ──
+export function useTheme() {
+  const [theme, setThemeState] = useState<"dark" | "light">("dark");
+  useEffect(() => {
+    // Read saved preference or system preference
+    const saved = localStorage.getItem("theme") as "dark" | "light" | null;
+    const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const initial = saved || (systemDark ? "dark" : "dark"); // default to dark
+    setThemeState(initial);
+    document.documentElement.setAttribute("data-theme", initial);
+  }, []);
+  const setTheme = useCallback((t: "dark" | "light") => {
+    setThemeState(t);
+    document.documentElement.setAttribute("data-theme", t);
+    localStorage.setItem("theme", t);
+  }, []);
+  const toggle = useCallback(() => {
+    setTheme(theme === "dark" ? "light" : "dark");
+  }, [theme, setTheme]);
+  return { theme, setTheme, toggle };
+}
+
+export function ThemeToggle({ theme, onToggle }: { theme: "dark" | "light"; onToggle: () => void }) {
+  return <motion.button onClick={onToggle} className="w-8 h-8 rounded-xl flex items-center justify-center border border-[var(--border)] transition-colors" style={{ background: "var(--surface-2)" }} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }} title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}>
+    <motion.span key={theme} initial={{ rotate: -30, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 30, opacity: 0 }} transition={{ duration: 0.3 }} style={{ fontSize: 15 }}>
+      {theme === "dark" ? "☀️" : "🌙"}
+    </motion.span>
+  </motion.button>;
+}
+
+// ── Keyboard Shortcuts ──
+export type ShortcutDef = { key: string; ctrl?: boolean; shift?: boolean; label: string; action: () => void; category: string };
+
+export function useKeyboardShortcuts(shortcuts: ShortcutDef[], enabled = true) {
+  useEffect(() => {
+    if (!enabled) return;
+    const handler = (e: KeyboardEvent) => {
+      // Don't fire when typing in inputs
+      const tag = (e.target as HTMLElement).tagName;
+      const editable = (e.target as HTMLElement).isContentEditable;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || editable) {
+        // Only allow Escape in inputs
+        if (e.key !== "Escape") return;
+      }
+      for (const s of shortcuts) {
+        const ctrlMatch = s.ctrl ? (e.metaKey || e.ctrlKey) : !(e.metaKey || e.ctrlKey);
+        const shiftMatch = s.shift ? e.shiftKey : !e.shiftKey;
+        if (e.key === s.key && ctrlMatch && shiftMatch) {
+          e.preventDefault();
+          e.stopPropagation();
+          s.action();
+          return;
+        }
+      }
+    };
+    window.addEventListener("keydown", handler, true);
+    return () => window.removeEventListener("keydown", handler, true);
+  }, [shortcuts, enabled]);
+}
+
+const KBD_STYLE: React.CSSProperties = { display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: 24, height: 22, padding: "0 6px", borderRadius: 5, background: "var(--surface-2)", border: "1px solid var(--border)", fontSize: 12, fontFamily: "'IBM Plex Mono', monospace", fontWeight: 600, color: "var(--text-muted)", boxShadow: "0 1px 2px rgba(0,0,0,0.1)", lineHeight: 1 };
+
+export function Kbd({ children }: { children: React.ReactNode }) {
+  return <span style={KBD_STYLE}>{children}</span>;
+}
+
+export function KeyboardShortcutsPanel({ shortcuts, onClose }: { shortcuts: { key: string; ctrl?: boolean; shift?: boolean; label: string; category: string }[]; onClose: () => void }) {
+  const isMac = typeof navigator !== "undefined" && /Mac/.test(navigator.userAgent);
+  const mod = isMac ? "⌘" : "Ctrl";
+  const categories = Array.from(new Set(shortcuts.map(s => s.category)));
+  return <AnimatedModal onClose={onClose}>
+    <div className="bg-[var(--bg)] rounded-2xl border border-[var(--border)] w-[520px] max-h-[80vh] overflow-y-auto" style={{ boxShadow: "0 8px 40px rgba(0,0,0,0.3)" }}>
+      <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)]">
+        <div className="text-[18px] font-bold text-[var(--text-primary)] font-heading">Keyboard Shortcuts</div>
+        <button onClick={onClose} className="text-[18px] text-[var(--text-muted)] hover:text-[var(--text-primary)]">×</button>
+      </div>
+      <div className="px-6 py-4 space-y-5">
+        {categories.map(cat => <div key={cat}>
+          <div className="text-[13px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2 font-heading">{cat}</div>
+          <div className="space-y-1.5">{shortcuts.filter(s => s.category === cat).map(s => <div key={`${s.key}-${s.ctrl}-${s.shift}`} className="flex items-center justify-between py-1.5">
+            <span className="text-[14px] text-[var(--text-secondary)]">{s.label}</span>
+            <div className="flex items-center gap-1">
+              {s.ctrl && <Kbd>{mod}</Kbd>}
+              {s.shift && <Kbd>⇧</Kbd>}
+              <Kbd>{s.key === " " ? "Space" : s.key === "?" ? "?" : s.key === "/" ? "/" : s.key.length === 1 ? s.key.toUpperCase() : s.key}</Kbd>
+            </div>
+          </div>)}</div>
+        </div>)}
+      </div>
+    </div>
+  </AnimatedModal>;
+}
+
+// ── Command Palette ──
+export type CmdAction = { id: string; icon: string; label: string; desc?: string; category: string; shortcut?: string; action: () => void; keywords?: string };
+
+function fuzzyMatch(query: string, text: string): number {
+  const q = query.toLowerCase();
+  const t = text.toLowerCase();
+  if (t === q) return 100;
+  if (t.startsWith(q)) return 80;
+  if (t.includes(q)) return 60;
+  // Fuzzy: all chars of query appear in order in text
+  let qi = 0;
+  for (let ti = 0; ti < t.length && qi < q.length; ti++) { if (t[ti] === q[qi]) qi++; }
+  if (qi === q.length) return 40;
+  // Initials match: "wdl" matches "Work Design Lab"
+  const initials = text.split(/\s+/).map(w => w[0]?.toLowerCase()).join("");
+  if (initials.includes(q)) return 50;
+  return 0;
+}
+
+export function CommandPalette({ actions, recentIds, onClose }: { actions: CmdAction[]; recentIds: string[]; onClose: () => void }) {
+  const [query, setQuery] = useState("");
+  const [selectedIdx, setSelectedIdx] = useState(0);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => { inputRef.current?.focus(); }, []);
+
+  const results = useMemo(() => {
+    if (!query.trim()) {
+      // Show recent + top actions
+      const recent = recentIds.map(id => actions.find(a => a.id === id)).filter(Boolean).slice(0, 5) as CmdAction[];
+      const nav = actions.filter(a => a.category === "Navigation").slice(0, 4);
+      const acts = actions.filter(a => a.category === "Actions").slice(0, 3);
+      return [
+        ...(recent.length ? [{ header: "Recent" }] : []),
+        ...recent.map(a => ({ ...a, _cat: "Recent" })),
+        { header: "Navigation" },
+        ...nav.map(a => ({ ...a, _cat: "Navigation" })),
+        { header: "Actions" },
+        ...acts.map(a => ({ ...a, _cat: "Actions" })),
+      ];
+    }
+    // Score and rank
+    const scored = actions.map(a => ({
+      ...a,
+      score: Math.max(
+        fuzzyMatch(query, a.label),
+        fuzzyMatch(query, a.desc || ""),
+        fuzzyMatch(query, a.keywords || ""),
+        fuzzyMatch(query, a.category),
+      ),
+    })).filter(s => s.score > 0).sort((a, b) => b.score - a.score);
+
+    // Group by category, max 4 per group
+    const groups: Record<string, typeof scored> = {};
+    scored.forEach(s => {
+      if (!groups[s.category]) groups[s.category] = [];
+      if (groups[s.category].length < 4) groups[s.category].push(s);
+    });
+
+    const out: (CmdAction & { _cat?: string } | { header: string })[] = [];
+    Object.entries(groups).forEach(([cat, items]) => {
+      out.push({ header: cat });
+      items.forEach(item => out.push({ ...item, _cat: cat }));
+    });
+
+    // Add AI fallback if few results
+    if (scored.length < 3) {
+      out.push({ header: "AI" });
+      out.push({ id: "_ai", icon: "🤖", label: `Ask AI: "${query}"`, desc: "Send this question to AI Espresso", category: "AI", action: () => { onClose(); /* AI action handled by parent */ }, _cat: "AI" });
+    }
+    return out;
+  }, [query, actions, recentIds, onClose]);
+
+  const actionItems = results.filter((r): r is CmdAction & { _cat?: string } => !("header" in r));
+
+  useEffect(() => { setSelectedIdx(0); }, [query]);
+
+  const handleKey = (e: React.KeyboardEvent) => {
+    if (e.key === "ArrowDown") { e.preventDefault(); setSelectedIdx(i => Math.min(i + 1, actionItems.length - 1)); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); setSelectedIdx(i => Math.max(i - 1, 0)); }
+    else if (e.key === "Enter" && actionItems[selectedIdx]) { actionItems[selectedIdx].action(); onClose(); }
+    else if (e.key === "Escape") { onClose(); }
+  };
+
+  // Scroll selected into view
+  useEffect(() => {
+    const el = listRef.current?.querySelector(`[data-idx="${selectedIdx}"]`);
+    if (el) el.scrollIntoView({ block: "nearest" });
+  }, [selectedIdx]);
+
+  const isMac = typeof navigator !== "undefined" && /Mac/.test(navigator.userAgent);
+  const mod = isMac ? "⌘" : "Ctrl+";
+
+  let actionIdx = -1;
+
+  return <motion.div className="fixed inset-0 z-[99999] flex items-start justify-center pt-[15vh]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} onClick={onClose}>
+    <div className="absolute inset-0" style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(8px)" }} />
+    <motion.div className="relative w-[580px] max-h-[60vh] flex flex-col rounded-2xl border border-[var(--border)] overflow-hidden" style={{ background: "var(--surface-1)", boxShadow: "0 16px 70px rgba(0,0,0,0.4)" }} initial={{ opacity: 0, scale: 0.96, y: -10 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} onClick={e => e.stopPropagation()}>
+      {/* Search input */}
+      <div className="flex items-center gap-3 px-5 py-4 border-b border-[var(--border)]">
+        <span className="text-[18px] text-[var(--text-muted)]">🔍</span>
+        <input ref={inputRef} value={query} onChange={e => setQuery(e.target.value)} onKeyDown={handleKey} placeholder="Search anything..." className="flex-1 bg-transparent text-[18px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] font-heading" />
+        <span className="text-[12px] text-[var(--text-muted)] px-1.5 py-0.5 rounded border border-[var(--border)] font-data">ESC</span>
+      </div>
+      {/* Results */}
+      <div ref={listRef} className="overflow-y-auto flex-1 py-2" style={{ maxHeight: "calc(60vh - 70px)" }}>
+        {results.length === 0 && <div className="px-5 py-8 text-center text-[var(--text-muted)]">No results for &ldquo;{query}&rdquo;</div>}
+        {results.map((item, i) => {
+          if ("header" in item) {
+            return <div key={`h-${item.header}-${i}`} className="px-5 pt-3 pb-1"><span className="text-[12px] font-bold text-[var(--accent-primary)] uppercase tracking-[1px] font-heading">{item.header}</span></div>;
+          }
+          actionIdx++;
+          const idx = actionIdx;
+          const isSelected = idx === selectedIdx;
+          return <div key={item.id} data-idx={idx} className="px-3 mx-2 py-2.5 rounded-xl flex items-center gap-3 cursor-pointer transition-colors" style={{ background: isSelected ? "rgba(212,134,10,0.1)" : "transparent", borderLeft: isSelected ? "2px solid var(--accent-primary)" : "2px solid transparent" }} onClick={() => { item.action(); onClose(); }} onMouseEnter={() => setSelectedIdx(idx)}>
+            <span className="text-[18px] w-7 text-center shrink-0">{item.icon}</span>
+            <div className="flex-1 min-w-0">
+              <div className="text-[15px] font-semibold text-[var(--text-primary)] truncate">{item.label}</div>
+              {item.desc && <div className="text-[13px] text-[var(--text-muted)] truncate">{item.desc}</div>}
+            </div>
+            {item.shortcut && <div className="flex items-center gap-0.5 shrink-0">{item.shortcut.split("+").map((k, ki) => <Kbd key={ki}>{k === "Cmd" ? mod.replace("+", "") : k}</Kbd>)}</div>}
+          </div>;
+        })}
+      </div>
+    </motion.div>
+  </motion.div>;
+}
+
+// ── Annotation System ──
+export type Annotation = {
+  id: string; moduleId: string; tabId: string; xPct: number; yPct: number;
+  text: string; color: string; tag: string; priority: "Low" | "Medium" | "High";
+  resolved: boolean; createdAt: string; author: string;
+};
+
+const ANNO_COLORS = [
+  { id: "amber", hex: "#D4860A", label: "Insight" },
+  { id: "red", hex: "#EF4444", label: "Risk" },
+  { id: "green", hex: "#10B981", label: "Opportunity" },
+  { id: "blue", hex: "#3B82F6", label: "Question" },
+  { id: "purple", hex: "#8B5CF6", label: "Action" },
+];
+
+export function AnnotationLayer({ annotations, moduleId, onAdd, onUpdate, onDelete, annotateMode }: {
+  annotations: Annotation[]; moduleId: string;
+  onAdd: (a: Annotation) => void; onUpdate: (a: Annotation) => void; onDelete: (id: string) => void;
+  annotateMode: boolean;
+}) {
+  const [creating, setCreating] = useState<{ x: number; y: number } | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [newText, setNewText] = useState("");
+  const [newColor, setNewColor] = useState("amber");
+  const [newTag, setNewTag] = useState("");
+  const [newPriority, setNewPriority] = useState<"Low" | "Medium" | "High">("Medium");
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const moduleAnnos = annotations.filter(a => a.moduleId === moduleId && !a.resolved);
+  const resolvedAnnos = annotations.filter(a => a.moduleId === moduleId && a.resolved);
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (!annotateMode || creating || editingId) return;
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const xPct = ((e.clientX - rect.left) / rect.width) * 100;
+    const yPct = ((e.clientY - rect.top) / rect.height) * 100;
+    setCreating({ x: xPct, y: yPct });
+    setNewText(""); setNewColor("amber"); setNewTag(""); setNewPriority("Medium");
+  };
+
+  const saveNew = () => {
+    if (!creating || !newText.trim()) return;
+    onAdd({
+      id: `anno_${Date.now()}`, moduleId, tabId: "", xPct: creating.x, yPct: creating.y,
+      text: newText.trim(), color: newColor, tag: newTag, priority: newPriority,
+      resolved: false, createdAt: new Date().toISOString().split("T")[0], author: "You",
+    });
+    setCreating(null);
+  };
+
+  const colorHex = (id: string) => ANNO_COLORS.find(c => c.id === id)?.hex || "#D4860A";
+  const pinSize = (p: string) => p === "High" ? 20 : p === "Medium" ? 16 : 13;
+
+  return <div ref={containerRef} className="relative" style={{ cursor: annotateMode ? "crosshair" : undefined }} onClick={handleClick}>
+    {/* Pins */}
+    {[...moduleAnnos, ...resolvedAnnos].map(a => {
+      const isEditing = editingId === a.id;
+      return <div key={a.id} className="absolute z-30 group" style={{ left: `${a.xPct}%`, top: `${a.yPct}%`, transform: "translate(-50%, -50%)" }}>
+        {/* Pin dot */}
+        <motion.div className="cursor-pointer" style={{ width: pinSize(a.priority), height: pinSize(a.priority), borderRadius: "50%", background: a.resolved ? "var(--text-muted)" : colorHex(a.color), boxShadow: `0 2px 6px ${a.resolved ? "rgba(0,0,0,0.2)" : colorHex(a.color)}40`, opacity: a.resolved ? 0.4 : 1, border: "2px solid rgba(255,255,255,0.3)" }}
+          whileHover={{ scale: 1.3 }} onClick={e => { e.stopPropagation(); setEditingId(isEditing ? null : a.id); }} />
+        {/* Hover tooltip */}
+        {!isEditing && <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity" style={{ width: 200 }}>
+          <div className="rounded-xl p-3 text-[13px]" style={{ background: "var(--surface-1)", border: `1px solid ${colorHex(a.color)}30`, boxShadow: "0 4px 16px rgba(0,0,0,0.25)" }}>
+            <div className="font-semibold text-[var(--text-primary)] mb-1" style={{ textDecoration: a.resolved ? "line-through" : "none" }}>{a.text.slice(0, 80)}{a.text.length > 80 ? "..." : ""}</div>
+            <div className="flex items-center gap-2 text-[11px] text-[var(--text-muted)]">{a.tag && <span>{a.tag}</span>}<span>{a.createdAt}</span><span className="font-semibold" style={{ color: colorHex(a.color) }}>{a.priority}</span></div>
+          </div>
+        </div>}
+        {/* Edit panel */}
+        {isEditing && <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-40" style={{ width: 280 }} onClick={e => e.stopPropagation()}>
+          <div className="rounded-xl p-4 space-y-2" style={{ background: "var(--surface-1)", border: `1px solid ${colorHex(a.color)}30`, boxShadow: "0 8px 30px rgba(0,0,0,0.3)" }}>
+            <textarea value={a.text} onChange={e => onUpdate({ ...a, text: e.target.value })} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-[14px] text-[var(--text-primary)] outline-none resize-none" rows={3} />
+            <div className="flex gap-1">{ANNO_COLORS.map(c => <button key={c.id} onClick={() => onUpdate({ ...a, color: c.id })} className="w-6 h-6 rounded-full border-2 transition-all" style={{ background: c.hex, borderColor: a.color === c.id ? "white" : "transparent", transform: a.color === c.id ? "scale(1.2)" : "scale(1)" }} title={c.label} />)}</div>
+            <div className="flex gap-2">
+              <button onClick={() => onUpdate({ ...a, resolved: !a.resolved })} className="flex-1 px-2 py-1 rounded-lg text-[12px] font-semibold border border-[var(--border)]" style={{ color: a.resolved ? "var(--success)" : "var(--text-muted)" }}>{a.resolved ? "✓ Resolved" : "Mark Resolved"}</button>
+              <button onClick={() => { onDelete(a.id); setEditingId(null); }} className="px-2 py-1 rounded-lg text-[12px] font-semibold text-[var(--risk)] border border-[var(--border)]">Delete</button>
+              <button onClick={() => setEditingId(null)} className="px-2 py-1 rounded-lg text-[12px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">Close</button>
+            </div>
+          </div>
+        </div>}
+      </div>;
+    })}
+    {/* Creation popup */}
+    {creating && <div className="absolute z-40" style={{ left: `${creating.x}%`, top: `${creating.y}%`, transform: "translate(-50%, 10px)" }} onClick={e => e.stopPropagation()}>
+      <motion.div className="rounded-xl p-4 space-y-3" style={{ width: 280, background: "var(--surface-1)", border: "1px solid var(--accent-primary)", boxShadow: "0 8px 30px rgba(0,0,0,0.3)" }} initial={{ opacity: 0, y: -5, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.2 }}>
+        <textarea value={newText} onChange={e => setNewText(e.target.value)} placeholder="Add your observation..." className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-[14px] text-[var(--text-primary)] outline-none resize-none placeholder:text-[var(--text-muted)]" rows={3} maxLength={500} autoFocus />
+        <div className="flex items-center gap-2">
+          <div className="flex gap-1">{ANNO_COLORS.map(c => <button key={c.id} onClick={() => setNewColor(c.id)} className="w-5 h-5 rounded-full border-2 transition-all" style={{ background: c.hex, borderColor: newColor === c.id ? "white" : "transparent", transform: newColor === c.id ? "scale(1.2)" : "scale(1)" }} title={c.label} />)}</div>
+          <select value={newPriority} onChange={e => setNewPriority(e.target.value as Annotation["priority"])} className="bg-[var(--surface-2)] border border-[var(--border)] rounded px-1.5 py-0.5 text-[12px] text-[var(--text-primary)] outline-none"><option>Low</option><option>Medium</option><option>High</option></select>
+        </div>
+        <input value={newTag} onChange={e => setNewTag(e.target.value)} placeholder="Tag (CEO, CHRO, HRBP...)" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-[13px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]" />
+        <div className="flex gap-2">
+          <button onClick={saveNew} disabled={!newText.trim()} className="flex-1 px-3 py-1.5 rounded-lg text-[13px] font-semibold text-white" style={{ background: "var(--accent-primary)", opacity: newText.trim() ? 1 : 0.4 }}>Save Note</button>
+          <button onClick={() => setCreating(null)} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">Cancel</button>
+        </div>
+      </motion.div>
+    </div>}
+  </div>;
+}
+
+export function AnnotationPanel({ annotations, onUpdate, onDelete, onClose, onScrollTo }: {
+  annotations: Annotation[]; onUpdate: (a: Annotation) => void; onDelete: (id: string) => void; onClose: () => void; onScrollTo?: (id: string) => void;
+}) {
+  const [filter, setFilter] = useState<"all" | "open" | "resolved">("all");
+  const [colorFilter, setColorFilter] = useState("all");
+  const filtered = annotations.filter(a => {
+    if (filter === "open" && a.resolved) return false;
+    if (filter === "resolved" && !a.resolved) return false;
+    if (colorFilter !== "all" && a.color !== colorFilter) return false;
+    return true;
+  }).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+
+  return <motion.div className="fixed top-0 right-0 bottom-0 w-[340px] z-[9998] flex flex-col" style={{ background: "var(--surface-1)", borderLeft: "1px solid var(--border)", boxShadow: "-4px 0 20px rgba(0,0,0,0.15)" }} initial={{ x: 340 }} animate={{ x: 0 }} exit={{ x: 340 }} transition={{ duration: 0.25, ease: "easeOut" }}>
+    <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
+      <span className="text-[16px] font-bold text-[var(--text-primary)] font-heading">Notes ({annotations.length})</span>
+      <button onClick={onClose} className="text-[16px] text-[var(--text-muted)] hover:text-[var(--text-primary)]">×</button>
+    </div>
+    <div className="flex gap-1 px-4 py-2 border-b border-[var(--border)]">
+      {(["all", "open", "resolved"] as const).map(f => <button key={f} onClick={() => setFilter(f)} className="px-2 py-1 rounded text-[12px] font-semibold transition-all" style={{ background: filter === f ? "rgba(212,134,10,0.12)" : "transparent", color: filter === f ? "var(--accent-primary)" : "var(--text-muted)" }}>{f === "all" ? "All" : f === "open" ? "Open" : "Resolved"}</button>)}
+      <div className="ml-auto flex gap-0.5">{ANNO_COLORS.map(c => <button key={c.id} onClick={() => setColorFilter(colorFilter === c.id ? "all" : c.id)} className="w-4 h-4 rounded-full transition-all" style={{ background: c.hex, opacity: colorFilter === "all" || colorFilter === c.id ? 1 : 0.3, border: colorFilter === c.id ? "2px solid white" : "none" }} />)}</div>
+    </div>
+    <div className="flex-1 overflow-y-auto p-3 space-y-2">
+      {filtered.length === 0 && <div className="text-center py-8 text-[var(--text-muted)] text-[14px]">No notes yet. Toggle annotate mode and click on any content to add notes.</div>}
+      {filtered.map(a => <div key={a.id} className="rounded-xl p-3 cursor-pointer transition-all hover:border-[var(--accent-primary)]/30" style={{ background: "var(--surface-2)", borderLeft: `3px solid ${ANNO_COLORS.find(c => c.id === a.color)?.hex || "#888"}`, border: `1px solid var(--border)` }} onClick={() => onScrollTo?.(a.id)}>
+        <div className="text-[14px] text-[var(--text-primary)]" style={{ textDecoration: a.resolved ? "line-through" : "none", opacity: a.resolved ? 0.5 : 1 }}>{a.text}</div>
+        <div className="flex items-center gap-2 mt-1.5 text-[12px] text-[var(--text-muted)]">
+          {a.tag && <span className="px-1.5 py-0.5 rounded bg-[var(--bg)] text-[11px]">{a.tag}</span>}
+          <span>{a.priority}</span><span>{a.createdAt}</span><span className="ml-auto">{a.moduleId}</span>
+        </div>
+        <div className="flex gap-1 mt-2">
+          <button onClick={e => { e.stopPropagation(); onUpdate({ ...a, resolved: !a.resolved }); }} className="text-[11px] px-1.5 py-0.5 rounded border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--success)]">{a.resolved ? "Reopen" : "Resolve"}</button>
+          <button onClick={e => { e.stopPropagation(); onDelete(a.id); }} className="text-[11px] px-1.5 py-0.5 rounded border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--risk)]">Delete</button>
+        </div>
+      </div>)}
+    </div>
+  </motion.div>;
+}
 
 /** Smart number formatting: currency ($1.2M), headcount (1,200), percentage (45.3%) */
 export function fmtNum(value: number | string | null | undefined, type: "currency" | "headcount" | "percentage" = "currency"): string {
@@ -147,7 +594,7 @@ export function useRiskRegister(projectId: string) {
   return { risks, addRisk, updateRisk };
 }
 
-export const TT: React.CSSProperties = { background: "#1A2340", border: "1px solid #2A3555", borderRadius: 8, fontSize: 15, color: "#E8ECF4" };
+export const TT: React.CSSProperties = { background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 15, color: "var(--text-primary)" };
 
 /* ═══════════════════════════════════════════════════════════════
    ERROR BOUNDARY — prevents white screen crashes
@@ -182,18 +629,20 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode; 
 }
 
 export function KpiCard({ label, value, accent, delta }: { label: string; value: string | number; accent?: boolean; delta?: string }) {
-  return <div className={`bg-[var(--surface-1)] border rounded-xl px-5 py-4 card-hover hover:border-[var(--accent-primary)]/30 animate-card-enter ${accent ? "border-l-[3px] border-l-[var(--accent-primary)] border-[var(--border)]" : "border-[var(--border)]"}`}>
-    <div className="text-[15px] font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-1">{label}</div>
-    <div className="text-2xl font-extrabold text-[var(--text-primary)] tracking-tight font-data">{value}</div>
-    {delta && <div className="text-[15px] font-semibold text-[var(--success)] mt-1">{delta}</div>}
-  </div>;
+  const numVal = typeof value === "number" ? value : parseFloat(String(value).replace(/[^0-9.-]/g, ""));
+  const isNum = !isNaN(numVal) && typeof value === "number";
+  return <motion.div className={`bg-[var(--surface-1)] border rounded-2xl px-5 py-4 ${accent ? "border-l-[3px] border-l-[var(--accent-primary)] border-[var(--border)]" : "border-[var(--border)]"}`} style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }} whileHover={{ y: -2, boxShadow: "0 6px 20px rgba(0,0,0,0.18)" }}>
+    <div className="text-[14px] font-semibold text-[var(--text-muted)] uppercase tracking-[0.5px] mb-1.5 font-heading">{label}</div>
+    <div className="text-[24px] font-extrabold text-[var(--text-primary)] tracking-tight font-data">{isNum ? <AnimatedNumber value={numVal} /> : value}</div>
+    {delta && <div className="text-[14px] font-semibold text-[var(--success)] mt-1.5">{delta}</div>}
+  </motion.div>;
 }
 
 export function Card({ children, title }: { children: React.ReactNode; title?: string }) {
-  return <div className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl p-5 mb-4 animate-card-enter">
-    {title && <h3 className="text-sm font-semibold text-[var(--text-primary)] pb-2 mb-3 border-b border-[var(--border)] font-heading">{title}</h3>}
+  return <motion.div className="bg-[var(--surface-1)] border border-[var(--border)] rounded-2xl p-6 mb-5" style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.12)" }} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: "easeOut" }}>
+    {title && <h3 className="text-[18px] font-semibold text-[var(--text-primary)] pb-3 mb-4 border-b border-[var(--border)] font-heading">{title}</h3>}
     {children}
-  </div>;
+  </motion.div>;
 }
 
 export function Empty({ text, icon = "📭" }: { text: string; icon?: string }) {
@@ -201,8 +650,8 @@ export function Empty({ text, icon = "📭" }: { text: string; icon?: string }) 
 }
 
 export function Badge({ children, color = "gray" }: { children: React.ReactNode; color?: string }) {
-  const s: Record<string, string> = { indigo: "bg-[rgba(212,134,10,0.15)] text-[var(--accent-primary)]", green: "bg-[rgba(16,185,129,0.15)] text-[var(--success)]", amber: "bg-[rgba(249,115,22,0.15)] text-[var(--warning)]", red: "bg-[rgba(239,68,68,0.15)] text-[var(--risk)]", purple: "bg-[rgba(139,92,246,0.15)] text-[var(--purple)]", gray: "bg-[rgba(163,177,198,0.12)] text-[var(--text-muted)]" };
-  return <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[15px] font-semibold ${s[color] || s.gray}`}>{children}</span>;
+  const s: Record<string, string> = { indigo: "bg-[rgba(212,134,10,0.15)] text-[var(--accent-primary)]", green: "bg-[rgba(16,185,129,0.15)] text-[var(--success)]", amber: "bg-[rgba(249,115,22,0.15)] text-[var(--warning)]", red: "bg-[rgba(239,68,68,0.15)] text-[var(--risk)]", purple: "bg-[rgba(139,92,246,0.15)] text-[var(--purple)]", gray: "bg-[rgba(163,177,198,0.12)] text-[var(--text-muted)]", teal: "bg-[rgba(14,165,233,0.15)] text-[#0EA5E9]" };
+  return <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[14px] font-semibold tracking-wide ${s[color] || s.gray}`}>{children}</span>;
 }
 
 export function InsightPanel({ title, items, icon = "💡" }: { title: string; items: string[]; icon?: string }) {
@@ -416,7 +865,7 @@ export function BarViz({ data, labelKey = "name", valueKey = "value", color = "v
     const truncLabel = label.length > 24 ? label.slice(0, 22) + "…" : label;
     return <div key={i} className="flex items-center gap-3">
       <div className="text-[15px] text-[var(--text-secondary)] text-right shrink-0 truncate" style={{ width: 120 }} title={label}>{truncLabel}</div>
-      <div className="flex-1 h-5 bg-[var(--surface-2)] rounded overflow-hidden"><div className="h-full rounded transition-all" style={{ width: `${Math.max((Math.abs(val) / maxVal) * 100, 2)}%`, background: color, opacity: 0.85 }} /></div>
+      <div className="flex-1 h-5 bg-[var(--surface-2)] rounded overflow-hidden"><motion.div className="h-full rounded" initial={{ width: "0%" }} animate={{ width: `${Math.max((Math.abs(val) / maxVal) * 100, 2)}%` }} transition={{ duration: 0.6, delay: i * 0.05, ease: "easeOut" }} style={{ background: color, opacity: 0.85 }} /></div>
       <div className="text-[15px] font-semibold text-[var(--text-primary)] shrink-0" style={{ minWidth: 32, textAlign: "right" }}>{val}</div>
     </div>;
   })}</div>;
@@ -426,7 +875,7 @@ export function BarViz({ data, labelKey = "name", valueKey = "value", color = "v
 export function DonutViz({ data, title }: { data: { name: string; value: number }[]; title?: string }) {
   if (!data?.length) return null;
   const content = <div className="flex items-center gap-6">
-    <ResponsiveContainer width={120} height={120}><PieChart><Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={30} outerRadius={52} strokeWidth={0}>{data.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Pie><Tooltip contentStyle={TT as object} /></PieChart></ResponsiveContainer>
+    <ResponsiveContainer width={120} height={120}><PieChart><Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={30} outerRadius={52} strokeWidth={0} animationDuration={800} animationEasing="ease-out">{data.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Pie><Tooltip contentStyle={TT as object} /></PieChart></ResponsiveContainer>
     <div className="space-y-1">{data.map((d, i) => <div key={i} className="flex items-center gap-2 text-[15px]"><span className="w-2.5 h-2.5 rounded-full" style={{ background: COLORS[i % COLORS.length] }} /><span className="text-[var(--text-secondary)]">{d.name}</span><span className="font-semibold ml-auto">{d.value}</span></div>)}</div>
   </div>;
   return <ExpandableChart title={title}>{content}</ExpandableChart>;
@@ -446,7 +895,7 @@ export function RadarViz({ data, title }: { data: { subject: string; current: nu
 }
 
 export function TabBar({ tabs, active, onChange }: { tabs: { id: string; label: string }[]; active: string; onChange: (id: string) => void }) {
-  return <div className="flex border-b-2 border-[var(--border)] mb-5 gap-0 overflow-x-auto">{tabs.map(t => <button key={t.id} onClick={() => onChange(t.id)} className={`px-4 py-2.5 text-[15px] font-medium whitespace-nowrap -mb-[2px] border-b-2 transition-all ${active === t.id ? "text-[var(--accent-primary)] font-semibold border-[var(--accent-primary)]" : "text-[var(--text-muted)] border-transparent hover:text-[var(--text-secondary)]"}`}>{t.label}</button>)}</div>;
+  return <div className="flex border-b-2 border-[var(--border)] mb-6 gap-0 overflow-x-auto">{tabs.map(t => <button key={t.id} onClick={() => onChange(t.id)} className={`px-4 py-3 text-[15px] font-medium whitespace-nowrap -mb-[2px] border-b-2 transition-all btn-press ${active === t.id ? "text-[var(--accent-primary)] font-semibold border-[var(--accent-primary)]" : "text-[var(--text-muted)] border-transparent hover:text-[var(--text-secondary)] hover:border-[var(--border)]"}`}>{t.label}</button>)}</div>;
 }
 
 export function SidebarSelect({ label, options, value, onChange }: { label?: string; options: string[]; value: string; onChange: (v: string) => void }) {
@@ -522,8 +971,8 @@ export function PageHeader({ icon, title, subtitle, onBack, moduleId, onUpload, 
     <button onClick={onBack} className="text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mb-3 flex items-center gap-1 transition-colors">← Back to Home</button>
     <div className="flex items-center justify-between flex-wrap gap-4">
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#e09040] to-[#c07030] flex items-center justify-center text-xl">{icon}</div>
-        <div><h1 className="text-xl font-extrabold text-[var(--text-primary)] tracking-tight font-heading">{title}</h1><p className="text-[15px] text-[var(--text-secondary)]">{subtitle}</p></div>
+        <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#e09040] to-[#c07030] flex items-center justify-center text-xl" style={{ boxShadow: "0 2px 8px rgba(224,144,64,0.25)" }}>{icon}</div>
+        <div><h1 className="text-[22px] font-extrabold text-[var(--text-primary)] tracking-tight font-heading">{title}</h1><p className="text-[16px] text-[var(--text-secondary)]">{subtitle}</p></div>
         {moduleId && <InfoButton moduleId={moduleId} />}
       </div>
       <div className="flex items-center gap-2">
@@ -588,7 +1037,7 @@ export function LoadingBar() {
 }
 
 export function LoadingSkeleton({ rows = 3 }: { rows?: number }) {
-  return <div className="space-y-3 animate-pulse">{Array.from({ length: rows }, (_, i) => <div key={i} className="flex gap-3"><div className="h-4 bg-[var(--surface-2)] rounded w-1/4" /><div className="h-4 bg-[var(--surface-2)] rounded w-1/2" /><div className="h-4 bg-[var(--surface-2)] rounded w-1/4" /></div>)}</div>;
+  return <div className="space-y-3">{Array.from({ length: rows }, (_, i) => <div key={i} className="flex gap-3"><div className="h-4 skeleton w-1/4" /><div className="h-4 skeleton w-1/2" /><div className="h-4 skeleton w-1/4" /></div>)}</div>;
 }
 
 export function EmptyWithAction({ text, icon = "📭", actionLabel, onAction }: { text: string; icon?: string; actionLabel?: string; onAction?: () => void }) {
@@ -816,6 +1265,300 @@ export function AiEspressoButton({ moduleId, contextData, viewMode: vMode }: { m
 }
 
 
+
+/* ═══════════════════════════════════════════════════════════════
+   AI CO-PILOT — Proactive assistant sidebar
+   ═══════════════════════════════════════════════════════════════ */
+
+type CoPilotSuggestion = { id: string; icon: string; text: string; action?: string; actionLabel?: string; moduleId: string };
+
+const COPILOT_SUGGESTIONS: Record<string, (ctx: string) => CoPilotSuggestion[]> = {
+  snapshot: () => [{ id: "s1", icon: "📊", text: "Review your workforce distribution across functions. Look for top-heavy structures or underrepresented areas.", actionLabel: "See Org Health →", action: "orghealth", moduleId: "snapshot" }],
+  scan: () => [{ id: "s2", icon: "🔬", text: "Focus on tasks with >70% AI automation potential first — these are your quick wins for productivity gains.", actionLabel: "View Heatmap →", action: "heatmap", moduleId: "scan" }],
+  design: () => [{ id: "s3", icon: "✏️", text: "Start with your highest-headcount roles — redesigning these creates the most organizational impact.", moduleId: "design" }],
+  opmodel: () => [{ id: "s4", icon: "🧬", text: "Begin with Strategy (Step 1.1) to anchor all downstream decisions. Without strategic priorities, operating model choices lack direction.", moduleId: "opmodel" }],
+  plan: () => [{ id: "s5", icon: "🚀", text: "Run the ADKAR assessment before building your roadmap — understanding resistance patterns prevents implementation failures.", actionLabel: "Open ADKAR →", moduleId: "plan" }],
+  simulate: () => [{ id: "s6", icon: "⚡", text: "Compare the Balanced scenario first — it typically offers the best risk-adjusted return. Then stress-test with Conservative and Transformative.", moduleId: "simulate" }],
+  jobarch: () => [{ id: "s7", icon: "🏗️", text: "Check the Validation tab for structural issues — role consolidation opportunities are often hiding in similar titles across functions.", moduleId: "jobarch" }],
+  home: () => [{ id: "s8", icon: "🏠", text: "Upload your workforce data to unlock all platform capabilities. The AI Transformation journey starts with understanding your current state.", moduleId: "home" }],
+};
+
+const COPILOT_QUICK_PROMPTS = [
+  { label: "Summarize findings", prompt: "Summarize the key findings from the data visible in this module. Be specific with numbers." },
+  { label: "What should I do next?", prompt: "Based on what I've done so far, what's the most impactful next step?" },
+  { label: "Explain this metric", prompt: "Explain the key metrics shown in this module — what do they mean and why do they matter?" },
+  { label: "Generate insight", prompt: "Generate a non-obvious insight from the data in this module that a senior consultant would highlight." },
+];
+
+export function AiCoPilot({ moduleId, contextData, open, onClose, onNavigate }: { moduleId: string; contextData?: string; open: boolean; onClose: () => void; onNavigate?: (id: string) => void }) {
+  const [messages, setMessages] = useState<AiMessage[]>([]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [suggestions, setSuggestions] = useState<CoPilotSuggestion[]>([]);
+  const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+  const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
+  const [aiSugLoading, setAiSugLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const moduleName = MODULES.find(m => m.id === moduleId)?.title || "Platform";
+
+  // Load proactive suggestions when module changes
+  useEffect(() => {
+    const gen = COPILOT_SUGGESTIONS[moduleId];
+    if (gen) setSuggestions(gen(contextData || "").filter(s => !dismissed.has(s.id)));
+    setAiSuggestion(null);
+  }, [moduleId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Generate AI suggestion after a delay
+  useEffect(() => {
+    if (!open || aiSugLoading || aiSuggestion || !contextData) return;
+    const timer = setTimeout(async () => {
+      setAiSugLoading(true);
+      try {
+        const result = await callAI("You are a proactive AI co-pilot. Give ONE specific, actionable suggestion (2 sentences max) based on this context. Be concrete with numbers.", `Module: ${moduleName}. Context: ${contextData?.slice(0, 1500)}`);
+        if (result) setAiSuggestion(result);
+      } catch {}
+      setAiSugLoading(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [open, moduleId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
+
+  const systemPrompt = `You are an expert AI transformation co-pilot embedded in the ${moduleName} module. ${MODULE_AI_PROMPTS[moduleId] || ""} Be concise (2-3 paragraphs), specific with numbers, and actionable. Context: ${contextData || "No data loaded."}`;
+
+  const sendMessage = async (message: string) => {
+    if (!message.trim() || loading) return;
+    const userMsg: AiMessage = { role: "user", content: message.trim() };
+    const newMessages = [...messages, userMsg];
+    setMessages(newMessages); setInput(""); setLoading(true);
+    const chatHistory = newMessages.map(m => `${m.role === "user" ? "User" : "Assistant"}: ${m.content}`).join("\n");
+    const aiText = await callAI(systemPrompt, chatHistory) || "I couldn't generate a response. Please try again.";
+    setMessages(prev => [...prev, { role: "assistant", content: aiText }]);
+    setLoading(false);
+  };
+
+  if (!open) return null;
+
+  const visibleSuggestions = suggestions.filter(s => !dismissed.has(s.id)).slice(0, 3);
+
+  return <motion.div className="fixed top-0 right-0 bottom-0 z-[9997] flex flex-col" style={{ width: 380, background: "var(--surface-1)", borderLeft: "1px solid var(--border)", boxShadow: "-4px 0 24px rgba(0,0,0,0.15)" }} initial={{ x: 380 }} animate={{ x: 0 }} exit={{ x: 380 }} transition={{ duration: 0.25, ease: "easeOut" }}>
+    {/* Header */}
+    <div className="px-4 py-3 flex items-center justify-between border-b border-[var(--border)]" style={{ background: "linear-gradient(135deg, rgba(224,144,64,0.06), transparent)" }}>
+      <div className="flex items-center gap-2.5">
+        <span className="text-[18px]">🤖</span>
+        <div><div className="text-[15px] font-bold text-[var(--text-primary)] font-heading">AI Co-Pilot</div><div className="text-[12px] text-[var(--text-muted)]">{moduleName}{aiSugLoading ? " · Thinking..." : ""}</div></div>
+      </div>
+      <button onClick={onClose} className="text-[16px] text-[var(--text-muted)] hover:text-[var(--text-primary)]">×</button>
+    </div>
+
+    {/* Suggestions zone */}
+    {(visibleSuggestions.length > 0 || aiSuggestion) && <div className="px-3 py-3 border-b border-[var(--border)] space-y-2 overflow-y-auto" style={{ maxHeight: "35vh" }}>
+      <div className="text-[11px] font-bold text-[var(--accent-primary)] uppercase tracking-wider font-heading">Suggestions</div>
+      {visibleSuggestions.map(s => <motion.div key={s.id} className="rounded-xl p-3" style={{ background: "var(--surface-2)", border: "1px solid var(--border)" }} initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+        <div className="flex items-start gap-2">
+          <span className="text-[16px] shrink-0 mt-0.5">{s.icon}</span>
+          <div className="flex-1 min-w-0">
+            <div className="text-[13px] text-[var(--text-secondary)] leading-relaxed">{s.text}</div>
+            <div className="flex items-center gap-2 mt-2">
+              {s.action && onNavigate && <button onClick={() => onNavigate(s.action!)} className="text-[12px] font-semibold text-[var(--accent-primary)] hover:underline">{s.actionLabel || "Show me →"}</button>}
+              <button onClick={() => setDismissed(prev => new Set([...prev, s.id]))} className="text-[11px] text-[var(--text-muted)] hover:text-[var(--text-primary)] ml-auto">Dismiss</button>
+            </div>
+          </div>
+        </div>
+      </motion.div>)}
+      {aiSuggestion && <motion.div className="rounded-xl p-3" style={{ background: "rgba(212,134,10,0.06)", border: "1px solid rgba(212,134,10,0.15)" }} initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
+        <div className="flex items-start gap-2">
+          <span className="text-[16px] shrink-0 mt-0.5">✨</span>
+          <div className="text-[13px] text-[var(--text-secondary)] leading-relaxed">{aiSuggestion}</div>
+        </div>
+      </motion.div>}
+      {aiSugLoading && <div className="flex items-center gap-2 px-2 py-1"><div className="w-2 h-2 rounded-full animate-pulse" style={{ background: "var(--accent-primary)" }} /><span className="text-[12px] text-[var(--text-muted)]">Analyzing your data...</span></div>}
+    </div>}
+
+    {/* Quick prompts */}
+    {messages.length === 0 && <div className="px-3 py-2 flex gap-1.5 flex-wrap border-b border-[var(--border)]">
+      {COPILOT_QUICK_PROMPTS.map(p => <button key={p.label} onClick={() => sendMessage(p.prompt)} className="px-2.5 py-1 rounded-full text-[12px] font-semibold transition-all" style={{ background: "var(--surface-2)", color: "var(--text-muted)", border: "1px solid var(--border)" }} onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(212,134,10,0.3)"; e.currentTarget.style.color = "var(--accent-primary)"; }} onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--text-muted)"; }}>{p.label}</button>)}
+    </div>}
+
+    {/* Chat messages */}
+    <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3">
+      {messages.length === 0 && !visibleSuggestions.length && !aiSuggestion && !aiSugLoading && <div className="text-center py-8"><div className="text-[28px] mb-2 opacity-50">🤖</div><div className="text-[14px] text-[var(--text-muted)]">I{"'"}m here if you need me.<br/>Ask anything about your transformation.</div></div>}
+      {messages.map((m, i) => <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+        <div className="max-w-[85%] rounded-xl px-3.5 py-2 text-[14px] leading-relaxed" style={{ background: m.role === "user" ? "linear-gradient(135deg, #e09040, #c07030)" : "var(--surface-2)", color: m.role === "user" ? "#fff" : "var(--text-primary)", borderBottomRightRadius: m.role === "user" ? 4 : 12, borderBottomLeftRadius: m.role === "user" ? 12 : 4 }}>
+          {m.content.split("\n").map((line, li) => <div key={li} className={li > 0 ? "mt-1" : ""}>{line}</div>)}
+        </div>
+      </div>)}
+      {loading && <div className="flex justify-start"><div className="rounded-xl px-3.5 py-2 text-[14px] flex items-center gap-2" style={{ background: "var(--surface-2)", color: "var(--text-muted)" }}><span className="inline-block w-3 h-3 rounded-full animate-pulse" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }} /> Thinking...</div></div>}
+      <div ref={messagesEndRef} />
+    </div>
+
+    {/* Input */}
+    <div className="px-3 py-3 flex gap-2 border-t border-[var(--border)]">
+      <input ref={inputRef} value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === "Enter") sendMessage(input); }} placeholder="Ask anything..." className="flex-1 bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-3.5 py-2 text-[14px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]" />
+      <button onClick={() => sendMessage(input)} disabled={loading || !input.trim()} className="px-3 py-2 rounded-xl text-[14px] font-semibold text-white transition-all disabled:opacity-40" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>☕</button>
+    </div>
+  </motion.div>;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   DATA STORYTELLING ENGINE — Executive narrative generator
+   ═══════════════════════════════════════════════════════════════ */
+
+type StorySection = { id: string; title: string; icon: string; content: string; metric?: string; metricLabel?: string };
+type SavedStory = { id: string; date: string; tone: string; sections: StorySection[] };
+
+const STORY_TONES = [
+  { id: "executive", label: "Executive", desc: "Concise, numbers-focused" },
+  { id: "board", label: "Board", desc: "High-level, strategic" },
+  { id: "detailed", label: "Detailed", desc: "Comprehensive, analytical" },
+  { id: "conversational", label: "Conversational", desc: "For town halls" },
+];
+
+export function StoryEngine({ projectName, model, contextData, onClose, onNavigate }: { projectName: string; model: string; contextData: string; onClose: () => void; onNavigate?: (id: string) => void }) {
+  const [sections, setSections] = usePersisted<StorySection[]>(`${model}_story_sections`, []);
+  const [generating, setGenerating] = useState(false);
+  const [genProgress, setGenProgress] = useState(0);
+  const [tone, setTone] = useState("executive");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [history, setHistory] = usePersisted<SavedStory[]>(`${model}_story_history`, []);
+  const [regenSectionId, setRegenSectionId] = useState<string | null>(null);
+
+  const SECTION_DEFS = [
+    { id: "summary", title: "Executive Summary", icon: "📋", prompt: "Write a 3-sentence executive summary. Lead with the most important finding. Include the headline number." },
+    { id: "current", title: "Current State", icon: "📊", prompt: "Describe the current state of the organization in 2 paragraphs. Include specific data: headcount, functions, structure metrics, AI readiness." },
+    { id: "findings", title: "Key Findings", icon: "💡", prompt: "List the 5 most important findings, each as a single paragraph. Start each with the key metric in bold. Make findings specific and data-backed." },
+    { id: "actions", title: "Recommended Actions", icon: "🎯", prompt: "List 5-7 prioritized recommended actions with rationale. Each should reference a data point that supports it." },
+    { id: "financial", title: "Financial Impact", icon: "💰", prompt: "Present the business case: total investment required, projected annual savings, ROI percentage, payback period. Use specific numbers." },
+    { id: "risks", title: "Risks & Mitigation", icon: "⚠️", prompt: "Identify the top 3 risks to the transformation with specific mitigation strategies for each." },
+    { id: "nextsteps", title: "Next Steps", icon: "🚀", prompt: "Outline immediate actions for the next 90 days, organized by month. Be specific about owners and deliverables." },
+  ];
+
+  const generateStory = async () => {
+    setGenerating(true); setGenProgress(0);
+    const newSections: StorySection[] = [];
+    const toneInstruction = tone === "board" ? "Write for a board of directors — high-level, strategic, avoid operational detail." : tone === "conversational" ? "Write in a warm, conversational tone suitable for a company town hall." : tone === "detailed" ? "Write with comprehensive detail including methodology and data sources." : "Write in confident, concise consulting language for C-suite executives.";
+
+    for (let i = 0; i < SECTION_DEFS.length; i++) {
+      const def = SECTION_DEFS[i];
+      setGenProgress(Math.round(((i) / SECTION_DEFS.length) * 100));
+      try {
+        const result = await callAI(
+          `You are a senior McKinsey/BCG consultant. ${toneInstruction} Never use generic statements — every sentence must reference a specific data point. Do not use markdown headers or bullet symbols.`,
+          `Generate the "${def.title}" section for ${projectName}. ${def.prompt}\n\nData context:\n${contextData.slice(0, 3000)}`
+        );
+        // Extract a headline metric if possible
+        const metricMatch = result.match(/(\d[\d,.%$MKBmkb]*)/);
+        newSections.push({ id: def.id, title: def.title, icon: def.icon, content: result.replace(/```/g, "").trim(), metric: metricMatch?.[1], metricLabel: def.id === "summary" ? "Headline" : undefined });
+      } catch {
+        newSections.push({ id: def.id, title: def.title, icon: def.icon, content: `[Generation failed for this section. Click "Regenerate" to try again.]` });
+      }
+    }
+    setSections(newSections);
+    setHistory(prev => [...prev, { id: `story_${Date.now()}`, date: new Date().toISOString().split("T")[0], tone, sections: newSections }]);
+    setGenProgress(100); setGenerating(false);
+  };
+
+  const regenerateSection = async (sectionId: string) => {
+    setRegenSectionId(sectionId);
+    const def = SECTION_DEFS.find(d => d.id === sectionId);
+    if (!def) return;
+    const toneInstruction = tone === "board" ? "Write for a board of directors." : tone === "conversational" ? "Write conversationally for a town hall." : tone === "detailed" ? "Write with comprehensive detail." : "Write for C-suite executives.";
+    try {
+      const result = await callAI(`You are a senior consultant. ${toneInstruction} Every sentence must reference specific data.`, `Regenerate the "${def.title}" section for ${projectName}. ${def.prompt}\n\nContext:\n${contextData.slice(0, 2000)}`);
+      setSections(prev => prev.map(s => s.id === sectionId ? { ...s, content: result.replace(/```/g, "").trim() } : s));
+    } catch {}
+    setRegenSectionId(null);
+  };
+
+  const copyAll = () => {
+    const text = sections.map(s => `${s.title}\n${"=".repeat(s.title.length)}\n${s.content}`).join("\n\n");
+    navigator.clipboard.writeText(text);
+    showToast("Story copied to clipboard");
+  };
+
+  return <motion.div className="fixed inset-0 z-[99998] flex" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+    <motion.div className="relative mx-auto my-4 w-full max-w-[900px] rounded-2xl border border-[var(--border)] overflow-hidden flex flex-col" style={{ background: "var(--bg)", boxShadow: "0 16px 70px rgba(0,0,0,0.4)", maxHeight: "calc(100vh - 32px)" }} initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.3 }}>
+      {/* Header */}
+      <div className="flex items-center justify-between px-8 py-5 border-b border-[var(--border)]" style={{ background: "linear-gradient(135deg, rgba(212,134,10,0.06), transparent)" }}>
+        <div>
+          <div className="text-[22px] font-extrabold text-[var(--text-primary)] font-heading">Executive Narrative</div>
+          <div className="text-[14px] text-[var(--text-muted)]">{projectName} · AI-generated data story</div>
+        </div>
+        <div className="flex items-center gap-3">
+          <select value={tone} onChange={e => setTone(e.target.value)} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-[14px] text-[var(--text-primary)] outline-none">
+            {STORY_TONES.map(t => <option key={t.id} value={t.id}>{t.label} — {t.desc}</option>)}
+          </select>
+          {sections.length === 0 ? <button onClick={generateStory} disabled={generating} className="px-5 py-2 rounded-xl text-[15px] font-bold text-white glow-pulse" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: generating ? 0.5 : 1 }}>{generating ? "Generating..." : "✨ Generate Story"}</button>
+          : <><button onClick={copyAll} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">📋 Copy</button><button onClick={generateStory} disabled={generating} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: generating ? 0.5 : 1 }}>✨ Regenerate All</button></>}
+          <button onClick={onClose} className="text-[18px] text-[var(--text-muted)] hover:text-[var(--text-primary)]">×</button>
+        </div>
+      </div>
+
+      {/* Progress */}
+      {generating && <div className="px-8 py-3 border-b border-[var(--border)]">
+        <div className="flex items-center justify-between mb-1"><span className="text-[14px] text-[var(--text-muted)]">Generating story...</span><span className="text-[14px] font-bold text-[var(--accent-primary)] font-data">{genProgress}%</span></div>
+        <AnimatedBar value={genProgress} color="var(--accent-primary)" height={4} />
+      </div>}
+
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto px-8 py-6 space-y-8">
+        {sections.length === 0 && !generating && <div className="text-center py-16">
+          <div className="text-[48px] mb-4 opacity-50">📖</div>
+          <div className="text-[20px] font-bold text-[var(--text-primary)] font-heading mb-2">Generate Your Executive Story</div>
+          <div className="text-[16px] text-[var(--text-muted)] max-w-md mx-auto mb-6">The AI will analyze all your platform data and generate a complete executive narrative with findings, recommendations, and a business case.</div>
+          <button onClick={generateStory} className="px-8 py-3 rounded-2xl text-[16px] font-bold text-white glow-pulse" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>✨ Generate Executive Narrative</button>
+        </div>}
+
+        {sections.map((section, si) => {
+          const isEditing = editingId === section.id;
+          const isRegen = regenSectionId === section.id;
+          const isSummary = section.id === "summary";
+          return <motion.div key={section.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: si * 0.08, duration: 0.4 }}>
+            {/* Section divider */}
+            {si > 0 && <div className="flex items-center gap-3 mb-6"><div className="h-px flex-1 bg-[var(--border)]" /><span className="text-[var(--text-muted)] text-[14px]">{section.icon}</span><div className="h-px flex-1 bg-[var(--border)]" /></div>}
+            {/* Section header */}
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-[20px]">{section.icon}</span>
+                <h2 className="text-[20px] font-bold text-[var(--text-primary)] font-heading">{section.title}</h2>
+              </div>
+              <div className="flex items-center gap-2">
+                <button onClick={() => regenerateSection(section.id)} disabled={isRegen} className="text-[12px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-all">{isRegen ? "Regenerating..." : "✨ Regenerate"}</button>
+                <button onClick={() => setEditingId(isEditing ? null : section.id)} className="text-[12px] text-[var(--text-muted)] hover:text-[var(--accent-primary)]">{isEditing ? "Done" : "Edit"}</button>
+              </div>
+            </div>
+            {/* Section content */}
+            <div className={`rounded-2xl p-6 ${isSummary ? "border-l-4" : ""}`} style={{
+              background: isSummary ? "rgba(212,134,10,0.04)" : "var(--surface-1)",
+              border: `1px solid ${isSummary ? "rgba(212,134,10,0.15)" : "var(--border)"}`,
+              borderLeftColor: isSummary ? "var(--accent-primary)" : undefined,
+              boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+            }}>
+              {/* Headline metric */}
+              {section.metric && isSummary && <div className="mb-4 text-center"><span className="text-[36px] font-extrabold font-data" style={{ color: "var(--accent-primary)" }}>{section.metric}</span>{section.metricLabel && <span className="text-[14px] text-[var(--text-muted)] ml-2 uppercase tracking-wider">{section.metricLabel}</span>}</div>}
+              {isEditing ? <textarea value={section.content} onChange={e => setSections(prev => prev.map(s => s.id === section.id ? { ...s, content: e.target.value } : s))} className="w-full bg-transparent border border-[var(--border)] rounded-xl px-4 py-3 text-[16px] text-[var(--text-primary)] outline-none resize-none leading-relaxed" rows={8} /> :
+              <div className={`text-[${isSummary ? "18" : "16"}px] text-[var(--text-secondary)] leading-relaxed whitespace-pre-wrap`} style={{ fontFamily: isSummary ? "'Outfit', sans-serif" : undefined, fontWeight: isSummary ? 500 : 400 }}>
+                {section.content}
+              </div>}
+            </div>
+          </motion.div>;
+        })}
+
+        {/* History */}
+        {history.length > 1 && <div className="mt-8 border-t border-[var(--border)] pt-6">
+          <div className="text-[14px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-3 font-heading">Story History</div>
+          <div className="space-y-2">{history.slice().reverse().slice(1).map(h => <div key={h.id} className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)]">
+            <div><span className="text-[14px] font-semibold text-[var(--text-primary)]">{h.date}</span><span className="text-[13px] text-[var(--text-muted)] ml-2">{STORY_TONES.find(t => t.id === h.tone)?.label} tone · {h.sections.length} sections</span></div>
+            <button onClick={() => setSections(h.sections)} className="text-[12px] text-[var(--accent-primary)] hover:underline">Restore</button>
+          </div>)}</div>
+        </div>}
+      </div>
+    </motion.div>
+  </motion.div>;
+}
 
 /* ═══════════════════════════════════════════════════════════════
    LANDING PAGE

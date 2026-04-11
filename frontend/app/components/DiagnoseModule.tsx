@@ -397,7 +397,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx }: { model:
                 <span className="text-xl">{d.icon}</span>
                 <div><div className="text-[15px] font-bold text-[var(--text-primary)]">{d.label}</div><div className="text-[14px] text-[var(--text-muted)]">{d.desc}</div></div>
               </div>
-              <div className="flex gap-1 mt-2">{[1,2,3,4,5].map(v => <button key={v} onClick={() => setScores(p => ({ ...p, [d.id]: v }))} className="flex-1 py-2 rounded-lg text-[14px] font-bold transition-all" style={{ background: (scores[d.id] || 0) >= v ? "var(--accent-primary)" : "var(--surface-1)", color: (scores[d.id] || 0) >= v ? "#fff" : "var(--text-muted)", border: "1px solid var(--border)", cursor: "pointer" }}>{v}</button>)}</div>
+              <div className="flex gap-1 mt-2">{[1,2,3,4,5].map(v => <button key={v} onClick={() => setScores(p => ({ ...p, [d.id]: p[d.id] === v ? 0 : v }))} className="flex-1 py-2 rounded-lg text-[14px] font-bold transition-all" style={{ background: (scores[d.id] || 0) >= v ? "var(--accent-primary)" : "var(--surface-1)", color: (scores[d.id] || 0) >= v ? "#fff" : "var(--text-muted)", border: "1px solid var(--border)", cursor: "pointer" }}>{v}</button>)}</div>
             </div>)}
           </div>
           {Object.values(scores).length > 0 && <div className="text-center p-6 rounded-xl bg-[var(--surface-2)] border border-[var(--border)]">
