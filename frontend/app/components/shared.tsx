@@ -1093,7 +1093,7 @@ export const PHASE_BACKGROUNDS: Record<string, string> = {
   mobilize: "/cards/backgrounds/mobilize.png",
 };
 
-const TILE_IMAGES = Array.from({ length: 12 }, (_, i) => `/cards/tiles/tile_${String(i + 1).padStart(2, "0")}.png`);
+const TILE_IMAGES = Array.from({ length: 16 }, (_, i) => `/cards/tiles/tile_${String(i + 1).padStart(2, "0")}.png`);
 
 /** Generate a mapping of card IDs → tile images, unique within each phase group */
 export function generateCardBackgrounds(): Record<string, string> {

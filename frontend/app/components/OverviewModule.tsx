@@ -292,16 +292,16 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
         const isComplete = status === "complete";
         const isReached = isComplete || isCurrent || status === "in_progress";
         const n = nodes[pi];
-        return <button key={phase.id} onClick={() => setSelectedPhase(phase.id)} className="absolute group" style={{
+        return <button key={phase.id} onClick={() => setSelectedPhase(phase.id)} className="absolute milestone-btn" style={{
           left: `${n.xPct}%`, top: `${n.yPct}%`, transform: "translate(-50%, -50%)",
-          pointerEvents: "auto",
+          pointerEvents: "auto", cursor: "pointer",
         }}>
           {/* Icon image with solid navy circle background */}
-          <div style={{ width: 96, height: 96, borderRadius: "50%", background: "#1C2B3A", display: "flex", alignItems: "center", justifyContent: "center", filter: isCurrent ? "drop-shadow(0 0 16px rgba(212,134,10,0.5))" : isReached ? "drop-shadow(0 4px 16px rgba(0,0,0,0.5))" : "grayscale(0.5) drop-shadow(0 4px 16px rgba(0,0,0,0.5))", transition: "all 0.2s" }}>
+          <div className="milestone-icon" style={{ width: 96, height: 96, borderRadius: "50%", background: "#1C2B3A", display: "flex", alignItems: "center", justifyContent: "center", filter: isCurrent ? "drop-shadow(0 0 16px rgba(212,134,10,0.5))" : isReached ? "drop-shadow(0 4px 16px rgba(0,0,0,0.5))" : "grayscale(0.5) drop-shadow(0 4px 16px rgba(0,0,0,0.5))", transition: "transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease" }}>
             <img src={`/icon_${phase.id}.png`} alt={phase.label} style={{ width: 96, height: 96, objectFit: "contain", borderRadius: "50%" }} />
           </div>
           {/* Label — frosted navy pill */}
-          <div style={{ position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)", width: 180, textAlign: "center", marginTop: 12 }}>
+          <div className="milestone-label" style={{ position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)", width: 180, textAlign: "center", marginTop: 12, transition: "filter 0.2s ease" }}>
             <div style={{ display: "inline-block", padding: "10px 18px", borderRadius: 14, background: "rgba(28,43,58,0.7)", backdropFilter: "blur(12px)", border: "1px solid rgba(212,168,67,0.2)" }}>
               <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "'Outfit', sans-serif", color: "#FFFFFF" }}>{phase.label}</div>
               <div style={{ fontSize: 13, fontWeight: 500, color: "rgba(255,255,255,0.8)", marginTop: 2 }}>{phase.desc}</div>
@@ -327,6 +327,8 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
 
     <style>{`
       @keyframes nodePulse { 0%,100% { box-shadow: 0 0 24px rgba(212,134,10,0.2), 0 0 48px rgba(212,134,10,0.08); } 50% { box-shadow: 0 0 32px rgba(212,134,10,0.3), 0 0 64px rgba(212,134,10,0.12); } }
+      .milestone-btn:hover .milestone-icon { transform: scale(1.1); box-shadow: 0 0 20px rgba(212,168,67,0.4); filter: brightness(1.1) drop-shadow(0 0 16px rgba(212,168,67,0.4)) !important; }
+      .milestone-btn:hover .milestone-label { filter: brightness(1.15); }
     `}</style>
   </div>;
 }
