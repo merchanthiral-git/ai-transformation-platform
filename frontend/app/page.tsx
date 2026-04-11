@@ -135,8 +135,17 @@ const ALL_TRACKS: Track[] = [
   { id: 47, name: "Snow Piano", file: "/track47.mp3", genre: "focus" },
 ];
 
+// Mood definitions
+const MOODS = [
+  { id: "focus", label: "Deep Focus", icon: "🧘", genres: ["ambient", "focus"], energy: [1, 2, 3] },
+  { id: "energy", label: "High Energy", icon: "⚡", genres: ["electronic", "jazz"], energy: [4, 5] },
+  { id: "night", label: "Late Night", icon: "🌙", genres: ["chill", "ambient"], energy: [1, 2] },
+  { id: "coffee", label: "Coffee Shop", icon: "☕", genres: ["jazz", "chill"], energy: [2, 3] },
+  { id: "present", label: "Presentation", icon: "🎯", genres: ["ambient", "focus"], energy: [1, 2] },
+  { id: "surprise", label: "Surprise Me", icon: "🔀", genres: [], energy: [] },
+];
+
 function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
-  // Default to jazz genre, start on "Acid Jazz II"
   const ACID_JAZZ_II_IDX = useMemo(() => {
     const jazzTracks = ALL_TRACKS.filter(t => t.genre === "jazz");
     return jazzTracks.findIndex(t => t.name === "Acid Jazz II");
@@ -154,10 +163,23 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
   const [showList, setShowList] = useState(false);
   const [hasPlayedFirst, setHasPlayedFirst] = useState(false);
   const autoPlayTriggeredRef = useRef(false);
-  // Single Audio element — created once, never destroyed until unmount
+  // Audio + Visualizer
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const animRef = useRef<number>(0);
-  // Refs for values needed inside the "ended" closure (which captures stale state)
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const miniCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const freqDataRef = useRef<Uint8Array>(new Uint8Array(64));
+  // Mood & Favorites
+  const [activeMood, setActiveMood] = useState<string | null>(null);
+  const [favorites, setFavorites] = useState<Set<number>>(() => { try { const s = localStorage.getItem("music_favs"); return s ? new Set(JSON.parse(s)) : new Set(); } catch { return new Set(); } });
+  // Focus Timer
+  const [focusActive, setFocusActive] = useState(false);
+  const [focusDuration, setFocusDuration] = useState(25 * 60);
+  const [focusRemaining, setFocusRemaining] = useState(0);
+  const focusIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Refs for stale closures
   const shuffleRef = useRef(shuffle);
   shuffleRef.current = shuffle;
   const genreRef = useRef(genre);
@@ -167,19 +189,32 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
   const track = genreTracks[trackIdx % genreTracks.length] || genreTracks[0];
   const fmt = (s: number) => { const m = Math.floor(s / 60); const sec = Math.floor(s % 60); return `${m}:${sec < 10 ? "0" : ""}${sec}`; };
 
-  // Create Audio once on mount. No src, no autoplay.
+  // Create Audio + Web Audio API analyser once on mount
   useEffect(() => {
-    if (audioRef.current) return; // already created
+    if (audioRef.current) return;
     const audio = new Audio();
-    audio.preload = "none"; // don't preload until user plays
+    audio.preload = "none";
+    audio.crossOrigin = "anonymous";
     audioRef.current = audio;
 
-    // When track ends, advance to next — shuffle picks from ALL genres
+    // Web Audio API — analyser for visualizer
+    try {
+      const ctx = new AudioContext();
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 128;
+      analyser.smoothingTimeConstant = 0.8;
+      const source = ctx.createMediaElementSource(audio);
+      source.connect(analyser);
+      analyser.connect(ctx.destination);
+      audioCtxRef.current = ctx;
+      analyserRef.current = analyser;
+      freqDataRef.current = new Uint8Array(analyser.frequencyBinCount);
+    } catch (e) { console.warn("Web Audio API unavailable:", e); }
+
     audio.addEventListener("ended", () => {
       if (repeat) { audio.currentTime = 0; audio.play().catch(e => console.warn("Repeat failed:", e)); return; }
       setHasPlayedFirst(true);
       if (shuffleRef.current) {
-        // Cross-genre shuffle: pick any track from the full library
         const idx = Math.floor(Math.random() * ALL_TRACKS.length);
         const picked = ALL_TRACKS[idx];
         const newGenreTracks = ALL_TRACKS.filter(t => t.genre === picked.genre);
@@ -198,15 +233,104 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     });
     audio.addEventListener("loadedmetadata", () => setDuration(audio.duration || 0));
 
-    // Progress animation loop
+    // Combined progress + visualizer animation loop
     const tick = () => {
       if (audio.duration > 0) { setProgress(audio.currentTime / audio.duration); setCurTime(audio.currentTime); }
+      // Draw visualizers
+      if (analyserRef.current) {
+        analyserRef.current.getByteFrequencyData(freqDataRef.current);
+        // Main canvas
+        const canvas = canvasRef.current;
+        if (canvas) {
+          const ctx2d = canvas.getContext("2d");
+          if (ctx2d) {
+            const w = canvas.width; const h = canvas.height;
+            ctx2d.clearRect(0, 0, w, h);
+            const bars = 32; const barW = w / bars - 2;
+            for (let i = 0; i < bars; i++) {
+              const val = freqDataRef.current[i] || 0;
+              const barH = (val / 255) * h * 0.9;
+              const x = i * (barW + 2) + 1;
+              const gradient = ctx2d.createLinearGradient(0, h - barH, 0, h);
+              gradient.addColorStop(0, `rgba(232,197,71,${0.4 + val / 500})`);
+              gradient.addColorStop(1, `rgba(212,134,10,${0.6 + val / 400})`);
+              ctx2d.fillStyle = gradient;
+              ctx2d.beginPath();
+              ctx2d.roundRect(x, h - barH, barW, barH, [3, 3, 0, 0]);
+              ctx2d.fill();
+            }
+          }
+        }
+        // Mini canvas
+        const mini = miniCanvasRef.current;
+        if (mini) {
+          const ctx2d = mini.getContext("2d");
+          if (ctx2d) {
+            const w = mini.width; const h = mini.height;
+            ctx2d.clearRect(0, 0, w, h);
+            const bars = 10; const barW = w / bars - 1;
+            for (let i = 0; i < bars; i++) {
+              const val = freqDataRef.current[i * 3] || 0;
+              const barH = (val / 255) * h * 0.85;
+              ctx2d.fillStyle = `rgba(212,134,10,${0.4 + val / 400})`;
+              ctx2d.beginPath();
+              ctx2d.roundRect(i * (barW + 1), h - barH, barW, barH, [2, 2, 0, 0]);
+              ctx2d.fill();
+            }
+          }
+        }
+      }
       animRef.current = requestAnimationFrame(tick);
     };
     animRef.current = requestAnimationFrame(tick);
 
     return () => { cancelAnimationFrame(animRef.current); audio.pause(); audio.src = ""; };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Resume AudioContext on user gesture (required by browsers)
+  const resumeAudioCtx = useCallback(() => { if (audioCtxRef.current?.state === "suspended") audioCtxRef.current.resume(); }, []);
+
+  // Focus timer
+  useEffect(() => {
+    if (focusActive && focusRemaining > 0) {
+      focusIntervalRef.current = setInterval(() => { setFocusRemaining(r => { if (r <= 1) { setFocusActive(false); return 0; } return r - 1; }); }, 1000);
+    }
+    return () => { if (focusIntervalRef.current) clearInterval(focusIntervalRef.current); };
+  }, [focusActive, focusRemaining > 0]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Save favorites
+  useEffect(() => { try { localStorage.setItem("music_favs", JSON.stringify([...favorites])); } catch {} }, [favorites]);
+  const toggleFav = (id: number) => setFavorites(prev => { const next = new Set(prev); if (next.has(id)) next.delete(id); else next.add(id); return next; });
+
+  // Mood-based track filtering
+  const selectMood = (moodId: string) => {
+    setActiveMood(moodId);
+    const mood = MOODS.find(m => m.id === moodId);
+    if (!mood || moodId === "surprise") {
+      const idx = Math.floor(Math.random() * ALL_TRACKS.length);
+      const picked = ALL_TRACKS[idx];
+      setGenre(picked.genre);
+      const gt = ALL_TRACKS.filter(t => t.genre === picked.genre);
+      setTrackIdx(gt.findIndex(t => t.id === picked.id));
+    } else {
+      const moodTracks = ALL_TRACKS.filter(t => mood.genres.includes(t.genre));
+      if (moodTracks.length > 0) {
+        const picked = moodTracks[Math.floor(Math.random() * moodTracks.length)];
+        setGenre(picked.genre);
+        const gt = ALL_TRACKS.filter(t => t.genre === picked.genre);
+        setTrackIdx(gt.findIndex(t => t.id === picked.id));
+        playTrack(picked.file);
+      }
+    }
+  };
+
+  const startFocus = (mins: number) => {
+    setFocusDuration(mins * 60);
+    setFocusRemaining(mins * 60);
+    setFocusActive(true);
+    selectMood("focus");
+    if (!playing) toggle();
+  };
 
   // Auto-play when entering a project (or sandbox)
   useEffect(() => {
@@ -228,36 +352,25 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     if (!projectActive) autoPlayTriggeredRef.current = false;
   }, [projectActive]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Play: set src, load, play — all in one user-gesture handler
   const playTrack = useCallback((file: string) => {
     const a = audioRef.current;
-    if (!a) { console.warn("[MusicPlayer] No audio element"); return; }
-    console.log("[MusicPlayer] Loading:", file, "→", window.location.origin + file);
+    if (!a) return;
+    resumeAudioCtx();
     a.src = file;
     a.volume = volume;
     a.load();
-    a.play()
-      .then(() => { console.log("[MusicPlayer] Playing OK:", file); setPlaying(true); })
-      .catch(e => { console.warn("[MusicPlayer] Play failed:", e.message, "src:", a.src); setPlaying(false); });
-  }, [volume]);
+    a.play().then(() => setPlaying(true)).catch(e => { console.warn("[MusicPlayer] Play failed:", e.message); setPlaying(false); });
+  }, [volume, resumeAudioCtx]);
 
-  // Toggle play/pause — the primary user interaction handler
   const toggle = useCallback(() => {
     const a = audioRef.current; if (!a) return;
-    if (playing) {
-      a.pause();
-      setPlaying(false);
-    } else {
-      // If audio has no src or a stale src, load the current track
-      if (!a.src || a.readyState === 0 || !a.src.includes("/track")) {
-        playTrack(track?.file || ALL_TRACKS[0].file);
-      } else {
-        a.play()
-          .then(() => setPlaying(true))
-          .catch(e => { console.warn("Resume failed:", e.message); playTrack(track?.file || ALL_TRACKS[0].file); });
-      }
+    resumeAudioCtx();
+    if (playing) { a.pause(); setPlaying(false); }
+    else {
+      if (!a.src || a.readyState === 0 || !a.src.includes("/track")) { playTrack(track?.file || ALL_TRACKS[0].file); }
+      else { a.play().then(() => setPlaying(true)).catch(e => { console.warn("Resume failed:", e.message); playTrack(track?.file || ALL_TRACKS[0].file); }); }
     }
-  }, [playing, track, playTrack]);
+  }, [playing, track, playTrack, resumeAudioCtx]);
 
   const changeTrack = useCallback((idx: number) => {
     setTrackIdx(idx);
@@ -317,12 +430,13 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     style={{ position: "fixed", bottom: 20, right: 20, zIndex: 40, width: 36, height: 36, borderRadius: 18, background: "linear-gradient(135deg, rgba(224,144,64,0.9), rgba(192,112,48,0.9))", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff", fontSize: 16, cursor: "pointer", boxShadow: "0 4px 20px rgba(224,144,64,0.3)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s" }}
     onMouseEnter={e => e.currentTarget.style.transform = "scale(1.15)"} onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}>♪</button>;
 
-  // ── Collapsed state: slim bar — entire bar is clickable to expand ──
+  // ── Collapsed state: slim bar with mini visualizer ──
   if (viewState === "collapsed") return <div onClick={() => setViewState("expanded")} style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 40, height: 44, background: "rgba(15,12,8,0.85)", backdropFilter: "blur(20px)", borderTop: "1px solid rgba(212,134,10,0.1)", display: "flex", alignItems: "center", paddingLeft: 12, paddingRight: 12, gap: 10, cursor: "pointer" }}>
-    <div style={{ width: 32, height: 32, borderRadius: 6, background: "linear-gradient(135deg, #D4860A, #C07030)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, color: "#fff", flexShrink: 0 }}>♪</div>
+    {/* Mini visualizer */}
+    <canvas ref={miniCanvasRef} width={60} height={24} style={{ width: 60, height: 24, flexShrink: 0, borderRadius: 4 }} />
     <div style={{ flex: 1, minWidth: 0 }}>
       <div style={{ fontSize: 15, fontWeight: 600, color: "#f5e6d0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{track?.name || "—"}</div>
-      <div style={{ fontSize: 14, color: "rgba(255,255,255,0.35)" }}>{GENRES.find(g => g.id === genre)?.label}</div>
+      <div style={{ fontSize: 14, color: "rgba(255,255,255,0.35)" }}>{activeMood ? `${MOODS.find(m => m.id === activeMood)?.icon} ${MOODS.find(m => m.id === activeMood)?.label}` : GENRES.find(g => g.id === genre)?.label}{focusActive ? ` · ${Math.floor(focusRemaining / 60)}:${String(focusRemaining % 60).padStart(2, "0")}` : ""}</div>
     </div>
     <div onClick={e => { e.stopPropagation(); seek(e); }} style={{ width: 80, height: 3, background: "rgba(255,255,255,0.08)", borderRadius: 2, cursor: "pointer", flexShrink: 0, overflow: "hidden" }}>
       <div style={{ height: "100%", borderRadius: 2, background: "#D4860A", width: `${progress * 100}%` }} />
@@ -341,58 +455,80 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     </div>
 
     <div style={{ maxWidth: 900, margin: "0 auto", padding: "16px 24px 20px" }}>
-      {/* Top row: art + info + controls */}
+      {/* Top row: visualizer + info + controls */}
       <div style={{ display: "flex", gap: 16, alignItems: "center", marginBottom: 12 }}>
-        <div style={{ width: 64, height: 64, borderRadius: 12, background: "linear-gradient(135deg, #D4860A, #8B4513)", display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 2, padding: 8, flexShrink: 0, boxShadow: "0 4px 16px rgba(212,134,10,0.2)" }}>
-          {[3,5,4,6,3,4,5].map((h, i) => <div key={i} style={{ width: 4, borderRadius: 2, background: "rgba(255,255,255,0.6)", height: playing ? `${h * 4 + Math.sin(Date.now() / 300 + i) * 4}px` : "4px", transition: "height 0.3s", animation: playing ? `eqBar 0.8s ease-in-out ${i * 0.1}s infinite alternate` : "none" }} />)}
+        {/* Audio Visualizer Canvas */}
+        <div style={{ width: 72, height: 72, borderRadius: 14, overflow: "hidden", flexShrink: 0, background: "linear-gradient(135deg, rgba(212,134,10,0.15), rgba(139,69,19,0.1))", boxShadow: "0 4px 16px rgba(212,134,10,0.15)", position: "relative" }}>
+          <canvas ref={canvasRef} width={144} height={144} style={{ width: "100%", height: "100%", display: "block" }} />
+          {/* Focus timer overlay */}
+          {focusActive && <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.6)", borderRadius: 14 }}>
+            <div style={{ fontSize: 16, fontWeight: 800, color: "#E8C547", fontFamily: "'IBM Plex Mono', monospace" }}>{Math.floor(focusRemaining / 60)}:{String(focusRemaining % 60).padStart(2, "0")}</div>
+            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: 1 }}>Focus</div>
+          </div>}
         </div>
-        <style>{`@keyframes eqBar { 0% { height: 6px; } 100% { height: 24px; } }`}</style>
 
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: "#f5e6d0", fontFamily: "'Outfit', sans-serif", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{track?.name || "—"}</div>
-          <div style={{ fontSize: 15, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>{GENRES.find(g => g.id === genre)?.icon} {GENRES.find(g => g.id === genre)?.label} · Track {(trackIdx % genreTracks.length) + 1} of {genreTracks.length}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "#f5e6d0", fontFamily: "'Outfit', sans-serif", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{track?.name || "—"}</div>
+            <button onClick={() => track && toggleFav(track.id)} style={{ ...btnBase, fontSize: 14, color: track && favorites.has(track.id) ? "#EF4444" : "rgba(255,255,255,0.2)" }}>{track && favorites.has(track.id) ? "♥" : "♡"}</button>
+          </div>
+          <div style={{ fontSize: 14, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>
+            {activeMood ? <span style={{ color: "rgba(212,134,10,0.7)" }}>{MOODS.find(m => m.id === activeMood)?.icon} {MOODS.find(m => m.id === activeMood)?.label} · </span> : ""}{GENRES.find(g => g.id === genre)?.icon} {GENRES.find(g => g.id === genre)?.label} · {(trackIdx % genreTracks.length) + 1}/{genreTracks.length}
+          </div>
         </div>
 
         {/* Main controls */}
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <button onClick={() => setShuffle(!shuffle)} style={{ ...btnBase, color: shuffle ? "#D4860A" : "rgba(255,255,255,0.3)", fontSize: 15 }} title="Shuffle">⇄</button>
-          <button onClick={prevTrack} style={{ ...btnBase, color: "rgba(255,255,255,0.5)", fontSize: 16 }}>⏮</button>
-          <button onClick={toggle} style={{ width: 42, height: 42, borderRadius: 21, background: "linear-gradient(135deg, #e09040, #c07030)", border: "none", color: "#fff", fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 14px rgba(224,144,64,0.3)", transition: "transform 0.2s" }} onMouseEnter={e => e.currentTarget.style.transform = "scale(1.08)"} onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}>{playing ? "⏸" : "▶"}</button>
-          <button onClick={nextTrack} style={{ ...btnBase, color: "rgba(255,255,255,0.5)", fontSize: 16 }}>⏭</button>
-          <button onClick={() => setRepeat(!repeat)} style={{ ...btnBase, color: repeat ? "#D4860A" : "rgba(255,255,255,0.3)", fontSize: 15 }} title="Repeat">↻</button>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <button onClick={() => setShuffle(!shuffle)} style={{ ...btnBase, color: shuffle ? "#D4860A" : "rgba(255,255,255,0.25)", fontSize: 14 }} title="Shuffle">⇄</button>
+          <button onClick={prevTrack} style={{ ...btnBase, color: "rgba(255,255,255,0.5)", fontSize: 15 }}>⏮</button>
+          <button onClick={toggle} style={{ width: 44, height: 44, borderRadius: 22, background: "linear-gradient(135deg, #e09040, #c07030)", border: "none", color: "#fff", fontSize: 17, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 16px rgba(224,144,64,0.3)", transition: "transform 0.15s" }} onMouseEnter={e => e.currentTarget.style.transform = "scale(1.08)"} onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}>{playing ? "⏸" : "▶"}</button>
+          <button onClick={nextTrack} style={{ ...btnBase, color: "rgba(255,255,255,0.5)", fontSize: 15 }}>⏭</button>
+          <button onClick={() => setRepeat(!repeat)} style={{ ...btnBase, color: repeat ? "#D4860A" : "rgba(255,255,255,0.25)", fontSize: 14 }} title="Repeat">↻</button>
         </div>
 
         {/* Volume */}
-        <div style={{ display: "flex", alignItems: "center", gap: 6, width: 110, flexShrink: 0 }}>
-          <button onClick={() => changeVolume(volume > 0 ? 0 : 0.25)} style={{ ...btnBase, fontSize: 15, color: "rgba(255,255,255,0.4)" }}>{volume === 0 ? "🔇" : volume < 0.3 ? "🔈" : "🔊"}</button>
+        <div style={{ display: "flex", alignItems: "center", gap: 5, width: 100, flexShrink: 0 }}>
+          <button onClick={() => changeVolume(volume > 0 ? 0 : 0.25)} style={{ ...btnBase, fontSize: 14, color: "rgba(255,255,255,0.35)" }}>{volume === 0 ? "🔇" : volume < 0.3 ? "🔈" : "🔊"}</button>
           <input type="range" min={0} max={1} step={0.02} value={volume} onChange={e => changeVolume(Number(e.target.value))} style={{ flex: 1, accentColor: "#e09040", height: 3 }} />
         </div>
       </div>
 
       {/* Progress bar */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-        <span style={{ fontSize: 14, color: "rgba(255,255,255,0.35)", fontFamily: "'IBM Plex Mono', monospace", width: 32, textAlign: "right" }}>{fmt(currentTime)}</span>
-        <div onClick={seek} style={{ flex: 1, height: 5, background: "rgba(255,255,255,0.08)", borderRadius: 3, cursor: "pointer", overflow: "hidden", position: "relative" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+        <span style={{ fontSize: 13, color: "rgba(255,255,255,0.3)", fontFamily: "'IBM Plex Mono', monospace", width: 32, textAlign: "right" }}>{fmt(currentTime)}</span>
+        <div onClick={seek} style={{ flex: 1, height: 5, background: "rgba(255,255,255,0.06)", borderRadius: 3, cursor: "pointer", overflow: "hidden" }}>
           <div style={{ height: "100%", borderRadius: 3, background: "linear-gradient(90deg, #D4860A, #E8C547)", width: `${progress * 100}%`, transition: "width 0.1s linear" }} />
         </div>
-        <span style={{ fontSize: 14, color: "rgba(255,255,255,0.35)", fontFamily: "'IBM Plex Mono', monospace", width: 32 }}>{fmt(duration)}</span>
+        <span style={{ fontSize: 13, color: "rgba(255,255,255,0.3)", fontFamily: "'IBM Plex Mono', monospace", width: 32 }}>{fmt(duration)}</span>
+      </div>
+
+      {/* Mood pills + Focus timer */}
+      <div style={{ display: "flex", gap: 5, alignItems: "center", marginBottom: 8, flexWrap: "wrap" }}>
+        {MOODS.map(m => <button key={m.id} onClick={() => selectMood(m.id)} style={{ padding: "3px 10px", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", border: activeMood === m.id ? "1px solid rgba(212,134,10,0.4)" : "1px solid rgba(255,255,255,0.06)", background: activeMood === m.id ? "rgba(212,134,10,0.12)" : "transparent", color: activeMood === m.id ? "#e09040" : "rgba(255,255,255,0.3)", transition: "all 0.2s", fontFamily: "'Outfit', sans-serif" }}>{m.icon} {m.label}</button>)}
+        <div style={{ flex: 1 }} />
+        {/* Focus timer button */}
+        {!focusActive ? <div style={{ display: "flex", gap: 3 }}>
+          {[25, 45, 60].map(mins => <button key={mins} onClick={() => startFocus(mins)} style={{ ...btnBase, fontSize: 12, color: "rgba(255,255,255,0.3)", padding: "2px 8px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.06)" }} title={`${mins}min focus session`}>🎯 {mins}m</button>)}
+        </div> : <button onClick={() => { setFocusActive(false); setFocusRemaining(0); }} style={{ ...btnBase, fontSize: 12, color: "#E8C547", padding: "2px 10px", borderRadius: 6, border: "1px solid rgba(232,197,71,0.2)" }}>🎯 End Focus ({Math.floor(focusRemaining / 60)}:{String(focusRemaining % 60).padStart(2, "0")})</button>}
       </div>
 
       {/* Genre pills + track list */}
-      <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-        {GENRES.map(g => <button key={g.id} onClick={() => { setGenre(g.id); setTrackIdx(0); }}
-          style={{ padding: "4px 12px", borderRadius: 8, fontSize: 15, fontWeight: 600, cursor: "pointer", border: genre === g.id ? "1px solid rgba(212,134,10,0.4)" : "1px solid rgba(255,255,255,0.06)", background: genre === g.id ? "rgba(212,134,10,0.12)" : "transparent", color: genre === g.id ? "#e09040" : "rgba(255,255,255,0.35)", transition: "all 0.2s", fontFamily: "'Outfit', sans-serif" }}>{g.icon} {g.label}</button>)}
+      <div style={{ display: "flex", gap: 5, alignItems: "center" }}>
+        {GENRES.map(g => <button key={g.id} onClick={() => { setGenre(g.id); setTrackIdx(0); setActiveMood(null); }}
+          style={{ padding: "3px 10px", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", border: genre === g.id && !activeMood ? "1px solid rgba(212,134,10,0.4)" : "1px solid rgba(255,255,255,0.06)", background: genre === g.id && !activeMood ? "rgba(212,134,10,0.12)" : "transparent", color: genre === g.id && !activeMood ? "#e09040" : "rgba(255,255,255,0.3)", transition: "all 0.2s", fontFamily: "'Outfit', sans-serif" }}>{g.icon} {g.label}</button>)}
+        {favorites.size > 0 && <button onClick={() => { const favTracks = ALL_TRACKS.filter(t => favorites.has(t.id)); if (favTracks.length) { const picked = favTracks[0]; setGenre(picked.genre); const gt = ALL_TRACKS.filter(t => t.genre === picked.genre); setTrackIdx(gt.findIndex(t => t.id === picked.id)); setActiveMood(null); } }} style={{ padding: "3px 10px", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", border: "1px solid rgba(239,68,68,0.15)", background: "transparent", color: "rgba(239,68,68,0.5)", fontFamily: "'Outfit', sans-serif" }}>♥ {favorites.size}</button>}
         <div style={{ flex: 1 }} />
-        <button onClick={() => setShowList(!showList)} style={{ ...btnBase, fontSize: 14, color: "rgba(255,255,255,0.4)", fontFamily: "'IBM Plex Mono', monospace" }}>{showList ? "Hide" : "Tracks"} ▾</button>
+        <button onClick={() => setShowList(!showList)} style={{ ...btnBase, fontSize: 13, color: "rgba(255,255,255,0.35)", fontFamily: "'IBM Plex Mono', monospace" }}>{showList ? "Hide" : "Tracks"} ▾</button>
       </div>
 
-      {showList && <div style={{ marginTop: 8, maxHeight: 140, overflowY: "auto", borderRadius: 8, border: "1px solid rgba(255,255,255,0.06)" }}>
+      {showList && <div style={{ marginTop: 6, maxHeight: 130, overflowY: "auto", borderRadius: 8, border: "1px solid rgba(255,255,255,0.06)" }}>
         {genreTracks.map((t, i) => <button key={t.id} onClick={() => changeTrack(i)}
-          style={{ width: "100%", padding: "6px 12px", background: i === trackIdx % genreTracks.length ? "rgba(212,134,10,0.1)" : "transparent", border: "none", borderBottom: "1px solid rgba(255,255,255,0.04)", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, fontSize: 15, color: i === trackIdx % genreTracks.length ? "#e09040" : "rgba(255,255,255,0.5)", transition: "all 0.15s", fontFamily: "'Outfit', sans-serif" }}
+          style={{ width: "100%", padding: "5px 10px", background: i === trackIdx % genreTracks.length ? "rgba(212,134,10,0.1)" : "transparent", border: "none", borderBottom: "1px solid rgba(255,255,255,0.04)", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: i === trackIdx % genreTracks.length ? "#e09040" : "rgba(255,255,255,0.45)", transition: "all 0.15s", fontFamily: "'Outfit', sans-serif" }}
           onMouseEnter={e => { if (i !== trackIdx % genreTracks.length) e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }}
           onMouseLeave={e => { if (i !== trackIdx % genreTracks.length) e.currentTarget.style.background = "transparent"; }}>
-          <span style={{ width: 16, fontSize: 14, textAlign: "right", opacity: 0.4, fontFamily: "'IBM Plex Mono', monospace" }}>{i === trackIdx % genreTracks.length && playing ? "♫" : `${i + 1}`}</span>
+          <span style={{ width: 14, fontSize: 13, textAlign: "right", opacity: 0.4, fontFamily: "'IBM Plex Mono', monospace" }}>{i === trackIdx % genreTracks.length && playing ? "♫" : `${i + 1}`}</span>
           <span style={{ flex: 1, textAlign: "left" }}>{t.name}</span>
+          <button onClick={e => { e.stopPropagation(); toggleFav(t.id); }} style={{ ...btnBase, fontSize: 12, color: favorites.has(t.id) ? "#EF4444" : "rgba(255,255,255,0.15)", padding: 0 }}>{favorites.has(t.id) ? "♥" : "♡"}</button>
         </button>)}
       </div>}
     </div>
