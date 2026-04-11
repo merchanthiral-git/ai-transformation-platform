@@ -88,16 +88,16 @@ export function AiInsightCard({ title, contextData, systemPrompt, moduleId }: { 
   return <div className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl overflow-hidden mb-3 transition-all hover:border-[var(--accent-primary)]/20">
     <button onClick={() => generated ? setExpanded(!expanded) : generate()} className="w-full flex items-center gap-2.5 px-4 py-3 text-left transition-colors hover:bg-[var(--hover)]">
       <span className="text-[14px]">{loading ? "⏳" : "✨"}</span>
-      <span className="text-[12px] font-semibold text-[var(--text-primary)] flex-1 font-heading">{title}</span>
-      {loading && <span className="text-[10px] text-[var(--accent-primary)]">Generating...</span>}
-      {generated && !loading && <span className="text-[10px] text-[var(--text-muted)]">{expanded ? "▲" : "▼"}</span>}
-      {!generated && !loading && <span className="text-[10px] text-[var(--accent-primary)] font-semibold">Generate</span>}
+      <span className="text-[15px] font-semibold text-[var(--text-primary)] flex-1 font-heading">{title}</span>
+      {loading && <span className="text-[15px] text-[var(--accent-primary)]">Generating...</span>}
+      {generated && !loading && <span className="text-[15px] text-[var(--text-muted)]">{expanded ? "▲" : "▼"}</span>}
+      {!generated && !loading && <span className="text-[15px] text-[var(--accent-primary)] font-semibold">Generate</span>}
     </button>
     {expanded && insight && <div className="px-4 pb-3 border-t border-[var(--border)]">
-      <div className="text-[12px] text-[var(--text-secondary)] leading-relaxed mt-3 whitespace-pre-line">{insight}</div>
+      <div className="text-[15px] text-[var(--text-secondary)] leading-relaxed mt-3 whitespace-pre-line">{insight}</div>
       <div className="flex gap-2 mt-3">
-        <button onClick={copy} className="text-[10px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors">📋 Copy</button>
-        <button onClick={generate} disabled={loading} className="text-[10px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors">↻ Regenerate</button>
+        <button onClick={copy} className="text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors">📋 Copy</button>
+        <button onClick={generate} disabled={loading} className="text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-colors">↻ Regenerate</button>
       </div>
     </div>}
   </div>;
@@ -114,7 +114,7 @@ export function ModuleExportButton({ model, module, label }: { model: string; mo
       else showToast("Export failed");
     } catch { showToast("Export failed — check backend"); }
     setExporting(false);
-  }} disabled={exporting} className="px-3 py-1 rounded-lg text-[10px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:border-[var(--accent-primary)]/30 hover:text-[var(--accent-primary)] transition-all" style={{opacity: exporting ? 0.5 : 1}}>
+  }} disabled={exporting} className="px-3 py-1 rounded-lg text-[15px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:border-[var(--accent-primary)]/30 hover:text-[var(--accent-primary)] transition-all" style={{opacity: exporting ? 0.5 : 1}}>
     {exporting ? "..." : "↓ Export"}
   </button>;
 }
@@ -147,7 +147,7 @@ export function useRiskRegister(projectId: string) {
   return { risks, addRisk, updateRisk };
 }
 
-export const TT: React.CSSProperties = { background: "#1A2340", border: "1px solid #2A3555", borderRadius: 8, fontSize: 12, color: "#E8ECF4" };
+export const TT: React.CSSProperties = { background: "#1A2340", border: "1px solid #2A3555", borderRadius: 8, fontSize: 15, color: "#E8ECF4" };
 
 /* ═══════════════════════════════════════════════════════════════
    ERROR BOUNDARY — prevents white screen crashes
@@ -159,14 +159,14 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode; 
     if (this.state.hasError) return this.props.fallback || <div className="p-8 text-center">
       <div className="text-3xl mb-3">⚠️</div>
       <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">Something went wrong</h3>
-      <p className="text-[13px] text-[var(--text-secondary)] mb-4 max-w-md mx-auto">{this.state.error?.message || "An unexpected error occurred."}</p>
+      <p className="text-[15px] text-[var(--text-secondary)] mb-4 max-w-md mx-auto">{this.state.error?.message || "An unexpected error occurred."}</p>
       <div className="flex gap-3 justify-center flex-wrap mb-4">
-        {this.props.onBack && <button onClick={() => { this.setState({ hasError: false, error: null, retryCount: 0 }); this.props.onBack!(); }} className="px-4 py-2 rounded-lg text-[13px] font-semibold border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--hover)] transition-colors">← Back to Overview</button>}
-        <button onClick={() => { if (this.state.retryCount >= 2) { if (this.props.onBack) this.props.onBack(); else this.setState({ hasError: false, error: null, retryCount: 0 }); } else { this.setState(prev => ({ hasError: false, error: null, retryCount: prev.retryCount + 1 })); } }} className="px-4 py-2 rounded-lg text-[13px] font-semibold bg-[var(--accent-primary)] text-white">{this.state.retryCount >= 2 ? "Go to Overview (retry limit)" : "Clear & Retry"}</button>
-        {this.props.onExitProject && <button onClick={() => { this.setState({ hasError: false, error: null, retryCount: 0 }); this.props.onExitProject!(); }} className="px-4 py-2 rounded-lg text-[13px] font-semibold text-[var(--risk)] border border-[var(--risk)]/30 hover:bg-[var(--risk)]/5 transition-colors">Exit Project</button>}
+        {this.props.onBack && <button onClick={() => { this.setState({ hasError: false, error: null, retryCount: 0 }); this.props.onBack!(); }} className="px-4 py-2 rounded-lg text-[15px] font-semibold border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--hover)] transition-colors">← Back to Overview</button>}
+        <button onClick={() => { if (this.state.retryCount >= 2) { if (this.props.onBack) this.props.onBack(); else this.setState({ hasError: false, error: null, retryCount: 0 }); } else { this.setState(prev => ({ hasError: false, error: null, retryCount: prev.retryCount + 1 })); } }} className="px-4 py-2 rounded-lg text-[15px] font-semibold bg-[var(--accent-primary)] text-white">{this.state.retryCount >= 2 ? "Go to Overview (retry limit)" : "Clear & Retry"}</button>
+        {this.props.onExitProject && <button onClick={() => { this.setState({ hasError: false, error: null, retryCount: 0 }); this.props.onExitProject!(); }} className="px-4 py-2 rounded-lg text-[15px] font-semibold text-[var(--risk)] border border-[var(--risk)]/30 hover:bg-[var(--risk)]/5 transition-colors">Exit Project</button>}
       </div>
       {this.props.onNavigate && <div className="border-t border-[var(--border)] pt-4 mt-4">
-        <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Switch Module</div>
+        <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Switch Module</div>
         <div className="flex gap-2 justify-center flex-wrap">{[
           { id: "snapshot", label: "Overview", icon: "📊" },
           { id: "jobarch", label: "Jobs", icon: "🏗️" },
@@ -174,7 +174,7 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode; 
           { id: "design", label: "Design", icon: "✏️" },
           { id: "simulate", label: "Simulate", icon: "⚡" },
           { id: "plan", label: "Mobilize", icon: "🚀" },
-        ].map(m => <button key={m.id} onClick={() => { this.setState({ hasError: false, error: null, retryCount: 0 }); this.props.onNavigate!(m.id); }} className="px-3 py-1.5 rounded-lg text-[11px] font-semibold border border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--accent-primary)]/30 hover:bg-[var(--hover)] transition-all">{m.icon} {m.label}</button>)}</div>
+        ].map(m => <button key={m.id} onClick={() => { this.setState({ hasError: false, error: null, retryCount: 0 }); this.props.onNavigate!(m.id); }} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold border border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--accent-primary)]/30 hover:bg-[var(--hover)] transition-all">{m.icon} {m.label}</button>)}</div>
       </div>}
     </div>;
     return this.props.children;
@@ -183,9 +183,9 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode; 
 
 export function KpiCard({ label, value, accent, delta }: { label: string; value: string | number; accent?: boolean; delta?: string }) {
   return <div className={`bg-[var(--surface-1)] border rounded-xl px-5 py-4 card-hover hover:border-[var(--accent-primary)]/30 animate-card-enter ${accent ? "border-l-[3px] border-l-[var(--accent-primary)] border-[var(--border)]" : "border-[var(--border)]"}`}>
-    <div className="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-1">{label}</div>
+    <div className="text-[15px] font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-1">{label}</div>
     <div className="text-2xl font-extrabold text-[var(--text-primary)] tracking-tight font-data">{value}</div>
-    {delta && <div className="text-[11px] font-semibold text-[var(--success)] mt-1">{delta}</div>}
+    {delta && <div className="text-[15px] font-semibold text-[var(--success)] mt-1">{delta}</div>}
   </div>;
 }
 
@@ -202,11 +202,11 @@ export function Empty({ text, icon = "📭" }: { text: string; icon?: string }) 
 
 export function Badge({ children, color = "gray" }: { children: React.ReactNode; color?: string }) {
   const s: Record<string, string> = { indigo: "bg-[rgba(212,134,10,0.15)] text-[var(--accent-primary)]", green: "bg-[rgba(16,185,129,0.15)] text-[var(--success)]", amber: "bg-[rgba(249,115,22,0.15)] text-[var(--warning)]", red: "bg-[rgba(239,68,68,0.15)] text-[var(--risk)]", purple: "bg-[rgba(139,92,246,0.15)] text-[var(--purple)]", gray: "bg-[rgba(163,177,198,0.12)] text-[var(--text-muted)]" };
-  return <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${s[color] || s.gray}`}>{children}</span>;
+  return <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[15px] font-semibold ${s[color] || s.gray}`}>{children}</span>;
 }
 
 export function InsightPanel({ title, items, icon = "💡" }: { title: string; items: string[]; icon?: string }) {
-  return <Card><div className="flex items-center gap-2 text-[13px] font-bold mb-2">{icon} {title}</div><ul className="list-disc pl-4 space-y-1 text-[13px] text-[var(--text-secondary)] leading-relaxed">{items.map((t, i) => <li key={i}>{t}</li>)}</ul></Card>;
+  return <Card><div className="flex items-center gap-2 text-[15px] font-bold mb-2">{icon} {title}</div><ul className="list-disc pl-4 space-y-1 text-[15px] text-[var(--text-secondary)] leading-relaxed">{items.map((t, i) => <li key={i}>{t}</li>)}</ul></Card>;
 }
 
 /* ─── Help System: InfoButton + MODULE_HELP ─── */
@@ -301,12 +301,12 @@ export function HelpBookAccordion() {
   const [expandedId, setExpandedId] = useState<string|null>(null);
   return <div className="space-y-1">{Object.entries(MODULE_HELP).map(([id, h]) => <div key={id} className="rounded-xl border border-[var(--border)] overflow-hidden">
     <button onClick={() => setExpandedId(expandedId === id ? null : id)} className="w-full text-left px-4 py-2.5 flex items-center justify-between bg-[var(--surface-2)] hover:bg-[var(--surface-1)] transition-colors cursor-pointer">
-      <div className="flex items-center gap-2"><span className="text-[11px] font-bold text-[var(--accent-primary)]">{id.toUpperCase()}</span><span className="text-[12px] font-semibold text-[var(--text-primary)]">{h.title}</span></div>
-      <span className="text-[var(--text-muted)] text-[10px]">{expandedId === id ? "▲" : "▼"}</span>
+      <div className="flex items-center gap-2"><span className="text-[15px] font-bold text-[var(--accent-primary)]">{id.toUpperCase()}</span><span className="text-[15px] font-semibold text-[var(--text-primary)]">{h.title}</span></div>
+      <span className="text-[var(--text-muted)] text-[15px]">{expandedId === id ? "▲" : "▼"}</span>
     </button>
     {expandedId === id && <div className="px-4 py-3 bg-[var(--surface-1)]">
-      <p className="text-[12px] text-[var(--text-secondary)] mb-2">{h.summary}</p>
-      {h.pages && h.pages.map((p, i) => <div key={i} className="ml-2 mb-2"><div className="text-[11px] font-bold text-[var(--text-primary)]">{p.heading}</div><div className="text-[11px] text-[var(--text-muted)] leading-relaxed">{p.body}</div></div>)}
+      <p className="text-[15px] text-[var(--text-secondary)] mb-2">{h.summary}</p>
+      {h.pages && h.pages.map((p, i) => <div key={i} className="ml-2 mb-2"><div className="text-[15px] font-bold text-[var(--text-primary)]">{p.heading}</div><div className="text-[15px] text-[var(--text-muted)] leading-relaxed">{p.body}</div></div>)}
     </div>}
   </div>)}</div>;
 }
@@ -315,11 +315,11 @@ export function CareerFrameworkAccordion() {
   const [expandedIdx, setExpandedIdx] = useState<number|null>(0);
   return <>{CAREER_FRAMEWORKS.map((fw, fi) => <div key={fi} className="mb-3 rounded-xl border border-[var(--border)] overflow-hidden">
     <button onClick={() => setExpandedIdx(expandedIdx === fi ? null : fi)} className="w-full text-left px-4 py-3 flex items-center justify-between bg-[var(--surface-2)] hover:bg-[var(--surface-1)] transition-colors cursor-pointer">
-      <div className="flex items-center gap-2"><Badge color="purple">{fw.industry}</Badge><span className="text-[12px] font-bold text-[var(--text-primary)]">{fw.name}</span><span className="text-[10px] text-[var(--text-muted)]">{fw.levels.length} levels</span></div>
-      <span className="text-[var(--text-muted)] text-[10px]">{expandedIdx === fi ? "▲" : "▼"}</span>
+      <div className="flex items-center gap-2"><Badge color="purple">{fw.industry}</Badge><span className="text-[15px] font-bold text-[var(--text-primary)]">{fw.name}</span><span className="text-[15px] text-[var(--text-muted)]">{fw.levels.length} levels</span></div>
+      <span className="text-[var(--text-muted)] text-[15px]">{expandedIdx === fi ? "▲" : "▼"}</span>
     </button>
-    {expandedIdx === fi && <div className="overflow-x-auto"><table className="w-full text-[11px]"><thead><tr className="bg-[var(--surface-2)]">
-      {["Level","Title","Track","Span","Focus","Comp Range"].map(h => <th key={h} className="px-3 py-2 text-left border-b border-[var(--border)] text-[var(--text-muted)] font-semibold uppercase text-[9px]">{h}</th>)}
+    {expandedIdx === fi && <div className="overflow-x-auto"><table className="w-full text-[15px]"><thead><tr className="bg-[var(--surface-2)]">
+      {["Level","Title","Track","Span","Focus","Comp Range"].map(h => <th key={h} className="px-3 py-2 text-left border-b border-[var(--border)] text-[var(--text-muted)] font-semibold uppercase text-[14px]">{h}</th>)}
     </tr></thead><tbody>
       {fw.levels.map((l, li) => <tr key={li} className="border-b border-[var(--border)] hover:bg-[var(--hover)]">
         <td className="px-3 py-2 font-bold text-[var(--accent-primary)]">{l.code}</td>
@@ -345,14 +345,14 @@ export function InfoButton({ moduleId }: { moduleId: string }) {
   };
   if (!hasOldHelp) return null;
   return <>
-    <button onClick={loadModal} className="inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] cursor-pointer transition-all hover:scale-110" style={{ background: "rgba(212,134,10,0.1)", border: "1px solid rgba(212,134,10,0.2)", color: "var(--accent-primary)" }} title={`Help: ${title}`}>ℹ</button>
+    <button onClick={loadModal} className="inline-flex items-center justify-center w-5 h-5 rounded-full text-[15px] cursor-pointer transition-all hover:scale-110" style={{ background: "rgba(212,134,10,0.1)", border: "1px solid rgba(212,134,10,0.2)", color: "var(--accent-primary)" }} title={`Help: ${title}`}>ℹ</button>
     {open && KnowledgeModal && <KnowledgeModal moduleId={moduleId} onClose={() => setOpen(false)} />}
   </>;
 }
 
 
 export function NarrativePanel({ title, items }: { title: string; items: string[] }) {
-  return <div className="bg-gradient-to-br from-[var(--surface-2)] via-[rgba(212,134,10,0.06)] to-[var(--surface-1)] rounded-2xl px-7 py-6 text-[var(--text-primary)] border border-[var(--border)] mb-4"><div className="text-sm font-bold mb-3">{title}</div>{items.map((t, i) => <div key={i} className="text-[13px] text-[var(--text-secondary)] mb-1.5 pl-4 relative"><span className="absolute left-0 text-[var(--accent-primary)] font-bold">›</span>{t}</div>)}</div>;
+  return <div className="bg-gradient-to-br from-[var(--surface-2)] via-[rgba(212,134,10,0.06)] to-[var(--surface-1)] rounded-2xl px-7 py-6 text-[var(--text-primary)] border border-[var(--border)] mb-4"><div className="text-sm font-bold mb-3">{title}</div>{items.map((t, i) => <div key={i} className="text-[15px] text-[var(--text-secondary)] mb-1.5 pl-4 relative"><span className="absolute left-0 text-[var(--accent-primary)] font-bold">›</span>{t}</div>)}</div>;
 }
 
 export function DataTable({ data, cols, pageSize = 15 }: { data: Record<string, unknown>[]; cols?: string[]; pageSize?: number }) {
@@ -364,14 +364,14 @@ export function DataTable({ data, cols, pageSize = 15 }: { data: Record<string, 
   const totalPages = Math.ceil(sorted.length / pageSize); const paged = sorted.slice(page * pageSize, (page + 1) * pageSize);
   return <div>
     <div className="flex items-center justify-between mb-2">
-      <input value={search} onChange={e => { setSearch(e.target.value); setPage(0); }} placeholder="Search..." className="bg-[var(--surface-2)] border border-[var(--border)] rounded-md px-3 py-1.5 text-[12px] text-[var(--text-primary)] outline-none w-48 focus:border-[var(--accent-primary)] placeholder:text-[var(--text-muted)]" />
-      <span className="text-[11px] text-[var(--text-muted)]">{sorted.length} rows{totalPages > 1 ? ` · Page ${page + 1}/${totalPages}` : ""}</span>
+      <input value={search} onChange={e => { setSearch(e.target.value); setPage(0); }} placeholder="Search..." className="bg-[var(--surface-2)] border border-[var(--border)] rounded-md px-3 py-1.5 text-[15px] text-[var(--text-primary)] outline-none w-48 focus:border-[var(--accent-primary)] placeholder:text-[var(--text-muted)]" />
+      <span className="text-[15px] text-[var(--text-muted)]">{sorted.length} rows{totalPages > 1 ? ` · Page ${page + 1}/${totalPages}` : ""}</span>
     </div>
     <div className="overflow-x-auto rounded-lg border border-[var(--border)]" style={{ WebkitOverflowScrolling: "touch" }}>
-      <table className="w-full text-left" style={{ minWidth: Math.max(columns.length * 120, 600) }}><thead><tr className="bg-[var(--surface-2)]">{columns.map(c => <th key={c} onClick={() => { if (sortCol === c) setSortAsc(!sortAsc); else { setSortCol(c); setSortAsc(true); } }} className="px-3 py-2 text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider border-b-2 border-[var(--border)] whitespace-nowrap cursor-pointer hover:text-[var(--accent-primary)] select-none">{c}{sortCol === c ? (sortAsc ? " ▲" : " ▼") : ""}</th>)}</tr></thead>
-      <tbody>{paged.map((row, i) => <tr key={i} className={`border-b border-[var(--border)] hover:bg-[var(--hover)] ${i % 2 ? "bg-[var(--surface-2)]/30" : ""}`}>{columns.map(c => <td key={c} className="px-3 py-2 text-[13px] whitespace-nowrap max-w-[280px] truncate text-[var(--text-secondary)] font-data">{String(row[c] ?? "")}</td>)}</tr>)}</tbody></table>
+      <table className="w-full text-left" style={{ minWidth: Math.max(columns.length * 120, 600) }}><thead><tr className="bg-[var(--surface-2)]">{columns.map(c => <th key={c} onClick={() => { if (sortCol === c) setSortAsc(!sortAsc); else { setSortCol(c); setSortAsc(true); } }} className="px-3 py-2 text-[15px] font-semibold text-[var(--text-muted)] uppercase tracking-wider border-b-2 border-[var(--border)] whitespace-nowrap cursor-pointer hover:text-[var(--accent-primary)] select-none">{c}{sortCol === c ? (sortAsc ? " ▲" : " ▼") : ""}</th>)}</tr></thead>
+      <tbody>{paged.map((row, i) => <tr key={i} className={`border-b border-[var(--border)] hover:bg-[var(--hover)] ${i % 2 ? "bg-[var(--surface-2)]/30" : ""}`}>{columns.map(c => <td key={c} className="px-3 py-2 text-[15px] whitespace-nowrap max-w-[280px] truncate text-[var(--text-secondary)] font-data">{String(row[c] ?? "")}</td>)}</tr>)}</tbody></table>
     </div>
-    {totalPages > 1 && <div className="flex items-center justify-center gap-2 mt-2">{page > 0 && <button onClick={() => setPage(page - 1)} className="text-[11px] text-[var(--accent-primary)] font-semibold">← Prev</button>}<span className="text-[11px] text-[var(--text-muted)]">{page + 1} / {totalPages}</span>{page < totalPages - 1 && <button onClick={() => setPage(page + 1)} className="text-[11px] text-[var(--accent-primary)] font-semibold">Next →</button>}</div>}
+    {totalPages > 1 && <div className="flex items-center justify-center gap-2 mt-2">{page > 0 && <button onClick={() => setPage(page - 1)} className="text-[15px] text-[var(--accent-primary)] font-semibold">← Prev</button>}<span className="text-[15px] text-[var(--text-muted)]">{page + 1} / {totalPages}</span>{page < totalPages - 1 && <button onClick={() => setPage(page + 1)} className="text-[15px] text-[var(--accent-primary)] font-semibold">Next →</button>}</div>}
   </div>;
 }
 
@@ -387,7 +387,7 @@ export function ExpandableChart({ title, children }: { title?: string; children:
 
   return <div className="relative group">
     {/* Expand button */}
-    <button onClick={() => setExpanded(true)} title="Click to enlarge" className="absolute top-1 right-1 z-10 w-6 h-6 rounded-md flex items-center justify-center text-[11px] opacity-0 group-hover:opacity-100 transition-all" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "var(--text-muted)", cursor: "pointer" }} onMouseEnter={e => { e.currentTarget.style.color = "#D4860A"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.3)"; }} onMouseLeave={e => { e.currentTarget.style.color = "var(--text-muted)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}>⛶</button>
+    <button onClick={() => setExpanded(true)} title="Click to enlarge" className="absolute top-1 right-1 z-10 w-6 h-6 rounded-md flex items-center justify-center text-[15px] opacity-0 group-hover:opacity-100 transition-all" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "var(--text-muted)", cursor: "pointer" }} onMouseEnter={e => { e.currentTarget.style.color = "#D4860A"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.3)"; }} onMouseLeave={e => { e.currentTarget.style.color = "var(--text-muted)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}>⛶</button>
     {/* Inline chart */}
     <div onDoubleClick={() => setExpanded(true)}>{children}</div>
     {/* Expanded modal */}
@@ -415,9 +415,9 @@ export function BarViz({ data, labelKey = "name", valueKey = "value", color = "v
     const label = String(d[labelKey] || "");
     const truncLabel = label.length > 24 ? label.slice(0, 22) + "…" : label;
     return <div key={i} className="flex items-center gap-3">
-      <div className="text-[11px] text-[var(--text-secondary)] text-right shrink-0 truncate" style={{ width: 120 }} title={label}>{truncLabel}</div>
+      <div className="text-[15px] text-[var(--text-secondary)] text-right shrink-0 truncate" style={{ width: 120 }} title={label}>{truncLabel}</div>
       <div className="flex-1 h-5 bg-[var(--surface-2)] rounded overflow-hidden"><div className="h-full rounded transition-all" style={{ width: `${Math.max((Math.abs(val) / maxVal) * 100, 2)}%`, background: color, opacity: 0.85 }} /></div>
-      <div className="text-[11px] font-semibold text-[var(--text-primary)] shrink-0" style={{ minWidth: 32, textAlign: "right" }}>{val}</div>
+      <div className="text-[15px] font-semibold text-[var(--text-primary)] shrink-0" style={{ minWidth: 32, textAlign: "right" }}>{val}</div>
     </div>;
   })}</div>;
   return <ExpandableChart title={title}>{content}</ExpandableChart>;
@@ -427,7 +427,7 @@ export function DonutViz({ data, title }: { data: { name: string; value: number 
   if (!data?.length) return null;
   const content = <div className="flex items-center gap-6">
     <ResponsiveContainer width={120} height={120}><PieChart><Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={30} outerRadius={52} strokeWidth={0}>{data.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Pie><Tooltip contentStyle={TT as object} /></PieChart></ResponsiveContainer>
-    <div className="space-y-1">{data.map((d, i) => <div key={i} className="flex items-center gap-2 text-[12px]"><span className="w-2.5 h-2.5 rounded-full" style={{ background: COLORS[i % COLORS.length] }} /><span className="text-[var(--text-secondary)]">{d.name}</span><span className="font-semibold ml-auto">{d.value}</span></div>)}</div>
+    <div className="space-y-1">{data.map((d, i) => <div key={i} className="flex items-center gap-2 text-[15px]"><span className="w-2.5 h-2.5 rounded-full" style={{ background: COLORS[i % COLORS.length] }} /><span className="text-[var(--text-secondary)]">{d.name}</span><span className="font-semibold ml-auto">{d.value}</span></div>)}</div>
   </div>;
   return <ExpandableChart title={title}>{content}</ExpandableChart>;
 }
@@ -436,21 +436,21 @@ export function RadarViz({ data, title }: { data: { subject: string; current: nu
   if (!data?.length) return null;
   const content = <ResponsiveContainer width="100%" height={280}>
     <RadarChart data={data} margin={{ top: 10, right: 30, bottom: 10, left: 30 }}>
-      <PolarGrid stroke="#2A3555" /><PolarAngleAxis dataKey="subject" tick={{ fontSize: 11, fill: "#A3B1C6" }} /><PolarRadiusAxis domain={[0, data[0]?.max || 5]} tick={{ fontSize: 10, fill: "#7B8BA2" }} />
+      <PolarGrid stroke="#2A3555" /><PolarAngleAxis dataKey="subject" tick={{ fontSize: 15, fill: "#A3B1C6" }} /><PolarRadiusAxis domain={[0, data[0]?.max || 5]} tick={{ fontSize: 15, fill: "#7B8BA2" }} />
       <Radar name="Current" dataKey="current" stroke="#D4860A" fill="#D4860A" fillOpacity={0.2} strokeWidth={2} />
       {data[0]?.future !== undefined && <Radar name="Future" dataKey="future" stroke="#F97316" fill="#F97316" fillOpacity={0.1} strokeWidth={2} strokeDasharray="4 4" />}
-      <Legend wrapperStyle={{ fontSize: 11, color: "#A3B1C6" }} /><Tooltip contentStyle={TT as object} />
+      <Legend wrapperStyle={{ fontSize: 15, color: "#A3B1C6" }} /><Tooltip contentStyle={TT as object} />
     </RadarChart>
   </ResponsiveContainer>;
   return <ExpandableChart title={title}>{content}</ExpandableChart>;
 }
 
 export function TabBar({ tabs, active, onChange }: { tabs: { id: string; label: string }[]; active: string; onChange: (id: string) => void }) {
-  return <div className="flex border-b-2 border-[var(--border)] mb-5 gap-0 overflow-x-auto">{tabs.map(t => <button key={t.id} onClick={() => onChange(t.id)} className={`px-4 py-2.5 text-[13px] font-medium whitespace-nowrap -mb-[2px] border-b-2 transition-all ${active === t.id ? "text-[var(--accent-primary)] font-semibold border-[var(--accent-primary)]" : "text-[var(--text-muted)] border-transparent hover:text-[var(--text-secondary)]"}`}>{t.label}</button>)}</div>;
+  return <div className="flex border-b-2 border-[var(--border)] mb-5 gap-0 overflow-x-auto">{tabs.map(t => <button key={t.id} onClick={() => onChange(t.id)} className={`px-4 py-2.5 text-[15px] font-medium whitespace-nowrap -mb-[2px] border-b-2 transition-all ${active === t.id ? "text-[var(--accent-primary)] font-semibold border-[var(--accent-primary)]" : "text-[var(--text-muted)] border-transparent hover:text-[var(--text-secondary)]"}`}>{t.label}</button>)}</div>;
 }
 
 export function SidebarSelect({ label, options, value, onChange }: { label?: string; options: string[]; value: string; onChange: (v: string) => void }) {
-  return <div className="mb-2">{label && <label className="block text-[11px] font-semibold text-[var(--text-muted)] tracking-wide mb-1">{label}</label>}<select value={value} onChange={e => onChange(e.target.value)} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-md px-2.5 py-1.5 text-[13px] text-[var(--text-primary)] focus:border-[var(--accent-primary)] outline-none appearance-none">{options.map(o => <option key={o} value={o} className="bg-[var(--surface-2)]">{o}</option>)}</select></div>;
+  return <div className="mb-2">{label && <label className="block text-[15px] font-semibold text-[var(--text-muted)] tracking-wide mb-1">{label}</label>}<select value={value} onChange={e => onChange(e.target.value)} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-md px-2.5 py-1.5 text-[15px] text-[var(--text-primary)] focus:border-[var(--accent-primary)] outline-none appearance-none">{options.map(o => <option key={o} value={o} className="bg-[var(--surface-2)]">{o}</option>)}</select></div>;
 }
 
 export function ReadinessDot({ ready }: { ready: boolean }) { return <span className={`inline-block w-2 h-2 rounded-full mr-2 ${ready ? "bg-[var(--success)]" : "bg-[var(--risk)]"}`} />; }
@@ -494,8 +494,8 @@ export function ViewToggle({ viewCtx, onChangeView }: { viewCtx: ViewContext; on
   const colors: Record<string, string> = { org: "var(--accent-primary)", job: "var(--success)", employee: "var(--purple)", custom: "var(--warning)" };
   const icons: Record<string, string> = { org: "🏢", job: "💼", employee: "👤", custom: "⚙️" };
   const labels: Record<string, string> = { org: "Org-Wide", job: viewCtx.job || "Job", employee: viewCtx.employee || "Employee", custom: "Custom" };
-  return <button onClick={onChangeView} className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] font-semibold transition-all hover:opacity-80" style={{ background: `${colors[viewCtx.mode]}15`, border: `1px solid ${colors[viewCtx.mode]}30`, color: colors[viewCtx.mode] }}>
-    {icons[viewCtx.mode]} {labels[viewCtx.mode]} <span className="text-[9px] opacity-60">↻</span>
+  return <button onClick={onChangeView} className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-[15px] font-semibold transition-all hover:opacity-80" style={{ background: `${colors[viewCtx.mode]}15`, border: `1px solid ${colors[viewCtx.mode]}30`, color: colors[viewCtx.mode] }}>
+    {icons[viewCtx.mode]} {labels[viewCtx.mode]} <span className="text-[14px] opacity-60">↻</span>
   </button>;
 }
 
@@ -520,19 +520,19 @@ export function PageHeader({ icon, title, subtitle, onBack, moduleId, onUpload, 
   const noTemplate = moduleId === "opmodel"; // Op Model Lab is a sandbox, no upload needed
 
   return <div className="mb-6">
-    <button onClick={onBack} className="text-[12px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mb-3 flex items-center gap-1 transition-colors">← Back to Home</button>
+    <button onClick={onBack} className="text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mb-3 flex items-center gap-1 transition-colors">← Back to Home</button>
     <div className="flex items-center justify-between flex-wrap gap-4">
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#e09040] to-[#c07030] flex items-center justify-center text-xl">{icon}</div>
-        <div><h1 className="text-xl font-extrabold text-[var(--text-primary)] tracking-tight font-heading">{title}</h1><p className="text-[13px] text-[var(--text-secondary)]">{subtitle}</p></div>
+        <div><h1 className="text-xl font-extrabold text-[var(--text-primary)] tracking-tight font-heading">{title}</h1><p className="text-[15px] text-[var(--text-secondary)]">{subtitle}</p></div>
         {moduleId && <InfoButton moduleId={moduleId} />}
       </div>
       <div className="flex items-center gap-2">
         {viewCtx && viewCtx.mode !== "org" && onViewChange && <ViewToggle viewCtx={viewCtx} onChangeView={onViewChange} />}
       {moduleId && !noTemplate && <>
-        <a href={`/api/template/${moduleId}`} download className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--accent-primary)] hover:text-[var(--accent-primary)] no-underline">⬇ {dataLabel} Template</a>
+        <a href={`/api/template/${moduleId}`} download className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[15px] font-semibold transition-all bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--accent-primary)] hover:text-[var(--accent-primary)] no-underline">⬇ {dataLabel} Template</a>
         <input ref={fileInputRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={e => { if (e.target.files && onUpload) onUpload(e.target.files); }} />
-        <button onClick={() => fileInputRef.current?.click()} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all bg-[var(--accent-primary)] text-white hover:opacity-90">⬆ Upload {dataLabel}</button>
+        <button onClick={() => fileInputRef.current?.click()} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[15px] font-semibold transition-all bg-[var(--accent-primary)] text-white hover:opacity-90">⬆ Upload {dataLabel}</button>
       </>}
       </div>
     </div>
@@ -545,8 +545,8 @@ export function PageHeader({ icon, title, subtitle, onBack, moduleId, onUpload, 
 export function ContextStrip({ items }: { items: string[] }) {
   if (!items.length) return null;
   return <div className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-4 py-2.5 mb-5 flex items-center gap-3 flex-wrap">
-    <span className="text-[12px] font-bold text-[var(--accent-primary)]">From prior steps:</span>
-    {items.map((t, i) => <span key={i} className="text-[12px] text-[var(--text-secondary)]">{t}</span>)}
+    <span className="text-[15px] font-bold text-[var(--accent-primary)]">From prior steps:</span>
+    {items.map((t, i) => <span key={i} className="text-[15px] text-[var(--text-secondary)]">{t}</span>)}
   </div>;
 }
 
@@ -560,7 +560,7 @@ export function Toast({ message, type = "info", onDismiss }: { message: string; 
   const icons = { info: "ℹ️", success: "✓", error: "✕", warning: "⚠" };
   return <div className="fixed bottom-6 right-6 z-50 animate-[slideUp_0.3s_ease] flex items-center gap-3 px-5 py-3 rounded-xl shadow-xl" style={{ background: "var(--surface-1)", border: `1px solid ${colors[type]}30`, minWidth: 280, maxWidth: 420 }}>
     <span className="text-lg" style={{ color: colors[type] }}>{icons[type]}</span>
-    <span className="text-[13px] text-[var(--text-primary)] flex-1">{message}</span>
+    <span className="text-[15px] text-[var(--text-primary)] flex-1">{message}</span>
     <button onClick={onDismiss} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm ml-2">✕</button>
   </div>;
 }
@@ -596,7 +596,7 @@ export function EmptyWithAction({ text, icon = "📭", actionLabel, onAction }: 
   return <div className="text-center py-12 text-[var(--text-secondary)]">
     <div className="text-3xl mb-2 opacity-40">{icon}</div>
     <div className="text-sm max-w-xs mx-auto leading-relaxed mb-3">{text}</div>
-    {actionLabel && onAction && <button onClick={onAction} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-semibold bg-[var(--accent-primary)] text-white hover:opacity-90 transition-opacity">{actionLabel}</button>}
+    {actionLabel && onAction && <button onClick={onAction} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[15px] font-semibold bg-[var(--accent-primary)] text-white hover:opacity-90 transition-opacity">{actionLabel}</button>}
   </div>;
 }
 
@@ -610,8 +610,8 @@ export function NextStepBar({ currentModuleId, onNavigate }: { currentModuleId: 
   const prev = currentIdx > 0 ? MODULES[currentIdx - 1] : null;
   if (!prev && !next) return null;
   return <div className="mt-8 pt-4 border-t border-[var(--border)] flex items-center justify-between">
-    {prev ? <button onClick={() => onNavigate(prev.id)} className="flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-semibold transition-all hover:opacity-90" style={{ background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text-primary)" }}>← {prev.icon} {prev.title}</button> : <div />}
-    {next ? <button onClick={() => onNavigate(next.id)} className="flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-semibold bg-[var(--accent-primary)] text-white hover:opacity-90 transition-opacity">Next: {next.icon} {next.title} →</button> : <div />}
+    {prev ? <button onClick={() => onNavigate(prev.id)} className="flex items-center gap-2 px-4 py-2 rounded-lg text-[15px] font-semibold transition-all hover:opacity-90" style={{ background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text-primary)" }}>← {prev.icon} {prev.title}</button> : <div />}
+    {next ? <button onClick={() => onNavigate(next.id)} className="flex items-center gap-2 px-4 py-2 rounded-lg text-[15px] font-semibold bg-[var(--accent-primary)] text-white hover:opacity-90 transition-opacity">Next: {next.icon} {next.title} →</button> : <div />}
   </div>;
 }
 
@@ -741,21 +741,21 @@ export function AiEspressoPanel({ moduleId, contextData, isGlobal = false }: { m
   return <div className="flex flex-col h-full">
     {/* Quick prompts — toggleable cards */}
     {messages.length === 0 && <div className="px-4 pt-3 pb-2">
-      <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">{isGlobal ? "Platform-wide actions" : "Quick actions"}</div>
+      <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">{isGlobal ? "Platform-wide actions" : "Quick actions"}</div>
       <div className="space-y-1.5">
         {prompts.map((p, i) => <div key={i}>
-          <button onClick={() => handlePromptClick(i)} className="w-full text-left px-3 py-2.5 rounded-xl text-[12px] transition-all flex items-center justify-between group" style={{ background: activePrompt === i ? "rgba(224,144,64,0.1)" : "var(--surface-2)", border: activePrompt === i ? "1px solid rgba(224,144,64,0.3)" : "1px solid var(--border)" }} onMouseEnter={e => { if (activePrompt !== i) e.currentTarget.style.borderColor = "rgba(224,144,64,0.15)"; }} onMouseLeave={e => { if (activePrompt !== i) e.currentTarget.style.borderColor = "var(--border)"; }}>
+          <button onClick={() => handlePromptClick(i)} className="w-full text-left px-3 py-2.5 rounded-xl text-[15px] transition-all flex items-center justify-between group" style={{ background: activePrompt === i ? "rgba(224,144,64,0.1)" : "var(--surface-2)", border: activePrompt === i ? "1px solid rgba(224,144,64,0.3)" : "1px solid var(--border)" }} onMouseEnter={e => { if (activePrompt !== i) e.currentTarget.style.borderColor = "rgba(224,144,64,0.15)"; }} onMouseLeave={e => { if (activePrompt !== i) e.currentTarget.style.borderColor = "var(--border)"; }}>
             <span className="font-semibold" style={{ color: activePrompt === i ? "#f0a050" : "var(--text-primary)" }}>{p.label}</span>
             <span className="text-[16px] opacity-0 group-hover:opacity-100 transition-opacity">{p.needsInput ? "✎" : "→"}</span>
           </button>
           {/* Input dialog for prompts that need user input */}
           {activePrompt === i && p.needsInput && <div className="mt-1.5 ml-3 mr-1 p-3 rounded-xl" style={{ background: "var(--surface-2)", border: "1px solid rgba(224,144,64,0.2)" }}>
-            <div className="text-[11px] font-semibold text-[var(--text-muted)] mb-1.5">{p.inputLabel}</div>
-            <input value={promptInput} onChange={e => setPromptInput(e.target.value)} placeholder={p.inputPlaceholder} className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-lg px-3 py-2 text-[12px] text-[var(--text-primary)] outline-none focus:border-[rgba(224,144,64,0.3)] placeholder:text-[var(--text-muted)] mb-2" onKeyDown={e => { if (e.key === "Enter" && promptInput.trim()) sendMessage(`${p.prompt} ${p.inputLabel}: ${promptInput.trim()}`); }} />
-            <div className="text-[10px] text-[var(--text-muted)] mb-2 italic">Prompt: {p.prompt}</div>
+            <div className="text-[15px] font-semibold text-[var(--text-muted)] mb-1.5">{p.inputLabel}</div>
+            <input value={promptInput} onChange={e => setPromptInput(e.target.value)} placeholder={p.inputPlaceholder} className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-lg px-3 py-2 text-[15px] text-[var(--text-primary)] outline-none focus:border-[rgba(224,144,64,0.3)] placeholder:text-[var(--text-muted)] mb-2" onKeyDown={e => { if (e.key === "Enter" && promptInput.trim()) sendMessage(`${p.prompt} ${p.inputLabel}: ${promptInput.trim()}`); }} />
+            <div className="text-[15px] text-[var(--text-muted)] mb-2 italic">Prompt: {p.prompt}</div>
             <div className="flex justify-end gap-2">
-              <button onClick={() => setActivePrompt(null)} className="px-3 py-1.5 rounded-lg text-[11px] text-[var(--text-muted)]">Cancel</button>
-              <button onClick={() => { if (promptInput.trim()) sendMessage(`${p.prompt} ${p.inputLabel}: ${promptInput.trim()}`); }} disabled={!promptInput.trim()} className="px-3 py-1.5 rounded-lg text-[11px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: promptInput.trim() ? 1 : 0.4 }}>Run ☕</button>
+              <button onClick={() => setActivePrompt(null)} className="px-3 py-1.5 rounded-lg text-[15px] text-[var(--text-muted)]">Cancel</button>
+              <button onClick={() => { if (promptInput.trim()) sendMessage(`${p.prompt} ${p.inputLabel}: ${promptInput.trim()}`); }} disabled={!promptInput.trim()} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: promptInput.trim() ? 1 : 0.4 }}>Run ☕</button>
             </div>
           </div>}
         </div>)}
@@ -765,18 +765,18 @@ export function AiEspressoPanel({ moduleId, contextData, isGlobal = false }: { m
     {/* Messages */}
     <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3" style={{ maxHeight: messages.length ? "50vh" : "0", minHeight: messages.length ? 120 : 0 }}>
       {messages.map((m, i) => <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-        <div className="max-w-[85%] rounded-xl px-4 py-2.5 text-[13px] leading-relaxed" style={{ background: m.role === "user" ? "linear-gradient(135deg, #e09040, #c07030)" : "var(--surface-2)", color: m.role === "user" ? "#fff" : "var(--text-primary)", borderBottomRightRadius: m.role === "user" ? 4 : 12, borderBottomLeftRadius: m.role === "user" ? 12 : 4 }}>
+        <div className="max-w-[85%] rounded-xl px-4 py-2.5 text-[15px] leading-relaxed" style={{ background: m.role === "user" ? "linear-gradient(135deg, #e09040, #c07030)" : "var(--surface-2)", color: m.role === "user" ? "#fff" : "var(--text-primary)", borderBottomRightRadius: m.role === "user" ? 4 : 12, borderBottomLeftRadius: m.role === "user" ? 12 : 4 }}>
           {m.content.split("\n").map((line, li) => <div key={li} className={li > 0 ? "mt-1.5" : ""}>{line}</div>)}
         </div>
       </div>)}
-      {loading && <div className="flex justify-start"><div className="rounded-xl px-4 py-2.5 text-[13px] flex items-center gap-2" style={{ background: "var(--surface-2)", color: "var(--text-muted)" }}><span className="inline-block w-4 h-4 rounded-full animate-pulse" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }} /> Brewing your espresso...</div></div>}
+      {loading && <div className="flex justify-start"><div className="rounded-xl px-4 py-2.5 text-[15px] flex items-center gap-2" style={{ background: "var(--surface-2)", color: "var(--text-muted)" }}><span className="inline-block w-4 h-4 rounded-full animate-pulse" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }} /> Brewing your espresso...</div></div>}
       <div ref={messagesEndRef} />
     </div>
 
     {/* Free-form input */}
     <div className="px-4 py-3 flex gap-2" style={{ borderTop: "1px solid var(--border)" }}>
-      <input ref={inputRef} value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === "Enter") sendMessage(input); }} placeholder={messages.length ? "Follow up..." : "Or type your own question..."} className="flex-1 bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-[13px] text-[var(--text-primary)] outline-none focus:border-[rgba(224,144,64,0.3)] placeholder:text-[var(--text-muted)]" />
-      <button onClick={() => sendMessage(input)} disabled={loading || !input.trim()} className="px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all disabled:opacity-40" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>☕</button>
+      <input ref={inputRef} value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === "Enter") sendMessage(input); }} placeholder={messages.length ? "Follow up..." : "Or type your own question..."} className="flex-1 bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-[15px] text-[var(--text-primary)] outline-none focus:border-[rgba(224,144,64,0.3)] placeholder:text-[var(--text-muted)]" />
+      <button onClick={() => sendMessage(input)} disabled={loading || !input.trim()} className="px-4 py-2.5 rounded-xl text-[15px] font-semibold text-white transition-all disabled:opacity-40" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>☕</button>
     </div>
   </div>;
 }
@@ -800,13 +800,13 @@ export function AiEspressoButton({ moduleId, contextData, viewMode: vMode }: { m
           <span className="text-xl">☕</span>
           <div>
             <div className="text-[14px] font-bold text-[var(--text-primary)]">AI Espresso</div>
-            <div className="text-[10px] text-[var(--text-muted)]">{mode === "module" ? moduleName : "Full Platform"} · {getAiRemaining()} requests left</div>
+            <div className="text-[15px] text-[var(--text-muted)]">{mode === "module" ? moduleName : "Full Platform"} · {getAiRemaining()} requests left</div>
           </div>
         </div>
         {/* Mode toggle */}
         <div className="flex rounded-lg overflow-hidden border border-[var(--border)]">
-          <button onClick={() => setMode("module")} className="px-2.5 py-1 text-[10px] font-semibold transition-all" style={{ background: mode === "module" ? "rgba(224,144,64,0.15)" : "transparent", color: mode === "module" ? "#f0a050" : "var(--text-muted)" }}>This Module</button>
-          <button onClick={() => setMode("global")} className="px-2.5 py-1 text-[10px] font-semibold transition-all" style={{ background: mode === "global" ? "rgba(224,144,64,0.15)" : "transparent", color: mode === "global" ? "#f0a050" : "var(--text-muted)" }}>Full Platform</button>
+          <button onClick={() => setMode("module")} className="px-2.5 py-1 text-[15px] font-semibold transition-all" style={{ background: mode === "module" ? "rgba(224,144,64,0.15)" : "transparent", color: mode === "module" ? "#f0a050" : "var(--text-muted)" }}>This Module</button>
+          <button onClick={() => setMode("global")} className="px-2.5 py-1 text-[15px] font-semibold transition-all" style={{ background: mode === "global" ? "rgba(224,144,64,0.15)" : "transparent", color: mode === "global" ? "#f0a050" : "var(--text-muted)" }}>Full Platform</button>
         </div>
       </div>
 
@@ -849,7 +849,7 @@ export function ViewSelector({ onSelect, employees, jobs, filterOptions, onBack 
     <div style={{ position: "absolute", inset: 0, background: revealed ? "rgba(8,12,24,0.75)" : "radial-gradient(ellipse at center, rgba(8,12,24,0.2) 0%, rgba(8,12,24,0.5) 60%, rgba(8,12,24,0.7) 100%)", transition: "background 0.6s ease", width: "100vw", height: "100vh" }} />
 
     {/* Back button */}
-    <button onClick={onBack} style={{ position: "absolute", top: 20, left: 20, zIndex: 20, fontSize: 12, color: "rgba(255,220,180,0.5)", background: "none", border: "none", cursor: "pointer" }}>← Back to Projects</button>
+    <button onClick={onBack} style={{ position: "absolute", top: 20, left: 20, zIndex: 20, fontSize: 15, color: "rgba(255,220,180,0.5)", background: "none", border: "none", cursor: "pointer" }}>← Back to Projects</button>
 
     {/* Click-to-reveal state */}
     {!revealed && <div style={{ position: "absolute", inset: 0, zIndex: 10, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }} onClick={() => setRevealed(true)}>
@@ -870,7 +870,7 @@ export function ViewSelector({ onSelect, employees, jobs, filterOptions, onBack 
       <div className="max-w-2xl w-full px-6">
         <div className="text-center mb-6">
           <div className="text-[22px] font-extrabold text-white mb-1" style={{ textShadow: "0 2px 16px rgba(0,0,0,0.3)" }}>Select Your View</div>
-          <p className="text-[13px]" style={{ color: "rgba(255,220,180,0.4)" }}>Every module adapts to your chosen perspective</p>
+          <p className="text-[15px]" style={{ color: "rgba(255,220,180,0.4)" }}>Every module adapts to your chosen perspective</p>
         </div>
 
         <div className="grid grid-cols-2 gap-3 mb-4">
@@ -884,8 +884,8 @@ export function ViewSelector({ onSelect, employees, jobs, filterOptions, onBack 
               <span className="text-2xl">{v.icon}</span>
               <span className="text-[16px] font-bold" style={{ color: "rgba(255,245,235,0.92)" }}>{v.title}</span>
             </div>
-            <div className="text-[12px]" style={{ color: "rgba(255,220,190,0.4)" }}>{v.desc}</div>
-            {!v.ready && <div className="text-[11px] mt-2" style={{ color: "rgba(245,158,11,0.6)" }}>Upload data to enable</div>}
+            <div className="text-[15px]" style={{ color: "rgba(255,220,190,0.4)" }}>{v.desc}</div>
+            {!v.ready && <div className="text-[15px] mt-2" style={{ color: "rgba(245,158,11,0.6)" }}>Upload data to enable</div>}
             <div className="absolute top-4 right-4 text-[14px] opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: v.color }}>→</div>
           </button>)}
         </div>
@@ -899,14 +899,14 @@ export function ViewSelector({ onSelect, employees, jobs, filterOptions, onBack 
               { key: "cl", label: "Career Level", options: filterOptions.career_levels || ["All"] },
               { key: "ct", label: "Career Track", options: ["All", "Executive", "Manager", "IC", "Analyst"] },
             ].map(f => <div key={f.key}>
-              <div className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: "rgba(255,200,150,0.3)" }}>{f.label}</div>
-              <select value={customFilters[f.key as keyof typeof customFilters]} onChange={e => setCustomFilters(prev => ({ ...prev, [f.key]: e.target.value }))} className="w-full rounded-lg px-3 py-2 text-[12px] outline-none" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,200,150,0.1)", color: "rgba(255,245,235,0.85)" }}>
+              <div className="text-[15px] font-bold uppercase tracking-wider mb-1" style={{ color: "rgba(255,200,150,0.3)" }}>{f.label}</div>
+              <select value={customFilters[f.key as keyof typeof customFilters]} onChange={e => setCustomFilters(prev => ({ ...prev, [f.key]: e.target.value }))} className="w-full rounded-lg px-3 py-2 text-[15px] outline-none" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,200,150,0.1)", color: "rgba(255,245,235,0.85)" }}>
                 {f.options.map(o => <option key={o} value={o}>{o}</option>)}
               </select>
             </div>)}
           </div>
           <div className="flex justify-end">
-            <button onClick={() => onSelect("custom", customFilters)} className="px-5 py-2.5 rounded-xl text-[13px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #F97316, #EA580C)" }}>Apply & Enter →</button>
+            <button onClick={() => onSelect("custom", customFilters)} className="px-5 py-2.5 rounded-xl text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #F97316, #EA580C)" }}>Apply & Enter →</button>
           </div>
         </div>}
       </div>
@@ -919,11 +919,11 @@ export function ViewJobPicker({ jobs, onSelect, onBack }: { jobs: string[]; onSe
   const filtered = jobs.filter(j => j.toLowerCase().includes(search.toLowerCase()));
   return <div className="min-h-[calc(100vh-48px)] flex items-center justify-center" style={{ background: "var(--bg)" }}>
     <div className="max-w-lg w-full px-6">
-      <button onClick={onBack} className="text-[12px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mb-4 flex items-center gap-1">← Back to view selection</button>
+      <button onClick={onBack} className="text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mb-4 flex items-center gap-1">← Back to view selection</button>
       <div className="text-xl font-extrabold text-[var(--text-primary)] mb-1">Select a Job</div>
-      <p className="text-[13px] text-[var(--text-secondary)] mb-4">The entire platform will focus on this role</p>
-      <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search jobs..." className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-3 text-[13px] text-[var(--text-primary)] outline-none focus:border-[var(--accent-primary)] mb-3 placeholder:text-[var(--text-muted)]" />
-      <div className="space-y-1.5 max-h-[50vh] overflow-y-auto">{filtered.map(j => <button key={j} onClick={() => onSelect(j)} className="w-full text-left px-4 py-3 rounded-xl text-[13px] transition-all hover:bg-[rgba(212,134,10,0.06)] border border-transparent hover:border-[var(--accent-primary)]/20" style={{ background: "var(--surface-1)" }}>
+      <p className="text-[15px] text-[var(--text-secondary)] mb-4">The entire platform will focus on this role</p>
+      <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search jobs..." className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-3 text-[15px] text-[var(--text-primary)] outline-none focus:border-[var(--accent-primary)] mb-3 placeholder:text-[var(--text-muted)]" />
+      <div className="space-y-1.5 max-h-[50vh] overflow-y-auto">{filtered.map(j => <button key={j} onClick={() => onSelect(j)} className="w-full text-left px-4 py-3 rounded-xl text-[15px] transition-all hover:bg-[rgba(212,134,10,0.06)] border border-transparent hover:border-[var(--accent-primary)]/20" style={{ background: "var(--surface-1)" }}>
         <span className="font-semibold text-[var(--text-primary)]">{j}</span>
       </button>)}</div>
       {filtered.length === 0 && <div className="text-center py-8 text-[var(--text-muted)]">No matching jobs</div>}
@@ -936,14 +936,14 @@ export function ViewEmployeePicker({ employees, onSelect, onBack }: { employees:
   const filtered = employees.filter(e => e.toLowerCase().includes(search.toLowerCase()));
   return <div className="min-h-[calc(100vh-48px)] flex items-center justify-center" style={{ background: "var(--bg)" }}>
     <div className="max-w-lg w-full px-6">
-      <button onClick={onBack} className="text-[12px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mb-4 flex items-center gap-1">← Back to view selection</button>
+      <button onClick={onBack} className="text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mb-4 flex items-center gap-1">← Back to view selection</button>
       <div className="text-xl font-extrabold text-[var(--text-primary)] mb-1">Select an Employee</div>
-      <p className="text-[13px] text-[var(--text-secondary)] mb-4">See their world — role, team, org chart, and how AI affects them</p>
-      <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search employees..." className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-3 text-[13px] text-[var(--text-primary)] outline-none focus:border-[var(--accent-primary)] mb-3 placeholder:text-[var(--text-muted)]" />
-      <div className="space-y-1.5 max-h-[50vh] overflow-y-auto">{filtered.slice(0, 50).map(e => <button key={e} onClick={() => onSelect(e)} className="w-full text-left px-4 py-3 rounded-xl text-[13px] transition-all hover:bg-[rgba(139,92,246,0.06)] border border-transparent hover:border-[var(--purple)]/20" style={{ background: "var(--surface-1)" }}>
+      <p className="text-[15px] text-[var(--text-secondary)] mb-4">See their world — role, team, org chart, and how AI affects them</p>
+      <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search employees..." className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-3 text-[15px] text-[var(--text-primary)] outline-none focus:border-[var(--accent-primary)] mb-3 placeholder:text-[var(--text-muted)]" />
+      <div className="space-y-1.5 max-h-[50vh] overflow-y-auto">{filtered.slice(0, 50).map(e => <button key={e} onClick={() => onSelect(e)} className="w-full text-left px-4 py-3 rounded-xl text-[15px] transition-all hover:bg-[rgba(139,92,246,0.06)] border border-transparent hover:border-[var(--purple)]/20" style={{ background: "var(--surface-1)" }}>
         <span className="font-semibold text-[var(--text-primary)]">{e}</span>
       </button>)}</div>
-      {filtered.length > 50 && <div className="text-center py-3 text-[12px] text-[var(--text-muted)]">Showing 50 of {filtered.length} — narrow your search</div>}
+      {filtered.length > 50 && <div className="text-center py-3 text-[15px] text-[var(--text-muted)]">Showing 50 of {filtered.length} — narrow your search</div>}
       {filtered.length === 0 && <div className="text-center py-8 text-[var(--text-muted)]">No matching employees</div>}
     </div>
   </div>;
@@ -1215,7 +1215,7 @@ export function AiJobSuggestButton({ title, industry, onAccept, compact }: {
 
   return <>
     <button onClick={() => setOpen(true)}
-      className={`${compact ? "px-2 py-1 text-[9px]" : "px-3 py-1.5 text-[10px]"} rounded-lg font-semibold bg-purple-500/10 border border-purple-500/25 text-purple-400 hover:bg-purple-500/20 transition-all inline-flex items-center gap-1`}>
+      className={`${compact ? "px-2 py-1 text-[14px]" : "px-3 py-1.5 text-[15px]"} rounded-lg font-semibold bg-purple-500/10 border border-purple-500/25 text-purple-400 hover:bg-purple-500/20 transition-all inline-flex items-center gap-1`}>
       <span>✨</span> Auto-suggest
     </button>
     {open && <AiJobSuggestPanel title={title} industry={industry || "technology"} onAccept={d => { onAccept(d); setOpen(false); }} onClose={() => setOpen(false)} />}
@@ -1339,15 +1339,15 @@ Return ONLY valid JSON in this exact format:
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-[16px] font-bold font-heading text-[var(--text-primary)] flex items-center gap-2">✨ AI Auto-Suggest <span className="text-[12px] font-normal text-purple-400">{title}</span></h2>
-          <p className="text-[10px] text-[var(--text-muted)] mt-0.5">Review suggestions below. Check items to accept, double-click to edit, then confirm.</p>
+          <h2 className="text-[16px] font-bold font-heading text-[var(--text-primary)] flex items-center gap-2">✨ AI Auto-Suggest <span className="text-[15px] font-normal text-purple-400">{title}</span></h2>
+          <p className="text-[15px] text-[var(--text-muted)] mt-0.5">Review suggestions below. Check items to accept, double-click to edit, then confirm.</p>
         </div>
         <button onClick={onClose} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-lg">✕</button>
       </div>
 
       {/* Loading shimmer */}
       {loading && <div className="space-y-3 py-8">
-        <div className="text-center text-[13px] text-purple-400 font-semibold mb-4">AI is analyzing this role...</div>
+        <div className="text-center text-[15px] text-purple-400 font-semibold mb-4">AI is analyzing this role...</div>
         {[1,2,3,4,5,6].map(i => <div key={i} className="h-8 rounded-lg animate-pulse" style={{ background: `linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3, rgba(255,255,255,0.05)) 50%, var(--surface-2) 75%)`, backgroundSize: "200% 100%", animation: `shimmer 1.5s infinite ${i * 0.15}s` }} />)}
         <style>{`@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }`}</style>
       </div>}
@@ -1355,39 +1355,39 @@ Return ONLY valid JSON in this exact format:
       {/* Error state */}
       {error && <div className="text-center py-8">
         <div className="text-2xl mb-3 opacity-40">⚡</div>
-        <p className="text-[13px] text-[var(--text-secondary)] mb-2">{error}</p>
-        <button onClick={onClose} className="px-4 py-2 rounded-lg text-[11px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:border-[var(--accent-primary)]">Continue manually</button>
+        <p className="text-[15px] text-[var(--text-secondary)] mb-2">{error}</p>
+        <button onClick={onClose} className="px-4 py-2 rounded-lg text-[15px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:border-[var(--accent-primary)]">Continue manually</button>
       </div>}
 
       {/* Results */}
       {suggestion && !loading && <>
         {/* Tasks */}
         <div className="mb-4">
-          <div className="text-[10px] font-bold text-purple-400 uppercase tracking-wider mb-2">Tasks ({checkedTasks.size}/{suggestion.tasks.length} selected)</div>
+          <div className="text-[15px] font-bold text-purple-400 uppercase tracking-wider mb-2">Tasks ({checkedTasks.size}/{suggestion.tasks.length} selected)</div>
           <div className="space-y-1">
-            {suggestion.tasks.map((t, i) => <div key={i} className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-[var(--hover)] text-[11px]">
+            {suggestion.tasks.map((t, i) => <div key={i} className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-[var(--hover)] text-[15px]">
               <input type="checkbox" checked={checkedTasks.has(i)} onChange={() => toggleCheck(checkedTasks, setCheckedTasks, i)} style={checkboxStyle} />
               {editIdx?.section === "task" && editIdx.idx === i ? (
                 <input autoFocus value={editValue} onChange={e => setEditValue(e.target.value)} onBlur={handleEditSave} onKeyDown={e => e.key === "Enter" && handleEditSave()}
-                  className="flex-1 bg-[var(--surface-2)] border border-purple-500/40 rounded px-2 py-0.5 text-[11px] text-[var(--text-primary)] outline-none" />
+                  className="flex-1 bg-[var(--surface-2)] border border-purple-500/40 rounded px-2 py-0.5 text-[15px] text-[var(--text-primary)] outline-none" />
               ) : (
                 <span className="flex-1 text-[var(--text-primary)] cursor-text" onDoubleClick={() => { setEditIdx({ section: "task", idx: i }); setEditValue(t.name); }}>{t.name}</span>
               )}
-              <span className="text-[9px] font-data text-[var(--text-muted)] w-12 text-right">{t.hours_per_week}h/wk</span>
-              <span className={`text-[8px] px-1.5 py-0.5 rounded-full font-bold ${t.ai_impact === "High" ? "bg-red-500/10 text-red-400" : t.ai_impact === "Moderate" ? "bg-amber-500/10 text-amber-400" : "bg-green-500/10 text-green-400"}`}>{t.ai_impact}</span>
+              <span className="text-[14px] font-data text-[var(--text-muted)] w-12 text-right">{t.hours_per_week}h/wk</span>
+              <span className={`text-[15px] px-1.5 py-0.5 rounded-full font-bold ${t.ai_impact === "High" ? "bg-red-500/10 text-red-400" : t.ai_impact === "Moderate" ? "bg-amber-500/10 text-amber-400" : "bg-green-500/10 text-green-400"}`}>{t.ai_impact}</span>
             </div>)}
           </div>
         </div>
 
         {/* Skills */}
         <div className="mb-4">
-          <div className="text-[10px] font-bold text-purple-400 uppercase tracking-wider mb-2">Skills by Category ({checkedSkills.size}/{suggestion.skills.length} groups selected)</div>
+          <div className="text-[15px] font-bold text-purple-400 uppercase tracking-wider mb-2">Skills by Category ({checkedSkills.size}/{suggestion.skills.length} groups selected)</div>
           <div className="grid grid-cols-2 gap-2">
             {suggestion.skills.map((g, i) => <div key={i} className="flex items-start gap-2 px-2 py-1.5 rounded-lg bg-[var(--surface-2)] border border-[var(--border)]">
               <input type="checkbox" checked={checkedSkills.has(i)} onChange={() => toggleCheck(checkedSkills, setCheckedSkills, i)} style={{ ...checkboxStyle, marginTop: 2 }} />
               <div>
-                <div className="text-[10px] font-semibold text-[var(--accent-primary)]">{g.category}</div>
-                <div className="text-[10px] text-[var(--text-secondary)]">{g.skills.join(", ")}</div>
+                <div className="text-[15px] font-semibold text-[var(--accent-primary)]">{g.category}</div>
+                <div className="text-[15px] text-[var(--text-secondary)]">{g.skills.join(", ")}</div>
               </div>
             </div>)}
           </div>
@@ -1396,24 +1396,24 @@ Return ONLY valid JSON in this exact format:
         {/* KPIs + Responsibilities side by side */}
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
-            <div className="text-[10px] font-bold text-purple-400 uppercase tracking-wider mb-2">KPIs</div>
-            {suggestion.kpis.map((k, i) => <div key={i} className="flex items-center gap-2 text-[11px] py-0.5">
+            <div className="text-[15px] font-bold text-purple-400 uppercase tracking-wider mb-2">KPIs</div>
+            {suggestion.kpis.map((k, i) => <div key={i} className="flex items-center gap-2 text-[15px] py-0.5">
               <input type="checkbox" checked={checkedKpis.has(i)} onChange={() => toggleCheck(checkedKpis, setCheckedKpis, i)} style={checkboxStyle} />
               {editIdx?.section === "kpi" && editIdx.idx === i ? (
                 <input autoFocus value={editValue} onChange={e => setEditValue(e.target.value)} onBlur={handleEditSave} onKeyDown={e => e.key === "Enter" && handleEditSave()}
-                  className="flex-1 bg-[var(--surface-2)] border border-purple-500/40 rounded px-2 py-0.5 text-[11px] text-[var(--text-primary)] outline-none" />
+                  className="flex-1 bg-[var(--surface-2)] border border-purple-500/40 rounded px-2 py-0.5 text-[15px] text-[var(--text-primary)] outline-none" />
               ) : (
                 <span className="text-[var(--text-secondary)] cursor-text" onDoubleClick={() => { setEditIdx({ section: "kpi", idx: i }); setEditValue(k); }}>{k}</span>
               )}
             </div>)}
           </div>
           <div>
-            <div className="text-[10px] font-bold text-purple-400 uppercase tracking-wider mb-2">Responsibilities</div>
-            {suggestion.responsibilities.map((r, i) => <div key={i} className="flex items-center gap-2 text-[11px] py-0.5">
+            <div className="text-[15px] font-bold text-purple-400 uppercase tracking-wider mb-2">Responsibilities</div>
+            {suggestion.responsibilities.map((r, i) => <div key={i} className="flex items-center gap-2 text-[15px] py-0.5">
               <input type="checkbox" checked={checkedResps.has(i)} onChange={() => toggleCheck(checkedResps, setCheckedResps, i)} style={checkboxStyle} />
               {editIdx?.section === "resp" && editIdx.idx === i ? (
                 <input autoFocus value={editValue} onChange={e => setEditValue(e.target.value)} onBlur={handleEditSave} onKeyDown={e => e.key === "Enter" && handleEditSave()}
-                  className="flex-1 bg-[var(--surface-2)] border border-purple-500/40 rounded px-2 py-0.5 text-[11px] text-[var(--text-primary)] outline-none" />
+                  className="flex-1 bg-[var(--surface-2)] border border-purple-500/40 rounded px-2 py-0.5 text-[15px] text-[var(--text-primary)] outline-none" />
               ) : (
                 <span className="text-[var(--text-secondary)] cursor-text" onDoubleClick={() => { setEditIdx({ section: "resp", idx: i }); setEditValue(r); }}>{r}</span>
               )}
@@ -1424,25 +1424,25 @@ Return ONLY valid JSON in this exact format:
         {/* Collaborators (info only, no checkbox) */}
         <div className="grid grid-cols-2 gap-4 mb-5">
           <div>
-            <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Collaborates With</div>
-            <div className="flex flex-wrap gap-1">{suggestion.collaborates_with.map(t => <span key={t} className="px-2 py-0.5 rounded-full bg-[var(--surface-2)] text-[9px] text-[var(--text-secondary)]">{t}</span>)}</div>
+            <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Collaborates With</div>
+            <div className="flex flex-wrap gap-1">{suggestion.collaborates_with.map(t => <span key={t} className="px-2 py-0.5 rounded-full bg-[var(--surface-2)] text-[14px] text-[var(--text-secondary)]">{t}</span>)}</div>
           </div>
           <div>
-            <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">External Parties</div>
-            <div className="flex flex-wrap gap-1">{suggestion.external_parties.map(t => <span key={t} className="px-2 py-0.5 rounded-full bg-[var(--surface-2)] text-[9px] text-[var(--text-secondary)]">{t}</span>)}</div>
+            <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">External Parties</div>
+            <div className="flex flex-wrap gap-1">{suggestion.external_parties.map(t => <span key={t} className="px-2 py-0.5 rounded-full bg-[var(--surface-2)] text-[14px] text-[var(--text-secondary)]">{t}</span>)}</div>
           </div>
         </div>
 
         {/* Action buttons */}
         <div className="flex items-center justify-between pt-3 border-t border-[var(--border)]">
           <div className="flex gap-2">
-            <button onClick={() => _selectAll(suggestion)} className="px-3 py-1.5 rounded-lg text-[10px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:border-purple-400">Select All</button>
-            <button onClick={() => { setCheckedTasks(new Set()); setCheckedSkills(new Set()); setCheckedKpis(new Set()); setCheckedResps(new Set()); }} className="px-3 py-1.5 rounded-lg text-[10px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">Deselect All</button>
+            <button onClick={() => _selectAll(suggestion)} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:border-purple-400">Select All</button>
+            <button onClick={() => { setCheckedTasks(new Set()); setCheckedSkills(new Set()); setCheckedKpis(new Set()); setCheckedResps(new Set()); }} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">Deselect All</button>
           </div>
           <div className="flex gap-2">
-            <button onClick={onClose} className="px-4 py-2 rounded-lg text-[11px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">Dismiss</button>
+            <button onClick={onClose} className="px-4 py-2 rounded-lg text-[15px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">Dismiss</button>
             <button onClick={handleAcceptSelected} disabled={checkedTasks.size === 0 && checkedSkills.size === 0}
-              className="px-4 py-2 rounded-lg text-[11px] font-semibold text-white disabled:opacity-40 transition-all" style={{ background: "linear-gradient(135deg, #A855F7, #7C3AED)" }}>
+              className="px-4 py-2 rounded-lg text-[15px] font-semibold text-white disabled:opacity-40 transition-all" style={{ background: "linear-gradient(135deg, #A855F7, #7C3AED)" }}>
               Accept Selected
             </button>
           </div>

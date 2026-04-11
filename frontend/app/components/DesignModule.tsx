@@ -30,7 +30,7 @@ export function BBBAFramework({ model, f, onBack, onNavigate }: { model: string;
     <PageHeader icon="🔀" title="Build / Buy / Borrow / Automate" subtitle="Talent sourcing strategy per redesigned role" onBack={onBack} moduleId="bbba" />
     {model && <div className="flex justify-end mb-2"><ModuleExportButton model={model} module="bbba" label="BBBA Decisions" /></div>}
     {loading && <LoadingBar />}
-    {!loading && roles.length === 0 && <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-2xl p-8 text-center"><div className="text-3xl mb-3 opacity-40">🔀</div><h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">Complete Skills Gap Analysis First</h3><p className="text-[13px] text-[var(--text-secondary)]">BBBA dispositions are generated from gap analysis and adjacency results.</p></div>}
+    {!loading && roles.length === 0 && <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-2xl p-8 text-center"><div className="text-3xl mb-3 opacity-40">🔀</div><h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">Complete Skills Gap Analysis First</h3><p className="text-[15px] text-[var(--text-secondary)]">BBBA dispositions are generated from gap analysis and adjacency results.</p></div>}
     <div className="grid grid-cols-5 gap-3 mb-5">
       <KpiCard label="Total Roles" value={Number(summary.total_roles || 0)} /><KpiCard label="Build" value={Number(summary.build || 0)} accent /><KpiCard label="Buy" value={Number(summary.buy || 0)} /><KpiCard label="Borrow" value={Number(summary.borrow || 0)} /><KpiCard label="Automate" value={Number(summary.automate || 0)} />
     </div>
@@ -38,19 +38,19 @@ export function BBBAFramework({ model, f, onBack, onNavigate }: { model: string;
     <div className="grid grid-cols-2 gap-4 mb-4">
       <Card title="Disposition Mix"><DonutViz data={[{name:"Build",value:Number(summary.build||0)},{name:"Buy",value:Number(summary.buy||0)},{name:"Borrow",value:Number(summary.borrow||0)},{name:"Automate",value:Number(summary.automate||0)}]} /></Card>
       <Card title="Investment Summary"><div className="space-y-3">
-        <div className="flex justify-between p-3 rounded-lg bg-[var(--surface-2)]"><span className="text-[13px]">Reskilling (Build)</span><span className="text-[15px] font-extrabold text-[var(--success)]">{fmtNum(summary.reskilling_investment||0)}</span></div>
-        <div className="flex justify-between p-3 rounded-lg bg-[var(--surface-2)]"><span className="text-[13px]">Hiring (Buy)</span><span className="text-[15px] font-extrabold text-[var(--accent-primary)]">{fmtNum(summary.hiring_cost||0)}</span></div>
-        <div className="flex justify-between p-3 rounded-lg bg-[var(--surface-2)] border-t-2 border-[var(--text-primary)]"><span className="text-[13px] font-bold">Total Investment</span><span className="text-[17px] font-extrabold text-[var(--text-primary)]">{fmtNum(summary.total_investment||0)}</span></div>
+        <div className="flex justify-between p-3 rounded-lg bg-[var(--surface-2)]"><span className="text-[15px]">Reskilling (Build)</span><span className="text-[15px] font-extrabold text-[var(--success)]">{fmtNum(summary.reskilling_investment||0)}</span></div>
+        <div className="flex justify-between p-3 rounded-lg bg-[var(--surface-2)]"><span className="text-[15px]">Hiring (Buy)</span><span className="text-[15px] font-extrabold text-[var(--accent-primary)]">{fmtNum(summary.hiring_cost||0)}</span></div>
+        <div className="flex justify-between p-3 rounded-lg bg-[var(--surface-2)] border-t-2 border-[var(--text-primary)]"><span className="text-[15px] font-bold">Total Investment</span><span className="text-[17px] font-extrabold text-[var(--text-primary)]">{fmtNum(summary.total_investment||0)}</span></div>
       </div></Card>
     </div>
 
     <Card title="Role-by-Role Decision Matrix">
-      <div className="text-[12px] text-[var(--text-secondary)] mb-3">Click the disposition badge to override AI recommendation. All dispositions are current recommendations until locked.</div>
-      <div className="overflow-auto rounded-lg border border-[var(--border)]"><table className="w-full text-[11px]"><thead><tr className="bg-[var(--surface-2)]"><th className="px-3 py-2 text-left font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Role</th><th className="px-2 py-2 text-center font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Disposition</th><th className="px-2 py-2 text-left font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Reason</th><th className="px-2 py-2 text-center font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Internal</th><th className="px-2 py-2 text-center font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">FTE</th><th className="px-2 py-2 text-center font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Cost</th><th className="px-2 py-2 text-center font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Timeline</th></tr></thead>
+      <div className="text-[15px] text-[var(--text-secondary)] mb-3">Click the disposition badge to override AI recommendation. All dispositions are current recommendations until locked.</div>
+      <div className="overflow-auto rounded-lg border border-[var(--border)]"><table className="w-full text-[15px]"><thead><tr className="bg-[var(--surface-2)]"><th className="px-3 py-2 text-left font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Role</th><th className="px-2 py-2 text-center font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Disposition</th><th className="px-2 py-2 text-left font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Reason</th><th className="px-2 py-2 text-center font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Internal</th><th className="px-2 py-2 text-center font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">FTE</th><th className="px-2 py-2 text-center font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Cost</th><th className="px-2 py-2 text-center font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Timeline</th></tr></thead>
       <tbody>{roles.map(r => { const disp = overrides[r.role] || r.disposition; return <tr key={r.role} className="border-b border-[var(--border)] hover:bg-[var(--hover)]">
         <td className="px-3 py-2 font-semibold text-[var(--text-primary)]">{r.role}</td>
-        <td className="px-2 py-2 text-center"><button onClick={() => { const opts = ["Build","Buy","Borrow","Automate"]; const idx = opts.indexOf(disp); setOverrides(prev => ({...prev, [r.role]: opts[(idx+1)%4]})); }} className="px-2 py-1 rounded-full text-[10px] font-bold cursor-pointer" style={{background:`${dispColors[disp]}15`,color:dispColors[disp],border:`1px solid ${dispColors[disp]}30`}}>{dispIcons[disp]} {disp}</button></td>
-        <td className="px-2 py-2 text-[var(--text-secondary)] text-[10px]">{r.reason}</td>
+        <td className="px-2 py-2 text-center"><button onClick={() => { const opts = ["Build","Buy","Borrow","Automate"]; const idx = opts.indexOf(disp); setOverrides(prev => ({...prev, [r.role]: opts[(idx+1)%4]})); }} className="px-2 py-1 rounded-full text-[15px] font-bold cursor-pointer" style={{background:`${dispColors[disp]}15`,color:dispColors[disp],border:`1px solid ${dispColors[disp]}30`}}>{dispIcons[disp]} {disp}</button></td>
+        <td className="px-2 py-2 text-[var(--text-secondary)] text-[15px]">{r.reason}</td>
         <td className="px-2 py-2 text-center">{r.strong_candidates}+{r.reskillable_candidates}</td>
         <td className="px-2 py-2 text-center font-bold">{r.fte_needed}</td>
         <td className="px-2 py-2 text-center font-semibold">{fmtNum(r.total_cost)}</td>
@@ -70,9 +70,9 @@ export function BBBAFramework({ model, f, onBack, onNavigate }: { model: string;
         const totalByType = bar.value;
         const h = (totalByType / (maxVal * roles.length || 1)) * 100;
         return <div key={bar.label} className="flex-1 flex flex-col items-center justify-end">
-          <div className="text-[10px] font-bold mb-1" style={{color:bar.color}}>{fmtNum(totalByType)}</div>
+          <div className="text-[15px] font-bold mb-1" style={{color:bar.color}}>{fmtNum(totalByType)}</div>
           <div className="w-full rounded-t-lg" style={{height:`${Math.max(h*3, 8)}%`, background:`${bar.color}30`, border:`1px solid ${bar.color}50`}} />
-          <div className="text-[9px] text-[var(--text-muted)] mt-1">{bar.label}</div>
+          <div className="text-[14px] text-[var(--text-muted)] mt-1">{bar.label}</div>
         </div>;
       })}</div>
     </Card>
@@ -89,9 +89,9 @@ export function BBBAFramework({ model, f, onBack, onNavigate }: { model: string;
         };
         const rk = riskMap[disp] || riskMap.Build;
         return <div key={r.role} className="flex items-center gap-3 p-2 rounded-lg bg-[var(--surface-2)]">
-          <span className="text-[11px] font-semibold w-40 shrink-0 text-[var(--text-primary)]">{r.role}</span>
+          <span className="text-[15px] font-semibold w-40 shrink-0 text-[var(--text-primary)]">{r.role}</span>
           <Badge color={disp==="Build"?"green":disp==="Buy"?"indigo":disp==="Borrow"?"amber":"purple"}>{disp}</Badge>
-          <span className="text-[10px] text-[var(--text-secondary)] flex-1">{rk.risk}</span>
+          <span className="text-[15px] text-[var(--text-secondary)] flex-1">{rk.risk}</span>
         </div>;
       })}</div>
     </Card>
@@ -128,7 +128,7 @@ export function HeadcountPlanning({ model, f, onBack, onNavigate }: { model: str
     <PageHeader icon="👥" title="Headcount Planning" subtitle="Current to future workforce evolution" onBack={onBack} moduleId="headcount" />
     {model && <div className="flex justify-end mb-2"><ModuleExportButton model={model} module="headcount" label="Headcount Plan" /></div>}
     {loading && <LoadingBar />}
-    {!loading && Number(wf.starting_headcount || 0) === 0 && <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-2xl p-8 text-center"><div className="text-3xl mb-3 opacity-40">👥</div><h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">Upload Data for Headcount Planning</h3><p className="text-[13px] text-[var(--text-secondary)]">Complete BBBA to generate headcount waterfall.</p></div>}
+    {!loading && Number(wf.starting_headcount || 0) === 0 && <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-2xl p-8 text-center"><div className="text-3xl mb-3 opacity-40">👥</div><h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">Upload Data for Headcount Planning</h3><p className="text-[15px] text-[var(--text-secondary)]">Complete BBBA to generate headcount waterfall.</p></div>}
     <div className="grid grid-cols-5 gap-3 mb-5">
       <KpiCard label="Current HC" value={Number(wf.starting_headcount || 0)} /><KpiCard label="Eliminations" value={Number(wf.eliminations || 0)} /><KpiCard label="New Hires" value={Number(wf.new_hires || 0)} accent /><KpiCard label="Target HC" value={Number(wf.target_headcount || 0)} accent /><KpiCard label="Net Change" value={`${Number(wf.net_change_pct || 0)}%`} />
     </div>
@@ -144,21 +144,21 @@ export function HeadcountPlanning({ model, f, onBack, onNavigate }: { model: str
         { label: "Contractors", value: Number(wf.contractors || 0), color: "var(--purple)" },
         { label: "Target", value: Number(wf.target_headcount || 0), color: "var(--success)" },
       ].map(bar => { const maxVal = Math.max(Number(wf.starting_headcount || 1), Number(wf.target_headcount || 1)); const h = Math.abs(bar.value) / maxVal * 100; return <div key={bar.label} className="flex-1 flex flex-col items-center justify-end">
-        <div className="text-[10px] font-bold mb-1" style={{ color: bar.color }}>{bar.value > 0 ? "+" : ""}{bar.value}</div>
+        <div className="text-[15px] font-bold mb-1" style={{ color: bar.color }}>{bar.value > 0 ? "+" : ""}{bar.value}</div>
         <div className="w-full rounded-t" style={{ height: `${Math.max(h, 5)}%`, background: `${bar.color}30`, border: `1px solid ${bar.color}50` }} />
-        <div className="text-[8px] text-[var(--text-muted)] mt-1 text-center">{bar.label}</div>
+        <div className="text-[15px] text-[var(--text-muted)] mt-1 text-center">{bar.label}</div>
       </div>; })}</div>
     </Card>
 
     {/* Department breakdown */}
     <Card title="Department Breakdown">
-      <div className="overflow-auto rounded-lg border border-[var(--border)]"><table className="w-full text-[11px]"><thead><tr className="bg-[var(--surface-2)]"><th className="px-3 py-2 text-left font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Department</th><th className="px-2 py-2 text-center border-b border-[var(--border)]">Current</th><th className="px-2 py-2 text-center border-b border-[var(--border)]">Eliminated</th><th className="px-2 py-2 text-center border-b border-[var(--border)]">Redeployed</th><th className="px-2 py-2 text-center border-b border-[var(--border)]">New Hires</th><th className="px-2 py-2 text-center border-b border-[var(--border)]">Future</th><th className="px-2 py-2 text-center border-b border-[var(--border)]">Change</th></tr></thead>
+      <div className="overflow-auto rounded-lg border border-[var(--border)]"><table className="w-full text-[15px]"><thead><tr className="bg-[var(--surface-2)]"><th className="px-3 py-2 text-left font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Department</th><th className="px-2 py-2 text-center border-b border-[var(--border)]">Current</th><th className="px-2 py-2 text-center border-b border-[var(--border)]">Eliminated</th><th className="px-2 py-2 text-center border-b border-[var(--border)]">Redeployed</th><th className="px-2 py-2 text-center border-b border-[var(--border)]">New Hires</th><th className="px-2 py-2 text-center border-b border-[var(--border)]">Future</th><th className="px-2 py-2 text-center border-b border-[var(--border)]">Change</th></tr></thead>
       <tbody>{depts.map(d => <tr key={d.department} className="border-b border-[var(--border)]"><td className="px-3 py-2 font-semibold">{d.department}</td><td className="px-2 py-2 text-center">{d.current_fte}</td><td className="px-2 py-2 text-center text-[var(--risk)]">-{d.eliminated}</td><td className="px-2 py-2 text-center text-[var(--success)]">{d.redeployed}</td><td className="px-2 py-2 text-center text-[var(--accent-primary)]">+{d.new_hires}</td><td className="px-2 py-2 text-center font-bold">{d.future_fte}</td><td className="px-2 py-2 text-center" style={{color: d.pct_change >= 0 ? "var(--success)" : "var(--risk)"}}>{d.pct_change > 0 ? "+" : ""}{d.pct_change}%</td></tr>)}</tbody></table></div>
     </Card>
 
     {/* Timeline */}
     <Card title="Transition Timeline">
-      <div className="space-y-3">{[{phase:"Phase 1",time:timeline.phase_1_months,action:timeline.phase_1_actions,color:"var(--accent-primary)"},{phase:"Phase 2",time:timeline.phase_2_months,action:timeline.phase_2_actions,color:"var(--success)"},{phase:"Phase 3",time:timeline.phase_3_months,action:timeline.phase_3_actions,color:"var(--purple)"}].map((p,i) => <div key={i} className="flex gap-3 p-3 rounded-xl bg-[var(--surface-2)]"><div className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0" style={{background:p.color}}>{i+1}</div><div><div className="text-[12px] font-bold text-[var(--text-primary)]">{p.phase} <span className="text-[var(--text-muted)] font-normal">Month {p.time}</span></div><div className="text-[11px] text-[var(--text-secondary)]">{p.action}</div></div></div>)}</div>
+      <div className="space-y-3">{[{phase:"Phase 1",time:timeline.phase_1_months,action:timeline.phase_1_actions,color:"var(--accent-primary)"},{phase:"Phase 2",time:timeline.phase_2_months,action:timeline.phase_2_actions,color:"var(--success)"},{phase:"Phase 3",time:timeline.phase_3_months,action:timeline.phase_3_actions,color:"var(--purple)"}].map((p,i) => <div key={i} className="flex gap-3 p-3 rounded-xl bg-[var(--surface-2)]"><div className="w-8 h-8 rounded-full flex items-center justify-center text-[15px] font-bold text-white shrink-0" style={{background:p.color}}>{i+1}</div><div><div className="text-[15px] font-bold text-[var(--text-primary)]">{p.phase} <span className="text-[var(--text-muted)] font-normal">Month {p.time}</span></div><div className="text-[15px] text-[var(--text-secondary)]">{p.action}</div></div></div>)}</div>
     </Card>
 
     {/* Financial Impact */}
@@ -172,10 +172,10 @@ export function HeadcountPlanning({ model, f, onBack, onNavigate }: { model: str
         const severance = Math.max(0, eliminated - Number(wf.natural_attrition || 0)) * avgComp * 0.25;
         const netYear1 = savings - hireCost - severance;
         return <div className="grid grid-cols-4 gap-4">
-          <div className="rounded-xl p-4 text-center border border-[var(--border)]"><div className="text-[10px] text-[var(--text-muted)] uppercase mb-1">Annual Savings</div><div className="text-[22px] font-extrabold text-[var(--success)]">{fmtNum(savings)}</div><div className="text-[9px] text-[var(--text-muted)]">From {eliminated} role eliminations</div></div>
-          <div className="rounded-xl p-4 text-center border border-[var(--border)]"><div className="text-[10px] text-[var(--text-muted)] uppercase mb-1">Hiring Cost</div><div className="text-[22px] font-extrabold text-[var(--risk)]">{fmtNum(hireCost)}</div><div className="text-[9px] text-[var(--text-muted)]">For {newHires} new roles</div></div>
-          <div className="rounded-xl p-4 text-center border border-[var(--border)]"><div className="text-[10px] text-[var(--text-muted)] uppercase mb-1">Transition Cost</div><div className="text-[22px] font-extrabold text-[var(--warning)]">{fmtNum(severance)}</div><div className="text-[9px] text-[var(--text-muted)]">Severance & onboarding</div></div>
-          <div className="rounded-xl p-4 text-center border-2" style={{borderColor: netYear1 >= 0 ? "var(--success)" : "var(--risk)"}}><div className="text-[10px] text-[var(--text-muted)] uppercase mb-1">Net Year 1</div><div className="text-[22px] font-extrabold" style={{color: netYear1 >= 0 ? "var(--success)" : "var(--risk)"}}>{netYear1 >= 0 ? "" : "-"}{fmtNum(Math.abs(netYear1))}</div><div className="text-[9px] text-[var(--text-muted)]">{netYear1 >= 0 ? "Net positive" : "Investment year"}</div></div>
+          <div className="rounded-xl p-4 text-center border border-[var(--border)]"><div className="text-[15px] text-[var(--text-muted)] uppercase mb-1">Annual Savings</div><div className="text-[22px] font-extrabold text-[var(--success)]">{fmtNum(savings)}</div><div className="text-[14px] text-[var(--text-muted)]">From {eliminated} role eliminations</div></div>
+          <div className="rounded-xl p-4 text-center border border-[var(--border)]"><div className="text-[15px] text-[var(--text-muted)] uppercase mb-1">Hiring Cost</div><div className="text-[22px] font-extrabold text-[var(--risk)]">{fmtNum(hireCost)}</div><div className="text-[14px] text-[var(--text-muted)]">For {newHires} new roles</div></div>
+          <div className="rounded-xl p-4 text-center border border-[var(--border)]"><div className="text-[15px] text-[var(--text-muted)] uppercase mb-1">Transition Cost</div><div className="text-[22px] font-extrabold text-[var(--warning)]">{fmtNum(severance)}</div><div className="text-[14px] text-[var(--text-muted)]">Severance & onboarding</div></div>
+          <div className="rounded-xl p-4 text-center border-2" style={{borderColor: netYear1 >= 0 ? "var(--success)" : "var(--risk)"}}><div className="text-[15px] text-[var(--text-muted)] uppercase mb-1">Net Year 1</div><div className="text-[22px] font-extrabold" style={{color: netYear1 >= 0 ? "var(--success)" : "var(--risk)"}}>{netYear1 >= 0 ? "" : "-"}{fmtNum(Math.abs(netYear1))}</div><div className="text-[14px] text-[var(--text-muted)]">{netYear1 >= 0 ? "Net positive" : "Investment year"}</div></div>
         </div>;
       })()}
     </Card>
@@ -183,8 +183,8 @@ export function HeadcountPlanning({ model, f, onBack, onNavigate }: { model: str
     {/* Workforce Composition Shift */}
     <Card title="Workforce Composition Shift">
       <div className="grid grid-cols-2 gap-6">
-        <div className="text-center"><div className="text-[11px] font-bold text-[var(--text-muted)] uppercase mb-2">Before</div><div className="flex justify-center gap-8"><div><div className="text-[28px] font-extrabold text-[var(--text-primary)]">{Number(wf.starting_headcount || 0)}</div><div className="text-[10px] text-[var(--text-muted)]">Total HC</div></div></div></div>
-        <div className="text-center"><div className="text-[11px] font-bold text-[var(--text-muted)] uppercase mb-2">After</div><div className="flex justify-center gap-8"><div><div className="text-[28px] font-extrabold" style={{color: Number(wf.net_change || 0) >= 0 ? "var(--success)" : "var(--risk)"}}>{Number(wf.target_headcount || 0)}</div><div className="text-[10px] text-[var(--text-muted)]">Target HC ({Number(wf.net_change_pct || 0) > 0 ? "+" : ""}{Number(wf.net_change_pct || 0)}%)</div></div></div></div>
+        <div className="text-center"><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-2">Before</div><div className="flex justify-center gap-8"><div><div className="text-[28px] font-extrabold text-[var(--text-primary)]">{Number(wf.starting_headcount || 0)}</div><div className="text-[15px] text-[var(--text-muted)]">Total HC</div></div></div></div>
+        <div className="text-center"><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-2">After</div><div className="flex justify-center gap-8"><div><div className="text-[28px] font-extrabold" style={{color: Number(wf.net_change || 0) >= 0 ? "var(--success)" : "var(--risk)"}}>{Number(wf.target_headcount || 0)}</div><div className="text-[15px] text-[var(--text-muted)]">Target HC ({Number(wf.net_change_pct || 0) > 0 ? "+" : ""}{Number(wf.net_change_pct || 0)}%)</div></div></div></div>
       </div>
     </Card>
 
@@ -601,9 +601,9 @@ Rules:
   const EditableCell = ({ value, onChange, type = "text", suffix }: { value: unknown; onChange: (v: string) => void; type?: string; suffix?: string }) => {
     const [local, setLocal] = useState(String(value ?? "")); const inputRef = useRef<HTMLInputElement>(null);
     useEffect(() => { setLocal(String(value ?? "")); }, [value]);
-    return <div className="relative"><input ref={inputRef} value={local} type={type === "number" ? "number" : "text"} step={type === "number" ? "1" : undefined} min={type === "number" ? "0" : undefined} onChange={(e) => { setLocal(e.target.value); if (type !== "number") onChange(e.target.value); }} onBlur={() => { if (type === "number") { const v = Math.round(Math.abs(parseInt(local, 10) || 0)); setLocal(String(v)); onChange(String(v)); } else onChange(local); }} onKeyDown={(e) => { if (e.key === "Enter" && type === "number") { const v = Math.round(Math.abs(parseInt(local, 10) || 0)); setLocal(String(v)); onChange(String(v)); (e.target as HTMLInputElement).blur(); } }} className="w-full border border-[var(--border)] rounded-md px-2 py-1 text-[13px] bg-[var(--surface-2)] text-[var(--text-primary)] outline-none focus:border-[var(--accent-primary)]" />{suffix && <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[11px] text-[var(--text-muted)] pointer-events-none">{suffix}</span>}</div>;
+    return <div className="relative"><input ref={inputRef} value={local} type={type === "number" ? "number" : "text"} step={type === "number" ? "1" : undefined} min={type === "number" ? "0" : undefined} onChange={(e) => { setLocal(e.target.value); if (type !== "number") onChange(e.target.value); }} onBlur={() => { if (type === "number") { const v = Math.round(Math.abs(parseInt(local, 10) || 0)); setLocal(String(v)); onChange(String(v)); } else onChange(local); }} onKeyDown={(e) => { if (e.key === "Enter" && type === "number") { const v = Math.round(Math.abs(parseInt(local, 10) || 0)); setLocal(String(v)); onChange(String(v)); (e.target as HTMLInputElement).blur(); } }} className="w-full border border-[var(--border)] rounded-md px-2 py-1 text-[15px] bg-[var(--surface-2)] text-[var(--text-primary)] outline-none focus:border-[var(--accent-primary)]" />{suffix && <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[15px] text-[var(--text-muted)] pointer-events-none">{suffix}</span>}</div>;
   };
-  const SelectCell = ({ value, onChange, options }: { value: unknown; onChange: (v: string) => void; options: string[] }) => <select value={String(value ?? "")} onChange={(e) => onChange(e.target.value)} className="w-full border border-[var(--border)] rounded-md px-2 py-1 text-[13px] bg-[var(--surface-2)] text-[var(--text-primary)] outline-none focus:border-[var(--accent-primary)]">{options.map((o) => <option key={o} value={o}>{o}</option>)}</select>;
+  const SelectCell = ({ value, onChange, options }: { value: unknown; onChange: (v: string) => void; options: string[] }) => <select value={String(value ?? "")} onChange={(e) => onChange(e.target.value)} className="w-full border border-[var(--border)] rounded-md px-2 py-1 text-[15px] bg-[var(--surface-2)] text-[var(--text-primary)] outline-none focus:border-[var(--accent-primary)]">{options.map((o) => <option key={o} value={o}>{o}</option>)}</select>;
 
   // Completed / in-progress / not-started counts
   const completedJobs = jobs.filter(j => jobStates[j]?.finalized);
@@ -639,11 +639,11 @@ Rules:
 
       {/* Recently Analyzed */}
       {(completedJobs.length > 0 || inProgressJobs.length > 0) && <div className="mb-6">
-        <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Recently Analyzed</div>
+        <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Recently Analyzed</div>
         <div className="flex gap-2 flex-wrap">
           {[...inProgressJobs, ...completedJobs].slice(0, 6).map(j => {
             const st = jobStates[j]; const done = st?.finalized;
-            return <button key={j} onClick={() => onSelectJob(j)} className="px-3 py-2 rounded-lg border text-[12px] font-semibold transition-all hover:border-[var(--accent-primary)]/40" style={{ background: done ? "rgba(16,185,129,0.06)" : "rgba(212,134,10,0.06)", borderColor: done ? "rgba(16,185,129,0.2)" : "rgba(212,134,10,0.2)", color: done ? "var(--success)" : "var(--accent-primary)" }}>
+            return <button key={j} onClick={() => onSelectJob(j)} className="px-3 py-2 rounded-lg border text-[15px] font-semibold transition-all hover:border-[var(--accent-primary)]/40" style={{ background: done ? "rgba(16,185,129,0.06)" : "rgba(212,134,10,0.06)", borderColor: done ? "rgba(16,185,129,0.2)" : "rgba(212,134,10,0.2)", color: done ? "var(--success)" : "var(--accent-primary)" }}>
               {done ? "✓ " : "◐ "}{j}
             </button>;
           })}
@@ -657,14 +657,14 @@ Rules:
           const status = st?.finalized ? "complete" : st?.deconSubmitted ? "in_progress" : "not_started";
           const dotColor = status === "complete" ? "var(--success)" : status === "in_progress" ? "var(--accent-primary)" : "var(--text-muted)";
           return <button key={j} onClick={() => onSelectJob(j)} className="text-left px-4 py-3 rounded-xl border border-[var(--border)] bg-[var(--surface-1)] transition-all hover:border-[var(--accent-primary)]/40 hover:translate-y-[-1px]">
-            <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full shrink-0" style={{ background: dotColor }} /><span className="text-[13px] font-semibold text-[var(--text-primary)] truncate">{j}</span></div>
+            <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full shrink-0" style={{ background: dotColor }} /><span className="text-[15px] font-semibold text-[var(--text-primary)] truncate">{j}</span></div>
           </button>;
         })}
       </div>
       {!jobs.length && <Empty text="No jobs found — upload Work Design data with Job Titles" icon="📭" />}
 
       {/* Progress */}
-      {jobs.length > 0 && <div className="mt-6 text-center text-[11px] text-[var(--text-muted)]">{completedJobs.length}/{jobs.length} jobs finalized · {inProgressJobs.length} in progress</div>}
+      {jobs.length > 0 && <div className="mt-6 text-center text-[15px] text-[var(--text-muted)]">{completedJobs.length}/{jobs.length} jobs finalized · {inProgressJobs.length} in progress</div>}
     </div>
   </div>;
 
@@ -672,21 +672,21 @@ Rules:
   return <div className="flex gap-0" style={{ minHeight: "calc(100vh - 48px)" }}>
     {/* Left: Step Navigator */}
     <div className="w-48 shrink-0 bg-[var(--surface-1)] border-r border-[var(--border)] py-5 px-3 flex flex-col">
-      <button onClick={() => onSelectJob("")} className="text-[11px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mb-4 transition-colors">← All Jobs</button>
-      <div className="text-[10px] font-bold text-[var(--accent-primary)] uppercase tracking-wider mb-1 truncate">{job}</div>
-      <div className="text-[9px] text-[var(--text-muted)] mb-4">{meta.Function || "—"} · {meta["Career Level"] || "—"}</div>
+      <button onClick={() => onSelectJob("")} className="text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mb-4 transition-colors">← All Jobs</button>
+      <div className="text-[15px] font-bold text-[var(--accent-primary)] uppercase tracking-wider mb-1 truncate">{job}</div>
+      <div className="text-[14px] text-[var(--text-muted)] mb-4">{meta.Function || "—"} · {meta["Career Level"] || "—"}</div>
       <div className="space-y-1 flex-1">
         {steps.map((s, si) => {
           const isActive = wdTab === s.id;
           const canGo = si === 0 || steps[si - 1].done;
-          return <button key={s.id} onClick={() => canGo && setWdTab(s.id)} className="w-full text-left px-3 py-2 rounded-lg text-[11px] transition-all flex items-center gap-2" style={{ background: isActive ? "rgba(212,134,10,0.1)" : "transparent", color: isActive ? "var(--accent-primary)" : canGo ? "var(--text-secondary)" : "var(--text-muted)", cursor: canGo ? "pointer" : "not-allowed", opacity: canGo ? 1 : 0.4 }}>
-            <span className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0" style={{ background: s.done ? "var(--success)" : isActive ? "var(--accent-primary)" : "var(--surface-2)", color: s.done || isActive ? "#fff" : "var(--text-muted)", border: `1.5px solid ${s.done ? "var(--success)" : isActive ? "var(--accent-primary)" : "var(--border)"}` }}>{s.done ? "✓" : si + 1}</span>
+          return <button key={s.id} onClick={() => canGo && setWdTab(s.id)} className="w-full text-left px-3 py-2 rounded-lg text-[15px] transition-all flex items-center gap-2" style={{ background: isActive ? "rgba(212,134,10,0.1)" : "transparent", color: isActive ? "var(--accent-primary)" : canGo ? "var(--text-secondary)" : "var(--text-muted)", cursor: canGo ? "pointer" : "not-allowed", opacity: canGo ? 1 : 0.4 }}>
+            <span className="w-5 h-5 rounded-full flex items-center justify-center text-[14px] font-bold shrink-0" style={{ background: s.done ? "var(--success)" : isActive ? "var(--accent-primary)" : "var(--surface-2)", color: s.done || isActive ? "#fff" : "var(--text-muted)", border: `1.5px solid ${s.done ? "var(--success)" : isActive ? "var(--accent-primary)" : "var(--border)"}` }}>{s.done ? "✓" : si + 1}</span>
             <span className="font-semibold truncate">{s.label}</span>
           </button>;
         })}
       </div>
       <div className="mt-auto pt-3 border-t border-[var(--border)]">
-        <div className="text-[9px] text-[var(--text-muted)] mb-1">{steps.filter(s => s.done).length}/{steps.length} steps complete</div>
+        <div className="text-[14px] text-[var(--text-muted)] mb-1">{steps.filter(s => s.done).length}/{steps.length} steps complete</div>
         <div className="h-1 bg-[var(--surface-2)] rounded-full overflow-hidden"><div className="h-full rounded-full bg-[var(--success)] transition-all" style={{ width: `${(steps.filter(s => s.done).length / steps.length) * 100}%` }} /></div>
       </div>
     </div>
@@ -697,13 +697,13 @@ Rules:
         {/* Active job confirmation bar */}
         <div className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl px-5 py-3 mb-4 flex items-center gap-4 flex-wrap">
           <span className="font-semibold text-[14px] text-[var(--accent-primary)]">{job}</span>
-          <span className="text-[13px] text-[var(--text-secondary)]">{js.deconRows.length} tasks · {String(k.hours_week ?? 0)}h/wk · Scenario: {js.scenario}</span>
+          <span className="text-[15px] text-[var(--text-secondary)]">{js.deconRows.length} tasks · {String(k.hours_week ?? 0)}h/wk · Scenario: {js.scenario}</span>
           <div className="ml-auto flex items-center gap-2"><Badge color={js.deconSubmitted ? "green" : "gray"}>Decon {js.deconSubmitted ? "✓" : "○"}</Badge><Badge color={js.redeploySubmitted ? "green" : "gray"}>Redeploy {js.redeploySubmitted ? "✓" : "○"}</Badge><Badge color={js.finalized ? "green" : "gray"}>Final {js.finalized ? "✓" : "○"}</Badge></div>
         </div>
 
       {wdTab === "ctx" && <div>
         {js.deconRows.length === 0 && <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-xl px-5 py-3 mb-4 flex items-center justify-between">
-          <div className="text-[13px] text-[var(--text-secondary)]">Ready to break down <strong className="text-[var(--text-primary)]">{job}</strong> into tasks?</div>
+          <div className="text-[15px] text-[var(--text-secondary)]">Ready to break down <strong className="text-[var(--text-primary)]">{job}</strong> into tasks?</div>
           <div className="flex gap-2">
             <AiJobSuggestButton title={job} industry={f.func !== "All" ? f.func : "technology"} onAccept={(d) => {
               // Convert AI suggestions into decon rows and populate the task table
@@ -735,12 +735,12 @@ Rules:
               setWdTab("decon");
               showToast(`✨ Pre-populated ${rows.length} tasks for ${job} — review and edit below`);
             }} />
-            <button onClick={() => { generateTasks(); setWdTab("decon"); }} disabled={aiGenerating} className="px-3 py-1.5 rounded-lg text-[12px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>{aiGenerating ? "Generating..." : "Quick Generate"}</button>
-            <button onClick={() => setWdTab("decon")} className="px-3 py-1.5 rounded-lg text-[12px] font-semibold text-[var(--text-secondary)] bg-[var(--surface-2)] border border-[var(--border)]">Manual Entry →</button>
+            <button onClick={() => { generateTasks(); setWdTab("decon"); }} disabled={aiGenerating} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>{aiGenerating ? "Generating..." : "Quick Generate"}</button>
+            <button onClick={() => setWdTab("decon")} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold text-[var(--text-secondary)] bg-[var(--surface-2)] border border-[var(--border)]">Manual Entry →</button>
           </div>
         </div>}
         <div className="grid grid-cols-6 gap-3 mb-5"><KpiCard label="Hours/Week" value={k.hours_week as number ?? 0} accent /><KpiCard label="Tasks" value={k.tasks as number ?? 0} /><KpiCard label="Workstreams" value={k.workstreams as number ?? 0} /><KpiCard label="Released" value={`${k.released_hrs ?? 0}h`} delta={`${k.released_pct ?? 0}%`} /><KpiCard label="Future Hrs" value={k.future_hrs as number ?? 0} /><KpiCard label="Evolution" value={String(k.evolution ?? "—")} /></div>
-        <div className="grid grid-cols-12 gap-4"><div className="col-span-5"><Card title="Role Summary"><div className="flex flex-wrap gap-1.5 mb-3">{Object.entries(meta).map(([x, v]) => <Badge key={x} color="indigo">{x}: {v}</Badge>)}</div><p className="text-[13px] text-[var(--text-secondary)]">{String(ctx?.description ?? "No description.")}</p></Card></div><div className="col-span-4"><Card title="Time by Workstream"><BarViz data={ws} labelKey="Workstream" valueKey="Current Time Spent %" /></Card></div><div className="col-span-3"><Card title="Quick Profile"><DataTable data={ds} cols={["Metric", "Value"]} /></Card></div></div>
+        <div className="grid grid-cols-12 gap-4"><div className="col-span-5"><Card title="Role Summary"><div className="flex flex-wrap gap-1.5 mb-3">{Object.entries(meta).map(([x, v]) => <Badge key={x} color="indigo">{x}: {v}</Badge>)}</div><p className="text-[15px] text-[var(--text-secondary)]">{String(ctx?.description ?? "No description.")}</p></Card></div><div className="col-span-4"><Card title="Time by Workstream"><BarViz data={ws} labelKey="Workstream" valueKey="Current Time Spent %" /></Card></div><div className="col-span-3"><Card title="Quick Profile"><DataTable data={ds} cols={["Metric", "Value"]} /></Card></div></div>
       </div>}
 
       {wdTab === "decon" && <div>
@@ -748,41 +748,41 @@ Rules:
         {js.deconRows.length === 0 && !aiGenerating && <div className="bg-gradient-to-r from-[rgba(224,144,64,0.08)] to-[rgba(192,112,48,0.04)] border border-[rgba(224,144,64,0.2)] rounded-xl p-6 mb-4 text-center">
           <div className="text-2xl mb-2">✨</div>
           <h3 className="text-[15px] font-bold font-heading text-[var(--text-primary)] mb-1">No tasks yet for {job}</h3>
-          <p className="text-[13px] text-[var(--text-secondary)] mb-4 max-w-md mx-auto">Let AI generate a detailed task breakdown, or add tasks manually below.</p>
+          <p className="text-[15px] text-[var(--text-secondary)] mb-4 max-w-md mx-auto">Let AI generate a detailed task breakdown, or add tasks manually below.</p>
           <button onClick={generateTasks} className="px-5 py-2.5 rounded-xl text-[14px] font-semibold text-white transition-all hover:opacity-90" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", boxShadow: "0 4px 20px rgba(200,120,40,0.3)" }}>✨ Auto-Generate Task Breakdown</button>
         </div>}
         {aiGenerating && <div className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl p-6 mb-4 text-center animate-pulse">
           <div className="text-2xl mb-2">🧠</div>
           <h3 className="text-[15px] font-bold font-heading text-[var(--text-primary)] mb-1">AI is analyzing the {job} role...</h3>
-          <p className="text-[13px] text-[var(--text-secondary)]">Generating task breakdown with AI impact scores, time estimates, and skill requirements</p>
+          <p className="text-[15px] text-[var(--text-secondary)]">Generating task breakdown with AI impact scores, time estimates, and skill requirements</p>
         </div>}
         {/* Time tracker */}
         <div className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl px-5 py-3 mb-4">
-          <div className="flex items-center justify-between mb-2"><span className="text-[14px] font-semibold">Time Allocation</span><span className="text-[15px] font-bold" style={{ color: deconTotal === 100 ? "var(--success)" : deconTotal > 100 ? "var(--risk)" : "var(--accent-primary)" }}>{deconTotal}% <span className="text-[12px] font-normal text-[var(--text-muted)]">/ 100%</span></span></div>
+          <div className="flex items-center justify-between mb-2"><span className="text-[14px] font-semibold">Time Allocation</span><span className="text-[15px] font-bold" style={{ color: deconTotal === 100 ? "var(--success)" : deconTotal > 100 ? "var(--risk)" : "var(--accent-primary)" }}>{deconTotal}% <span className="text-[15px] font-normal text-[var(--text-muted)]">/ 100%</span></span></div>
           <div className="h-3 bg-[var(--surface-2)] rounded-full overflow-hidden"><div className="h-full rounded-full transition-all duration-300" style={{ width: `${Math.min(deconTotal, 100)}%`, background: deconTotal === 100 ? "var(--success)" : deconTotal > 100 ? "var(--risk)" : "var(--accent-primary)" }} /></div>
         </div>
         <div className="grid grid-cols-12 gap-4 mb-5"><div className="col-span-4"><Card title="AI Impact"><DonutViz data={aid} /></Card></div><div className="col-span-4"><Card title="AI Priority"><BarViz data={aip} labelKey="Task Name" valueKey="AI Priority" color="var(--accent-scenario)" /></Card></div><div className="col-span-4"><InsightPanel title="Validation" items={[deconTotal === 100 ? "✓ Time = 100%" : `✗ Time = ${deconTotal}%`, blankRequired === 0 ? "✓ All fields filled" : `✗ ${blankRequired} blank`, deconValid ? "✓ Ready to submit" : "○ Fix issues above"]} icon="📋" /></div></div>
         <Card title="Task Inventory — Editable">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[13px] text-[var(--text-muted)]">{js.deconRows.length} tasks · {totalEstHours}h/wk</span>
+            <span className="text-[15px] text-[var(--text-muted)]">{js.deconRows.length} tasks · {totalEstHours}h/wk</span>
             <div className="flex gap-2">
-              <button onClick={generateTasks} disabled={aiGenerating || js.finalized} className={`px-3 py-1.5 rounded-md text-[12px] font-semibold transition-all ${aiGenerating ? "animate-pulse" : ""}`} style={{ background: "linear-gradient(135deg, #e09040, #c07030)", color: "#fff", opacity: aiGenerating || js.finalized ? 0.5 : 1 }}>{aiGenerating ? "✨ Generating..." : "✨ Auto-Generate Tasks"}</button>
-              {dictEntries.length > 0 && <button onClick={() => setShowTaskDict(d => !d)} className="px-3 py-1.5 rounded-md text-[12px] font-semibold bg-[rgba(139,92,246,0.1)] border border-[rgba(139,92,246,0.3)] text-[var(--purple)]" style={{ opacity: js.finalized ? 0.5 : 1 }}>📖 Dictionary ({dictEntries.length})</button>}
-              <button onClick={() => setJobState(job, { deconRows: [...js.deconRows, { "Task ID": `T${js.deconRows.length + 1}`, "Task Name": "", Workstream: "", "AI Impact": "Low", "Est Hours/Week": 0, "Current Time Spent %": 0, "Time Saved %": 0, "Task Type": "Variable", Interaction: "Interactive", Logic: "Probabilistic", "Primary Skill": "", "Secondary Skill": "" }], deconSubmitted: false, redeploySubmitted: false, finalized: false, recon: null, redeployRows: [] })} className="px-3 py-1.5 bg-[var(--surface-3)] rounded-md text-[12px] font-semibold text-[var(--text-secondary)]">+ Add Task</button>
-              <button disabled={!deconValid || js.finalized} onClick={() => { setJobState(job, { deconSubmitted: true, redeploySubmitted: false, finalized: false, recon: null, redeployRows: [] }); setWdTab("redeploy"); }} className={`px-3 py-1.5 rounded-md text-[12px] font-semibold ${!deconValid || js.finalized ? "bg-[var(--border)] text-[var(--text-muted)]" : "bg-[var(--accent-primary)] text-white hover:opacity-90"}`}>{js.deconSubmitted ? "Update" : "Submit"} Deconstruction</button>
+              <button onClick={generateTasks} disabled={aiGenerating || js.finalized} className={`px-3 py-1.5 rounded-md text-[15px] font-semibold transition-all ${aiGenerating ? "animate-pulse" : ""}`} style={{ background: "linear-gradient(135deg, #e09040, #c07030)", color: "#fff", opacity: aiGenerating || js.finalized ? 0.5 : 1 }}>{aiGenerating ? "✨ Generating..." : "✨ Auto-Generate Tasks"}</button>
+              {dictEntries.length > 0 && <button onClick={() => setShowTaskDict(d => !d)} className="px-3 py-1.5 rounded-md text-[15px] font-semibold bg-[rgba(139,92,246,0.1)] border border-[rgba(139,92,246,0.3)] text-[var(--purple)]" style={{ opacity: js.finalized ? 0.5 : 1 }}>📖 Dictionary ({dictEntries.length})</button>}
+              <button onClick={() => setJobState(job, { deconRows: [...js.deconRows, { "Task ID": `T${js.deconRows.length + 1}`, "Task Name": "", Workstream: "", "AI Impact": "Low", "Est Hours/Week": 0, "Current Time Spent %": 0, "Time Saved %": 0, "Task Type": "Variable", Interaction: "Interactive", Logic: "Probabilistic", "Primary Skill": "", "Secondary Skill": "" }], deconSubmitted: false, redeploySubmitted: false, finalized: false, recon: null, redeployRows: [] })} className="px-3 py-1.5 bg-[var(--surface-3)] rounded-md text-[15px] font-semibold text-[var(--text-secondary)]">+ Add Task</button>
+              <button disabled={!deconValid || js.finalized} onClick={() => { setJobState(job, { deconSubmitted: true, redeploySubmitted: false, finalized: false, recon: null, redeployRows: [] }); setWdTab("redeploy"); }} className={`px-3 py-1.5 rounded-md text-[15px] font-semibold ${!deconValid || js.finalized ? "bg-[var(--border)] text-[var(--text-muted)]" : "bg-[var(--accent-primary)] text-white hover:opacity-90"}`}>{js.deconSubmitted ? "Update" : "Submit"} Deconstruction</button>
             </div>
           </div>
           {/* Task Dictionary Panel */}
           {showTaskDict && dictEntries.length > 0 && <div className="mb-4 rounded-xl border border-[rgba(139,92,246,0.3)] bg-[rgba(139,92,246,0.04)] p-4">
             <div className="flex items-center justify-between mb-3">
-              <div className="text-[13px] font-bold text-[var(--purple)]">📖 Task Dictionary — {job}</div>
-              <button onClick={() => setShowTaskDict(false)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] cursor-pointer text-[12px]">✕</button>
+              <div className="text-[15px] font-bold text-[var(--purple)]">📖 Task Dictionary — {job}</div>
+              <button onClick={() => setShowTaskDict(false)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] cursor-pointer text-[15px]">✕</button>
             </div>
-            <div className="text-[11px] text-[var(--text-secondary)] mb-3">Pre-built task portfolios for this role. Click an industry variant to load its tasks. This replaces your current task inventory.</div>
+            <div className="text-[15px] text-[var(--text-secondary)] mb-3">Pre-built task portfolios for this role. Click an industry variant to load its tasks. This replaces your current task inventory.</div>
             <div className="grid grid-cols-1 gap-2">
               {dictEntries.map((entry, ei) => <div key={ei} className="rounded-lg border border-[var(--border)] bg-[var(--surface-1)] p-3">
                 <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2"><Badge color="purple">{entry.industry}</Badge><span className="text-[11px] text-[var(--text-muted)]">{entry.tasks.length} tasks</span></div>
+                  <div className="flex items-center gap-2"><Badge color="purple">{entry.industry}</Badge><span className="text-[15px] text-[var(--text-muted)]">{entry.tasks.length} tasks</span></div>
                   <button onClick={() => {
                     const newRows = entry.tasks.map((t, i) => ({
                       "Task ID": `T${i + 1}`, "Task Name": t.name, Workstream: t.workstream,
@@ -794,17 +794,17 @@ Rules:
                     setJobState(job, { deconRows: newRows, initialized: true, deconSubmitted: false, redeploySubmitted: false, finalized: false, recon: null, redeployRows: [] });
                     setShowTaskDict(false);
                     showToast(`📖 Loaded ${entry.tasks.length} tasks from ${entry.industry} dictionary`);
-                  }} className="px-3 py-1 rounded-lg text-[10px] font-semibold bg-[var(--purple)]/15 border border-[var(--purple)]/30 text-[var(--purple)] cursor-pointer hover:bg-[var(--purple)]/25 transition-all">Load Tasks</button>
+                  }} className="px-3 py-1 rounded-lg text-[15px] font-semibold bg-[var(--purple)]/15 border border-[var(--purple)]/30 text-[var(--purple)] cursor-pointer hover:bg-[var(--purple)]/25 transition-all">Load Tasks</button>
                 </div>
-                <div className="grid grid-cols-2 gap-1">{entry.tasks.map((t, ti) => <div key={ti} className="flex items-center gap-1.5 text-[9px] text-[var(--text-muted)]">
+                <div className="grid grid-cols-2 gap-1">{entry.tasks.map((t, ti) => <div key={ti} className="flex items-center gap-1.5 text-[14px] text-[var(--text-muted)]">
                   <div className="w-1 h-1 rounded-full" style={{background: t.impact === "High" ? "var(--risk)" : t.impact === "Moderate" ? "var(--warning)" : "var(--success)"}} />
                   <span className="truncate">{t.name}</span>
-                  <span className="text-[8px] shrink-0">{t.pct}%</span>
+                  <span className="text-[15px] shrink-0">{t.pct}%</span>
                 </div>)}</div>
               </div>)}
             </div>
           </div>}
-          <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full text-left text-[13px]"><thead><tr className="bg-[var(--surface-2)]">{["Task ID","Task Name","Workstream","AI Impact","Est Hrs/Wk","Time %","Type","Interaction","Logic","Skill 1","Skill 2"].map(c => <th key={c} className="px-2 py-2 border-b border-[var(--border)] text-[11px] uppercase text-[var(--text-muted)] whitespace-nowrap font-semibold">{c}</th>)}</tr></thead><tbody>{js.deconRows.map((row, idx) => <tr key={idx} className="border-b border-[var(--border)] hover:bg-[var(--hover)]"><td className="px-2 py-2 min-w-[70px]"><EditableCell value={row["Task ID"]} onChange={v => updateDeconCell(idx, "Task ID", v)} /></td><td className="px-2 py-2 min-w-[160px]"><EditableCell value={row["Task Name"]} onChange={v => updateDeconCell(idx, "Task Name", v)} /></td><td className="px-2 py-2 min-w-[110px]"><EditableCell value={row.Workstream} onChange={v => updateDeconCell(idx, "Workstream", v)} /></td><td className="px-2 py-2 min-w-[90px]"><SelectCell value={row["AI Impact"]} onChange={v => updateDeconCell(idx, "AI Impact", v)} options={["High","Moderate","Low"]} /></td><td className="px-2 py-2 min-w-[80px]"><EditableCell type="number" value={row["Est Hours/Week"]} onChange={v => updateDeconCell(idx, "Est Hours/Week", v)} suffix="h" /></td><td className="px-2 py-2 min-w-[80px]"><EditableCell type="number" value={row["Current Time Spent %"]} onChange={v => updateDeconCell(idx, "Current Time Spent %", v)} suffix="%" /></td><td className="px-2 py-2 min-w-[90px]"><SelectCell value={row["Task Type"]} onChange={v => updateDeconCell(idx, "Task Type", v)} options={["Repetitive","Variable"]} /></td><td className="px-2 py-2 min-w-[100px]"><SelectCell value={row.Interaction} onChange={v => updateDeconCell(idx, "Interaction", v)} options={["Independent","Interactive","Collaborative"]} /></td><td className="px-2 py-2 min-w-[110px]"><SelectCell value={row.Logic} onChange={v => updateDeconCell(idx, "Logic", v)} options={["Deterministic","Probabilistic","Judgment-heavy"]} /></td><td className="px-2 py-2 min-w-[100px]"><EditableCell value={row["Primary Skill"]} onChange={v => updateDeconCell(idx, "Primary Skill", v)} /></td><td className="px-2 py-2 min-w-[100px]"><EditableCell value={row["Secondary Skill"]} onChange={v => updateDeconCell(idx, "Secondary Skill", v)} /></td></tr>)}</tbody></table></div>
+          <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full text-left text-[15px]"><thead><tr className="bg-[var(--surface-2)]">{["Task ID","Task Name","Workstream","AI Impact","Est Hrs/Wk","Time %","Type","Interaction","Logic","Skill 1","Skill 2"].map(c => <th key={c} className="px-2 py-2 border-b border-[var(--border)] text-[15px] uppercase text-[var(--text-muted)] whitespace-nowrap font-semibold">{c}</th>)}</tr></thead><tbody>{js.deconRows.map((row, idx) => <tr key={idx} className="border-b border-[var(--border)] hover:bg-[var(--hover)]"><td className="px-2 py-2 min-w-[70px]"><EditableCell value={row["Task ID"]} onChange={v => updateDeconCell(idx, "Task ID", v)} /></td><td className="px-2 py-2 min-w-[160px]"><EditableCell value={row["Task Name"]} onChange={v => updateDeconCell(idx, "Task Name", v)} /></td><td className="px-2 py-2 min-w-[110px]"><EditableCell value={row.Workstream} onChange={v => updateDeconCell(idx, "Workstream", v)} /></td><td className="px-2 py-2 min-w-[90px]"><SelectCell value={row["AI Impact"]} onChange={v => updateDeconCell(idx, "AI Impact", v)} options={["High","Moderate","Low"]} /></td><td className="px-2 py-2 min-w-[80px]"><EditableCell type="number" value={row["Est Hours/Week"]} onChange={v => updateDeconCell(idx, "Est Hours/Week", v)} suffix="h" /></td><td className="px-2 py-2 min-w-[80px]"><EditableCell type="number" value={row["Current Time Spent %"]} onChange={v => updateDeconCell(idx, "Current Time Spent %", v)} suffix="%" /></td><td className="px-2 py-2 min-w-[90px]"><SelectCell value={row["Task Type"]} onChange={v => updateDeconCell(idx, "Task Type", v)} options={["Repetitive","Variable"]} /></td><td className="px-2 py-2 min-w-[100px]"><SelectCell value={row.Interaction} onChange={v => updateDeconCell(idx, "Interaction", v)} options={["Independent","Interactive","Collaborative"]} /></td><td className="px-2 py-2 min-w-[110px]"><SelectCell value={row.Logic} onChange={v => updateDeconCell(idx, "Logic", v)} options={["Deterministic","Probabilistic","Judgment-heavy"]} /></td><td className="px-2 py-2 min-w-[100px]"><EditableCell value={row["Primary Skill"]} onChange={v => updateDeconCell(idx, "Primary Skill", v)} /></td><td className="px-2 py-2 min-w-[100px]"><EditableCell value={row["Secondary Skill"]} onChange={v => updateDeconCell(idx, "Secondary Skill", v)} /></td></tr>)}</tbody></table></div>
         </Card>
       </div>}
 
@@ -827,17 +827,17 @@ Rules:
               return { ...row, Decision: decision, Technology: techMap[decision] || "Human-led" };
             });
             setJobState(job, { redeployRows: newRows, redeploySubmitted: false, finalized: false, recon: null });
-          }} disabled={js.finalized} className="w-full py-2 rounded-md text-[12px] font-semibold text-white mb-2" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>☕ Auto-Recommend</button><div className="text-[10px] text-[var(--text-muted)]">AI assigns Retain/Augment/Automate based on task characteristics</div></Card>
-          <Card title="Submit"><button disabled={!redeployValid || js.finalized} onClick={() => { setJobState(job, { redeploySubmitted: true, finalized: false, recon: null }); setWdTab("recon"); }} className={`w-full py-2 rounded-md text-[13px] font-semibold ${!redeployValid ? "bg-[var(--border)] text-[var(--text-muted)]" : "bg-[var(--accent-primary)] text-white"}`}>{js.redeploySubmitted ? "Update" : "Submit"} Redeployment</button></Card>
+          }} disabled={js.finalized} className="w-full py-2 rounded-md text-[15px] font-semibold text-white mb-2" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>☕ Auto-Recommend</button><div className="text-[15px] text-[var(--text-muted)]">AI assigns Retain/Augment/Automate based on task characteristics</div></Card>
+          <Card title="Submit"><button disabled={!redeployValid || js.finalized} onClick={() => { setJobState(job, { redeploySubmitted: true, finalized: false, recon: null }); setWdTab("recon"); }} className={`w-full py-2 rounded-md text-[15px] font-semibold ${!redeployValid ? "bg-[var(--border)] text-[var(--text-muted)]" : "bg-[var(--accent-primary)] text-white"}`}>{js.redeploySubmitted ? "Update" : "Submit"} Redeployment</button></Card>
         </div>
         <Card title="Redeployment Plan — Editable">
-          <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full text-left text-[13px]"><thead><tr className="bg-[var(--surface-2)]">{["Task ID","Task Name","Decision","Technology","Current %","New %","Destination","Future Skill","Notes"].map(c => <th key={c} className="px-2 py-2 border-b border-[var(--border)] text-[11px] uppercase text-[var(--text-muted)] whitespace-nowrap">{c}</th>)}</tr></thead><tbody>{js.redeployRows.map((row, idx) => <tr key={idx} className="border-b border-[var(--border)] hover:bg-[var(--hover)]"><td className="px-2 py-2 text-[var(--text-secondary)]">{String(row["Task ID"] ?? "")}</td><td className="px-2 py-2 min-w-[160px] text-[var(--text-secondary)]">{String(row["Task Name"] ?? "")}</td><td className="px-2 py-2 min-w-[120px]"><SelectCell value={row.Decision} onChange={v => updateRedeployCell(idx, "Decision", v)} options={["Retain","Augment","Automate","Redesign","Transfer"]} /></td><td className="px-2 py-2 min-w-[120px]"><SelectCell value={row.Technology} onChange={v => updateRedeployCell(idx, "Technology", v)} options={["Human-led","GenAI","RPA","Agentic AI","ML","Shared Service"]} /></td><td className="px-2 py-2 text-[var(--text-secondary)]">{String(row["Current Time Spent %"] ?? "")}</td><td className="px-2 py-2 min-w-[80px]"><EditableCell type="number" value={row["New Time %"]} onChange={v => updateRedeployCell(idx, "New Time %", v)} /></td><td className="px-2 py-2 min-w-[160px]"><EditableCell value={row["Redeployment Destination"]} onChange={v => updateRedeployCell(idx, "Redeployment Destination", v)} /></td><td className="px-2 py-2 min-w-[120px]"><EditableCell value={row["Future Skill"]} onChange={v => updateRedeployCell(idx, "Future Skill", v)} /></td><td className="px-2 py-2 min-w-[120px]"><EditableCell value={row.Notes} onChange={v => updateRedeployCell(idx, "Notes", v)} /></td></tr>)}</tbody></table></div>
+          <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full text-left text-[15px]"><thead><tr className="bg-[var(--surface-2)]">{["Task ID","Task Name","Decision","Technology","Current %","New %","Destination","Future Skill","Notes"].map(c => <th key={c} className="px-2 py-2 border-b border-[var(--border)] text-[15px] uppercase text-[var(--text-muted)] whitespace-nowrap">{c}</th>)}</tr></thead><tbody>{js.redeployRows.map((row, idx) => <tr key={idx} className="border-b border-[var(--border)] hover:bg-[var(--hover)]"><td className="px-2 py-2 text-[var(--text-secondary)]">{String(row["Task ID"] ?? "")}</td><td className="px-2 py-2 min-w-[160px] text-[var(--text-secondary)]">{String(row["Task Name"] ?? "")}</td><td className="px-2 py-2 min-w-[120px]"><SelectCell value={row.Decision} onChange={v => updateRedeployCell(idx, "Decision", v)} options={["Retain","Augment","Automate","Redesign","Transfer"]} /></td><td className="px-2 py-2 min-w-[120px]"><SelectCell value={row.Technology} onChange={v => updateRedeployCell(idx, "Technology", v)} options={["Human-led","GenAI","RPA","Agentic AI","ML","Shared Service"]} /></td><td className="px-2 py-2 text-[var(--text-secondary)]">{String(row["Current Time Spent %"] ?? "")}</td><td className="px-2 py-2 min-w-[80px]"><EditableCell type="number" value={row["New Time %"]} onChange={v => updateRedeployCell(idx, "New Time %", v)} /></td><td className="px-2 py-2 min-w-[160px]"><EditableCell value={row["Redeployment Destination"]} onChange={v => updateRedeployCell(idx, "Redeployment Destination", v)} /></td><td className="px-2 py-2 min-w-[120px]"><EditableCell value={row["Future Skill"]} onChange={v => updateRedeployCell(idx, "Future Skill", v)} /></td><td className="px-2 py-2 min-w-[120px]"><EditableCell value={row.Notes} onChange={v => updateRedeployCell(idx, "Notes", v)} /></td></tr>)}</tbody></table></div>
         </Card>
       </>}</div>}
 
-      {wdTab === "recon" && (() => { const r = js.recon; const ac = ((r?.action_counts ?? {}) as Record<string, number>); const wf = ((r?.waterfall ?? {}) as Record<string, number>); const detail = ((r?.reconstruction ?? []) as Record<string, unknown>[]); const rollup = ((r?.rollup ?? []) as Record<string, unknown>[]); const recs = ((r?.recommendations ?? []) as string[]); return !js.redeploySubmitted ? <Empty text="Submit Redeployment first" icon="🔒" /> : <div><div className="grid grid-cols-4 gap-3 mb-5"><KpiCard label="Automate" value={ac.Automate ?? 0} accent /><KpiCard label="Augment" value={ac.Augment ?? 0} /><KpiCard label="Redesign" value={ac.Redesign ?? 0} /><KpiCard label="Retain" value={ac.Retain ?? 0} /></div><div className="grid grid-cols-12 gap-4 mb-5"><div className="col-span-5"><Card title="Reconstruction Rollup">{rollup.length ? <DataTable data={rollup} /> : <Empty text="Building..." icon="🧱" />}</Card></div><div className="col-span-3"><Card title="Capacity Waterfall">{Object.keys(wf).length ? <div className="flex items-end gap-2 h-40">{Object.entries(wf).map(([n, v], i) => <div key={n} className="flex-1 flex flex-col items-center justify-end"><div className="text-[11px] font-semibold text-[var(--text-secondary)] mb-1">{Number(v).toFixed(1)}h</div><div className="w-full rounded-t" style={{ height: `${Math.max((Number(v) / Math.max(Number(wf.current) || 1, 1)) * 100, 4)}%`, background: COLORS[i % COLORS.length] }} /><div className="text-[10px] text-[var(--text-muted)] mt-1 truncate w-full text-center">{n}</div></div>)}</div> : <Empty text="Building..." icon="📊" />}</Card></div><div className="col-span-4"><InsightPanel title="Recommendations" items={recs.length ? recs : ["Building..."]} icon="🎯" /></div></div><Card title="Future-State Detail"><DataTable data={detail} /></Card><div className="mt-4 flex justify-end"><button disabled={!js.redeploySubmitted || js.finalized} onClick={() => setJobState(job, { finalized: true })} className={`px-4 py-2 rounded-md text-[13px] font-semibold ${js.finalized ? "bg-[var(--success)] text-white" : "bg-[var(--success)] text-white hover:opacity-90"}`}>{js.finalized ? "✓ Finalized" : "Finalize Work Design"}</button></div></div>; })()}
+      {wdTab === "recon" && (() => { const r = js.recon; const ac = ((r?.action_counts ?? {}) as Record<string, number>); const wf = ((r?.waterfall ?? {}) as Record<string, number>); const detail = ((r?.reconstruction ?? []) as Record<string, unknown>[]); const rollup = ((r?.rollup ?? []) as Record<string, unknown>[]); const recs = ((r?.recommendations ?? []) as string[]); return !js.redeploySubmitted ? <Empty text="Submit Redeployment first" icon="🔒" /> : <div><div className="grid grid-cols-4 gap-3 mb-5"><KpiCard label="Automate" value={ac.Automate ?? 0} accent /><KpiCard label="Augment" value={ac.Augment ?? 0} /><KpiCard label="Redesign" value={ac.Redesign ?? 0} /><KpiCard label="Retain" value={ac.Retain ?? 0} /></div><div className="grid grid-cols-12 gap-4 mb-5"><div className="col-span-5"><Card title="Reconstruction Rollup">{rollup.length ? <DataTable data={rollup} /> : <Empty text="Building..." icon="🧱" />}</Card></div><div className="col-span-3"><Card title="Capacity Waterfall">{Object.keys(wf).length ? <div className="flex items-end gap-2 h-40">{Object.entries(wf).map(([n, v], i) => <div key={n} className="flex-1 flex flex-col items-center justify-end"><div className="text-[15px] font-semibold text-[var(--text-secondary)] mb-1">{Number(v).toFixed(1)}h</div><div className="w-full rounded-t" style={{ height: `${Math.max((Number(v) / Math.max(Number(wf.current) || 1, 1)) * 100, 4)}%`, background: COLORS[i % COLORS.length] }} /><div className="text-[15px] text-[var(--text-muted)] mt-1 truncate w-full text-center">{n}</div></div>)}</div> : <Empty text="Building..." icon="📊" />}</Card></div><div className="col-span-4"><InsightPanel title="Recommendations" items={recs.length ? recs : ["Building..."]} icon="🎯" /></div></div><Card title="Future-State Detail"><DataTable data={detail} /></Card><div className="mt-4 flex justify-end"><button disabled={!js.redeploySubmitted || js.finalized} onClick={() => setJobState(job, { finalized: true })} className={`px-4 py-2 rounded-md text-[15px] font-semibold ${js.finalized ? "bg-[var(--success)] text-white" : "bg-[var(--success)] text-white hover:opacity-90"}`}>{js.finalized ? "✓ Finalized" : "Finalize Work Design"}</button></div></div>; })()}
 
-      {wdTab === "impact" && (() => { const r = js.recon; const ins = ((r?.insights ?? []) as Record<string, unknown>[]); const vm = ((r?.value_model ?? {}) as Record<string, unknown>); return !js.redeploySubmitted ? <Empty text="Submit Redeployment to unlock" icon="🔒" /> : <div><div className="grid grid-cols-4 gap-3 mb-5"><KpiCard label="Current" value={r?.total_current_hrs as number ?? 0} /><KpiCard label="Future" value={r?.total_future_hrs as number ?? 0} /><KpiCard label="Released" value={((r?.total_current_hrs as number ?? 0) - (r?.total_future_hrs as number ?? 0)).toFixed(1)} accent /><KpiCard label="Evolution" value={String(r?.evolution ?? "—")} /></div><div className="grid grid-cols-2 gap-4"><Card title="Transformation Insights"><DataTable data={ins} cols={["Category", "Metric", "Value", "Interpretation"]} /></Card><Card title="Value Model">{Object.keys(vm).length ? <div className="space-y-2">{Object.entries(vm).map(([n, v]) => <div key={n} className="flex justify-between text-[13px]"><span className="text-[var(--text-secondary)]">{n}</span><span className="font-semibold">{String(v)}</span></div>)}</div> : <Empty text="Computing..." />}</Card></div></div>; })()}
+      {wdTab === "impact" && (() => { const r = js.recon; const ins = ((r?.insights ?? []) as Record<string, unknown>[]); const vm = ((r?.value_model ?? {}) as Record<string, unknown>); return !js.redeploySubmitted ? <Empty text="Submit Redeployment to unlock" icon="🔒" /> : <div><div className="grid grid-cols-4 gap-3 mb-5"><KpiCard label="Current" value={r?.total_current_hrs as number ?? 0} /><KpiCard label="Future" value={r?.total_future_hrs as number ?? 0} /><KpiCard label="Released" value={((r?.total_current_hrs as number ?? 0) - (r?.total_future_hrs as number ?? 0)).toFixed(1)} accent /><KpiCard label="Evolution" value={String(r?.evolution ?? "—")} /></div><div className="grid grid-cols-2 gap-4"><Card title="Transformation Insights"><DataTable data={ins} cols={["Category", "Metric", "Value", "Interpretation"]} /></Card><Card title="Value Model">{Object.keys(vm).length ? <div className="space-y-2">{Object.entries(vm).map(([n, v]) => <div key={n} className="flex justify-between text-[15px]"><span className="text-[var(--text-secondary)]">{n}</span><span className="font-semibold">{String(v)}</span></div>)}</div> : <Empty text="Computing..." />}</Card></div></div>; })()}
     <NextStepBar currentModuleId="design" onNavigate={onBack} />
       </div>
     </div>
@@ -948,18 +948,18 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
     const diff = b - a; const pos = inv ? diff < 0 : diff > 0; const neg = inv ? diff > 0 : diff < 0;
     const c = pos ? "var(--success)" : neg ? "var(--risk)" : "var(--text-muted)";
     const ar = diff > 0 ? "↑" : diff < 0 ? "↓" : "→";
-    return <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] font-bold" style={{ color: c, background: pos ? "rgba(16,185,129,0.1)" : neg ? "rgba(239,68,68,0.1)" : "transparent" }}>{ar}{Math.abs(diff).toFixed(1)}</span>;
+    return <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[15px] font-bold" style={{ color: c, background: pos ? "rgba(16,185,129,0.1)" : neg ? "rgba(239,68,68,0.1)" : "transparent" }}>{ar}{Math.abs(diff).toFixed(1)}</span>;
   };
 
   const HBar = ({ value, max, color }: { value: number; max: number; color: string }) => <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: `${color}12` }}><div className="h-full rounded-full transition-all" style={{ width: `${Math.min((value / max) * 100, 100)}%`, background: color }} /></div>;
 
   const OdsKpi = ({ label, current, future, inv }: { label: string; current: number; future: number; inv?: boolean }) => (
     <div className="bg-[var(--surface-2)] rounded-xl p-4 border border-[var(--border)]">
-      <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">{label}</div>
+      <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">{label}</div>
       <div className="flex items-baseline gap-3">
-        <div><div className="text-[10px] text-[var(--text-muted)]">Current</div><div className="text-xl font-extrabold text-[var(--accent-primary)]">{current.toFixed(current > 100 ? 0 : 1)}</div></div>
+        <div><div className="text-[15px] text-[var(--text-muted)]">Current</div><div className="text-xl font-extrabold text-[var(--accent-primary)]">{current.toFixed(current > 100 ? 0 : 1)}</div></div>
         <span className="text-[var(--text-muted)]">→</span>
-        <div><div className="text-[10px] text-[var(--text-muted)]">Scenario</div><div className="text-xl font-extrabold text-[var(--success)]">{future.toFixed(future > 100 ? 0 : 1)}</div></div>
+        <div><div className="text-[15px] text-[var(--text-muted)]">Scenario</div><div className="text-xl font-extrabold text-[var(--success)]">{future.toFixed(future > 100 ? 0 : 1)}</div></div>
       </div>
       <div className="mt-1"><DChip a={current} b={future} inv={inv} /></div>
     </div>
@@ -982,8 +982,8 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
               { label: "Layers", c: matchDept?.layers, f: matchFuture?.layers },
               { label: "Managers", c: matchDept?.managers, f: matchFuture?.managers },
             ].map(r => <div key={r.label} className="flex items-center justify-between p-2 rounded-lg bg-[var(--surface-2)]">
-              <span className="text-[13px] text-[var(--text-secondary)]">{r.label}</span>
-              <div className="flex items-center gap-3 text-[13px]"><span className="text-[var(--accent-primary)] font-semibold">{r.c || 0}</span><span className="text-[var(--text-muted)]">→</span><span className="text-[var(--success)] font-semibold">{r.f || 0}</span><DChip a={Number(r.c || 0)} b={Number(r.f || 0)} inv /></div>
+              <span className="text-[15px] text-[var(--text-secondary)]">{r.label}</span>
+              <div className="flex items-center gap-3 text-[15px]"><span className="text-[var(--accent-primary)] font-semibold">{r.c || 0}</span><span className="text-[var(--text-muted)]">→</span><span className="text-[var(--success)] font-semibold">{r.f || 0}</span><DChip a={Number(r.c || 0)} b={Number(r.f || 0)} inv /></div>
             </div>)}
           </div>
         </Card>
@@ -1008,12 +1008,12 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
   return <div>
     <ContextStrip items={["Phase 2: Design — Model your future org structure. Data is generated for modeling — upload workforce data to ground in reality."]} />
     <PageHeader icon="🏗️" title="Org Design Studio" subtitle="Current → Future State Modeling · Multi-Scenario Engine" onBack={onBack} moduleId="build" />
-    {hasRealData ? <div className="bg-[rgba(16,185,129,0.08)] border border-[var(--success)]/30 rounded-lg px-4 py-2 mb-4 text-[12px] text-[var(--success)]">✓ Using your uploaded workforce data to model departments</div> : <div className="bg-[rgba(245,158,11,0.08)] border border-[var(--warning)]/30 rounded-lg px-4 py-2 mb-4 text-[12px] text-[var(--warning)]">Using generated sample data — upload workforce data for your real org structure</div>}
+    {hasRealData ? <div className="bg-[rgba(16,185,129,0.08)] border border-[var(--success)]/30 rounded-lg px-4 py-2 mb-4 text-[15px] text-[var(--success)]">✓ Using your uploaded workforce data to model departments</div> : <div className="bg-[rgba(245,158,11,0.08)] border border-[var(--warning)]/30 rounded-lg px-4 py-2 mb-4 text-[15px] text-[var(--warning)]">Using generated sample data — upload workforce data for your real org structure</div>}
 
     {/* Scenario selector — dropdown to save space */}
     <div className="flex gap-3 mb-4 items-center">
-      <span className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Scenario:</span>
-      <select value={activeScenario} onChange={e => setActiveScenario(Number(e.target.value))} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-[13px] font-semibold text-[var(--text-primary)] outline-none focus:border-[var(--accent-primary)] min-w-[180px]">
+      <span className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Scenario:</span>
+      <select value={activeScenario} onChange={e => setActiveScenario(Number(e.target.value))} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-[15px] font-semibold text-[var(--text-primary)] outline-none focus:border-[var(--accent-primary)] min-w-[180px]">
         {scenarios.map((s, i) => <option key={s.id} value={i}>{s.label} — {odsAgg(s.departments).hc} HC, {fmtNum(odsAgg(s.departments).cost)}</option>)}
       </select>
       <button onClick={async () => {
@@ -1022,16 +1022,16 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
           const context = currentData.map(d => `${d.name}: ${d.headcount}hd, span ${d.avgSpan}, ${d.layers} layers, ${d.managers} mgrs`).join("; ");
           const aiText1 = await callAI("Return ONLY a valid JSON array of strings.", `Analyze this org structure and give 4-5 specific restructuring recommendations. Current state: ${context}. Return ONLY a JSON array of strings.`);
           setAiOdsInsights(JSON.parse(aiText1.replace(/```json\n?/g,"").replace(/```\n?/g,"").trim()));
-      } catch {} setAiOdsLoading(false); }} disabled={aiOdsLoading} className="px-3 py-2 rounded-lg text-[12px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: aiOdsLoading ? 0.5 : 1 }}>{aiOdsLoading ? "Analyzing..." : "✨ AI Recommendations"}</button>
-      <button onClick={() => { realDataBuilt.current = false; const c = odsGenDept(); setCurrentData(c); setScenarios([odsGenScenario(c, "Optimized", 0.5, 0), odsGenScenario(c, "Aggressive", 0.9, 1), odsGenScenario(c, "Conservative", 0.25, 2)]); }} className="px-3 py-2 rounded-lg text-[12px] font-semibold border border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--accent-primary)]">↻ Reset</button>
+      } catch {} setAiOdsLoading(false); }} disabled={aiOdsLoading} className="px-3 py-2 rounded-lg text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: aiOdsLoading ? 0.5 : 1 }}>{aiOdsLoading ? "Analyzing..." : "✨ AI Recommendations"}</button>
+      <button onClick={() => { realDataBuilt.current = false; const c = odsGenDept(); setCurrentData(c); setScenarios([odsGenScenario(c, "Optimized", 0.5, 0), odsGenScenario(c, "Aggressive", 0.9, 1), odsGenScenario(c, "Conservative", 0.25, 2)]); }} className="px-3 py-2 rounded-lg text-[15px] font-semibold border border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--accent-primary)]">↻ Reset</button>
     </div>
 
     {/* View tabs */}
     <TabBar tabs={[{ id: "overview", label: "Overview" }, { id: "soc", label: "Span Detail" }, { id: "layers", label: "Layers" }, { id: "cost", label: "Cost Model" }, { id: "roles", label: "Role Migration" }, { id: "drill", label: "Dept Drill-Down" }, { id: "compare", label: "Compare All" }, { id: "insights", label: "Insights" }, { id: "benchmarks", label: "📖 Benchmarks" }]} active={view} onChange={setView} />
 
     {aiOdsInsights.length > 0 && <div className="bg-gradient-to-r from-[rgba(224,144,64,0.06)] to-transparent border border-[rgba(224,144,64,0.15)] rounded-xl p-4 mb-4">
-      <div className="flex items-center gap-2 mb-2 text-[13px] font-bold" style={{ color: "#f0a050" }}>✨ AI Restructuring Recommendations</div>
-      <div className="space-y-1.5">{aiOdsInsights.map((ins, i) => <div key={i} className="text-[13px] text-[var(--text-secondary)] pl-4 relative"><span className="absolute left-0 text-[#f0a050] font-bold">{i+1}.</span>{ins}</div>)}</div>
+      <div className="flex items-center gap-2 mb-2 text-[15px] font-bold" style={{ color: "#f0a050" }}>✨ AI Restructuring Recommendations</div>
+      <div className="space-y-1.5">{aiOdsInsights.map((ins, i) => <div key={i} className="text-[15px] text-[var(--text-secondary)] pl-4 relative"><span className="absolute left-0 text-[#f0a050] font-bold">{i+1}.</span>{ins}</div>)}</div>
     </div>}
 
     {view === "overview" && <div>
@@ -1040,14 +1040,14 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       </div>
       {/* Span by dept */}
       <Card title="Span of Control by Department">
-        {(() => { const maxSpan = Math.max(...currentData.map(d => d.avgSpan), ...sc.departments.map(d => d.avgSpan)) * 1.15; return <div className="space-y-2">{currentData.map((d, i) => { const f = sc.departments[i]; return <div key={d.name} className="flex items-center gap-3"><div className="w-32 text-[12px] text-[var(--text-muted)] text-right shrink-0">{d.name}</div><div className="flex-1 space-y-1"><HBar value={d.avgSpan} max={maxSpan} color="var(--accent-primary)" /><HBar value={f?.avgSpan || 0} max={maxSpan} color="var(--success)" /></div><div className="w-16 shrink-0"><DChip a={d.avgSpan} b={f?.avgSpan || 0} /></div></div>; })}</div>; })()}
-        <div className="flex gap-4 mt-3 text-[11px] text-[var(--text-muted)]"><span className="flex items-center gap-1"><span className="w-3 h-1 rounded bg-[var(--accent-primary)]" />Current</span><span className="flex items-center gap-1"><span className="w-3 h-1 rounded bg-[var(--success)]" />{sc.label}</span></div>
+        {(() => { const maxSpan = Math.max(...currentData.map(d => d.avgSpan), ...sc.departments.map(d => d.avgSpan)) * 1.15; return <div className="space-y-2">{currentData.map((d, i) => { const f = sc.departments[i]; return <div key={d.name} className="flex items-center gap-3"><div className="w-32 text-[15px] text-[var(--text-muted)] text-right shrink-0">{d.name}</div><div className="flex-1 space-y-1"><HBar value={d.avgSpan} max={maxSpan} color="var(--accent-primary)" /><HBar value={f?.avgSpan || 0} max={maxSpan} color="var(--success)" /></div><div className="w-16 shrink-0"><DChip a={d.avgSpan} b={f?.avgSpan || 0} /></div></div>; })}</div>; })()}
+        <div className="flex gap-4 mt-3 text-[15px] text-[var(--text-muted)]"><span className="flex items-center gap-1"><span className="w-3 h-1 rounded bg-[var(--accent-primary)]" />Current</span><span className="flex items-center gap-1"><span className="w-3 h-1 rounded bg-[var(--success)]" />{sc.label}</span></div>
       </Card>
     </div>}
 
     {view === "soc" && <Card title="Span of Control Detail">
-      <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full"><thead><tr className="bg-[var(--surface-2)]">{["Department","HC (C)","HC (F)","Mgrs (C)","Mgrs (F)","ICs (C)","ICs (F)","SoC (C)","SoC (F)","Δ"].map(h => <th key={h} className="px-3 py-2 text-[11px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)] text-center">{h}</th>)}</tr></thead>
-      <tbody>{currentData.map((d, i) => { const f = sc.departments[i]; return <tr key={d.name} className="border-b border-[var(--border)] hover:bg-[var(--hover)]"><td className="px-3 py-2 text-[13px] font-semibold">{d.name}</td><td className="px-3 py-2 text-center text-[var(--accent-primary)]">{d.headcount}</td><td className="px-3 py-2 text-center text-[var(--success)]">{f?.headcount}</td><td className="px-3 py-2 text-center text-[var(--accent-primary)]">{d.managers}</td><td className="px-3 py-2 text-center text-[var(--success)]">{f?.managers}</td><td className="px-3 py-2 text-center text-[var(--accent-primary)]">{d.ics}</td><td className="px-3 py-2 text-center text-[var(--success)]">{f?.ics}</td><td className="px-3 py-2 text-center text-[var(--accent-primary)]">{d.avgSpan}</td><td className="px-3 py-2 text-center text-[var(--success)]">{f?.avgSpan}</td><td className="px-3 py-2 text-center"><DChip a={d.avgSpan} b={f?.avgSpan || 0} /></td></tr>; })}</tbody></table></div>
+      <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full"><thead><tr className="bg-[var(--surface-2)]">{["Department","HC (C)","HC (F)","Mgrs (C)","Mgrs (F)","ICs (C)","ICs (F)","SoC (C)","SoC (F)","Δ"].map(h => <th key={h} className="px-3 py-2 text-[15px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)] text-center">{h}</th>)}</tr></thead>
+      <tbody>{currentData.map((d, i) => { const f = sc.departments[i]; return <tr key={d.name} className="border-b border-[var(--border)] hover:bg-[var(--hover)]"><td className="px-3 py-2 text-[15px] font-semibold">{d.name}</td><td className="px-3 py-2 text-center text-[var(--accent-primary)]">{d.headcount}</td><td className="px-3 py-2 text-center text-[var(--success)]">{f?.headcount}</td><td className="px-3 py-2 text-center text-[var(--accent-primary)]">{d.managers}</td><td className="px-3 py-2 text-center text-[var(--success)]">{f?.managers}</td><td className="px-3 py-2 text-center text-[var(--accent-primary)]">{d.ics}</td><td className="px-3 py-2 text-center text-[var(--success)]">{f?.ics}</td><td className="px-3 py-2 text-center text-[var(--accent-primary)]">{d.avgSpan}</td><td className="px-3 py-2 text-center text-[var(--success)]">{f?.avgSpan}</td><td className="px-3 py-2 text-center"><DChip a={d.avgSpan} b={f?.avgSpan || 0} /></td></tr>; })}</tbody></table></div>
     </Card>}
 
     {view === "layers" && (() => {
@@ -1077,8 +1077,8 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       return <div>
         {/* Scope selector */}
         <div className="flex items-center gap-3 mb-5">
-          <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Scope:</span>
-          <select value={layerScope} onChange={e => setLayerScope(e.target.value)} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-[12px] text-[var(--text-primary)] outline-none">
+          <span className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Scope:</span>
+          <select value={layerScope} onChange={e => setLayerScope(e.target.value)} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-[15px] text-[var(--text-primary)] outline-none">
             <option value="all">Entire Organization</option>
             {currentData.map(d => <option key={d.name} value={d.name}>{d.name}</option>)}
           </select>
@@ -1098,24 +1098,24 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
               const health = Math.abs(actualPct - bPct) < bPct * 0.5 ? "green" : Math.abs(actualPct - bPct) < bPct * 0.8 ? "amber" : "red";
               return <div key={level}>
                 <div className="flex items-center gap-3 mb-1">
-                  <div className="w-20 text-right text-[12px] font-semibold text-[var(--text-secondary)] shrink-0">{level}</div>
+                  <div className="w-20 text-right text-[15px] font-semibold text-[var(--text-secondary)] shrink-0">{level}</div>
                   <div className="flex-1 flex flex-col gap-1">
                     {/* Current bar */}
                     <div className="flex items-center gap-2">
                       <div className="flex-1 h-6 bg-[var(--surface-2)] rounded overflow-hidden"><div className="h-full rounded transition-all" style={{ width: `${Math.max((cur / maxCount) * 100, 1)}%`, background: `linear-gradient(90deg, ${layerColors[li]}dd, ${layerColors[li]}90)` }} /></div>
-                      <span className="text-[10px] font-data text-[var(--text-muted)] w-16 text-right">{cur} ({curPct}%)</span>
+                      <span className="text-[15px] font-data text-[var(--text-muted)] w-16 text-right">{cur} ({curPct}%)</span>
                     </div>
                     {/* Future bar */}
                     <div className="flex items-center gap-2">
                       <div className="flex-1 h-5 bg-[var(--surface-2)] rounded overflow-hidden"><div className="h-full rounded transition-all" style={{ width: `${Math.max((fut / maxCount) * 100, 1)}%`, background: `linear-gradient(90deg, rgba(16,185,129,0.7), rgba(16,185,129,0.4))` }} /></div>
-                      <span className="text-[10px] font-data w-16 text-right" style={{ color: delta < 0 ? "var(--success)" : delta > 0 ? "var(--risk)" : "var(--text-muted)" }}>{delta !== 0 ? `${delta > 0 ? "+" : ""}${delta}` : "—"}</span>
+                      <span className="text-[15px] font-data w-16 text-right" style={{ color: delta < 0 ? "var(--success)" : delta > 0 ? "var(--risk)" : "var(--text-muted)" }}>{delta !== 0 ? `${delta > 0 ? "+" : ""}${delta}` : "—"}</span>
                     </div>
                   </div>
                   <div className="w-6 flex items-center justify-center"><div className="w-2.5 h-2.5 rounded-full" style={{ background: health === "green" ? "var(--success)" : health === "amber" ? "var(--warning)" : "var(--risk)" }} /></div>
                 </div>
               </div>;
             })}
-            <div className="flex items-center gap-3 text-[9px] text-[var(--text-muted)] mt-2 pt-2 border-t border-[var(--border)]">
+            <div className="flex items-center gap-3 text-[14px] text-[var(--text-muted)] mt-2 pt-2 border-t border-[var(--border)]">
               <div className="flex items-center gap-1"><div className="w-3 h-2 rounded" style={{ background: "#D4860A" }} /> Current</div>
               <div className="flex items-center gap-1"><div className="w-3 h-2 rounded" style={{ background: "rgba(16,185,129,0.6)" }} /> {sc.label}</div>
               <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-[var(--success)]" /> Healthy</div>
@@ -1129,15 +1129,15 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
           {/* Reporting chain analysis */}
           <Card title="Reporting Chain Analysis">
             <div className="grid grid-cols-3 gap-4 mb-4">
-              <div className="text-center"><div className="text-[28px] font-extrabold text-[var(--risk)]">{maxChain}</div><div className="text-[10px] text-[var(--text-muted)]">Deepest Chain</div><div className="text-[9px] text-[var(--text-muted)]">{deepest?.name || "—"}</div></div>
-              <div className="text-center"><div className="text-[28px] font-extrabold text-[var(--accent-primary)]">{avgChain}</div><div className="text-[10px] text-[var(--text-muted)]">Average Depth</div></div>
-              <div className="text-center"><div className="text-[28px] font-extrabold text-[var(--success)]">{minChain < 99 ? minChain : 0}</div><div className="text-[10px] text-[var(--text-muted)]">Shallowest</div><div className="text-[9px] text-[var(--text-muted)]">{shallowest?.name || "—"}</div></div>
+              <div className="text-center"><div className="text-[28px] font-extrabold text-[var(--risk)]">{maxChain}</div><div className="text-[15px] text-[var(--text-muted)]">Deepest Chain</div><div className="text-[14px] text-[var(--text-muted)]">{deepest?.name || "—"}</div></div>
+              <div className="text-center"><div className="text-[28px] font-extrabold text-[var(--accent-primary)]">{avgChain}</div><div className="text-[15px] text-[var(--text-muted)]">Average Depth</div></div>
+              <div className="text-center"><div className="text-[28px] font-extrabold text-[var(--success)]">{minChain < 99 ? minChain : 0}</div><div className="text-[15px] text-[var(--text-muted)]">Shallowest</div><div className="text-[14px] text-[var(--text-muted)]">{shallowest?.name || "—"}</div></div>
             </div>
             {/* Visual chains */}
             <div className="flex gap-6 justify-center">
               {[{ label: "Deepest", dept: deepest, count: maxChain, color: "var(--risk)" }, { label: "Shallowest", dept: shallowest, count: minChain < 99 ? minChain : 0, color: "var(--success)" }].map(ch => <div key={ch.label} className="flex flex-col items-center gap-1">
-                <div className="text-[9px] font-bold uppercase tracking-wider mb-1" style={{ color: ch.color }}>{ch.label}</div>
-                {Array.from({ length: ch.count }, (_, j) => <div key={j} className="w-12 h-4 rounded-md flex items-center justify-center text-[7px] font-bold" style={{ background: `${ch.color}15`, border: `1px solid ${ch.color}30`, color: ch.color }}>{ODS_LEVELS[Math.min(j, ODS_LEVELS.length - 1)]?.slice(0, 3)}</div>)}
+                <div className="text-[14px] font-bold uppercase tracking-wider mb-1" style={{ color: ch.color }}>{ch.label}</div>
+                {Array.from({ length: ch.count }, (_, j) => <div key={j} className="w-12 h-4 rounded-md flex items-center justify-center text-[15px] font-bold" style={{ background: `${ch.color}15`, border: `1px solid ${ch.color}30`, color: ch.color }}>{ODS_LEVELS[Math.min(j, ODS_LEVELS.length - 1)]?.slice(0, 3)}</div>)}
               </div>)}
             </div>
           </Card>
@@ -1145,16 +1145,16 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
           {/* Layer distribution shape */}
           <Card title="Distribution Shape Analysis">
             <div className="flex items-center gap-3 mb-4">
-              <div className="text-[13px] font-bold" style={{ color: shape === "balanced" ? "var(--success)" : shape === "top-heavy" ? "var(--warning)" : "var(--accent-primary)" }}>Your org is {shape}</div>
+              <div className="text-[15px] font-bold" style={{ color: shape === "balanced" ? "var(--success)" : shape === "top-heavy" ? "var(--warning)" : "var(--accent-primary)" }}>Your org is {shape}</div>
               <Badge color={shape === "balanced" ? "green" : shape === "top-heavy" ? "amber" : "indigo"}>{topHeavyPct.toFixed(0)}% above Director</Badge>
             </div>
             <div className="flex items-end gap-1 h-24 mb-3">
               {curLevels.map((l, i) => <div key={l.level} className="flex-1 flex flex-col items-center justify-end">
                 <div className="w-full rounded-t" style={{ height: `${Math.max((l.count / maxCount) * 100, 4)}%`, background: layerColors[i], opacity: 0.7, minHeight: 4 }} />
-                <div className="text-[7px] text-[var(--text-muted)] mt-1">{l.level.slice(0, 3)}</div>
+                <div className="text-[15px] text-[var(--text-muted)] mt-1">{l.level.slice(0, 3)}</div>
               </div>)}
             </div>
-            <div className="text-[12px] text-[var(--text-secondary)] leading-relaxed">
+            <div className="text-[15px] text-[var(--text-secondary)] leading-relaxed">
               {shape === "top-heavy" && "Consider de-layering senior levels to improve decision speed and reduce management overhead. Target: <15% of headcount above Director level."}
               {shape === "balanced" && "Healthy pyramid distribution. Senior layers are proportionate to the overall workforce. Continue monitoring as transformation progresses."}
               {shape === "bottom-heavy" && "Strong IC base with lean management. Ensure sufficient leadership coverage — may need to add management capacity in growing functions."}
@@ -1165,9 +1165,9 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
         {/* Layer health table */}
         <Card title="Layer Health Indicators">
           <div className="overflow-auto rounded-lg border border-[var(--border)]">
-            <table className="w-full text-[11px]">
+            <table className="w-full text-[15px]">
               <thead><tr className="bg-[var(--surface-2)]">
-                {["Layer", "Current HC", "% of Org", "Benchmark", "Gap", "Avg Tenure", "Health"].map(h => <th key={h} className="px-3 py-2 text-left border-b border-[var(--border)] text-[var(--text-muted)] font-semibold uppercase text-[9px]">{h}</th>)}
+                {["Layer", "Current HC", "% of Org", "Benchmark", "Gap", "Avg Tenure", "Health"].map(h => <th key={h} className="px-3 py-2 text-left border-b border-[var(--border)] text-[var(--text-muted)] font-semibold uppercase text-[14px]">{h}</th>)}
               </tr></thead>
               <tbody>{curLevels.map((l, li) => {
                 const pct = totalCur > 0 ? (l.count / totalCur * 100) : 0;
@@ -1187,7 +1187,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
               })}</tbody>
             </table>
           </div>
-          {curLevels.some((l, li) => l.count === 0 && li > 0 && li < ODS_LEVELS.length - 1) && <div className="mt-3 p-3 rounded-lg bg-[var(--risk)]/5 border border-[var(--risk)]/15 text-[11px] text-[var(--risk)]">⚠ Gap detected: {curLevels.filter((l, li) => l.count === 0 && li > 0 && li < ODS_LEVELS.length - 1).map(l => l.level).join(", ")} has no employees — creates a career progression gap.</div>}
+          {curLevels.some((l, li) => l.count === 0 && li > 0 && li < ODS_LEVELS.length - 1) && <div className="mt-3 p-3 rounded-lg bg-[var(--risk)]/5 border border-[var(--risk)]/15 text-[15px] text-[var(--risk)]">⚠ Gap detected: {curLevels.filter((l, li) => l.count === 0 && li > 0 && li < ODS_LEVELS.length - 1).map(l => l.level).join(", ")} has no employees — creates a career progression gap.</div>}
         </Card>
       </div>;
     })()}
@@ -1197,35 +1197,35 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       <Card title="Cost Model — Methodology">
         <div className="grid grid-cols-2 gap-6 mb-5">
           <div>
-            <div className="text-[13px] font-bold text-[var(--text-primary)] mb-2">How Current Cost is Calculated</div>
-            <div className="text-[12px] text-[var(--text-secondary)] leading-relaxed mb-3">Total labor cost is computed by multiplying headcount at each career level by the average fully-loaded compensation for that level. This includes base salary, benefits (est. 25%), and overhead allocation.</div>
-            <div className="space-y-1.5">{ODS_LEVELS.map(l => { const n = currentData.reduce((s, d) => s + (d.levelDist?.[l] || 0), 0); const comp = ODS_AVG_COMP[l] || 85000; return <div key={l} className="flex items-center justify-between text-[12px] p-2 rounded-lg bg-[var(--surface-2)]">
+            <div className="text-[15px] font-bold text-[var(--text-primary)] mb-2">How Current Cost is Calculated</div>
+            <div className="text-[15px] text-[var(--text-secondary)] leading-relaxed mb-3">Total labor cost is computed by multiplying headcount at each career level by the average fully-loaded compensation for that level. This includes base salary, benefits (est. 25%), and overhead allocation.</div>
+            <div className="space-y-1.5">{ODS_LEVELS.map(l => { const n = currentData.reduce((s, d) => s + (d.levelDist?.[l] || 0), 0); const comp = ODS_AVG_COMP[l] || 85000; return <div key={l} className="flex items-center justify-between text-[15px] p-2 rounded-lg bg-[var(--surface-2)]">
               <span className="text-[var(--text-secondary)]">{l}</span>
               <span className="text-[var(--text-muted)]">{n} × {fmtNum(comp)}</span>
               <span className="font-semibold text-[var(--accent-primary)]">{fmtNum((n * comp))}</span>
             </div>; })}</div>
-            <div className="flex justify-between mt-2 p-2 rounded-lg bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/20 text-[13px] font-bold"><span className="text-[var(--accent-primary)]">Current Total</span><span className="text-[var(--accent-primary)]">{fmtNum(cA.cost)}</span></div>
+            <div className="flex justify-between mt-2 p-2 rounded-lg bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/20 text-[15px] font-bold"><span className="text-[var(--accent-primary)]">Current Total</span><span className="text-[var(--accent-primary)]">{fmtNum(cA.cost)}</span></div>
           </div>
           <div>
-            <div className="text-[13px] font-bold text-[var(--text-primary)] mb-2">How Future Cost is Derived ({sc.label})</div>
-            <div className="text-[12px] text-[var(--text-secondary)] leading-relaxed mb-3">Future cost reflects scenario adjustments: layer removal reduces management headcount, span optimization redistributes ICs, and structural changes shift the level mix. Each change is applied per-department.</div>
-            <div className="space-y-1.5">{ODS_LEVELS.map(l => { const n = sc.departments.reduce((s, d) => s + (d.levelDist?.[l] || 0), 0); const cN = currentData.reduce((s, d) => s + (d.levelDist?.[l] || 0), 0); const comp = ODS_AVG_COMP[l] || 85000; const delta = n - cN; return <div key={l} className="flex items-center justify-between text-[12px] p-2 rounded-lg bg-[var(--surface-2)]">
+            <div className="text-[15px] font-bold text-[var(--text-primary)] mb-2">How Future Cost is Derived ({sc.label})</div>
+            <div className="text-[15px] text-[var(--text-secondary)] leading-relaxed mb-3">Future cost reflects scenario adjustments: layer removal reduces management headcount, span optimization redistributes ICs, and structural changes shift the level mix. Each change is applied per-department.</div>
+            <div className="space-y-1.5">{ODS_LEVELS.map(l => { const n = sc.departments.reduce((s, d) => s + (d.levelDist?.[l] || 0), 0); const cN = currentData.reduce((s, d) => s + (d.levelDist?.[l] || 0), 0); const comp = ODS_AVG_COMP[l] || 85000; const delta = n - cN; return <div key={l} className="flex items-center justify-between text-[15px] p-2 rounded-lg bg-[var(--surface-2)]">
               <span className="text-[var(--text-secondary)]">{l}</span>
-              <span className="text-[var(--text-muted)]">{n} × {fmtNum(comp)} {delta !== 0 && <span style={{ color: delta < 0 ? "var(--success)" : "var(--risk)", fontSize: 10 }}>({delta > 0 ? "+" : ""}{delta})</span>}</span>
+              <span className="text-[var(--text-muted)]">{n} × {fmtNum(comp)} {delta !== 0 && <span style={{ color: delta < 0 ? "var(--success)" : "var(--risk)", fontSize: 15 }}>({delta > 0 ? "+" : ""}{delta})</span>}</span>
               <span className="font-semibold text-[var(--success)]">{fmtNum((n * comp))}</span>
             </div>; })}</div>
-            <div className="flex justify-between mt-2 p-2 rounded-lg bg-[var(--success)]/10 border border-[var(--success)]/20 text-[13px] font-bold"><span className="text-[var(--success)]">{sc.label} Total</span><span className="text-[var(--success)]">{fmtNum(fA.cost)}</span></div>
+            <div className="flex justify-between mt-2 p-2 rounded-lg bg-[var(--success)]/10 border border-[var(--success)]/20 text-[15px] font-bold"><span className="text-[var(--success)]">{sc.label} Total</span><span className="text-[var(--success)]">{fmtNum(fA.cost)}</span></div>
           </div>
         </div>
         <div className="flex items-center justify-center gap-4 p-4 rounded-xl border border-[var(--border)] bg-[var(--surface-2)]">
-          <div className="text-center"><div className="text-[10px] text-[var(--text-muted)] uppercase">Net Change</div><div className="text-2xl font-extrabold" style={{ color: fA.cost < cA.cost ? "var(--success)" : "var(--risk)" }}>{fmtNum((fA.cost - cA.cost))}</div></div>
-          <div className="text-center"><div className="text-[10px] text-[var(--text-muted)] uppercase">Percent Change</div><div className="text-2xl font-extrabold" style={{ color: fA.cost < cA.cost ? "var(--success)" : "var(--risk)" }}>{cA.cost > 0 ? (((fA.cost - cA.cost) / cA.cost) * 100).toFixed(1) : "0"}%</div></div>
-          <div className="text-center"><div className="text-[10px] text-[var(--text-muted)] uppercase">HC Change</div><div className="text-2xl font-extrabold" style={{ color: fA.hc < cA.hc ? "var(--success)" : "var(--risk)" }}>{fA.hc - cA.hc}</div></div>
-          <div className="text-center"><div className="text-[10px] text-[var(--text-muted)] uppercase">Cost per Head</div><div className="text-lg font-extrabold text-[var(--text-primary)]">${cA.hc > 0 ? ((cA.cost / cA.hc) / 1000).toFixed(0) : "0"}K → ${fA.hc > 0 ? ((fA.cost / fA.hc) / 1000).toFixed(0) : "0"}K</div></div>
+          <div className="text-center"><div className="text-[15px] text-[var(--text-muted)] uppercase">Net Change</div><div className="text-2xl font-extrabold" style={{ color: fA.cost < cA.cost ? "var(--success)" : "var(--risk)" }}>{fmtNum((fA.cost - cA.cost))}</div></div>
+          <div className="text-center"><div className="text-[15px] text-[var(--text-muted)] uppercase">Percent Change</div><div className="text-2xl font-extrabold" style={{ color: fA.cost < cA.cost ? "var(--success)" : "var(--risk)" }}>{cA.cost > 0 ? (((fA.cost - cA.cost) / cA.cost) * 100).toFixed(1) : "0"}%</div></div>
+          <div className="text-center"><div className="text-[15px] text-[var(--text-muted)] uppercase">HC Change</div><div className="text-2xl font-extrabold" style={{ color: fA.hc < cA.hc ? "var(--success)" : "var(--risk)" }}>{fA.hc - cA.hc}</div></div>
+          <div className="text-center"><div className="text-[15px] text-[var(--text-muted)] uppercase">Cost per Head</div><div className="text-lg font-extrabold text-[var(--text-primary)]">${cA.hc > 0 ? ((cA.cost / cA.hc) / 1000).toFixed(0) : "0"}K → ${fA.hc > 0 ? ((fA.cost / fA.hc) / 1000).toFixed(0) : "0"}K</div></div>
         </div>
       </Card>
       <Card title="Cost by Department">
-        {(() => { const cCosts = currentData.map(d => { let c = 0; if (d.levelDist) Object.entries(d.levelDist).forEach(([l, n]) => { c += n * (ODS_AVG_COMP[l] || 85000); }); return c; }); const fCosts = (sc.departments || []).map(d => { let c = 0; if (d.levelDist) Object.entries(d.levelDist).forEach(([l, n]) => { c += n * (ODS_AVG_COMP[l] || 85000); }); return c; }); const maxCost = Math.max(...cCosts, ...fCosts, 1); return <div className="space-y-3">{currentData.map((d, i) => { const delta = (fCosts[i] ?? 0) - (cCosts[i] ?? 0); return <div key={d.name} className="flex items-center gap-3"><div className="w-36 text-[12px] font-semibold text-[var(--text-secondary)] text-right shrink-0">{d.name}</div><div className="flex-1 space-y-1"><HBar value={cCosts[i] ?? 0} max={maxCost} color="var(--accent-primary)" /><HBar value={fCosts[i] ?? 0} max={maxCost} color="var(--success)" /></div><div className="w-24 text-right shrink-0"><div className="text-[12px] font-semibold text-[var(--text-primary)]">{fmtNum(cCosts[i] ?? 0)}</div><div className="text-[10px]" style={{ color: delta < 0 ? "var(--success)" : delta > 0 ? "var(--risk)" : "var(--text-muted)" }}>{delta < 0 ? "↓" : delta > 0 ? "↑" : "→"} ${Math.abs(delta / 1e3).toFixed(0)}K</div></div></div>; })}</div>; })()}
+        {(() => { const cCosts = currentData.map(d => { let c = 0; if (d.levelDist) Object.entries(d.levelDist).forEach(([l, n]) => { c += n * (ODS_AVG_COMP[l] || 85000); }); return c; }); const fCosts = (sc.departments || []).map(d => { let c = 0; if (d.levelDist) Object.entries(d.levelDist).forEach(([l, n]) => { c += n * (ODS_AVG_COMP[l] || 85000); }); return c; }); const maxCost = Math.max(...cCosts, ...fCosts, 1); return <div className="space-y-3">{currentData.map((d, i) => { const delta = (fCosts[i] ?? 0) - (cCosts[i] ?? 0); return <div key={d.name} className="flex items-center gap-3"><div className="w-36 text-[15px] font-semibold text-[var(--text-secondary)] text-right shrink-0">{d.name}</div><div className="flex-1 space-y-1"><HBar value={cCosts[i] ?? 0} max={maxCost} color="var(--accent-primary)" /><HBar value={fCosts[i] ?? 0} max={maxCost} color="var(--success)" /></div><div className="w-24 text-right shrink-0"><div className="text-[15px] font-semibold text-[var(--text-primary)]">{fmtNum(cCosts[i] ?? 0)}</div><div className="text-[15px]" style={{ color: delta < 0 ? "var(--success)" : delta > 0 ? "var(--risk)" : "var(--text-muted)" }}>{delta < 0 ? "↓" : delta > 0 ? "↑" : "→"} ${Math.abs(delta / 1e3).toFixed(0)}K</div></div></div>; })}</div>; })()}
       </Card>
     </div>}
 
@@ -1240,12 +1240,12 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
         const mostElim = [...gaps].sort((a, b) => b.removedRoles - a.removedRoles)[0] || { name: "—", removedRoles: 0 };
         const totalHC = gaps.reduce((s, g) => s + g.currentHC, 0);
         return <div>
-          <div className="grid grid-cols-4 gap-3 mb-5">{[{ label: "New Roles", val: tn, color: "var(--success)", desc: "Created by restructuring" }, { label: "Eliminated", val: tr, color: "var(--risk)", desc: "Removed or automated" }, { label: "Restructured", val: ts, color: "var(--warning)", desc: "Scope or level changed" }, { label: "Retained", val: tRet, color: "var(--accent-primary)", desc: "Unchanged in scope" }].map(k => <div key={k.label} className="bg-[var(--surface-2)] rounded-xl p-4 border-l-[3px] border border-[var(--border)]" style={{ borderLeftColor: k.color }}><div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">{k.label}</div><div className="text-2xl font-extrabold" style={{ color: k.color }}>{k.val}</div><div className="text-[10px] text-[var(--text-muted)] mt-1">{k.desc}</div></div>)}</div>
+          <div className="grid grid-cols-4 gap-3 mb-5">{[{ label: "New Roles", val: tn, color: "var(--success)", desc: "Created by restructuring" }, { label: "Eliminated", val: tr, color: "var(--risk)", desc: "Removed or automated" }, { label: "Restructured", val: ts, color: "var(--warning)", desc: "Scope or level changed" }, { label: "Retained", val: tRet, color: "var(--accent-primary)", desc: "Unchanged in scope" }].map(k => <div key={k.label} className="bg-[var(--surface-2)] rounded-xl p-4 border-l-[3px] border border-[var(--border)]" style={{ borderLeftColor: k.color }}><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">{k.label}</div><div className="text-2xl font-extrabold" style={{ color: k.color }}>{k.val}</div><div className="text-[15px] text-[var(--text-muted)] mt-1">{k.desc}</div></div>)}</div>
 
           {/* How these numbers were derived */}
           <div className="bg-gradient-to-r from-[rgba(212,134,10,0.06)] to-transparent border border-[rgba(212,134,10,0.12)] rounded-xl p-5 mb-4">
-            <div className="text-[13px] font-bold text-[var(--accent-primary)] mb-2">📊 How Role Migration is Calculated</div>
-            <div className="grid grid-cols-2 gap-4 text-[12px] text-[var(--text-secondary)] leading-relaxed">
+            <div className="text-[15px] font-bold text-[var(--accent-primary)] mb-2">📊 How Role Migration is Calculated</div>
+            <div className="grid grid-cols-2 gap-4 text-[15px] text-[var(--text-secondary)] leading-relaxed">
               <div><strong className="text-[var(--text-primary)]">New roles</strong> emerge when a department grows headcount or the scenario adds specialized functions. {mostNew?.name} generates the most ({mostNew?.newRoles}) due to its headcount expansion from {mostNew?.currentHC} → {mostNew?.futureHC}.</div>
               <div><strong className="text-[var(--text-primary)]">Eliminated roles</strong> result from layer compression and span widening. When a {mostElim?.name} department loses a management layer, the displaced manager positions are removed ({mostElim?.removedRoles} roles).</div>
               <div><strong className="text-[var(--text-primary)]">Restructured roles</strong> keep the same headcount but change in scope — e.g., a "Data Entry Clerk" becoming an "AI Operations Analyst." The {sc.label} scenario restructures {ts} roles across {gaps.filter(g => g.restructuredRoles > 0).length} departments.</div>
@@ -1254,8 +1254,8 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
           </div>
 
           {/* Migration flow bars — taller */}
-          <div className="space-y-3">{gaps.map(g => { const total = g.retained + g.newRoles + g.removedRoles + g.restructuredRoles; return <div key={g.name} className="flex items-center gap-3"><div className="w-36 text-[12px] font-semibold text-[var(--text-secondary)] text-right shrink-0">{g.name}</div><div className="flex-1 flex h-7 rounded-lg overflow-hidden"><div className="flex items-center justify-center text-[9px] font-bold text-white" style={{ width: `${g.retained / total * 100}%`, background: "var(--accent-primary)", minWidth: g.retained > 0 ? 20 : 0 }}>{g.retained}</div><div className="flex items-center justify-center text-[9px] font-bold text-white" style={{ width: `${g.newRoles / total * 100}%`, background: "var(--success)", minWidth: g.newRoles > 0 ? 16 : 0 }}>{g.newRoles}</div><div className="flex items-center justify-center text-[9px] font-bold text-white" style={{ width: `${g.restructuredRoles / total * 100}%`, background: "var(--warning)", minWidth: g.restructuredRoles > 0 ? 16 : 0 }}>{g.restructuredRoles}</div><div className="flex items-center justify-center text-[9px] font-bold text-white" style={{ width: `${g.removedRoles / total * 100}%`, background: "var(--risk)", minWidth: g.removedRoles > 0 ? 16 : 0 }}>{g.removedRoles}</div></div><div className="w-16 text-[11px] text-[var(--text-muted)] text-right">{g.currentHC}→{g.futureHC}</div></div>; })}</div>
-          <div className="flex gap-4 mt-3 justify-center text-[11px] text-[var(--text-muted)]">{[{ c: "var(--accent-primary)", l: "Retained" }, { c: "var(--success)", l: "New" }, { c: "var(--warning)", l: "Restructured" }, { c: "var(--risk)", l: "Eliminated" }].map(x => <span key={x.l} className="flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ background: x.c }} />{x.l}</span>)}</div>
+          <div className="space-y-3">{gaps.map(g => { const total = g.retained + g.newRoles + g.removedRoles + g.restructuredRoles; return <div key={g.name} className="flex items-center gap-3"><div className="w-36 text-[15px] font-semibold text-[var(--text-secondary)] text-right shrink-0">{g.name}</div><div className="flex-1 flex h-7 rounded-lg overflow-hidden"><div className="flex items-center justify-center text-[14px] font-bold text-white" style={{ width: `${g.retained / total * 100}%`, background: "var(--accent-primary)", minWidth: g.retained > 0 ? 20 : 0 }}>{g.retained}</div><div className="flex items-center justify-center text-[14px] font-bold text-white" style={{ width: `${g.newRoles / total * 100}%`, background: "var(--success)", minWidth: g.newRoles > 0 ? 16 : 0 }}>{g.newRoles}</div><div className="flex items-center justify-center text-[14px] font-bold text-white" style={{ width: `${g.restructuredRoles / total * 100}%`, background: "var(--warning)", minWidth: g.restructuredRoles > 0 ? 16 : 0 }}>{g.restructuredRoles}</div><div className="flex items-center justify-center text-[14px] font-bold text-white" style={{ width: `${g.removedRoles / total * 100}%`, background: "var(--risk)", minWidth: g.removedRoles > 0 ? 16 : 0 }}>{g.removedRoles}</div></div><div className="w-16 text-[15px] text-[var(--text-muted)] text-right">{g.currentHC}→{g.futureHC}</div></div>; })}</div>
+          <div className="flex gap-4 mt-3 justify-center text-[15px] text-[var(--text-muted)]">{[{ c: "var(--accent-primary)", l: "Retained" }, { c: "var(--success)", l: "New" }, { c: "var(--warning)", l: "Restructured" }, { c: "var(--risk)", l: "Eliminated" }].map(x => <span key={x.l} className="flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ background: x.c }} />{x.l}</span>)}</div>
         </div>;
       })()}
     </Card>}
@@ -1264,8 +1264,8 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
     {view === "drill" && <div>
         <Card title="Department Deep Dive">
           <div className="flex items-center gap-2 mb-5">
-            <span className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Department:</span>
-            <select value={selDept} onChange={e => setSelDept(Number(e.target.value))} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-[13px] font-semibold text-[var(--text-primary)] outline-none focus:border-[var(--accent-primary)] min-w-[200px]">
+            <span className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Department:</span>
+            <select value={selDept} onChange={e => setSelDept(Number(e.target.value))} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-[15px] font-semibold text-[var(--text-primary)] outline-none focus:border-[var(--accent-primary)] min-w-[200px]">
               {currentData.map((d, i) => <option key={d.name} value={i}>{d.name} — {d.headcount} HC</option>)}
             </select>
           </div>
@@ -1275,27 +1275,27 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
         </Card>
         <Card title={`Level Distribution — ${currentData[selDept]?.name || ""}`}>
           <div className="grid grid-cols-6 gap-3">{ODS_LEVELS.map(l => { const cN = currentData[selDept]?.levelDist?.[l] || 0; const fN = sc.departments[selDept]?.levelDist?.[l] || 0; const comp = ODS_AVG_COMP[l] || 85000; return <div key={l} className="bg-[var(--surface-2)] rounded-xl p-4 border border-[var(--border)]">
-            <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase mb-3">{l}</div>
+            <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-3">{l}</div>
             <div className="flex justify-between text-[16px] font-extrabold mb-1"><span className="text-[var(--accent-primary)]">{cN}</span><span className="text-[var(--text-muted)]">→</span><span className="text-[var(--success)]">{fN}</span></div>
             <DChip a={cN} b={fN} inv />
-            <div className="mt-2 pt-2 border-t border-[var(--border)]"><div className="text-[9px] text-[var(--text-muted)]">Avg comp: {fmtNum(comp)}</div><div className="text-[9px] text-[var(--text-muted)]">Cost: {fmtNum((cN * comp))}</div></div>
+            <div className="mt-2 pt-2 border-t border-[var(--border)]"><div className="text-[14px] text-[var(--text-muted)]">Avg comp: {fmtNum(comp)}</div><div className="text-[14px] text-[var(--text-muted)]">Cost: {fmtNum((cN * comp))}</div></div>
           </div>; })}</div>
         </Card>
         <Card title={`${currentData[selDept]?.name || ""} — Workforce Composition`}>
           <div className="grid grid-cols-3 gap-4">
-            <div className="rounded-xl p-4 bg-[var(--surface-2)] border border-[var(--border)]"><div className="text-[10px] font-bold text-[var(--text-muted)] uppercase mb-2">FTE vs Contractors</div><div className="flex gap-3 mb-2"><div><div className="text-xl font-extrabold text-[var(--accent-primary)]">{currentData[selDept]?.ftes || 0}</div><div className="text-[10px] text-[var(--text-muted)]">Full-Time</div></div><div><div className="text-xl font-extrabold text-[var(--warning)]">{currentData[selDept]?.contractors || 0}</div><div className="text-[10px] text-[var(--text-muted)]">Contractors</div></div></div><HBar value={currentData[selDept]?.ftes || 0} max={currentData[selDept]?.headcount || 1} color="var(--accent-primary)" /></div>
-            <div className="rounded-xl p-4 bg-[var(--surface-2)] border border-[var(--border)]"><div className="text-[10px] font-bold text-[var(--text-muted)] uppercase mb-2">Manager to IC Ratio</div><div className="text-xl font-extrabold text-[var(--text-primary)] mb-1">1 : {((currentData[selDept]?.ics || 0) / Math.max(currentData[selDept]?.managers || 1, 1)).toFixed(1)}</div><div className="text-[10px] text-[var(--text-muted)]">{currentData[selDept]?.managers || 0} managers overseeing {currentData[selDept]?.ics || 0} individual contributors</div></div>
-            <div className="rounded-xl p-4 bg-[var(--surface-2)] border border-[var(--border)]"><div className="text-[10px] font-bold text-[var(--text-muted)] uppercase mb-2">Dept Share</div><div className="text-xl font-extrabold text-[var(--text-primary)] mb-1">{cA.hc > 0 ? Math.round((currentData[selDept]?.headcount || 0) / cA.hc * 100) : 0}%</div><div className="text-[10px] text-[var(--text-muted)]">{currentData[selDept]?.headcount || 0} of {cA.hc} total headcount</div><HBar value={currentData[selDept]?.headcount || 0} max={cA.hc || 1} color="var(--purple)" /></div>
+            <div className="rounded-xl p-4 bg-[var(--surface-2)] border border-[var(--border)]"><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-2">FTE vs Contractors</div><div className="flex gap-3 mb-2"><div><div className="text-xl font-extrabold text-[var(--accent-primary)]">{currentData[selDept]?.ftes || 0}</div><div className="text-[15px] text-[var(--text-muted)]">Full-Time</div></div><div><div className="text-xl font-extrabold text-[var(--warning)]">{currentData[selDept]?.contractors || 0}</div><div className="text-[15px] text-[var(--text-muted)]">Contractors</div></div></div><HBar value={currentData[selDept]?.ftes || 0} max={currentData[selDept]?.headcount || 1} color="var(--accent-primary)" /></div>
+            <div className="rounded-xl p-4 bg-[var(--surface-2)] border border-[var(--border)]"><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-2">Manager to IC Ratio</div><div className="text-xl font-extrabold text-[var(--text-primary)] mb-1">1 : {((currentData[selDept]?.ics || 0) / Math.max(currentData[selDept]?.managers || 1, 1)).toFixed(1)}</div><div className="text-[15px] text-[var(--text-muted)]">{currentData[selDept]?.managers || 0} managers overseeing {currentData[selDept]?.ics || 0} individual contributors</div></div>
+            <div className="rounded-xl p-4 bg-[var(--surface-2)] border border-[var(--border)]"><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-2">Dept Share</div><div className="text-xl font-extrabold text-[var(--text-primary)] mb-1">{cA.hc > 0 ? Math.round((currentData[selDept]?.headcount || 0) / cA.hc * 100) : 0}%</div><div className="text-[15px] text-[var(--text-muted)]">{currentData[selDept]?.headcount || 0} of {cA.hc} total headcount</div><HBar value={currentData[selDept]?.headcount || 0} max={cA.hc || 1} color="var(--purple)" /></div>
           </div>
         </Card>
       </div>}
 
     {/* Scenario Compare — all scenarios side by side */}
     {view === "compare" && <Card title="Multi-Scenario Comparison">
-      <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full"><thead><tr className="bg-[var(--surface-2)]"><th className="px-3 py-2 text-left text-[11px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Metric</th><th className="px-3 py-2 text-center text-[11px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Current</th>{scenarios.map((s, i) => <th key={s.id} className="px-3 py-2 text-center text-[11px] font-semibold border-b border-[var(--border)]" style={{ color: COLORS[i % COLORS.length] }}>{s.label}</th>)}</tr></thead>
+      <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full"><thead><tr className="bg-[var(--surface-2)]"><th className="px-3 py-2 text-left text-[15px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Metric</th><th className="px-3 py-2 text-center text-[15px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Current</th>{scenarios.map((s, i) => <th key={s.id} className="px-3 py-2 text-center text-[15px] font-semibold border-b border-[var(--border)]" style={{ color: COLORS[i % COLORS.length] }}>{s.label}</th>)}</tr></thead>
       <tbody>{[{ label: "Headcount", key: "hc", inv: true }, { label: "Avg Span", key: "avgS" }, { label: "Avg Layers", key: "avgL", inv: true }, { label: "Managers", key: "mgr", inv: true }, { label: "Est. Cost ($M)", key: "cost", inv: true, fmt: (v: number) => `${fmtNum(v)}` }].map(m => {
         const cVal = cA[m.key as keyof typeof cA] as number;
-        return <tr key={m.label} className="border-b border-[var(--border)]"><td className="px-3 py-2 text-[13px] font-semibold">{m.label}</td><td className="px-3 py-2 text-center text-[var(--text-secondary)]">{m.fmt ? m.fmt(cVal) : cVal.toFixed(1)}</td>{scenarios.map((s, i) => { const a = odsAgg(s.departments); const v = a[m.key as keyof typeof a] as number; return <td key={s.id} className="px-3 py-2 text-center"><span className="font-bold" style={{ color: COLORS[i % COLORS.length] }}>{m.fmt ? m.fmt(v) : v.toFixed(1)}</span> <DChip a={cVal} b={v} inv={m.inv} /></td>; })}</tr>;
+        return <tr key={m.label} className="border-b border-[var(--border)]"><td className="px-3 py-2 text-[15px] font-semibold">{m.label}</td><td className="px-3 py-2 text-center text-[var(--text-secondary)]">{m.fmt ? m.fmt(cVal) : cVal.toFixed(1)}</td>{scenarios.map((s, i) => { const a = odsAgg(s.departments); const v = a[m.key as keyof typeof a] as number; return <td key={s.id} className="px-3 py-2 text-center"><span className="font-bold" style={{ color: COLORS[i % COLORS.length] }}>{m.fmt ? m.fmt(v) : v.toFixed(1)}</span> <DChip a={cVal} b={v} inv={m.inv} /></td>; })}</tr>;
       })}</tbody></table></div>
     </Card>}
 
@@ -1334,31 +1334,31 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
 
       if (!insights.length) insights.push({ type: "info", title: "No Major Flags", body: "Current scenario changes are within normal ranges.", color: "var(--accent-primary)" });
       return <div>
-        <div className="text-[12px] text-[var(--text-secondary)] mb-4">{insights.length} insights generated from structural analysis of {currentData.length} departments, {cA.hc.toLocaleString()} employees, comparing current state to {sc.label} scenario.</div>
+        <div className="text-[15px] text-[var(--text-secondary)] mb-4">{insights.length} insights generated from structural analysis of {currentData.length} departments, {cA.hc.toLocaleString()} employees, comparing current state to {sc.label} scenario.</div>
         <div className="space-y-3">{insights.map((ins, i) => <div key={i} className="rounded-xl p-5 border" style={{ background: `${ins.color}08`, borderColor: `${ins.color}20`, borderLeftWidth: 4, borderLeftColor: ins.color }}>
-          <div className="flex items-center justify-between mb-1"><div className="text-[14px] font-bold" style={{ color: ins.color }}>{ins.title}</div>{ins.metric && <span className="px-2 py-0.5 rounded-full text-[11px] font-bold" style={{ background: `${ins.color}15`, color: ins.color }}>{ins.metric}</span>}</div>
-          <div className="text-[13px] text-[var(--text-secondary)] leading-relaxed">{ins.body}</div>
+          <div className="flex items-center justify-between mb-1"><div className="text-[14px] font-bold" style={{ color: ins.color }}>{ins.title}</div>{ins.metric && <span className="px-2 py-0.5 rounded-full text-[15px] font-bold" style={{ background: `${ins.color}15`, color: ins.color }}>{ins.metric}</span>}</div>
+          <div className="text-[15px] text-[var(--text-secondary)] leading-relaxed">{ins.body}</div>
         </div>)}</div>
       </div>;
     })()}
 
     {view === "benchmarks" && <Card title="📖 Span & Layer Benchmarks by Industry">
-      <div className="text-[12px] text-[var(--text-secondary)] mb-4">Industry benchmarks for optimal spans of control, management layers, and manager-to-IC ratios. Use as design targets when restructuring.</div>
+      <div className="text-[15px] text-[var(--text-secondary)] mb-4">Industry benchmarks for optimal spans of control, management layers, and manager-to-IC ratios. Use as design targets when restructuring.</div>
       <div className="space-y-5">
         {SPAN_BENCHMARKS.map((bm, bi) => <div key={bi} className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] overflow-hidden">
           <div className="px-4 py-3 border-b border-[var(--border)]">
             <div className="flex items-center gap-2 mb-2"><span className="text-lg">{bm.icon}</span><span className="text-[14px] font-bold text-[var(--text-primary)]">{bm.industry}</span></div>
             <div className="grid grid-cols-4 gap-3">
-              <div className="rounded-lg p-2 bg-[var(--surface-1)] text-center"><div className="text-[16px] font-extrabold text-[var(--accent-primary)]">{bm.optimalSpan}</div><div className="text-[8px] text-[var(--text-muted)] uppercase">Optimal Span</div></div>
-              <div className="rounded-lg p-2 bg-[var(--surface-1)] text-center"><div className="text-[16px] font-extrabold text-[var(--success)]">{bm.optimalLayers}</div><div className="text-[8px] text-[var(--text-muted)] uppercase">Optimal Layers</div></div>
-              <div className="rounded-lg p-2 bg-[var(--surface-1)] text-center"><div className="text-[16px] font-extrabold text-[var(--purple)]">{bm.mgrRatio}</div><div className="text-[8px] text-[var(--text-muted)] uppercase">Mgr:IC Ratio</div></div>
-              <div className="rounded-lg p-2 bg-[var(--surface-1)] text-center"><div className="text-[16px] font-extrabold text-[var(--warning)]">{bm.avgSpan}</div><div className="text-[8px] text-[var(--text-muted)] uppercase">Avg Span (Actual)</div></div>
+              <div className="rounded-lg p-2 bg-[var(--surface-1)] text-center"><div className="text-[16px] font-extrabold text-[var(--accent-primary)]">{bm.optimalSpan}</div><div className="text-[15px] text-[var(--text-muted)] uppercase">Optimal Span</div></div>
+              <div className="rounded-lg p-2 bg-[var(--surface-1)] text-center"><div className="text-[16px] font-extrabold text-[var(--success)]">{bm.optimalLayers}</div><div className="text-[15px] text-[var(--text-muted)] uppercase">Optimal Layers</div></div>
+              <div className="rounded-lg p-2 bg-[var(--surface-1)] text-center"><div className="text-[16px] font-extrabold text-[var(--purple)]">{bm.mgrRatio}</div><div className="text-[15px] text-[var(--text-muted)] uppercase">Mgr:IC Ratio</div></div>
+              <div className="rounded-lg p-2 bg-[var(--surface-1)] text-center"><div className="text-[16px] font-extrabold text-[var(--warning)]">{bm.avgSpan}</div><div className="text-[15px] text-[var(--text-muted)] uppercase">Avg Span (Actual)</div></div>
             </div>
-            <div className="text-[10px] text-[var(--text-muted)] mt-2 italic">{bm.notes}</div>
+            <div className="text-[15px] text-[var(--text-muted)] mt-2 italic">{bm.notes}</div>
           </div>
           <div className="px-4 py-3">
-            <div className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">By Function</div>
-            <div className="overflow-x-auto"><table className="w-full text-[10px]"><thead><tr className="border-b border-[var(--border)]">
+            <div className="text-[14px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">By Function</div>
+            <div className="overflow-x-auto"><table className="w-full text-[15px]"><thead><tr className="border-b border-[var(--border)]">
               {["Function","Span","Layers","Rationale"].map(h => <th key={h} className="px-2 py-1.5 text-left text-[var(--text-muted)] font-semibold">{h}</th>)}
             </tr></thead><tbody>
               {bm.byFunction.map((bf, bfi) => <tr key={bfi} className="border-b border-[var(--border)]">
@@ -1374,22 +1374,22 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
 
       {/* Current vs Benchmark comparison */}
       {currentData.length > 0 && <div className="mt-5">
-        <div className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Your Org vs Industry Benchmarks</div>
+        <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Your Org vs Industry Benchmarks</div>
         <div className="grid grid-cols-3 gap-3">
           <div className="rounded-xl p-4 bg-[var(--surface-1)] border border-[var(--border)] text-center">
-            <div className="text-[10px] text-[var(--text-muted)] uppercase mb-1">Your Avg Span</div>
+            <div className="text-[15px] text-[var(--text-muted)] uppercase mb-1">Your Avg Span</div>
             <div className="text-[22px] font-extrabold text-[var(--text-primary)]">{(cA.hc / Math.max(cA.mgr, 1)).toFixed(1)}</div>
-            <div className="text-[9px] text-[var(--text-muted)] mt-1">vs benchmark 6-10</div>
+            <div className="text-[14px] text-[var(--text-muted)] mt-1">vs benchmark 6-10</div>
           </div>
           <div className="rounded-xl p-4 bg-[var(--surface-1)] border border-[var(--border)] text-center">
-            <div className="text-[10px] text-[var(--text-muted)] uppercase mb-1">Your Avg Layers</div>
+            <div className="text-[15px] text-[var(--text-muted)] uppercase mb-1">Your Avg Layers</div>
             <div className="text-[22px] font-extrabold text-[var(--text-primary)]">{(currentData.reduce((s, d) => s + d.layers, 0) / currentData.length).toFixed(1)}</div>
-            <div className="text-[9px] text-[var(--text-muted)] mt-1">vs benchmark 4-6</div>
+            <div className="text-[14px] text-[var(--text-muted)] mt-1">vs benchmark 4-6</div>
           </div>
           <div className="rounded-xl p-4 bg-[var(--surface-1)] border border-[var(--border)] text-center">
-            <div className="text-[10px] text-[var(--text-muted)] uppercase mb-1">Mgr Ratio</div>
+            <div className="text-[15px] text-[var(--text-muted)] uppercase mb-1">Mgr Ratio</div>
             <div className="text-[22px] font-extrabold text-[var(--text-primary)]">1:{Math.round(cA.hc / Math.max(cA.mgr, 1))}</div>
-            <div className="text-[9px] text-[var(--text-muted)] mt-1">vs benchmark 1:6 to 1:10</div>
+            <div className="text-[14px] text-[var(--text-muted)] mt-1">vs benchmark 1:6 to 1:10</div>
           </div>
         </div>
       </div>}
@@ -1443,8 +1443,8 @@ export function OmBlock({ label, colorClass = "core", highlight, wide, note }: {
   const cm: Record<string, { border: string; text: string }> = { core: { border: "var(--accent-primary)", text: "var(--accent-primary)" }, gov: { border: "var(--teal)", text: "var(--teal)" }, shared: { border: "var(--green)", text: "var(--green)" }, flow: { border: "var(--amber)", text: "var(--amber)" }, purple: { border: "var(--purple)", text: "var(--purple)" } };
   const c = cm[colorClass] || cm.core;
   return <div className="transition-all hover:-translate-y-0.5" style={{ background: highlight ? c.border : "var(--surface-2)", border: `1.5px solid ${c.border}`, borderRadius: 6, padding: wide ? "10px 18px" : "8px 12px", minWidth: wide ? 160 : 80, flex: wide ? "1 1 0" : "0 0 auto", textAlign: "center" }}>
-    <div style={{ color: highlight ? "#FFFFFF" : c.text, fontWeight: 600, fontSize: 12, lineHeight: 1.4 }}>{label}</div>
-    {note && <div className="text-[10px] text-[var(--text-muted)] mt-0.5 italic">{note}</div>}
+    <div style={{ color: highlight ? "#FFFFFF" : c.text, fontWeight: 600, fontSize: 15, lineHeight: 1.4 }}>{label}</div>
+    {note && <div className="text-[15px] text-[var(--text-muted)] mt-0.5 italic">{note}</div>}
   </div>;
 }
 
@@ -1558,28 +1558,28 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
     {/* OM Lab ↔ Canvas Toggle */}
     <div className="flex items-center gap-2 mb-4">
       <div className="flex rounded-xl overflow-hidden border border-[var(--border)]" style={{ background: "var(--surface-2)" }}>
-        <button className="px-4 py-2 text-[12px] font-semibold transition-all" style={{ background: "rgba(224,144,64,0.15)", color: "#e09040", borderRight: "1px solid var(--border)" }}>
+        <button className="px-4 py-2 text-[15px] font-semibold transition-all" style={{ background: "rgba(224,144,64,0.15)", color: "#e09040", borderRight: "1px solid var(--border)" }}>
           🧬 Analysis Lab
         </button>
-        <button onClick={() => onNavigateCanvas && onNavigateCanvas()} className="px-4 py-2 text-[12px] font-semibold text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all">
+        <button onClick={() => onNavigateCanvas && onNavigateCanvas()} className="px-4 py-2 text-[15px] font-semibold text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all">
           ⬡ Design Canvas
         </button>
-        <button onClick={() => setOmView("kpi")} className="px-4 py-2 text-[12px] font-semibold text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all" style={{ borderLeft: "1px solid var(--border)" }}>
+        <button onClick={() => setOmView("kpi")} className="px-4 py-2 text-[15px] font-semibold text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all" style={{ borderLeft: "1px solid var(--border)" }}>
           ◎ KPI Alignment
         </button>
       </div>
-      <div className="text-[10px] text-[var(--text-muted)] ml-2">Switch between analysis, visual design, and KPI tracking</div>
+      <div className="text-[15px] text-[var(--text-muted)] ml-2">Switch between analysis, visual design, and KPI tracking</div>
     </div>
-    {hasUploadedOM ? <div className="bg-[rgba(16,185,129,0.08)] border border-[var(--success)]/30 rounded-lg px-4 py-2 mb-4 text-[12px] text-[var(--success)]">✓ Operating model data detected</div> : <div className="bg-[rgba(245,158,11,0.08)] border border-[var(--warning)]/30 rounded-lg px-4 py-2 mb-4 text-[12px] text-[var(--warning)]">Exploring with sample patterns — upload Operating Model data for custom blueprint</div>}
+    {hasUploadedOM ? <div className="bg-[rgba(16,185,129,0.08)] border border-[var(--success)]/30 rounded-lg px-4 py-2 mb-4 text-[15px] text-[var(--success)]">✓ Operating model data detected</div> : <div className="bg-[rgba(245,158,11,0.08)] border border-[var(--warning)]/30 rounded-lg px-4 py-2 mb-4 text-[15px] text-[var(--warning)]">Exploring with sample patterns — upload Operating Model data for custom blueprint</div>}
     <div className="grid grid-cols-12 gap-5">
       <div className="col-span-3 space-y-3">
-        <Card title="Function"><div className="space-y-1">{Object.entries(OM_FUNCTIONS).map(([k,v]) => <button key={k} onClick={() => setFn(k)} className="w-full text-left px-3 py-1.5 rounded-lg text-[11px] transition-all flex items-center gap-2" style={{ background: fn===k ? "rgba(212,134,10,0.1)" : "transparent", border: fn===k ? "1px solid var(--accent-primary)" : "1px solid transparent", color: fn===k ? "var(--accent-primary)" : "var(--text-muted)" }}><span>{v.icon}</span>{v.label}</button>)}</div></Card>
-        <Card title="Archetype"><div className="space-y-1">{Object.entries(OM_ARCHETYPES).map(([k,v]) => <button key={k} onClick={() => setArch(k)} className="w-full text-left px-3 py-1 rounded-lg text-[10px] transition-all" style={{ background: arch===k ? "rgba(139,92,246,0.1)" : "transparent", border: arch===k ? "1px solid var(--purple)" : "1px solid transparent", color: arch===k ? "var(--purple)" : "var(--text-muted)" }}>{v.label}</button>)}</div></Card>
-        <Card title="Model"><div className="flex gap-1 flex-wrap mb-2">{["centralized","decentralized","federated","hub_spoke"].map(m => <button key={m} onClick={() => setOpModel(m)} className="px-2 py-1 rounded text-[9px] font-semibold" style={{ background: opModel===m ? "rgba(16,185,129,0.15)" : "var(--surface-2)", color: opModel===m ? "var(--success)" : "var(--text-muted)" }}>{m.replace("_"," ")}</button>)}</div><div className="flex gap-1">{["tight","balanced","light"].map(g => <button key={g} onClick={() => setGov(g)} className="px-2 py-1 rounded text-[9px] font-semibold flex-1" style={{ background: gov===g ? "rgba(249,115,22,0.15)" : "var(--surface-2)", color: gov===g ? "var(--warning)" : "var(--text-muted)" }}>{g}</button>)}</div></Card>
-        <button onClick={async () => { setAiOmLoading(true); try { const r = await callAI("Return ONLY valid JSON.", `For ${fnD.label}, recommend: {"archetype":"functional|divisional|matrix|platform|network","opModel":"centralized|decentralized|federated|hub_spoke","governance":"tight|balanced|light","reasoning":"2 sentences"}`); const p = JSON.parse(r.replace(/```json\n?/g,"").replace(/```\n?/g,"").trim()); if (p.archetype) setArch(p.archetype); if (p.opModel) setOpModel(p.opModel); if (p.governance) setGov(p.governance); setAiOmReasoning(p.reasoning||""); } catch {} setAiOmLoading(false); }} disabled={aiOmLoading} className="w-full px-3 py-2 rounded-xl text-[11px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: aiOmLoading ? 0.5 : 1 }}>{aiOmLoading ? "..." : "☕ Recommend"}</button>
-        {aiOmReasoning && <div className="text-[10px] text-[var(--text-secondary)] bg-[var(--surface-2)] rounded-lg p-2">{aiOmReasoning}</div>}
-        <div className="flex gap-1"><input value={aiCompanyInput} onChange={e => setAiCompanyInput(e.target.value)} placeholder="e.g. Chipotle..." className="flex-1 bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-2 py-1 text-[10px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]" onKeyDown={e => { if (e.key==="Enter") generateCompanyModel(); }} /><button onClick={generateCompanyModel} disabled={aiCompanyGenerating} className="px-2 py-1 rounded-lg text-[9px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>☕</button></div>
-        <div className="flex gap-1 flex-wrap">{Object.entries({...OM_COMPANIES,...aiCompanies}).map(([k,c]) => { const co = c as Record<string,string>; return <button key={k} onClick={() => seedCompanySandbox(k, co)} disabled={sandboxLoading===k} className="px-2 py-0.5 rounded text-[8px] font-semibold transition-all" style={{ background: sandboxLoading===k ? "rgba(224,144,64,0.2)" : "var(--surface-2)", color: sandboxLoading===k ? "var(--accent-primary)" : "var(--text-muted)", opacity: sandboxLoading && sandboxLoading!==k ? 0.4 : 1 }}>{sandboxLoading===k ? "⏳" : ""}{co.name||k}</button>; })}</div>
+        <Card title="Function"><div className="space-y-1">{Object.entries(OM_FUNCTIONS).map(([k,v]) => <button key={k} onClick={() => setFn(k)} className="w-full text-left px-3 py-1.5 rounded-lg text-[15px] transition-all flex items-center gap-2" style={{ background: fn===k ? "rgba(212,134,10,0.1)" : "transparent", border: fn===k ? "1px solid var(--accent-primary)" : "1px solid transparent", color: fn===k ? "var(--accent-primary)" : "var(--text-muted)" }}><span>{v.icon}</span>{v.label}</button>)}</div></Card>
+        <Card title="Archetype"><div className="space-y-1">{Object.entries(OM_ARCHETYPES).map(([k,v]) => <button key={k} onClick={() => setArch(k)} className="w-full text-left px-3 py-1 rounded-lg text-[15px] transition-all" style={{ background: arch===k ? "rgba(139,92,246,0.1)" : "transparent", border: arch===k ? "1px solid var(--purple)" : "1px solid transparent", color: arch===k ? "var(--purple)" : "var(--text-muted)" }}>{v.label}</button>)}</div></Card>
+        <Card title="Model"><div className="flex gap-1 flex-wrap mb-2">{["centralized","decentralized","federated","hub_spoke"].map(m => <button key={m} onClick={() => setOpModel(m)} className="px-2 py-1 rounded text-[14px] font-semibold" style={{ background: opModel===m ? "rgba(16,185,129,0.15)" : "var(--surface-2)", color: opModel===m ? "var(--success)" : "var(--text-muted)" }}>{m.replace("_"," ")}</button>)}</div><div className="flex gap-1">{["tight","balanced","light"].map(g => <button key={g} onClick={() => setGov(g)} className="px-2 py-1 rounded text-[14px] font-semibold flex-1" style={{ background: gov===g ? "rgba(249,115,22,0.15)" : "var(--surface-2)", color: gov===g ? "var(--warning)" : "var(--text-muted)" }}>{g}</button>)}</div></Card>
+        <button onClick={async () => { setAiOmLoading(true); try { const r = await callAI("Return ONLY valid JSON.", `For ${fnD.label}, recommend: {"archetype":"functional|divisional|matrix|platform|network","opModel":"centralized|decentralized|federated|hub_spoke","governance":"tight|balanced|light","reasoning":"2 sentences"}`); const p = JSON.parse(r.replace(/```json\n?/g,"").replace(/```\n?/g,"").trim()); if (p.archetype) setArch(p.archetype); if (p.opModel) setOpModel(p.opModel); if (p.governance) setGov(p.governance); setAiOmReasoning(p.reasoning||""); } catch {} setAiOmLoading(false); }} disabled={aiOmLoading} className="w-full px-3 py-2 rounded-xl text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: aiOmLoading ? 0.5 : 1 }}>{aiOmLoading ? "..." : "☕ Recommend"}</button>
+        {aiOmReasoning && <div className="text-[15px] text-[var(--text-secondary)] bg-[var(--surface-2)] rounded-lg p-2">{aiOmReasoning}</div>}
+        <div className="flex gap-1"><input value={aiCompanyInput} onChange={e => setAiCompanyInput(e.target.value)} placeholder="e.g. Chipotle..." className="flex-1 bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-2 py-1 text-[15px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]" onKeyDown={e => { if (e.key==="Enter") generateCompanyModel(); }} /><button onClick={generateCompanyModel} disabled={aiCompanyGenerating} className="px-2 py-1 rounded-lg text-[14px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>☕</button></div>
+        <div className="flex gap-1 flex-wrap">{Object.entries({...OM_COMPANIES,...aiCompanies}).map(([k,c]) => { const co = c as Record<string,string>; return <button key={k} onClick={() => seedCompanySandbox(k, co)} disabled={sandboxLoading===k} className="px-2 py-0.5 rounded text-[15px] font-semibold transition-all" style={{ background: sandboxLoading===k ? "rgba(224,144,64,0.2)" : "var(--surface-2)", color: sandboxLoading===k ? "var(--accent-primary)" : "var(--text-muted)", opacity: sandboxLoading && sandboxLoading!==k ? 0.4 : 1 }}>{sandboxLoading===k ? "⏳" : ""}{co.name||k}</button>; })}</div>
       </div>
       <div className="col-span-9">
         <TabBar tabs={[{id:"configurator",label:"🏗 Configurator"},{id:"blueprint",label:"Blueprint"},{id:"capability",label:"Capability Maturity"},{id:"service",label:"Service Model"},{id:"decisions",label:"Decision Rights"},{id:"ai_tier",label:"AI Service Layer"},{id:"traits",label:"Archetype Fit"},{id:"valuechain",label:"Value Chain"},{id:"capmap",label:"Capability Map"},{id:"processflow",label:"Process Flows"},{id:"techstack",label:"Technology Layer"},{id:"kpi",label:"◎ KPI Alignment"}]} active={omView} onChange={setOmView} />
@@ -1588,12 +1588,12 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
         {omView === "configurator" && <div className="animate-tab-enter">
           {/* Industry Selector */}
           <Card title="Step 1 — Select Industries">
-            <div className="text-[12px] text-[var(--text-secondary)] mb-3">Select all industries that apply to this organization. Universal functions are always included.</div>
+            <div className="text-[15px] text-[var(--text-secondary)] mb-3">Select all industries that apply to this organization. Universal functions are always included.</div>
             <div className="flex flex-wrap gap-2">
               {((omTaxonomy as Record<string,unknown>)?.available_industries as {id:string;label:string;icon:string;examples:string;function_count:number;unit_count:number}[] || []).map(ind => {
                 const selected = omIndustries.includes(ind.id);
                 return <button key={ind.id} onClick={() => setOmIndustries(prev => selected ? prev.filter(i => i !== ind.id) : [...prev, ind.id])}
-                  className="px-3 py-2 rounded-xl text-[11px] font-semibold transition-all" style={{
+                  className="px-3 py-2 rounded-xl text-[15px] font-semibold transition-all" style={{
                     border: selected ? "2px solid var(--accent-primary)" : "1px solid var(--border)",
                     background: selected ? "rgba(212,134,10,0.08)" : "transparent",
                     color: selected ? "var(--accent-primary)" : "var(--text-muted)",
@@ -1603,30 +1603,30 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
                 </button>;
               })}
             </div>
-            {omIndustries.length > 0 && <div className="mt-2 text-[11px] text-[var(--accent-primary)]">{omIndustries.length} industrie(s) selected</div>}
+            {omIndustries.length > 0 && <div className="mt-2 text-[15px] text-[var(--accent-primary)]">{omIndustries.length} industrie(s) selected</div>}
           </Card>
 
           {/* Search */}
           <Card title="Step 2 — Browse & Select Operating Units">
             <div className="flex gap-3 mb-4">
-              <input value={omSearch} onChange={e => setOmSearch(e.target.value)} placeholder="Search operating units..." className="flex-1 bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-[12px] text-[var(--text-primary)] outline-none focus:border-[var(--accent-primary)] placeholder:text-[var(--text-muted)]" />
-              <div className="flex items-center gap-2 text-[10px] text-[var(--text-muted)] font-data">
+              <input value={omSearch} onChange={e => setOmSearch(e.target.value)} placeholder="Search operating units..." className="flex-1 bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-[15px] text-[var(--text-primary)] outline-none focus:border-[var(--accent-primary)] placeholder:text-[var(--text-muted)]" />
+              <div className="flex items-center gap-2 text-[15px] text-[var(--text-muted)] font-data">
                 {(() => { const t = omTaxonomy as Record<string,unknown>; const s = t?.stats as Record<string,number>; return s ? `${omSelectedUnits.length} selected · ${s.total_units || 0} total` : ""; })()}
               </div>
             </div>
 
             {/* Search results */}
             {omSearchResults.length > 0 && <div className="mb-4 bg-[var(--surface-2)] rounded-xl p-3 border border-[var(--accent-primary)]/20">
-              <div className="text-[10px] font-bold text-[var(--accent-primary)] uppercase mb-2">Search Results</div>
+              <div className="text-[15px] font-bold text-[var(--accent-primary)] uppercase mb-2">Search Results</div>
               {omSearchResults.map((r: Record<string,unknown>) => {
                 const uid = String(r.id);
                 const isSelected = omSelectedUnits.includes(uid);
                 return <div key={uid} className="flex items-center gap-2 py-1.5 border-b border-[var(--border)] last:border-0">
                   <input type="checkbox" checked={isSelected} onChange={() => setOmSelectedUnits(prev => isSelected ? prev.filter(u => u !== uid) : [...prev, uid])} style={{ accentColor: "#D4860A" }} />
-                  <span className="text-[12px] text-[var(--text-primary)] flex-1">{String(r.name)}</span>
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-[var(--surface-1)] text-[var(--text-muted)]">{String(r.layer)}</span>
-                  <span className="text-[9px] text-[var(--text-muted)]">{String(r.function_label)}</span>
-                  <span className="text-[9px] font-data text-[var(--accent-primary)]">{(Number(r.score) * 100).toFixed(0)}%</span>
+                  <span className="text-[15px] text-[var(--text-primary)] flex-1">{String(r.name)}</span>
+                  <span className="text-[14px] px-1.5 py-0.5 rounded bg-[var(--surface-1)] text-[var(--text-muted)]">{String(r.layer)}</span>
+                  <span className="text-[14px] text-[var(--text-muted)]">{String(r.function_label)}</span>
+                  <span className="text-[14px] font-data text-[var(--accent-primary)]">{(Number(r.score) * 100).toFixed(0)}%</span>
                 </div>;
               })}
             </div>}
@@ -1642,15 +1642,15 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
                   const allSelected = selectedCount === fdata.units.length && fdata.units.length > 0;
                   return <div key={fid} className="bg-[var(--surface-2)] rounded-xl border border-[var(--border)] overflow-hidden">
                     <div className="flex items-center gap-2 px-4 py-2.5 cursor-pointer hover:bg-[var(--hover)] transition-colors" onClick={() => setOmExpandedFuncs(prev => ({...prev, [fid]: !expanded}))}>
-                      <span className="text-[13px]">{fdata.icon}</span>
-                      <span className="text-[13px] font-semibold text-[var(--text-primary)] flex-1 font-heading">{fdata.label}</span>
-                      <span className="text-[10px] font-data" style={{ color: selectedCount > 0 ? "var(--accent-primary)" : "var(--text-muted)" }}>{selectedCount}/{fdata.units.length}</span>
+                      <span className="text-[15px]">{fdata.icon}</span>
+                      <span className="text-[15px] font-semibold text-[var(--text-primary)] flex-1 font-heading">{fdata.label}</span>
+                      <span className="text-[15px] font-data" style={{ color: selectedCount > 0 ? "var(--accent-primary)" : "var(--text-muted)" }}>{selectedCount}/{fdata.units.length}</span>
                       <input type="checkbox" checked={allSelected} onChange={() => {
                         const ids = fdata.units.map(u => u.id);
                         setOmSelectedUnits(prev => allSelected ? prev.filter(u => !ids.includes(u)) : [...new Set([...prev, ...ids])]);
                       }} onClick={e => e.stopPropagation()} style={{ accentColor: "#D4860A" }} />
-                      {fdata.source !== "universal" && <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]">Industry</span>}
-                      <span className="text-[var(--text-muted)] text-[10px]" style={{ transform: `rotate(${expanded ? 90 : 0}deg)`, transition: "transform 0.2s" }}>▸</span>
+                      {fdata.source !== "universal" && <span className="text-[15px] px-1.5 py-0.5 rounded-full bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]">Industry</span>}
+                      <span className="text-[var(--text-muted)] text-[15px]" style={{ transform: `rotate(${expanded ? 90 : 0}deg)`, transition: "transform 0.2s" }}>▸</span>
                     </div>
                     {expanded && <div className="px-4 pb-3 space-y-1">
                       {fdata.units.map(u => {
@@ -1660,9 +1660,9 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
                         const layerColors: Record<string,string> = { "Governance": "var(--risk)", "Core": "var(--accent-primary)", "Shared Services": "var(--success)", "Enabling": "var(--warning)", "Interface": "var(--purple)" };
                         return <div key={u.id} className="flex items-center gap-2 py-1 group">
                           <input type="checkbox" checked={isSelected} onChange={() => setOmSelectedUnits(prev => isSelected ? prev.filter(x => x !== u.id) : [...prev, u.id])} style={{ accentColor: "#D4860A" }} />
-                          <span className={`text-[12px] flex-1 ${isSelected ? "text-[var(--text-primary)]" : "text-[var(--text-muted)]"}`}>{displayName}</span>
-                          <span className="text-[8px] px-1.5 py-0.5 rounded font-semibold" style={{ color: layerColors[u.layer] || "var(--text-muted)", background: `${layerColors[u.layer] || "var(--text-muted)"}15` }}>{u.layer}</span>
-                          {isSelected && <button onClick={() => setOmScopedUnits(prev => ({...prev, [u.id]: scope === "in" ? "out" : "in"}))} className="text-[8px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: scope === "in" ? "var(--success)" : "var(--text-muted)", border: `1px solid ${scope === "in" ? "var(--success)" : "var(--border)"}` }}>{scope === "in" ? "In Scope" : "Out of Scope"}</button>}
+                          <span className={`text-[15px] flex-1 ${isSelected ? "text-[var(--text-primary)]" : "text-[var(--text-muted)]"}`}>{displayName}</span>
+                          <span className="text-[15px] px-1.5 py-0.5 rounded font-semibold" style={{ color: layerColors[u.layer] || "var(--text-muted)", background: `${layerColors[u.layer] || "var(--text-muted)"}15` }}>{u.layer}</span>
+                          {isSelected && <button onClick={() => setOmScopedUnits(prev => ({...prev, [u.id]: scope === "in" ? "out" : "in"}))} className="text-[15px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: scope === "in" ? "var(--success)" : "var(--text-muted)", border: `1px solid ${scope === "in" ? "var(--success)" : "var(--border)"}` }}>{scope === "in" ? "In Scope" : "Out of Scope"}</button>}
                         </div>;
                       })}
                     </div>}
@@ -1674,28 +1674,28 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
 
           {/* Customization */}
           <Card title="Step 3 — Custom Operating Units">
-            <div className="text-[12px] text-[var(--text-secondary)] mb-3">Add operating units not in the taxonomy, or rename existing ones to match your client's terminology.</div>
+            <div className="text-[15px] text-[var(--text-secondary)] mb-3">Add operating units not in the taxonomy, or rename existing ones to match your client's terminology.</div>
             {omCustomUnits.length > 0 && <div className="space-y-1 mb-3">
               {omCustomUnits.map((cu, i) => <div key={cu.id} className="flex items-center gap-2 bg-[var(--surface-2)] rounded-lg px-3 py-2">
-                <span className="text-[12px] text-[var(--text-primary)] flex-1">{cu.name}</span>
-                <span className="text-[10px] text-[var(--text-muted)]">{cu.func}</span>
-                <span className="text-[9px] px-1.5 py-0.5 rounded bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]">{cu.layer}</span>
-                <button onClick={() => setOmCustomUnits(prev => prev.filter((_, j) => j !== i))} className="text-[var(--text-muted)] hover:text-[var(--risk)] text-[11px]">✕</button>
+                <span className="text-[15px] text-[var(--text-primary)] flex-1">{cu.name}</span>
+                <span className="text-[15px] text-[var(--text-muted)]">{cu.func}</span>
+                <span className="text-[14px] px-1.5 py-0.5 rounded bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]">{cu.layer}</span>
+                <button onClick={() => setOmCustomUnits(prev => prev.filter((_, j) => j !== i))} className="text-[var(--text-muted)] hover:text-[var(--risk)] text-[15px]">✕</button>
               </div>)}
             </div>}
             {omAddingCustom ? <div className="bg-[var(--surface-2)] rounded-xl p-4 border border-[var(--accent-primary)]/20 space-y-3">
-              <input value={omCustomName} onChange={e => setOmCustomName(e.target.value)} placeholder="Operating unit name" className="w-full bg-[var(--surface-1)] border border-[var(--border)] rounded-lg px-3 py-2 text-[12px] text-[var(--text-primary)] outline-none" />
+              <input value={omCustomName} onChange={e => setOmCustomName(e.target.value)} placeholder="Operating unit name" className="w-full bg-[var(--surface-1)] border border-[var(--border)] rounded-lg px-3 py-2 text-[15px] text-[var(--text-primary)] outline-none" />
               <div className="flex gap-2">
-                <input value={omCustomFunc} onChange={e => setOmCustomFunc(e.target.value)} placeholder="Function (e.g. Finance)" className="flex-1 bg-[var(--surface-1)] border border-[var(--border)] rounded-lg px-3 py-2 text-[12px] text-[var(--text-primary)] outline-none" />
-                <select value={omCustomLayer} onChange={e => setOmCustomLayer(e.target.value)} className="bg-[var(--surface-1)] border border-[var(--border)] rounded-lg px-3 py-2 text-[12px] text-[var(--text-primary)]">
+                <input value={omCustomFunc} onChange={e => setOmCustomFunc(e.target.value)} placeholder="Function (e.g. Finance)" className="flex-1 bg-[var(--surface-1)] border border-[var(--border)] rounded-lg px-3 py-2 text-[15px] text-[var(--text-primary)] outline-none" />
+                <select value={omCustomLayer} onChange={e => setOmCustomLayer(e.target.value)} className="bg-[var(--surface-1)] border border-[var(--border)] rounded-lg px-3 py-2 text-[15px] text-[var(--text-primary)]">
                   {["Governance","Core","Shared Services","Enabling","Interface"].map(l => <option key={l} value={l}>{l}</option>)}
                 </select>
               </div>
               <div className="flex gap-2">
-                <button onClick={() => { if (omCustomName.trim()) { setOmCustomUnits(prev => [...prev, {id:`cust_${Date.now()}`,name:omCustomName.trim(),func:omCustomFunc||"Custom",layer:omCustomLayer}]); setOmCustomName(""); setOmCustomFunc(""); setOmAddingCustom(false); }}} className="px-4 py-1.5 rounded-lg text-[11px] font-semibold bg-[var(--accent-primary)] text-white">Add</button>
-                <button onClick={() => setOmAddingCustom(false)} className="px-4 py-1.5 rounded-lg text-[11px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">Cancel</button>
+                <button onClick={() => { if (omCustomName.trim()) { setOmCustomUnits(prev => [...prev, {id:`cust_${Date.now()}`,name:omCustomName.trim(),func:omCustomFunc||"Custom",layer:omCustomLayer}]); setOmCustomName(""); setOmCustomFunc(""); setOmAddingCustom(false); }}} className="px-4 py-1.5 rounded-lg text-[15px] font-semibold bg-[var(--accent-primary)] text-white">Add</button>
+                <button onClick={() => setOmAddingCustom(false)} className="px-4 py-1.5 rounded-lg text-[15px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">Cancel</button>
               </div>
-            </div> : <button onClick={() => setOmAddingCustom(true)} className="px-4 py-2 rounded-lg text-[11px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 hover:bg-[var(--accent-primary)]/5 transition-all">+ Add Custom Unit</button>}
+            </div> : <button onClick={() => setOmAddingCustom(true)} className="px-4 py-2 rounded-lg text-[15px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 hover:bg-[var(--accent-primary)]/5 transition-all">+ Add Custom Unit</button>}
           </Card>
 
           {/* Summary */}
@@ -1710,15 +1710,15 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
               <button onClick={async () => {
                 await api.saveOMConfig({ model_id: model || "Demo_Model", industries: omIndustries, selected_units: omSelectedUnits, custom_units: omCustomUnits, renames: omRenames, scoped_units: omScopedUnits });
                 showToast("Operating model configuration saved");
-              }} className="px-4 py-2 rounded-lg text-[12px] font-semibold bg-[var(--accent-primary)] text-white hover:opacity-90 transition-all">💾 Save Configuration</button>
-              <button onClick={() => { setOmSelectedUnits([]); setOmCustomUnits([]); setOmRenames({}); setOmScopedUnits({}); setOmIndustries([]); showToast("Configuration reset"); }} className="px-4 py-2 rounded-lg text-[12px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--risk)]">Reset</button>
+              }} className="px-4 py-2 rounded-lg text-[15px] font-semibold bg-[var(--accent-primary)] text-white hover:opacity-90 transition-all">💾 Save Configuration</button>
+              <button onClick={() => { setOmSelectedUnits([]); setOmCustomUnits([]); setOmRenames({}); setOmScopedUnits({}); setOmIndustries([]); showToast("Configuration reset"); }} className="px-4 py-2 rounded-lg text-[15px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--risk)]">Reset</button>
             </div>
           </Card>
         </div>}
 
         {omView === "blueprint" && <Card title={`${fnD.label} — ${archD.label} Architecture`}>
           <div className="flex items-center justify-between mb-3">
-            <div className="text-[12px] text-[var(--text-secondary)]">{archD.desc} · {opModel.replace("_"," ")} · {gov} governance</div>
+            <div className="text-[15px] text-[var(--text-secondary)]">{archD.desc} · {opModel.replace("_"," ")} · {gov} governance</div>
             <button onClick={async () => {
               setAiOmLoading(true);
               try {
@@ -1726,58 +1726,58 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
                 const parsed = JSON.parse(raw.replace(/\`\`\`json\n?/g,"").replace(/\`\`\`\n?/g,"").trim());
                 if (parsed.core) setAiBlueprint(parsed);
               } catch {} setAiOmLoading(false);
-            }} disabled={aiOmLoading} className="px-3 py-1.5 rounded-lg text-[11px] font-semibold text-white shrink-0" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>{aiOmLoading ? "..." : "☕ AI Custom Blueprint"}</button>
+            }} disabled={aiOmLoading} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold text-white shrink-0" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>{aiOmLoading ? "..." : "☕ AI Custom Blueprint"}</button>
           </div>
 
-          {aiBlueprint && <div className="bg-[rgba(224,144,64,0.06)] border border-[rgba(224,144,64,0.15)] rounded-lg px-3 py-2 mb-3 flex items-center justify-between"><span className="text-[11px]" style={{ color: "#f0a050" }}>☕ Showing AI-generated blueprint</span><button onClick={() => setAiBlueprint(null)} className="text-[10px] text-[var(--text-muted)] hover:text-[var(--text-primary)]">Reset to default</button></div>}
+          {aiBlueprint && <div className="bg-[rgba(224,144,64,0.06)] border border-[rgba(224,144,64,0.15)] rounded-lg px-3 py-2 mb-3 flex items-center justify-between"><span className="text-[15px]" style={{ color: "#f0a050" }}>☕ Showing AI-generated blueprint</span><button onClick={() => setAiBlueprint(null)} className="text-[15px] text-[var(--text-muted)] hover:text-[var(--text-primary)]">Reset to default</button></div>}
           <div className="space-y-2">
             {[{label:"Governance",items:aiBlueprint?.governance || govLayer,color:"var(--risk)"},{label:"Core Components",items:aiBlueprint?.core || coreLayer,color:"var(--accent-primary)",grid:true},{label:"Shared Services",items:aiBlueprint?.shared || sharedLayer,color:"var(--success)"},{label:"Enabling",items:aiBlueprint?.enabling || enableLayer,color:"var(--purple)"},{label:"Interface",items:aiBlueprint?.interface || interfaceLayer,color:"var(--warning)"}].map(layer => <div key={layer.label} className="rounded-xl p-3 border-l-4" style={{ background: `${layer.color}06`, borderColor: layer.color }}>
-              <div className="flex items-center justify-between mb-2"><div className="text-[9px] font-bold uppercase tracking-wider" style={{ color: layer.color }}>{layer.label}</div><div className="text-[9px]" style={{ color: `${layer.color}80` }}>{layer.items.length} capabilities</div></div>
-              <div className={layer.grid ? `grid gap-2 ${layer.items.length <= 4 ? "grid-cols-4" : layer.items.length <= 6 ? "grid-cols-3" : layer.items.length <= 9 ? "grid-cols-3 lg:grid-cols-4" : "grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"}` : "flex gap-2 flex-wrap"}>{layer.items.map(t => { const ai = getAiTier(t); return <div key={t} className={`rounded-lg p-2.5 border ${layer.grid ? "" : "px-3 py-2"}`} style={{ background: "var(--surface-2)", borderColor: "var(--border)" }}><div className="text-[11px] font-semibold text-[var(--text-primary)]">{t.replace(archD.coreSuffix, "")}</div>{archD.coreSuffix && layer.grid && <div className="text-[8px] italic mt-0.5" style={{ color: `${layer.color}80` }}>{archD.coreSuffix.replace(" — ", "").replace(" as a ", "").trim()}</div>}{layer.grid && <div className="flex items-center gap-1 mt-0.5"><div className="w-1.5 h-1.5 rounded-full" style={{ background: ai.color }} /><span className="text-[8px]" style={{ color: ai.color }}>{ai.tier}</span></div>}</div>; })}</div>
+              <div className="flex items-center justify-between mb-2"><div className="text-[14px] font-bold uppercase tracking-wider" style={{ color: layer.color }}>{layer.label}</div><div className="text-[14px]" style={{ color: `${layer.color}80` }}>{layer.items.length} capabilities</div></div>
+              <div className={layer.grid ? `grid gap-2 ${layer.items.length <= 4 ? "grid-cols-4" : layer.items.length <= 6 ? "grid-cols-3" : layer.items.length <= 9 ? "grid-cols-3 lg:grid-cols-4" : "grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"}` : "flex gap-2 flex-wrap"}>{layer.items.map(t => { const ai = getAiTier(t); return <div key={t} className={`rounded-lg p-2.5 border ${layer.grid ? "" : "px-3 py-2"}`} style={{ background: "var(--surface-2)", borderColor: "var(--border)" }}><div className="text-[15px] font-semibold text-[var(--text-primary)]">{t.replace(archD.coreSuffix, "")}</div>{archD.coreSuffix && layer.grid && <div className="text-[15px] italic mt-0.5" style={{ color: `${layer.color}80` }}>{archD.coreSuffix.replace(" — ", "").replace(" as a ", "").trim()}</div>}{layer.grid && <div className="flex items-center gap-1 mt-0.5"><div className="w-1.5 h-1.5 rounded-full" style={{ background: ai.color }} /><span className="text-[15px]" style={{ color: ai.color }}>{ai.tier}</span></div>}</div>; })}</div>
             </div>)}
           </div>
         </Card>}
 
         {omView === "capability" && <Card title="Capability Maturity Assessment">
-          {(() => { const scores = Object.values(maturityScores).filter(v => v > 0); const avg = scores.length ? (scores.reduce((a,b) => a+b, 0) / scores.length).toFixed(1) : "—"; const tScores = Object.values(targetScores).filter(v => v > 0); const tAvg = tScores.length ? (tScores.reduce((a,b) => a+b, 0) / tScores.length).toFixed(1) : "—"; return <div className="flex gap-4 mb-4">{[{label:"Current Avg",val:avg,color:"var(--accent-primary)"},{label:"Target Avg",val:tAvg,color:"var(--success)"},{label:"Capabilities Rated",val:`${scores.length}/${allCaps.length}`,color:"var(--text-secondary)"},{label:"Gap",val:scores.length && tScores.length ? (Number(tAvg)-Number(avg)).toFixed(1) : "—",color:"var(--warning)"}].map(k => <div key={k.label} className="flex-1 rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[18px] font-extrabold" style={{color:k.color}}>{k.val}</div><div className="text-[9px] text-[var(--text-muted)] uppercase">{k.label}</div></div>)}</div>; })()}
-          <div className="text-[12px] text-[var(--text-secondary)] mb-3">Rate current state (left) and target state (right) for each capability.</div>
-          <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full"><thead><tr className="bg-[var(--surface-2)]"><th className="px-3 py-2 text-left text-[10px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Capability</th><th className="px-2 py-2 text-center text-[10px] font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Layer</th>{[1,2,3,4,5].map(n => <th key={n} className="px-2 py-2 text-center text-[10px] border-b border-[var(--border)] text-[var(--text-muted)]">{n}</th>)}<th className="px-1 py-2 text-center text-[9px] border-b border-[var(--border)] text-[var(--text-muted)]">|</th>{[1,2,3,4,5].map(n => <th key={`t${n}`} className="px-2 py-2 text-center text-[10px] border-b border-[var(--border)] text-[var(--success)]">{n}</th>)}<th className="px-2 py-2 text-center text-[10px] border-b border-[var(--border)] text-[var(--text-muted)]">AI</th></tr></thead>
-          <tbody>{allCaps.map(cap => { const sc = maturityScores[cap.name]||0; const ai = getAiTier(cap.name); return <tr key={cap.name} className="border-b border-[var(--border)]"><td className="px-3 py-1.5 text-[11px] font-semibold">{cap.name}</td><td className="px-2 py-1.5 text-center"><span className="text-[9px] px-1.5 py-0.5 rounded-full" style={{ background: `${layerColors[cap.layer]}12`, color: layerColors[cap.layer] }}>{cap.layer}</span></td>{[1,2,3,4,5].map(n => <td key={n} className="px-2 py-1.5 text-center"><button onClick={() => setMaturityScores(p => ({...p,[cap.name]:n}))} className="w-6 h-6 rounded text-[10px] font-bold" style={{ background: sc>=n ? `${n<=2?"var(--risk)":n<=3?"var(--warning)":"var(--success)"}20` : "var(--surface-2)", color: sc>=n ? (n<=2?"var(--risk)":n<=3?"var(--warning)":"var(--success)") : "var(--text-muted)" }}>{n}</button></td>)}<td className="px-1 py-1.5 text-center text-[var(--border)]">│</td>{[1,2,3,4,5].map(n => <td key={`t${n}`} className="px-2 py-1.5 text-center"><button onClick={() => setTargetScores(p => ({...p,[cap.name]:n}))} className="w-6 h-6 rounded text-[10px] font-bold" style={{ background: (targetScores[cap.name]||0)>=n ? `${n<=2?"var(--risk)":n<=3?"var(--warning)":"var(--success)"}20` : "var(--surface-2)", color: (targetScores[cap.name]||0)>=n ? (n<=2?"var(--risk)":n<=3?"var(--warning)":"var(--success)") : "var(--text-muted)" }}>{n}</button></td>)}<td className="px-2 py-1.5 text-center"><span className="text-[9px]" style={{ color: ai.color }}>{ai.tier}</span></td></tr>; })}</tbody></table></div>
-          <div className="flex gap-3 mt-2 text-[9px] text-[var(--text-muted)]">{["1=Ad Hoc","2=Emerging","3=Defined","4=Managed","5=Optimized"].map(l => <span key={l}>{l}</span>)}</div>
+          {(() => { const scores = Object.values(maturityScores).filter(v => v > 0); const avg = scores.length ? (scores.reduce((a,b) => a+b, 0) / scores.length).toFixed(1) : "—"; const tScores = Object.values(targetScores).filter(v => v > 0); const tAvg = tScores.length ? (tScores.reduce((a,b) => a+b, 0) / tScores.length).toFixed(1) : "—"; return <div className="flex gap-4 mb-4">{[{label:"Current Avg",val:avg,color:"var(--accent-primary)"},{label:"Target Avg",val:tAvg,color:"var(--success)"},{label:"Capabilities Rated",val:`${scores.length}/${allCaps.length}`,color:"var(--text-secondary)"},{label:"Gap",val:scores.length && tScores.length ? (Number(tAvg)-Number(avg)).toFixed(1) : "—",color:"var(--warning)"}].map(k => <div key={k.label} className="flex-1 rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[18px] font-extrabold" style={{color:k.color}}>{k.val}</div><div className="text-[14px] text-[var(--text-muted)] uppercase">{k.label}</div></div>)}</div>; })()}
+          <div className="text-[15px] text-[var(--text-secondary)] mb-3">Rate current state (left) and target state (right) for each capability.</div>
+          <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full"><thead><tr className="bg-[var(--surface-2)]"><th className="px-3 py-2 text-left text-[15px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Capability</th><th className="px-2 py-2 text-center text-[15px] font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Layer</th>{[1,2,3,4,5].map(n => <th key={n} className="px-2 py-2 text-center text-[15px] border-b border-[var(--border)] text-[var(--text-muted)]">{n}</th>)}<th className="px-1 py-2 text-center text-[14px] border-b border-[var(--border)] text-[var(--text-muted)]">|</th>{[1,2,3,4,5].map(n => <th key={`t${n}`} className="px-2 py-2 text-center text-[15px] border-b border-[var(--border)] text-[var(--success)]">{n}</th>)}<th className="px-2 py-2 text-center text-[15px] border-b border-[var(--border)] text-[var(--text-muted)]">AI</th></tr></thead>
+          <tbody>{allCaps.map(cap => { const sc = maturityScores[cap.name]||0; const ai = getAiTier(cap.name); return <tr key={cap.name} className="border-b border-[var(--border)]"><td className="px-3 py-1.5 text-[15px] font-semibold">{cap.name}</td><td className="px-2 py-1.5 text-center"><span className="text-[14px] px-1.5 py-0.5 rounded-full" style={{ background: `${layerColors[cap.layer]}12`, color: layerColors[cap.layer] }}>{cap.layer}</span></td>{[1,2,3,4,5].map(n => <td key={n} className="px-2 py-1.5 text-center"><button onClick={() => setMaturityScores(p => ({...p,[cap.name]:n}))} className="w-6 h-6 rounded text-[15px] font-bold" style={{ background: sc>=n ? `${n<=2?"var(--risk)":n<=3?"var(--warning)":"var(--success)"}20` : "var(--surface-2)", color: sc>=n ? (n<=2?"var(--risk)":n<=3?"var(--warning)":"var(--success)") : "var(--text-muted)" }}>{n}</button></td>)}<td className="px-1 py-1.5 text-center text-[var(--border)]">│</td>{[1,2,3,4,5].map(n => <td key={`t${n}`} className="px-2 py-1.5 text-center"><button onClick={() => setTargetScores(p => ({...p,[cap.name]:n}))} className="w-6 h-6 rounded text-[15px] font-bold" style={{ background: (targetScores[cap.name]||0)>=n ? `${n<=2?"var(--risk)":n<=3?"var(--warning)":"var(--success)"}20` : "var(--surface-2)", color: (targetScores[cap.name]||0)>=n ? (n<=2?"var(--risk)":n<=3?"var(--warning)":"var(--success)") : "var(--text-muted)" }}>{n}</button></td>)}<td className="px-2 py-1.5 text-center"><span className="text-[14px]" style={{ color: ai.color }}>{ai.tier}</span></td></tr>; })}</tbody></table></div>
+          <div className="flex gap-3 mt-2 text-[14px] text-[var(--text-muted)]">{["1=Ad Hoc","2=Emerging","3=Defined","4=Managed","5=Optimized"].map(l => <span key={l}>{l}</span>)}</div>
         </Card>}
 
         {omView === "service" && <Card title="Service Delivery Model">
-          <div className="text-[12px] text-[var(--text-secondary)] mb-4">Click the service type to change. Options: Shared, Embedded, CoE, Outsourced, AI-Automated.</div>
+          <div className="text-[15px] text-[var(--text-secondary)] mb-4">Click the service type to change. Options: Shared, Embedded, CoE, Outsourced, AI-Automated.</div>
           <div className="grid grid-cols-2 gap-4">
             <div><DonutViz data={["Shared","Embedded","CoE","Outsourced","AI-Auto"].map(s => ({name:s,value:activeCoreLayer.filter(t => (serviceOverrides[t.replace(archD.coreSuffix,"")] || getSM(t)) === s).length})).filter(d => d.value > 0)} /></div>
-            <div className="space-y-1.5">{activeCoreLayer.map(t => { const cleanName = t.replace(archD.coreSuffix,""); const sm = serviceOverrides[cleanName] || getSM(t); const ai = getAiTier(t); const smColors: Record<string,string> = {Shared:"indigo",Embedded:"green",CoE:"purple",Outsourced:"gray","AI-Auto":"amber"}; const smOpts = ["Shared","Embedded","CoE","Outsourced","AI-Auto"]; return <div key={t} className="flex items-center justify-between p-2 rounded-lg bg-[var(--surface-2)]"><span className="text-[11px] text-[var(--text-primary)] truncate flex-1 mr-2">{cleanName}</span><div className="flex items-center gap-2"><button onClick={() => { const idx = smOpts.indexOf(sm); setServiceOverrides(prev => ({...prev, [cleanName]: smOpts[(idx+1) % smOpts.length]})); }} className="px-2 py-0.5 rounded-full text-[9px] font-semibold cursor-pointer" style={{background: `var(--${smColors[sm] || "gray"})15`, color: `var(--${smColors[sm] || "text-muted"})`, border: "1px solid var(--border)"}}>{sm}</button><span className="text-[8px] w-10 text-right" style={{color:ai.color}}>{ai.pct}%</span></div></div>; })}</div>
+            <div className="space-y-1.5">{activeCoreLayer.map(t => { const cleanName = t.replace(archD.coreSuffix,""); const sm = serviceOverrides[cleanName] || getSM(t); const ai = getAiTier(t); const smColors: Record<string,string> = {Shared:"indigo",Embedded:"green",CoE:"purple",Outsourced:"gray","AI-Auto":"amber"}; const smOpts = ["Shared","Embedded","CoE","Outsourced","AI-Auto"]; return <div key={t} className="flex items-center justify-between p-2 rounded-lg bg-[var(--surface-2)]"><span className="text-[15px] text-[var(--text-primary)] truncate flex-1 mr-2">{cleanName}</span><div className="flex items-center gap-2"><button onClick={() => { const idx = smOpts.indexOf(sm); setServiceOverrides(prev => ({...prev, [cleanName]: smOpts[(idx+1) % smOpts.length]})); }} className="px-2 py-0.5 rounded-full text-[14px] font-semibold cursor-pointer" style={{background: `var(--${smColors[sm] || "gray"})15`, color: `var(--${smColors[sm] || "text-muted"})`, border: "1px solid var(--border)"}}>{sm}</button><span className="text-[15px] w-10 text-right" style={{color:ai.color}}>{ai.pct}%</span></div></div>; })}</div>
           </div>
         </Card>}
 
         {omView === "decisions" && <Card title="Decision Rights (RAPID)">
           <div className="flex items-center justify-between mb-3">
-            <div className="text-[12px] text-[var(--text-secondary)]">Click any cell to cycle through R→A→P→I→D</div>
+            <div className="text-[15px] text-[var(--text-secondary)]">Click any cell to cycle through R→A→P→I→D</div>
             <button onClick={async () => {
               setAiOmLoading(true);
               try { const raw = await callAI("Return ONLY valid JSON.", `Generate 8 key decisions for a ${fnD.label} function with ${archD.label} archetype. For each decision, assign RAPID roles to these 4 columns: ${govLayer[0] || "Executive"}, ${govLayer[1] || "Board"}, Function Head, Team Lead. Return JSON: {"decisions":[{"d":"decision name","r":["D","A","R","P"]}]} — use only letters R,A,P,I,D`); const p = JSON.parse(raw.replace(/\`\`\`json\n?/g,"").replace(/\`\`\`\n?/g,"").trim()); if (p.decisions) setRapidRows(p.decisions); } catch {} setAiOmLoading(false);
-            }} disabled={aiOmLoading} className="px-3 py-1 rounded-lg text-[10px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>☕ Generate RAPID</button>
+            }} disabled={aiOmLoading} className="px-3 py-1 rounded-lg text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>☕ Generate RAPID</button>
           </div>
-          <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full"><thead><tr className="bg-[var(--surface-2)]"><th className="px-3 py-2 text-left text-[10px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Decision</th>{[govLayer[0] || "Executive", govLayer[1] || "Board", "Function Head", "Team Lead"].map(r => <th key={r} className="px-2 py-2 text-center text-[9px] font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">{r.length > 20 ? r.slice(0,18)+"..." : r}</th>)}</tr></thead>
-          <tbody>{rapidRows.map((row, ri) => <tr key={ri} className="border-b border-[var(--border)]"><td className="px-3 py-2 text-[11px] font-semibold">{row.d}</td>{row.r.map((r: string, ci: number) => { const cl: Record<string,string> = {R:"var(--accent-primary)",A:"var(--success)",P:"var(--purple)",I:"var(--text-muted)",D:"var(--warning)"}; const cycle = ["R","A","P","I","D"]; return <td key={ci} className="px-2 py-2 text-center"><button onClick={() => { const next = cycle[(cycle.indexOf(r)+1) % 5]; setRapidRows(prev => prev.map((row2,ri2) => ri2===ri ? {...row2, r: row2.r.map((v: string,ci2: number) => ci2===ci ? next : v)} : row2)); }} className="w-6 h-6 rounded items-center justify-center text-[10px] font-bold inline-flex cursor-pointer" style={{background:`${cl[r]||cl.I}15`,color:cl[r]||cl.I}}>{r}</button></td>; })}</tr>)}</tbody></table></div>
-          <div className="flex gap-3 mt-2 text-[9px] text-[var(--text-muted)]">{[{l:"R",n:"Recommend",c:"var(--accent-primary)"},{l:"A",n:"Agree",c:"var(--success)"},{l:"P",n:"Perform",c:"var(--purple)"},{l:"I",n:"Input",c:"var(--text-muted)"},{l:"D",n:"Decide",c:"var(--warning)"}].map(x => <span key={x.l} className="flex items-center gap-1"><span className="w-4 h-4 rounded text-[9px] font-bold flex items-center justify-center" style={{background:`${x.c}15`,color:x.c}}>{x.l}</span>{x.n}</span>)}</div>
+          <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full"><thead><tr className="bg-[var(--surface-2)]"><th className="px-3 py-2 text-left text-[15px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Decision</th>{[govLayer[0] || "Executive", govLayer[1] || "Board", "Function Head", "Team Lead"].map(r => <th key={r} className="px-2 py-2 text-center text-[14px] font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">{r.length > 20 ? r.slice(0,18)+"..." : r}</th>)}</tr></thead>
+          <tbody>{rapidRows.map((row, ri) => <tr key={ri} className="border-b border-[var(--border)]"><td className="px-3 py-2 text-[15px] font-semibold">{row.d}</td>{row.r.map((r: string, ci: number) => { const cl: Record<string,string> = {R:"var(--accent-primary)",A:"var(--success)",P:"var(--purple)",I:"var(--text-muted)",D:"var(--warning)"}; const cycle = ["R","A","P","I","D"]; return <td key={ci} className="px-2 py-2 text-center"><button onClick={() => { const next = cycle[(cycle.indexOf(r)+1) % 5]; setRapidRows(prev => prev.map((row2,ri2) => ri2===ri ? {...row2, r: row2.r.map((v: string,ci2: number) => ci2===ci ? next : v)} : row2)); }} className="w-6 h-6 rounded items-center justify-center text-[15px] font-bold inline-flex cursor-pointer" style={{background:`${cl[r]||cl.I}15`,color:cl[r]||cl.I}}>{r}</button></td>; })}</tr>)}</tbody></table></div>
+          <div className="flex gap-3 mt-2 text-[14px] text-[var(--text-muted)]">{[{l:"R",n:"Recommend",c:"var(--accent-primary)"},{l:"A",n:"Agree",c:"var(--success)"},{l:"P",n:"Perform",c:"var(--purple)"},{l:"I",n:"Input",c:"var(--text-muted)"},{l:"D",n:"Decide",c:"var(--warning)"}].map(x => <span key={x.l} className="flex items-center gap-1"><span className="w-4 h-4 rounded text-[14px] font-bold flex items-center justify-center" style={{background:`${x.c}15`,color:x.c}}>{x.l}</span>{x.n}</span>)}</div>
         </Card>}
 
         {omView === "ai_tier" && <Card title="AI Service Layer">
-          <div className="text-[12px] text-[var(--text-secondary)] mb-4">Human-AI interaction model per capability.</div>
-          <div className="grid grid-cols-4 gap-3 mb-4">{[{tier:"Human-Led",color:"#10B981",icon:"👤"},{tier:"Hybrid",color:"#F97316",icon:"🤝"},{tier:"AI-Augmented",color:"#D4860A",icon:"🤖"},{tier:"AI-First",color:"#8B5CF6",icon:"⚡"}].map(t => <div key={t.tier} className="rounded-xl p-3 border text-center" style={{background:`${t.color}06`,borderColor:`${t.color}20`}}><div className="text-lg">{t.icon}</div><div className="text-[11px] font-bold" style={{color:t.color}}>{t.tier}</div><div className="text-[18px] font-extrabold" style={{color:t.color}}>{teams.filter(tm => getAiTier(tm).tier===t.tier).length}</div></div>)}</div>
-          <div className="space-y-1.5">{teams.map(t => { const ai=getAiTier(t); return <div key={t} className="flex items-center gap-3 p-2 rounded-lg bg-[var(--surface-2)]"><span className="text-[11px] font-semibold w-36 shrink-0">{t}</span><div className="flex-1 h-3 bg-[var(--bg)] rounded-full overflow-hidden"><div className="h-full rounded-full" style={{width:`${ai.pct}%`,background:ai.color}} /></div><span className="text-[9px] font-semibold w-14 text-right" style={{color:ai.color}}>{ai.pct}%</span><Badge color={ai.tier==="AI-First"?"purple":ai.tier==="AI-Augmented"?"indigo":ai.tier==="Hybrid"?"amber":"green"}>{ai.tier}</Badge></div>; })}</div>
+          <div className="text-[15px] text-[var(--text-secondary)] mb-4">Human-AI interaction model per capability.</div>
+          <div className="grid grid-cols-4 gap-3 mb-4">{[{tier:"Human-Led",color:"#10B981",icon:"👤"},{tier:"Hybrid",color:"#F97316",icon:"🤝"},{tier:"AI-Augmented",color:"#D4860A",icon:"🤖"},{tier:"AI-First",color:"#8B5CF6",icon:"⚡"}].map(t => <div key={t.tier} className="rounded-xl p-3 border text-center" style={{background:`${t.color}06`,borderColor:`${t.color}20`}}><div className="text-lg">{t.icon}</div><div className="text-[15px] font-bold" style={{color:t.color}}>{t.tier}</div><div className="text-[18px] font-extrabold" style={{color:t.color}}>{teams.filter(tm => getAiTier(tm).tier===t.tier).length}</div></div>)}</div>
+          <div className="space-y-1.5">{teams.map(t => { const ai=getAiTier(t); return <div key={t} className="flex items-center gap-3 p-2 rounded-lg bg-[var(--surface-2)]"><span className="text-[15px] font-semibold w-36 shrink-0">{t}</span><div className="flex-1 h-3 bg-[var(--bg)] rounded-full overflow-hidden"><div className="h-full rounded-full" style={{width:`${ai.pct}%`,background:ai.color}} /></div><span className="text-[14px] font-semibold w-14 text-right" style={{color:ai.color}}>{ai.pct}%</span><Badge color={ai.tier==="AI-First"?"purple":ai.tier==="AI-Augmented"?"indigo":ai.tier==="Hybrid"?"amber":"green"}>{ai.tier}</Badge></div>; })}</div>
         </Card>}
 
         {omView === "traits" && <Card title={`${archD.label} — Archetype Fit`}>
-          <div className="text-[12px] text-[var(--text-secondary)] mb-4">{archD.desc}</div>
-          <div className="grid grid-cols-2 gap-4"><div><RadarViz data={Object.entries(archD.traits).map(([k,v]) => ({subject:k.charAt(0).toUpperCase()+k.slice(1),current:v,max:5}))} /></div><div className="space-y-2">{Object.entries(archD.traits).map(([k,v]) => <div key={k}><div className="flex justify-between text-[11px] mb-0.5"><span className="text-[var(--text-secondary)] capitalize">{k}</span><span className="font-bold" style={{color:v>=4?"var(--success)":v>=3?"var(--accent-primary)":"var(--warning)"}}>{v}/5</span></div><div className="h-1.5 bg-[var(--surface-2)] rounded-full overflow-hidden"><div className="h-full rounded-full" style={{width:`${v/5*100}%`,background:v>=4?"var(--success)":v>=3?"var(--accent-primary)":"var(--warning)"}} /></div></div>)}
-            <div className="mt-3 p-3 rounded-xl bg-[var(--surface-2)]"><div className="text-[10px] font-bold text-[var(--text-muted)] uppercase mb-1">Best For</div><div className="text-[11px] text-[var(--text-secondary)]">{arch==="functional"?"Stable industries, deep specialization":arch==="divisional"?"Multi-product, P&L ownership":arch==="matrix"?"Complex orgs, dual expertise":arch==="platform"?"Tech-forward, autonomous teams":"Innovation-heavy, project-based"}</div></div>
-            <div className="p-3 rounded-xl bg-[var(--surface-2)]"><div className="text-[10px] font-bold text-[var(--text-muted)] uppercase mb-1">Watch Out</div><div className="text-[11px] text-[var(--text-secondary)]">{arch==="functional"?"Silos, slow cross-functional work":arch==="divisional"?"Duplication, higher costs":arch==="matrix"?"Dual reporting tension":arch==="platform"?"Requires strong eng culture":"Accountability gaps"}</div></div>
+          <div className="text-[15px] text-[var(--text-secondary)] mb-4">{archD.desc}</div>
+          <div className="grid grid-cols-2 gap-4"><div><RadarViz data={Object.entries(archD.traits).map(([k,v]) => ({subject:k.charAt(0).toUpperCase()+k.slice(1),current:v,max:5}))} /></div><div className="space-y-2">{Object.entries(archD.traits).map(([k,v]) => <div key={k}><div className="flex justify-between text-[15px] mb-0.5"><span className="text-[var(--text-secondary)] capitalize">{k}</span><span className="font-bold" style={{color:v>=4?"var(--success)":v>=3?"var(--accent-primary)":"var(--warning)"}}>{v}/5</span></div><div className="h-1.5 bg-[var(--surface-2)] rounded-full overflow-hidden"><div className="h-full rounded-full" style={{width:`${v/5*100}%`,background:v>=4?"var(--success)":v>=3?"var(--accent-primary)":"var(--warning)"}} /></div></div>)}
+            <div className="mt-3 p-3 rounded-xl bg-[var(--surface-2)]"><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-1">Best For</div><div className="text-[15px] text-[var(--text-secondary)]">{arch==="functional"?"Stable industries, deep specialization":arch==="divisional"?"Multi-product, P&L ownership":arch==="matrix"?"Complex orgs, dual expertise":arch==="platform"?"Tech-forward, autonomous teams":"Innovation-heavy, project-based"}</div></div>
+            <div className="p-3 rounded-xl bg-[var(--surface-2)]"><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-1">Watch Out</div><div className="text-[15px] text-[var(--text-secondary)]">{arch==="functional"?"Silos, slow cross-functional work":arch==="divisional"?"Duplication, higher costs":arch==="matrix"?"Dual reporting tension":arch==="platform"?"Requires strong eng culture":"Accountability gaps"}</div></div>
           </div></div>
         </Card>}
 
@@ -1785,26 +1785,26 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
 
         {/* ── Value Chain ── */}
         {omView === "valuechain" && <Card title={`${fnD.label} — Value Chain`}>
-          <div className="text-[12px] text-[var(--text-secondary)] mb-4">End-to-end value chain showing how {fnD.label} creates and delivers value across lifecycle stages.</div>
+          <div className="text-[15px] text-[var(--text-secondary)] mb-4">End-to-end value chain showing how {fnD.label} creates and delivers value across lifecycle stages.</div>
           <div className="flex items-stretch gap-0 mb-6 overflow-x-auto">
             {(OM_LIFECYCLES[fn] || ["Plan","Execute","Deliver","Measure","Optimize","Improve"]).map((stage, i, arr) => {
               const ai = getAiTier(stage); const isLast = i === arr.length - 1;
               return <div key={stage} className="flex-1 min-w-[120px] relative group">
                 <div className="rounded-xl p-4 bg-[var(--surface-2)] border border-[var(--border)] mx-0.5 transition-all hover:border-[var(--accent-primary)]/30 hover:-translate-y-1 h-full">
-                  <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase mb-1">Stage {i+1}</div>
-                  <div className="text-[13px] font-bold text-[var(--text-primary)] mb-2">{stage}</div>
-                  <div className="flex items-center gap-1 mb-2"><div className="w-1.5 h-1.5 rounded-full" style={{background:ai.color}} /><span className="text-[9px] font-semibold" style={{color:ai.color}}>{ai.tier} · {ai.pct}%</span></div>
+                  <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-1">Stage {i+1}</div>
+                  <div className="text-[15px] font-bold text-[var(--text-primary)] mb-2">{stage}</div>
+                  <div className="flex items-center gap-1 mb-2"><div className="w-1.5 h-1.5 rounded-full" style={{background:ai.color}} /><span className="text-[14px] font-semibold" style={{color:ai.color}}>{ai.tier} · {ai.pct}%</span></div>
                   <div className="h-1.5 bg-[var(--bg)] rounded-full overflow-hidden"><div className="h-full rounded-full" style={{width:`${ai.pct}%`,background:ai.color}} /></div>
-                  <div className="text-[9px] text-[var(--text-muted)] mt-2">{fnD.core[i] || fnD.core[0]}</div>
+                  <div className="text-[14px] text-[var(--text-muted)] mt-2">{fnD.core[i] || fnD.core[0]}</div>
                 </div>
                 {!isLast && <div className="absolute right-[-8px] top-1/2 -translate-y-1/2 z-10 text-[var(--text-muted)] text-[14px]">→</div>}
               </div>;
             })}
           </div>
           {/* Support activities */}
-          <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Support Activities</div>
+          <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Support Activities</div>
           <div className="grid grid-cols-3 gap-2">
-            {[...fnD.shared, ...fnD.enabling.slice(0,3)].map(s => <div key={s} className="px-3 py-2 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-[10px] text-[var(--text-secondary)] flex items-center gap-2">
+            {[...fnD.shared, ...fnD.enabling.slice(0,3)].map(s => <div key={s} className="px-3 py-2 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-[15px] text-[var(--text-secondary)] flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-[var(--success)]" />{s}
             </div>)}
           </div>
@@ -1812,7 +1812,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
 
         {/* ── Capability Map ── */}
         {omView === "capmap" && <Card title={`${fnD.label} — Capability Map`}>
-          <div className="text-[12px] text-[var(--text-secondary)] mb-4">Strategic capability map organized by layer — identify strengths, gaps, and investment priorities.</div>
+          <div className="text-[15px] text-[var(--text-secondary)] mb-4">Strategic capability map organized by layer — identify strengths, gaps, and investment priorities.</div>
           {[
             {layer:"Governance",items:govLayer,color:"var(--teal,#0891B2)"},
             {layer:"Core Capabilities",items:activeCoreLayer,color:"var(--accent-primary)"},
@@ -1820,13 +1820,13 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
             {layer:"Enabling Platforms",items:activeEnableLayer,color:"var(--purple)"},
             {layer:"Interface / Touchpoints",items:activeInterfaceLayer,color:"var(--warning)"},
           ].map(l => <div key={l.layer} className="mb-4">
-            <div className="flex items-center gap-2 mb-2"><div className="w-2 h-2 rounded-full" style={{background:l.color}} /><span className="text-[11px] font-bold uppercase tracking-wider" style={{color:l.color}}>{l.layer}</span><span className="text-[9px] text-[var(--text-muted)]">({l.items.length})</span></div>
+            <div className="flex items-center gap-2 mb-2"><div className="w-2 h-2 rounded-full" style={{background:l.color}} /><span className="text-[15px] font-bold uppercase tracking-wider" style={{color:l.color}}>{l.layer}</span><span className="text-[14px] text-[var(--text-muted)]">({l.items.length})</span></div>
             <div className="grid grid-cols-3 lg:grid-cols-4 gap-2">{l.items.map(cap => {
               const ai = getAiTier(cap); const score = maturityScores[cap] || 0;
               return <div key={cap} className="rounded-lg p-2.5 bg-[var(--surface-2)] border border-[var(--border)] transition-all hover:border-[var(--accent-primary)]/30">
-                <div className="text-[11px] font-semibold text-[var(--text-primary)] mb-1">{cap.replace(archD.coreSuffix,"")}</div>
-                <div className="flex items-center justify-between"><div className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full" style={{background:ai.color}} /><span className="text-[8px]" style={{color:ai.color}}>{ai.tier}</span></div>
-                {score > 0 && <span className="text-[8px] font-bold" style={{color:score>=4?"var(--success)":score>=3?"var(--warning)":"var(--risk)"}}>{score}/5</span>}</div>
+                <div className="text-[15px] font-semibold text-[var(--text-primary)] mb-1">{cap.replace(archD.coreSuffix,"")}</div>
+                <div className="flex items-center justify-between"><div className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full" style={{background:ai.color}} /><span className="text-[15px]" style={{color:ai.color}}>{ai.tier}</span></div>
+                {score > 0 && <span className="text-[15px] font-bold" style={{color:score>=4?"var(--success)":score>=3?"var(--warning)":"var(--risk)"}}>{score}/5</span>}</div>
               </div>;
             })}</div>
           </div>)}
@@ -1834,21 +1834,21 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
 
         {/* ── Process Flows ── */}
         {omView === "processflow" && <Card title={`${fnD.label} — Process Flows`}>
-          <div className="text-[12px] text-[var(--text-secondary)] mb-4">Key process flows across the {fnD.label} function — from trigger to outcome, with AI automation opportunities marked.</div>
+          <div className="text-[15px] text-[var(--text-secondary)] mb-4">Key process flows across the {fnD.label} function — from trigger to outcome, with AI automation opportunities marked.</div>
           {(OM_LIFECYCLES[fn] || ["Plan","Execute","Deliver"]).slice(0,4).map((process, pi) => {
             const steps = fnD.core.slice(pi*3, pi*3+3).length > 0 ? fnD.core.slice(pi*3, pi*3+3) : fnD.core.slice(0,3);
             return <div key={process} className="mb-5 p-4 rounded-xl bg-[var(--surface-2)] border border-[var(--border)]">
-              <div className="text-[12px] font-bold text-[var(--text-primary)] mb-3 flex items-center gap-2"><span className="w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold text-white" style={{background:"var(--accent-primary)"}}>{pi+1}</span>{process} Process</div>
+              <div className="text-[15px] font-bold text-[var(--text-primary)] mb-3 flex items-center gap-2"><span className="w-6 h-6 rounded-lg flex items-center justify-center text-[15px] font-bold text-white" style={{background:"var(--accent-primary)"}}>{pi+1}</span>{process} Process</div>
               <div className="flex items-center gap-1 overflow-x-auto pb-2">
                 {["Trigger","Input","Process","Review","Output","Archive"].map((step, si, arr) => {
                   const ai = getAiTier(step); const isLast = si === arr.length - 1;
                   return <React.Fragment key={step}>
                     <div className="flex-shrink-0 rounded-lg px-3 py-2 text-center min-w-[90px]" style={{background:`${ai.color}12`,border:`1px solid ${ai.color}30`}}>
-                      <div className="text-[10px] font-bold" style={{color:ai.color}}>{step}</div>
-                      <div className="text-[8px] text-[var(--text-muted)] mt-0.5">{steps[si % steps.length]?.split(" ").slice(0,2).join(" ") || "—"}</div>
-                      <div className="flex items-center justify-center gap-1 mt-1"><div className="w-1 h-1 rounded-full" style={{background:ai.color}} /><span className="text-[7px]" style={{color:ai.color}}>{ai.pct}%</span></div>
+                      <div className="text-[15px] font-bold" style={{color:ai.color}}>{step}</div>
+                      <div className="text-[15px] text-[var(--text-muted)] mt-0.5">{steps[si % steps.length]?.split(" ").slice(0,2).join(" ") || "—"}</div>
+                      <div className="flex items-center justify-center gap-1 mt-1"><div className="w-1 h-1 rounded-full" style={{background:ai.color}} /><span className="text-[15px]" style={{color:ai.color}}>{ai.pct}%</span></div>
                     </div>
-                    {!isLast && <span className="text-[var(--text-muted)] text-[12px] shrink-0">→</span>}
+                    {!isLast && <span className="text-[var(--text-muted)] text-[15px] shrink-0">→</span>}
                   </React.Fragment>;
                 })}
               </div>
@@ -1858,7 +1858,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
 
         {/* ── Technology Layer ── */}
         {omView === "techstack" && <Card title={`${fnD.label} — Technology Stack`}>
-          <div className="text-[12px] text-[var(--text-secondary)] mb-4">Technology landscape underpinning {fnD.label} — from core platforms to AI/ML layer.</div>
+          <div className="text-[15px] text-[var(--text-secondary)] mb-4">Technology landscape underpinning {fnD.label} — from core platforms to AI/ML layer.</div>
           {[
             {tier:"Core Platforms",desc:"Foundation systems of record",items:fnD.enabling,color:"var(--accent-primary)",icon:"🏗️"},
             {tier:"Integration Layer",desc:"APIs, middleware, data pipelines",items:["API Gateway","Event Bus","ETL Pipeline","Master Data Mgmt"].map(i => `${fnD.label.split(" ")[0]} ${i}`),color:"var(--teal,#0891B2)",icon:"🔗"},
@@ -1866,12 +1866,12 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
             {tier:"AI & Automation",desc:"ML models, RPA, intelligent workflows",items:["Predictive Models","NLP Processing","Process Automation (RPA)","Intelligent Document Processing","Decision Support Engine","Anomaly Detection"].slice(0, arch === "platform" ? 6 : 4),color:"#E8C547",icon:"🤖"},
             {tier:"Interface & UX",desc:"End-user touchpoints",items:fnD.interface_,color:"var(--success)",icon:"💻"},
           ].map(t => <div key={t.tier} className="mb-4">
-            <div className="flex items-center gap-2 mb-2"><span className="text-sm">{t.icon}</span><span className="text-[11px] font-bold uppercase tracking-wider" style={{color:t.color}}>{t.tier}</span><span className="text-[9px] text-[var(--text-muted)] normal-case">— {t.desc}</span></div>
+            <div className="flex items-center gap-2 mb-2"><span className="text-sm">{t.icon}</span><span className="text-[15px] font-bold uppercase tracking-wider" style={{color:t.color}}>{t.tier}</span><span className="text-[14px] text-[var(--text-muted)] normal-case">— {t.desc}</span></div>
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">{t.items.map(item => {
               const ai = getAiTier(item);
               return <div key={item} className="rounded-lg px-3 py-2 bg-[var(--surface-2)] border border-[var(--border)] flex items-center justify-between transition-all hover:border-[var(--accent-primary)]/30">
-                <span className="text-[10px] font-semibold text-[var(--text-primary)] truncate">{item}</span>
-                <div className="flex items-center gap-1 shrink-0 ml-2"><div className="w-1.5 h-1.5 rounded-full" style={{background:ai.color}} /><span className="text-[8px] font-semibold" style={{color:ai.color}}>{ai.pct}%</span></div>
+                <span className="text-[15px] font-semibold text-[var(--text-primary)] truncate">{item}</span>
+                <div className="flex items-center gap-1 shrink-0 ml-2"><div className="w-1.5 h-1.5 rounded-full" style={{background:ai.color}} /><span className="text-[15px] font-semibold" style={{color:ai.color}}>{ai.pct}%</span></div>
               </div>;
             })}</div>
           </div>)}
@@ -1886,20 +1886,20 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
         {phase:"Phase 2: Build",time:"Months 4-9",items:["Implement new service delivery model","Deploy decision rights framework","Begin capability development programs","Launch AI service layer pilots"],color:"var(--success)"},
         {phase:"Phase 3: Scale",time:"Months 10-18",items:["Scale successful pilots org-wide","Embed new governance routines","Measure maturity improvements","Iterate and optimize model"],color:"var(--purple)"},
       ].map(p => <div key={p.phase} className="rounded-xl p-4 border-l-4 bg-[var(--surface-2)]" style={{borderColor:p.color}}>
-        <div className="text-[13px] font-bold mb-1" style={{color:p.color}}>{p.phase}</div>
-        <div className="text-[10px] text-[var(--text-muted)] mb-2">{p.time}</div>
-        <div className="space-y-1">{p.items.map((it,i) => <div key={i} className="text-[11px] text-[var(--text-secondary)] flex items-start gap-1"><span className="text-[var(--text-muted)] shrink-0">•</span>{it}</div>)}</div>
+        <div className="text-[15px] font-bold mb-1" style={{color:p.color}}>{p.phase}</div>
+        <div className="text-[15px] text-[var(--text-muted)] mb-2">{p.time}</div>
+        <div className="space-y-1">{p.items.map((it,i) => <div key={i} className="text-[15px] text-[var(--text-secondary)] flex items-start gap-1"><span className="text-[var(--text-muted)] shrink-0">•</span>{it}</div>)}</div>
       </div>)}</div>
     </Card>
 
     <div className="mt-6 pt-4 border-t border-[var(--border)] text-center">
       <div className="text-2xl mb-2">🎉</div>
       <div className="text-[15px] font-bold text-[var(--text-primary)] mb-1">Journey Complete</div>
-      <div className="text-[13px] text-[var(--text-secondary)] mb-3">Generate your full transformation report.</div>
+      <div className="text-[15px] text-[var(--text-secondary)] mb-3">Generate your full transformation report.</div>
       <button onClick={async () => {
         const report = await callAI("Write a comprehensive executive transformation report.", "Generate a full AI Transformation Report. Format as professional narrative.");
         if (report) { const blob = new Blob([report], { type: "text/plain" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "AI_Transformation_Report.txt"; a.click(); URL.revokeObjectURL(url); }
-      }} className="px-5 py-2.5 rounded-xl text-[13px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>☕ Generate Full Report</button>
+      }} className="px-5 py-2.5 rounded-xl text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>☕ Generate Full Report</button>
     </div>
   </div>;
 
@@ -1937,10 +1937,10 @@ export function RoleComparison({ model, f, onBack, jobs, jobStates }: { model: s
     {/* Job selector */}
     <Card title="Select Roles to Compare (max 4)">
       <div className="flex gap-2 flex-wrap mb-3">
-        {selectedJobs.map(j => <button key={j} onClick={() => toggleJob(j)} className="px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-[var(--accent-primary)]/15 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] cursor-pointer flex items-center gap-1">{j} <span className="opacity-50">✕</span></button>)}
-        {selectedJobs.length === 0 && <span className="text-[11px] text-[var(--text-muted)]">Select up to 4 jobs below</span>}
+        {selectedJobs.map(j => <button key={j} onClick={() => toggleJob(j)} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold bg-[var(--accent-primary)]/15 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] cursor-pointer flex items-center gap-1">{j} <span className="opacity-50">✕</span></button>)}
+        {selectedJobs.length === 0 && <span className="text-[15px] text-[var(--text-muted)]">Select up to 4 jobs below</span>}
       </div>
-      <div className="flex gap-1.5 flex-wrap">{availableJobs.slice(0, 30).map(j => <button key={j} onClick={() => toggleJob(j)} className="px-2 py-1 rounded text-[9px] font-semibold transition-all cursor-pointer" style={{ background: selectedJobs.includes(j) ? "rgba(212,134,10,0.15)" : "var(--surface-2)", color: selectedJobs.includes(j) ? "var(--accent-primary)" : "var(--text-muted)", border: `1px solid ${selectedJobs.includes(j) ? "rgba(212,134,10,0.3)" : "var(--border)"}` }}>{j}</button>)}</div>
+      <div className="flex gap-1.5 flex-wrap">{availableJobs.slice(0, 30).map(j => <button key={j} onClick={() => toggleJob(j)} className="px-2 py-1 rounded text-[14px] font-semibold transition-all cursor-pointer" style={{ background: selectedJobs.includes(j) ? "rgba(212,134,10,0.15)" : "var(--surface-2)", color: selectedJobs.includes(j) ? "var(--accent-primary)" : "var(--text-muted)", border: `1px solid ${selectedJobs.includes(j) ? "rgba(212,134,10,0.3)" : "var(--border)"}` }}>{j}</button>)}</div>
     </Card>
 
     {/* Comparison grid */}
@@ -1957,7 +1957,7 @@ export function RoleComparison({ model, f, onBack, jobs, jobStates }: { model: s
         return <div key={j} className="rounded-2xl border border-[var(--border)] bg-[var(--surface-1)] overflow-hidden">
           {/* Header */}
           <div className="p-4 border-b border-[var(--border)] bg-gradient-to-r from-[var(--accent-primary)]/5 to-transparent">
-            <div className="text-[13px] font-bold text-[var(--text-primary)] mb-1 truncate">{j}</div>
+            <div className="text-[15px] font-bold text-[var(--text-primary)] mb-1 truncate">{j}</div>
             <div className="flex gap-2">
               <Badge color="indigo">{tasks.length} tasks</Badge>
               {hasRedesign && <Badge color="green">Redesigned</Badge>}
@@ -1967,18 +1967,18 @@ export function RoleComparison({ model, f, onBack, jobs, jobStates }: { model: s
 
           {/* Current state metrics */}
           <div className="p-4">
-            <div className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Current State</div>
+            <div className="text-[14px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Current State</div>
             <div className="grid grid-cols-2 gap-2 mb-3">
-              <div className="rounded-lg p-2 bg-[var(--surface-2)] text-center"><div className="text-[14px] font-extrabold text-[var(--accent-primary)]">{tasks.length}</div><div className="text-[8px] text-[var(--text-muted)]">Tasks</div></div>
-              <div className="rounded-lg p-2 bg-[var(--surface-2)] text-center"><div className="text-[14px] font-extrabold text-[var(--warning)]">{highAi}</div><div className="text-[8px] text-[var(--text-muted)]">High AI</div></div>
-              <div className="rounded-lg p-2 bg-[var(--surface-2)] text-center"><div className="text-[14px] font-extrabold text-[var(--success)]">{Math.round(aiTime)}%</div><div className="text-[8px] text-[var(--text-muted)]">AI Saveable</div></div>
-              <div className="rounded-lg p-2 bg-[var(--surface-2)] text-center"><div className="text-[14px] font-extrabold text-[var(--text-primary)]">{totalTime}%</div><div className="text-[8px] text-[var(--text-muted)]">Utilized</div></div>
+              <div className="rounded-lg p-2 bg-[var(--surface-2)] text-center"><div className="text-[14px] font-extrabold text-[var(--accent-primary)]">{tasks.length}</div><div className="text-[15px] text-[var(--text-muted)]">Tasks</div></div>
+              <div className="rounded-lg p-2 bg-[var(--surface-2)] text-center"><div className="text-[14px] font-extrabold text-[var(--warning)]">{highAi}</div><div className="text-[15px] text-[var(--text-muted)]">High AI</div></div>
+              <div className="rounded-lg p-2 bg-[var(--surface-2)] text-center"><div className="text-[14px] font-extrabold text-[var(--success)]">{Math.round(aiTime)}%</div><div className="text-[15px] text-[var(--text-muted)]">AI Saveable</div></div>
+              <div className="rounded-lg p-2 bg-[var(--surface-2)] text-center"><div className="text-[14px] font-extrabold text-[var(--text-primary)]">{totalTime}%</div><div className="text-[15px] text-[var(--text-muted)]">Utilized</div></div>
             </div>
 
             {/* Task breakdown */}
-            <div className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Top Tasks</div>
+            <div className="text-[14px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Top Tasks</div>
             <div className="space-y-1">
-              {tasks.slice(0, 5).map((t, i) => <div key={i} className="flex items-center gap-2 text-[10px]">
+              {tasks.slice(0, 5).map((t, i) => <div key={i} className="flex items-center gap-2 text-[15px]">
                 <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: String(t["AI Impact"]).toLowerCase() === "high" ? "var(--risk)" : String(t["AI Impact"]).toLowerCase() === "moderate" ? "var(--warning)" : "var(--success)" }} />
                 <span className="text-[var(--text-secondary)] truncate flex-1">{String(t["Task Name"] || "—")}</span>
                 <span className="text-[var(--text-muted)] shrink-0">{t["Current Time Spent %"]}%</span>
@@ -1987,10 +1987,10 @@ export function RoleComparison({ model, f, onBack, jobs, jobStates }: { model: s
 
             {/* Redesigned state if available */}
             {hasRedesign && js.recon && <div className="mt-3 pt-3 border-t border-[var(--border)]">
-              <div className="text-[9px] font-bold text-[var(--success)] uppercase tracking-wider mb-1">↓ After Redesign ({js.scenario})</div>
+              <div className="text-[14px] font-bold text-[var(--success)] uppercase tracking-wider mb-1">↓ After Redesign ({js.scenario})</div>
               <div className="grid grid-cols-2 gap-2">
-                <div className="rounded-lg p-2 bg-[rgba(16,185,129,0.06)] text-center"><div className="text-[12px] font-extrabold text-[var(--success)]">{String((js.recon as Record<string, unknown>).human_pct || "—")}%</div><div className="text-[8px] text-[var(--text-muted)]">Human</div></div>
-                <div className="rounded-lg p-2 bg-[rgba(139,92,246,0.06)] text-center"><div className="text-[12px] font-extrabold text-[var(--purple)]">{String((js.recon as Record<string, unknown>).ai_pct || "—")}%</div><div className="text-[8px] text-[var(--text-muted)]">AI</div></div>
+                <div className="rounded-lg p-2 bg-[rgba(16,185,129,0.06)] text-center"><div className="text-[15px] font-extrabold text-[var(--success)]">{String((js.recon as Record<string, unknown>).human_pct || "—")}%</div><div className="text-[15px] text-[var(--text-muted)]">Human</div></div>
+                <div className="rounded-lg p-2 bg-[rgba(139,92,246,0.06)] text-center"><div className="text-[15px] font-extrabold text-[var(--purple)]">{String((js.recon as Record<string, unknown>).ai_pct || "—")}%</div><div className="text-[15px] text-[var(--text-muted)]">AI</div></div>
               </div>
             </div>}
           </div>
@@ -2052,23 +2052,23 @@ export function QuickWinIdentifier({ model, f, onBack, onNavigate }: { model: st
 
     {/* Sort controls */}
     <div className="flex gap-2 mb-4">
-      {(["combined","roi","effort"] as const).map(s => <button key={s} onClick={() => setSortBy(s)} className="px-3 py-1.5 rounded-lg text-[10px] font-semibold transition-all cursor-pointer" style={{ background: sortBy === s ? "rgba(212,134,10,0.15)" : "var(--surface-2)", color: sortBy === s ? "var(--accent-primary)" : "var(--text-muted)", border: `1px solid ${sortBy === s ? "rgba(212,134,10,0.3)" : "var(--border)"}` }}>{s === "combined" ? "Best Overall" : s === "roi" ? "Highest ROI" : "Lowest Effort"}</button>)}
+      {(["combined","roi","effort"] as const).map(s => <button key={s} onClick={() => setSortBy(s)} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold transition-all cursor-pointer" style={{ background: sortBy === s ? "rgba(212,134,10,0.15)" : "var(--surface-2)", color: sortBy === s ? "var(--accent-primary)" : "var(--text-muted)", border: `1px solid ${sortBy === s ? "rgba(212,134,10,0.3)" : "var(--border)"}` }}>{s === "combined" ? "Best Overall" : s === "roi" ? "Highest ROI" : "Lowest Effort"}</button>)}
     </div>
 
     {/* Quick Wins section */}
     {quickWins.length > 0 && <Card title="⚡ Quick Wins — High Impact, Low Effort">
-      <div className="text-[11px] text-[var(--text-secondary)] mb-3">These opportunities offer the best return for minimal implementation complexity. Start here.</div>
+      <div className="text-[15px] text-[var(--text-secondary)] mb-3">These opportunities offer the best return for minimal implementation complexity. Start here.</div>
       <div className="grid grid-cols-2 gap-3">
         {quickWins.map((w, i) => <div key={i} className="rounded-xl p-4 bg-[var(--surface-2)] border border-[var(--border)] border-l-[3px] border-l-[var(--success)] transition-all hover:-translate-y-0.5">
           <div className="flex items-center justify-between mb-2">
-            <div className="text-[12px] font-bold text-[var(--text-primary)] truncate flex-1 mr-2">{String(w["Task Name"] || w.task_name || "—")}</div>
-            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[rgba(16,185,129,0.15)] text-[var(--success)] shrink-0">Quick Win</span>
+            <div className="text-[15px] font-bold text-[var(--text-primary)] truncate flex-1 mr-2">{String(w["Task Name"] || w.task_name || "—")}</div>
+            <span className="text-[14px] font-bold px-2 py-0.5 rounded-full bg-[rgba(16,185,129,0.15)] text-[var(--success)] shrink-0">Quick Win</span>
           </div>
-          <div className="text-[10px] text-[var(--text-muted)] mb-2">{String(w["Job Title"] || w.job_title || "—")}</div>
+          <div className="text-[15px] text-[var(--text-muted)] mb-2">{String(w["Job Title"] || w.job_title || "—")}</div>
           <div className="flex gap-3">
-            <div><span className="text-[8px] text-[var(--text-muted)] uppercase">ROI</span><div className="text-[13px] font-extrabold" style={{ color: roiColor(w._roi) }}>{w._roi}</div></div>
-            <div><span className="text-[8px] text-[var(--text-muted)] uppercase">Effort</span><div className="text-[13px] font-extrabold" style={{ color: effortColor(w._effort) }}>{w._effort === 1 ? "Low" : "Med"}</div></div>
-            <div><span className="text-[8px] text-[var(--text-muted)] uppercase">Time Saved</span><div className="text-[13px] font-extrabold text-[var(--accent-primary)]">{String(w.avg_time_saved || w.time_saved_pct || "—")}%</div></div>
+            <div><span className="text-[15px] text-[var(--text-muted)] uppercase">ROI</span><div className="text-[15px] font-extrabold" style={{ color: roiColor(w._roi) }}>{w._roi}</div></div>
+            <div><span className="text-[15px] text-[var(--text-muted)] uppercase">Effort</span><div className="text-[15px] font-extrabold" style={{ color: effortColor(w._effort) }}>{w._effort === 1 ? "Low" : "Med"}</div></div>
+            <div><span className="text-[15px] text-[var(--text-muted)] uppercase">Time Saved</span><div className="text-[15px] font-extrabold text-[var(--accent-primary)]">{String(w.avg_time_saved || w.time_saved_pct || "—")}%</div></div>
           </div>
         </div>)}
       </div>
@@ -2078,16 +2078,16 @@ export function QuickWinIdentifier({ model, f, onBack, onNavigate }: { model: st
     {strategicBets.length > 0 && <Card title="🎯 Strategic Bets — High Impact, Higher Effort">
       <div className="space-y-2">
         {strategicBets.map((w, i) => <div key={i} className="flex items-center gap-4 p-3 rounded-lg bg-[var(--surface-2)] border border-[var(--border)]">
-          <div className="flex-1"><div className="text-[11px] font-bold text-[var(--text-primary)]">{String(w["Task Name"] || w.task_name || "—")}</div><div className="text-[9px] text-[var(--text-muted)]">{String(w["Job Title"] || w.job_title || "—")}</div></div>
-          <div className="text-center"><div className="text-[12px] font-extrabold" style={{ color: roiColor(w._roi) }}>{w._roi}</div><div className="text-[7px] text-[var(--text-muted)]">ROI</div></div>
-          <div className="text-center"><div className="text-[12px] font-extrabold" style={{ color: effortColor(w._effort) }}>{w._effort <= 2 ? "Med" : "High"}</div><div className="text-[7px] text-[var(--text-muted)]">Effort</div></div>
+          <div className="flex-1"><div className="text-[15px] font-bold text-[var(--text-primary)]">{String(w["Task Name"] || w.task_name || "—")}</div><div className="text-[14px] text-[var(--text-muted)]">{String(w["Job Title"] || w.job_title || "—")}</div></div>
+          <div className="text-center"><div className="text-[15px] font-extrabold" style={{ color: roiColor(w._roi) }}>{w._roi}</div><div className="text-[15px] text-[var(--text-muted)]">ROI</div></div>
+          <div className="text-center"><div className="text-[15px] font-extrabold" style={{ color: effortColor(w._effort) }}>{w._effort <= 2 ? "Med" : "High"}</div><div className="text-[15px] text-[var(--text-muted)]">Effort</div></div>
         </div>)}
       </div>
     </Card>}
 
     {/* All scored — compact table */}
     <Card title="All Opportunities — Ranked">
-      <div className="overflow-x-auto"><table className="w-full text-[11px]"><thead><tr className="border-b border-[var(--border)] text-[var(--text-muted)]">
+      <div className="overflow-x-auto"><table className="w-full text-[15px]"><thead><tr className="border-b border-[var(--border)] text-[var(--text-muted)]">
         <th className="text-left px-2 py-1.5 font-semibold">#</th>
         <th className="text-left px-2 py-1.5 font-semibold">Task</th>
         <th className="text-left px-2 py-1.5 font-semibold">Role</th>
@@ -2489,12 +2489,12 @@ export function OMProps({ n, kpis, onChange, onDelete, onClose }: {
   n:OMNode2; kpis:OMKpi2[];
   onChange:(u:Partial<OMNode2>)=>void; onDelete:()=>void; onClose:()=>void;
 }) {
-  const IS: React.CSSProperties = {background:"#1a1814",border:"1px solid #2e2b24",borderRadius:5,color:"#f0ece4",padding:"5px 8px",fontSize:11,width:"100%",boxSizing:"border-box",outline:"none",fontFamily:"'Outfit',sans-serif"};
-  const LB: React.CSSProperties = {fontSize:9,fontWeight:800,color:"#7a7368",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:3,display:"block"};
+  const IS: React.CSSProperties = {background:"#1a1814",border:"1px solid #2e2b24",borderRadius:5,color:"#f0ece4",padding:"5px 8px",fontSize: 15,width:"100%",boxSizing:"border-box",outline:"none",fontFamily:"'Outfit',sans-serif"};
+  const LB: React.CSSProperties = {fontSize: 14,fontWeight:800,color:"#7a7368",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:3,display:"block"};
   return (
     <div style={{position:"absolute",top:0,right:0,width:248,height:"100%",background:"#1a1814",borderLeft:"1px solid #2e2b24",display:"flex",flexDirection:"column",zIndex:25,fontFamily:"'Outfit',sans-serif",boxShadow:"-4px 0 20px rgba(0,0,0,0.35)"}}>
       <div style={{padding:"10px 12px",borderBottom:"1px solid #2e2b24",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-        <span style={{fontSize:9,fontWeight:800,color:"#D4860A",letterSpacing:"0.12em",textTransform:"uppercase"}}>Properties</span>
+        <span style={{fontSize: 14,fontWeight:800,color:"#D4860A",letterSpacing:"0.12em",textTransform:"uppercase"}}>Properties</span>
         <button onClick={onClose} style={{background:"none",border:"none",color:"#6B6355",cursor:"pointer",fontSize:17,padding:0,lineHeight:1}}>×</button>
       </div>
       <div style={{flex:1,overflowY:"auto",padding:12,display:"flex",flexDirection:"column",gap:9}}>
@@ -2529,7 +2529,7 @@ export function OMProps({ n, kpis, onChange, onDelete, onClose }: {
         </div>
         {kpis.length>0&&<div><label style={LB}>Linked KPIs</label>
           {kpis.map(k=>{const linked=(n.kpiIds??[]).includes(k.id);return (
-            <label key={k.id} style={{display:"flex",alignItems:"center",gap:5,cursor:"pointer",marginBottom:4,fontSize:10,color:linked?"#4A9E6B":"#7a7368"}}>
+            <label key={k.id} style={{display:"flex",alignItems:"center",gap:5,cursor:"pointer",marginBottom:4,fontSize: 15,color:linked?"#4A9E6B":"#7a7368"}}>
               <input type="checkbox" checked={linked} style={{accentColor:"#4A9E6B",width:11,height:11}}
                 onChange={()=>{const ids=n.kpiIds??[];onChange({kpiIds:linked?ids.filter(x=>x!==k.id):[...ids,k.id]});}} />
               {k.name.length>26?k.name.slice(0,25)+"…":k.name}
@@ -2542,7 +2542,7 @@ export function OMProps({ n, kpis, onChange, onDelete, onClose }: {
         <div><label style={LB}>Notes</label><textarea value={n.notes??""} onChange={e=>onChange({notes:e.target.value})} rows={3} style={{...IS,resize:"vertical",minHeight:56}} /></div>
       </div>
       <div style={{padding:10,borderTop:"1px solid #2e2b24"}}>
-        <button onClick={onDelete} style={{width:"100%",padding:"6px 0",borderRadius:5,background:"rgba(224,108,117,0.12)",border:"1px solid rgba(224,108,117,0.3)",color:"#e06c75",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>Delete Node</button>
+        <button onClick={onDelete} style={{width:"100%",padding:"6px 0",borderRadius:5,background:"rgba(224,108,117,0.12)",border:"1px solid rgba(224,108,117,0.3)",color:"#e06c75",fontSize: 15,fontWeight:700,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>Delete Node</button>
       </div>
     </div>
   );
@@ -2688,18 +2688,18 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
     const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="operating-model.svg"; a.click();
   };
 
-  const IB=(extra?:React.CSSProperties):React.CSSProperties=>({background:"none",border:"1px solid #2e2b24",borderRadius:4,color:"#b8b0a0",cursor:"pointer",fontSize:11,padding:"3px 8px",fontFamily:"'Outfit',sans-serif",...extra});
+  const IB=(extra?:React.CSSProperties):React.CSSProperties=>({background:"none",border:"1px solid #2e2b24",borderRadius:4,color:"#b8b0a0",cursor:"pointer",fontSize: 15,padding:"3px 8px",fontFamily:"'Outfit',sans-serif",...extra});
   const delta=totTgt-totCur;
 
   return (
     <div style={{height:"calc(100vh - 96px)",display:"flex",flexDirection:"column",background:"#0f0e0c",fontFamily:"'Outfit',sans-serif",color:"#f0ece4",borderRadius:12,overflow:"hidden",border:"1px solid #2e2b24"}}>
       {/* Header */}
       <div style={{padding:"7px 12px",borderBottom:"1px solid #2e2b24",display:"flex",alignItems:"center",gap:8,background:"#1a1814",flexShrink:0,flexWrap:"wrap"}}>
-        <span style={{fontSize:11,fontWeight:800,color:"#D4860A",letterSpacing:"0.04em",marginRight:4}}>OM CANVAS</span>
-        {onNavigateLab && <button onClick={onNavigateLab} style={{padding:"2px 9px",borderRadius:4,fontSize:9,fontWeight:700,background:"transparent",border:"1px solid #2e2b24",color:"#6B6355",cursor:"pointer",marginRight:4}} title="Switch to Analysis Lab">🧬 Lab</button>}
+        <span style={{fontSize: 15,fontWeight:800,color:"#D4860A",letterSpacing:"0.04em",marginRight:4}}>OM CANVAS</span>
+        {onNavigateLab && <button onClick={onNavigateLab} style={{padding:"2px 9px",borderRadius:4,fontSize: 14,fontWeight:700,background:"transparent",border:"1px solid #2e2b24",color:"#6B6355",cursor:"pointer",marginRight:4}} title="Switch to Analysis Lab">🧬 Lab</button>}
         <div style={{display:"flex",background:"#211f1b",borderRadius:6,padding:2,border:"1px solid #2e2b24"}}>
           {(["current","target"] as OMDesignMode2[]).map(m=>(
-            <button key={m} onClick={()=>setMode(m)} style={{padding:"2px 9px",borderRadius:4,fontSize:10,fontWeight:700,background:mode===m?(m==="current"?"#D4860A":"#D4860A"):"transparent",border:"none",color:mode===m?"#fff":"#6B6355",cursor:"pointer"}}>
+            <button key={m} onClick={()=>setMode(m)} style={{padding:"2px 9px",borderRadius:4,fontSize: 15,fontWeight:700,background:mode===m?(m==="current"?"#D4860A":"#D4860A"):"transparent",border:"none",color:mode===m?"#fff":"#6B6355",cursor:"pointer"}}>
               {m==="current"?"Current":"Target"}
             </button>
           ))}
@@ -2707,13 +2707,13 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
         <div style={{width:1,height:14,background:"#2e2b24"}} />
         {(Object.entries(OM_EDGE_CFG) as [OMEdgeType2,{label:string;dash:string;color:string}][]).map(([k,v])=>(
           <button key={k} onClick={()=>{setEdgeMode(edgeMode===k?null:k);setEdgeStart(null);}}
-            style={{...IB(),padding:"2px 7px",fontSize:9,border:`1px solid ${edgeMode===k?v.color:"#2e2b24"}`,background:edgeMode===k?`${v.color}22`:"transparent",color:edgeMode===k?v.color:"#6B6355"}}>
+            style={{...IB(),padding:"2px 7px",fontSize: 14,border:`1px solid ${edgeMode===k?v.color:"#2e2b24"}`,background:edgeMode===k?`${v.color}22`:"transparent",color:edgeMode===k?v.color:"#6B6355"}}>
             {v.label}
           </button>
         ))}
         <div style={{flex:1}} />
         <button onClick={()=>setZoom(z=>Math.min(2.5,z+0.1))} style={IB()}>+</button>
-        <span style={{fontSize:10,fontFamily:"'IBM Plex Mono',monospace",color:"#6B6355",minWidth:30,textAlign:"center"}}>{Math.round(zoom*100)}%</span>
+        <span style={{fontSize: 15,fontFamily:"'IBM Plex Mono',monospace",color:"#6B6355",minWidth:30,textAlign:"center"}}>{Math.round(zoom*100)}%</span>
         <button onClick={fitView} style={IB()} title="Fit to screen">⌂</button>
         <button onClick={()=>setZoom(z=>Math.max(0.25,z-0.1))} style={IB()}>−</button>
         <button onClick={()=>setSnapOn(s=>!s)} style={IB({color:snapOn?"#D4860A":"#6B6355",border:`1px solid ${snapOn?"#D4860A":"#2e2b24"}`})} title="Snap to grid">⊞</button>
@@ -2721,7 +2721,7 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
         <button onClick={exportSVG} style={IB()}>↓ SVG</button>
         <button onClick={()=>{setShowVers(v=>!v);setShowLayers(false);}} style={IB({color:showVers?"#D4860A":"#b8b0a0"})}>◷</button>
         <button onClick={()=>{setNodes(nodes);setEdges(edges);setLayers(layers);setSaved(true);setTimeout(()=>setSaved(false),2000);}}
-          style={{padding:"4px 12px",borderRadius:5,fontSize:10,fontWeight:700,background:saved?"#4A9E6B":"#D4860A",border:"none",color:"#fff",cursor:"pointer",transition:"background 0.3s"}}>
+          style={{padding:"4px 12px",borderRadius:5,fontSize: 15,fontWeight:700,background:saved?"#4A9E6B":"#D4860A",border:"none",color:"#fff",cursor:"pointer",transition:"background 0.3s"}}>
           {saved?"✓":"Save"}
         </button>
       </div>
@@ -2733,7 +2733,7 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
           <OMPalSec label="Function Scope">
             <div style={{display:"flex",flexWrap:"wrap",gap:3}}>
               {Object.keys(OM_FUNCTION_PRESETS).map(f=>(
-                <button key={f} onClick={()=>setCanvasFunc(f)} style={{padding:"2px 7px",borderRadius:4,fontSize:8,fontWeight:700,background:canvasFunc===f?"rgba(212,134,10,0.2)":"transparent",border:`1px solid ${canvasFunc===f?"#D4860A":"#2e2b24"}`,color:canvasFunc===f?"#D4860A":"#6B6355",cursor:"pointer"}}>{f}</button>
+                <button key={f} onClick={()=>setCanvasFunc(f)} style={{padding:"2px 7px",borderRadius:4,fontSize: 15,fontWeight:700,background:canvasFunc===f?"rgba(212,134,10,0.2)":"transparent",border:`1px solid ${canvasFunc===f?"#D4860A":"#2e2b24"}`,color:canvasFunc===f?"#D4860A":"#6B6355",cursor:"pointer"}}>{f}</button>
               ))}
             </div>
           </OMPalSec>
@@ -2743,18 +2743,18 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
           <OMPalSec label={`${canvasFunc} Models`}>
             {funcPresets.length > 0 ? funcPresets.map((p,i)=>(
               <OMPalBtn key={i} onClick={()=>loadPreset(p)}>
-                <div style={{fontSize:10,fontWeight:700,color:"#f0ece4"}}>{p.label}</div>
-                <div style={{fontSize:8,color:"#6B6355",marginTop:1}}>{p.industry||"General"}</div>
+                <div style={{fontSize: 15,fontWeight:700,color:"#f0ece4"}}>{p.label}</div>
+                <div style={{fontSize: 15,color:"#6B6355",marginTop:1}}>{p.industry||"General"}</div>
               </OMPalBtn>
-            )) : <div style={{fontSize:9,color:"#6B6355",padding:"4px 8px"}}>No presets for {canvasFunc}</div>}
+            )) : <div style={{fontSize: 14,color:"#6B6355",padding:"4px 8px"}}>No presets for {canvasFunc}</div>}
           </OMPalSec>
           <div style={{height:1,background:"#2e2b24",margin:"2px 0"}} />
 
           {/* OM Dictionary button */}
           <OMPalSec label="Dictionary">
             <OMPalBtn onClick={()=>setShowDict(d=>!d)}>
-              <span style={{color:"#E8C547",marginRight:6,fontSize:12}}>📖</span>
-              <span style={{fontSize:10,fontWeight:700}}>{showDict?"Close":"Browse All Models"}</span>
+              <span style={{color:"#E8C547",marginRight:6,fontSize: 15}}>📖</span>
+              <span style={{fontSize: 15,fontWeight:700}}>{showDict?"Close":"Browse All Models"}</span>
             </OMPalBtn>
           </OMPalSec>
           <div style={{height:1,background:"#2e2b24",margin:"2px 0"}} />
@@ -2762,8 +2762,8 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
           <OMPalSec label="Start from">
             {Object.entries(OM_ARCHETYPES_2).map(([k,v])=>(
               <OMPalBtn key={k} active={activeArch===k} onClick={()=>loadArch(k)}>
-                <div style={{fontSize:11,fontWeight:700}}>{v.label}</div>
-                <div style={{fontSize:9,color:"#6B6355",marginTop:1}}>{v.desc}</div>
+                <div style={{fontSize: 15,fontWeight:700}}>{v.label}</div>
+                <div style={{fontSize: 14,color:"#6B6355",marginTop:1}}>{v.desc}</div>
               </OMPalBtn>
             ))}
           </OMPalSec>
@@ -2771,8 +2771,8 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
           <OMPalSec label="Add Node">
             {(Object.entries(OM_NODE_CFG) as [OMNodeType2,{icon:string;color:string}][]).map(([k,v])=>(
               <OMPalBtn key={k} onClick={()=>addNode(k)}>
-                <span style={{color:v.color,marginRight:6,fontSize:13}}>{v.icon}</span>
-                <span style={{fontSize:11}}>{k.replace("-"," ")}</span>
+                <span style={{color:v.color,marginRight:6,fontSize: 15}}>{v.icon}</span>
+                <span style={{fontSize: 15}}>{k.replace("-"," ")}</span>
               </OMPalBtn>
             ))}
           </OMPalSec>
@@ -2780,7 +2780,7 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
           <OMPalSec label="Layers">
             <OMPalBtn onClick={()=>{setShowLayers(l=>!l);setShowVers(false);}}>
               <span style={{color:"#D4860A",marginRight:6}}>⊟</span>
-              <span style={{fontSize:11}}>Edit Layers</span>
+              <span style={{fontSize: 15}}>Edit Layers</span>
             </OMPalBtn>
           </OMPalSec>
           <div style={{height:1,background:"#2e2b24",margin:"2px 0"}} />
@@ -2788,40 +2788,40 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
             {(Object.entries(OM_EDGE_CFG) as [OMEdgeType2,{label:string;dash:string;color:string}][]).map(([k,v])=>(
               <div key={k} style={{display:"flex",alignItems:"center",gap:6,marginBottom:5}}>
                 <svg width={24} height={8}><line x1={2} y1={4} x2={22} y2={4} stroke={v.color} strokeWidth={1.5} strokeDasharray={v.dash}/></svg>
-                <span style={{fontSize:9,color:"#6B6355"}}>{v.label}</span>
+                <span style={{fontSize: 14,color:"#6B6355"}}>{v.label}</span>
               </div>
             ))}
           </OMPalSec>
-          {edgeMode&&<div style={{margin:"6px 8px",padding:"7px 9px",borderRadius:5,background:"rgba(212,134,10,0.1)",border:"1px solid rgba(212,134,10,0.3)",fontSize:9,color:"#D4860A"}}>{edgeStart?"Click target":"Click source"}</div>}
+          {edgeMode&&<div style={{margin:"6px 8px",padding:"7px 9px",borderRadius:5,background:"rgba(212,134,10,0.1)",border:"1px solid rgba(212,134,10,0.3)",fontSize: 14,color:"#D4860A"}}>{edgeStart?"Click target":"Click source"}</div>}
         </div>
 
         {/* OM Dictionary Panel — slides over canvas */}
         {showDict && <div style={{width:320,flexShrink:0,background:"#1a1814",borderRight:"1px solid #2e2b24",display:"flex",flexDirection:"column",overflowY:"auto"}}>
           <div style={{padding:"10px 12px",borderBottom:"1px solid #2e2b24",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-            <span style={{fontSize:12,fontWeight:800,color:"#E8C547",letterSpacing:"0.03em"}}>📖 OM Dictionary</span>
+            <span style={{fontSize: 15,fontWeight:800,color:"#E8C547",letterSpacing:"0.03em"}}>📖 OM Dictionary</span>
             <button onClick={()=>setShowDict(false)} style={{background:"none",border:"none",color:"#6B6355",cursor:"pointer",fontSize:14}}>✕</button>
           </div>
           <div style={{padding:"6px 10px"}}>
-            <input value={dictFilter} onChange={e=>setDictFilter(e.target.value)} placeholder="Search models, industries, companies..." style={{width:"100%",background:"#0f0e0c",border:"1px solid #2e2b24",borderRadius:5,padding:"5px 8px",fontSize:10,color:"#f0ece4",outline:"none",fontFamily:"'Outfit',sans-serif",boxSizing:"border-box"}} />
+            <input value={dictFilter} onChange={e=>setDictFilter(e.target.value)} placeholder="Search models, industries, companies..." style={{width:"100%",background:"#0f0e0c",border:"1px solid #2e2b24",borderRadius:5,padding:"5px 8px",fontSize: 15,color:"#f0ece4",outline:"none",fontFamily:"'Outfit',sans-serif",boxSizing:"border-box"}} />
           </div>
-          <div style={{padding:"4px 10px",fontSize:9,color:"#6B6355"}}>{filteredDict.length} operating model patterns</div>
+          <div style={{padding:"4px 10px",fontSize: 14,color:"#6B6355"}}>{filteredDict.length} operating model patterns</div>
           <div style={{flex:1,overflowY:"auto",padding:"0 8px 8px"}}>
             {Object.entries(OM_FUNCTION_PRESETS).map(([func, presets])=>{
               const filtered = dictFilter ? presets.filter(p=>`${p.label} ${p.desc} ${p.industry||""} ${p.company||""} ${func}`.toLowerCase().includes(dictFilter.toLowerCase())) : presets;
               if(filtered.length===0) return null;
               return <div key={func}>
-                <div style={{fontSize:9,fontWeight:800,color:"#D4860A",letterSpacing:"0.08em",textTransform:"uppercase",padding:"8px 0 4px",borderBottom:"1px solid #2e2b24",marginBottom:4}}>{func}</div>
+                <div style={{fontSize: 14,fontWeight:800,color:"#D4860A",letterSpacing:"0.08em",textTransform:"uppercase",padding:"8px 0 4px",borderBottom:"1px solid #2e2b24",marginBottom:4}}>{func}</div>
                 {filtered.map((p,i)=>(
                   <div key={i} onClick={()=>loadPreset(p)} style={{padding:"8px 10px",marginBottom:4,borderRadius:6,background:"#211f1b",border:"1px solid #2e2b24",cursor:"pointer",transition:"all 0.15s"}}
                     onMouseEnter={e=>{e.currentTarget.style.borderColor="#D4860A";e.currentTarget.style.background="#2a2720";}}
                     onMouseLeave={e=>{e.currentTarget.style.borderColor="#2e2b24";e.currentTarget.style.background="#211f1b";}}>
-                    <div style={{fontSize:11,fontWeight:700,color:"#f0ece4",marginBottom:2}}>{p.label}</div>
-                    <div style={{fontSize:9,color:"#7a7368",lineHeight:1.4,marginBottom:4}}>{p.desc}</div>
+                    <div style={{fontSize: 15,fontWeight:700,color:"#f0ece4",marginBottom:2}}>{p.label}</div>
+                    <div style={{fontSize: 14,color:"#7a7368",lineHeight:1.4,marginBottom:4}}>{p.desc}</div>
                     <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
-                      {p.industry && <span style={{fontSize:7,fontWeight:700,padding:"1px 5px",borderRadius:3,background:"rgba(74,130,196,0.15)",color:"#D4860A"}}>{p.industry}</span>}
-                      {p.company && <span style={{fontSize:7,fontWeight:700,padding:"1px 5px",borderRadius:3,background:"rgba(212,134,10,0.15)",color:"#D4860A"}}>{p.company}</span>}
-                      <span style={{fontSize:7,fontWeight:700,padding:"1px 5px",borderRadius:3,background:"rgba(74,158,107,0.15)",color:"#4A9E6B"}}>{p.nodes.length} nodes · {p.layers.length} layers</span>
-                      {(() => { const delta = p.nodes.reduce((s,n)=>(n.targetFte??0)-(n.currentFte??0)+s,0); return delta !== 0 ? <span style={{fontSize:7,fontWeight:700,padding:"1px 5px",borderRadius:3,background:delta<0?"rgba(224,108,117,0.15)":"rgba(74,158,107,0.15)",color:delta<0?"#e06c75":"#4a9e6b"}}>{delta>0?"+":""}{delta} FTE</span> : null; })()}
+                      {p.industry && <span style={{fontSize: 15,fontWeight:700,padding:"1px 5px",borderRadius:3,background:"rgba(74,130,196,0.15)",color:"#D4860A"}}>{p.industry}</span>}
+                      {p.company && <span style={{fontSize: 15,fontWeight:700,padding:"1px 5px",borderRadius:3,background:"rgba(212,134,10,0.15)",color:"#D4860A"}}>{p.company}</span>}
+                      <span style={{fontSize: 15,fontWeight:700,padding:"1px 5px",borderRadius:3,background:"rgba(74,158,107,0.15)",color:"#4A9E6B"}}>{p.nodes.length} nodes · {p.layers.length} layers</span>
+                      {(() => { const delta = p.nodes.reduce((s,n)=>(n.targetFte??0)-(n.currentFte??0)+s,0); return delta !== 0 ? <span style={{fontSize: 15,fontWeight:700,padding:"1px 5px",borderRadius:3,background:delta<0?"rgba(224,108,117,0.15)":"rgba(74,158,107,0.15)",color:delta<0?"#e06c75":"#4a9e6b"}}>{delta>0?"+":""}{delta} FTE</span> : null; })()}
                     </div>
                   </div>
                 ))}
@@ -2837,7 +2837,7 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
             <rect width="100%" height="100%" fill="url(#omg2)" />
           </svg>
 
-          {!nodes.length&&<div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:8,pointerEvents:"none"}}><div style={{fontSize:36,opacity:0.12}}>⬡</div><div style={{fontSize:13,color:"#6B6355"}}>Select an archetype or add nodes</div></div>}
+          {!nodes.length&&<div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:8,pointerEvents:"none"}}><div style={{fontSize:36,opacity:0.12}}>⬡</div><div style={{fontSize: 15,color:"#6B6355"}}>Select an archetype or add nodes</div></div>}
 
           <svg ref={svgRef} style={{width:"100%",height:"100%",cursor:edgeMode?"crosshair":isPanning?"grabbing":"default"}}
             onMouseMove={onSvgMove} onMouseUp={onSvgUp} onMouseDown={onSvgDown}>
@@ -2867,8 +2867,8 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
             <div style={{position:"absolute",bottom:10,left:172,display:"flex",gap:7}}>
               {[{k:"Current FTE",v:totCur,c:"#D4860A"},{k:"Target FTE",v:totTgt,c:"#D4860A"},{k:"Net Δ",v:delta>0?`+${delta}`:String(delta),c:delta<0?"#e06c75":"#4A9E6B"},{k:"Nodes",v:nodes.length,c:"#b8b0a0"}].map(({k,v,c})=>(
                 <div key={k} style={{padding:"3px 9px",borderRadius:5,background:"#1a1814",border:"1px solid #2e2b24"}}>
-                  <div style={{fontSize:8,color:"#6B6355",textTransform:"uppercase",fontFamily:"'IBM Plex Mono',monospace"}}>{k}</div>
-                  <div style={{fontSize:12,fontWeight:700,color:c,fontFamily:"'IBM Plex Mono',monospace"}}>{v}</div>
+                  <div style={{fontSize: 15,color:"#6B6355",textTransform:"uppercase",fontFamily:"'IBM Plex Mono',monospace"}}>{k}</div>
+                  <div style={{fontSize: 15,fontWeight:700,color:c,fontFamily:"'IBM Plex Mono',monospace"}}>{v}</div>
                 </div>
               ))}
             </div>
@@ -2878,17 +2878,17 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
           {showLayers&&(
             <div style={{position:"absolute",top:48,left:170,zIndex:30,background:"#1a1814",border:"1px solid #2e2b24",borderRadius:8,padding:14,width:240,boxShadow:"0 10px 28px rgba(0,0,0,0.45)"}}>
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
-                <span style={{fontSize:9,fontWeight:800,color:"#D4860A",letterSpacing:"0.1em",textTransform:"uppercase"}}>Edit Layers</span>
+                <span style={{fontSize: 14,fontWeight:800,color:"#D4860A",letterSpacing:"0.1em",textTransform:"uppercase"}}>Edit Layers</span>
                 <button onClick={()=>setShowLayers(false)} style={{background:"none",border:"none",color:"#6B6355",cursor:"pointer",fontSize:16}}>×</button>
               </div>
               {layers.map((l,i)=>(
                 <div key={l.id} style={{display:"flex",gap:5,marginBottom:5,alignItems:"center"}}>
-                  <input value={l.label} onChange={e=>{const u=[...layers];u[i]={...l,label:e.target.value};setLayers(u);}} style={{flex:1,background:"#211f1b",border:"1px solid #2e2b24",borderRadius:4,color:"#f0ece4",padding:"4px 7px",fontSize:10,outline:"none"}} />
-                  <button onClick={()=>setLayers(layers.filter((_,j)=>j!==i))} style={{background:"none",border:"none",color:"#e06c75",cursor:"pointer",fontSize:13}}>×</button>
+                  <input value={l.label} onChange={e=>{const u=[...layers];u[i]={...l,label:e.target.value};setLayers(u);}} style={{flex:1,background:"#211f1b",border:"1px solid #2e2b24",borderRadius:4,color:"#f0ece4",padding:"4px 7px",fontSize: 15,outline:"none"}} />
+                  <button onClick={()=>setLayers(layers.filter((_,j)=>j!==i))} style={{background:"none",border:"none",color:"#e06c75",cursor:"pointer",fontSize: 15}}>×</button>
                 </div>
               ))}
               <button onClick={()=>{const lastY=layers.length?layers[layers.length-1].y+layers[layers.length-1].height+16:16;setLayers([...layers,{id:omUid(),label:"New Layer",y:lastY,height:90,color:"rgba(255,255,255,0.04)"}]);}}
-                style={{width:"100%",marginTop:4,padding:"5px 0",background:"rgba(212,134,10,0.12)",border:"1px solid rgba(212,134,10,0.4)",borderRadius:5,color:"#D4860A",fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>
+                style={{width:"100%",marginTop:4,padding:"5px 0",background:"rgba(212,134,10,0.12)",border:"1px solid rgba(212,134,10,0.4)",borderRadius:5,color:"#D4860A",fontSize: 15,fontWeight:700,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>
                 + Add Layer
               </button>
             </div>
@@ -2898,24 +2898,24 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
           {showVers&&(
             <div style={{position:"absolute",top:0,right:selNode?248:0,width:240,height:"100%",background:"#1a1814",borderLeft:"1px solid #2e2b24",display:"flex",flexDirection:"column",zIndex:24,boxShadow:"-4px 0 16px rgba(0,0,0,0.3)"}}>
               <div style={{padding:"10px 12px",borderBottom:"1px solid #2e2b24",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-                <span style={{fontSize:9,fontWeight:800,color:"#D4860A",letterSpacing:"0.1em",textTransform:"uppercase"}}>Versions</span>
+                <span style={{fontSize: 14,fontWeight:800,color:"#D4860A",letterSpacing:"0.1em",textTransform:"uppercase"}}>Versions</span>
                 <button onClick={()=>setShowVers(false)} style={{background:"none",border:"none",color:"#6B6355",cursor:"pointer",fontSize:17}}>×</button>
               </div>
               <div style={{padding:"9px 10px",borderBottom:"1px solid #2e2b24",background:"#211f1b"}}>
-                <input value={vName} onChange={e=>setVName(e.target.value)} placeholder='Snapshot name…' style={{width:"100%",background:"#1a1814",border:"1px solid #2e2b24",borderRadius:4,color:"#f0ece4",padding:"4px 7px",fontSize:10,outline:"none",boxSizing:"border-box",marginBottom:5}} />
-                <button onClick={saveVersion} disabled={!vName.trim()} style={{width:"100%",padding:"5px 0",borderRadius:4,background:vName.trim()?"rgba(212,134,10,0.15)":"transparent",border:`1px solid ${vName.trim()?"rgba(212,134,10,0.5)":"#2e2b24"}`,color:vName.trim()?"#D4860A":"#6B6355",fontSize:10,fontWeight:700,cursor:vName.trim()?"pointer":"default",fontFamily:"'Outfit',sans-serif"}}>Save Snapshot</button>
+                <input value={vName} onChange={e=>setVName(e.target.value)} placeholder='Snapshot name…' style={{width:"100%",background:"#1a1814",border:"1px solid #2e2b24",borderRadius:4,color:"#f0ece4",padding:"4px 7px",fontSize: 15,outline:"none",boxSizing:"border-box",marginBottom:5}} />
+                <button onClick={saveVersion} disabled={!vName.trim()} style={{width:"100%",padding:"5px 0",borderRadius:4,background:vName.trim()?"rgba(212,134,10,0.15)":"transparent",border:`1px solid ${vName.trim()?"rgba(212,134,10,0.5)":"#2e2b24"}`,color:vName.trim()?"#D4860A":"#6B6355",fontSize: 15,fontWeight:700,cursor:vName.trim()?"pointer":"default",fontFamily:"'Outfit',sans-serif"}}>Save Snapshot</button>
               </div>
               <div style={{flex:1,overflowY:"auto",padding:8}}>
-                {versions.length===0&&<div style={{textAlign:"center",padding:"20px 0",color:"#6B6355",fontSize:10}}>No snapshots yet</div>}
+                {versions.length===0&&<div style={{textAlign:"center",padding:"20px 0",color:"#6B6355",fontSize: 15}}>No snapshots yet</div>}
                 {[...versions].reverse().map(v=>(
                   <div key={v.id} style={{padding:"9px 10px",borderRadius:6,marginBottom:5,background:"#211f1b",border:"1px solid #2e2b24"}}>
-                    <div style={{fontSize:10,fontWeight:700,color:"#f0ece4",marginBottom:2}}>{v.name}</div>
-                    <div style={{fontSize:8,color:"#6B6355",fontFamily:"'IBM Plex Mono',monospace",marginBottom:5}}>{new Date(v.ts).toLocaleDateString("en-US",{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"})}</div>
+                    <div style={{fontSize: 15,fontWeight:700,color:"#f0ece4",marginBottom:2}}>{v.name}</div>
+                    <div style={{fontSize: 15,color:"#6B6355",fontFamily:"'IBM Plex Mono',monospace",marginBottom:5}}>{new Date(v.ts).toLocaleDateString("en-US",{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"})}</div>
                     <div style={{display:"flex",gap:3,marginBottom:5}}>
-                      {[{k:"N",val:v.nodes.length},{k:"E",val:v.edges.length}].map(({k,val})=><span key={k} style={{padding:"1px 5px",borderRadius:2,background:"#2e2b24",fontSize:8,color:"#6B6355",fontFamily:"'IBM Plex Mono',monospace"}}>{k}:{val}</span>)}
+                      {[{k:"N",val:v.nodes.length},{k:"E",val:v.edges.length}].map(({k,val})=><span key={k} style={{padding:"1px 5px",borderRadius:2,background:"#2e2b24",fontSize: 15,color:"#6B6355",fontFamily:"'IBM Plex Mono',monospace"}}>{k}:{val}</span>)}
                     </div>
                     <button onClick={()=>{setNodes(v.nodes);setEdges(v.edges);setLayers(v.layers);setShowVers(false);}}
-                      style={{width:"100%",padding:"4px 0",borderRadius:4,background:"rgba(212,134,10,0.1)",border:"1px solid rgba(212,134,10,0.4)",color:"#D4860A",fontSize:9,fontWeight:700,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>
+                      style={{width:"100%",padding:"4px 0",borderRadius:4,background:"rgba(212,134,10,0.1)",border:"1px solid rgba(212,134,10,0.4)",color:"#D4860A",fontSize: 14,fontWeight:700,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>
                       Restore
                     </button>
                   </div>
@@ -2941,7 +2941,7 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
 export function OMPalSec({label,children}:{label:string;children:React.ReactNode}) {
   return (
     <div style={{padding:"8px 8px 5px"}}>
-      <div style={{fontSize:7,fontWeight:800,color:"#6B6355",letterSpacing:"0.12em",marginBottom:5,textTransform:"uppercase"}}>{label}</div>
+      <div style={{fontSize: 15,fontWeight:800,color:"#6B6355",letterSpacing:"0.12em",marginBottom:5,textTransform:"uppercase"}}>{label}</div>
       {children}
     </div>
   );
@@ -2972,8 +2972,8 @@ export function KPIAlignmentInline({ projectId }: { projectId: string }) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [newKpi, setNewKpi]          = useState<any>({direction:"increase",status:"on-track",category:"People & Talent",linkedNodeIds:[]});
 
-  const IS: React.CSSProperties = {background:"var(--surface-2)",border:"1px solid var(--border)",borderRadius:6,color:"var(--text-primary)",padding:"6px 10px",fontSize:11,width:"100%",boxSizing:"border-box",outline:"none",fontFamily:"'Outfit',sans-serif"};
-  const FL: React.CSSProperties = {fontSize:9,fontWeight:800,color:"var(--text-muted)",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:3};
+  const IS: React.CSSProperties = {background:"var(--surface-2)",border:"1px solid var(--border)",borderRadius:6,color:"var(--text-primary)",padding:"6px 10px",fontSize: 15,width:"100%",boxSizing:"border-box",outline:"none",fontFamily:"'Outfit',sans-serif"};
+  const FL: React.CSSProperties = {fontSize: 14,fontWeight:800,color:"var(--text-muted)",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:3};
 
   const loadSamples = () => {
     const objs = KPI_DEFAULT_OBJECTIVES.map(o=>({...o,id:omUid()}));
@@ -2990,33 +2990,33 @@ export function KPIAlignmentInline({ projectId }: { projectId: string }) {
   const addKpi = () => { if (!newKpi.name?.trim()||!newKpi.objectiveId) return; setKpis(prev=>[...prev,{id:omUid(),objectiveId:newKpi.objectiveId,name:newKpi.name,category:newKpi.category??"People & Talent",unit:newKpi.unit??"",currentValue:Number(newKpi.currentValue)||0,targetValue:Number(newKpi.targetValue)||0,baselineValue:Number(newKpi.baselineValue)||0,timeframe:newKpi.timeframe??"12 months",direction:newKpi.direction??"increase",linkedNodeIds:[],status:newKpi.status??"on-track"}]); setNewKpi({direction:"increase",status:"on-track",category:"People & Talent",linkedNodeIds:[]}); setAddingKpi(false); };
 
   return <Card title="KPI & Strategic Alignment">
-    <div className="text-[12px] text-[var(--text-secondary)] mb-4">Link your operating model design to measurable strategic outcomes — the measurement layer of your OM.</div>
+    <div className="text-[15px] text-[var(--text-secondary)] mb-4">Link your operating model design to measurable strategic outcomes — the measurement layer of your OM.</div>
     {/* KPI summary strip */}
     <div className="flex gap-3 mb-4">{[
       {k:"Objectives",v:objectives.length,c:"var(--accent-primary)"},
       {k:"KPIs",v:kpis.length,c:"var(--success)"},
       {k:"On Track",v:kpis.filter(k=>k.status==="on-track").length,c:"#4a9e6b"},
       {k:"At Risk",v:kpis.filter(k=>k.status==="at-risk").length,c:"#f0a500"},
-    ].map(s=><div key={s.k} className="flex-1 rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[18px] font-extrabold" style={{color:s.c}}>{s.v}</div><div className="text-[9px] text-[var(--text-muted)] uppercase">{s.k}</div></div>)}</div>
-    {objectives.length===0 && kpis.length===0 && <div className="text-center py-6"><button onClick={loadSamples} className="px-4 py-2 rounded-xl text-[11px] font-semibold bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] cursor-pointer">Load Sample KPIs & Objectives</button></div>}
+    ].map(s=><div key={s.k} className="flex-1 rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[18px] font-extrabold" style={{color:s.c}}>{s.v}</div><div className="text-[14px] text-[var(--text-muted)] uppercase">{s.k}</div></div>)}</div>
+    {objectives.length===0 && kpis.length===0 && <div className="text-center py-6"><button onClick={loadSamples} className="px-4 py-2 rounded-xl text-[15px] font-semibold bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] cursor-pointer">Load Sample KPIs & Objectives</button></div>}
     {/* Sub-tabs */}
-    <div className="flex gap-1 mb-4">{(["objectives","kpis","traceability"] as const).map(t=><button key={t} onClick={()=>setSubTab(t)} className="px-3 py-1.5 rounded-lg text-[10px] font-semibold" style={{background:subTab===t?"rgba(74,158,107,0.15)":"var(--surface-2)",color:subTab===t?"#4a9e6b":"var(--text-muted)"}}>{t==="objectives"?`Objectives (${objectives.length})`:t==="kpis"?`KPIs (${kpis.length})`:"Traceability"}</button>)}</div>
+    <div className="flex gap-1 mb-4">{(["objectives","kpis","traceability"] as const).map(t=><button key={t} onClick={()=>setSubTab(t)} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold" style={{background:subTab===t?"rgba(74,158,107,0.15)":"var(--surface-2)",color:subTab===t?"#4a9e6b":"var(--text-muted)"}}>{t==="objectives"?`Objectives (${objectives.length})`:t==="kpis"?`KPIs (${kpis.length})`:"Traceability"}</button>)}</div>
     {subTab==="objectives" && <div>
-      <div className="flex justify-end mb-2"><button onClick={()=>setAddingObj(a=>!a)} className="px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] cursor-pointer">+ Add Objective</button></div>
+      <div className="flex justify-end mb-2"><button onClick={()=>setAddingObj(a=>!a)} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] cursor-pointer">+ Add Objective</button></div>
       {addingObj && <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-[var(--surface-2)] mb-3 border border-[var(--border)]">
         <div><div style={FL}>Name *</div><input value={newObj.name??""} onChange={e=>setNewObj((s:Record<string,unknown>)=>({...s,name:e.target.value}))} style={IS} /></div>
         <div><div style={FL}>Owner</div><input value={newObj.owner??""} onChange={e=>setNewObj((s:Record<string,unknown>)=>({...s,owner:e.target.value}))} style={IS} /></div>
         <div className="col-span-2"><div style={FL}>Description</div><input value={newObj.description??""} onChange={e=>setNewObj((s:Record<string,unknown>)=>({...s,description:e.target.value}))} style={IS} /></div>
-        <div className="col-span-2 flex gap-2"><button onClick={addObj} className="flex-1 py-1.5 rounded-lg text-[11px] font-bold bg-[var(--accent-primary)] text-white cursor-pointer border-none">Save</button><button onClick={()=>setAddingObj(false)} className="flex-1 py-1.5 rounded-lg text-[11px] font-semibold bg-[var(--surface-2)] text-[var(--text-muted)] cursor-pointer border border-[var(--border)]">Cancel</button></div>
+        <div className="col-span-2 flex gap-2"><button onClick={addObj} className="flex-1 py-1.5 rounded-lg text-[15px] font-bold bg-[var(--accent-primary)] text-white cursor-pointer border-none">Save</button><button onClick={()=>setAddingObj(false)} className="flex-1 py-1.5 rounded-lg text-[15px] font-semibold bg-[var(--surface-2)] text-[var(--text-muted)] cursor-pointer border border-[var(--border)]">Cancel</button></div>
       </div>}
       {objectives.map(o=>{const objKpis=kpis.filter(k=>k.objectiveId===o.id);return <div key={o.id} className="p-3 rounded-xl mb-2 bg-[var(--surface-2)] border border-[var(--border)]" style={{borderLeft:`3px solid ${KPI_STATUS_COLOR[o.status]}`}}>
-        <div className="flex items-center justify-between"><div className="text-[12px] font-bold text-[var(--text-primary)]">{o.name}</div><div className="flex items-center gap-2"><span className="text-[8px] px-1.5 py-0.5 rounded font-bold" style={{background:`${KPI_STATUS_COLOR[o.status]}18`,color:KPI_STATUS_COLOR[o.status]}}>{o.status.replace("-"," ")}</span><button onClick={()=>setObjectives(p=>p.filter(x=>x.id!==o.id))} className="text-[var(--text-muted)] hover:text-[var(--risk)] text-[10px] cursor-pointer">✕</button></div></div>
-        <div className="text-[10px] text-[var(--text-muted)] mt-1">{o.description}</div>
-        <div className="text-[9px] text-[var(--text-muted)] mt-1">{objKpis.length} KPI{objKpis.length!==1?"s":""} linked · {o.owner && `Owner: ${o.owner}`}</div>
+        <div className="flex items-center justify-between"><div className="text-[15px] font-bold text-[var(--text-primary)]">{o.name}</div><div className="flex items-center gap-2"><span className="text-[15px] px-1.5 py-0.5 rounded font-bold" style={{background:`${KPI_STATUS_COLOR[o.status]}18`,color:KPI_STATUS_COLOR[o.status]}}>{o.status.replace("-"," ")}</span><button onClick={()=>setObjectives(p=>p.filter(x=>x.id!==o.id))} className="text-[var(--text-muted)] hover:text-[var(--risk)] text-[15px] cursor-pointer">✕</button></div></div>
+        <div className="text-[15px] text-[var(--text-muted)] mt-1">{o.description}</div>
+        <div className="text-[14px] text-[var(--text-muted)] mt-1">{objKpis.length} KPI{objKpis.length!==1?"s":""} linked · {o.owner && `Owner: ${o.owner}`}</div>
       </div>;})}
     </div>}
     {subTab==="kpis" && <div>
-      <div className="flex justify-end mb-2"><button onClick={()=>setAddingKpi(a=>!a)} className="px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] cursor-pointer">+ Add KPI</button></div>
+      <div className="flex justify-end mb-2"><button onClick={()=>setAddingKpi(a=>!a)} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] cursor-pointer">+ Add KPI</button></div>
       {addingKpi && objectives.length>0 && <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-[var(--surface-2)] mb-3 border border-[var(--border)]">
         <div><div style={FL}>KPI Name *</div><input value={newKpi.name??""} onChange={e=>setNewKpi((s:Record<string,unknown>)=>({...s,name:e.target.value}))} style={IS} /></div>
         <div><div style={FL}>Objective *</div><select value={newKpi.objectiveId??""} onChange={e=>setNewKpi((s:Record<string,unknown>)=>({...s,objectiveId:e.target.value}))} style={IS}><option value="">Select...</option>{objectives.map(o=><option key={o.id} value={o.id}>{o.name}</option>)}</select></div>
@@ -3024,20 +3024,20 @@ export function KPIAlignmentInline({ projectId }: { projectId: string }) {
         <div><div style={FL}>Unit</div><input value={newKpi.unit??""} onChange={e=>setNewKpi((s:Record<string,unknown>)=>({...s,unit:e.target.value}))} style={IS} placeholder="%, days, $..." /></div>
         <div><div style={FL}>Current</div><input value={newKpi.currentValue??""} onChange={e=>setNewKpi((s:Record<string,unknown>)=>({...s,currentValue:e.target.value}))} style={IS} type="number" /></div>
         <div><div style={FL}>Target</div><input value={newKpi.targetValue??""} onChange={e=>setNewKpi((s:Record<string,unknown>)=>({...s,targetValue:e.target.value}))} style={IS} type="number" /></div>
-        <div className="col-span-2 flex gap-2"><button onClick={addKpi} className="flex-1 py-1.5 rounded-lg text-[11px] font-bold bg-[var(--accent-primary)] text-white cursor-pointer border-none">Save KPI</button><button onClick={()=>setAddingKpi(false)} className="flex-1 py-1.5 rounded-lg text-[11px] font-semibold bg-[var(--surface-2)] text-[var(--text-muted)] cursor-pointer border border-[var(--border)]">Cancel</button></div>
+        <div className="col-span-2 flex gap-2"><button onClick={addKpi} className="flex-1 py-1.5 rounded-lg text-[15px] font-bold bg-[var(--accent-primary)] text-white cursor-pointer border-none">Save KPI</button><button onClick={()=>setAddingKpi(false)} className="flex-1 py-1.5 rounded-lg text-[15px] font-semibold bg-[var(--surface-2)] text-[var(--text-muted)] cursor-pointer border border-[var(--border)]">Cancel</button></div>
       </div>}
       {kpis.map(k=>{const pct=progress(k);return <div key={k.id} className="p-3 rounded-xl mb-2 bg-[var(--surface-2)] border border-[var(--border)]" style={{borderLeft:`3px solid ${KPI_STATUS_COLOR[k.status]}`}}>
-        <div className="flex items-center justify-between"><div className="text-[12px] font-bold text-[var(--text-primary)]">{k.name}</div><div className="flex items-center gap-2"><Badge color={k.status==="on-track"?"green":k.status==="at-risk"?"amber":"red"}>{k.status.replace("-"," ")}</Badge><button onClick={()=>setKpis(p=>p.filter(x=>x.id!==k.id))} className="text-[var(--text-muted)] hover:text-[var(--risk)] text-[10px] cursor-pointer">✕</button></div></div>
-        <div className="flex items-center gap-3 mt-2"><div className="flex-1 h-2 bg-[var(--bg)] rounded-full overflow-hidden"><div className="h-full rounded-full transition-all" style={{width:`${pct}%`,background:KPI_STATUS_COLOR[k.status]}} /></div><span className="text-[10px] font-bold" style={{color:KPI_STATUS_COLOR[k.status]}}>{pct}%</span></div>
-        <div className="flex gap-4 mt-1 text-[9px] text-[var(--text-muted)]"><span>Baseline: {k.baselineValue}{k.unit}</span><span>Current: {k.currentValue}{k.unit}</span><span>Target: {k.targetValue}{k.unit}</span><span>{k.category}</span></div>
+        <div className="flex items-center justify-between"><div className="text-[15px] font-bold text-[var(--text-primary)]">{k.name}</div><div className="flex items-center gap-2"><Badge color={k.status==="on-track"?"green":k.status==="at-risk"?"amber":"red"}>{k.status.replace("-"," ")}</Badge><button onClick={()=>setKpis(p=>p.filter(x=>x.id!==k.id))} className="text-[var(--text-muted)] hover:text-[var(--risk)] text-[15px] cursor-pointer">✕</button></div></div>
+        <div className="flex items-center gap-3 mt-2"><div className="flex-1 h-2 bg-[var(--bg)] rounded-full overflow-hidden"><div className="h-full rounded-full transition-all" style={{width:`${pct}%`,background:KPI_STATUS_COLOR[k.status]}} /></div><span className="text-[15px] font-bold" style={{color:KPI_STATUS_COLOR[k.status]}}>{pct}%</span></div>
+        <div className="flex gap-4 mt-1 text-[14px] text-[var(--text-muted)]"><span>Baseline: {k.baselineValue}{k.unit}</span><span>Current: {k.currentValue}{k.unit}</span><span>Target: {k.targetValue}{k.unit}</span><span>{k.category}</span></div>
       </div>;})}
     </div>}
     {subTab==="traceability" && <div>
-      <div className="text-[11px] text-[var(--text-secondary)] mb-3">How objectives, KPIs, and operating model components connect.</div>
+      <div className="text-[15px] text-[var(--text-secondary)] mb-3">How objectives, KPIs, and operating model components connect.</div>
       {objectives.map(o=>{const objKpis=kpis.filter(k=>k.objectiveId===o.id);return <div key={o.id} className="mb-4">
-        <div className="text-[12px] font-bold text-[var(--text-primary)] mb-2 flex items-center gap-2"><span className="w-2 h-2 rounded-full" style={{background:KPI_STATUS_COLOR[o.status]}} />{o.name}</div>
-        {objKpis.length===0?<div className="text-[10px] text-[var(--text-muted)] ml-4">No KPIs linked</div>:
-        <div className="ml-4 space-y-1">{objKpis.map(k=><div key={k.id} className="flex items-center gap-2 text-[10px]"><span className="text-[var(--text-muted)]">↳</span><span className="font-semibold text-[var(--text-primary)]">{k.name}</span><span className="text-[var(--text-muted)]">{k.currentValue}{k.unit} → {k.targetValue}{k.unit}</span><span className="font-bold" style={{color:KPI_STATUS_COLOR[k.status]}}>{progress(k)}%</span></div>)}</div>}
+        <div className="text-[15px] font-bold text-[var(--text-primary)] mb-2 flex items-center gap-2"><span className="w-2 h-2 rounded-full" style={{background:KPI_STATUS_COLOR[o.status]}} />{o.name}</div>
+        {objKpis.length===0?<div className="text-[15px] text-[var(--text-muted)] ml-4">No KPIs linked</div>:
+        <div className="ml-4 space-y-1">{objKpis.map(k=><div key={k.id} className="flex items-center gap-2 text-[15px]"><span className="text-[var(--text-muted)]">↳</span><span className="font-semibold text-[var(--text-primary)]">{k.name}</span><span className="text-[var(--text-muted)]">{k.currentValue}{k.unit} → {k.targetValue}{k.unit}</span><span className="font-bold" style={{color:KPI_STATUS_COLOR[k.status]}}>{progress(k)}%</span></div>)}</div>}
       </div>;})}
     </div>}
   </Card>;
@@ -3076,8 +3076,8 @@ export function KPIAlignmentModule({ projectId, canvasNodes, onBack }: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [newKpi, setNewKpi]         = useState<any>({direction:"increase",status:"on-track",category:"People & Talent",linkedNodeIds:[]});
 
-  const IS: React.CSSProperties = {background:"#1a1814",border:"1px solid #2e2b24",borderRadius:5,color:"#f0ece4",padding:"5px 8px",fontSize:11,width:"100%",boxSizing:"border-box",outline:"none",fontFamily:"'Outfit',sans-serif"};
-  const FL: React.CSSProperties = {fontSize:9,fontWeight:800,color:"#7a7368",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:3};
+  const IS: React.CSSProperties = {background:"#1a1814",border:"1px solid #2e2b24",borderRadius:5,color:"#f0ece4",padding:"5px 8px",fontSize: 15,width:"100%",boxSizing:"border-box",outline:"none",fontFamily:"'Outfit',sans-serif"};
+  const FL: React.CSSProperties = {fontSize: 14,fontWeight:800,color:"#7a7368",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:3};
 
   const loadSamples = () => {
     const objs = KPI_DEFAULT_OBJECTIVES.map(o=>({...o,id:omUid()}));
@@ -3119,11 +3119,11 @@ export function KPIAlignmentModule({ projectId, canvasNodes, onBack }: {
   return (
     <div>
       <div className="mb-6 flex items-center gap-3">
-        <button onClick={onBack} className="text-[12px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] flex items-center gap-1">← Back</button>
+        <button onClick={onBack} className="text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] flex items-center gap-1">← Back</button>
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#4A9E6B] to-[#2d6e4e] flex items-center justify-center text-xl">◎</div>
-        <div><h1 className="text-xl font-extrabold text-[var(--text-primary)] tracking-tight font-heading">KPI & Strategic Alignment</h1><p className="text-[13px] text-[var(--text-secondary)]">Link your operating model design to measurable strategic outcomes</p></div>
+        <div><h1 className="text-xl font-extrabold text-[var(--text-primary)] tracking-tight font-heading">KPI & Strategic Alignment</h1><p className="text-[15px] text-[var(--text-secondary)]">Link your operating model design to measurable strategic outcomes</p></div>
         <div className="flex-1" />
-        {objectives.length===0&&<button onClick={loadSamples} className="px-3 py-1.5 rounded-lg text-[11px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 hover:bg-[var(--accent-primary)]/5 transition-all">Load sample data</button>}
+        {objectives.length===0&&<button onClick={loadSamples} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 hover:bg-[var(--accent-primary)]/5 transition-all">Load sample data</button>}
       </div>
 
       {/* Summary strip */}
@@ -3138,7 +3138,7 @@ export function KPIAlignmentModule({ projectId, canvasNodes, onBack }: {
             {k:"Nodes w/ KPI",v:`${canvasNodes.length?Math.round(coveredNodes/canvasNodes.length*100):0}%`, c:"var(--success)"},
           ].map(({k,v,c})=>(
             <div key={k} className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl px-4 py-3">
-              <div className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-1">{k}</div>
+              <div className="text-[14px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-1">{k}</div>
               <div className="text-xl font-extrabold" style={{color:c}}>{v}</div>
             </div>
           ))}
@@ -3156,7 +3156,7 @@ export function KPIAlignmentModule({ projectId, canvasNodes, onBack }: {
       {tab==="objectives"&&(
         <div>
           <div className="flex justify-end mb-3">
-            <button onClick={()=>setAddingObj(a=>!a)} className="px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] cursor-pointer">+ Add Objective</button>
+            <button onClick={()=>setAddingObj(a=>!a)} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] cursor-pointer">+ Add Objective</button>
           </div>
           {addingObj&&(
             <div className="p-4 bg-[var(--surface-1)] rounded-xl border border-[var(--accent-primary)]/30 mb-4">
@@ -3169,8 +3169,8 @@ export function KPIAlignmentModule({ projectId, canvasNodes, onBack }: {
                 <div><div style={FL}>Status</div><select value={newObj.status} onChange={e=>setNewObj((s:any)=>({...s,status:e.target.value}))} style={IS}>{["on-track","at-risk","off-track","achieved"].map(s=><option key={s} value={s}>{s.replace("-"," ")}</option>)}</select></div>
               </div>
               <div className="flex gap-2">
-                <button onClick={addObj} className="flex-1 py-1.5 rounded-lg text-[11px] font-bold bg-[var(--accent-primary)] text-white cursor-pointer border-none">Save</button>
-                <button onClick={()=>setAddingObj(false)} className="px-4 py-1.5 rounded-lg text-[11px] text-[var(--text-muted)] border border-[var(--border)] cursor-pointer bg-transparent">Cancel</button>
+                <button onClick={addObj} className="flex-1 py-1.5 rounded-lg text-[15px] font-bold bg-[var(--accent-primary)] text-white cursor-pointer border-none">Save</button>
+                <button onClick={()=>setAddingObj(false)} className="px-4 py-1.5 rounded-lg text-[15px] text-[var(--text-muted)] border border-[var(--border)] cursor-pointer bg-transparent">Cancel</button>
               </div>
             </div>
           )}
@@ -3183,12 +3183,12 @@ export function KPIAlignmentModule({ projectId, canvasNodes, onBack }: {
                 <div className="flex items-start gap-3">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1.5">
-                      <span className="text-[13px] font-bold text-[var(--text-primary)]">{o.name}</span>
-                      <span className="text-[8px] px-1.5 py-0.5 rounded font-bold" style={{background:`${KPI_STATUS_COLOR[o.status]}18`,color:KPI_STATUS_COLOR[o.status]}}>{o.status.replace("-"," ")}</span>
-                      <span className="text-[8px] px-1.5 py-0.5 rounded bg-[var(--surface-2)] text-[var(--text-muted)] capitalize">{o.priority}</span>
+                      <span className="text-[15px] font-bold text-[var(--text-primary)]">{o.name}</span>
+                      <span className="text-[15px] px-1.5 py-0.5 rounded font-bold" style={{background:`${KPI_STATUS_COLOR[o.status]}18`,color:KPI_STATUS_COLOR[o.status]}}>{o.status.replace("-"," ")}</span>
+                      <span className="text-[15px] px-1.5 py-0.5 rounded bg-[var(--surface-2)] text-[var(--text-muted)] capitalize">{o.priority}</span>
                     </div>
-                    <div className="text-[11px] text-[var(--text-muted)] mb-2">{o.description}</div>
-                    <div className="flex gap-4 text-[10px] text-[var(--text-muted)]">
+                    <div className="text-[15px] text-[var(--text-muted)] mb-2">{o.description}</div>
+                    <div className="flex gap-4 text-[15px] text-[var(--text-muted)]">
                       {o.owner&&<span>Owner: <strong className="text-[var(--text-secondary)]">{o.owner}</strong></span>}
                       {o.targetDate&&<span>Target: <strong className="text-[var(--text-secondary)]">{o.targetDate}</strong></span>}
                       <span>{objKpis.length} KPI{objKpis.length!==1?"s":""} · {onTrack} on track</span>
@@ -3206,7 +3206,7 @@ export function KPIAlignmentModule({ projectId, canvasNodes, onBack }: {
       {tab==="kpis"&&(
         <div>
           <div className="flex justify-end mb-3">
-            <button onClick={()=>setAddingKpi(a=>!a)} className="px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] cursor-pointer">+ Add KPI</button>
+            <button onClick={()=>setAddingKpi(a=>!a)} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] cursor-pointer">+ Add KPI</button>
           </div>
           {addingKpi&&(
             <div className="p-4 bg-[var(--surface-1)] rounded-xl border border-[var(--accent-primary)]/30 mb-4">
@@ -3223,8 +3223,8 @@ export function KPIAlignmentModule({ projectId, canvasNodes, onBack }: {
                 <div><div style={FL}>Status</div><select value={newKpi.status} onChange={e=>setNewKpi((s:any)=>({...s,status:e.target.value}))} style={IS}>{["on-track","at-risk","off-track","achieved"].map(s=><option key={s} value={s}>{s.replace("-"," ")}</option>)}</select></div>
               </div>
               <div className="flex gap-2">
-                <button onClick={addKpi} className="flex-1 py-1.5 rounded-lg text-[11px] font-bold bg-[var(--accent-primary)] text-white cursor-pointer border-none">Save KPI</button>
-                <button onClick={()=>setAddingKpi(false)} className="px-4 py-1.5 rounded-lg text-[11px] text-[var(--text-muted)] border border-[var(--border)] cursor-pointer bg-transparent">Cancel</button>
+                <button onClick={addKpi} className="flex-1 py-1.5 rounded-lg text-[15px] font-bold bg-[var(--accent-primary)] text-white cursor-pointer border-none">Save KPI</button>
+                <button onClick={()=>setAddingKpi(false)} className="px-4 py-1.5 rounded-lg text-[15px] text-[var(--text-muted)] border border-[var(--border)] cursor-pointer bg-transparent">Cancel</button>
               </div>
             </div>
           )}
@@ -3237,20 +3237,20 @@ export function KPIAlignmentModule({ projectId, canvasNodes, onBack }: {
                 <div className="flex items-start gap-3">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-[12px] font-bold text-[var(--text-primary)]">{k.name}</span>
-                      <span className="text-[8px] px-1.5 py-0.5 rounded font-bold" style={{background:`${KPI_STATUS_COLOR[k.status]}18`,color:KPI_STATUS_COLOR[k.status]}}>{k.status.replace("-"," ")}</span>
-                      <span className="text-[8px] px-1.5 py-0.5 rounded bg-[var(--surface-2)] text-[var(--text-muted)]">{k.category}</span>
-                      {k.linkedNodeIds.length>0&&<span className="text-[9px] text-[var(--success)]">⬡ {k.linkedNodeIds.length} node{k.linkedNodeIds.length!==1?"s":""}</span>}
+                      <span className="text-[15px] font-bold text-[var(--text-primary)]">{k.name}</span>
+                      <span className="text-[15px] px-1.5 py-0.5 rounded font-bold" style={{background:`${KPI_STATUS_COLOR[k.status]}18`,color:KPI_STATUS_COLOR[k.status]}}>{k.status.replace("-"," ")}</span>
+                      <span className="text-[15px] px-1.5 py-0.5 rounded bg-[var(--surface-2)] text-[var(--text-muted)]">{k.category}</span>
+                      {k.linkedNodeIds.length>0&&<span className="text-[14px] text-[var(--success)]">⬡ {k.linkedNodeIds.length} node{k.linkedNodeIds.length!==1?"s":""}</span>}
                     </div>
-                    {obj&&<div className="text-[9px] text-[var(--text-muted)] mb-2">→ {obj.name}</div>}
-                    <div className="flex gap-4 text-[10px] mb-2">
+                    {obj&&<div className="text-[14px] text-[var(--text-muted)] mb-2">→ {obj.name}</div>}
+                    <div className="flex gap-4 text-[15px] mb-2">
                       <span className="text-[var(--text-muted)]">Base: <strong className="text-[var(--text-primary)]">{k.baselineValue}{k.unit}</strong></span>
                       <span className="text-[var(--text-muted)]">Now: <strong style={{color:KPI_STATUS_COLOR[k.status]}}>{k.currentValue}{k.unit}</strong></span>
                       <span className="text-[var(--text-muted)]">Target: <strong className="text-[var(--accent-primary)]">{k.targetValue}{k.unit}</strong></span>
                       <span className="text-[var(--text-muted)]">{k.timeframe}</span>
                     </div>
                     <div className="h-1.5 bg-[var(--surface-2)] rounded-full overflow-hidden"><div className="h-full rounded-full" style={{width:`${pct}%`,background:KPI_STATUS_COLOR[k.status],transition:"width 0.4s"}} /></div>
-                    <div className="text-[9px] text-[var(--text-muted)] mt-1">{pct}% to target</div>
+                    <div className="text-[14px] text-[var(--text-muted)] mt-1">{pct}% to target</div>
                   </div>
                   <button onClick={()=>setKpis(prev=>prev.filter(x=>x.id!==k.id))} className="text-[var(--risk)] text-sm border-none bg-transparent cursor-pointer">×</button>
                 </div>
@@ -3264,21 +3264,21 @@ export function KPIAlignmentModule({ projectId, canvasNodes, onBack }: {
       {tab==="traceability"&&(
         <div>
           {objectives.length===0||kpis.length===0?(
-            <div className="text-center py-12 text-[var(--text-muted)] text-[12px]">Add objectives and KPIs first.</div>
+            <div className="text-center py-12 text-[var(--text-muted)] text-[15px]">Add objectives and KPIs first.</div>
           ):(
             <>
-              <div className="text-[11px] text-[var(--text-secondary)] mb-3">Click a cell to link a KPI to an objective. Click canvas node buttons to assign accountability.</div>
+              <div className="text-[15px] text-[var(--text-secondary)] mb-3">Click a cell to link a KPI to an objective. Click canvas node buttons to assign accountability.</div>
               <div className="overflow-x-auto rounded-xl border border-[var(--border)]">
-                <table className="w-full text-[11px] border-collapse">
+                <table className="w-full text-[15px] border-collapse">
                   <thead>
                     <tr className="bg-[var(--surface-1)]">
-                      <th className="px-3 py-2.5 text-left font-bold text-[9px] text-[var(--accent-primary)] uppercase tracking-widest border border-[var(--border)] min-w-[200px]">KPI</th>
+                      <th className="px-3 py-2.5 text-left font-bold text-[14px] text-[var(--accent-primary)] uppercase tracking-widest border border-[var(--border)] min-w-[200px]">KPI</th>
                       {objectives.map(o=>(
-                        <th key={o.id} className="px-2 py-1 text-center text-[9px] font-bold border border-[var(--border)] min-w-[80px]" style={{color:KPI_STATUS_COLOR[o.status]}}>
+                        <th key={o.id} className="px-2 py-1 text-center text-[14px] font-bold border border-[var(--border)] min-w-[80px]" style={{color:KPI_STATUS_COLOR[o.status]}}>
                           <div style={{writingMode:"vertical-rl",transform:"rotate(180deg)",maxHeight:80,overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis"}}>{o.name}</div>
                         </th>
                       ))}
-                      <th className="px-2 py-1 text-center text-[9px] text-[var(--text-muted)] border border-[var(--border)] min-w-[100px]">OM Nodes</th>
+                      <th className="px-2 py-1 text-center text-[14px] text-[var(--text-muted)] border border-[var(--border)] min-w-[100px]">OM Nodes</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -3288,7 +3288,7 @@ export function KPIAlignmentModule({ projectId, canvasNodes, onBack }: {
                         <tr key={k.id} className={ri%2===0?"bg-[var(--bg)]":"bg-[var(--surface-1)]"}>
                           <td className="px-3 py-2 border border-[var(--border)]">
                             <div className="font-semibold text-[var(--text-primary)]">{k.name}</div>
-                            <div className="text-[9px] text-[var(--text-muted)]">{k.currentValue}{k.unit} → {k.targetValue}{k.unit}</div>
+                            <div className="text-[14px] text-[var(--text-muted)]">{k.currentValue}{k.unit} → {k.targetValue}{k.unit}</div>
                           </td>
                           {objectives.map(o=>{
                             const isLinked=k.objectiveId===o.id;
@@ -3306,13 +3306,13 @@ export function KPIAlignmentModule({ projectId, canvasNodes, onBack }: {
                                 const linked=k.linkedNodeIds.includes(n.id);
                                 return (
                                   <button key={n.id} onClick={()=>toggleKpiNode(k.id,n.id)}
-                                    className="text-[8px] px-1.5 py-0.5 rounded cursor-pointer font-semibold transition-all"
+                                    className="text-[15px] px-1.5 py-0.5 rounded cursor-pointer font-semibold transition-all"
                                     style={{background:linked?`${n.color||"#D4860A"}20`:"transparent",border:`1px solid ${linked?n.color||"#D4860A":"#2e2b24"}`,color:linked?n.color||"#D4860A":"#6B6355"}}>
                                     {(n.label||"").slice(0,7)}
                                   </button>
                                 );
                               })}
-                              {canvasNodes.length>5&&<span className="text-[8px] text-[var(--text-muted)] self-center">+{canvasNodes.length-5}</span>}
+                              {canvasNodes.length>5&&<span className="text-[15px] text-[var(--text-muted)] self-center">+{canvasNodes.length-5}</span>}
                             </div>
                           </td>
                         </tr>
@@ -3331,12 +3331,12 @@ export function KPIAlignmentModule({ projectId, canvasNodes, onBack }: {
         <div>
           {orphanKpis.length>0&&(
             <div className="p-3 rounded-xl border mb-4" style={{background:"rgba(240,165,0,0.07)",borderColor:"rgba(240,165,0,0.25)"}}>
-              <div className="text-[11px] font-bold mb-2" style={{color:"#f0a500"}}>⚠ {orphanKpis.length} KPI{orphanKpis.length!==1?"s":""} not linked to any org node</div>
-              {orphanKpis.map(k=><div key={k.id} className="text-[10px] text-[var(--text-muted)] mb-1">· {k.name}</div>)}
+              <div className="text-[15px] font-bold mb-2" style={{color:"#f0a500"}}>⚠ {orphanKpis.length} KPI{orphanKpis.length!==1?"s":""} not linked to any org node</div>
+              {orphanKpis.map(k=><div key={k.id} className="text-[15px] text-[var(--text-muted)] mb-1">· {k.name}</div>)}
             </div>
           )}
           {canvasNodes.length===0?(
-            <div className="text-center py-12 text-[var(--text-muted)] text-[12px]"><div className="text-2xl mb-2 opacity-30">⬡</div>No canvas nodes — open OM Design Canvas first and create your operating model.</div>
+            <div className="text-center py-12 text-[var(--text-muted)] text-[15px]"><div className="text-2xl mb-2 opacity-30">⬡</div>No canvas nodes — open OM Design Canvas first and create your operating model.</div>
           ):(
             <div className="grid grid-cols-3 gap-4">
               {canvasNodes.map((n:any)=>{
@@ -3348,18 +3348,18 @@ export function KPIAlignmentModule({ projectId, canvasNodes, onBack }: {
                   <div key={n.id} className="p-3 rounded-xl border transition-all" style={{background:"var(--surface-1)",borderColor:hasAny?`${nodeColor}40`:"var(--border)",borderLeft:`3px solid ${hasAny?nodeColor:"var(--border)"}`}}>
                     <div className="flex items-center gap-2 mb-3">
                       <div className="w-2.5 h-2.5 rounded-sm shrink-0" style={{background:nodeColor}} />
-                      <span className="text-[11px] font-bold text-[var(--text-primary)] truncate flex-1">{n.label||n.type}</span>
-                      {!hasAny&&<span className="text-[8px] text-[var(--text-muted)]">—</span>}
+                      <span className="text-[15px] font-bold text-[var(--text-primary)] truncate flex-1">{n.label||n.type}</span>
+                      {!hasAny&&<span className="text-[15px] text-[var(--text-muted)]">—</span>}
                     </div>
-                    {linkedKpis.length===0&&<div className="text-[9px] text-[var(--text-muted)] italic">No KPIs assigned</div>}
+                    {linkedKpis.length===0&&<div className="text-[14px] text-[var(--text-muted)] italic">No KPIs assigned</div>}
                     {linkedKpis.map(k=>(
                       <div key={k.id} className="flex items-center gap-2 mb-2">
                         <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{background:KPI_STATUS_COLOR[k.status]}} />
-                        <span className="text-[10px] text-[var(--text-secondary)] flex-1 truncate">{k.name}</span>
-                        <span className="text-[9px] font-semibold shrink-0" style={{color:KPI_STATUS_COLOR[k.status],fontFamily:"'IBM Plex Mono',monospace"}}>{k.currentValue}{k.unit}</span>
+                        <span className="text-[15px] text-[var(--text-secondary)] flex-1 truncate">{k.name}</span>
+                        <span className="text-[14px] font-semibold shrink-0" style={{color:KPI_STATUS_COLOR[k.status],fontFamily:"'IBM Plex Mono',monospace"}}>{k.currentValue}{k.unit}</span>
                       </div>
                     ))}
-                    {atRisk>0&&<div className="text-[9px] mt-1" style={{color:"#f0a500"}}>⚠ {atRisk} at risk</div>}
+                    {atRisk>0&&<div className="text-[14px] mt-1" style={{color:"#f0a500"}}>⚠ {atRisk} at risk</div>}
                   </div>
                 );
               })}
@@ -3367,14 +3367,14 @@ export function KPIAlignmentModule({ projectId, canvasNodes, onBack }: {
           )}
           {kpis.length>0&&canvasNodes.length>0&&(
             <div className="mt-6 p-4 rounded-xl bg-[var(--surface-1)] border border-[var(--border)]">
-              <div className="text-[11px] font-bold text-[var(--text-primary)] mb-3">Design Health: KPI Coverage</div>
+              <div className="text-[15px] font-bold text-[var(--text-primary)] mb-3">Design Health: KPI Coverage</div>
               <div className="flex items-center gap-4">
                 <div className="flex-1 h-3 bg-[var(--surface-2)] rounded-full overflow-hidden">
                   <div className="h-full rounded-full bg-[var(--success)] transition-all" style={{width:`${Math.round(kpis.filter(k=>k.linkedNodeIds.length>0).length/kpis.length*100)}%`}} />
                 </div>
-                <span className="text-[12px] font-extrabold text-[var(--success)]">{Math.round(kpis.filter(k=>k.linkedNodeIds.length>0).length/kpis.length*100)}%</span>
+                <span className="text-[15px] font-extrabold text-[var(--success)]">{Math.round(kpis.filter(k=>k.linkedNodeIds.length>0).length/kpis.length*100)}%</span>
               </div>
-              <div className="text-[10px] text-[var(--text-muted)] mt-1">{kpis.filter(k=>k.linkedNodeIds.length>0).length} of {kpis.length} KPIs assigned to org nodes — {orphanKpis.length>0?`${orphanKpis.length} orphaned (design gap)`:"all covered ✓"}</div>
+              <div className="text-[15px] text-[var(--text-muted)] mt-1">{kpis.filter(k=>k.linkedNodeIds.length>0).length} of {kpis.length} KPIs assigned to org nodes — {orphanKpis.length>0?`${orphanKpis.length} orphaned (design gap)`:"all covered ✓"}</div>
             </div>
           )}
         </div>

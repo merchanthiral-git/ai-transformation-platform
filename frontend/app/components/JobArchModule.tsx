@@ -131,15 +131,15 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
     {tab === "catalogue" && <div className="flex gap-4 animate-tab-enter" style={{ minHeight: 600 }}>
       {/* Left tree navigator */}
       <div className="w-56 shrink-0 bg-[var(--surface-1)] rounded-xl border border-[var(--border)] p-3 overflow-y-auto" style={{ maxHeight: "70vh" }}>
-        <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2 font-heading">Hierarchy</div>
-        <button onClick={() => setSelectedPath([])} className={`w-full text-left px-2 py-1.5 rounded-lg text-[12px] font-semibold mb-1 transition-all ${selectedPath.length === 0 ? "bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]" : "text-[var(--text-secondary)] hover:bg-[var(--hover)]"}`}>All ({stats.total_headcount || 0})</button>
+        <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2 font-heading">Hierarchy</div>
+        <button onClick={() => setSelectedPath([])} className={`w-full text-left px-2 py-1.5 rounded-lg text-[15px] font-semibold mb-1 transition-all ${selectedPath.length === 0 ? "bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]" : "text-[var(--text-secondary)] hover:bg-[var(--hover)]"}`}>All ({stats.total_headcount || 0})</button>
         {tree.map(func => <TreeNav key={func.id} node={func} depth={0} selectedPath={selectedPath} onSelect={setSelectedPath} />)}
       </div>
 
       {/* Main job cards */}
       <div className="flex-1 min-w-0">
         {/* Breadcrumbs */}
-        <div className="flex items-center gap-1 mb-3 text-[11px]">
+        <div className="flex items-center gap-1 mb-3 text-[15px]">
           {breadcrumbs.map((b, i) => <React.Fragment key={i}>
             {i > 0 && <span className="text-[var(--text-muted)]">›</span>}
             <button onClick={() => setSelectedPath(b.path)} className={`font-semibold ${i === breadcrumbs.length - 1 ? "text-[var(--accent-primary)]" : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"}`}>{b.label}</button>
@@ -148,15 +148,15 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
 
         {/* Controls */}
         <div className="flex items-center gap-3 mb-4 flex-wrap">
-          <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search jobs..." className="flex-1 min-w-48 bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-[12px] text-[var(--text-primary)] outline-none focus:border-[var(--accent-primary)] placeholder:text-[var(--text-muted)]" />
-          <select value={filterTrack} onChange={e => setFilterTrack(e.target.value)} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-2 py-2 text-[11px] text-[var(--text-primary)]">
+          <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search jobs..." className="flex-1 min-w-48 bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-[15px] text-[var(--text-primary)] outline-none focus:border-[var(--accent-primary)] placeholder:text-[var(--text-muted)]" />
+          <select value={filterTrack} onChange={e => setFilterTrack(e.target.value)} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-2 py-2 text-[15px] text-[var(--text-primary)]">
             <option value="All">All Tracks</option><option value="IC">IC</option><option value="Manager">Manager</option><option value="Executive">Executive</option>
           </select>
-          <select value={filterAI} onChange={e => setFilterAI(e.target.value)} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-2 py-2 text-[11px] text-[var(--text-primary)]">
+          <select value={filterAI} onChange={e => setFilterAI(e.target.value)} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-2 py-2 text-[15px] text-[var(--text-primary)]">
             <option value="All">All AI Impact</option><option value="High">High</option><option value="Moderate">Moderate</option><option value="Low">Low</option>
           </select>
           <div className="flex gap-1">
-            {(["level","headcount","ai","alpha"] as const).map(s => <button key={s} onClick={() => setSortBy(s)} className={`px-2 py-1 rounded text-[10px] font-semibold ${sortBy === s ? "bg-[var(--accent-primary)] text-white" : "text-[var(--text-muted)] border border-[var(--border)]"}`}>{s === "level" ? "Level" : s === "headcount" ? "HC" : s === "ai" ? "AI" : "A-Z"}</button>)}
+            {(["level","headcount","ai","alpha"] as const).map(s => <button key={s} onClick={() => setSortBy(s)} className={`px-2 py-1 rounded text-[15px] font-semibold ${sortBy === s ? "bg-[var(--accent-primary)] text-white" : "text-[var(--text-muted)] border border-[var(--border)]"}`}>{s === "level" ? "Level" : s === "headcount" ? "HC" : s === "ai" ? "AI" : "A-Z"}</button>)}
           </div>
         </div>
 
@@ -169,14 +169,14 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
             <div className="flex items-start justify-between mb-2">
               <div className="flex-1 min-w-0">
                 <div className="text-[14px] font-semibold text-[var(--text-primary)] font-heading truncate group-hover:text-[var(--accent-primary)] transition-colors">{j.title}</div>
-                <div className="text-[10px] text-[var(--text-muted)] mt-0.5">{j.family} › {j.sub_family}</div>
+                <div className="text-[15px] text-[var(--text-muted)] mt-0.5">{j.family} › {j.sub_family}</div>
               </div>
               <div className="flex items-center gap-1.5 shrink-0 ml-2">
                 <div className="w-2 h-2 rounded-full" style={{ background: aiDot(j.ai_impact) }} title={`AI Impact: ${j.ai_impact}`} />
-                <span className="text-[10px] px-2 py-0.5 rounded-full font-bold font-data" style={{ background: trackBg(j.track), color: trackColor(j.track) }}>{j.level}</span>
+                <span className="text-[15px] px-2 py-0.5 rounded-full font-bold font-data" style={{ background: trackBg(j.track), color: trackColor(j.track) }}>{j.level}</span>
               </div>
             </div>
-            <div className="flex items-center gap-3 text-[10px]">
+            <div className="flex items-center gap-3 text-[15px]">
               <span className="font-data" style={{ color: trackColor(j.track) }}>{j.track}</span>
               <span className="text-[var(--text-muted)]">·</span>
               <span className="font-data text-[var(--text-secondary)]">{j.headcount} people</span>
@@ -184,7 +184,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
             </div>
           </div>)}
         </div>}
-        <div className="mt-3 text-[11px] text-[var(--text-muted)] text-center">{filteredJobs.length} of {jobs.length} roles shown</div>
+        <div className="mt-3 text-[15px] text-[var(--text-muted)] text-center">{filteredJobs.length} of {jobs.length} roles shown</div>
       </div>
 
       {/* Job profile slide-in panel */}
@@ -192,16 +192,16 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
         <div className="p-4 border-b border-[var(--border)] sticky top-0 bg-[var(--surface-1)] z-10">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] px-2 py-0.5 rounded-full font-bold font-data" style={{ background: trackBg(selectedJob.track), color: trackColor(selectedJob.track) }}>{selectedJob.level} · {selectedJob.track}</span>
+              <span className="text-[15px] px-2 py-0.5 rounded-full font-bold font-data" style={{ background: trackBg(selectedJob.track), color: trackColor(selectedJob.track) }}>{selectedJob.level} · {selectedJob.track}</span>
               <div className="w-2 h-2 rounded-full" style={{ background: aiDot(selectedJob.ai_impact) }} />
             </div>
             <button onClick={() => setSelectedJob(null)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">✕</button>
           </div>
           <h3 className="text-[17px] font-bold text-[var(--text-primary)] font-heading">{selectedJob.title}</h3>
-          <div className="text-[11px] text-[var(--text-muted)] mt-1">{selectedJob.function} › {selectedJob.family} › {selectedJob.sub_family}</div>
+          <div className="text-[15px] text-[var(--text-muted)] mt-1">{selectedJob.function} › {selectedJob.family} › {selectedJob.sub_family}</div>
           <div className="flex gap-2 mt-3">
-            <button onClick={() => { if (onNavigate) { onNavigate("design"); } }} className="px-3 py-1.5 rounded-lg text-[10px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 hover:bg-[var(--accent-primary)]/5">View in Work Design Lab</button>
-            <button onClick={() => { if (!compareJobs.find(c => c.id === selectedJob.id)) { setCompareJobs(p => [...p, selectedJob]); showToast(`Added ${selectedJob.title} to comparison`); }}} className="px-3 py-1.5 rounded-lg text-[10px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:border-[var(--accent-primary)]">+ Compare</button>
+            <button onClick={() => { if (onNavigate) { onNavigate("design"); } }} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 hover:bg-[var(--accent-primary)]/5">View in Work Design Lab</button>
+            <button onClick={() => { if (!compareJobs.find(c => c.id === selectedJob.id)) { setCompareJobs(p => [...p, selectedJob]); showToast(`Added ${selectedJob.title} to comparison`); }}} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:border-[var(--accent-primary)]">+ Compare</button>
           </div>
         </div>
 
@@ -222,19 +222,19 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
               <AiJobSuggestButton title={selectedJob.title} industry={selectedJob.function} onAccept={d => setAiProfileData(prev => ({ ...prev, [selectedJob.title]: d }))} />
             </div>
             <div>
-              <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase mb-1">Purpose</div>
-              <div className="text-[12px] text-[var(--text-secondary)] leading-relaxed">Drives {selectedJob.sub_family.toLowerCase()} outcomes within the {selectedJob.family} function, operating at the {selectedJob.level} level with {selectedJob.track === "Manager" ? "team leadership" : selectedJob.track === "Executive" ? "strategic leadership" : "individual contributor"} responsibilities.</div>
+              <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-1">Purpose</div>
+              <div className="text-[15px] text-[var(--text-secondary)] leading-relaxed">Drives {selectedJob.sub_family.toLowerCase()} outcomes within the {selectedJob.family} function, operating at the {selectedJob.level} level with {selectedJob.track === "Manager" ? "team leadership" : selectedJob.track === "Executive" ? "strategic leadership" : "individual contributor"} responsibilities.</div>
             </div>
             <div>
-              <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase mb-1">Key Statistics</div>
+              <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-1">Key Statistics</div>
               <div className="grid grid-cols-2 gap-2">
-                <div className="bg-[var(--surface-2)] rounded-lg p-2 text-center"><div className="text-[14px] font-bold font-data text-[var(--text-primary)]">{selectedJob.headcount}</div><div className="text-[8px] text-[var(--text-muted)] uppercase">Headcount</div></div>
-                <div className="bg-[var(--surface-2)] rounded-lg p-2 text-center"><div className="text-[14px] font-bold font-data text-[var(--text-primary)]">{aiData?.tasks.length || selectedJob.tasks_mapped}</div><div className="text-[8px] text-[var(--text-muted)] uppercase">Tasks Mapped</div></div>
+                <div className="bg-[var(--surface-2)] rounded-lg p-2 text-center"><div className="text-[14px] font-bold font-data text-[var(--text-primary)]">{selectedJob.headcount}</div><div className="text-[15px] text-[var(--text-muted)] uppercase">Headcount</div></div>
+                <div className="bg-[var(--surface-2)] rounded-lg p-2 text-center"><div className="text-[14px] font-bold font-data text-[var(--text-primary)]">{aiData?.tasks.length || selectedJob.tasks_mapped}</div><div className="text-[15px] text-[var(--text-muted)] uppercase">Tasks Mapped</div></div>
               </div>
             </div>
             <div>
-              <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase mb-1">Key Responsibilities</div>
-              <ul className="space-y-1 text-[12px] text-[var(--text-secondary)]">
+              <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-1">Key Responsibilities</div>
+              <ul className="space-y-1 text-[15px] text-[var(--text-secondary)]">
                 {aiData?.responsibilities.length ? aiData.responsibilities.map((r, i) => <li key={i}>• {r}</li>) : <>
                 <li>• Lead {selectedJob.sub_family.toLowerCase()} initiatives aligned with {selectedJob.function} strategy</li>
                 <li>• {selectedJob.track === "Manager" ? "Manage and develop team members" : "Execute core deliverables"} within scope</li>
@@ -246,39 +246,39 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
             </div>
             {/* Show AI-enriched tasks if accepted */}
             {aiData?.tasks.length > 0 && <div>
-              <div className="text-[10px] font-bold text-purple-400 uppercase mb-1">AI-Suggested Tasks</div>
-              <div className="space-y-1">{aiData.tasks.map((t, i) => <div key={i} className="flex items-center gap-2 text-[11px] px-2 py-1 rounded-lg bg-[var(--surface-2)]">
+              <div className="text-[15px] font-bold text-purple-400 uppercase mb-1">AI-Suggested Tasks</div>
+              <div className="space-y-1">{aiData.tasks.map((t, i) => <div key={i} className="flex items-center gap-2 text-[15px] px-2 py-1 rounded-lg bg-[var(--surface-2)]">
                 <span className="flex-1 text-[var(--text-secondary)]">{t.name}</span>
-                <span className="text-[9px] font-data text-[var(--text-muted)]">{t.hours_per_week}h/wk</span>
-                <span className={`text-[8px] px-1 py-0.5 rounded-full font-bold ${t.ai_impact === "High" ? "bg-red-500/10 text-red-400" : t.ai_impact === "Moderate" ? "bg-amber-500/10 text-amber-400" : "bg-green-500/10 text-green-400"}`}>{t.ai_impact}</span>
+                <span className="text-[14px] font-data text-[var(--text-muted)]">{t.hours_per_week}h/wk</span>
+                <span className={`text-[15px] px-1 py-0.5 rounded-full font-bold ${t.ai_impact === "High" ? "bg-red-500/10 text-red-400" : t.ai_impact === "Moderate" ? "bg-amber-500/10 text-amber-400" : "bg-green-500/10 text-green-400"}`}>{t.ai_impact}</span>
               </div>)}</div>
             </div>}
             {/* Show AI KPIs if accepted */}
             {aiData?.kpis.length > 0 && <div>
-              <div className="text-[10px] font-bold text-purple-400 uppercase mb-1">Key Performance Indicators</div>
-              <ul className="space-y-0.5 text-[11px] text-[var(--text-secondary)]">{aiData.kpis.map((k, i) => <li key={i}>• {k}</li>)}</ul>
+              <div className="text-[15px] font-bold text-purple-400 uppercase mb-1">Key Performance Indicators</div>
+              <ul className="space-y-0.5 text-[15px] text-[var(--text-secondary)]">{aiData.kpis.map((k, i) => <li key={i}>• {k}</li>)}</ul>
             </div>}
           </div>;
           })()}
 
           {jobProfileTab === "skills" && <div className="space-y-4 pb-4 animate-tab-enter">
-            <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase mb-2">Required Competencies</div>
+            <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-2">Required Competencies</div>
             {[{ cat: "Technical", skills: ["Data Analysis", "Domain Tools", "Process Knowledge"], color: "var(--accent-primary)" },
               { cat: "Functional", skills: ["Problem Solving", "Communication", "Stakeholder Mgmt"], color: "var(--success)" },
               { cat: "Leadership", skills: selectedJob.track === "IC" ? ["Self-Direction", "Peer Mentoring"] : ["Team Management", "Strategic Thinking", "Change Leadership"], color: "var(--warning)" },
               { cat: "AI & Digital", skills: ["AI Literacy", "Digital Fluency", "Automation Awareness"], color: "var(--risk)" },
             ].map(g => <div key={g.cat}>
-              <div className="text-[11px] font-semibold mb-1.5" style={{ color: g.color }}>{g.cat}</div>
+              <div className="text-[15px] font-semibold mb-1.5" style={{ color: g.color }}>{g.cat}</div>
               <div className="space-y-1.5">
                 {g.skills.map(s => {
                   const required = levelNum(selectedJob.level) >= 5 ? 4 : levelNum(selectedJob.level) >= 3 ? 3 : 2;
                   const current = Math.max(1, required - Math.floor(Math.random() * 2));
                   return <div key={s} className="flex items-center gap-2">
-                    <span className="text-[11px] text-[var(--text-secondary)] w-32 truncate">{s}</span>
+                    <span className="text-[15px] text-[var(--text-secondary)] w-32 truncate">{s}</span>
                     <div className="flex-1 flex gap-0.5">
                       {[1,2,3,4,5].map(n => <div key={n} className="h-2 flex-1 rounded-sm" style={{ background: n <= current ? (n <= required ? "var(--success)" : "var(--warning)") : n <= required ? "var(--risk)" : "var(--surface-3)" }} />)}
                     </div>
-                    <span className="text-[9px] font-data text-[var(--text-muted)] w-8">{current}/{required}</span>
+                    <span className="text-[14px] font-data text-[var(--text-muted)] w-8">{current}/{required}</span>
                   </div>;
                 })}
               </div>
@@ -286,7 +286,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
           </div>}
 
           {jobProfileTab === "career" && <div className="space-y-4 pb-4 animate-tab-enter">
-            <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase mb-2">Career Progression</div>
+            <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-2">Career Progression</div>
             {/* Vertical path */}
             <div className="space-y-2">
               {jobs.filter(j => j.family === selectedJob.family && j.track === selectedJob.track)
@@ -295,18 +295,18 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
                   const isCurrent = j.id === selectedJob.id;
                   return <div key={j.id} onClick={() => { setSelectedJob(j); setJobProfileTab("content"); }}
                     className={`flex items-center gap-3 p-2.5 rounded-lg border cursor-pointer transition-all ${isCurrent ? "border-[var(--accent-primary)] bg-[var(--accent-primary)]/5" : "border-[var(--border)] hover:border-[var(--accent-primary)]/30"}`}>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full font-bold font-data" style={{ background: trackBg(j.track), color: trackColor(j.track) }}>{j.level}</span>
-                    <span className={`text-[12px] flex-1 ${isCurrent ? "font-bold text-[var(--accent-primary)]" : "text-[var(--text-secondary)]"}`}>{j.title}</span>
-                    {isCurrent && <span className="text-[9px] text-[var(--accent-primary)] font-bold">Current</span>}
-                    <span className="text-[10px] font-data text-[var(--text-muted)]">{j.headcount}</span>
+                    <span className="text-[15px] px-2 py-0.5 rounded-full font-bold font-data" style={{ background: trackBg(j.track), color: trackColor(j.track) }}>{j.level}</span>
+                    <span className={`text-[15px] flex-1 ${isCurrent ? "font-bold text-[var(--accent-primary)]" : "text-[var(--text-secondary)]"}`}>{j.title}</span>
+                    {isCurrent && <span className="text-[14px] text-[var(--accent-primary)] font-bold">Current</span>}
+                    <span className="text-[15px] font-data text-[var(--text-muted)]">{j.headcount}</span>
                   </div>;
                 })}
             </div>
             <div>
-              <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase mb-2">Lateral Moves</div>
+              <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-2">Lateral Moves</div>
               <div className="flex flex-wrap gap-1.5">
                 {jobs.filter(j => j.level === selectedJob.level && j.id !== selectedJob.id && j.function === selectedJob.function).slice(0, 6)
-                  .map(j => <button key={j.id} onClick={() => { setSelectedJob(j); setJobProfileTab("content"); }} className="px-2 py-1 rounded-lg text-[10px] text-[var(--text-secondary)] border border-[var(--border)] hover:border-[var(--accent-primary)]/30 hover:text-[var(--accent-primary)] transition-all">{j.title}</button>)}
+                  .map(j => <button key={j.id} onClick={() => { setSelectedJob(j); setJobProfileTab("content"); }} className="px-2 py-1 rounded-lg text-[15px] text-[var(--text-secondary)] border border-[var(--border)] hover:border-[var(--accent-primary)]/30 hover:text-[var(--accent-primary)] transition-all">{j.title}</button>)}
               </div>
             </div>
           </div>}
@@ -316,17 +316,17 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
               <div className="w-16 h-16 rounded-xl flex items-center justify-center text-[22px] font-black font-data" style={{ background: `${aiDot(selectedJob.ai_impact)}15`, color: aiDot(selectedJob.ai_impact), border: `2px solid ${aiDot(selectedJob.ai_impact)}40` }}>{selectedJob.ai_score > 0 ? selectedJob.ai_score.toFixed(0) : "—"}</div>
               <div>
                 <div className="text-[14px] font-bold" style={{ color: aiDot(selectedJob.ai_impact) }}>{selectedJob.ai_impact} Impact</div>
-                <div className="text-[11px] text-[var(--text-muted)]">{selectedJob.tasks_mapped} tasks analyzed</div>
+                <div className="text-[15px] text-[var(--text-muted)]">{selectedJob.tasks_mapped} tasks analyzed</div>
               </div>
             </div>
             <div>
-              <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase mb-2">Task Breakdown</div>
+              <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-2">Task Breakdown</div>
               <div className="space-y-2">
                 {[{ label: "Automatable", pct: selectedJob.ai_impact === "High" ? 45 : selectedJob.ai_impact === "Moderate" ? 25 : 10, color: "var(--risk)" },
                   { label: "Augmentable", pct: selectedJob.ai_impact === "High" ? 30 : selectedJob.ai_impact === "Moderate" ? 35 : 20, color: "var(--warning)" },
                   { label: "Human-Essential", pct: selectedJob.ai_impact === "High" ? 25 : selectedJob.ai_impact === "Moderate" ? 40 : 70, color: "var(--success)" },
                 ].map(b => <div key={b.label}>
-                  <div className="flex justify-between text-[11px] mb-0.5"><span className="text-[var(--text-secondary)]">{b.label}</span><span className="font-data font-bold" style={{ color: b.color }}>{b.pct}%</span></div>
+                  <div className="flex justify-between text-[15px] mb-0.5"><span className="text-[var(--text-secondary)]">{b.label}</span><span className="font-data font-bold" style={{ color: b.color }}>{b.pct}%</span></div>
                   <div className="h-2 bg-[var(--surface-2)] rounded-full overflow-hidden"><div className="h-full rounded-full transition-all" style={{ width: `${b.pct}%`, background: b.color }} /></div>
                 </div>)}
               </div>
@@ -339,15 +339,15 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
           </div>}
 
           {jobProfileTab === "kpis" && <div className="space-y-4 pb-4 animate-tab-enter">
-            <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase mb-2">Performance Indicators</div>
+            <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-2">Performance Indicators</div>
             {[{ kpi: "Goal Achievement", desc: "Delivery against quarterly objectives", meets: "Achieves 80%+ of goals", exceeds: "100%+ with stretch impact" },
               { kpi: "Quality of Output", desc: "Accuracy and completeness of deliverables", meets: "Meets standards consistently", exceeds: "Recognized for exceptional quality" },
               { kpi: "Collaboration", desc: "Cross-functional contribution", meets: "Active participant", exceeds: "Sought-after partner across teams" },
               { kpi: "Development", desc: "Personal and team growth", meets: "On track with development plan", exceeds: "Mentoring others + building new capabilities" },
             ].map(k => <div key={k.kpi} className="bg-[var(--surface-2)] rounded-lg p-3">
-              <div className="text-[12px] font-semibold text-[var(--text-primary)] mb-0.5">{k.kpi}</div>
-              <div className="text-[10px] text-[var(--text-muted)] mb-2">{k.desc}</div>
-              <div className="grid grid-cols-2 gap-2 text-[10px]">
+              <div className="text-[15px] font-semibold text-[var(--text-primary)] mb-0.5">{k.kpi}</div>
+              <div className="text-[15px] text-[var(--text-muted)] mb-2">{k.desc}</div>
+              <div className="grid grid-cols-2 gap-2 text-[15px]">
                 <div className="bg-[var(--surface-1)] rounded p-2"><span className="font-bold text-[var(--warning)]">Meets:</span> <span className="text-[var(--text-secondary)]">{k.meets}</span></div>
                 <div className="bg-[var(--surface-1)] rounded p-2"><span className="font-bold text-[var(--success)]">Exceeds:</span> <span className="text-[var(--text-secondary)]">{k.exceeds}</span></div>
               </div>
@@ -370,7 +370,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
       </div>
 
       <div className="flex gap-2 mb-4">
-        {["All", "Structure", "Population", "Career Path", "Risk", "Span of Control"].map(c => <button key={c} onClick={() => setFlagFilter(c)} className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold ${flagFilter === c ? "bg-[var(--accent-primary)] text-white" : "text-[var(--text-muted)] border border-[var(--border)]"}`}>{c}</button>)}
+        {["All", "Structure", "Population", "Career Path", "Risk", "Span of Control"].map(c => <button key={c} onClick={() => setFlagFilter(c)} className={`px-3 py-1.5 rounded-lg text-[15px] font-semibold ${flagFilter === c ? "bg-[var(--accent-primary)] text-white" : "text-[var(--text-muted)] border border-[var(--border)]"}`}>{c}</button>)}
       </div>
 
       <div className="space-y-3">
@@ -379,11 +379,11 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
             <div className="text-lg shrink-0">{fl.severity === "critical" ? "🔴" : fl.severity === "warning" ? "🟡" : "🔵"}</div>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-[13px] font-semibold text-[var(--text-primary)] font-heading">{fl.title}</span>
+                <span className="text-[15px] font-semibold text-[var(--text-primary)] font-heading">{fl.title}</span>
                 <Badge color={fl.severity === "critical" ? "red" : fl.severity === "warning" ? "amber" : "gray"}>{fl.category}</Badge>
               </div>
-              <div className="text-[12px] text-[var(--text-secondary)]">{fl.description}</div>
-              <div className="text-[10px] text-[var(--text-muted)] mt-1">Affected: {fl.affected} · Population: {fl.population}</div>
+              <div className="text-[15px] text-[var(--text-secondary)]">{fl.description}</div>
+              <div className="text-[15px] text-[var(--text-muted)] mt-1">Affected: {fl.affected} · Population: {fl.population}</div>
             </div>
           </div>
         </div>)}
@@ -402,16 +402,16 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
             return <ResponsiveContainer width="100%" height={360}>
               <BarChart data={famData} margin={{ bottom: 60 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis dataKey="family" tick={{ fontSize: 11, fill: "var(--text-muted)" }} angle={-45} textAnchor="end" height={80} interval={0} />
-                <YAxis tick={{ fontSize: 10, fill: "var(--text-muted)" }} />
+                <XAxis dataKey="family" tick={{ fontSize: 15, fill: "var(--text-muted)" }} angle={-45} textAnchor="end" height={80} interval={0} />
+                <YAxis tick={{ fontSize: 15, fill: "var(--text-muted)" }} />
                 <Tooltip content={({ active, payload }) => {
                   if (!active || !payload?.[0]) return null;
                   const d = payload[0].payload;
                   const pct = totalHC > 0 ? ((d.headcount / totalHC) * 100).toFixed(1) : "0";
                   return <div style={{ background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 10, padding: "10px 14px", boxShadow: "0 8px 24px rgba(0,0,0,0.3)" }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)", marginBottom: 4 }}>{d.family}</div>
-                    <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{d.headcount.toLocaleString()} employees ({pct}%)</div>
-                    <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{d.roles} unique roles</div>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", marginBottom: 4 }}>{d.family}</div>
+                    <div style={{ fontSize: 15, color: "var(--text-secondary)" }}>{d.headcount.toLocaleString()} employees ({pct}%)</div>
+                    <div style={{ fontSize: 15, color: "var(--text-muted)" }}>{d.roles} unique roles</div>
                   </div>;
                 }} />
                 <defs>{famData.map((_, i) => <linearGradient key={i} id={`famBar${i}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={famColors[i % famColors.length]} stopOpacity={0.9} /><stop offset="100%" stopColor={famColors[i % famColors.length]} stopOpacity={0.65} /></linearGradient>)}</defs>
@@ -430,8 +430,8 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
               { label: "Low Impact", count: (analytics.ai_impact_summary as Record<string,number>)?.low || 0, color: "var(--success)", desc: "Primarily human-led" },
             ].map(b => <div key={b.label} className="bg-[var(--surface-2)] rounded-xl p-4 text-center border border-[var(--border)]">
               <div className="text-[28px] font-extrabold font-data" style={{ color: b.color }}>{b.count}</div>
-              <div className="text-[11px] font-semibold text-[var(--text-primary)] mt-1">{b.label}</div>
-              <div className="text-[9px] text-[var(--text-muted)] mt-0.5">{b.desc}</div>
+              <div className="text-[15px] font-semibold text-[var(--text-primary)] mt-1">{b.label}</div>
+              <div className="text-[14px] text-[var(--text-muted)] mt-0.5">{b.desc}</div>
             </div>)}
           </div>
         </Card>
@@ -440,8 +440,8 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
           <ExpandableChart title="Level Distribution"><ResponsiveContainer width="100%" height={250}>
             <BarChart data={((analytics.level_distribution || []) as {level:string;headcount:number}[])}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis dataKey="level" tick={{ fontSize: 10, fill: "var(--text-muted)" }} />
-              <YAxis tick={{ fontSize: 10, fill: "var(--text-muted)" }} />
+              <XAxis dataKey="level" tick={{ fontSize: 15, fill: "var(--text-muted)" }} />
+              <YAxis tick={{ fontSize: 15, fill: "var(--text-muted)" }} />
               <Tooltip contentStyle={{ ...TT }} />
               <Bar dataKey="headcount" fill="#C07030" radius={[4, 4, 0, 0]} />
             </BarChart>
@@ -455,7 +455,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
               { label: "Families with 3+ roles", pct: (() => { const fams = new Set(jobs.map(j => j.family)); const ok = [...fams].filter(f => jobs.filter(j => j.family === f).length >= 3).length; return fams.size > 0 ? Math.round(ok / fams.size * 100) : 0; })() },
               { label: "Roles with AI scoring", pct: jobs.length > 0 ? Math.round(jobs.filter(j => j.ai_score > 0).length / jobs.length * 100) : 0 },
             ].map(m => <div key={m.label}>
-              <div className="flex justify-between text-[12px] mb-1"><span className="text-[var(--text-secondary)]">{m.label}</span><span className="font-bold font-data" style={{ color: m.pct >= 80 ? "var(--success)" : m.pct >= 50 ? "var(--warning)" : "var(--risk)" }}>{m.pct}%</span></div>
+              <div className="flex justify-between text-[15px] mb-1"><span className="text-[var(--text-secondary)]">{m.label}</span><span className="font-bold font-data" style={{ color: m.pct >= 80 ? "var(--success)" : m.pct >= 50 ? "var(--warning)" : "var(--risk)" }}>{m.pct}%</span></div>
               <div className="h-2 bg-[var(--surface-2)] rounded-full overflow-hidden"><div className="h-full rounded-full" style={{ width: `${m.pct}%`, background: m.pct >= 80 ? "var(--success)" : m.pct >= 50 ? "var(--warning)" : "var(--risk)" }} /></div>
             </div>)}
           </div>
@@ -469,15 +469,15 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
         <div className="text-center py-12">
           <div className="text-4xl mb-3 opacity-40">⚖️</div>
           <h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">Compare Roles Side by Side</h3>
-          <p className="text-[13px] text-[var(--text-secondary)] mb-4 max-w-md mx-auto">Select 2-4 roles from the Job Catalogue to compare their levels, headcount, AI impact, and skills. Click "Compare" from any job profile panel.</p>
-          {compareJobs.length === 1 && <div className="text-[12px] text-[var(--accent-primary)]">1 role selected — add 1 more to compare</div>}
+          <p className="text-[15px] text-[var(--text-secondary)] mb-4 max-w-md mx-auto">Select 2-4 roles from the Job Catalogue to compare their levels, headcount, AI impact, and skills. Click "Compare" from any job profile panel.</p>
+          {compareJobs.length === 1 && <div className="text-[15px] text-[var(--accent-primary)]">1 role selected — add 1 more to compare</div>}
         </div>
       </Card> : <Card title={`Comparing ${compareJobs.length} Roles`}>
-        <div className="flex gap-2 mb-4">{compareJobs.map((j, i) => <span key={j.id} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] bg-[var(--surface-2)] border border-[var(--border)]"><span style={{ color: COLORS[i % COLORS.length] }}>{j.title}</span><button onClick={() => setCompareJobs(p => p.filter(c => c.id !== j.id))} className="text-[var(--text-muted)] hover:text-[var(--risk)] ml-1">✕</button></span>)}</div>
+        <div className="flex gap-2 mb-4">{compareJobs.map((j, i) => <span key={j.id} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[15px] bg-[var(--surface-2)] border border-[var(--border)]"><span style={{ color: COLORS[i % COLORS.length] }}>{j.title}</span><button onClick={() => setCompareJobs(p => p.filter(c => c.id !== j.id))} className="text-[var(--text-muted)] hover:text-[var(--risk)] ml-1">✕</button></span>)}</div>
         <div className="overflow-x-auto rounded-lg border border-[var(--border)]">
           <table className="w-full"><thead><tr className="bg-[var(--surface-2)]">
-            <th className="px-3 py-2 text-left text-[11px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Dimension</th>
-            {compareJobs.map((j, i) => <th key={j.id} className="px-3 py-2 text-center text-[11px] font-semibold border-b border-[var(--border)]" style={{ color: COLORS[i % COLORS.length] }}>{j.title}</th>)}
+            <th className="px-3 py-2 text-left text-[15px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Dimension</th>
+            {compareJobs.map((j, i) => <th key={j.id} className="px-3 py-2 text-center text-[15px] font-semibold border-b border-[var(--border)]" style={{ color: COLORS[i % COLORS.length] }}>{j.title}</th>)}
           </tr></thead>
           <tbody>{[
             { label: "Level", get: (j: Job) => j.level },
@@ -489,8 +489,8 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
             { label: "Family", get: (j: Job) => j.family },
             { label: "Sub-Family", get: (j: Job) => j.sub_family },
           ].map(dim => <tr key={dim.label} className="border-b border-[var(--border)]">
-            <td className="px-3 py-2 text-[12px] font-semibold text-[var(--text-secondary)]">{dim.label}</td>
-            {compareJobs.map(j => <td key={j.id} className="px-3 py-2 text-center text-[12px] font-data text-[var(--text-primary)]">{dim.get(j)}</td>)}
+            <td className="px-3 py-2 text-[15px] font-semibold text-[var(--text-secondary)]">{dim.label}</td>
+            {compareJobs.map(j => <td key={j.id} className="px-3 py-2 text-center text-[15px] font-data text-[var(--text-primary)]">{dim.get(j)}</td>)}
           </tr>)}</tbody></table>
         </div>
       </Card>}
@@ -518,12 +518,12 @@ function TreeNav({ node, depth, selectedPath, onSelect }: { node: TreeNode; dept
   };
 
   return <div style={{ paddingLeft: depth * 12 }}>
-    <div className={`flex items-center gap-1.5 px-2 py-1 rounded-lg text-[11px] cursor-pointer transition-all ${isSelected ? "bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] font-semibold" : "text-[var(--text-secondary)] hover:bg-[var(--hover)]"}`}
+    <div className={`flex items-center gap-1.5 px-2 py-1 rounded-lg text-[15px] cursor-pointer transition-all ${isSelected ? "bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] font-semibold" : "text-[var(--text-secondary)] hover:bg-[var(--hover)]"}`}
       onClick={() => { onSelect(buildPath()); if (hasChildren) setExpanded(!expanded); }}>
-      {hasChildren && <span className="text-[8px] text-[var(--text-muted)]" style={{ transform: `rotate(${expanded ? 90 : 0}deg)`, transition: "transform 0.15s", display: "inline-block" }}>▸</span>}
+      {hasChildren && <span className="text-[15px] text-[var(--text-muted)]" style={{ transform: `rotate(${expanded ? 90 : 0}deg)`, transition: "transform 0.15s", display: "inline-block" }}>▸</span>}
       {!hasChildren && <span className="w-2" />}
       <span className="flex-1 truncate">{node.label}</span>
-      <span className="text-[9px] font-data text-[var(--text-muted)] shrink-0">{node.headcount}</span>
+      <span className="text-[14px] font-data text-[var(--text-muted)] shrink-0">{node.headcount}</span>
     </div>
     {expanded && hasChildren && <div style={{ transition: "all 0.2s" }}>
       {(node.children || []).map(child => <TreeNav key={child.id} node={child} depth={depth + 1} selectedPath={selectedPath} onSelect={onSelect} />)}

@@ -250,14 +250,14 @@ function MusicPlayer() {
   if (viewState === "collapsed") return <div onClick={() => setViewState("expanded")} style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 40, height: 44, background: "rgba(15,12,8,0.85)", backdropFilter: "blur(20px)", borderTop: "1px solid rgba(212,134,10,0.1)", display: "flex", alignItems: "center", paddingLeft: 12, paddingRight: 12, gap: 10, cursor: "pointer" }}>
     <div style={{ width: 32, height: 32, borderRadius: 6, background: "linear-gradient(135deg, #D4860A, #C07030)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, color: "#fff", flexShrink: 0 }}>♪</div>
     <div style={{ flex: 1, minWidth: 0 }}>
-      <div style={{ fontSize: 11, fontWeight: 600, color: "#f5e6d0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{track?.name || "—"}</div>
-      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)" }}>{GENRES.find(g => g.id === genre)?.label}</div>
+      <div style={{ fontSize: 15, fontWeight: 600, color: "#f5e6d0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{track?.name || "—"}</div>
+      <div style={{ fontSize: 14, color: "rgba(255,255,255,0.35)" }}>{GENRES.find(g => g.id === genre)?.label}</div>
     </div>
     <div onClick={e => { e.stopPropagation(); seek(e); }} style={{ width: 80, height: 3, background: "rgba(255,255,255,0.08)", borderRadius: 2, cursor: "pointer", flexShrink: 0, overflow: "hidden" }}>
       <div style={{ height: "100%", borderRadius: 2, background: "#D4860A", width: `${progress * 100}%` }} />
     </div>
     <button onClick={e => { e.stopPropagation(); toggle(); }} style={{ ...btnBase, color: "#f5e6d0", fontSize: 16, width: 32, height: 32 }}>{playing ? "⏸" : "▶"}</button>
-    <button onClick={e => { e.stopPropagation(); nextTrack(); }} style={{ ...btnBase, color: "rgba(255,255,255,0.4)", fontSize: 12 }}>⏭</button>
+    <button onClick={e => { e.stopPropagation(); nextTrack(); }} style={{ ...btnBase, color: "rgba(255,255,255,0.4)", fontSize: 15 }}>⏭</button>
     <button onClick={e => { e.stopPropagation(); setViewState("mini"); }} style={{ ...btnBase, color: "rgba(255,255,255,0.25)", fontSize: 14 }} title="Hide player">✕</button>
   </div>;
 
@@ -265,8 +265,8 @@ function MusicPlayer() {
   return <div ref={expandedRef} style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 40, background: "rgba(10,8,6,0.92)", backdropFilter: "blur(24px)", borderTop: "1px solid rgba(212,134,10,0.12)", transition: "all 0.4s cubic-bezier(0.16,1,0.3,1)" }}>
     {/* Visible collapse/close buttons at top-right of panel */}
     <div style={{ position: "absolute", top: 10, right: 16, display: "flex", gap: 6, zIndex: 1 }}>
-      <button onClick={() => setViewState("collapsed")} title="Minimize to bar" style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)", fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.12)"; e.currentTarget.style.color = "#f5e6d0"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; e.currentTarget.style.color = "rgba(255,255,255,0.5)"; }}>▾</button>
-      <button onClick={() => setViewState("mini")} title="Hide player" style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.4)", fontSize: 11, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.12)"; e.currentTarget.style.color = "#f5e6d0"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; e.currentTarget.style.color = "rgba(255,255,255,0.4)"; }}>✕</button>
+      <button onClick={() => setViewState("collapsed")} title="Minimize to bar" style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)", fontSize: 15, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.12)"; e.currentTarget.style.color = "#f5e6d0"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; e.currentTarget.style.color = "rgba(255,255,255,0.5)"; }}>▾</button>
+      <button onClick={() => setViewState("mini")} title="Hide player" style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.4)", fontSize: 15, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.12)"; e.currentTarget.style.color = "#f5e6d0"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; e.currentTarget.style.color = "rgba(255,255,255,0.4)"; }}>✕</button>
     </div>
 
     <div style={{ maxWidth: 900, margin: "0 auto", padding: "16px 24px 20px" }}>
@@ -279,48 +279,48 @@ function MusicPlayer() {
 
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 15, fontWeight: 700, color: "#f5e6d0", fontFamily: "'Outfit', sans-serif", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{track?.name || "—"}</div>
-          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>{GENRES.find(g => g.id === genre)?.icon} {GENRES.find(g => g.id === genre)?.label} · Track {(trackIdx % genreTracks.length) + 1} of {genreTracks.length}</div>
+          <div style={{ fontSize: 15, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>{GENRES.find(g => g.id === genre)?.icon} {GENRES.find(g => g.id === genre)?.label} · Track {(trackIdx % genreTracks.length) + 1} of {genreTracks.length}</div>
         </div>
 
         {/* Main controls */}
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <button onClick={() => setShuffle(!shuffle)} style={{ ...btnBase, color: shuffle ? "#D4860A" : "rgba(255,255,255,0.3)", fontSize: 13 }} title="Shuffle">⇄</button>
+          <button onClick={() => setShuffle(!shuffle)} style={{ ...btnBase, color: shuffle ? "#D4860A" : "rgba(255,255,255,0.3)", fontSize: 15 }} title="Shuffle">⇄</button>
           <button onClick={prevTrack} style={{ ...btnBase, color: "rgba(255,255,255,0.5)", fontSize: 16 }}>⏮</button>
           <button onClick={toggle} style={{ width: 42, height: 42, borderRadius: 21, background: "linear-gradient(135deg, #e09040, #c07030)", border: "none", color: "#fff", fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 14px rgba(224,144,64,0.3)", transition: "transform 0.2s" }} onMouseEnter={e => e.currentTarget.style.transform = "scale(1.08)"} onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}>{playing ? "⏸" : "▶"}</button>
           <button onClick={nextTrack} style={{ ...btnBase, color: "rgba(255,255,255,0.5)", fontSize: 16 }}>⏭</button>
-          <button onClick={() => setRepeat(!repeat)} style={{ ...btnBase, color: repeat ? "#D4860A" : "rgba(255,255,255,0.3)", fontSize: 13 }} title="Repeat">↻</button>
+          <button onClick={() => setRepeat(!repeat)} style={{ ...btnBase, color: repeat ? "#D4860A" : "rgba(255,255,255,0.3)", fontSize: 15 }} title="Repeat">↻</button>
         </div>
 
         {/* Volume */}
         <div style={{ display: "flex", alignItems: "center", gap: 6, width: 110, flexShrink: 0 }}>
-          <button onClick={() => changeVolume(volume > 0 ? 0 : 0.25)} style={{ ...btnBase, fontSize: 11, color: "rgba(255,255,255,0.4)" }}>{volume === 0 ? "🔇" : volume < 0.3 ? "🔈" : "🔊"}</button>
+          <button onClick={() => changeVolume(volume > 0 ? 0 : 0.25)} style={{ ...btnBase, fontSize: 15, color: "rgba(255,255,255,0.4)" }}>{volume === 0 ? "🔇" : volume < 0.3 ? "🔈" : "🔊"}</button>
           <input type="range" min={0} max={1} step={0.02} value={volume} onChange={e => changeVolume(Number(e.target.value))} style={{ flex: 1, accentColor: "#e09040", height: 3 }} />
         </div>
       </div>
 
       {/* Progress bar */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", fontFamily: "'IBM Plex Mono', monospace", width: 32, textAlign: "right" }}>{fmt(currentTime)}</span>
+        <span style={{ fontSize: 14, color: "rgba(255,255,255,0.35)", fontFamily: "'IBM Plex Mono', monospace", width: 32, textAlign: "right" }}>{fmt(currentTime)}</span>
         <div onClick={seek} style={{ flex: 1, height: 5, background: "rgba(255,255,255,0.08)", borderRadius: 3, cursor: "pointer", overflow: "hidden", position: "relative" }}>
           <div style={{ height: "100%", borderRadius: 3, background: "linear-gradient(90deg, #D4860A, #E8C547)", width: `${progress * 100}%`, transition: "width 0.1s linear" }} />
         </div>
-        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", fontFamily: "'IBM Plex Mono', monospace", width: 32 }}>{fmt(duration)}</span>
+        <span style={{ fontSize: 14, color: "rgba(255,255,255,0.35)", fontFamily: "'IBM Plex Mono', monospace", width: 32 }}>{fmt(duration)}</span>
       </div>
 
       {/* Genre pills + track list */}
       <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
         {GENRES.map(g => <button key={g.id} onClick={() => { setGenre(g.id); setTrackIdx(0); }}
-          style={{ padding: "4px 12px", borderRadius: 8, fontSize: 10, fontWeight: 600, cursor: "pointer", border: genre === g.id ? "1px solid rgba(212,134,10,0.4)" : "1px solid rgba(255,255,255,0.06)", background: genre === g.id ? "rgba(212,134,10,0.12)" : "transparent", color: genre === g.id ? "#e09040" : "rgba(255,255,255,0.35)", transition: "all 0.2s", fontFamily: "'Outfit', sans-serif" }}>{g.icon} {g.label}</button>)}
+          style={{ padding: "4px 12px", borderRadius: 8, fontSize: 15, fontWeight: 600, cursor: "pointer", border: genre === g.id ? "1px solid rgba(212,134,10,0.4)" : "1px solid rgba(255,255,255,0.06)", background: genre === g.id ? "rgba(212,134,10,0.12)" : "transparent", color: genre === g.id ? "#e09040" : "rgba(255,255,255,0.35)", transition: "all 0.2s", fontFamily: "'Outfit', sans-serif" }}>{g.icon} {g.label}</button>)}
         <div style={{ flex: 1 }} />
-        <button onClick={() => setShowList(!showList)} style={{ ...btnBase, fontSize: 9, color: "rgba(255,255,255,0.4)", fontFamily: "'IBM Plex Mono', monospace" }}>{showList ? "Hide" : "Tracks"} ▾</button>
+        <button onClick={() => setShowList(!showList)} style={{ ...btnBase, fontSize: 14, color: "rgba(255,255,255,0.4)", fontFamily: "'IBM Plex Mono', monospace" }}>{showList ? "Hide" : "Tracks"} ▾</button>
       </div>
 
       {showList && <div style={{ marginTop: 8, maxHeight: 140, overflowY: "auto", borderRadius: 8, border: "1px solid rgba(255,255,255,0.06)" }}>
         {genreTracks.map((t, i) => <button key={t.id} onClick={() => changeTrack(i)}
-          style={{ width: "100%", padding: "6px 12px", background: i === trackIdx % genreTracks.length ? "rgba(212,134,10,0.1)" : "transparent", border: "none", borderBottom: "1px solid rgba(255,255,255,0.04)", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, fontSize: 11, color: i === trackIdx % genreTracks.length ? "#e09040" : "rgba(255,255,255,0.5)", transition: "all 0.15s", fontFamily: "'Outfit', sans-serif" }}
+          style={{ width: "100%", padding: "6px 12px", background: i === trackIdx % genreTracks.length ? "rgba(212,134,10,0.1)" : "transparent", border: "none", borderBottom: "1px solid rgba(255,255,255,0.04)", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, fontSize: 15, color: i === trackIdx % genreTracks.length ? "#e09040" : "rgba(255,255,255,0.5)", transition: "all 0.15s", fontFamily: "'Outfit', sans-serif" }}
           onMouseEnter={e => { if (i !== trackIdx % genreTracks.length) e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }}
           onMouseLeave={e => { if (i !== trackIdx % genreTracks.length) e.currentTarget.style.background = "transparent"; }}>
-          <span style={{ width: 16, fontSize: 9, textAlign: "right", opacity: 0.4, fontFamily: "'IBM Plex Mono', monospace" }}>{i === trackIdx % genreTracks.length && playing ? "♫" : `${i + 1}`}</span>
+          <span style={{ width: 16, fontSize: 14, textAlign: "right", opacity: 0.4, fontFamily: "'IBM Plex Mono', monospace" }}>{i === trackIdx % genreTracks.length && playing ? "♫" : `${i + 1}`}</span>
           <span style={{ flex: 1, textAlign: "left" }}>{t.name}</span>
         </button>)}
       </div>}
@@ -579,34 +579,20 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
   // Platform Hub — handled by parent Page component now
   if (page === "hub" && onShowPlatformHub) { onShowPlatformHub(); setPage("home"); }
 
-  // ── Landing splash screen — full-screen background, click to enter ──
+  // ── Landing splash screen — pure full-screen background image, click to enter ──
   if (showSplash && page === "home") {
-    const viewLabel = viewMode === "employee" ? "Employee View" : viewMode === "job" ? "Job View" : viewMode === "custom" ? "Custom Slice" : "Organization View";
     return <div onClick={() => { setShowSplash(false); try { sessionStorage.setItem(`${projectId}_splashSeen`, "1"); } catch {} }} style={{ position: "fixed", inset: 0, cursor: "pointer", zIndex: 30 }}>
       <div style={{ position: "absolute", inset: 0, backgroundImage: "url(/landing_bg.png)", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat", animation: "splashIn 0.8s ease" }} />
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0.5) 100%)" }} />
-      <div style={{ position: "relative", zIndex: 1, height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "48px 40px" }}>
-        <div>
-          <h1 style={{ fontSize: 36, fontWeight: 800, color: "#fff", fontFamily: "'Outfit', sans-serif", textShadow: "0 2px 24px rgba(0,0,0,0.5)", marginBottom: 8 }}>{projectName}</h1>
-          <div style={{ fontSize: 15, color: "rgba(255,230,200,0.7)", textShadow: "0 1px 8px rgba(0,0,0,0.3)" }}>{viewLabel}</div>
-        </div>
-        <div style={{ textAlign: "center" }}>
-          <div className="animate-pulse" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 28px", borderRadius: 20, background: "rgba(0,0,0,0.3)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,200,150,0.15)" }}>
-            <span style={{ color: "rgba(255,230,200,0.8)", fontSize: 15, fontWeight: 600 }}>Click anywhere to begin your journey</span>
-            <span style={{ fontSize: 16 }}>→</span>
-          </div>
-        </div>
-      </div>
-      <style>{`@keyframes splashIn { from { opacity: 0; transform: scale(1.02); } to { opacity: 1; transform: scale(1); } }`}</style>
+      <style>{`@keyframes splashIn { from { opacity: 0; } to { opacity: 1; } }`}</style>
     </div>;
   }
 
   return <div className="flex min-h-screen w-full">
     {/* ── SIDEBAR ── */}
     <aside className="w-[220px] min-h-screen bg-[var(--surface-1)] flex flex-col px-4 py-5 shrink-0 overflow-y-auto sticky top-0 border-r border-[var(--border)]" style={{ height: "100vh" }}>
-      <div className="mb-1 cursor-pointer" onClick={goHome}><div className="text-sm font-extrabold text-[var(--text-primary)]">AI Transformation</div><div className="text-[10px] font-semibold text-[var(--accent-primary)] uppercase tracking-[1.5px]">PLATFORM</div></div>
-      <button onClick={() => { if (page === "home" && viewMode) { setViewMode(""); } else { onBackToHub(); } }} className="w-full text-left text-[11px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mt-1 mb-1 flex items-center gap-1 transition-colors">{page === "home" && viewMode ? "← Back to Views" : page !== "home" ? "← Back to Home" : "← Back to Projects"}</button>
-      <div className="bg-[var(--surface-2)] rounded-lg px-3 py-2 mb-2 border border-[var(--border)]"><div className="text-[10px] font-bold text-[var(--accent-primary)] uppercase tracking-wider mb-0.5">Active Project</div><div className="text-[13px] font-semibold text-[var(--text-primary)] truncate">{projectName}</div>{projectMeta && <div className="text-[10px] text-[var(--text-muted)] truncate mt-0.5 italic">{projectMeta}</div>}</div>
+      <div className="mb-1 cursor-pointer" onClick={goHome}><div className="text-sm font-extrabold text-[var(--text-primary)]">AI Transformation</div><div className="text-[15px] font-semibold text-[var(--accent-primary)] uppercase tracking-[1.5px]">PLATFORM</div></div>
+      <button onClick={() => { if (page === "home" && viewMode) { setViewMode(""); } else { onBackToHub(); } }} className="w-full text-left text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mt-1 mb-1 flex items-center gap-1 transition-colors">{page === "home" && viewMode ? "← Back to Views" : page !== "home" ? "← Back to Home" : "← Back to Projects"}</button>
+      <div className="bg-[var(--surface-2)] rounded-lg px-3 py-2 mb-2 border border-[var(--border)]"><div className="text-[15px] font-bold text-[var(--accent-primary)] uppercase tracking-wider mb-0.5">Active Project</div><div className="text-[15px] font-semibold text-[var(--text-primary)] truncate">{projectName}</div>{projectMeta && <div className="text-[15px] text-[var(--text-muted)] truncate mt-0.5 italic">{projectMeta}</div>}</div>
       {/* Journey progress bar */}
       <div className="flex items-center gap-1 mb-2 mt-1">
         {PHASES.map((phase, pi) => {
@@ -615,48 +601,48 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
           return <React.Fragment key={phase.id}>
             {pi > 0 && <div className="flex-1 h-px" style={{ background: pStatus !== "not_started" ? `${phase.color}40` : "var(--border)" }} />}
             <button onClick={() => { setPage("home"); }} title={`Phase ${pi+1}: ${phase.label}`} className="flex items-center gap-1 shrink-0 transition-all" style={{ opacity: pStatus !== "not_started" ? 1 : 0.4 }}>
-              <div className="w-4 h-4 rounded-full flex items-center justify-center text-[7px] font-bold" style={{ background: pStatus === "complete" ? `${phase.color}20` : pStatus === "in_progress" ? `${phase.color}10` : "transparent", color: phase.color, border: `1px solid ${phase.color}${pStatus !== "not_started" ? "60" : "20"}` }}>{pStatus === "complete" ? "✓" : pStatus === "in_progress" ? "●" : "○"}</div>
+              <div className="w-4 h-4 rounded-full flex items-center justify-center text-[15px] font-bold" style={{ background: pStatus === "complete" ? `${phase.color}20` : pStatus === "in_progress" ? `${phase.color}10` : "transparent", color: phase.color, border: `1px solid ${phase.color}${pStatus !== "not_started" ? "60" : "20"}` }}>{pStatus === "complete" ? "✓" : pStatus === "in_progress" ? "●" : "○"}</div>
             </button>
           </React.Fragment>;
         })}
       </div>
-      <div className="text-[8px] text-[var(--text-muted)] mb-1">{(() => { const ci = PHASES.findIndex(p => p.modules.some(id => (moduleStatus[id] || "not_started") !== "complete") || p.modules.every(id => (moduleStatus[id] || "not_started") === "not_started")); return ci >= 0 ? `Phase ${ci+1} of 5 — ${PHASES[ci].label}` : "Journey complete"; })()}</div>
+      <div className="text-[15px] text-[var(--text-muted)] mb-1">{(() => { const ci = PHASES.findIndex(p => p.modules.some(id => (moduleStatus[id] || "not_started") !== "complete") || p.modules.every(id => (moduleStatus[id] || "not_started") === "not_started")); return ci >= 0 ? `Phase ${ci+1} of 5 — ${PHASES[ci].label}` : "Journey complete"; })()}</div>
       <div className="h-px bg-[var(--border)] my-3" />
-      <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-[1.2px] mb-2">Data Intake</div>
+      <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-[1.2px] mb-2">Data Intake</div>
       <input ref={fileRef} type="file" multiple accept=".xlsx,.xls,.csv" onChange={e => e.target.files && upload(e.target.files)} className="hidden" />
-      <button onClick={() => fileRef.current?.click()} className="w-full bg-[var(--accent-primary)] hover:opacity-90 text-white text-[12px] font-semibold py-1.5 rounded-md mb-1.5">⬆ Upload Files</button>
-      <a href="/api/template" download className="block w-full bg-[var(--surface-3)] hover:bg-[var(--hover)] border border-[var(--accent-primary)] text-[var(--accent-primary)] text-[12px] font-semibold py-1.5 rounded-md mb-1.5 text-center no-underline">⬇ Export Template</a>
-      <button onClick={reset} className="w-full bg-[var(--surface-2)] hover:bg-[var(--hover)] border border-[var(--border)] text-[var(--text-secondary)] text-[11px] font-semibold py-1 rounded-md">Reset</button>
-      {msg && <div className="mt-1.5 text-[11px] text-[var(--accent-primary)] bg-[rgba(212,134,10,0.1)] rounded px-2 py-1">{msg}</div>}
-      {!backendOk && <div className="mt-1.5 text-[11px] text-[var(--risk)] bg-[rgba(239,68,68,0.1)] rounded px-2 py-1.5 border border-[var(--risk)]/20">⚠ Backend offline<br/><span className="text-[10px] text-[var(--text-muted)]">Run: uvicorn main:app --port 8000</span></div>}
-      {backendOk && model && <div className="mt-1.5 text-[11px] text-[var(--success)] bg-[rgba(16,185,129,0.1)] rounded px-2 py-1">✓ Connected · {model}</div>}
+      <button onClick={() => fileRef.current?.click()} className="w-full bg-[var(--accent-primary)] hover:opacity-90 text-white text-[15px] font-semibold py-1.5 rounded-md mb-1.5">⬆ Upload Files</button>
+      <a href="/api/template" download className="block w-full bg-[var(--surface-3)] hover:bg-[var(--hover)] border border-[var(--accent-primary)] text-[var(--accent-primary)] text-[15px] font-semibold py-1.5 rounded-md mb-1.5 text-center no-underline">⬇ Export Template</a>
+      <button onClick={reset} className="w-full bg-[var(--surface-2)] hover:bg-[var(--hover)] border border-[var(--border)] text-[var(--text-secondary)] text-[15px] font-semibold py-1 rounded-md">Reset</button>
+      {msg && <div className="mt-1.5 text-[15px] text-[var(--accent-primary)] bg-[rgba(212,134,10,0.1)] rounded px-2 py-1">{msg}</div>}
+      {!backendOk && <div className="mt-1.5 text-[15px] text-[var(--risk)] bg-[rgba(239,68,68,0.1)] rounded px-2 py-1.5 border border-[var(--risk)]/20">⚠ Backend offline<br/><span className="text-[15px] text-[var(--text-muted)]">Run: uvicorn main:app --port 8000</span></div>}
+      {backendOk && model && <div className="mt-1.5 text-[15px] text-[var(--success)] bg-[rgba(16,185,129,0.1)] rounded px-2 py-1">✓ Connected · {model}</div>}
       <div className="h-px bg-[var(--border)] my-3" />
-      {viewMode !== "employee" && <><div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-[1.2px] mb-2">Model</div>
+      {viewMode !== "employee" && <><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-[1.2px] mb-2">Model</div>
       <SidebarSelect options={models.length ? models : [loadingModels ? "Loading..." : "No models"]} value={model || (models[0] || (loadingModels ? "Loading..." : "No models"))} onChange={setModel} />
       <div className="h-px bg-[var(--border)] my-3" /></>}
-      {viewMode !== "employee" && <><div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-[1.2px] mb-2">Active Job</div>
+      {viewMode !== "employee" && <><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-[1.2px] mb-2">Active Job</div>
       <SidebarSelect options={hasJobs ? ["All Jobs", ...jobs] : ["No jobs available"]} value={job || "All Jobs"} onChange={v => setJob(v === "All Jobs" || v === "No jobs available" ? "" : v)} />
       {job && job !== "All Jobs" && <div className="mt-1"><Badge color="indigo">{job}</Badge></div>}</>}
       <div className="h-px bg-[var(--border)] my-3" />
-      {viewMode === "org" && <div className="bg-[rgba(212,134,10,0.06)] border border-[var(--accent-primary)]/15 rounded-lg px-3 py-2 mb-2"><div className="text-[10px] font-bold text-[var(--accent-primary)] uppercase tracking-wider mb-0.5">🏢 Organization View</div><div className="text-[11px] text-[var(--text-muted)]">Full workforce analytics</div><button onClick={() => setViewMode("")} className="text-[10px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mt-1">Change View ↻</button></div>}
-      {viewMode === "employee" && viewEmployee && <div className="bg-[rgba(139,92,246,0.1)] border border-[var(--purple)]/20 rounded-lg px-3 py-2 mb-2"><div className="text-[10px] font-bold text-[var(--purple)] uppercase tracking-wider mb-0.5">👤 Employee View</div><div className="text-[13px] font-semibold text-[var(--text-primary)] truncate">{viewEmployee}</div><button onClick={() => setViewMode("")} className="text-[10px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mt-1">Change View ↻</button></div>}
-      {viewMode === "job" && viewJob && <div className="bg-[rgba(16,185,129,0.1)] border border-[var(--success)]/20 rounded-lg px-3 py-2 mb-2"><div className="text-[10px] font-bold text-[var(--success)] uppercase tracking-wider mb-0.5">💼 Job View</div><div className="text-[13px] font-semibold text-[var(--text-primary)] truncate">{viewJob}</div><button onClick={() => setViewMode("")} className="text-[10px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mt-1">Change View ↻</button></div>}
-      {viewMode === "custom" && <div className="bg-[rgba(232,197,71,0.08)] border border-[var(--warning)]/15 rounded-lg px-3 py-2 mb-2"><div className="text-[10px] font-bold text-[var(--warning)] uppercase tracking-wider mb-0.5">⚙️ Custom Slice</div><div className="text-[11px] text-[var(--text-muted)]">Filtered view</div><button onClick={() => setViewMode("")} className="text-[10px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mt-1">Change View ↻</button></div>}
-      {viewMode !== "employee" && <><div className="flex items-center justify-between mb-2"><span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-[1.2px]">Filters</span>{af > 0 && <span className="bg-[rgba(212,134,10,0.2)] text-[var(--accent-primary)] text-[11px] font-bold px-2 py-0.5 rounded-full">{af}</span>}</div>
+      {viewMode === "org" && <div className="bg-[rgba(212,134,10,0.06)] border border-[var(--accent-primary)]/15 rounded-lg px-3 py-2 mb-2"><div className="text-[15px] font-bold text-[var(--accent-primary)] uppercase tracking-wider mb-0.5">🏢 Organization View</div><div className="text-[15px] text-[var(--text-muted)]">Full workforce analytics</div><button onClick={() => setViewMode("")} className="text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mt-1">Change View ↻</button></div>}
+      {viewMode === "employee" && viewEmployee && <div className="bg-[rgba(139,92,246,0.1)] border border-[var(--purple)]/20 rounded-lg px-3 py-2 mb-2"><div className="text-[15px] font-bold text-[var(--purple)] uppercase tracking-wider mb-0.5">👤 Employee View</div><div className="text-[15px] font-semibold text-[var(--text-primary)] truncate">{viewEmployee}</div><button onClick={() => setViewMode("")} className="text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mt-1">Change View ↻</button></div>}
+      {viewMode === "job" && viewJob && <div className="bg-[rgba(16,185,129,0.1)] border border-[var(--success)]/20 rounded-lg px-3 py-2 mb-2"><div className="text-[15px] font-bold text-[var(--success)] uppercase tracking-wider mb-0.5">💼 Job View</div><div className="text-[15px] font-semibold text-[var(--text-primary)] truncate">{viewJob}</div><button onClick={() => setViewMode("")} className="text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mt-1">Change View ↻</button></div>}
+      {viewMode === "custom" && <div className="bg-[rgba(232,197,71,0.08)] border border-[var(--warning)]/15 rounded-lg px-3 py-2 mb-2"><div className="text-[15px] font-bold text-[var(--warning)] uppercase tracking-wider mb-0.5">⚙️ Custom Slice</div><div className="text-[15px] text-[var(--text-muted)]">Filtered view</div><button onClick={() => setViewMode("")} className="text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mt-1">Change View ↻</button></div>}
+      {viewMode !== "employee" && <><div className="flex items-center justify-between mb-2"><span className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-[1.2px]">Filters</span>{af > 0 && <span className="bg-[rgba(212,134,10,0.2)] text-[var(--accent-primary)] text-[15px] font-bold px-2 py-0.5 rounded-full">{af}</span>}</div>
       <SidebarSelect label="Function" options={fo.functions || ["All"]} value={f.func} onChange={v => setFilter("func", v)} />
       <SidebarSelect label="Job Family" options={fo.job_families || ["All"]} value={f.jf} onChange={v => setFilter("jf", v)} />
       <SidebarSelect label="Sub-Family" options={fo.sub_families || ["All"]} value={f.sf} onChange={v => setFilter("sf", v)} />
       <SidebarSelect label="Career Level" options={fo.career_levels || ["All"]} value={f.cl} onChange={v => setFilter("cl", v)} />
-      {af > 0 && <button onClick={clearFilters} className="w-full bg-[var(--surface-2)] hover:bg-[var(--hover)] border border-[var(--border)] text-[var(--text-secondary)] text-[11px] font-semibold py-1 rounded-md mt-1">Clear All</button>}</>}
+      {af > 0 && <button onClick={clearFilters} className="w-full bg-[var(--surface-2)] hover:bg-[var(--hover)] border border-[var(--border)] text-[var(--text-secondary)] text-[15px] font-semibold py-1 rounded-md mt-1">Clear All</button>}</>}
       {/* Decision Log + Platform Hub */}
       <div className="mt-auto">
         <div className="h-px bg-[var(--border)] my-3" />
-        <button onClick={() => setShowDecLog(!showDecLog)} className={`w-full text-left px-2 py-1.5 rounded-lg text-[11px] mb-1 flex items-center gap-2 transition-all ${showDecLog ? "bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] font-semibold" : "text-[var(--text-muted)] hover:bg-[var(--hover)]"}`}>
-          <span className="text-[13px]">📝</span> Decision Log {decisionLog.length > 0 && <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] font-bold">{decisionLog.length}</span>}
+        <button onClick={() => setShowDecLog(!showDecLog)} className={`w-full text-left px-2 py-1.5 rounded-lg text-[15px] mb-1 flex items-center gap-2 transition-all ${showDecLog ? "bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] font-semibold" : "text-[var(--text-muted)] hover:bg-[var(--hover)]"}`}>
+          <span className="text-[15px]">📝</span> Decision Log {decisionLog.length > 0 && <span className="text-[14px] px-1.5 py-0.5 rounded-full bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] font-bold">{decisionLog.length}</span>}
         </button>
         <button onClick={() => { if (onShowPlatformHub) onShowPlatformHub(); }} className="w-full rounded-xl p-2.5 text-left transition-all group" style={{ background: "rgba(212,134,10,0.03)", border: "1px solid rgba(212,134,10,0.08)" }} onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(212,134,10,0.2)"; e.currentTarget.style.boxShadow = "0 0 12px rgba(212,134,10,0.06)"; }} onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(212,134,10,0.08)"; e.currentTarget.style.boxShadow = "none"; }}>
-          <div className="text-[10px] font-bold font-heading group-hover:text-[var(--accent-primary)] transition-colors" style={{ color: "rgba(212,134,10,0.6)" }}>AI Transformation</div>
-          <div className="text-[9px]" style={{ color: "rgba(212,134,10,0.3)" }}>Account & Info</div>
+          <div className="text-[15px] font-bold font-heading group-hover:text-[var(--accent-primary)] transition-colors" style={{ color: "rgba(212,134,10,0.6)" }}>AI Transformation</div>
+          <div className="text-[14px]" style={{ color: "rgba(212,134,10,0.3)" }}>Account & Info</div>
         </button>
       </div>
 
@@ -669,26 +655,26 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
             { icon: "🏠", label: "Platform Hub", action: () => { setAccountMenuOpen(false); if (onShowPlatformHub) onShowPlatformHub(); } },
             { icon: "📂", label: "My Projects", action: () => { setAccountMenuOpen(false); onBackToHub(); } },
             ...((user?.username === "hiral") ? [{ icon: "🛡️", label: "Admin Panel", action: () => { setAccountMenuOpen(false); if (onShowPlatformHub) onShowPlatformHub(); } }] : []),
-          ].map(item => <button key={item.label} onClick={item.action} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] font-semibold text-[var(--text-secondary)] transition-all" style={{ background: "transparent" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(212,134,10,0.08)"; e.currentTarget.style.color = "#f5e6d0"; }} onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}>
-            <span className="text-[13px]">{item.icon}</span>{item.label}
+          ].map(item => <button key={item.label} onClick={item.action} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[15px] font-semibold text-[var(--text-secondary)] transition-all" style={{ background: "transparent" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(212,134,10,0.08)"; e.currentTarget.style.color = "#f5e6d0"; }} onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}>
+            <span className="text-[15px]">{item.icon}</span>{item.label}
           </button>)}
           <div className="h-px mx-2 my-1" style={{ background: "rgba(212,134,10,0.1)" }} />
-          <button onClick={() => { setAccountMenuOpen(false); authApi.logout(); }} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] font-semibold text-[var(--text-muted)] transition-all" style={{ background: "transparent" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(239,68,68,0.08)"; e.currentTarget.style.color = "#ef4444"; }} onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-muted)"; }}>
-            <span className="text-[13px]">🚪</span>Sign Out
+          <button onClick={() => { setAccountMenuOpen(false); authApi.logout(); }} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[15px] font-semibold text-[var(--text-muted)] transition-all" style={{ background: "transparent" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(239,68,68,0.08)"; e.currentTarget.style.color = "#ef4444"; }} onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-muted)"; }}>
+            <span className="text-[15px]">🚪</span>Sign Out
           </button>
           <style>{`@keyframes menuFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }`}</style>
         </div>}
 
         {/* Avatar + name — clickable to open dropdown */}
         {user && <button onClick={() => setAccountMenuOpen(!accountMenuOpen)} className="w-full flex items-center gap-2 mb-2 rounded-lg px-1 py-1 transition-all" style={{ background: accountMenuOpen ? "rgba(212,134,10,0.06)" : "transparent", cursor: "pointer", border: "none", textAlign: "left" }} onMouseEnter={e => { if (!accountMenuOpen) e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }} onMouseLeave={e => { if (!accountMenuOpen) e.currentTarget.style.background = "transparent"; }}>
-          <div className="w-7 h-7 rounded-lg flex items-center justify-center text-[11px] font-bold shrink-0" style={{ background: "linear-gradient(135deg, rgba(212,134,10,0.2), rgba(192,112,48,0.15))", border: "1px solid rgba(224,144,64,0.2)", color: "#e09040", fontFamily: "'Outfit', sans-serif" }}>{(user.display_name || user.username || "U")[0].toUpperCase()}</div>
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center text-[15px] font-bold shrink-0" style={{ background: "linear-gradient(135deg, rgba(212,134,10,0.2), rgba(192,112,48,0.15))", border: "1px solid rgba(224,144,64,0.2)", color: "#e09040", fontFamily: "'Outfit', sans-serif" }}>{(user.display_name || user.username || "U")[0].toUpperCase()}</div>
           <div className="flex-1 min-w-0">
-            <div className="text-[11px] font-semibold text-[var(--text-primary)] truncate">{user.display_name || user.username}</div>
-            {user.last_login && <div className="text-[8px] text-[var(--text-muted)] font-data truncate">Last: {new Date(user.last_login).toLocaleDateString()}</div>}
+            <div className="text-[15px] font-semibold text-[var(--text-primary)] truncate">{user.display_name || user.username}</div>
+            {user.last_login && <div className="text-[15px] text-[var(--text-muted)] font-data truncate">Last: {new Date(user.last_login).toLocaleDateString()}</div>}
           </div>
-          <span className="text-[9px] text-[var(--text-muted)]">{accountMenuOpen ? "▾" : "▸"}</span>
+          <span className="text-[14px] text-[var(--text-muted)]">{accountMenuOpen ? "▾" : "▸"}</span>
         </button>}
-        <div className="text-center text-[9px] text-[var(--text-muted)] mt-1 opacity-50">v4.0</div>
+        <div className="text-center text-[14px] text-[var(--text-muted)] mt-1 opacity-50">v4.0</div>
       </div>
     </aside>
 
@@ -723,14 +709,14 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       {page === "simulate" && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ImpactSimulator onBack={goHome} onNavigate={navigate} model={model} viewCtx={viewCtx} f={f} jobStates={jobStates} simState={simState} setSimState={setSimState} /></ErrorBoundary>}
       {page === "build" && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><OrgDesignStudio onBack={goHome} viewCtx={viewCtx} model={model} f={f} odsState={odsState} setOdsState={setOdsState} /></ErrorBoundary>}
       {page === "plan" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ChangePlanner model={model} f={f} onBack={goHome} onNavigate={navigate} jobStates={jobStates} viewCtx={viewCtx} /></ErrorBoundary>}
-      {page === "opmodel" && viewCtx.mode === "job" && <div className="px-7 py-6"><div className="text-center py-20"><div className="text-4xl mb-3 opacity-30">🔒</div><h3 className="text-lg font-semibold mb-1">Not available in Job View</h3><p className="text-[13px] text-[var(--text-secondary)] mb-2">Operating Model Lab is available in:</p><div className="flex gap-2 justify-center mb-4"><Badge color="indigo">🏢 Organization</Badge><Badge color="amber">⚙️ Custom</Badge></div><button onClick={() => setViewMode("")} className="text-[var(--accent-primary)] text-[13px] font-semibold">Change View ↻</button></div></div>}
+      {page === "opmodel" && viewCtx.mode === "job" && <div className="px-7 py-6"><div className="text-center py-20"><div className="text-4xl mb-3 opacity-30">🔒</div><h3 className="text-lg font-semibold mb-1">Not available in Job View</h3><p className="text-[15px] text-[var(--text-secondary)] mb-2">Operating Model Lab is available in:</p><div className="flex gap-2 justify-center mb-4"><Badge color="indigo">🏢 Organization</Badge><Badge color="amber">⚙️ Custom</Badge></div><button onClick={() => setViewMode("")} className="text-[var(--accent-primary)] text-[15px] font-semibold">Change View ↻</button></div></div>}
       {page === "opmodel" && viewCtx.mode !== "employee" && viewCtx.mode !== "job" && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><OperatingModelLab onBack={goHome} model={model} f={f} projectId={projectId} onNavigateCanvas={() => navigate("om_canvas")} onModelChange={setModel} /></ErrorBoundary>}
-      {(page === "design" && viewCtx.mode === "employee") && <div className="text-center py-20"><div className="text-4xl mb-3 opacity-30">🔒</div><h3 className="text-lg font-semibold mb-1">Not available in Employee View</h3><p className="text-[13px] text-[var(--text-secondary)] mb-2">Work Design Lab is available in these views:</p><div className="flex gap-2 justify-center mb-4"><Badge color="indigo">🏢 Organization</Badge><Badge color="green">💼 Job</Badge><Badge color="amber">⚙️ Custom</Badge></div><button onClick={() => setViewMode("")} className="text-[var(--accent-primary)] text-[13px] font-semibold">Change View ↻</button></div>}
-      {(page === "opmodel" && viewCtx.mode === "employee") && <div className="text-center py-20"><div className="text-4xl mb-3 opacity-30">🔒</div><h3 className="text-lg font-semibold mb-1">Not available in Employee View</h3><p className="text-[13px] text-[var(--text-secondary)] mb-2">Operating Model Lab is available in these views:</p><div className="flex gap-2 justify-center mb-4"><Badge color="indigo">🏢 Organization</Badge><Badge color="amber">⚙️ Custom</Badge></div><button onClick={() => setViewMode("")} className="text-[var(--accent-primary)] text-[13px] font-semibold">Change View ↻</button></div>}
+      {(page === "design" && viewCtx.mode === "employee") && <div className="text-center py-20"><div className="text-4xl mb-3 opacity-30">🔒</div><h3 className="text-lg font-semibold mb-1">Not available in Employee View</h3><p className="text-[15px] text-[var(--text-secondary)] mb-2">Work Design Lab is available in these views:</p><div className="flex gap-2 justify-center mb-4"><Badge color="indigo">🏢 Organization</Badge><Badge color="green">💼 Job</Badge><Badge color="amber">⚙️ Custom</Badge></div><button onClick={() => setViewMode("")} className="text-[var(--accent-primary)] text-[15px] font-semibold">Change View ↻</button></div>}
+      {(page === "opmodel" && viewCtx.mode === "employee") && <div className="text-center py-20"><div className="text-4xl mb-3 opacity-30">🔒</div><h3 className="text-lg font-semibold mb-1">Not available in Employee View</h3><p className="text-[15px] text-[var(--text-secondary)] mb-2">Operating Model Lab is available in these views:</p><div className="flex gap-2 justify-center mb-4"><Badge color="indigo">🏢 Organization</Badge><Badge color="amber">⚙️ Custom</Badge></div><button onClick={() => setViewMode("")} className="text-[var(--accent-primary)] text-[15px] font-semibold">Change View ↻</button></div>}
       {page === "om_canvas" && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><OMDesignCanvas projectId={projectId} onBack={goHome} onNavigateLab={() => navigate("opmodel")} /></ErrorBoundary>}
       {page === "rolecompare" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><RoleComparison model={model} f={f} onBack={goHome} jobs={jobs} jobStates={jobStates} /></ErrorBoundary>}
       {page === "quickwins" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><QuickWinIdentifier model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
-      {!model && page !== "home" && <div className="text-center py-20"><div className="text-4xl mb-3 opacity-30">📂</div><h3 className="text-lg font-semibold mb-1">Select a model first</h3><p className="text-[13px] text-[var(--text-secondary)]">Upload data or select Demo_Model in the sidebar.</p><button onClick={goHome} className="mt-4 text-[var(--accent-primary)] text-[13px] font-semibold">← Back to Home</button></div>}
+      {!model && page !== "home" && <div className="text-center py-20"><div className="text-4xl mb-3 opacity-30">📂</div><h3 className="text-lg font-semibold mb-1">Select a model first</h3><p className="text-[15px] text-[var(--text-secondary)]">Upload data or select Demo_Model in the sidebar.</p><button onClick={goHome} className="mt-4 text-[var(--accent-primary)] text-[15px] font-semibold">← Back to Home</button></div>}
       </div>}
     </main>
     {page !== "home" && <div><AiEspressoButton moduleId={page} contextData={buildAiContext()} viewMode={viewMode} /></div>}
@@ -740,22 +726,22 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
     {/* Decision Log Slide-out Panel */}
     {showDecLog && <div className="fixed top-0 right-0 bottom-0 w-[380px] z-[9998] bg-[var(--surface-1)] border-l border-[var(--border)] shadow-2xl flex flex-col animate-slide-right" style={{ boxShadow: "-8px 0 30px rgba(0,0,0,0.3)" }}>
       <div className="px-4 py-3 border-b border-[var(--border)] flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-2"><span className="text-lg">📝</span><h3 className="text-[14px] font-bold font-heading text-[var(--text-primary)]">Decision Log</h3><span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[var(--accent-primary)]/15 text-[var(--accent-primary)] font-bold">{decisionLog.length}</span></div>
+        <div className="flex items-center gap-2"><span className="text-lg">📝</span><h3 className="text-[14px] font-bold font-heading text-[var(--text-primary)]">Decision Log</h3><span className="text-[14px] px-1.5 py-0.5 rounded-full bg-[var(--accent-primary)]/15 text-[var(--accent-primary)] font-bold">{decisionLog.length}</span></div>
         <button onClick={() => setShowDecLog(false)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">✕</button>
       </div>
       <div className="px-4 py-2 border-b border-[var(--border)] flex gap-1 shrink-0 overflow-x-auto">
-        {["All", ...Array.from(new Set(decisionLog.map(d => d.module)))].map(m => <button key={m} onClick={() => setDecLogFilter(m)} className={`px-2 py-1 rounded text-[9px] font-semibold whitespace-nowrap ${decLogFilter === m ? "bg-[var(--accent-primary)] text-white" : "text-[var(--text-muted)] border border-[var(--border)]"}`}>{m}</button>)}
+        {["All", ...Array.from(new Set(decisionLog.map(d => d.module)))].map(m => <button key={m} onClick={() => setDecLogFilter(m)} className={`px-2 py-1 rounded text-[14px] font-semibold whitespace-nowrap ${decLogFilter === m ? "bg-[var(--accent-primary)] text-white" : "text-[var(--text-muted)] border border-[var(--border)]"}`}>{m}</button>)}
       </div>
       <div className="flex-1 overflow-y-auto px-4 py-3">
-        {decisionLog.length === 0 ? <div className="text-center py-12 text-[var(--text-muted)]"><div className="text-3xl mb-2 opacity-30">📝</div><div className="text-[12px]">No decisions logged yet.<br/>Actions in any module are automatically recorded here.</div></div> :
+        {decisionLog.length === 0 ? <div className="text-center py-12 text-[var(--text-muted)]"><div className="text-3xl mb-2 opacity-30">📝</div><div className="text-[15px]">No decisions logged yet.<br/>Actions in any module are automatically recorded here.</div></div> :
         <div className="space-y-2">
           {decisionLog.filter(d => decLogFilter === "All" || d.module === decLogFilter).sort((a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime()).map((d, i) => <div key={i} className="bg-[var(--surface-2)] rounded-xl p-3 border border-[var(--border)]">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] font-bold">{d.module}</span>
-              <span className="text-[9px] text-[var(--text-muted)] font-data">{new Date(d.ts).toLocaleDateString()} {new Date(d.ts).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}</span>
+              <span className="text-[14px] px-1.5 py-0.5 rounded-full bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] font-bold">{d.module}</span>
+              <span className="text-[14px] text-[var(--text-muted)] font-data">{new Date(d.ts).toLocaleDateString()} {new Date(d.ts).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}</span>
             </div>
-            <div className="text-[12px] font-semibold text-[var(--text-primary)]">{d.action}</div>
-            <div className="text-[10px] text-[var(--text-secondary)] mt-0.5">{d.detail}</div>
+            <div className="text-[15px] font-semibold text-[var(--text-primary)]">{d.action}</div>
+            <div className="text-[15px] text-[var(--text-secondary)] mt-0.5">{d.detail}</div>
           </div>)}
         </div>}
       </div>
@@ -1042,7 +1028,7 @@ function SandboxViewSelector({ companyName, onSelect }: { companyName: string; o
   return <div style={{ position: "fixed", inset: 0, zIndex: 60, background: "#0B1120", display: "flex", alignItems: "center", justifyContent: "center", opacity: visible ? 1 : 0, transition: "opacity 0.5s ease" }}>
     <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 30%, rgba(212,134,10,0.1) 0%, transparent 60%), radial-gradient(ellipse at 80% 70%, rgba(192,112,48,0.05) 0%, transparent 50%)" }} />
     <div style={{ position: "relative", zIndex: 1, maxWidth: 720, width: "100%", padding: "0 24px", textAlign: "center", transform: visible ? "translateY(0)" : "translateY(12px)", transition: "transform 0.5s ease" }}>
-      <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(224,144,64,0.5)", letterSpacing: 2, marginBottom: 12, textTransform: "uppercase" }}>Welcome to</div>
+      <div style={{ fontSize: 15, fontWeight: 700, color: "rgba(224,144,64,0.5)", letterSpacing: 2, marginBottom: 12, textTransform: "uppercase" }}>Welcome to</div>
       <h2 style={{ fontSize: 32, fontWeight: 800, color: "#f5e6d0", fontFamily: "'Outfit', sans-serif", marginBottom: 8, textShadow: "0 2px 20px rgba(0,0,0,0.3)" }}>{companyName}</h2>
       <p style={{ fontSize: 15, color: "rgba(255,230,200,0.45)", marginBottom: 36 }}>How would you like to explore this organization?</p>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
@@ -1051,10 +1037,10 @@ function SandboxViewSelector({ companyName, onSelect }: { companyName: string; o
             <span style={{ fontSize: 28, filter: "drop-shadow(0 2px 6px rgba(212,134,10,0.2))" }}>{v.icon}</span>
             <span style={{ fontSize: 17, fontWeight: 700, color: "#f5e6d0", fontFamily: "'Outfit', sans-serif" }}>{v.label}</span>
           </div>
-          <p style={{ fontSize: 12, color: "rgba(255,230,200,0.35)", lineHeight: 1.7, margin: 0 }}>{v.desc}</p>
+          <p style={{ fontSize: 15, color: "rgba(255,230,200,0.35)", lineHeight: 1.7, margin: 0 }}>{v.desc}</p>
         </button>)}
       </div>
-      <p style={{ fontSize: 11, color: "rgba(255,230,200,0.2)", marginTop: 24 }}>You can change your view anytime from the sidebar</p>
+      <p style={{ fontSize: 15, color: "rgba(255,230,200,0.2)", marginTop: 24 }}>You can change your view anytime from the sidebar</p>
     </div>
   </div>;
 }
@@ -1109,20 +1095,20 @@ function TutorialOverlay({ step, totalSteps, steps, onNext, onPrev, onClose, onJ
           <span style={{ fontSize: 26, flexShrink: 0 }}>{s.icon}</span>
           <div style={{ minWidth: 0 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
-              <span style={{ fontSize: 10, fontWeight: 700, color: "#D4860A", letterSpacing: 1 }}>STEP {step + 1}/{totalSteps}</span>
-              <span style={{ fontSize: 9, fontWeight: 700, color: phaseColor, background: `${phaseColor}18`, padding: "1px 7px", borderRadius: 4 }}>{phaseLabel}</span>
-              <span style={{ fontSize: 9, color: "rgba(255,230,200,0.3)" }}>{pct}%</span>
+              <span style={{ fontSize: 15, fontWeight: 700, color: "#D4860A", letterSpacing: 1 }}>STEP {step + 1}/{totalSteps}</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: phaseColor, background: `${phaseColor}18`, padding: "1px 7px", borderRadius: 4 }}>{phaseLabel}</span>
+              <span style={{ fontSize: 14, color: "rgba(255,230,200,0.3)" }}>{pct}%</span>
             </div>
             <div style={{ fontSize: 15, fontWeight: 800, color: "#f5e6d0", fontFamily: "'Outfit', sans-serif", lineHeight: 1.2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.title}</div>
           </div>
         </div>
-        <button onClick={onClose} title="Close tutorial" style={{ width: 26, height: 26, borderRadius: 7, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", cursor: "pointer", color: "rgba(255,230,200,0.35)", fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "#f5e6d0"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; e.currentTarget.style.color = "rgba(255,230,200,0.35)"; }}>✕</button>
+        <button onClick={onClose} title="Close tutorial" style={{ width: 26, height: 26, borderRadius: 7, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", cursor: "pointer", color: "rgba(255,230,200,0.35)", fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "#f5e6d0"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; e.currentTarget.style.color = "rgba(255,230,200,0.35)"; }}>✕</button>
       </div>
     </div>
 
     {/* Body — scrollable */}
     <div style={{ padding: "12px 16px 10px", overflowY: "auto", flex: 1, minHeight: 0 }}>
-      <p style={{ fontSize: 13, lineHeight: 1.75, color: "rgba(255,230,200,0.6)", margin: 0 }}>{s.body}</p>
+      <p style={{ fontSize: 15, lineHeight: 1.75, color: "rgba(255,230,200,0.6)", margin: 0 }}>{s.body}</p>
     </div>
 
     {/* Step dots */}
@@ -1132,9 +1118,9 @@ function TutorialOverlay({ step, totalSteps, steps, onNext, onPrev, onClose, onJ
 
     {/* Controls */}
     <div style={{ padding: "8px 16px 14px", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0, gap: 8 }}>
-      <button onClick={onPrev} disabled={step === 0} style={{ padding: "8px 14px", borderRadius: 10, fontSize: 12, fontWeight: 600, cursor: step === 0 ? "not-allowed" : "pointer", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,230,200,0.5)", opacity: step === 0 ? 0.3 : 1, transition: "all 0.2s" }}>Back</button>
-      <button onClick={onClose} style={{ padding: "6px 12px", borderRadius: 8, fontSize: 10, cursor: "pointer", background: "none", border: "none", color: "rgba(255,230,200,0.25)", transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.color = "rgba(255,230,200,0.5)"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,230,200,0.25)"}>Skip Tour</button>
-      <button onClick={onNext} style={{ padding: "8px 20px", borderRadius: 10, fontSize: 12, fontWeight: 700, cursor: "pointer", border: "none", color: "#fff", background: isLast ? "linear-gradient(135deg, #10B981, #059669)" : "linear-gradient(135deg, #E09040, #C07030)", boxShadow: isLast ? "0 3px 10px rgba(16,185,129,0.25)" : "0 3px 10px rgba(224,144,64,0.2)", transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.transform = "translateY(-1px)"} onMouseLeave={e => e.currentTarget.style.transform = "none"}>{isLast ? "Finish Tour" : "Next"}</button>
+      <button onClick={onPrev} disabled={step === 0} style={{ padding: "8px 14px", borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: step === 0 ? "not-allowed" : "pointer", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,230,200,0.5)", opacity: step === 0 ? 0.3 : 1, transition: "all 0.2s" }}>Back</button>
+      <button onClick={onClose} style={{ padding: "6px 12px", borderRadius: 8, fontSize: 15, cursor: "pointer", background: "none", border: "none", color: "rgba(255,230,200,0.25)", transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.color = "rgba(255,230,200,0.5)"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,230,200,0.25)"}>Skip Tour</button>
+      <button onClick={onNext} style={{ padding: "8px 20px", borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: "pointer", border: "none", color: "#fff", background: isLast ? "linear-gradient(135deg, #10B981, #059669)" : "linear-gradient(135deg, #E09040, #C07030)", boxShadow: isLast ? "0 3px 10px rgba(16,185,129,0.25)" : "0 3px 10px rgba(224,144,64,0.2)", transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.transform = "translateY(-1px)"} onMouseLeave={e => e.currentTarget.style.transform = "none"}>{isLast ? "Finish Tour" : "Next"}</button>
     </div>
   </div>;
 }
@@ -1142,10 +1128,10 @@ function TutorialOverlay({ step, totalSteps, steps, onNext, onPrev, onClose, onJ
 /* ═══ TUTORIAL BADGE — persistent reopener with progress ═══ */
 function TutorialBadge({ onClick, step, total }: { onClick: () => void; step: number; total: number }) {
   const pct = Math.round(((step + 1) / total) * 100);
-  return <button onClick={onClick} style={{ position: "fixed", bottom: 16, right: 16, zIndex: 40, padding: "8px 14px", borderRadius: 14, fontSize: 11, fontWeight: 700, cursor: "pointer", background: "rgba(15,12,8,0.92)", backdropFilter: "blur(16px)", border: "1px solid rgba(212,134,10,0.15)", color: "#E09040", display: "flex", alignItems: "center", gap: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.3)", transition: "all 0.3s" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.35)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.15)"; }}>
+  return <button onClick={onClick} style={{ position: "fixed", bottom: 16, right: 16, zIndex: 40, padding: "8px 14px", borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: "pointer", background: "rgba(15,12,8,0.92)", backdropFilter: "blur(16px)", border: "1px solid rgba(212,134,10,0.15)", color: "#E09040", display: "flex", alignItems: "center", gap: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.3)", transition: "all 0.3s" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.35)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.15)"; }}>
     <span>🎓</span>
     <span>Tutorial</span>
-    <span style={{ fontSize: 9, opacity: 0.5 }}>{pct}%</span>
+    <span style={{ fontSize: 14, opacity: 0.5 }}>{pct}%</span>
     <div style={{ width: 28, height: 3, borderRadius: 2, background: "rgba(212,134,10,0.15)", overflow: "hidden" }}><div style={{ width: `${pct}%`, height: "100%", background: "#D4860A", borderRadius: 2 }} /></div>
   </button>;
 }
@@ -1257,7 +1243,7 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
       <div style={{ position: "absolute", inset: 0, background: sandboxPanelOpen ? "rgba(8,12,24,0.55)" : "radial-gradient(ellipse at 35% 40%, rgba(8,12,24,0.1) 0%, rgba(8,12,24,0.35) 50%, rgba(8,12,24,0.6) 100%)", transition: "background 0.5s ease" }} />
 
       {/* Back button */}
-      <button onClick={() => { setSandboxOpen(false); setSandboxPanelOpen(false); }} style={{ position: "absolute", top: 24, left: 24, zIndex: 30, padding: "8px 16px", borderRadius: 12, fontSize: 13, fontWeight: 600, cursor: "pointer", background: "rgba(0,0,0,0.4)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,200,150,0.12)", color: "rgba(255,230,200,0.8)", transition: "all 0.2s" }}>← Back</button>
+      <button onClick={() => { setSandboxOpen(false); setSandboxPanelOpen(false); }} style={{ position: "absolute", top: 24, left: 24, zIndex: 30, padding: "8px 16px", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: "pointer", background: "rgba(0,0,0,0.4)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,200,150,0.12)", color: "rgba(255,230,200,0.8)", transition: "all 0.2s" }}>← Back</button>
 
       {/* Click-to-open area */}
       {!sandboxPanelOpen && <div style={{ position: "absolute", inset: 0, zIndex: 10, cursor: "pointer" }} onClick={() => setSandboxPanelOpen(true)}>
@@ -1275,7 +1261,7 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
             <div>
               <div style={{ fontSize: 20, fontWeight: 800, color: "rgba(255,245,235,0.95)" }}>🎓 Industry Sandbox</div>
-              <div style={{ fontSize: 12, color: "rgba(200,180,255,0.4)", marginTop: 4 }}>24 real companies · 8 industries × 3 market caps</div>
+              <div style={{ fontSize: 15, color: "rgba(200,180,255,0.4)", marginTop: 4 }}>24 real companies · 8 industries × 3 market caps</div>
             </div>
             <button onClick={() => setSandboxPanelOpen(false)} style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,200,150,0.08)", cursor: "pointer", color: "rgba(255,200,150,0.4)", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
           </div>
@@ -1284,10 +1270,10 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: 4 }}>
               <thead><tr>
-                <th style={{ fontSize: 10, color: "rgba(200,180,255,0.3)", textAlign: "left", padding: "6px 10px", fontWeight: 700 }}>INDUSTRY</th>
-                <th style={{ fontSize: 10, color: "rgba(16,185,129,0.6)", textAlign: "center", padding: "6px", fontWeight: 700 }}>SMALL</th>
-                <th style={{ fontSize: 10, color: "rgba(212,134,10,0.6)", textAlign: "center", padding: "6px", fontWeight: 700 }}>MID-CAP</th>
-                <th style={{ fontSize: 10, color: "rgba(239,68,68,0.6)", textAlign: "center", padding: "6px", fontWeight: 700 }}>LARGE-CAP</th>
+                <th style={{ fontSize: 15, color: "rgba(200,180,255,0.3)", textAlign: "left", padding: "6px 10px", fontWeight: 700 }}>INDUSTRY</th>
+                <th style={{ fontSize: 15, color: "rgba(16,185,129,0.6)", textAlign: "center", padding: "6px", fontWeight: 700 }}>SMALL</th>
+                <th style={{ fontSize: 15, color: "rgba(212,134,10,0.6)", textAlign: "center", padding: "6px", fontWeight: 700 }}>MID-CAP</th>
+                <th style={{ fontSize: 15, color: "rgba(239,68,68,0.6)", textAlign: "center", padding: "6px", fontWeight: 700 }}>LARGE-CAP</th>
               </tr></thead>
               <tbody>{[
                 { id: "technology", icon: "💻", label: "Technology", s: "Palantir · 3,800", m: "ServiceNow · 8,000", l: "Adobe · 25,000" },
@@ -1299,7 +1285,7 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
                 { id: "energy", icon: "⚡", label: "Energy", s: "Shoals Tech · 1,800", m: "Chesapeake · 3,000", l: "Baker Hughes · 25,000" },
                 { id: "aerospace", icon: "🚀", label: "Aerospace", s: "Kratos · 4,000", m: "L3Harris · 8,000", l: "Northrop Grumman · 25,000" },
               ].map(ind => <tr key={ind.id}>
-                <td style={{ fontSize: 12, color: "rgba(200,180,255,0.7)", padding: "3px 10px", fontWeight: 600 }}><span style={{ marginRight: 6 }}>{ind.icon}</span>{ind.label}</td>
+                <td style={{ fontSize: 15, color: "rgba(200,180,255,0.7)", padding: "3px 10px", fontWeight: 600 }}><span style={{ marginRight: 6 }}>{ind.icon}</span>{ind.label}</td>
                 {[{size: "small", info: ind.s, color: "rgba(16,185,129,0.12)", border: "rgba(16,185,129,0.25)", text: "#6EE7B7"}, {size: "mid", info: ind.m, color: "rgba(212,134,10,0.12)", border: "rgba(212,134,10,0.25)", text: "#E8C547"}, {size: "large", info: ind.l, color: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.18)", text: "#FCA5A5"}].map(t => <td key={t.size} style={{ padding: 2 }}><button disabled={!!seedingId} onClick={async (e) => {
                   e.stopPropagation();
                   const tid = `tutorial_${t.size}_${ind.id}`;
@@ -1308,15 +1294,15 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
                   seedTutorialData(tid, ind.id);
                   setSeedingId(null);
                   setPendingSandbox({ id: tid, name: `${ind.icon} ${ind.label} — ${t.size === "small" ? "Small" : t.size === "mid" ? "Mid-Cap" : "Large-Cap"}`, meta: `${t.info} · Guided Tour` });
-                }} style={{ width: "100%", padding: "7px 8px", borderRadius: 10, fontSize: 10, fontWeight: 600, cursor: seedingId ? "wait" : "pointer", background: seedingId === `tutorial_${t.size}_${ind.id}` ? "rgba(139,92,246,0.25)" : t.color, border: `1px solid ${seedingId === `tutorial_${t.size}_${ind.id}` ? "rgba(139,92,246,0.5)" : t.border}`, color: t.text, transition: "all 0.2s", textAlign: "center", lineHeight: 1.4, opacity: seedingId && seedingId !== `tutorial_${t.size}_${ind.id}` ? 0.4 : 1 }} onMouseEnter={e => { if (!seedingId) { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.borderColor = t.text; }}} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = t.border; }}>{seedingId === `tutorial_${t.size}_${ind.id}` ? "⏳ Loading..." : t.info}</button></td>)}
+                }} style={{ width: "100%", padding: "7px 8px", borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: seedingId ? "wait" : "pointer", background: seedingId === `tutorial_${t.size}_${ind.id}` ? "rgba(139,92,246,0.25)" : t.color, border: `1px solid ${seedingId === `tutorial_${t.size}_${ind.id}` ? "rgba(139,92,246,0.5)" : t.border}`, color: t.text, transition: "all 0.2s", textAlign: "center", lineHeight: 1.4, opacity: seedingId && seedingId !== `tutorial_${t.size}_${ind.id}` ? 0.4 : 1 }} onMouseEnter={e => { if (!seedingId) { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.borderColor = t.text; }}} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = t.border; }}>{seedingId === `tutorial_${t.size}_${ind.id}` ? "⏳ Loading..." : t.info}</button></td>)}
               </tr>)}</tbody>
             </table>
           </div>
 
           {/* Guided tour note */}
           <div style={{ marginTop: 20, padding: "12px 16px", borderRadius: 12, background: "rgba(139,92,246,0.06)", border: "1px solid rgba(139,92,246,0.12)" }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(139,92,246,0.7)", marginBottom: 4 }}>✨ Each sandbox includes:</div>
-            <div style={{ fontSize: 11, color: "rgba(200,180,255,0.4)", lineHeight: 1.6 }}>Full employee roster · Task-level work design · Skills inventory · AI readiness scores · Manager capability · Change readiness · 27-step guided tutorial</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: "rgba(139,92,246,0.7)", marginBottom: 4 }}>✨ Each sandbox includes:</div>
+            <div style={{ fontSize: 15, color: "rgba(200,180,255,0.4)", lineHeight: 1.6 }}>Full employee roster · Task-level work design · Skills inventory · AI readiness scores · Manager capability · Change readiness · 27-step guided tutorial</div>
           </div>
         </div>
       </div>
@@ -1343,14 +1329,14 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
           <div onClick={() => setSandboxOpen(true)} style={{ width: 380, minHeight: 180, borderRadius: 22, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, transition: "all 0.35s cubic-bezier(0.16,1,0.3,1)", background: "linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.08))", backdropFilter: "blur(20px)", border: "1px solid rgba(139,92,246,0.2)", position: "relative", overflow: "hidden" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-6px) scale(1.02)"; e.currentTarget.style.boxShadow = "0 24px 60px rgba(99,102,241,0.15)"; e.currentTarget.style.borderColor = "rgba(139,92,246,0.4)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.borderColor = "rgba(139,92,246,0.2)"; }}>
             <div className="text-4xl" style={{ filter: "drop-shadow(0 2px 8px rgba(139,92,246,0.3))" }}>🎓</div>
             <div className="text-[18px] font-bold text-white">Sandbox</div>
-            <div className="text-[12px]" style={{ color: "rgba(200,180,255,0.4)" }}>24 real companies · 8 industries</div>
+            <div className="text-[15px]" style={{ color: "rgba(200,180,255,0.4)" }}>24 real companies · 8 industries</div>
           </div>
 
           {/* New Project card */}
           <div onClick={() => setModalOpen(true)} style={{ width: 380, minHeight: 180, borderRadius: 22, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, transition: "all 0.35s cubic-bezier(0.16,1,0.3,1)", background: "rgba(255,230,200,0.1)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,200,150,0.15)", position: "relative", overflow: "hidden" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-6px) scale(1.02)"; e.currentTarget.style.boxShadow = "0 24px 60px rgba(0,0,0,0.2)"; e.currentTarget.style.background = "rgba(255,230,200,0.18)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.background = "rgba(255,230,200,0.1)"; }}>
             <div className="text-4xl" style={{ filter: "drop-shadow(0 2px 8px rgba(200,120,40,0.3))" }}>✨</div>
             <div className="text-[18px] font-bold text-white">New Project</div>
-            <div className="text-[12px]" style={{ color: "rgba(255,220,180,0.4)" }}>Start a transformation</div>
+            <div className="text-[15px]" style={{ color: "rgba(255,220,180,0.4)" }}>Start a transformation</div>
           </div>
         </div>
 
@@ -1360,7 +1346,7 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
             <div className="flex items-center gap-2">
               <span className="text-lg">📂</span>
               <span className="text-[15px] font-bold text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>My Projects</span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "rgba(212,134,10,0.12)", color: "rgba(232,197,71,0.7)" }}>{projects.length}</span>
+              <span className="text-[15px] px-2 py-0.5 rounded-full" style={{ background: "rgba(212,134,10,0.12)", color: "rgba(232,197,71,0.7)" }}>{projects.length}</span>
             </div>
           </div>
           <div className="grid gap-3" style={{ gridTemplateColumns: projects.length === 1 ? "1fr" : "1fr 1fr" }}>
@@ -1377,15 +1363,15 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
                   <div>
                     <div className="text-[15px] font-bold text-white mb-0.5">{p.name}</div>
                     <div className="flex items-center gap-2">
-                      {p.industry && <span className="text-[9px] px-1.5 py-0.5 rounded-full" style={{ background: "rgba(212,134,10,0.12)", color: "rgba(232,197,71,0.7)" }}>{p.industry}</span>}
-                      <div className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full" style={{ background: statusColor }} /><span className="text-[9px] font-bold uppercase" style={{ color: statusColor }}>{pStatus}</span></div>
-                      {modulesVisited > 0 && <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.2)" }}>{modulesVisited}/8 modules</span>}
+                      {p.industry && <span className="text-[14px] px-1.5 py-0.5 rounded-full" style={{ background: "rgba(212,134,10,0.12)", color: "rgba(232,197,71,0.7)" }}>{p.industry}</span>}
+                      <div className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full" style={{ background: statusColor }} /><span className="text-[14px] font-bold uppercase" style={{ color: statusColor }}>{pStatus}</span></div>
+                      {modulesVisited > 0 && <span className="text-[14px]" style={{ color: "rgba(255,255,255,0.2)" }}>{modulesVisited}/8 modules</span>}
                     </div>
                   </div>
                   {/* Delete + Clone buttons */}
                   <div className="flex gap-1 shrink-0" style={{ opacity: 0, transition: "opacity 0.15s" }} onMouseEnter={e => e.currentTarget.style.opacity = "1"} onMouseLeave={e => e.currentTarget.style.opacity = "0"}>
-                    <button onClick={e => { e.stopPropagation(); cloneProject(p); }} style={{ color: "rgba(255,255,255,0.25)", fontSize: 11, background: "none", border: "none", cursor: "pointer", padding: "2px 4px" }} onMouseEnter={e => e.currentTarget.style.color = "#D4860A"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.25)"} title="Clone">⧉</button>
-                    <button onClick={e => { e.stopPropagation(); setConfirmDelete(p.id); }} style={{ color: "rgba(255,255,255,0.25)", fontSize: 13, background: "none", border: "none", cursor: "pointer", padding: "2px 4px" }} onMouseEnter={e => e.currentTarget.style.color = "#ef4444"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.25)"} title="Delete">✕</button>
+                    <button onClick={e => { e.stopPropagation(); cloneProject(p); }} style={{ color: "rgba(255,255,255,0.25)", fontSize: 15, background: "none", border: "none", cursor: "pointer", padding: "2px 4px" }} onMouseEnter={e => e.currentTarget.style.color = "#D4860A"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.25)"} title="Clone">⧉</button>
+                    <button onClick={e => { e.stopPropagation(); setConfirmDelete(p.id); }} style={{ color: "rgba(255,255,255,0.25)", fontSize: 15, background: "none", border: "none", cursor: "pointer", padding: "2px 4px" }} onMouseEnter={e => e.currentTarget.style.color = "#ef4444"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.25)"} title="Delete">✕</button>
                   </div>
                 </div>
               </div>;
@@ -1399,33 +1385,33 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
     {modalOpen && <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)" }}>
       <div className="rounded-2xl p-8 w-full max-w-md" style={{ background: "var(--surface-1)", border: "1px solid var(--border)" }}>
         <h2 className="text-lg font-bold text-[var(--text-primary)] mb-1">New Transformation Project</h2>
-        <p className="text-[12px] text-[var(--text-muted)] mb-5">Fill in the details below to set up your workspace</p>
+        <p className="text-[15px] text-[var(--text-muted)] mb-5">Fill in the details below to set up your workspace</p>
         <div className="space-y-3">
-          <div><div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Project Name *</div>
+          <div><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Project Name *</div>
           <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="e.g. Acme Corp AI Transformation" className={`w-full bg-[var(--surface-2)] border rounded-xl px-4 py-3 text-[14px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] ${nameTaken ? "border-[var(--risk)]" : "border-[var(--border)]"}`} autoFocus />
-          {nameTaken && <div className="text-[11px] text-[var(--risk)] mt-1">A project with this name already exists. Please choose a different name.</div>}</div>
-          <div><div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Client / Organization</div>
-          <input value={newClient} onChange={e => setNewClient(e.target.value)} placeholder="e.g. Acme Corporation" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-3 text-[13px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]" /></div>
+          {nameTaken && <div className="text-[15px] text-[var(--risk)] mt-1">A project with this name already exists. Please choose a different name.</div>}</div>
+          <div><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Client / Organization</div>
+          <input value={newClient} onChange={e => setNewClient(e.target.value)} placeholder="e.g. Acme Corporation" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-3 text-[15px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]" /></div>
           <div className="grid grid-cols-2 gap-3">
-            <div><div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Industry</div>
-            <select value={newIndustry} onChange={e => setNewIndustry(e.target.value)} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-3 text-[13px] text-[var(--text-primary)] outline-none">
+            <div><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Industry</div>
+            <select value={newIndustry} onChange={e => setNewIndustry(e.target.value)} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-3 text-[15px] text-[var(--text-primary)] outline-none">
               <option value="">Select industry...</option>
               {["Financial Services","Technology","Healthcare","Manufacturing","Retail","Energy","Media","Professional Services","Public Sector","Other"].map(i => <option key={i} value={i}>{i}</option>)}
             </select></div>
-            <div><div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Org Size</div>
-            <select value={newSize} onChange={e => setNewSize(e.target.value)} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-3 text-[13px] text-[var(--text-primary)] outline-none">
+            <div><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Org Size</div>
+            <select value={newSize} onChange={e => setNewSize(e.target.value)} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-3 text-[15px] text-[var(--text-primary)] outline-none">
               <option value="">Select size...</option>
               {["< 500 employees","500 - 2,000","2,000 - 10,000","10,000 - 50,000","50,000+"].map(s => <option key={s} value={s}>{s}</option>)}
             </select></div>
           </div>
-          <div><div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Project Lead</div>
-          <input value={newLead} onChange={e => setNewLead(e.target.value)} placeholder="e.g. Jane Smith, VP Transformation" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-3 text-[13px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]" /></div>
-          <div><div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Description / Objectives</div>
-          <textarea value={newDesc} onChange={e => setNewDesc(e.target.value)} placeholder="What are the goals of this transformation? What functions are in scope?" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-3 text-[13px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] resize-none" rows={3} /></div>
+          <div><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Project Lead</div>
+          <input value={newLead} onChange={e => setNewLead(e.target.value)} placeholder="e.g. Jane Smith, VP Transformation" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-3 text-[15px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]" /></div>
+          <div><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Description / Objectives</div>
+          <textarea value={newDesc} onChange={e => setNewDesc(e.target.value)} placeholder="What are the goals of this transformation? What functions are in scope?" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-3 text-[15px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] resize-none" rows={3} /></div>
         </div>
         <div className="flex gap-3 justify-end mt-5">
-          <button onClick={() => { setModalOpen(false); setNewName(""); setNewDesc(""); setNewClient(""); setNewIndustry(""); setNewSize(""); setNewLead(""); }} className="px-4 py-2.5 text-[13px] text-[var(--text-muted)] rounded-xl border border-[var(--border)]">Cancel</button>
-          <button onClick={createProject} disabled={!newName.trim() || nameTaken} className="px-6 py-2.5 rounded-xl text-[13px] font-semibold text-white disabled:opacity-40" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>Create Project</button>
+          <button onClick={() => { setModalOpen(false); setNewName(""); setNewDesc(""); setNewClient(""); setNewIndustry(""); setNewSize(""); setNewLead(""); }} className="px-4 py-2.5 text-[15px] text-[var(--text-muted)] rounded-xl border border-[var(--border)]">Cancel</button>
+          <button onClick={createProject} disabled={!newName.trim() || nameTaken} className="px-6 py-2.5 rounded-xl text-[15px] font-semibold text-white disabled:opacity-40" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>Create Project</button>
         </div>
       </div>
     </div>}
@@ -1435,11 +1421,11 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
       <div className="rounded-2xl p-6 w-full max-w-sm text-center" style={{ background: "var(--surface-1)", border: "1px solid var(--border)" }} onClick={e => e.stopPropagation()}>
         <div className="text-3xl mb-2">⚠️</div>
         <h3 className="text-[16px] font-bold text-[var(--text-primary)] mb-1">Delete Project?</h3>
-        <p className="text-[13px] text-[var(--text-secondary)] mb-1">Are you sure you want to delete <strong className="text-[var(--text-primary)]">{projects.find(p => p.id === confirmDelete)?.name || "this project"}</strong>?</p>
-        <p className="text-[12px] text-[var(--risk)] mb-4">This cannot be undone. All project data will be permanently removed.</p>
+        <p className="text-[15px] text-[var(--text-secondary)] mb-1">Are you sure you want to delete <strong className="text-[var(--text-primary)]">{projects.find(p => p.id === confirmDelete)?.name || "this project"}</strong>?</p>
+        <p className="text-[15px] text-[var(--risk)] mb-4">This cannot be undone. All project data will be permanently removed.</p>
         <div className="flex gap-3 justify-center">
-          <button onClick={() => setConfirmDelete(null)} className="px-5 py-2 rounded-xl text-[13px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">Cancel</button>
-          <button onClick={() => deleteProject(confirmDelete)} className="px-5 py-2 rounded-xl text-[13px] font-semibold bg-[var(--risk)] text-white">Delete</button>
+          <button onClick={() => setConfirmDelete(null)} className="px-5 py-2 rounded-xl text-[15px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">Cancel</button>
+          <button onClick={() => deleteProject(confirmDelete)} className="px-5 py-2 rounded-xl text-[15px] font-semibold bg-[var(--risk)] text-white">Delete</button>
         </div>
       </div>
     </div>}
@@ -1611,9 +1597,9 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
   const canSubmitRegister = emailValid && emailAvailable !== "taken" && usernameStatus === "available" && allPwOk && pwMatch && agreeTerms && !loading;
 
   const inputStyle: React.CSSProperties = { width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(0,0,0,0.35)", color: "#f5e6d0", fontSize: 14, fontFamily: "'Outfit', sans-serif", outline: "none", boxSizing: "border-box" as const, backdropFilter: "blur(4px)", transition: "border-color 0.2s" };
-  const labelStyle: React.CSSProperties = { display: "block", fontSize: 10, color: "rgba(255,255,255,0.5)", marginBottom: 6, fontFamily: "'IBM Plex Mono', monospace", textTransform: "uppercase" as const, letterSpacing: "1.5px" };
+  const labelStyle: React.CSSProperties = { display: "block", fontSize: 15, color: "rgba(255,255,255,0.5)", marginBottom: 6, fontFamily: "'IBM Plex Mono', monospace", textTransform: "uppercase" as const, letterSpacing: "1.5px" };
   const btnStyle: React.CSSProperties = { width: "100%", padding: "14px", borderRadius: 12, border: "none", background: "linear-gradient(135deg, #e09040, #c07030)", color: "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Outfit', sans-serif", letterSpacing: "0.5px", boxShadow: "0 4px 20px rgba(224,144,64,0.3)", transition: "all 0.3s" };
-  const hintStyle: React.CSSProperties = { fontSize: 9, fontFamily: "'IBM Plex Mono', monospace", marginTop: 3, display: "flex", alignItems: "center", gap: 4 };
+  const hintStyle: React.CSSProperties = { fontSize: 14, fontFamily: "'IBM Plex Mono', monospace", marginTop: 3, display: "flex", alignItems: "center", gap: 4 };
   const focusBorder = "rgba(224,144,64,0.5)";
 
   // ── Welcome modal after successful registration ──
@@ -1626,10 +1612,10 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
           <div style={{ background: "rgba(15,12,8,0.7)", backdropFilter: "blur(30px)", borderRadius: 24, border: "1px solid rgba(255,255,255,0.1)", padding: "40px 32px", boxShadow: "0 32px 100px rgba(0,0,0,0.6)" }}>
             <div style={{ fontSize: 48, marginBottom: 16 }}>🎉</div>
             <h2 style={{ fontSize: 22, fontWeight: 700, color: "#f5e6d0", marginBottom: 8, fontFamily: "'Outfit', sans-serif" }}>Welcome, {successUser.display_name || successUser.username}!</h2>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 28, lineHeight: 1.6 }}>Your account is ready. Start exploring the AI Transformation Platform.</p>
+            <p style={{ fontSize: 15, color: "rgba(255,255,255,0.5)", marginBottom: 28, lineHeight: 1.6 }}>Your account is ready. Start exploring the AI Transformation Platform.</p>
             <div style={{ display: "flex", gap: 10 }}>
               <button onClick={() => { sessionStorage.setItem("fresh_login", "1"); onAuth(successUser); }}
-                style={{ flex: 1, padding: "12px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#f5e6d0", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "'Outfit', sans-serif" }}>
+                style={{ flex: 1, padding: "12px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "#f5e6d0", fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "'Outfit', sans-serif" }}>
                 Take the Tour
               </button>
               <button onClick={() => onAuth(successUser)}
@@ -1651,7 +1637,7 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
       <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 400, padding: "0 24px" }}>
         <div style={{ textAlign: "center", marginBottom: 28 }}>
           <div style={{ fontSize: 28, fontWeight: 700, color: "#f5e6d0", fontFamily: "'Outfit', sans-serif", letterSpacing: "-0.5px", textShadow: "0 2px 16px rgba(0,0,0,0.6)" }}>AI Transformation</div>
-          <div style={{ fontSize: 11, color: "rgba(224,144,64,0.85)", fontFamily: "'IBM Plex Mono', monospace", letterSpacing: "5px", textTransform: "uppercase" as const, marginTop: 4, textShadow: "0 1px 8px rgba(0,0,0,0.4)" }}>Platform</div>
+          <div style={{ fontSize: 15, color: "rgba(224,144,64,0.85)", fontFamily: "'IBM Plex Mono', monospace", letterSpacing: "5px", textTransform: "uppercase" as const, marginTop: 4, textShadow: "0 1px 8px rgba(0,0,0,0.4)" }}>Platform</div>
         </div>
 
         <div style={{ background: "rgba(15,12,8,0.65)", backdropFilter: "blur(30px)", WebkitBackdropFilter: "blur(30px)", borderRadius: 24, border: "1px solid rgba(255,255,255,0.1)", padding: "32px 28px", boxShadow: "0 32px 100px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05)", animation: shakeError ? "shake 0.5s ease" : undefined }}>
@@ -1662,7 +1648,7 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
             <div style={{ display: "flex", gap: 3, marginBottom: 22, background: "rgba(0,0,0,0.25)", borderRadius: 10, padding: 3 }}>
               {(["login", "register"] as const).map(m => (
                 <button key={m} onClick={() => { setMode(m); setError(""); setMessage(""); }}
-                  style={{ flex: 1, padding: "9px 0", borderRadius: 8, fontSize: 12, fontWeight: 600, fontFamily: "'Outfit', sans-serif", border: "none", cursor: "pointer", transition: "all 0.25s",
+                  style={{ flex: 1, padding: "9px 0", borderRadius: 8, fontSize: 15, fontWeight: 600, fontFamily: "'Outfit', sans-serif", border: "none", cursor: "pointer", transition: "all 0.25s",
                     background: mode === m ? "rgba(224,144,64,0.18)" : "transparent",
                     color: mode === m ? "#e09040" : "rgba(255,255,255,0.35)",
                   }}>{m === "login" ? "Sign In" : "Create Account"}</button>
@@ -1672,20 +1658,20 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
 
           {mode === "forgot" && (
             <div style={{ marginBottom: 18 }}>
-              <button onClick={() => { setMode("login"); setError(""); setMessage(""); }} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.4)", fontSize: 11, cursor: "pointer", fontFamily: "'IBM Plex Mono', monospace" }}>← Back to Sign In</button>
+              <button onClick={() => { setMode("login"); setError(""); setMessage(""); }} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.4)", fontSize: 15, cursor: "pointer", fontFamily: "'IBM Plex Mono', monospace" }}>← Back to Sign In</button>
               <h3 style={{ color: "#f5e6d0", fontSize: 17, fontWeight: 600, marginTop: 6, fontFamily: "'Outfit', sans-serif" }}>Forgot Password</h3>
-              <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 11, marginTop: 4 }}>Enter your email to receive a reset link.</p>
+              <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 15, marginTop: 4 }}>Enter your email to receive a reset link.</p>
             </div>
           )}
           {mode === "reset" && (
             <div style={{ marginBottom: 18 }}>
-              <button onClick={() => { setMode("login"); setError(""); setMessage(""); }} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.4)", fontSize: 11, cursor: "pointer", fontFamily: "'IBM Plex Mono', monospace" }}>← Back to Sign In</button>
+              <button onClick={() => { setMode("login"); setError(""); setMessage(""); }} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.4)", fontSize: 15, cursor: "pointer", fontFamily: "'IBM Plex Mono', monospace" }}>← Back to Sign In</button>
               <h3 style={{ color: "#f5e6d0", fontSize: 17, fontWeight: 600, marginTop: 6, fontFamily: "'Outfit', sans-serif" }}>Reset Password</h3>
             </div>
           )}
 
-          {error && error.trim() && <div style={{ background: "rgba(220,50,50,0.12)", border: "1px solid rgba(220,50,50,0.25)", borderRadius: 8, padding: "9px 12px", marginBottom: 14, color: "#f08080", fontSize: 11, fontFamily: "'IBM Plex Mono', monospace" }}>{error}</div>}
-          {message && <div style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: 8, padding: "9px 12px", marginBottom: 14, color: "#6ee7b7", fontSize: 11, fontFamily: "'IBM Plex Mono', monospace" }}>{message}</div>}
+          {error && error.trim() && <div style={{ background: "rgba(220,50,50,0.12)", border: "1px solid rgba(220,50,50,0.25)", borderRadius: 8, padding: "9px 12px", marginBottom: 14, color: "#f08080", fontSize: 15, fontFamily: "'IBM Plex Mono', monospace" }}>{error}</div>}
+          {message && <div style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: 8, padding: "9px 12px", marginBottom: 14, color: "#6ee7b7", fontSize: 15, fontFamily: "'IBM Plex Mono', monospace" }}>{message}</div>}
 
           {/* ── LOGIN ── */}
           {mode === "login" && (
@@ -1694,15 +1680,15 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
               <div><label style={labelStyle}>Password</label>
                 <div style={{ position: "relative" }}>
                   <input type={showPw ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} onInvalid={e => e.preventDefault()} formNoValidate placeholder="Enter password" style={{ ...inputStyle, paddingRight: 44 }} autoComplete="off" name="password" onFocus={e => e.currentTarget.style.borderColor = focusBorder} onBlur={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"} />
-                  <button type="button" onClick={() => setShowPw(!showPw)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "rgba(255,255,255,0.3)", cursor: "pointer", fontSize: 13 }}>{showPw ? "🙈" : "👁"}</button>
+                  <button type="button" onClick={() => setShowPw(!showPw)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "rgba(255,255,255,0.3)", cursor: "pointer", fontSize: 15 }}>{showPw ? "🙈" : "👁"}</button>
                 </div>
               </div>
               <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
                 <input type="checkbox" checked={rememberMe} onChange={e => { setRememberMe(e.target.checked); if (!e.target.checked) authApi.clearRememberedCredentials(); }} style={{ accentColor: "#e09040", width: 14, height: 14 }} />
-                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "'IBM Plex Mono', monospace" }}>Remember me</span>
+                <span style={{ fontSize: 15, color: "rgba(255,255,255,0.4)", fontFamily: "'IBM Plex Mono', monospace" }}>Remember me</span>
               </label>
               <button type="submit" disabled={loading || !username || !password} style={{ ...btnStyle, opacity: loading ? 0.5 : 1, marginTop: 2 }}>{loading ? "Signing in..." : "Sign In"}</button>
-              <button type="button" onClick={() => { setMode("forgot"); setError(""); setMessage(""); }} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.3)", fontSize: 11, cursor: "pointer", fontFamily: "'IBM Plex Mono', monospace" }}>Forgot password?</button>
+              <button type="button" onClick={() => { setMode("forgot"); setError(""); setMessage(""); }} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.3)", fontSize: 15, cursor: "pointer", fontFamily: "'IBM Plex Mono', monospace" }}>Forgot password?</button>
             </form>
           )}
 
@@ -1714,13 +1700,13 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
                 <label style={labelStyle}>Email</label>
                 <div style={{ position: "relative" }}>
                   <input value={email} onChange={e => { setEmail(e.target.value); if (!emailTouched) setEmailTouched(true); }} onBlur={() => setEmailTouched(true)} placeholder="your@email.com" type="email" style={{ ...inputStyle, paddingRight: 36, borderColor: showEmailFormatError || emailAvailable === "taken" ? "rgba(239,68,68,0.5)" : showEmailFormatOk && emailAvailable === "available" ? "rgba(16,185,129,0.4)" : undefined }} autoComplete="email" onFocus={e => { if (!showEmailFormatError) e.currentTarget.style.borderColor = focusBorder; }} />
-                  {emailAvailable === "checking" && <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#f59e0b", fontSize: 11 }}>...</span>}
+                  {emailAvailable === "checking" && <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#f59e0b", fontSize: 15 }}>...</span>}
                   {emailAvailable === "available" && showEmailFormatOk && <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#10b981", fontSize: 15 }}>✓</span>}
-                  {showEmailFormatError && <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#ef4444", fontSize: 13 }}>✕</span>}
-                  {emailAvailable === "taken" && <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#ef4444", fontSize: 13 }}>✕</span>}
+                  {showEmailFormatError && <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#ef4444", fontSize: 15 }}>✕</span>}
+                  {emailAvailable === "taken" && <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#ef4444", fontSize: 15 }}>✕</span>}
                 </div>
                 {showEmailFormatError && <span style={{ ...hintStyle, color: "#ef4444" }}>Please enter a valid email address</span>}
-                {emailAvailable === "taken" && <span style={{ ...hintStyle, color: "#ef4444" }}>An account with this email already exists — <button onClick={() => { setMode("login"); setError(""); }} style={{ background: "none", border: "none", color: "#e09040", cursor: "pointer", fontSize: 9, fontFamily: "inherit", textDecoration: "underline" }}>sign in instead?</button></span>}
+                {emailAvailable === "taken" && <span style={{ ...hintStyle, color: "#ef4444" }}>An account with this email already exists — <button onClick={() => { setMode("login"); setError(""); }} style={{ background: "none", border: "none", color: "#e09040", cursor: "pointer", fontSize: 14, fontFamily: "inherit", textDecoration: "underline" }}>sign in instead?</button></span>}
                 {emailAvailable === "available" && showEmailFormatOk && <span style={{ ...hintStyle, color: "#10b981" }}>Valid email</span>}
               </div>
 
@@ -1729,16 +1715,16 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
                 <label style={labelStyle}>Username</label>
                 <div style={{ position: "relative" }}>
                   <input value={username} onChange={e => setUsername(e.target.value)} placeholder="Choose a username" style={{ ...inputStyle, paddingRight: 36, borderColor: usernameStatus === "taken" || usernameStatus === "invalid" ? "rgba(239,68,68,0.5)" : usernameStatus === "available" ? "rgba(16,185,129,0.4)" : undefined }} autoComplete="username" name="username" onFocus={e => { if (usernameStatus !== "taken" && usernameStatus !== "invalid") e.currentTarget.style.borderColor = focusBorder; }} />
-                  {usernameStatus === "checking" && <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#f59e0b", fontSize: 11 }}>...</span>}
+                  {usernameStatus === "checking" && <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#f59e0b", fontSize: 15 }}>...</span>}
                   {usernameStatus === "available" && <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#10b981", fontSize: 15 }}>✓</span>}
-                  {usernameStatus === "taken" && <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#ef4444", fontSize: 13 }}>✕</span>}
-                  {usernameStatus === "invalid" && <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#ef4444", fontSize: 13 }}>✕</span>}
+                  {usernameStatus === "taken" && <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#ef4444", fontSize: 15 }}>✕</span>}
+                  {usernameStatus === "invalid" && <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#ef4444", fontSize: 15 }}>✕</span>}
                 </div>
                 {usernameStatus === "available" && <span style={{ ...hintStyle, color: "#10b981" }}>Available</span>}
                 {usernameStatus === "taken" && <span style={{ ...hintStyle, color: "#ef4444" }}>Username already taken</span>}
                 {usernameStatus === "invalid" && <span style={{ ...hintStyle, color: "#ef4444" }}>3-30 characters, letters, numbers, underscores only</span>}
                 {usernameStatus === "taken" && usernameSuggestions.length > 0 && <div style={{ display: "flex", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
-                  {usernameSuggestions.map(s => <button key={s} onClick={() => setUsername(s)} style={{ padding: "4px 10px", borderRadius: 6, border: "1px solid rgba(224,144,64,0.3)", background: "rgba(224,144,64,0.08)", color: "#e09040", fontSize: 10, cursor: "pointer", fontFamily: "'IBM Plex Mono', monospace" }}>{s}</button>)}
+                  {usernameSuggestions.map(s => <button key={s} onClick={() => setUsername(s)} style={{ padding: "4px 10px", borderRadius: 6, border: "1px solid rgba(224,144,64,0.3)", background: "rgba(224,144,64,0.08)", color: "#e09040", fontSize: 15, cursor: "pointer", fontFamily: "'IBM Plex Mono', monospace" }}>{s}</button>)}
                 </div>}
               </div>
 
@@ -1753,7 +1739,7 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
                 <label style={labelStyle}>Password</label>
                 <div style={{ position: "relative" }}>
                   <input type={showPw ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="Create a strong password" style={{ ...inputStyle, paddingRight: 44 }} autoComplete="new-password" name="password" onFocus={e => e.currentTarget.style.borderColor = focusBorder} onBlur={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"} />
-                  <button type="button" onClick={() => setShowPw(!showPw)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "rgba(255,255,255,0.3)", cursor: "pointer", fontSize: 13 }}>{showPw ? "🙈" : "👁"}</button>
+                  <button type="button" onClick={() => setShowPw(!showPw)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "rgba(255,255,255,0.3)", cursor: "pointer", fontSize: 15 }}>{showPw ? "🙈" : "👁"}</button>
                 </div>
                 {password.length > 0 && <>
                   <div style={{ display: "flex", gap: 3, marginTop: 6 }}>
@@ -1761,9 +1747,9 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
                   </div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginTop: 5, gap: 8 }}>
                     <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                      {pwReqs.map(r => <span key={r.t} style={{ fontSize: 9, fontFamily: "'IBM Plex Mono', monospace", color: r.ok ? "#10b981" : "rgba(255,255,255,0.25)", transition: "color 0.2s" }}>{r.ok ? "✓" : "○"} {r.t}</span>)}
+                      {pwReqs.map(r => <span key={r.t} style={{ fontSize: 14, fontFamily: "'IBM Plex Mono', monospace", color: r.ok ? "#10b981" : "rgba(255,255,255,0.25)", transition: "color 0.2s" }}>{r.ok ? "✓" : "○"} {r.t}</span>)}
                     </div>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: pwStrengthColor, fontFamily: "'IBM Plex Mono', monospace", whiteSpace: "nowrap" }}>{pwStrengthLabel}</span>
+                    <span style={{ fontSize: 15, fontWeight: 700, color: pwStrengthColor, fontFamily: "'IBM Plex Mono', monospace", whiteSpace: "nowrap" }}>{pwStrengthLabel}</span>
                   </div>
                 </>}
               </div>
@@ -1773,7 +1759,7 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
                 <label style={labelStyle}>Confirm Password</label>
                 <div style={{ position: "relative" }}>
                   <input type={showPwC ? "text" : "password"} value={passwordConfirm} onChange={e => setPasswordConfirm(e.target.value)} placeholder="Type password again" style={{ ...inputStyle, paddingRight: 44, borderColor: pwMismatch ? "rgba(239,68,68,0.5)" : pwMatch ? "rgba(16,185,129,0.4)" : undefined }} autoComplete="new-password" name="password_confirm" onFocus={e => { if (!pwMismatch) e.currentTarget.style.borderColor = focusBorder; }} />
-                  <button type="button" onClick={() => setShowPwC(!showPwC)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "rgba(255,255,255,0.3)", cursor: "pointer", fontSize: 13 }}>{showPwC ? "🙈" : "👁"}</button>
+                  <button type="button" onClick={() => setShowPwC(!showPwC)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "rgba(255,255,255,0.3)", cursor: "pointer", fontSize: 15 }}>{showPwC ? "🙈" : "👁"}</button>
                 </div>
                 {pwMatch && <span style={{ ...hintStyle, color: "#10b981" }}>Passwords match</span>}
                 {pwMismatch && <span style={{ ...hintStyle, color: "#ef4444" }}>Passwords don&apos;t match</span>}
@@ -1782,7 +1768,7 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
               {/* Terms */}
               <label style={{ display: "flex", alignItems: "flex-start", gap: 8, cursor: "pointer", marginTop: 2 }}>
                 <input type="checkbox" checked={agreeTerms} onChange={e => setAgreeTerms(e.target.checked)} style={{ accentColor: "#e09040", width: 14, height: 14, marginTop: 1 }} />
-                <span style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", fontFamily: "'IBM Plex Mono', monospace", lineHeight: 1.5 }}>I agree to the <span style={{ color: "#e09040", cursor: "pointer" }}>Terms of Service</span> and <span style={{ color: "#e09040", cursor: "pointer" }}>Privacy Policy</span></span>
+                <span style={{ fontSize: 15, color: "rgba(255,255,255,0.4)", fontFamily: "'IBM Plex Mono', monospace", lineHeight: 1.5 }}>I agree to the <span style={{ color: "#e09040", cursor: "pointer" }}>Terms of Service</span> and <span style={{ color: "#e09040", cursor: "pointer" }}>Privacy Policy</span></span>
               </label>
 
               {/* Submit */}
@@ -1806,7 +1792,7 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
                 <div style={{ position: "relative" }}>
                   <input value={email} onChange={e => { setEmail(e.target.value); if (!emailTouched) setEmailTouched(true); }} onBlur={() => setEmailTouched(true)} placeholder="Enter your account email" type="email" style={{ ...inputStyle, paddingRight: 36, borderColor: showEmailFormatError ? "rgba(239,68,68,0.5)" : showEmailFormatOk ? "rgba(16,185,129,0.4)" : undefined }} />
                   {showEmailFormatOk && <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#10b981", fontSize: 15 }}>✓</span>}
-                  {showEmailFormatError && <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#ef4444", fontSize: 13 }}>✕</span>}
+                  {showEmailFormatError && <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#ef4444", fontSize: 15 }}>✕</span>}
                 </div>
                 {showEmailFormatError && <span style={{ ...hintStyle, color: "#ef4444" }}>Please enter a valid email address</span>}
               </div>
@@ -1821,12 +1807,12 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
               <div><label style={labelStyle}>New Password</label><input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Enter new password" style={inputStyle} /></div>
               <div><label style={labelStyle}>Confirm New Password</label><input type="password" value={passwordConfirm} onChange={e => setPasswordConfirm(e.target.value)} placeholder="Type again" style={inputStyle} /></div>
               <button onClick={handleReset} disabled={loading || !resetToken || !password || password !== passwordConfirm} style={{ ...btnStyle, opacity: loading ? 0.5 : 1 }}>{loading ? "..." : "Reset Password"}</button>
-              <p style={{ fontSize: 9, color: "rgba(255,255,255,0.25)", fontFamily: "'IBM Plex Mono', monospace" }}>Token expires after 30 minutes</p>
+              <p style={{ fontSize: 14, color: "rgba(255,255,255,0.25)", fontFamily: "'IBM Plex Mono', monospace" }}>Token expires after 30 minutes</p>
             </div>
           )}
         </div>
 
-        <p style={{ textAlign: "center", color: "rgba(255,255,255,0.2)", fontSize: 10, marginTop: 20, fontFamily: "'IBM Plex Mono', monospace", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>Secure authentication · Your data stays private</p>
+        <p style={{ textAlign: "center", color: "rgba(255,255,255,0.2)", fontSize: 15, marginTop: 20, fontFamily: "'IBM Plex Mono', monospace", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>Secure authentication · Your data stays private</p>
       </div>
     </div>
   );
@@ -1917,9 +1903,9 @@ export default function Page() {
   // On ProjectHub (no sidebar), show account controls top-right with Platform Hub link
   const hubAccountBar = (
     <div style={{ position: "fixed", top: 16, right: 20, zIndex: 9999, display: "flex", alignItems: "center", gap: 10 }}>
-      <button onClick={() => setShowPlatformHub(true)} style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid rgba(255,200,150,0.15)", background: "rgba(0,0,0,0.3)", backdropFilter: "blur(12px)", color: "rgba(255,200,150,0.6)", fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: "'Outfit', sans-serif", display: "flex", alignItems: "center", gap: 6 }}><span style={{ fontSize: 13 }}>🧭</span> Platform Hub</button>
-      <button onClick={() => setShowProfile(true)} style={{ width: 30, height: 30, borderRadius: 10, border: "1px solid rgba(224,144,64,0.2)", background: "linear-gradient(135deg, rgba(212,134,10,0.15), rgba(192,112,48,0.1))", color: "#e09040", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "'Outfit', sans-serif", display: "flex", alignItems: "center", justifyContent: "center" }} title="Profile Settings">{(user.display_name || user.username || "U")[0].toUpperCase()}</button>
-      <button onClick={() => authApi.logout()} style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid rgba(255,200,150,0.15)", background: "rgba(0,0,0,0.3)", backdropFilter: "blur(12px)", color: "rgba(255,200,150,0.6)", fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: "'Outfit', sans-serif" }}>Sign Out</button>
+      <button onClick={() => setShowPlatformHub(true)} style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid rgba(255,200,150,0.15)", background: "rgba(0,0,0,0.3)", backdropFilter: "blur(12px)", color: "rgba(255,200,150,0.6)", fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "'Outfit', sans-serif", display: "flex", alignItems: "center", gap: 6 }}><span style={{ fontSize: 15 }}>🧭</span> Platform Hub</button>
+      <button onClick={() => setShowProfile(true)} style={{ width: 30, height: 30, borderRadius: 10, border: "1px solid rgba(224,144,64,0.2)", background: "linear-gradient(135deg, rgba(212,134,10,0.15), rgba(192,112,48,0.1))", color: "#e09040", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: "'Outfit', sans-serif", display: "flex", alignItems: "center", justifyContent: "center" }} title="Profile Settings">{(user.display_name || user.username || "U")[0].toUpperCase()}</button>
+      <button onClick={() => authApi.logout()} style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid rgba(255,200,150,0.15)", background: "rgba(0,0,0,0.3)", backdropFilter: "blur(12px)", color: "rgba(255,200,150,0.6)", fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "'Outfit', sans-serif" }}>Sign Out</button>
     </div>
   );
 
@@ -1969,8 +1955,8 @@ function ProfileModal({ user, onClose, onUpdate }: { user: authApi.AuthUser; onC
     setSaving(false);
   };
 
-  const inputStyle: React.CSSProperties = { width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid var(--border)", background: "var(--surface-2)", color: "var(--text-primary)", fontSize: 13, fontFamily: "'Outfit', sans-serif", outline: "none", boxSizing: "border-box" as const };
-  const labelStyle: React.CSSProperties = { display: "block", fontSize: 10, color: "var(--text-muted)", marginBottom: 4, fontFamily: "'IBM Plex Mono', monospace", textTransform: "uppercase" as const, letterSpacing: "1px" };
+  const inputStyle: React.CSSProperties = { width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid var(--border)", background: "var(--surface-2)", color: "var(--text-primary)", fontSize: 15, fontFamily: "'Outfit', sans-serif", outline: "none", boxSizing: "border-box" as const };
+  const labelStyle: React.CSSProperties = { display: "block", fontSize: 15, color: "var(--text-muted)", marginBottom: 4, fontFamily: "'IBM Plex Mono', monospace", textTransform: "uppercase" as const, letterSpacing: "1px" };
 
   return <div style={{ position: "fixed", inset: 0, zIndex: 99998, display: "flex", alignItems: "center", justifyContent: "center" }}>
     <div onClick={onClose} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)" }} />
@@ -1980,15 +1966,15 @@ function ProfileModal({ user, onClose, onUpdate }: { user: authApi.AuthUser; onC
         <button onClick={onClose} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 16, cursor: "pointer" }}>✕</button>
       </div>
 
-      {error && <div style={{ background: "rgba(220,50,50,0.08)", border: "1px solid rgba(220,50,50,0.2)", borderRadius: 8, padding: "8px 12px", marginBottom: 12, color: "#f08080", fontSize: 11, fontFamily: "'IBM Plex Mono', monospace" }}>{error}</div>}
-      {success && <div style={{ background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: 8, padding: "8px 12px", marginBottom: 12, color: "#6ee7b7", fontSize: 11, fontFamily: "'IBM Plex Mono', monospace" }}>{success}</div>}
+      {error && <div style={{ background: "rgba(220,50,50,0.08)", border: "1px solid rgba(220,50,50,0.2)", borderRadius: 8, padding: "8px 12px", marginBottom: 12, color: "#f08080", fontSize: 15, fontFamily: "'IBM Plex Mono', monospace" }}>{error}</div>}
+      {success && <div style={{ background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: 8, padding: "8px 12px", marginBottom: 12, color: "#6ee7b7", fontSize: 15, fontFamily: "'IBM Plex Mono', monospace" }}>{success}</div>}
 
       <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4 }}>
           <div style={{ width: 48, height: 48, borderRadius: 14, background: "linear-gradient(135deg, #e09040, #c07030)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 20, fontWeight: 700, fontFamily: "'Outfit', sans-serif" }}>{(displayName || "U")[0].toUpperCase()}</div>
           <div>
             <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>{user.username}</div>
-            <div style={{ fontSize: 10, color: "var(--text-muted)", fontFamily: "'IBM Plex Mono', monospace" }}>Member since {user.last_login ? new Date().toLocaleDateString() : "today"}</div>
+            <div style={{ fontSize: 15, color: "var(--text-muted)", fontFamily: "'IBM Plex Mono', monospace" }}>Member since {user.last_login ? new Date().toLocaleDateString() : "today"}</div>
           </div>
         </div>
 
@@ -1997,13 +1983,13 @@ function ProfileModal({ user, onClose, onUpdate }: { user: authApi.AuthUser; onC
           <div style={{ position: "relative" }}>
             <input value={email} onChange={e => { setEmail(e.target.value); if (!emailTouched) setEmailTouched(true); }} onBlur={() => setEmailTouched(true)} type="email" style={{ ...inputStyle, paddingRight: 32, borderColor: showEmailError ? "rgba(240,128,128,0.4)" : showEmailOk ? "rgba(110,231,183,0.3)" : undefined }} />
             {showEmailOk && <span style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", color: "#6ee7b7", fontSize: 14 }}>✓</span>}
-            {showEmailError && <span style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", color: "#f08080", fontSize: 12 }}>✕</span>}
+            {showEmailError && <span style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", color: "#f08080", fontSize: 15 }}>✕</span>}
           </div>
-          {showEmailError && <span style={{ fontSize: 9, color: "#f08080", fontFamily: "'IBM Plex Mono', monospace", marginTop: 2, display: "block" }}>Please enter a valid email address</span>}
+          {showEmailError && <span style={{ fontSize: 14, color: "#f08080", fontFamily: "'IBM Plex Mono', monospace", marginTop: 2, display: "block" }}>Please enter a valid email address</span>}
         </div>
 
         <div style={{ borderTop: "1px solid var(--border)", paddingTop: 14, marginTop: 4 }}>
-          <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", marginBottom: 10, fontFamily: "'IBM Plex Mono', monospace", textTransform: "uppercase", letterSpacing: "1px" }}>Change Password</div>
+          <div style={{ fontSize: 15, fontWeight: 600, color: "var(--text-muted)", marginBottom: 10, fontFamily: "'IBM Plex Mono', monospace", textTransform: "uppercase", letterSpacing: "1px" }}>Change Password</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             <div><label style={labelStyle}>Current Password</label><input type="password" value={currentPw} onChange={e => setCurrentPw(e.target.value)} placeholder="Required to change password" style={inputStyle} /></div>
             <div><label style={labelStyle}>New Password</label><input type="password" value={newPw} onChange={e => setNewPw(e.target.value)} placeholder="Min 8 chars, 1 uppercase, 1 number" style={inputStyle} /></div>
@@ -2011,7 +1997,7 @@ function ProfileModal({ user, onClose, onUpdate }: { user: authApi.AuthUser; onC
           </div>
         </div>
 
-        <button onClick={handleSave} disabled={saving || !emailValid} style={{ width: "100%", padding: "12px", borderRadius: 10, border: "none", background: "linear-gradient(135deg, #e09040, #c07030)", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "'Outfit', sans-serif", opacity: (saving || !emailValid) ? 0.5 : 1, marginTop: 4 }}>{saving ? "Saving..." : "Save Changes"}</button>
+        <button onClick={handleSave} disabled={saving || !emailValid} style={{ width: "100%", padding: "12px", borderRadius: 10, border: "none", background: "linear-gradient(135deg, #e09040, #c07030)", color: "#fff", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: "'Outfit', sans-serif", opacity: (saving || !emailValid) ? 0.5 : 1, marginTop: 4 }}>{saving ? "Saving..." : "Save Changes"}</button>
       </div>
     </div>
   </div>;

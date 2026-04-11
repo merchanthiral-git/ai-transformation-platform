@@ -34,15 +34,15 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx }: { 
       <div className="flex items-center gap-3 mb-3">
         <Badge color={p.priority==="High"?"green":p.priority==="Medium"?"amber":"gray"}>{p.priority} Priority</Badge>
         <Badge color={p.readiness_band==="Ready Now"?"green":p.readiness_band==="Coachable"?"amber":"red"}>Readiness: {p.readiness_score}/5</Badge>
-        <span className="text-[11px] text-[var(--text-muted)]">{p.total_months} months · {fmtNum(p.estimated_cost)}</span>
+        <span className="text-[15px] text-[var(--text-muted)]">{p.total_months} months · {fmtNum(p.estimated_cost)}</span>
       </div>
       {/* Skills timeline */}
       <div className="space-y-2">{(p.skills_to_develop || []).map(s => <div key={s.skill} className="flex items-center gap-3 p-2 rounded-lg bg-[var(--surface-2)]">
-        <span className="text-[11px] font-semibold w-36 shrink-0">{s.skill}</span>
-        <div className="flex items-center gap-1 text-[10px]"><span style={{color:"var(--warning)"}}>{s.current}</span><span className="text-[var(--text-muted)]">→</span><span style={{color:"var(--success)"}}>{s.target}</span></div>
+        <span className="text-[15px] font-semibold w-36 shrink-0">{s.skill}</span>
+        <div className="flex items-center gap-1 text-[15px]"><span style={{color:"var(--warning)"}}>{s.current}</span><span className="text-[var(--text-muted)]">→</span><span style={{color:"var(--success)"}}>{s.target}</span></div>
         <div className="flex-1 h-2 bg-[var(--bg)] rounded-full overflow-hidden"><div className="h-full rounded-full" style={{width:`${(s.current/s.target)*100}%`,background:"var(--accent-primary)"}} /></div>
         <Badge color={s.intervention==="Course"?"green":s.intervention.includes("Coaching")?"amber":"red"}>{s.intervention}</Badge>
-        <span className="text-[10px] text-[var(--text-muted)] w-10 text-right">{s.months}mo</span>
+        <span className="text-[15px] text-[var(--text-muted)] w-10 text-right">{s.months}mo</span>
       </div>)}</div>
     </Card>)}
     {pathways.length === 0 && !loading && <Card><Empty text="Complete Skills Gap Analysis and BBBA to generate reskilling pathways" icon="📚" /></Card>}
@@ -61,10 +61,10 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx }: { 
           const avgMonths = Math.round(members.reduce((s,m) => s + m.total_months, 0) / members.length);
           const totalCost = members.reduce((s,m) => s + m.estimated_cost, 0);
           return <div key={skill} className="rounded-xl p-4 bg-[var(--surface-2)] border border-[var(--border)] transition-all hover:border-[var(--accent-primary)]/30">
-            <div className="text-[13px] font-bold text-[var(--text-primary)] mb-1">{skill}</div>
-            <div className="text-[20px] font-extrabold text-[var(--accent-primary)] mb-1">{members.length} <span className="text-[11px] font-normal text-[var(--text-muted)]">employees</span></div>
-            <div className="text-[10px] text-[var(--text-muted)]">Avg {avgMonths}mo · {fmtNum(totalCost)} total</div>
-            <div className="flex gap-1 flex-wrap mt-2">{members.slice(0,4).map(m => <span key={m.employee} className="px-1.5 py-0.5 rounded text-[8px] bg-[var(--surface-1)] text-[var(--text-muted)]">{m.employee.split(" ")[0]}</span>)}{members.length > 4 && <span className="text-[8px] text-[var(--text-muted)]">+{members.length-4}</span>}</div>
+            <div className="text-[15px] font-bold text-[var(--text-primary)] mb-1">{skill}</div>
+            <div className="text-[20px] font-extrabold text-[var(--accent-primary)] mb-1">{members.length} <span className="text-[15px] font-normal text-[var(--text-muted)]">employees</span></div>
+            <div className="text-[15px] text-[var(--text-muted)]">Avg {avgMonths}mo · {fmtNum(totalCost)} total</div>
+            <div className="flex gap-1 flex-wrap mt-2">{members.slice(0,4).map(m => <span key={m.employee} className="px-1.5 py-0.5 rounded text-[15px] bg-[var(--surface-1)] text-[var(--text-muted)]">{m.employee.split(" ")[0]}</span>)}{members.length > 4 && <span className="text-[15px] text-[var(--text-muted)]">+{members.length-4}</span>}</div>
           </div>;
         })}</div>;
       })()}
@@ -80,9 +80,9 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx }: { 
         const group = pathways.filter(tier.filter);
         const cost = group.reduce((s,p) => s + p.estimated_cost, 0);
         return <div key={tier.label} className="rounded-xl p-4 text-center border border-[var(--border)]">
-          <div className="text-[12px] font-semibold mb-1" style={{color:tier.color}}>{tier.label}</div>
+          <div className="text-[15px] font-semibold mb-1" style={{color:tier.color}}>{tier.label}</div>
           <div className="text-[22px] font-extrabold text-[var(--text-primary)]">{fmtNum(cost)}</div>
-          <div className="text-[10px] text-[var(--text-muted)]">{group.length} employees</div>
+          <div className="text-[15px] text-[var(--text-muted)]">{group.length} employees</div>
         </div>;
       })}</div>
     </Card>}
@@ -141,19 +141,19 @@ export function TalentMarketplace({ model, f, onBack, onNavigate }: { model: str
     {marketplace.map(m => <Card key={m.target_role} title={m.target_role}>
       <div className="flex items-center gap-2 mb-3">
         <Badge color={m.fill_recommendation==="Internal"?"green":"amber"}>{m.fill_recommendation} Fill Recommended</Badge>
-        <span className="text-[10px] text-[var(--text-muted)]">{m.candidates.length} candidates evaluated</span>
+        <span className="text-[15px] text-[var(--text-muted)]">{m.candidates.length} candidates evaluated</span>
       </div>
       <div className="grid grid-cols-4 gap-2">{m.candidates.slice(0, 6).map(c => { const isSl = (shortlisted[m.target_role]||[]).includes(c.employee); return <div key={c.employee} className="bg-[var(--surface-2)] rounded-xl p-3 border transition-all" style={{borderColor:isSl?"var(--success)":"var(--border)"}}>
-        <div className="flex items-center justify-between mb-1"><span className="text-[11px] font-semibold truncate flex-1">{c.employee}</span><span className="text-[13px] font-extrabold" style={{color:c.composite_score>=70?"var(--success)":c.composite_score>=50?"var(--warning)":"var(--risk)"}}>{c.composite_score}</span></div>
-        <div className="grid grid-cols-3 gap-1 mb-1 text-[8px]">
+        <div className="flex items-center justify-between mb-1"><span className="text-[15px] font-semibold truncate flex-1">{c.employee}</span><span className="text-[15px] font-extrabold" style={{color:c.composite_score>=70?"var(--success)":c.composite_score>=50?"var(--warning)":"var(--risk)"}}>{c.composite_score}</span></div>
+        <div className="grid grid-cols-3 gap-1 mb-1 text-[15px]">
           <div className="text-center"><span className="font-bold" style={{color:c.adjacency_pct>=70?"var(--success)":"var(--warning)"}}>{c.adjacency_pct}%</span><br/>Adjacency</div>
           <div className="text-center"><span className="font-bold" style={{color:c.readiness_score>=3.5?"var(--success)":"var(--warning)"}}>{c.readiness_score}</span><br/>Readiness</div>
           <div className="text-center"><span className="font-bold">{c.reskill_months}mo</span><br/>Reskill</div>
         </div>
-        <div className="text-[8px] text-[var(--success)] truncate">✓ {c.matching_skills.slice(0,2).join(", ")}</div>
-        {c.gap_skills.length > 0 && <div className="text-[8px] text-[var(--risk)] truncate">✗ {c.gap_skills.slice(0,2).join(", ")}</div>}
-        {c.has_pathway && <div className="text-[8px] text-[var(--purple)]">📚 Pathway: {fmtNum(c.pathway_cost)}</div>}
-        <button onClick={() => setShortlisted(prev => { const l = prev[m.target_role]||[]; return {...prev, [m.target_role]: isSl ? l.filter(e=>e!==c.employee) : [...l, c.employee]}; })} className="mt-1 text-[9px] font-semibold w-full py-1 rounded text-center" style={{background:isSl?"rgba(16,185,129,0.1)":"var(--surface-1)",color:isSl?"var(--success)":"var(--text-muted)",border:`1px solid ${isSl?"var(--success)":"var(--border)"}`}}>{isSl?"★ Shortlisted":"☆ Shortlist"}</button>
+        <div className="text-[15px] text-[var(--success)] truncate">✓ {c.matching_skills.slice(0,2).join(", ")}</div>
+        {c.gap_skills.length > 0 && <div className="text-[15px] text-[var(--risk)] truncate">✗ {c.gap_skills.slice(0,2).join(", ")}</div>}
+        {c.has_pathway && <div className="text-[15px] text-[var(--purple)]">📚 Pathway: {fmtNum(c.pathway_cost)}</div>}
+        <button onClick={() => setShortlisted(prev => { const l = prev[m.target_role]||[]; return {...prev, [m.target_role]: isSl ? l.filter(e=>e!==c.employee) : [...l, c.employee]}; })} className="mt-1 text-[14px] font-semibold w-full py-1 rounded text-center" style={{background:isSl?"rgba(16,185,129,0.1)":"var(--surface-1)",color:isSl?"var(--success)":"var(--text-muted)",border:`1px solid ${isSl?"var(--success)":"var(--border)"}`}}>{isSl?"★ Shortlisted":"☆ Shortlist"}</button>
       </div>; })}</div>
     </Card>)}
     {marketplace.length === 0 && !loading && <Card><Empty text="Complete Skills Adjacency Map to populate the marketplace" icon="🏪" /></Card>}
@@ -166,18 +166,18 @@ export function TalentMarketplace({ model, f, onBack, onNavigate }: { model: str
         {label:"Reskill Time",weight:"20%",desc:"Inverse of months needed — faster reskilling scores higher",color:"var(--purple)"},
       ].map(f => <div key={f.label} className="rounded-xl p-3 text-center border border-[var(--border)]">
         <div className="text-[18px] font-extrabold" style={{color:f.color}}>{f.weight}</div>
-        <div className="text-[12px] font-bold text-[var(--text-primary)] mb-1">{f.label}</div>
-        <div className="text-[9px] text-[var(--text-muted)]">{f.desc}</div>
+        <div className="text-[15px] font-bold text-[var(--text-primary)] mb-1">{f.label}</div>
+        <div className="text-[14px] text-[var(--text-muted)]">{f.desc}</div>
       </div>)}</div>
-      <div className="text-[10px] text-[var(--text-muted)] text-center">Score ≥70 = strong internal candidate · 50-69 = reskillable · &lt;50 = consider external hire</div>
+      <div className="text-[15px] text-[var(--text-muted)] text-center">Score ≥70 = strong internal candidate · 50-69 = reskillable · &lt;50 = consider external hire</div>
     </Card>
 
     {/* Internal Mobility Summary */}
     {marketplace.length > 0 && <Card title="Internal Mobility Summary">
       <div className="grid grid-cols-3 gap-3">
-        <div className="rounded-xl p-4 text-center border border-[var(--border)]"><div className="text-[22px] font-extrabold text-[var(--success)]">{marketplace.filter(m => m.fill_recommendation === "Internal").length}</div><div className="text-[10px] text-[var(--text-muted)]">Fillable Internally</div></div>
-        <div className="rounded-xl p-4 text-center border border-[var(--border)]"><div className="text-[22px] font-extrabold text-[var(--risk)]">{marketplace.filter(m => m.fill_recommendation === "External").length}</div><div className="text-[10px] text-[var(--text-muted)]">Need External Hire</div></div>
-        <div className="rounded-xl p-4 text-center border border-[var(--border)]"><div className="text-[22px] font-extrabold text-[var(--accent-primary)]">{Object.values(shortlisted).reduce((s, l) => s + l.length, 0)}</div><div className="text-[10px] text-[var(--text-muted)]">Candidates Shortlisted</div></div>
+        <div className="rounded-xl p-4 text-center border border-[var(--border)]"><div className="text-[22px] font-extrabold text-[var(--success)]">{marketplace.filter(m => m.fill_recommendation === "Internal").length}</div><div className="text-[15px] text-[var(--text-muted)]">Fillable Internally</div></div>
+        <div className="rounded-xl p-4 text-center border border-[var(--border)]"><div className="text-[22px] font-extrabold text-[var(--risk)]">{marketplace.filter(m => m.fill_recommendation === "External").length}</div><div className="text-[15px] text-[var(--text-muted)]">Need External Hire</div></div>
+        <div className="rounded-xl p-4 text-center border border-[var(--border)]"><div className="text-[22px] font-extrabold text-[var(--accent-primary)]">{Object.values(shortlisted).reduce((s, l) => s + l.length, 0)}</div><div className="text-[15px] text-[var(--text-muted)]">Candidates Shortlisted</div></div>
       </div>
     </Card>}
 
@@ -203,7 +203,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, viewCtx
     <TabBar tabs={[{ id: "road", label: "Role Roadmap" }, { id: "risk", label: "Role Risks" }]} active={sub} onChange={setSub} />
     {sub === "road" ? (() => { const d = data as Record<string, unknown> | null; const roadmap = ((d?.roadmap ?? []) as Record<string, unknown>[]).filter(r => String(r["Job Title"] || r.initiative || "").toLowerCase().includes((viewCtx.job || "").toLowerCase().split(" ")[0])); return <div>
       <div className="grid grid-cols-3 gap-3 mb-5"><KpiCard label="Initiatives" value={roadmap.length || "All"} accent /><KpiCard label="Source" value={String((d?.summary as Record<string, unknown>)?.source ?? "—")} /><KpiCard label="Status" value="Planned" /></div>
-      <Card title={`Initiatives for ${viewCtx.job}`}>{roadmap.length ? <DataTable data={roadmap} /> : <div className="text-[13px] text-[var(--text-secondary)] py-4">No specific initiatives found for this role. Showing the full roadmap below.</div>}</Card>
+      <Card title={`Initiatives for ${viewCtx.job}`}>{roadmap.length ? <DataTable data={roadmap} /> : <div className="text-[15px] text-[var(--text-secondary)] py-4">No specific initiatives found for this role. Showing the full roadmap below.</div>}</Card>
       {roadmap.length === 0 && <Card title="Full Roadmap"><DataTable data={((d?.roadmap ?? []) as Record<string, unknown>[])} /></Card>}
     </div>; })() : (() => { const d = data as Record<string, unknown> | null; return <div>
       <Card title="Risks Affecting This Role"><DataTable data={((d?.high_risk_tasks ?? []) as Record<string, unknown>[]).filter(r => String(r["Job Title"] || r.Task || "").toLowerCase().includes((viewCtx.job || "").toLowerCase().split(" ")[0]))} /></Card>
@@ -220,8 +220,8 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, viewCtx
           { wave: "Wave 2", time: "Month 4-6", title: "Transition & Practice", items: ["AI tools integrated into daily workflow", "Reduced manual task load", "Coaching sessions with change champion"], color: "var(--success)" },
           { wave: "Wave 3", time: "Month 7-12", title: "New Normal", items: ["Full adoption of AI-augmented processes", "Role evolution complete", "Focus shifts to higher-value activities"], color: "var(--purple)" }
         ].map((w, i) => <div key={i} className="flex gap-4">
-          <div className="flex flex-col items-center shrink-0"><div className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold text-white" style={{ background: w.color }}>{i + 1}</div>{i < 2 && <div className="w-px h-full mt-1" style={{ background: w.color, opacity: 0.2 }} />}</div>
-          <div className="flex-1 pb-2"><div className="flex items-baseline gap-2 mb-1"><span className="text-[13px] font-bold text-[var(--text-primary)]">{w.title}</span><Badge color="gray">{w.time}</Badge></div><div className="space-y-1">{w.items.map((item, j) => <div key={j} className="text-[12px] text-[var(--text-secondary)] pl-3 relative"><span className="absolute left-0 text-[var(--text-muted)]">·</span>{item}</div>)}</div></div>
+          <div className="flex flex-col items-center shrink-0"><div className="w-8 h-8 rounded-full flex items-center justify-center text-[15px] font-bold text-white" style={{ background: w.color }}>{i + 1}</div>{i < 2 && <div className="w-px h-full mt-1" style={{ background: w.color, opacity: 0.2 }} />}</div>
+          <div className="flex-1 pb-2"><div className="flex items-baseline gap-2 mb-1"><span className="text-[15px] font-bold text-[var(--text-primary)]">{w.title}</span><Badge color="gray">{w.time}</Badge></div><div className="space-y-1">{w.items.map((item, j) => <div key={j} className="text-[15px] text-[var(--text-secondary)] pl-3 relative"><span className="absolute left-0 text-[var(--text-muted)]">·</span>{item}</div>)}</div></div>
         </div>)}
       </div>
     </Card>
@@ -234,7 +234,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, viewCtx
     <PageHeader icon="🚀" title="Change Planner" subtitle="Sequence initiatives and manage transformation risk" onBack={onBack} moduleId="plan" />
     <TabBar tabs={[{ id: "road", label: "Roadmap" }, { id: "gantt", label: "📅 Gantt" }, { id: "workstreams", label: "🔧 Workstreams" }, { id: "stakeholders", label: "👥 Stakeholders" }, { id: "risks", label: "⚠️ Risk Register" }, { id: "comms", label: "📣 Comms Plan" }, { id: "risk", label: "Risk Analysis" }, { id: "playbook", label: "📖 Playbooks" }]} active={sub} onChange={setSub} />
     {sub === "road" && <div className="bg-gradient-to-r from-[rgba(224,144,64,0.06)] to-transparent border border-[rgba(224,144,64,0.15)] rounded-xl p-4 mb-4 flex items-center justify-between">
-      <div><div className="text-[13px] font-bold text-[var(--text-primary)]">☕ AI can build your change roadmap</div><div className="text-[12px] text-[var(--text-muted)]">Generates initiatives, waves, owners, and risks from your transformation decisions</div></div>
+      <div><div className="text-[15px] font-bold text-[var(--text-primary)]">☕ AI can build your change roadmap</div><div className="text-[15px] text-[var(--text-muted)]">Generates initiatives, waves, owners, and risks from your transformation decisions</div></div>
       <button onClick={async () => {
         const context = Object.entries(jobStates).filter(([,s]) => s.finalized || s.deconSubmitted).map(([role, s]) => {
           const decisions = s.redeployRows.map(r => `${r["Task Name"]}: ${r.Decision}`).join(", ");
@@ -262,29 +262,29 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, viewCtx
           const initiatives = JSON.parse(raw.replace(/\`\`\`json\n?/g,"").replace(/\`\`\`\n?/g,"").trim());
           if (Array.isArray(initiatives)) setAiChangePlan(initiatives);
         } catch {}
-      }} className="px-4 py-2 rounded-lg text-[13px] font-semibold text-white shrink-0" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>☕ Auto-Build Plan</button>
+      }} className="px-4 py-2 rounded-lg text-[15px] font-semibold text-white shrink-0" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>☕ Auto-Build Plan</button>
     </div>}
     {aiChangePlan.length > 0 && sub === "road" && <Card title="☕ AI-Generated Change Plan">
-      <div className="flex justify-end mb-2"><button onClick={() => setAiChangePlan([])} className="text-[11px] text-[var(--text-muted)] hover:text-[var(--risk)]">Clear Plan ✕</button></div>
-      <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full text-left text-[13px]"><thead><tr className="bg-[var(--surface-2)]">{["Initiative","Owner","Priority","Wave","Risk",""].map(h => <th key={h} className="px-3 py-2 border-b border-[var(--border)] text-[11px] uppercase text-[var(--text-muted)] font-semibold">{h}</th>)}</tr></thead><tbody>{aiChangePlan.map((row, i) => <tr key={i} className="border-b border-[var(--border)] hover:bg-[var(--hover)]">
+      <div className="flex justify-end mb-2"><button onClick={() => setAiChangePlan([])} className="text-[15px] text-[var(--text-muted)] hover:text-[var(--risk)]">Clear Plan ✕</button></div>
+      <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full text-left text-[15px]"><thead><tr className="bg-[var(--surface-2)]">{["Initiative","Owner","Priority","Wave","Risk",""].map(h => <th key={h} className="px-3 py-2 border-b border-[var(--border)] text-[15px] uppercase text-[var(--text-muted)] font-semibold">{h}</th>)}</tr></thead><tbody>{aiChangePlan.map((row, i) => <tr key={i} className="border-b border-[var(--border)] hover:bg-[var(--hover)]">
         <td className="px-3 py-2 min-w-[180px]"><EditableCell value={String(row.initiative || "")} onChange={v => { const n = [...aiChangePlan]; n[i] = { ...n[i], initiative: v }; setAiChangePlan(n); }} /></td>
         <td className="px-3 py-2 min-w-[120px]"><EditableCell value={String(row.owner || "")} onChange={v => { const n = [...aiChangePlan]; n[i] = { ...n[i], owner: v }; setAiChangePlan(n); }} /></td>
         <td className="px-3 py-2 min-w-[90px]"><SelectCell value={String(row.priority || "Medium")} onChange={v => { const n = [...aiChangePlan]; n[i] = { ...n[i], priority: v }; setAiChangePlan(n); }} options={["High","Medium","Low"]} /></td>
         <td className="px-3 py-2 min-w-[90px]"><SelectCell value={String(row.wave || "Wave 1")} onChange={v => { const n = [...aiChangePlan]; n[i] = { ...n[i], wave: v }; setAiChangePlan(n); }} options={["Wave 1","Wave 2","Wave 3","Wave 4"]} /></td>
         <td className="px-3 py-2 min-w-[140px]"><EditableCell value={String(row.risk || "")} onChange={v => { const n = [...aiChangePlan]; n[i] = { ...n[i], risk: v }; setAiChangePlan(n); }} /></td>
-        <td className="px-3 py-2"><button onClick={() => setAiChangePlan(aiChangePlan.filter((_, j) => j !== i))} className="text-[var(--text-muted)] hover:text-[var(--risk)] text-[13px]">✕</button></td>
+        <td className="px-3 py-2"><button onClick={() => setAiChangePlan(aiChangePlan.filter((_, j) => j !== i))} className="text-[var(--text-muted)] hover:text-[var(--risk)] text-[15px]">✕</button></td>
       </tr>)}</tbody></table></div>
-      <button onClick={() => setAiChangePlan([...aiChangePlan, { initiative: "New Initiative", owner: "", priority: "Medium", wave: "Wave 1", risk: "" }])} className="mt-2 text-[12px] text-[var(--accent-primary)] hover:underline">+ Add Initiative</button>
+      <button onClick={() => setAiChangePlan([...aiChangePlan, { initiative: "New Initiative", owner: "", priority: "Medium", wave: "Wave 1", risk: "" }])} className="mt-2 text-[15px] text-[var(--accent-primary)] hover:underline">+ Add Initiative</button>
     </Card>}
     {/* Gantt Chart — visual timeline of AI-generated initiatives */}
     {aiChangePlan.length > 0 && sub === "road" && <Card title="📊 Initiative Gantt Chart">
-      <div className="text-[11px] text-[var(--text-muted)] mb-3">Each bar represents an initiative positioned by wave and colored by priority.</div>
+      <div className="text-[15px] text-[var(--text-muted)] mb-3">Each bar represents an initiative positioned by wave and colored by priority.</div>
       <div className="overflow-x-auto">
         <div style={{ minWidth: 600 }}>
           {/* Timeline header */}
           <div className="flex items-center mb-2">
             <div style={{ width: 180, flexShrink: 0 }} />
-            {["Wave 1", "Wave 2", "Wave 3", "Wave 4"].map((w, i) => <div key={w} className="flex-1 text-center text-[10px] font-bold uppercase tracking-wider" style={{ color: COLORS[i % COLORS.length] }}>{w}</div>)}
+            {["Wave 1", "Wave 2", "Wave 3", "Wave 4"].map((w, i) => <div key={w} className="flex-1 text-center text-[15px] font-bold uppercase tracking-wider" style={{ color: COLORS[i % COLORS.length] }}>{w}</div>)}
           </div>
           {/* Grid lines */}
           <div className="relative">
@@ -302,14 +302,14 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, viewCtx
                   Math.max(25, (["Wave 1","Wave 2","Wave 3","Wave 4"].indexOf(wave) + 2) * 25 - startPct) : 25);
                 const priColor = row.priority === "High" ? "var(--risk)" : row.priority === "Low" ? "var(--success)" : "var(--accent-primary)";
                 return <div key={i} className="flex items-center" style={{ height: 28 }}>
-                  <div className="text-[11px] font-semibold text-[var(--text-primary)] truncate" style={{ width: 180, flexShrink: 0, paddingRight: 8 }} title={String(row.initiative || "")}>{String(row.initiative || "").length > 22 ? String(row.initiative || "").slice(0,20) + "…" : String(row.initiative || "")}</div>
+                  <div className="text-[15px] font-semibold text-[var(--text-primary)] truncate" style={{ width: 180, flexShrink: 0, paddingRight: 8 }} title={String(row.initiative || "")}>{String(row.initiative || "").length > 22 ? String(row.initiative || "").slice(0,20) + "…" : String(row.initiative || "")}</div>
                   <div className="flex-1 relative h-full flex items-center">
                     <div className="absolute rounded-md flex items-center px-2" style={{ 
                       left: `${startPct}%`, width: `${Math.min(widthPct, 100 - startPct)}%`, 
                       height: 20, background: `${priColor}20`, border: `1px solid ${priColor}40`,
                       transition: "all 0.3s"
                     }}>
-                      <span className="text-[9px] font-semibold truncate" style={{ color: priColor }}>{String(row.owner || "")}</span>
+                      <span className="text-[14px] font-semibold truncate" style={{ color: priColor }}>{String(row.owner || "")}</span>
                     </div>
                   </div>
                 </div>;
@@ -318,7 +318,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, viewCtx
           </div>
           {/* Legend */}
           <div className="flex gap-4 mt-3 pt-2 border-t border-[var(--border)]">
-            {[{l:"High Priority",c:"var(--risk)"},{l:"Medium",c:"var(--accent-primary)"},{l:"Low",c:"var(--success)"}].map(x => <div key={x.l} className="flex items-center gap-1.5 text-[9px] text-[var(--text-muted)]"><div className="w-3 h-2 rounded-sm" style={{ background: `${x.c}30`, border: `1px solid ${x.c}50` }} />{x.l}</div>)}
+            {[{l:"High Priority",c:"var(--risk)"},{l:"Medium",c:"var(--accent-primary)"},{l:"Low",c:"var(--success)"}].map(x => <div key={x.l} className="flex items-center gap-1.5 text-[14px] text-[var(--text-muted)]"><div className="w-3 h-2 rounded-sm" style={{ background: `${x.c}30`, border: `1px solid ${x.c}50` }} />{x.l}</div>)}
           </div>
         </div>
       </div>
@@ -329,16 +329,16 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, viewCtx
       {/* Timeline visualization */}
       {waves.length > 0 && <Card title="Transformation Timeline">
         <div className="flex items-end gap-1 h-32 mb-2">{waves.map(([name, count], i) => <div key={name} className="flex-1 flex flex-col items-center justify-end">
-          <div className="text-[11px] font-bold mb-1" style={{ color: COLORS[i % COLORS.length] }}>{count}</div>
+          <div className="text-[15px] font-bold mb-1" style={{ color: COLORS[i % COLORS.length] }}>{count}</div>
           <div className="w-full rounded-t transition-all" style={{ height: `${Math.max((count / Math.max(...Object.values(wd), 1)) * 100, 8)}%`, background: `${COLORS[i % COLORS.length]}40`, border: `1px solid ${COLORS[i % COLORS.length]}60` }} />
-          <div className="text-[10px] text-[var(--text-muted)] mt-2 font-semibold">{name}</div>
+          <div className="text-[15px] text-[var(--text-muted)] mt-2 font-semibold">{name}</div>
         </div>)}</div>
         <div className="flex gap-0">{waves.map(([name], i) => <div key={name} className="flex-1 h-2 first:rounded-l last:rounded-r" style={{ background: COLORS[i % COLORS.length] }} />)}</div>
-        <div className="flex justify-between mt-1 text-[10px] text-[var(--text-muted)]"><span>Start</span><span>End</span></div>
+        <div className="flex justify-between mt-1 text-[15px] text-[var(--text-muted)]"><span>Start</span><span>End</span></div>
       </Card>}<div className="grid grid-cols-12 gap-4"><div className="col-span-7"><Card title="Change Plan"><DataTable data={((d?.roadmap ?? []) as Record<string, unknown>[])} /></Card></div><div className="col-span-5"><Card title="Priority"><DonutViz data={Object.entries(pd).map(([n, v]) => ({ name: n, value: v }))} /></Card><Card title="Waves"><BarViz data={Object.entries(wd).map(([n, v]) => ({ Wave: n, Count: v }))} labelKey="Wave" valueKey="Count" color="var(--warning)" /></Card></div></div></div>; })() : (() => { const d = data as Record<string, unknown> | null; if (d && (d as Record<string, unknown>).empty) return <Empty text="Upload work design data" icon="⚠️" />; const s = ((d?.summary ?? {}) as Record<string, unknown>); return <div><div className="grid grid-cols-4 gap-3 mb-5"><KpiCard label="High Risk" value={s.high_risk_count as number ?? 0} /><KpiCard label="Do Not Automate" value={s.no_automate_count as number ?? 0} accent /><KpiCard label="Avg Risk" value={s.avg_risk as number ?? 0} /><KpiCard label="Assessed" value={s.total_assessed as number ?? 0} /></div><div className="grid grid-cols-2 gap-4"><Card title="Risk by Workstream"><BarViz data={((d?.risk_by_workstream ?? []) as Record<string, unknown>[])} labelKey="Workstream" valueKey="Risk Score" color="var(--risk)" /></Card><Card title="High Risk Tasks"><DataTable data={((d?.high_risk_tasks ?? []) as Record<string, unknown>[])} /></Card></div></div>; })()}
     {/* ═══ GANTT CHART ═══ */}
     {sub === "gantt" && <Card title="Transformation Gantt Chart">
-      <div className="text-[12px] text-[var(--text-secondary)] mb-4">Phases and key activities across the transformation timeline. {aiChangePlan.length > 0 ? "Generated from your roadmap data." : "Default template — build a roadmap to customize."}</div>
+      <div className="text-[15px] text-[var(--text-secondary)] mb-4">Phases and key activities across the transformation timeline. {aiChangePlan.length > 0 ? "Generated from your roadmap data." : "Default template — build a roadmap to customize."}</div>
       {(() => {
         // Build phases from roadmap data if available, else use defaults
         const defaultPhases = [
@@ -372,27 +372,27 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, viewCtx
         return <div>
           {/* Month headers */}
           <div className="flex mb-2 ml-28">
-            {Array.from({length: totalMonths}, (_, i) => <div key={i} className="flex-1 text-[9px] text-[var(--text-muted)] text-center font-data">M{i+1}</div>)}
+            {Array.from({length: totalMonths}, (_, i) => <div key={i} className="flex-1 text-[14px] text-[var(--text-muted)] text-center font-data">M{i+1}</div>)}
           </div>
           {/* Phase bars */}
           <div className="space-y-3">
             {phases.map(p => <div key={p.id}>
               <div className="flex items-center mb-1">
-                <div className="w-28 text-[12px] font-semibold font-heading shrink-0" style={{ color: p.color }}>{p.label}</div>
+                <div className="w-28 text-[15px] font-semibold font-heading shrink-0" style={{ color: p.color }}>{p.label}</div>
                 <div className="flex-1 relative h-7">
-                  <div className="absolute h-full rounded-lg flex items-center px-2 text-[9px] font-bold text-white transition-all hover:opacity-90" style={{ left: `${(p.start / totalMonths) * 100}%`, width: `${(p.duration / totalMonths) * 100}%`, background: p.color }}>
+                  <div className="absolute h-full rounded-lg flex items-center px-2 text-[14px] font-bold text-white transition-all hover:opacity-90" style={{ left: `${(p.start / totalMonths) * 100}%`, width: `${(p.duration / totalMonths) * 100}%`, background: p.color }}>
                     {p.duration}mo
                   </div>
                 </div>
               </div>
               <div className="flex ml-28">
-                {p.activities.map((a, i) => <div key={i} className="text-[9px] text-[var(--text-muted)] mr-4">· {a}</div>)}
+                {p.activities.map((a, i) => <div key={i} className="text-[14px] text-[var(--text-muted)] mr-4">· {a}</div>)}
               </div>
             </div>)}
           </div>
           {/* Legend */}
           <div className="flex gap-4 mt-4 pt-3 border-t border-[var(--border)]">
-            {phases.map(p => <div key={p.id} className="flex items-center gap-1.5 text-[9px] text-[var(--text-muted)]"><div className="w-3 h-2 rounded-sm" style={{ background: p.color }} />{p.label} ({p.duration}mo)</div>)}
+            {phases.map(p => <div key={p.id} className="flex items-center gap-1.5 text-[14px] text-[var(--text-muted)]"><div className="w-3 h-2 rounded-sm" style={{ background: p.color }} />{p.label} ({p.duration}mo)</div>)}
           </div>
         </div>;
       })()}
@@ -455,19 +455,19 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, viewCtx
         return workstreams;
       })().map(ws => <Card key={ws.name} title={<span className="flex items-center gap-2"><span>{ws.icon}</span>{ws.name} Workstream</span>}>
         <div className="overflow-x-auto">
-          <table className="w-full text-[12px]"><thead><tr className="bg-[var(--surface-2)]">
-            <th className="px-3 py-2 text-left text-[10px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Activity</th>
-            <th className="px-3 py-2 text-left text-[10px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Owner</th>
-            <th className="px-3 py-2 text-center text-[10px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Status</th>
-            <th className="px-3 py-2 text-left text-[10px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Dependencies</th>
+          <table className="w-full text-[15px]"><thead><tr className="bg-[var(--surface-2)]">
+            <th className="px-3 py-2 text-left text-[15px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Activity</th>
+            <th className="px-3 py-2 text-left text-[15px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Owner</th>
+            <th className="px-3 py-2 text-center text-[15px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Status</th>
+            <th className="px-3 py-2 text-left text-[15px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Dependencies</th>
           </tr></thead>
           <tbody>{ws.items.map((item, i) => {
             const statusColor = item.status === "Complete" ? "var(--success)" : item.status === "In Progress" ? "var(--accent-primary)" : item.status === "Blocked" ? "var(--risk)" : "var(--text-muted)";
             return <tr key={i} className="border-b border-[var(--border)] hover:bg-[var(--hover)]">
               <td className="px-3 py-2 text-[var(--text-primary)]">{item.activity}</td>
               <td className="px-3 py-2 text-[var(--text-secondary)]">{item.owner}</td>
-              <td className="px-3 py-2 text-center"><span className="text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ color: statusColor, background: `${statusColor}15` }}>{item.status}</span></td>
-              <td className="px-3 py-2 text-[var(--text-muted)] text-[11px]">{item.deps}</td>
+              <td className="px-3 py-2 text-center"><span className="text-[15px] px-2 py-0.5 rounded-full font-semibold" style={{ color: statusColor, background: `${statusColor}15` }}>{item.status}</span></td>
+              <td className="px-3 py-2 text-[var(--text-muted)] text-[15px]">{item.deps}</td>
             </tr>;
           })}</tbody></table>
         </div>
@@ -505,7 +505,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, viewCtx
       };
       return <div className="animate-tab-enter">
         <Card title="Stakeholder Power/Interest Grid">
-          <div className="text-[12px] text-[var(--text-secondary)] mb-4">Drag stakeholder cards between quadrants to reposition them. Changes are saved automatically.</div>
+          <div className="text-[15px] text-[var(--text-secondary)] mb-4">Drag stakeholder cards between quadrants to reposition them. Changes are saved automatically.</div>
           <div className="grid grid-cols-2 gap-3">
             {quads.map(q => <div key={q.id} className="rounded-xl p-4 min-h-[160px] transition-all"
               style={{ background: dragOverQuad === q.id ? `${q.color}15` : q.bg, border: `2px ${dragOverQuad === q.id ? "dashed" : "solid"} ${dragOverQuad === q.id ? q.color : q.color + "25"}` }}
@@ -513,20 +513,20 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, viewCtx
               onDragLeave={() => setDragOverQuad(null)}
               onDrop={e => handleDrop(q.id, e)}>
               <div className="flex items-center justify-between mb-3">
-                <div><div className="text-[12px] font-bold font-heading" style={{ color: q.color }}>{q.label}</div><div className="text-[9px] text-[var(--text-muted)]">{q.desc}</div></div>
-                <span className="text-[10px] font-data" style={{ color: q.color }}>{stakeholders.filter(s => s.quadrant === q.id).length}</span>
+                <div><div className="text-[15px] font-bold font-heading" style={{ color: q.color }}>{q.label}</div><div className="text-[14px] text-[var(--text-muted)]">{q.desc}</div></div>
+                <span className="text-[15px] font-data" style={{ color: q.color }}>{stakeholders.filter(s => s.quadrant === q.id).length}</span>
               </div>
               <div className="space-y-1.5">
                 {stakeholders.filter(s => s.quadrant === q.id).map((s, i) => <div key={i}
                   className="flex items-center gap-2 bg-[var(--surface-1)] rounded-lg px-2 py-1.5 border border-[var(--border)] cursor-grab active:cursor-grabbing hover:border-[var(--accent-primary)]/40 transition-all"
                   draggable
                   onDragStart={e => { e.dataTransfer.setData("text/plain", JSON.stringify({ name: s.name })); e.dataTransfer.effectAllowed = "move"; }}>
-                  <span className="text-[var(--text-muted)] text-[10px] cursor-grab select-none" title="Drag to move">⠿</span>
-                  <div className="flex-1"><div className="text-[11px] font-semibold text-[var(--text-primary)]">{s.name}</div><div className="text-[9px] text-[var(--text-muted)]">{s.role}</div></div>
-                  <span className="text-[8px] px-1.5 py-0.5 rounded-full font-semibold" style={{ color: sentColor(s.sentiment), background: `${sentColor(s.sentiment)}15` }}>{s.sentiment}</span>
+                  <span className="text-[var(--text-muted)] text-[15px] cursor-grab select-none" title="Drag to move">⠿</span>
+                  <div className="flex-1"><div className="text-[15px] font-semibold text-[var(--text-primary)]">{s.name}</div><div className="text-[14px] text-[var(--text-muted)]">{s.role}</div></div>
+                  <span className="text-[15px] px-1.5 py-0.5 rounded-full font-semibold" style={{ color: sentColor(s.sentiment), background: `${sentColor(s.sentiment)}15` }}>{s.sentiment}</span>
                 </div>)}
               </div>
-              {stakeholders.filter(s => s.quadrant === q.id).length === 0 && <div className="text-center py-4 text-[10px] text-[var(--text-muted)] opacity-50">Drop stakeholders here</div>}
+              {stakeholders.filter(s => s.quadrant === q.id).length === 0 && <div className="text-center py-4 text-[15px] text-[var(--text-muted)] opacity-50">Drop stakeholders here</div>}
             </div>)}
           </div>
         </Card>
@@ -571,19 +571,19 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, viewCtx
         </div>
         <Card title="Risk Register">
           <div className="flex justify-end mb-3">
-            <button onClick={() => setAddingRisk(!addingRisk)} className="px-4 py-1.5 rounded-lg text-[11px] font-semibold bg-[var(--accent-primary)] text-white hover:opacity-90">{addingRisk ? "Cancel" : "+ Add Risk"}</button>
+            <button onClick={() => setAddingRisk(!addingRisk)} className="px-4 py-1.5 rounded-lg text-[15px] font-semibold bg-[var(--accent-primary)] text-white hover:opacity-90">{addingRisk ? "Cancel" : "+ Add Risk"}</button>
           </div>
           {addingRisk && <div className="bg-[var(--surface-2)] rounded-xl p-4 mb-4 border border-[var(--accent-primary)]/20 grid grid-cols-4 gap-3">
-            <div className="col-span-2"><label className="text-[9px] text-[var(--text-muted)] uppercase block mb-1">Risk Name</label><input value={newRisk.name} onChange={e => setNewRisk(p=>({...p,name:e.target.value}))} className="w-full bg-[var(--surface-1)] border border-[var(--border)] rounded px-2 py-1.5 text-[12px] text-[var(--text-primary)] outline-none" /></div>
-            <div><label className="text-[9px] text-[var(--text-muted)] uppercase block mb-1">Category</label><select value={newRisk.category} onChange={e=>setNewRisk(p=>({...p,category:e.target.value}))} className="w-full bg-[var(--surface-1)] border border-[var(--border)] rounded px-2 py-1.5 text-[12px] text-[var(--text-primary)]"><option>People</option><option>Technology</option><option>Process</option><option>Governance</option></select></div>
-            <div className="grid grid-cols-2 gap-2"><div><label className="text-[9px] text-[var(--text-muted)] uppercase block mb-1">Prob (1-5)</label><input type="number" min={1} max={5} value={newRisk.prob} onChange={e=>setNewRisk(p=>({...p,prob:+e.target.value}))} className="w-full bg-[var(--surface-1)] border border-[var(--border)] rounded px-2 py-1.5 text-[12px] text-[var(--text-primary)] outline-none" /></div><div><label className="text-[9px] text-[var(--text-muted)] uppercase block mb-1">Impact (1-5)</label><input type="number" min={1} max={5} value={newRisk.impact} onChange={e=>setNewRisk(p=>({...p,impact:+e.target.value}))} className="w-full bg-[var(--surface-1)] border border-[var(--border)] rounded px-2 py-1.5 text-[12px] text-[var(--text-primary)] outline-none" /></div></div>
-            <div className="col-span-2"><label className="text-[9px] text-[var(--text-muted)] uppercase block mb-1">Mitigation</label><input value={newRisk.mitigation} onChange={e=>setNewRisk(p=>({...p,mitigation:e.target.value}))} className="w-full bg-[var(--surface-1)] border border-[var(--border)] rounded px-2 py-1.5 text-[12px] text-[var(--text-primary)] outline-none" /></div>
-            <div><label className="text-[9px] text-[var(--text-muted)] uppercase block mb-1">Owner</label><input value={newRisk.owner} onChange={e=>setNewRisk(p=>({...p,owner:e.target.value}))} className="w-full bg-[var(--surface-1)] border border-[var(--border)] rounded px-2 py-1.5 text-[12px] text-[var(--text-primary)] outline-none" /></div>
-            <div className="flex items-end"><button onClick={addRisk} disabled={!newRisk.name.trim()} className="px-4 py-1.5 rounded-lg text-[11px] font-semibold bg-[var(--accent-primary)] text-white disabled:opacity-40">Save Risk</button></div>
+            <div className="col-span-2"><label className="text-[14px] text-[var(--text-muted)] uppercase block mb-1">Risk Name</label><input value={newRisk.name} onChange={e => setNewRisk(p=>({...p,name:e.target.value}))} className="w-full bg-[var(--surface-1)] border border-[var(--border)] rounded px-2 py-1.5 text-[15px] text-[var(--text-primary)] outline-none" /></div>
+            <div><label className="text-[14px] text-[var(--text-muted)] uppercase block mb-1">Category</label><select value={newRisk.category} onChange={e=>setNewRisk(p=>({...p,category:e.target.value}))} className="w-full bg-[var(--surface-1)] border border-[var(--border)] rounded px-2 py-1.5 text-[15px] text-[var(--text-primary)]"><option>People</option><option>Technology</option><option>Process</option><option>Governance</option></select></div>
+            <div className="grid grid-cols-2 gap-2"><div><label className="text-[14px] text-[var(--text-muted)] uppercase block mb-1">Prob (1-5)</label><input type="number" min={1} max={5} value={newRisk.prob} onChange={e=>setNewRisk(p=>({...p,prob:+e.target.value}))} className="w-full bg-[var(--surface-1)] border border-[var(--border)] rounded px-2 py-1.5 text-[15px] text-[var(--text-primary)] outline-none" /></div><div><label className="text-[14px] text-[var(--text-muted)] uppercase block mb-1">Impact (1-5)</label><input type="number" min={1} max={5} value={newRisk.impact} onChange={e=>setNewRisk(p=>({...p,impact:+e.target.value}))} className="w-full bg-[var(--surface-1)] border border-[var(--border)] rounded px-2 py-1.5 text-[15px] text-[var(--text-primary)] outline-none" /></div></div>
+            <div className="col-span-2"><label className="text-[14px] text-[var(--text-muted)] uppercase block mb-1">Mitigation</label><input value={newRisk.mitigation} onChange={e=>setNewRisk(p=>({...p,mitigation:e.target.value}))} className="w-full bg-[var(--surface-1)] border border-[var(--border)] rounded px-2 py-1.5 text-[15px] text-[var(--text-primary)] outline-none" /></div>
+            <div><label className="text-[14px] text-[var(--text-muted)] uppercase block mb-1">Owner</label><input value={newRisk.owner} onChange={e=>setNewRisk(p=>({...p,owner:e.target.value}))} className="w-full bg-[var(--surface-1)] border border-[var(--border)] rounded px-2 py-1.5 text-[15px] text-[var(--text-primary)] outline-none" /></div>
+            <div className="flex items-end"><button onClick={addRisk} disabled={!newRisk.name.trim()} className="px-4 py-1.5 rounded-lg text-[15px] font-semibold bg-[var(--accent-primary)] text-white disabled:opacity-40">Save Risk</button></div>
           </div>}
           <div className="overflow-x-auto">
-            <table className="w-full text-[12px]"><thead><tr className="bg-[var(--surface-2)]">
-              {["ID","Risk","Category","P","I","Score","Mitigation","Owner","Status",""].map(h => <th key={h} className="px-2 py-2 text-left text-[9px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)] cursor-pointer hover:text-[var(--accent-primary)]" onClick={() => h && setSortCol(h === "Score" ? "score" : "name")}>{h}</th>)}
+            <table className="w-full text-[15px]"><thead><tr className="bg-[var(--surface-2)]">
+              {["ID","Risk","Category","P","I","Score","Mitigation","Owner","Status",""].map(h => <th key={h} className="px-2 py-2 text-left text-[14px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)] cursor-pointer hover:text-[var(--accent-primary)]" onClick={() => h && setSortCol(h === "Score" ? "score" : "name")}>{h}</th>)}
             </tr></thead>
             <tbody>{sorted.map(r => {
               const score = r.prob * r.impact;
@@ -594,10 +594,10 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, viewCtx
                 <td className="px-2 py-2 text-center font-data">{r.prob}</td>
                 <td className="px-2 py-2 text-center font-data">{r.impact}</td>
                 <td className="px-2 py-2 text-center"><span className="font-bold font-data" style={{ color: riskColor(score) }}>{score}</span></td>
-                <td className="px-2 py-2 text-[var(--text-secondary)] text-[11px] max-w-[200px]">{r.mitigation}</td>
+                <td className="px-2 py-2 text-[var(--text-secondary)] text-[15px] max-w-[200px]">{r.mitigation}</td>
                 <td className="px-2 py-2 text-[var(--text-secondary)]">{r.owner}</td>
-                <td className="px-2 py-2"><span className="text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ color: r.status === "Mitigating" ? "var(--success)" : r.status === "Closed" ? "var(--text-muted)" : "var(--warning)", background: r.status === "Mitigating" ? "rgba(16,185,129,0.1)" : r.status === "Closed" ? "var(--surface-2)" : "rgba(245,158,11,0.1)" }}>{r.status}</span></td>
-                <td className="px-2 py-1"><button onClick={() => deleteRisk(r.id)} className="text-[10px] text-[var(--text-muted)] hover:text-[var(--risk)] transition-colors">✕</button></td>
+                <td className="px-2 py-2"><span className="text-[15px] px-2 py-0.5 rounded-full font-semibold" style={{ color: r.status === "Mitigating" ? "var(--success)" : r.status === "Closed" ? "var(--text-muted)" : "var(--warning)", background: r.status === "Mitigating" ? "rgba(16,185,129,0.1)" : r.status === "Closed" ? "var(--surface-2)" : "rgba(245,158,11,0.1)" }}>{r.status}</span></td>
+                <td className="px-2 py-1"><button onClick={() => deleteRisk(r.id)} className="text-[15px] text-[var(--text-muted)] hover:text-[var(--risk)] transition-colors">✕</button></td>
               </tr>;
             })}</tbody></table>
           </div>
@@ -608,10 +608,10 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, viewCtx
     {/* ═══ COMMUNICATION PLAN ═══ */}
     {sub === "comms" && <div className="animate-tab-enter">
       <Card title="Communication Cadence">
-        <div className="text-[12px] text-[var(--text-secondary)] mb-4">{aiChangePlan.length > 0 ? "Generated from your roadmap and stakeholder data." : "Default template — build a roadmap to customize."} Edit as needed.</div>
+        <div className="text-[15px] text-[var(--text-secondary)] mb-4">{aiChangePlan.length > 0 ? "Generated from your roadmap and stakeholder data." : "Default template — build a roadmap to customize."} Edit as needed.</div>
         <div className="overflow-x-auto">
-          <table className="w-full text-[12px]"><thead><tr className="bg-[var(--surface-2)]">
-            {["Audience","Message Type","Channel","Frequency","Owner","Phase"].map(h => <th key={h} className="px-3 py-2 text-left text-[9px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">{h}</th>)}
+          <table className="w-full text-[15px]"><thead><tr className="bg-[var(--surface-2)]">
+            {["Audience","Message Type","Channel","Frequency","Owner","Phase"].map(h => <th key={h} className="px-3 py-2 text-left text-[14px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">{h}</th>)}
           </tr></thead>
           <tbody>{[
             { audience: "Executive Team", type: "Progress Update", channel: "Steering Committee", freq: "Bi-weekly", owner: "PMO Lead", phase: "All" },
@@ -628,7 +628,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, viewCtx
             <td className="px-3 py-2 text-[var(--text-secondary)]">{row.channel}</td>
             <td className="px-3 py-2"><Badge color="amber">{row.freq}</Badge></td>
             <td className="px-3 py-2 text-[var(--text-muted)]">{row.owner}</td>
-            <td className="px-3 py-2 text-[var(--text-muted)] text-[11px]">{row.phase}</td>
+            <td className="px-3 py-2 text-[var(--text-muted)] text-[15px]">{row.phase}</td>
           </tr>)}</tbody></table>
         </div>
       </Card>
@@ -643,24 +643,24 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, viewCtx
 
     {sub === "playbook" && <div>
       <Card title="📖 Change Playbook Dictionary">
-        <div className="text-[12px] text-[var(--text-secondary)] mb-4">Pre-built transformation playbooks. Click &quot;Load Plan&quot; to populate the roadmap — then customize for your client.</div>
+        <div className="text-[15px] text-[var(--text-secondary)] mb-4">Pre-built transformation playbooks. Click &quot;Load Plan&quot; to populate the roadmap — then customize for your client.</div>
         <div className="space-y-4">
           {CHANGE_PLAYBOOKS.map((pb, pi) => <div key={pi} className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] overflow-hidden">
             <div className="px-4 py-3 flex items-center justify-between">
-              <div><div className="text-[13px] font-bold text-[var(--text-primary)]">{pb.name}</div><div className="text-[10px] text-[var(--text-muted)] mt-0.5">{pb.desc}</div></div>
+              <div><div className="text-[15px] font-bold text-[var(--text-primary)]">{pb.name}</div><div className="text-[15px] text-[var(--text-muted)] mt-0.5">{pb.desc}</div></div>
               <div className="flex items-center gap-2">
                 <Badge color="purple">{pb.industry}</Badge>
                 <button onClick={() => {
                   const flat = pb.waves.flatMap(w => w.initiatives.map(init => ({ ...init, wave: w.wave, start: w.time.split("-")[0]?.trim() || "", end: w.time.split("-")[1]?.trim() || "", initiative: init.name, description: `From ${pb.name} playbook` })));
                   setAiChangePlan(flat); setSub("road");
                   showToast(`📖 Loaded ${flat.length} initiatives from "${pb.name}"`);
-                }} className="px-3 py-1.5 rounded-lg text-[10px] font-semibold bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] cursor-pointer">Load Plan →</button>
+                }} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] cursor-pointer">Load Plan →</button>
               </div>
             </div>
             <div className="px-4 pb-3 flex gap-2 overflow-x-auto">
               {pb.waves.map((w, wi) => <div key={wi} className="flex-shrink-0 rounded-lg border border-[var(--border)] bg-[var(--surface-1)] p-2.5 min-w-[180px]">
-                <div className="flex items-center justify-between mb-1.5"><span className="text-[10px] font-bold" style={{color:COLORS[wi % COLORS.length]}}>{w.wave}</span><span className="text-[8px] text-[var(--text-muted)]">{w.time}</span></div>
-                {w.initiatives.map((init, ii) => <div key={ii} className="text-[9px] text-[var(--text-secondary)] mb-0.5 flex items-start gap-1"><span className="text-[var(--text-muted)]">·</span>{init.name}</div>)}
+                <div className="flex items-center justify-between mb-1.5"><span className="text-[15px] font-bold" style={{color:COLORS[wi % COLORS.length]}}>{w.wave}</span><span className="text-[15px] text-[var(--text-muted)]">{w.time}</span></div>
+                {w.initiatives.map((init, ii) => <div key={ii} className="text-[14px] text-[var(--text-secondary)] mb-0.5 flex items-start gap-1"><span className="text-[var(--text-muted)]">·</span>{init.name}</div>)}
               </div>)}
             </div>
           </div>)}
@@ -716,28 +716,28 @@ export function TransformationStoryBuilder({ model, f, onBack, onNavigate }: { m
     <PageHeader icon="📖" title="Transformation Story Builder" subtitle="Executive-ready narrative for board, all-hands, or investor presentations" onBack={onBack} moduleId="story" />
 
     <div className="flex gap-2 mb-4">
-      {([["board", "Board Presentation"], ["allhands", "All-Hands"], ["investor", "Investor Update"]] as const).map(([id, label]) => <button key={id} onClick={() => setTone(id)} className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold ${tone === id ? "bg-[var(--accent-primary)] text-white" : "text-[var(--text-muted)] border border-[var(--border)]"}`}>{label}</button>)}
+      {([["board", "Board Presentation"], ["allhands", "All-Hands"], ["investor", "Investor Update"]] as const).map(([id, label]) => <button key={id} onClick={() => setTone(id)} className={`px-3 py-1.5 rounded-lg text-[15px] font-semibold ${tone === id ? "bg-[var(--accent-primary)] text-white" : "text-[var(--text-muted)] border border-[var(--border)]"}`}>{label}</button>)}
     </div>
 
     {!story && !loading && <Card><div className="text-center py-12">
       <div className="text-4xl mb-3 opacity-40">📖</div>
       <h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">Generate Your Transformation Story</h3>
-      <p className="text-[13px] text-[var(--text-secondary)] mb-5 max-w-md mx-auto">AI will synthesize data from Overview, Diagnose, Simulate, and Mobilize into a polished executive narrative.</p>
+      <p className="text-[15px] text-[var(--text-secondary)] mb-5 max-w-md mx-auto">AI will synthesize data from Overview, Diagnose, Simulate, and Mobilize into a polished executive narrative.</p>
       <button onClick={generate} className="px-6 py-3 rounded-2xl text-[14px] font-bold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>📖 Generate Narrative</button>
     </div></Card>}
 
-    {loading && <Card><div className="text-center py-12"><LoadingBar /><div className="text-[13px] text-[var(--text-secondary)] mt-4">Crafting your transformation story...</div></div></Card>}
+    {loading && <Card><div className="text-center py-12"><LoadingBar /><div className="text-[15px] text-[var(--text-secondary)] mt-4">Crafting your transformation story...</div></div></Card>}
 
     {story && <Card>
       <div className="flex justify-between items-center mb-4">
         <Badge color="amber">{tone === "board" ? "Board Tone" : tone === "allhands" ? "All-Hands Tone" : "Investor Tone"}</Badge>
         <div className="flex gap-2">
-          <button onClick={exportPdf} className="px-3 py-1.5 rounded-lg text-[11px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30">📄 Export PDF</button>
-          <button onClick={generate} disabled={loading} className="px-3 py-1.5 rounded-lg text-[11px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">↻ Regenerate</button>
+          <button onClick={exportPdf} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30">📄 Export PDF</button>
+          <button onClick={generate} disabled={loading} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">↻ Regenerate</button>
         </div>
       </div>
-      <textarea value={story} onChange={e => { setStory(e.target.value); setEdited(true); }} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl p-4 text-[13px] text-[var(--text-secondary)] leading-relaxed outline-none focus:border-[var(--accent-primary)] resize-y" rows={12} />
-      {edited && <div className="text-[10px] text-[var(--accent-primary)] mt-1">Edited — your changes will be preserved</div>}
+      <textarea value={story} onChange={e => { setStory(e.target.value); setEdited(true); }} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl p-4 text-[15px] text-[var(--text-secondary)] leading-relaxed outline-none focus:border-[var(--accent-primary)] resize-y" rows={12} />
+      {edited && <div className="text-[15px] text-[var(--accent-primary)] mt-1">Edited — your changes will be preserved</div>}
     </Card>}
 
     <NextStepBar currentModuleId="plan" onNavigate={onNavigate || onBack} />
@@ -794,12 +794,12 @@ export function ReadinessArchetypes({ model, f, onBack, onNavigate }: { model: s
       {archetypes.map(a => <div key={a.id} onClick={() => setExpanded(expanded === a.id ? null : a.id)} className="rounded-xl border cursor-pointer transition-all card-hover" style={{ background: a.bgColor, borderColor: `${a.color}30` }}>
         <div className="p-5">
           <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2"><span className="text-2xl">{a.icon}</span><div><div className="text-[14px] font-bold font-heading" style={{ color: a.color }}>{a.label}</div><div className="text-[10px] text-[var(--text-muted)]">{a.desc}</div></div></div>
+            <div className="flex items-center gap-2"><span className="text-2xl">{a.icon}</span><div><div className="text-[14px] font-bold font-heading" style={{ color: a.color }}>{a.label}</div><div className="text-[15px] text-[var(--text-muted)]">{a.desc}</div></div></div>
             <div className="text-[28px] font-black font-data" style={{ color: a.color }}>{a.pct}%</div>
           </div>
           {expanded === a.id && <div className="mt-3 pt-3 border-t animate-tab-enter" style={{ borderColor: `${a.color}20` }}>
-            <div className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color: a.color }}>Engagement Playbook</div>
-            <ul className="space-y-1.5">{a.engagement.map((e, i) => <li key={i} className="flex gap-2 text-[11px] text-[var(--text-secondary)]"><span style={{ color: a.color }}>→</span>{e}</li>)}</ul>
+            <div className="text-[15px] font-bold uppercase tracking-wider mb-2" style={{ color: a.color }}>Engagement Playbook</div>
+            <ul className="space-y-1.5">{a.engagement.map((e, i) => <li key={i} className="flex gap-2 text-[15px] text-[var(--text-secondary)]"><span style={{ color: a.color }}>→</span>{e}</li>)}</ul>
           </div>}
         </div>
       </div>)}

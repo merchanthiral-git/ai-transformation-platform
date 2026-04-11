@@ -7,8 +7,8 @@ import { KNOWLEDGE_BASE, KnowledgeModal } from "./KnowledgeBase";
    PLATFORM HUB — premium command center with warm amber design
    ═══════════════════════════════════════════════════════════════ */
 
-const IS: React.CSSProperties = { width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid rgba(212,134,10,0.15)", background: "rgba(255,250,240,0.04)", color: "var(--text-primary)", fontSize: 13, fontFamily: "'Outfit', sans-serif", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s" };
-const LBL: React.CSSProperties = { display: "block", fontSize: 10, color: "var(--text-muted)", marginBottom: 5, fontFamily: "'IBM Plex Mono', monospace", textTransform: "uppercase", letterSpacing: "1.5px" };
+const IS: React.CSSProperties = { width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid rgba(212,134,10,0.15)", background: "rgba(255,250,240,0.04)", color: "var(--text-primary)", fontSize: 15, fontFamily: "'Outfit', sans-serif", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s" };
+const LBL: React.CSSProperties = { display: "block", fontSize: 15, color: "var(--text-muted)", marginBottom: 5, fontFamily: "'IBM Plex Mono', monospace", textTransform: "uppercase", letterSpacing: "1.5px" };
 
 export function PlatformHub({ user, onBack, onUpdateUser }: { user: authApi.AuthUser; onBack: () => void; onUpdateUser: (u: authApi.AuthUser) => void }) {
   const [tab, setTab] = useState("account");
@@ -28,26 +28,26 @@ export function PlatformHub({ user, onBack, onUpdateUser }: { user: authApi.Auth
   return <div className="flex min-h-screen w-full" style={{ background: "radial-gradient(ellipse at 30% 20%, rgba(30,18,8,0.6) 0%, transparent 50%), linear-gradient(135deg, #0B1120 0%, #12182a 50%, #0f1525 100%)" }}>
     {/* Sidebar — premium warm amber design */}
     <aside className="w-[220px] min-h-screen flex flex-col px-3 py-5 shrink-0" style={{ height: "100vh", position: "sticky", top: 0, background: "rgba(12,10,8,0.95)", borderRight: "1px solid rgba(212,134,10,0.06)" }}>
-      <button onClick={onBack} className="text-[11px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mb-5 flex items-center gap-1.5 transition-colors font-semibold group">
+      <button onClick={onBack} className="text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mb-5 flex items-center gap-1.5 transition-colors font-semibold group">
         <span className="group-hover:-translate-x-0.5 transition-transform">←</span> Back to Platform
       </button>
       <div className="flex items-center gap-2.5 mb-6 px-2">
-        <div style={{ width: 32, height: 32, borderRadius: 10, background: "linear-gradient(135deg, #e09040, #c07030)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 800, color: "#fff", fontFamily: "'Outfit', sans-serif" }}>AI</div>
+        <div style={{ width: 32, height: 32, borderRadius: 10, background: "linear-gradient(135deg, #e09040, #c07030)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 800, color: "#fff", fontFamily: "'Outfit', sans-serif" }}>AI</div>
         <div>
-          <div className="text-[12px] font-bold" style={{ color: "rgba(255,245,235,0.9)" }}>Platform Hub</div>
-          <div className="text-[9px]" style={{ color: "rgba(212,134,10,0.4)" }}>v4.0</div>
+          <div className="text-[15px] font-bold" style={{ color: "rgba(255,245,235,0.9)" }}>Platform Hub</div>
+          <div className="text-[14px]" style={{ color: "rgba(212,134,10,0.4)" }}>v4.0</div>
         </div>
       </div>
       <div className="space-y-0.5 relative">
         {tabs.map(t => {
           const active = tab === t.id;
-          return <button key={t.id} onClick={() => setTab(t.id)} className="w-full text-left px-3 py-2.5 rounded-xl text-[12px] transition-all flex items-center gap-2.5 relative" style={{ background: active ? "rgba(212,134,10,0.1)" : "transparent", color: active ? "#e09040" : "rgba(255,230,200,0.35)", fontWeight: active ? 600 : 400, borderLeft: active ? "3px solid #D4860A" : "3px solid transparent" }} onMouseEnter={e => { if (!active) e.currentTarget.style.color = "rgba(255,230,200,0.6)"; }} onMouseLeave={e => { if (!active) e.currentTarget.style.color = "rgba(255,230,200,0.35)"; }}>
+          return <button key={t.id} onClick={() => setTab(t.id)} className="w-full text-left px-3 py-2.5 rounded-xl text-[15px] transition-all flex items-center gap-2.5 relative" style={{ background: active ? "rgba(212,134,10,0.1)" : "transparent", color: active ? "#e09040" : "rgba(255,230,200,0.35)", fontWeight: active ? 600 : 400, borderLeft: active ? "3px solid #D4860A" : "3px solid transparent" }} onMouseEnter={e => { if (!active) e.currentTarget.style.color = "rgba(255,230,200,0.6)"; }} onMouseLeave={e => { if (!active) e.currentTarget.style.color = "rgba(255,230,200,0.35)"; }}>
             <span className="text-[15px]">{t.icon}</span>{t.label}
           </button>;
         })}
       </div>
       <div className="mt-auto pt-4">
-        <div className="text-center text-[9px] opacity-30" style={{ color: "rgba(212,134,10,0.6)" }}>AI Transformation Platform</div>
+        <div className="text-center text-[14px] opacity-30" style={{ color: "rgba(212,134,10,0.6)" }}>AI Transformation Platform</div>
       </div>
     </aside>
 
@@ -65,7 +65,7 @@ export function PlatformHub({ user, onBack, onUpdateUser }: { user: authApi.Auth
       </div>
       {/* Footer */}
       <div className="px-10 py-6 text-center border-t" style={{ borderColor: "rgba(212,134,10,0.06)" }}>
-        <div className="text-[10px]" style={{ color: "rgba(255,230,200,0.15)" }}>Built with purpose in New York {"\u00B7"} {"\u00A9"} 2026 Hiral Merchant</div>
+        <div className="text-[15px]" style={{ color: "rgba(255,230,200,0.15)" }}>Built with purpose in New York {"\u00B7"} {"\u00A9"} 2026 Hiral Merchant</div>
       </div>
       <style>{`@keyframes hubFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }`}</style>
     </main>
@@ -103,14 +103,14 @@ function AccountTab({ user, onUpdate }: { user: authApi.AuthUser; onUpdate: (u: 
         <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-[28px] font-bold text-white shrink-0" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", fontFamily: "'Outfit',sans-serif", boxShadow: "0 8px 24px rgba(212,134,10,0.25)" }}>{(dn || "U")[0].toUpperCase()}</div>
         <div>
           <div className="text-[18px] font-bold text-[var(--text-primary)] font-heading">{user.username}</div>
-          <div className="flex gap-4 mt-1.5 text-[10px] font-data" style={{ color: "rgba(212,134,10,0.5)" }}>
+          <div className="flex gap-4 mt-1.5 text-[15px] font-data" style={{ color: "rgba(212,134,10,0.5)" }}>
             <span>Member since {new Date().toLocaleDateString()}</span>
             {user.last_login && <span>Last active: {new Date(user.last_login).toLocaleDateString()}</span>}
           </div>
         </div>
       </div>
-      {err && <div className="rounded-xl px-4 py-2.5 mb-4 text-[11px] font-data" style={{ background: "rgba(220,50,50,0.06)", border: "1px solid rgba(220,50,50,0.15)", color: "#f08080" }}>{err}</div>}
-      {msg && <div className="rounded-xl px-4 py-2.5 mb-4 text-[11px] font-data" style={{ background: "rgba(16,185,129,0.06)", border: "1px solid rgba(16,185,129,0.15)", color: "#6ee7b7" }}>{msg}</div>}
+      {err && <div className="rounded-xl px-4 py-2.5 mb-4 text-[15px] font-data" style={{ background: "rgba(220,50,50,0.06)", border: "1px solid rgba(220,50,50,0.15)", color: "#f08080" }}>{err}</div>}
+      {msg && <div className="rounded-xl px-4 py-2.5 mb-4 text-[15px] font-data" style={{ background: "rgba(16,185,129,0.06)", border: "1px solid rgba(16,185,129,0.15)", color: "#6ee7b7" }}>{msg}</div>}
       <div className="grid grid-cols-2 gap-5">
         <div><label style={LBL}>Display Name</label><input value={dn} onChange={e => setDn(e.target.value)} style={IS} onFocus={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.4)"} onBlur={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.15)"} /></div>
         <div><label style={LBL}>Email</label><input value={email} onChange={e => setEmail(e.target.value)} type="email" style={IS} onFocus={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.4)"} onBlur={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.15)"} /></div>
@@ -129,7 +129,7 @@ function AccountTab({ user, onUpdate }: { user: authApi.AuthUser; onUpdate: (u: 
       </div>
     </div>
 
-    <button onClick={save} disabled={saving} className="px-8 py-3 rounded-xl text-[13px] font-semibold text-white transition-all hover:translate-y-[-1px] disabled:opacity-50" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", boxShadow: "0 4px 16px rgba(212,134,10,0.25)" }}>{saving ? "Saving..." : "Save Changes"}</button>
+    <button onClick={save} disabled={saving} className="px-8 py-3 rounded-xl text-[15px] font-semibold text-white transition-all hover:translate-y-[-1px] disabled:opacity-50" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", boxShadow: "0 4px 16px rgba(212,134,10,0.25)" }}>{saving ? "Saving..." : "Save Changes"}</button>
   </div>;
 }
 
@@ -148,7 +148,7 @@ function AboutTab() {
           <h1 style={{ fontSize: 36, fontWeight: 800, color: "#fff", fontFamily: "'Outfit', sans-serif", textShadow: "0 2px 16px rgba(0,0,0,0.3)", marginBottom: 4 }}>Hiral Merchant</h1>
           <div style={{ fontSize: 18, color: "rgba(255,230,200,0.85)", fontWeight: 500 }}>Consultant at Mercer &middot; New York</div>
           <div className="flex gap-2 mt-4">
-            <a href="https://www.linkedin.com/in/hiral-merchant-6a0416b1/" target="_blank" rel="noopener noreferrer" style={{ padding: "6px 16px", borderRadius: 10, fontSize: 12, fontWeight: 600, background: "rgba(0,0,0,0.2)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6 }}>
+            <a href="https://www.linkedin.com/in/hiral-merchant-6a0416b1/" target="_blank" rel="noopener noreferrer" style={{ padding: "6px 16px", borderRadius: 10, fontSize: 15, fontWeight: 600, background: "rgba(0,0,0,0.2)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6 }}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
               LinkedIn
             </a>
@@ -167,14 +167,14 @@ function AboutTab() {
         </div>
         {/* Right: At a Glance card (40%) */}
         <div style={{ width: 280, flexShrink: 0, borderRadius: 18, padding: 24, background: "rgba(255,255,255,0.02)", backdropFilter: "blur(12px)", border: "1px solid rgba(212,134,10,0.1)" }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(212,134,10,0.5)", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 16 }}>At a Glance</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: "rgba(212,134,10,0.5)", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 16 }}>At a Glance</div>
           {[
             { icon: "🎓", label: "UNC Charlotte — BS" },
             { icon: "📍", label: "New York, NY" },
             { icon: "🏢", label: "Mercer — Workforce Transformation" },
             { icon: "🌐", label: "LinkedIn", link: "https://www.linkedin.com/in/hiral-merchant-6a0416b1/" },
             { icon: "📧", label: "merchanthiral@gmail.com" },
-          ].map(item => <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, fontSize: 12, color: "var(--text-secondary)" }}>
+          ].map(item => <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, fontSize: 15, color: "var(--text-secondary)" }}>
             <span style={{ fontSize: 15 }}>{item.icon}</span>
             {item.link ? <a href={item.link} target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent-primary)", textDecoration: "none" }}>{item.label}</a> : <span>{item.label}</span>}
           </div>)}
@@ -207,7 +207,7 @@ function AboutTab() {
           <div key={quoteIdx} className="rounded-2xl relative overflow-hidden" style={{ padding: "40px 48px", background: cur.bg, border: `1px solid ${cur.border}`, borderLeft: `4px solid ${cur.accent}`, animation: "quoteFade 0.5s ease" }}>
             <div className="absolute top-4 left-10 font-serif leading-none select-none" style={{ fontSize: 80, color: `${cur.accent}12` }}>&ldquo;</div>
             <div className="relative z-10">
-              <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: 2, fontStyle: "italic", color: `${cur.accent}80`, marginBottom: 16 }}>{cur.q}</div>
+              <div style={{ fontSize: 15, textTransform: "uppercase", letterSpacing: 2, fontStyle: "italic", color: `${cur.accent}80`, marginBottom: 16 }}>{cur.q}</div>
               <blockquote style={{ fontSize: 20, fontFamily: "'Outfit', sans-serif", lineHeight: 1.8, color: "rgba(232,236,244,0.75)", fontStyle: "italic", marginBottom: 20 }}>{cur.text}</blockquote>
               <div style={{ textAlign: "right", fontFamily: "'IBM Plex Mono', monospace", fontSize: 14, fontWeight: 700, color: cur.accent }}>— {cur.author}</div>
             </div>
@@ -222,7 +222,7 @@ function AboutTab() {
     {/* ═══ PHILOSOPHY BOX ═══ */}
     <div className="mx-10 rounded-2xl mb-10" style={{ padding: 48, background: "linear-gradient(135deg, rgba(255,248,235,0.04), rgba(212,134,10,0.02))", border: "1px solid rgba(212,134,10,0.12)" }}>
       <h2 className="text-[20px] font-bold font-heading text-[var(--text-primary)] mb-2" style={{ letterSpacing: "-0.3px" }}>This Is About You</h2>
-      <p className="text-[12px] mb-10" style={{ color: "rgba(232,197,71,0.4)" }}>Why these principles define the transformation journey</p>
+      <p className="text-[15px] mb-10" style={{ color: "rgba(232,197,71,0.4)" }}>Why these principles define the transformation journey</p>
 
       {/* Paragraph 1 — Courage */}
       <p className="text-[14px] leading-[1.85] text-[var(--text-secondary)] mb-8">At some point in your transformation journey, you&apos;re going to sit in a room with data that tells an uncomfortable truth. Maybe it shows that 40% of tasks in your largest function are automatable. Maybe it reveals that your most tenured leaders are in the roles most exposed to AI disruption. Maybe it surfaces a pay equity gap that restructuring will either fix or amplify. In that moment, you have a choice — soften the message or <strong style={{ color: "var(--accent-primary)" }}>tell the truth</strong>. Jamie Dimon&apos;s words aren&apos;t about banking. They&apos;re about you, in that room, deciding whether to present the data as it is or shade it to make people comfortable. The organizations that transform successfully are led by people who choose truth. Not because it&apos;s easy, but because every decision built on incomplete truth compounds into a plan that doesn&apos;t work. When you use this platform and the AI impact scores tell you something hard — <strong style={{ color: "var(--accent-primary)" }}>sit with it. Don&apos;t shave it.</strong> That&apos;s where the real work begins.</p>
@@ -253,15 +253,15 @@ function AboutTab() {
       <div className="flex items-center gap-3 mt-10 pt-6" style={{ borderTop: "1px solid rgba(212,134,10,0.08)" }}>
         <div className="w-10 h-10 rounded-xl flex items-center justify-center text-[14px] font-bold text-white shrink-0" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", fontFamily: "'Outfit',sans-serif" }}>HM</div>
         <div>
-          <div className="text-[13px] font-semibold text-[var(--text-primary)] font-heading">Hiral Merchant</div>
-          <div className="text-[10px]" style={{ color: "rgba(212,134,10,0.4)" }}>New York</div>
+          <div className="text-[15px] font-semibold text-[var(--text-primary)] font-heading">Hiral Merchant</div>
+          <div className="text-[15px]" style={{ color: "rgba(212,134,10,0.4)" }}>New York</div>
         </div>
       </div>
     </div>
 
     {/* Footer */}
     <div className="text-center pb-8">
-      <p className="text-[10px]" style={{ color: "rgba(255,230,200,0.15)" }}>Built with purpose in New York. {"\u00A9"} 2026</p>
+      <p className="text-[15px]" style={{ color: "rgba(255,230,200,0.15)" }}>Built with purpose in New York. {"\u00A9"} 2026</p>
     </div>
   </div>;
 }
@@ -292,22 +292,22 @@ function KnowledgeBaseTab() {
     <h1 className="text-[24px] font-bold font-heading text-[var(--text-primary)] mb-2" style={{ letterSpacing: "-0.5px" }}>Knowledge Base</h1>
     <p className="text-[14px] mb-6" style={{ color: "rgba(212,134,10,0.4)" }}>Comprehensive guides for every module and feature.</p>
 
-    <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search articles..." className="w-full rounded-xl px-5 py-3.5 text-[13px] text-[var(--text-primary)] outline-none mb-7 transition-all" style={{ background: "rgba(255,250,240,0.03)", border: "1px solid rgba(212,134,10,0.1)", fontFamily: "'Outfit',sans-serif" }} onFocus={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.3)"} onBlur={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.1)"} />
+    <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search articles..." className="w-full rounded-xl px-5 py-3.5 text-[15px] text-[var(--text-primary)] outline-none mb-7 transition-all" style={{ background: "rgba(255,250,240,0.03)", border: "1px solid rgba(212,134,10,0.1)", fontFamily: "'Outfit',sans-serif" }} onFocus={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.3)"} onBlur={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.1)"} />
 
     {!search && <div className="rounded-2xl p-5 mb-7" style={{ background: "rgba(212,134,10,0.04)", border: "1px solid rgba(212,134,10,0.08)" }}>
-      <h3 className="text-[13px] font-bold font-heading mb-3" style={{ color: "var(--accent-primary)" }}>Getting Started</h3>
+      <h3 className="text-[15px] font-bold font-heading mb-3" style={{ color: "var(--accent-primary)" }}>Getting Started</h3>
       <div className="space-y-1.5">{gettingStarted.map(s => <button key={s.step} onClick={() => setOpenId(s.id)} className="w-full text-left flex items-center gap-3 p-2.5 rounded-xl transition-all hover:translate-x-1" style={{ background: "transparent" }}>
-        <div className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0" style={{ background: "var(--accent-primary)" }}>{s.step}</div>
-        <span className="text-[12px] text-[var(--text-secondary)]">{s.title}</span>
+        <div className="w-6 h-6 rounded-full flex items-center justify-center text-[15px] font-bold text-white shrink-0" style={{ background: "var(--accent-primary)" }}>{s.step}</div>
+        <span className="text-[15px] text-[var(--text-secondary)]">{s.title}</span>
       </button>)}</div>
     </div>}
 
     {Object.entries(groups).map(([cat, items]) => <div key={cat} className="mb-6">
-      <h3 className="text-[10px] font-bold uppercase tracking-[2px] mb-3" style={{ color: "rgba(212,134,10,0.4)" }}>{cat}</h3>
+      <h3 className="text-[15px] font-bold uppercase tracking-[2px] mb-3" style={{ color: "rgba(212,134,10,0.4)" }}>{cat}</h3>
       <div className="space-y-2">{items.map(([id, e]) => <div key={id} className="rounded-xl p-4 flex items-center gap-3 cursor-pointer transition-all hover:translate-x-1" style={{ background: "rgba(255,250,240,0.02)", border: "1px solid rgba(212,134,10,0.06)" }} onClick={() => setOpenId(id)}>
-        <div className="flex-1 min-w-0"><div className="text-[13px] font-semibold text-[var(--text-primary)] font-heading">{e.title}</div><div className="text-[10px] mt-0.5 truncate" style={{ color: "rgba(212,134,10,0.35)" }}>{e.summary}</div></div>
+        <div className="flex-1 min-w-0"><div className="text-[15px] font-semibold text-[var(--text-primary)] font-heading">{e.title}</div><div className="text-[15px] mt-0.5 truncate" style={{ color: "rgba(212,134,10,0.35)" }}>{e.summary}</div></div>
         <div className="flex items-center gap-2 shrink-0">
-          <span className="text-[8px] px-2 py-0.5 rounded-full font-semibold" style={{ background: `${e.categoryColor}15`, color: e.categoryColor }}>{e.category}</span>
+          <span className="text-[15px] px-2 py-0.5 rounded-full font-semibold" style={{ background: `${e.categoryColor}15`, color: e.categoryColor }}>{e.category}</span>
           <button onClick={ev => { ev.stopPropagation(); toggleBookmark(id); }} className="text-[14px] transition-opacity hover:opacity-100" style={{ opacity: bookmarks.includes(id) ? 1 : 0.3 }}>{bookmarks.includes(id) ? "⭐" : "☆"}</button>
         </div>
       </div>)}</div>
@@ -331,13 +331,13 @@ function UseCasesTab() {
   const [openId, setOpenId] = useState<string | null>(null);
   const uc = USE_CASES.find(u => u.id === openId);
   if (uc) return <div style={{ animation: "fadeIn 0.3s ease-out" }}>
-    <button onClick={() => setOpenId(null)} className="text-[11px] hover:text-[var(--accent-primary)] mb-5 flex items-center gap-1.5 group transition-colors" style={{ color: "rgba(212,134,10,0.4)" }}><span className="group-hover:-translate-x-0.5 transition-transform">←</span> Back</button>
+    <button onClick={() => setOpenId(null)} className="text-[15px] hover:text-[var(--accent-primary)] mb-5 flex items-center gap-1.5 group transition-colors" style={{ color: "rgba(212,134,10,0.4)" }}><span className="group-hover:-translate-x-0.5 transition-transform">←</span> Back</button>
     <div className="rounded-2xl p-7" style={{ background: "rgba(255,250,240,0.02)", border: "1px solid rgba(212,134,10,0.08)" }}>
-      <div className="flex items-center gap-2 mb-2"><span className="text-2xl">{uc.icon}</span><span className="text-[10px] px-2.5 py-0.5 rounded-full font-semibold" style={{ background: "rgba(212,134,10,0.08)", color: "var(--accent-primary)" }}>{uc.industry}</span></div>
+      <div className="flex items-center gap-2 mb-2"><span className="text-2xl">{uc.icon}</span><span className="text-[15px] px-2.5 py-0.5 rounded-full font-semibold" style={{ background: "rgba(212,134,10,0.08)", color: "var(--accent-primary)" }}>{uc.industry}</span></div>
       <h2 className="text-[20px] font-bold font-heading text-[var(--text-primary)] mb-1">{uc.company}</h2>
-      <div className="text-[13px] font-semibold mb-4" style={{ color: "var(--accent-primary)" }}>{uc.challenge}</div>
-      <div className="rounded-xl p-4 mb-5" style={{ background: "rgba(16,185,129,0.04)", border: "1px solid rgba(16,185,129,0.1)" }}><div className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: "var(--success)" }}>Outcome</div><div className="text-[13px] text-[var(--text-primary)] font-semibold">{uc.outcome}</div></div>
-      <p className="text-[13px] text-[var(--text-secondary)] leading-[1.8]">{uc.detail}</p>
+      <div className="text-[15px] font-semibold mb-4" style={{ color: "var(--accent-primary)" }}>{uc.challenge}</div>
+      <div className="rounded-xl p-4 mb-5" style={{ background: "rgba(16,185,129,0.04)", border: "1px solid rgba(16,185,129,0.1)" }}><div className="text-[15px] font-bold uppercase tracking-wider mb-1" style={{ color: "var(--success)" }}>Outcome</div><div className="text-[15px] text-[var(--text-primary)] font-semibold">{uc.outcome}</div></div>
+      <p className="text-[15px] text-[var(--text-secondary)] leading-[1.8]">{uc.detail}</p>
     </div>
   </div>;
 
@@ -345,10 +345,10 @@ function UseCasesTab() {
     <h1 className="text-[24px] font-bold font-heading text-[var(--text-primary)] mb-2" style={{ letterSpacing: "-0.5px" }}>Use Cases</h1>
     <p className="text-[14px] mb-7" style={{ color: "rgba(212,134,10,0.4)" }}>Real-world consulting scenarios.</p>
     <div className="grid grid-cols-2 gap-4">{USE_CASES.map(uc => <div key={uc.id} onClick={() => setOpenId(uc.id)} className="rounded-2xl p-5 cursor-pointer transition-all hover:translate-y-[-2px]" style={{ background: "rgba(255,250,240,0.02)", border: "1px solid rgba(212,134,10,0.06)" }}>
-      <div className="flex items-center gap-2 mb-2"><span className="text-xl">{uc.icon}</span><span className="text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ background: "rgba(212,134,10,0.08)", color: "var(--accent-primary)" }}>{uc.industry}</span></div>
-      <div className="text-[12px] font-semibold text-[var(--text-primary)] font-heading mb-1">{uc.company}</div>
-      <div className="text-[11px] mb-3" style={{ color: "rgba(212,134,10,0.35)" }}>{uc.challenge}</div>
-      <div className="text-[10px] font-semibold" style={{ color: "var(--success)" }}>{uc.outcome}</div>
+      <div className="flex items-center gap-2 mb-2"><span className="text-xl">{uc.icon}</span><span className="text-[15px] px-2 py-0.5 rounded-full font-semibold" style={{ background: "rgba(212,134,10,0.08)", color: "var(--accent-primary)" }}>{uc.industry}</span></div>
+      <div className="text-[15px] font-semibold text-[var(--text-primary)] font-heading mb-1">{uc.company}</div>
+      <div className="text-[15px] mb-3" style={{ color: "rgba(212,134,10,0.35)" }}>{uc.challenge}</div>
+      <div className="text-[15px] font-semibold" style={{ color: "var(--success)" }}>{uc.outcome}</div>
     </div>)}</div>
   </div>;
 }
@@ -374,16 +374,16 @@ function TutorialsTab() {
   const [requestText, setRequestText] = useState("");
   const tut = TUTORIALS.find(t => t.id === openId);
   if (tut) return <div style={{ animation: "fadeIn 0.3s ease-out" }}>
-    <button onClick={() => setOpenId(null)} className="text-[11px] hover:text-[var(--accent-primary)] mb-5 flex items-center gap-1.5 transition-colors" style={{ color: "rgba(212,134,10,0.4)" }}>← Back</button>
+    <button onClick={() => setOpenId(null)} className="text-[15px] hover:text-[var(--accent-primary)] mb-5 flex items-center gap-1.5 transition-colors" style={{ color: "rgba(212,134,10,0.4)" }}>← Back</button>
     <div className="rounded-2xl p-8 text-center mb-5" style={{ background: "linear-gradient(135deg, rgba(212,134,10,0.06), rgba(192,112,48,0.03))", border: "1px solid rgba(212,134,10,0.1)", minHeight: 180 }}>
       <div className="text-5xl mb-3 opacity-30">▶️</div>
       <div className="text-[14px] font-semibold text-[var(--text-primary)]">Video Coming Soon</div>
-      <div className="text-[12px] mt-1" style={{ color: "rgba(212,134,10,0.4)" }}>{tut.title} &middot; {tut.duration}</div>
+      <div className="text-[15px] mt-1" style={{ color: "rgba(212,134,10,0.4)" }}>{tut.title} &middot; {tut.duration}</div>
     </div>
     <div className="rounded-2xl p-6" style={{ background: "rgba(255,250,240,0.02)", border: "1px solid rgba(212,134,10,0.08)" }}>
       <h2 className="text-[18px] font-bold font-heading text-[var(--text-primary)] mb-2">{tut.title}</h2>
-      <div className="flex gap-2 mb-4"><span className="text-[9px] px-2.5 py-0.5 rounded-full font-semibold" style={{ background: "rgba(212,134,10,0.08)", color: "var(--accent-primary)" }}>{tut.level}</span><span className="text-[9px]" style={{ color: "rgba(212,134,10,0.35)" }}>{tut.duration}</span></div>
-      <p className="text-[13px] text-[var(--text-secondary)] leading-[1.8]">{tut.desc}</p>
+      <div className="flex gap-2 mb-4"><span className="text-[14px] px-2.5 py-0.5 rounded-full font-semibold" style={{ background: "rgba(212,134,10,0.08)", color: "var(--accent-primary)" }}>{tut.level}</span><span className="text-[14px]" style={{ color: "rgba(212,134,10,0.35)" }}>{tut.duration}</span></div>
+      <p className="text-[15px] text-[var(--text-secondary)] leading-[1.8]">{tut.desc}</p>
     </div>
   </div>;
 
@@ -392,15 +392,15 @@ function TutorialsTab() {
     <h1 className="text-[24px] font-bold font-heading text-[var(--text-primary)] mb-2" style={{ letterSpacing: "-0.5px" }}>Tutorials</h1>
     <p className="text-[14px] mb-7" style={{ color: "rgba(212,134,10,0.4)" }}>Step-by-step guides for every feature.</p>
     {cats.map(cat => <div key={cat} className="mb-6">
-      <h3 className="text-[10px] font-bold uppercase tracking-[2px] mb-3" style={{ color: "rgba(212,134,10,0.4)" }}>{cat}</h3>
+      <h3 className="text-[15px] font-bold uppercase tracking-[2px] mb-3" style={{ color: "rgba(212,134,10,0.4)" }}>{cat}</h3>
       <div className="grid grid-cols-3 gap-3">{TUTORIALS.filter(t => t.cat === cat).map(t => <div key={t.id} onClick={() => setOpenId(t.id)} className="rounded-2xl overflow-hidden cursor-pointer transition-all hover:translate-y-[-2px]" style={{ border: "1px solid rgba(212,134,10,0.06)" }}>
         <div className="h-24 flex items-center justify-center" style={{ background: "linear-gradient(135deg, rgba(212,134,10,0.06), rgba(192,112,48,0.03))" }}><span className="text-3xl opacity-25" style={{ color: "var(--accent-primary)" }}>▶</span></div>
-        <div className="p-3.5" style={{ background: "rgba(255,250,240,0.02)" }}><div className="text-[12px] font-semibold text-[var(--text-primary)] font-heading mb-1">{t.title}</div><div className="flex gap-2 text-[9px]"><span style={{ color: "rgba(212,134,10,0.35)" }}>{t.duration}</span><span className="px-1.5 py-0.5 rounded-full" style={{ background: "rgba(212,134,10,0.06)", color: "var(--accent-primary)" }}>{t.level}</span></div></div>
+        <div className="p-3.5" style={{ background: "rgba(255,250,240,0.02)" }}><div className="text-[15px] font-semibold text-[var(--text-primary)] font-heading mb-1">{t.title}</div><div className="flex gap-2 text-[14px]"><span style={{ color: "rgba(212,134,10,0.35)" }}>{t.duration}</span><span className="px-1.5 py-0.5 rounded-full" style={{ background: "rgba(212,134,10,0.06)", color: "var(--accent-primary)" }}>{t.level}</span></div></div>
       </div>)}</div>
     </div>)}
     <div className="rounded-2xl p-4 flex items-center gap-3" style={{ background: "rgba(255,250,240,0.02)", border: "1px solid rgba(212,134,10,0.06)" }}>
-      <input value={requestText} onChange={e => setRequestText(e.target.value)} placeholder="Request a tutorial topic..." className="flex-1 rounded-xl px-4 py-2.5 text-[12px] text-[var(--text-primary)] outline-none" style={{ background: "rgba(255,250,240,0.03)", border: "1px solid rgba(212,134,10,0.1)" }} />
-      <button onClick={() => { if (requestText.trim()) { const r = JSON.parse(localStorage.getItem("tutorial_requests") || "[]"); r.push({ text: requestText, date: new Date().toISOString() }); localStorage.setItem("tutorial_requests", JSON.stringify(r)); setRequestText(""); }}} className="px-5 py-2.5 rounded-xl text-[11px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>Request</button>
+      <input value={requestText} onChange={e => setRequestText(e.target.value)} placeholder="Request a tutorial topic..." className="flex-1 rounded-xl px-4 py-2.5 text-[15px] text-[var(--text-primary)] outline-none" style={{ background: "rgba(255,250,240,0.03)", border: "1px solid rgba(212,134,10,0.1)" }} />
+      <button onClick={() => { if (requestText.trim()) { const r = JSON.parse(localStorage.getItem("tutorial_requests") || "[]"); r.push({ text: requestText, date: new Date().toISOString() }); localStorage.setItem("tutorial_requests", JSON.stringify(r)); setRequestText(""); }}} className="px-5 py-2.5 rounded-xl text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>Request</button>
     </div>
   </div>;
 }
@@ -425,11 +425,11 @@ function ReleasesTab() {
       <div className="flex-1">
         <div className="flex items-center gap-3 mb-1">
           <span className="text-[16px] font-black font-data" style={{ color: "var(--accent-primary)" }}>v{r.ver}</span>
-          <span className="text-[10px]" style={{ color: "rgba(212,134,10,0.35)" }}>{r.date}</span>
-          {r.badges.map(b => <span key={b} className="text-[8px] font-bold px-2 py-0.5 rounded-full" style={{ color: b === "New Feature" ? "var(--success)" : b === "Improvement" ? "var(--accent-primary)" : "var(--text-muted)", background: b === "New Feature" ? "rgba(16,185,129,0.08)" : b === "Improvement" ? "rgba(212,134,10,0.08)" : "rgba(255,255,255,0.03)" }}>{b}</span>)}
+          <span className="text-[15px]" style={{ color: "rgba(212,134,10,0.35)" }}>{r.date}</span>
+          {r.badges.map(b => <span key={b} className="text-[15px] font-bold px-2 py-0.5 rounded-full" style={{ color: b === "New Feature" ? "var(--success)" : b === "Improvement" ? "var(--accent-primary)" : "var(--text-muted)", background: b === "New Feature" ? "rgba(16,185,129,0.08)" : b === "Improvement" ? "rgba(212,134,10,0.08)" : "rgba(255,255,255,0.03)" }}>{b}</span>)}
         </div>
         <div className="text-[14px] font-bold text-[var(--text-primary)] font-heading mb-1">{r.title}</div>
-        <p className="text-[12px] text-[var(--text-secondary)] leading-relaxed">{r.desc}</p>
+        <p className="text-[15px] text-[var(--text-secondary)] leading-relaxed">{r.desc}</p>
       </div>
     </div>)}</div>
   </div>;
@@ -459,14 +459,14 @@ function FeedbackTab({ user }: { user: authApi.AuthUser }) {
         </div>
         <div><label style={LBL}>Subject</label><input value={subject} onChange={e => setSubject(e.target.value)} placeholder="Brief description" style={IS} onFocus={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.4)"} onBlur={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.15)"} /></div>
         <div><label style={LBL}>Description</label><textarea value={desc} onChange={e => setDesc(e.target.value)} placeholder="Detailed description..." rows={4} style={{ ...IS, resize: "vertical" as const }} onFocus={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.4)"} onBlur={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.15)"} /></div>
-        <button onClick={submit} disabled={!subject.trim() || !desc.trim()} className="px-6 py-2.5 rounded-xl text-[12px] font-semibold text-white transition-all disabled:opacity-30" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>Submit Feedback</button>
+        <button onClick={submit} disabled={!subject.trim() || !desc.trim()} className="px-6 py-2.5 rounded-xl text-[15px] font-semibold text-white transition-all disabled:opacity-30" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>Submit Feedback</button>
       </div>
     </div>
     {submitted.length > 0 && <div className="rounded-2xl p-6" style={{ background: "rgba(255,250,240,0.02)", border: "1px solid rgba(212,134,10,0.08)" }}>
       <h3 className="text-[15px] font-bold font-heading text-[var(--text-primary)] mb-4">My Submissions</h3>
       <div className="space-y-2">{submitted.map((s, i) => <div key={i} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "rgba(212,134,10,0.03)", border: "1px solid rgba(212,134,10,0.05)" }}>
-        <div className="flex-1"><div className="text-[12px] font-semibold text-[var(--text-primary)]">{s.subject}</div><div className="text-[9px]" style={{ color: "rgba(212,134,10,0.35)" }}>{s.cat} &middot; {new Date(s.date).toLocaleDateString()}</div></div>
-        <span className="text-[9px] px-2 py-0.5 rounded-full font-semibold" style={{ background: "rgba(212,134,10,0.08)", color: "var(--accent-primary)" }}>{s.status}</span>
+        <div className="flex-1"><div className="text-[15px] font-semibold text-[var(--text-primary)]">{s.subject}</div><div className="text-[14px]" style={{ color: "rgba(212,134,10,0.35)" }}>{s.cat} &middot; {new Date(s.date).toLocaleDateString()}</div></div>
+        <span className="text-[14px] px-2 py-0.5 rounded-full font-semibold" style={{ background: "rgba(212,134,10,0.08)", color: "var(--accent-primary)" }}>{s.status}</span>
       </div>)}</div>
     </div>}
   </div>;
@@ -513,25 +513,25 @@ function AdminTab() {
         { label: "AI Limit/User", value: (aiUsage as Record<string,unknown>).limit_per_user || 20 },
       ].map(s => <div key={s.label} className="rounded-xl p-4 text-center" style={{ background: "rgba(212,134,10,0.04)", border: "1px solid rgba(212,134,10,0.08)" }}>
         <div className="text-[22px] font-extrabold font-data" style={{ color: "var(--accent-primary)" }}>{String(s.value)}</div>
-        <div className="text-[9px] uppercase tracking-wider mt-0.5" style={{ color: "rgba(212,134,10,0.4)" }}>{s.label}</div>
+        <div className="text-[14px] uppercase tracking-wider mt-0.5" style={{ color: "rgba(212,134,10,0.4)" }}>{s.label}</div>
       </div>)}
     </div>
 
     {/* AI Usage per user */}
     {Object.keys((aiUsage as Record<string,unknown>).per_user || {}).length > 0 && <div className="rounded-xl p-5 mb-6" style={{ background: "rgba(255,250,240,0.02)", border: "1px solid rgba(212,134,10,0.08)" }}>
-      <h3 className="text-[13px] font-bold font-heading text-[var(--text-primary)] mb-3">AI Usage by User (Today)</h3>
+      <h3 className="text-[15px] font-bold font-heading text-[var(--text-primary)] mb-3">AI Usage by User (Today)</h3>
       <div className="space-y-1.5">{Object.entries((aiUsage as Record<string,Record<string,number>>).per_user || {}).map(([uid, count]) => <div key={uid} className="flex items-center gap-3">
-        <span className="text-[11px] text-[var(--text-secondary)] w-32 truncate font-data">{uid.slice(0, 12)}...</span>
+        <span className="text-[15px] text-[var(--text-secondary)] w-32 truncate font-data">{uid.slice(0, 12)}...</span>
         <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: "rgba(212,134,10,0.06)" }}><div className="h-full rounded-full" style={{ width: `${(count / 20) * 100}%`, background: "var(--accent-primary)" }} /></div>
-        <span className="text-[10px] font-data" style={{ color: "var(--accent-primary)" }}>{count}/20</span>
+        <span className="text-[15px] font-data" style={{ color: "var(--accent-primary)" }}>{count}/20</span>
       </div>)}</div>
     </div>}
 
     {/* User table */}
     <div className="rounded-xl overflow-hidden" style={{ border: "1px solid rgba(212,134,10,0.08)" }}>
-      <table className="w-full text-[12px]">
+      <table className="w-full text-[15px]">
         <thead><tr style={{ background: "rgba(212,134,10,0.04)" }}>
-          {["Username", "Email", "Display Name", "Created", "Last Login", "Projects", "Status", ""].map(h => <th key={h} className="px-3 py-2.5 text-left text-[9px] font-semibold uppercase tracking-wider" style={{ color: "rgba(212,134,10,0.4)", borderBottom: "1px solid rgba(212,134,10,0.06)" }}>{h}</th>)}
+          {["Username", "Email", "Display Name", "Created", "Last Login", "Projects", "Status", ""].map(h => <th key={h} className="px-3 py-2.5 text-left text-[14px] font-semibold uppercase tracking-wider" style={{ color: "rgba(212,134,10,0.4)", borderBottom: "1px solid rgba(212,134,10,0.06)" }}>{h}</th>)}
         </tr></thead>
         <tbody>{users.map(u => <tr key={String(u.id)} className="transition-colors" style={{ borderBottom: "1px solid rgba(212,134,10,0.04)" }}>
           <td className="px-3 py-2.5 font-semibold text-[var(--text-primary)]">{String(u.username)}</td>
@@ -540,8 +540,8 @@ function AdminTab() {
           <td className="px-3 py-2.5 font-data" style={{ color: "rgba(212,134,10,0.4)" }}>{String(u.created_at || "—")}</td>
           <td className="px-3 py-2.5 font-data" style={{ color: "rgba(212,134,10,0.4)" }}>{String(u.last_login || "Never")}</td>
           <td className="px-3 py-2.5 font-data text-center" style={{ color: "var(--accent-primary)" }}>{String(u.project_count || 0)}</td>
-          <td className="px-3 py-2.5"><span className="text-[9px] px-2 py-0.5 rounded-full font-semibold" style={{ color: u.is_active ? "var(--success)" : "var(--risk)", background: u.is_active ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)" }}>{u.is_active ? "Active" : "Inactive"}</span></td>
-          <td className="px-3 py-2.5">{String(u.username) !== "hiral" && <button onClick={() => toggleStatus(String(u.id), !!u.is_active)} className="text-[10px] font-semibold transition-colors" style={{ color: u.is_active ? "var(--risk)" : "var(--success)" }}>{u.is_active ? "Deactivate" : "Activate"}</button>}</td>
+          <td className="px-3 py-2.5"><span className="text-[14px] px-2 py-0.5 rounded-full font-semibold" style={{ color: u.is_active ? "var(--success)" : "var(--risk)", background: u.is_active ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)" }}>{u.is_active ? "Active" : "Inactive"}</span></td>
+          <td className="px-3 py-2.5">{String(u.username) !== "hiral" && <button onClick={() => toggleStatus(String(u.id), !!u.is_active)} className="text-[15px] font-semibold transition-colors" style={{ color: u.is_active ? "var(--risk)" : "var(--success)" }}>{u.is_active ? "Deactivate" : "Activate"}</button>}</td>
         </tr>)}</tbody>
       </table>
     </div>

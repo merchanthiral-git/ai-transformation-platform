@@ -849,39 +849,56 @@ export const KNOWLEDGE_BASE: Record<string, KBEntry> = {
     title: "Transformation Dashboard",
     category: "Overview",
     categoryColor: CAT_COLORS["Overview"],
-    summary: "Executive command center showing transformation progress across all phases. Decision log, risk register, and phase completion tracking in one view.",
+    summary: "The Transformation Dashboard is your executive command center. It aggregates data from every module in the platform into a single view, showing you three things: where your organization stands today (Discover), what you've designed for the future (Design), and how ready you are to execute (Deliver). Think of it as the dashboard of a car — speedometer, fuel gauge, and engine temperature in one glance.",
     who: [
-      { heading: "Who is this for?", body: "Executive sponsors, steering committee members, transformation PMOs, and CHROs tracking progress." },
+      { heading: "The CHRO / Chief People Officer", body: "Uses this as the board-ready summary. Can screenshot this dashboard for a monthly update to the CEO. Needs to see: are we on track, what's the investment, what's the risk? The dashboard answers all three in under 30 seconds." },
+      { heading: "The Transformation Lead / PMO", body: "Uses this to track progress across workstreams. Which phases are complete? Where are we stuck? What decisions haven't been made yet? The decision log and phase progress bars give immediate answers." },
+      { heading: "The HR Business Partner", body: "Uses this to understand the impact on their specific function. Filters by department to see localized metrics. Prepares talking points for leadership meetings based on the data shown here." },
     ],
     what: [
-      { heading: "What it shows", body: "Phase completion percentages (Discover/Design/Deliver), decision log (every major decision with timestamp, module, and rationale), risk register (identified risks with probability, impact, and mitigation status), and investment/savings tracking." },
+      { heading: "Workforce Readiness Metrics", body: "Ready Now: employees who need zero additional training for their redesigned role. Coachable: employees who need minor upskilling (1-3 months). At Risk: employees who need significant reskilling (6+ months) or may be displaced. These come from the Change Readiness assessment combined with Skills Gap Analysis." },
+      { heading: "Talent Strategy Mix (Build/Buy/Borrow/Automate)", body: "Build: develop internally through training and reskilling programs. Buy: hire externally from the talent market. Borrow: use contractors, consultants, or gig workers temporarily. Automate: replace the role entirely with AI/automation. These come from the BBBA analysis in the Design phase." },
+      { heading: "Decision Log", body: "Every significant action you take in the platform is automatically logged here: skill dispositions, role redesigns, scenario selections, redeployment decisions. This creates an audit trail for governance and stakeholder communication. Each entry shows timestamp, module, action type, and detail." },
+      { heading: "Deep Dive Module Grid", body: "The module grid at the bottom gives you one-click access to any module. Green dot means the module has data. Gray dot means it's empty. Use this to quickly jump to the area you need without navigating the sidebar." },
     ],
     where: [
-      { heading: "Position", body: "Overview module — accessible from the home page. It's a read-only summary that pulls data from every module." },
+      { heading: "Position in the platform", body: "The Transformation Dashboard is the first module in the Discover phase — it's what you see when you click into Overview. It's a read-only summary that pulls data from every other module in real-time. Nothing is entered here directly." },
     ],
     when: [
-      { heading: "When to review", body: "Weekly for active transformations, monthly for steering committee reporting. The dashboard auto-updates as work progresses in other modules." },
+      { heading: "When to review it", body: "Weekly during active transformations for your own tracking. Monthly for steering committee reporting. After completing any major phase milestone (e.g., after finishing all Diagnose modules, review the dashboard to see the updated metrics before presenting to stakeholders)." },
+      { heading: "When NOT to present it", body: "Don't present this dashboard to senior stakeholders until at least the Discover and Diagnose phases are substantially complete. If half the metrics show 'Pending' or '0', the dashboard undermines credibility rather than building it. Complete enough modules to show meaningful data first." },
     ],
     why: [
-      { heading: "Why it matters", body: "Without a unified dashboard, transformation status exists in scattered spreadsheets, slide decks, and email chains. The dashboard provides a single source of truth that all stakeholders can reference." },
+      { heading: "Single source of truth", body: "Without a unified dashboard, transformation status exists in scattered spreadsheets, slide decks, and email chains. Different stakeholders see different versions of the truth. This dashboard provides one canonical view that all stakeholders reference — eliminating the 'whose numbers are right?' debate." },
+      { heading: "Every number is traceable", body: "Every metric on this dashboard is pulled from a specific module. Nothing is estimated or made up. If a number shows '0' or 'Pending', it means you haven't completed the module that generates that metric yet. Click any number to see exactly where it comes from and how it was calculated." },
+      { heading: "Decision governance", body: "The decision log creates an audit trail that's invaluable during governance reviews, board presentations, and post-transformation evaluations. When someone asks 'why did we decide to automate those 85 roles?', the log has the answer with the timestamp and the data that supported it." },
     ],
     how: [
-      { heading: "How to use", body: "1. Review phase progress bars. 2. Check the decision log for recent decisions (sorted by date). 3. Review open risks and their mitigation status. 4. Use the investment tracker to show ROI progress to stakeholders." },
+      { heading: "Start with Discover", body: "Complete the Workforce Snapshot and Org Health Scorecard first. This populates your headcount, readiness scores, and organizational baseline. Without this data, the dashboard has nothing to show." },
+      { heading: "Run Diagnostics", body: "Complete at least 2-3 Diagnose modules (AI Impact Heatmap, Change Readiness, Skills & Talent). This populates the Champions, At Risk, and Skills Coverage metrics that appear in the Discover card." },
+      { heading: "Design the Future State", body: "Use Work Design Lab and BBBA to redesign roles. This populates the Build/Buy/Borrow/Automate mix and Critical Gaps metrics in the Design card." },
+      { heading: "Simulate the Impact", body: "Run at least one scenario in Simulate. This populates the Investment & ROI Summary with real numbers based on your assumptions instead of default benchmarks." },
+      { heading: "Plan Execution", body: "Use Mobilize modules (Change Planner, Risk Register, Reskilling Pathways). This populates Deliver metrics: High Risk %, Internal Fill, Reskill Cost, and the transformation roadmap." },
     ],
     terminology: [
-      { term: "Decision Log", def: "Timestamped record of every major decision made during the transformation — what was decided, who decided it, and the rationale." },
-      { term: "Risk Register", def: "Living inventory of identified risks with probability (1-5), impact (1-5), and mitigation plan status." },
+      { term: "Decision Log", def: "Timestamped record of every major decision made during the transformation — what was decided, which module it was made in, and the supporting data. Auto-populated as you work." },
+      { term: "Risk Register", def: "Living inventory of identified risks with probability (High/Medium/Low), impact severity, proposed mitigation strategy, and current status (Open/Mitigated/Closed)." },
+      { term: "Phase Progress", def: "Percentage of modules completed within each phase (Discover, Design, Deliver). A module counts as 'complete' when its primary output has been generated or reviewed." },
+      { term: "AI Readiness Score", def: "Composite score from 0-5 based on five dimensions: AI Awareness, Tool Adoption, Data Literacy, Change Openness, and AI Collaboration. Averaged across the assessed workforce." },
     ],
     bestPractices: [
-      "Review the dashboard in every steering committee meeting — it replaces status update slides",
-      "Ensure the risk register is updated weekly — stale risk registers create blind spots",
-      "Use the decision log to create accountability — when someone asks 'why did we do that?', the log has the answer",
+      "Don't present this dashboard until Phase 1 is complete — if half the metrics show 'Pending', the dashboard undermines credibility rather than building it.",
+      "Use it as a steering committee update — this dashboard is designed to be screenshot-ready for a monthly transformation meeting. Filter by function to create department-specific views.",
+      "Click the numbers — every metric is traceable to its source module. If a stakeholder questions a number, click it to show exactly where it came from.",
+      "Review the decision log weekly — it creates accountability and prevents 'decision amnesia' where teams forget why certain choices were made.",
     ],
     pitfalls: [
-      "Treating the dashboard as a reporting tool only — it should drive action when phase progress stalls or new risks emerge",
+      "Treating the dashboard as a reporting tool only — it should drive action when phase progress stalls or new risks emerge, not just document what happened.",
+      "Presenting default/benchmark numbers as if they're real analysis — if you haven't run a simulation, the ROI numbers are estimates, not findings. Make this clear to stakeholders.",
+      "Ignoring the Decision Log — the log is only valuable if you actually reference it in meetings and use it to maintain accountability.",
     ],
-    related: ["snapshot", "plan", "export"],
-    scenario: "A global bank's CHRO used the Transformation Dashboard in a quarterly board meeting. The dashboard showed: Discover phase 95% complete, Design phase 68% (on track), Deliver phase 22% (Wave 1 in progress). The risk register highlighted 2 critical risks: 'Data migration timeline at risk' and 'Manager capability in Asia Pacific below threshold.' The board approved a $500K additional investment for APAC manager development based on the risk data — a decision that took 5 minutes because the data was clear and credible.",
+    related: ["snapshot", "plan", "export", "simulate"],
+    scenario: "A financial services firm with 8,000 employees used the Transformation Dashboard across three months. Month 1: Dashboard showed AI Readiness 2/5, 0 champions identified, 0 roles designed — they were at the very beginning, needing to complete diagnostics first. Month 3: Dashboard showed AI Readiness 3.2/5, 1,240 champions, 890 at risk, Skills Coverage 45% — the transformation was taking shape with Design phase underway. Month 6: Dashboard showed Build 120 roles, Buy 45, Borrow 30, Automate 85, Investment $4.2M, ROI 2.8x — the business case was clear and funded. The CHRO presented Month 6 to the board using a screenshot of this dashboard. The board approved the investment in 5 minutes because every number was traceable and credible.",
   },
 
   build: {
@@ -1115,7 +1132,7 @@ function SlideViewer({ slides, accentColor }: { slides: Slide[]; accentColor: st
   return <div className="relative flex flex-col" style={{ minHeight: 340 }}>
     {/* Slide counter */}
     <div className="flex items-center justify-between mb-3 shrink-0">
-      <span style={{ fontSize: 10, fontWeight: 700, color: "var(--text-muted)", letterSpacing: 1.5 }}>SLIDE {idx + 1} OF {total}</span>
+      <span style={{ fontSize: 15, fontWeight: 700, color: "var(--text-muted)", letterSpacing: 1.5 }}>SLIDE {idx + 1} OF {total}</span>
     </div>
 
     {/* Slide content area */}
@@ -1124,7 +1141,7 @@ function SlideViewer({ slides, accentColor }: { slides: Slide[]; accentColor: st
         {slide.isTitle ? (
           /* Title slide — gradient bg, centered */
           <div style={{ height: "100%", minHeight: 280, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "40px 48px", background: `linear-gradient(135deg, ${accentColor}15, ${accentColor}08)` }}>
-            <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2.5, color: accentColor, marginBottom: 12 }}>{slide.subtitle || ""}</div>
+            <div style={{ fontSize: 15, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2.5, color: accentColor, marginBottom: 12 }}>{slide.subtitle || ""}</div>
             <h2 style={{ fontSize: 32, fontWeight: 800, fontFamily: "'Outfit', sans-serif", color: "var(--text-primary)", lineHeight: 1.2 }}>{slide.title}</h2>
           </div>
         ) : (
@@ -1161,57 +1178,100 @@ function SlidePoints({ items, icons }: { items: string[]; icons?: string[] }) {
 
 function SlideCards({ items }: { items: { title: string; body: string }[] }) {
   return <div style={{ display: "grid", gridTemplateColumns: items.length <= 2 ? "1fr 1fr" : "1fr 1fr 1fr", gap: 10 }}>{items.slice(0, 6).map((c, i) => <div key={i} style={{ background: "var(--surface-2)", borderRadius: 12, padding: 14, border: "1px solid var(--border)" }}>
-    <div style={{ fontSize: 13, fontWeight: 700, color: "var(--accent-primary)", marginBottom: 4 }}>{c.title}</div>
-    <div style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.5 }}>{c.body}</div>
+    <div style={{ fontSize: 15, fontWeight: 700, color: "var(--accent-primary)", marginBottom: 4 }}>{c.title}</div>
+    <div style={{ fontSize: 15, color: "var(--text-secondary)", lineHeight: 1.5 }}>{c.body}</div>
   </div>)}</div>;
 }
 
-/* Build slides from KB entry sections */
+/* Section icons for divider slides */
+const SECTION_ICONS: Record<string, string> = { summary: "📋", who: "👥", what: "📖", where: "📍", when: "⏰", why: "💡", how: "🔧", terminology: "📚", practices: "✅", scenario: "🏢" };
+const SECTION_LABELS: Record<string, string> = { summary: "Overview", who: "Who Is This For?", what: "What You Need to Know", where: "Where It Fits", when: "When to Use It", why: "Why It Matters", how: "How to Use This Module", terminology: "Key Terminology", practices: "Best Practices & Pitfalls", scenario: "Real-World Examples" };
+
+/* Build slides with divider pattern: divider → one slide per item */
 function buildSlides(entry: KBEntry, sectionId: string): Slide[] {
+  // Helper: create a divider slide for a section
+  const divider = (id: string, sub?: string): Slide => ({
+    title: SECTION_LABELS[id] || id, subtitle: sub || entry.title, isTitle: true, content: null,
+  });
+
   if (sectionId === "summary") {
     const slides: Slide[] = [
       { title: entry.title, subtitle: entry.category, isTitle: true, content: null },
-      { title: "Overview", content: <div><div style={{ fontSize: 16, lineHeight: 1.8 }}>{entry.summary}</div>{entry.related.length > 0 && <div style={{ marginTop: 20, paddingTop: 14, borderTop: "1px solid var(--border)" }}><div style={{ fontSize: 10, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", marginBottom: 8 }}>Related Modules</div><div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>{entry.related.map(r => { const rel = KNOWLEDGE_BASE[r]; return rel ? <span key={r} style={{ fontSize: 11, padding: "4px 10px", borderRadius: 8, background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text-secondary)" }}>{rel.title}</span> : null; })}</div></div>}</div> },
+      { title: "Overview", content: <div style={{ fontSize: 16, lineHeight: 1.8 }}>{entry.summary}</div> },
     ];
-    if (entry.what.length > 0) slides.push({ title: "Key Concepts", content: <SlideCards items={entry.what.map(w => ({ title: w.heading, body: w.body.slice(0, 120) + (w.body.length > 120 ? "..." : "") }))} /> });
-    if (entry.why.length > 0) slides.push({ title: "Why This Matters", content: <SlidePoints items={entry.why.map(w => w.body.split(".").slice(0, 2).join(".") + ".")} icons={["💡", "📈", "⚡", "🎯"]} /> });
-    if (entry.how.length > 0) slides.push({ title: "Getting Started", content: <div>{entry.how.map((h, i) => <div key={i} style={{ display: "flex", gap: 12, marginBottom: 14, alignItems: "flex-start" }}><div style={{ width: 28, height: 28, borderRadius: 8, background: "var(--accent-primary)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>{i + 1}</div><div><div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)", marginBottom: 2 }}>{h.heading}</div><div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.5 }}>{h.body}</div></div></div>)}</div> });
+    if (entry.related.length > 0) slides.push({ title: "Related Modules", content: <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>{entry.related.map(r => { const rel = KNOWLEDGE_BASE[r]; return rel ? <div key={r} style={{ padding: "10px 16px", borderRadius: 10, background: "var(--surface-2)", border: "1px solid var(--border)" }}><div style={{ fontSize: 15, fontWeight: 600, color: "var(--text-primary)" }}>{rel.title}</div><div style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 2 }}>{rel.category}</div></div> : null; })}</div> });
+    // Individual concept slides from What
+    if (entry.what.length > 0) {
+      slides.push(divider("what"));
+      entry.what.forEach(w => slides.push({ title: w.heading, content: <div style={{ fontSize: 16, lineHeight: 1.8 }}>{w.body}</div> }));
+    }
+    if (entry.why.length > 0) {
+      slides.push(divider("why"));
+      entry.why.forEach(w => slides.push({ title: w.heading, content: <div style={{ fontSize: 16, lineHeight: 1.8 }}>{w.body}</div> }));
+    }
+    if (entry.how.length > 0) {
+      slides.push(divider("how"));
+      entry.how.forEach((h, i) => slides.push({ title: `Step ${i + 1}: ${h.heading}`, content: <div style={{ fontSize: 16, lineHeight: 1.8 }}>{h.body}</div> }));
+    }
     return slides;
   }
 
+  // 5W1H sections: divider → one slide per item
   const sectionMap: Record<string, KBSection[]> = { who: entry.who, what: entry.what, where: entry.where, when: entry.when, why: entry.why, how: entry.how };
   if (sectionMap[sectionId]) {
     const items = sectionMap[sectionId];
-    if (items.length === 0) return [{ title: sectionId, content: <div>No content</div> }];
-    // One slide per item, with clean layout
-    return items.map(s => ({ title: s.heading, content: <div style={{ fontSize: 15, lineHeight: 1.8 }}>{s.body}</div> }));
-  }
-
-  if (sectionId === "terminology") {
-    const groups: typeof entry.terminology[] = [];
-    for (let i = 0; i < entry.terminology.length; i += 3) groups.push(entry.terminology.slice(i, i + 3));
-    return groups.map((g, gi) => ({ title: `Key Terms${groups.length > 1 ? ` (${gi + 1}/${groups.length})` : ""}`, content: <SlideCards items={g.map(t => ({ title: t.term, body: t.def }))} /> }));
-  }
-
-  if (sectionId === "practices") {
-    return [
-      { title: "Best Practices", content: <SlidePoints items={entry.bestPractices} icons={["✓", "✓", "✓", "✓", "✓"]} /> },
-      { title: "Common Pitfalls", content: <SlidePoints items={entry.pitfalls} icons={["✗", "✗", "✗", "✗", "✗"]} /> },
-    ];
-  }
-
-  if (sectionId === "scenario") {
-    const sentences = entry.scenario.split(/(?<=\.)\s+/);
-    const mid = Math.ceil(sentences.length / 2);
-    const slides: Slide[] = [
-      { title: "Real-World Scenario", subtitle: "Case Study", isTitle: true, content: null },
-      { title: "The Challenge", content: <div style={{ background: "var(--surface-2)", borderRadius: 14, padding: 20, border: "1px solid rgba(212,134,10,0.12)", fontSize: 15, lineHeight: 1.8 }}>{sentences.slice(0, mid).join(" ")}</div> },
-    ];
-    if (mid < sentences.length) slides.push({ title: "Results & Impact", content: <div style={{ background: "var(--surface-2)", borderRadius: 14, padding: 20, border: "1px solid rgba(16,185,129,0.12)", fontSize: 15, lineHeight: 1.8 }}>{sentences.slice(mid).join(" ")}</div> });
+    if (items.length === 0) return [divider(sectionId)];
+    const slides: Slide[] = [divider(sectionId)];
+    items.forEach((s, i) => slides.push({
+      title: sectionId === "how" ? `Step ${i + 1}: ${s.heading}` : s.heading,
+      content: <div style={{ fontSize: 16, lineHeight: 1.8 }}>{s.body}</div>,
+    }));
     return slides;
   }
 
-  return [{ title: sectionId, content: <div>No content</div> }];
+  // Terminology: divider → slides of 3 terms each
+  if (sectionId === "terminology") {
+    const slides: Slide[] = [divider("terminology")];
+    const groups: typeof entry.terminology[] = [];
+    for (let i = 0; i < entry.terminology.length; i += 3) groups.push(entry.terminology.slice(i, i + 3));
+    groups.forEach((g, gi) => slides.push({
+      title: groups.length > 1 ? `Terms (${gi + 1}/${groups.length})` : "Key Terms",
+      content: <SlideCards items={g.map(t => ({ title: t.term, body: t.def }))} />,
+    }));
+    return slides;
+  }
+
+  // Best practices: divider for practices → one slide each, divider for pitfalls → one slide each
+  if (sectionId === "practices") {
+    const slides: Slide[] = [
+      { title: "Best Practices", subtitle: "What to do", isTitle: true, content: null },
+    ];
+    entry.bestPractices.forEach((p, i) => slides.push({
+      title: `Practice ${i + 1}`,
+      content: <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}><span style={{ fontSize: 24, color: "var(--success)", flexShrink: 0 }}>✓</span><div style={{ fontSize: 16, lineHeight: 1.8 }}>{p}</div></div>,
+    }));
+    slides.push({ title: "Common Pitfalls", subtitle: "What to avoid", isTitle: true, content: null });
+    entry.pitfalls.forEach((p, i) => slides.push({
+      title: `Pitfall ${i + 1}`,
+      content: <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}><span style={{ fontSize: 24, color: "var(--risk)", flexShrink: 0 }}>✗</span><div style={{ fontSize: 16, lineHeight: 1.8 }}>{p}</div></div>,
+    }));
+    return slides;
+  }
+
+  // Scenario: divider → split into multiple narrative slides
+  if (sectionId === "scenario") {
+    const sentences = entry.scenario.split(/(?<=\.)\s+/);
+    const third = Math.ceil(sentences.length / 3);
+    const slides: Slide[] = [
+      { title: "Real-World Scenario", subtitle: "Case Study", isTitle: true, content: null },
+      { title: "The Situation", content: <div style={{ background: "var(--surface-2)", borderRadius: 14, padding: 20, border: "1px solid rgba(212,134,10,0.12)", fontSize: 16, lineHeight: 1.8 }}>{sentences.slice(0, third).join(" ")}</div> },
+      { title: "The Analysis", content: <div style={{ background: "var(--surface-2)", borderRadius: 14, padding: 20, border: "1px solid rgba(255,255,255,0.06)", fontSize: 16, lineHeight: 1.8 }}>{sentences.slice(third, third * 2).join(" ")}</div> },
+    ];
+    if (third * 2 < sentences.length) slides.push({ title: "Results & Impact", content: <div style={{ background: "var(--surface-2)", borderRadius: 14, padding: 20, border: "1px solid rgba(16,185,129,0.12)", fontSize: 16, lineHeight: 1.8 }}>{sentences.slice(third * 2).join(" ")}</div> });
+    return slides;
+  }
+
+  return [divider(sectionId)];
 }
 
 export function KnowledgeModal({ moduleId, onClose }: { moduleId: string; onClose: () => void }) {
@@ -1243,7 +1303,7 @@ export function KnowledgeModal({ moduleId, onClose }: { moduleId: string; onClos
     return <div style={{ position: "fixed", inset: 0, zIndex: 999999, background: "var(--surface-1)", display: "flex", flexDirection: "column" }}>
       <div style={{ padding: "16px 24px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>{entry.title} — {sections.find(s => s.id === activeSection)?.label}</div>
-        <button onClick={() => setPresenting(false)} style={{ padding: "6px 14px", borderRadius: 8, fontSize: 11, fontWeight: 600, background: "rgba(212,134,10,0.1)", border: "1px solid rgba(212,134,10,0.2)", color: "#D4860A", cursor: "pointer" }}>Exit Presentation</button>
+        <button onClick={() => setPresenting(false)} style={{ padding: "6px 14px", borderRadius: 8, fontSize: 15, fontWeight: 600, background: "rgba(212,134,10,0.1)", border: "1px solid rgba(212,134,10,0.2)", color: "#D4860A", cursor: "pointer" }}>Exit Presentation</button>
       </div>
       <div style={{ flex: 1, padding: "40px 80px", overflow: "auto" }}><SlideViewer slides={slides} accentColor={accentColor} /></div>
     </div>;
@@ -1254,8 +1314,8 @@ export function KnowledgeModal({ moduleId, onClose }: { moduleId: string; onClos
 
       {/* Left sidebar — TOC */}
       <div className="w-44 shrink-0 bg-[var(--surface-2)] rounded-l-2xl border-r border-[var(--border)] py-4 px-2 overflow-y-auto">
-        <div className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider px-2 mb-2">Contents</div>
-        {sections.map(s => <button key={s.id} onClick={() => setActiveSection(s.id)} className={`w-full text-left px-2 py-1.5 rounded-lg text-[11px] mb-0.5 transition-all ${activeSection === s.id ? "bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] font-semibold" : "text-[var(--text-muted)] hover:bg-[var(--hover)]"}`}><span className="mr-1.5">{s.icon}</span>{s.label}</button>)}
+        <div className="text-[14px] font-bold text-[var(--text-muted)] uppercase tracking-wider px-2 mb-2">Contents</div>
+        {sections.map(s => <button key={s.id} onClick={() => setActiveSection(s.id)} className={`w-full text-left px-2 py-1.5 rounded-lg text-[15px] mb-0.5 transition-all ${activeSection === s.id ? "bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] font-semibold" : "text-[var(--text-muted)] hover:bg-[var(--hover)]"}`}><span className="mr-1.5">{s.icon}</span>{s.label}</button>)}
       </div>
 
       {/* Main content */}
@@ -1265,12 +1325,12 @@ export function KnowledgeModal({ moduleId, onClose }: { moduleId: string; onClos
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: `${accentColor}20`, color: accentColor }}>{entry.category}</span>
+                <span className="text-[15px] font-bold px-2 py-0.5 rounded-full" style={{ background: `${accentColor}20`, color: accentColor }}>{entry.category}</span>
               </div>
               <h2 className="text-[20px] font-bold text-[var(--text-primary)] font-heading">{entry.title}</h2>
             </div>
             <div className="flex items-center gap-2">
-              <button onClick={() => setPresenting(true)} title="Present fullscreen" style={{ padding: "4px 10px", borderRadius: 6, fontSize: 10, fontWeight: 600, background: "rgba(212,134,10,0.06)", border: "1px solid rgba(212,134,10,0.12)", color: "rgba(212,134,10,0.6)", cursor: "pointer" }} onMouseEnter={e => { e.currentTarget.style.color = "#D4860A"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.3)"; }} onMouseLeave={e => { e.currentTarget.style.color = "rgba(212,134,10,0.6)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.12)"; }}>🖥 Present</button>
+              <button onClick={() => setPresenting(true)} title="Present fullscreen" style={{ padding: "4px 10px", borderRadius: 6, fontSize: 15, fontWeight: 600, background: "rgba(212,134,10,0.06)", border: "1px solid rgba(212,134,10,0.12)", color: "rgba(212,134,10,0.6)", cursor: "pointer" }} onMouseEnter={e => { e.currentTarget.style.color = "#D4860A"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.3)"; }} onMouseLeave={e => { e.currentTarget.style.color = "rgba(212,134,10,0.6)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.12)"; }}>🖥 Present</button>
               <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--hover)] transition-all text-lg">✕</button>
             </div>
           </div>
@@ -1282,10 +1342,10 @@ export function KnowledgeModal({ moduleId, onClose }: { moduleId: string; onClos
 
           {/* Feedback */}
           <div className="mt-6 pt-4 border-t border-[var(--border)] flex items-center gap-3">
-            <span className="text-[10px] text-[var(--text-muted)]">Was this helpful?</span>
+            <span className="text-[15px] text-[var(--text-muted)]">Was this helpful?</span>
             <button onClick={() => setFeedback("up")} className={`text-lg transition-all ${feedback === "up" ? "scale-125" : "opacity-50 hover:opacity-100"}`}>👍</button>
             <button onClick={() => setFeedback("down")} className={`text-lg transition-all ${feedback === "down" ? "scale-125" : "opacity-50 hover:opacity-100"}`}>👎</button>
-            {feedback && <span className="text-[10px] text-[var(--success)]">Thanks for the feedback!</span>}
+            {feedback && <span className="text-[15px] text-[var(--success)]">Thanks for the feedback!</span>}
           </div>
         </div>
       </div>
@@ -1294,5 +1354,5 @@ export function KnowledgeModal({ moduleId, onClose }: { moduleId: string; onClos
 }
 
 function Empty({ text, icon = "📭" }: { text: string; icon?: string }) {
-  return <div className="text-center py-8 text-[var(--text-secondary)]"><div className="text-2xl mb-2 opacity-40">{icon}</div><div className="text-[12px]">{text}</div></div>;
+  return <div className="text-center py-8 text-[var(--text-secondary)]"><div className="text-2xl mb-2 opacity-40">{icon}</div><div className="text-[15px]">{text}</div></div>;
 }

@@ -162,7 +162,7 @@ function CurrentStateNode({ node, depth, jobs, employees, colorMetric, expanded,
 
   return <div style={{ paddingLeft: depth * 16 }}>
     <div
-      className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-[11px] cursor-pointer transition-all group
+      className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-[15px] cursor-pointer transition-all group
         ${isSelected ? "bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30" : "hover:bg-[var(--hover)] border border-transparent"}`}
       onClick={() => { onSelect(node.id); if (hasChildren) onToggle(node.id); }}
       draggable={node.type === "job"}
@@ -170,7 +170,7 @@ function CurrentStateNode({ node, depth, jobs, employees, colorMetric, expanded,
     >
       {/* Expand toggle */}
       {hasChildren ? (
-        <span className="text-[8px] text-[var(--text-muted)] w-3 text-center" style={{ transform: `rotate(${isExpanded ? 90 : 0}deg)`, transition: "transform 0.15s", display: "inline-block" }}>▸</span>
+        <span className="text-[15px] text-[var(--text-muted)] w-3 text-center" style={{ transform: `rotate(${isExpanded ? 90 : 0}deg)`, transition: "transform 0.15s", display: "inline-block" }}>▸</span>
       ) : <span className="w-3" />}
 
       {/* Color indicator */}
@@ -180,12 +180,12 @@ function CurrentStateNode({ node, depth, jobs, employees, colorMetric, expanded,
       <span className="flex-1 truncate font-semibold text-[var(--text-primary)]">{node.label}</span>
 
       {/* Risk flags */}
-      {singleIncumbent && <span className="text-[8px] px-1 py-0.5 rounded bg-red-500/10 text-red-400 font-bold shrink-0">1P</span>}
-      {highTurnover && <span className="text-[8px] px-1 py-0.5 rounded bg-orange-500/10 text-orange-400 font-bold shrink-0">HT</span>}
-      {avgAi >= 6 && <span className="text-[8px] px-1 py-0.5 rounded bg-purple-500/10 text-purple-400 font-bold shrink-0">AI</span>}
+      {singleIncumbent && <span className="text-[15px] px-1 py-0.5 rounded bg-red-500/10 text-red-400 font-bold shrink-0">1P</span>}
+      {highTurnover && <span className="text-[15px] px-1 py-0.5 rounded bg-orange-500/10 text-orange-400 font-bold shrink-0">HT</span>}
+      {avgAi >= 6 && <span className="text-[15px] px-1 py-0.5 rounded bg-purple-500/10 text-purple-400 font-bold shrink-0">AI</span>}
 
       {/* Metadata */}
-      <span className="text-[9px] font-data text-[var(--text-muted)] shrink-0">{node.headcount}</span>
+      <span className="text-[14px] font-data text-[var(--text-muted)] shrink-0">{node.headcount}</span>
     </div>
 
     {/* Expanded children */}
@@ -199,7 +199,7 @@ function CurrentStateNode({ node, depth, jobs, employees, colorMetric, expanded,
     {/* At job level, show employee drill-down button */}
     {isExpanded && node.type === "job" && nodeEmps.length > 0 && (
       <div style={{ paddingLeft: (depth + 1) * 16 }}>
-        <button onClick={() => onDrillEmployee(node.label)} className="text-[10px] text-[var(--accent-primary)] hover:underline mt-0.5 mb-1">
+        <button onClick={() => onDrillEmployee(node.label)} className="text-[15px] text-[var(--accent-primary)] hover:underline mt-0.5 mb-1">
           View {nodeEmps.length} employee{nodeEmps.length !== 1 ? "s" : ""} →
         </button>
       </div>
@@ -242,7 +242,7 @@ function FutureStateNode({ node, depth, onRename, onDelete, onAddChild, onSunset
 
   return <div style={{ paddingLeft: depth * 16 }} className="relative">
     <div
-      className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-[11px] cursor-pointer transition-all group
+      className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-[15px] cursor-pointer transition-all group
         ${isSelected ? "bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30" : "hover:bg-[var(--hover)] border border-transparent"}
         ${node.sunset ? "opacity-50" : ""}`}
       onClick={() => { onSelect(node.id); if (hasChildren) setIsExpanded(!isExpanded); }}
@@ -254,30 +254,30 @@ function FutureStateNode({ node, depth, onRename, onDelete, onAddChild, onSunset
       onDragStart={e => { e.dataTransfer.setData("text/plain", JSON.stringify({ id: node.id, label: node.label, type: "future" })); }}
     >
       {hasChildren ? (
-        <span className="text-[8px] text-[var(--text-muted)] w-3 text-center" style={{ transform: `rotate(${isExpanded ? 90 : 0}deg)`, transition: "transform 0.15s", display: "inline-block" }}>▸</span>
+        <span className="text-[15px] text-[var(--text-muted)] w-3 text-center" style={{ transform: `rotate(${isExpanded ? 90 : 0}deg)`, transition: "transform 0.15s", display: "inline-block" }}>▸</span>
       ) : <span className="w-3" />}
 
-      {node.isNew && <span className="text-[7px] px-1 py-0.5 rounded bg-green-500/15 text-green-400 font-bold shrink-0">NEW</span>}
+      {node.isNew && <span className="text-[15px] px-1 py-0.5 rounded bg-green-500/15 text-green-400 font-bold shrink-0">NEW</span>}
 
       {isEditing ? (
         <input ref={inputRef} value={editValue} onChange={e => setEditValue(e.target.value)}
           onBlur={() => { setIsEditing(false); if (editValue.trim()) onRename(node.id, editValue.trim()); }}
           onKeyDown={e => { if (e.key === "Enter") { setIsEditing(false); if (editValue.trim()) onRename(node.id, editValue.trim()); } if (e.key === "Escape") setIsEditing(false); }}
-          className="flex-1 bg-[var(--surface-2)] border border-[var(--accent-primary)] rounded px-1 py-0.5 text-[11px] text-[var(--text-primary)] outline-none min-w-0"
+          className="flex-1 bg-[var(--surface-2)] border border-[var(--accent-primary)] rounded px-1 py-0.5 text-[15px] text-[var(--text-primary)] outline-none min-w-0"
           onClick={e => e.stopPropagation()} />
       ) : (
         <span className={`flex-1 truncate font-semibold ${node.sunset ? "line-through text-[var(--text-muted)]" : "text-[var(--text-primary)]"}`}>{node.label}</span>
       )}
 
-      {node.sunset && <span className="text-[8px] px-1 py-0.5 rounded bg-red-500/10 text-red-400 font-bold shrink-0">SUNSET</span>}
-      {node.merged && node.merged.length > 0 && <span className="text-[8px] px-1 py-0.5 rounded bg-blue-500/10 text-blue-400 font-bold shrink-0">MERGED</span>}
+      {node.sunset && <span className="text-[15px] px-1 py-0.5 rounded bg-red-500/10 text-red-400 font-bold shrink-0">SUNSET</span>}
+      {node.merged && node.merged.length > 0 && <span className="text-[15px] px-1 py-0.5 rounded bg-blue-500/10 text-blue-400 font-bold shrink-0">MERGED</span>}
 
-      <span className="text-[9px] font-data text-[var(--text-muted)] shrink-0">{node.headcount}</span>
+      <span className="text-[14px] font-data text-[var(--text-muted)] shrink-0">{node.headcount}</span>
 
       {/* Add child button */}
       {node.type !== "job" && (
         <button onClick={e => { e.stopPropagation(); onAddChild(node.id, childType); setIsExpanded(true); }}
-          className="opacity-0 group-hover:opacity-100 text-[10px] text-[var(--accent-primary)] hover:text-[var(--text-primary)] transition-all shrink-0 w-4 text-center">+</button>
+          className="opacity-0 group-hover:opacity-100 text-[15px] text-[var(--accent-primary)] hover:text-[var(--text-primary)] transition-all shrink-0 w-4 text-center">+</button>
       )}
     </div>
 
@@ -289,7 +289,7 @@ function FutureStateNode({ node, depth, onRename, onDelete, onAddChild, onSunset
     )}
 
     {/* Context menu */}
-    {showCtx && <div className="absolute left-8 top-8 z-50 bg-[var(--surface-1)] border border-[var(--border)] rounded-lg shadow-xl py-1 min-w-36 text-[11px]"
+    {showCtx && <div className="absolute left-8 top-8 z-50 bg-[var(--surface-1)] border border-[var(--border)] rounded-lg shadow-xl py-1 min-w-36 text-[15px]"
       onMouseLeave={() => setShowCtx(false)}>
       <button onClick={() => { setShowCtx(false); setIsEditing(true); setEditValue(node.label); }}
         className="w-full text-left px-3 py-1.5 hover:bg-[var(--hover)] text-[var(--text-secondary)]">Rename</button>
@@ -336,14 +336,14 @@ function MappingLine({ mapping, index }: { mapping: Mapping; index: number }) {
     }
   })();
 
-  return <div className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-[var(--hover)] text-[10px] group" title={mapping.note || "No note"}>
+  return <div className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-[var(--hover)] text-[15px] group" title={mapping.note || "No note"}>
     <div className="w-3 h-0.5 rounded" style={{ background: lineStyle.stroke }} />
     <span className="text-[var(--text-muted)] truncate flex-1">
       {mapping.fromId.replace("_future", "")} → {mapping.toId.replace("_future", "")}
     </span>
-    {mapping.type === "new" && <span className="text-[8px] px-1 rounded bg-green-500/15 text-green-400 font-bold">NEW</span>}
-    {mapping.type === "sunset" && <span className="text-[8px] px-1 rounded bg-red-500/10 text-red-400 font-bold line-through">END</span>}
-    <span className="text-[8px] text-[var(--text-muted)]">{mapping.type.replace("-", "→")}</span>
+    {mapping.type === "new" && <span className="text-[15px] px-1 rounded bg-green-500/15 text-green-400 font-bold">NEW</span>}
+    {mapping.type === "sunset" && <span className="text-[15px] px-1 rounded bg-red-500/10 text-red-400 font-bold line-through">END</span>}
+    <span className="text-[15px] text-[var(--text-muted)]">{mapping.type.replace("-", "→")}</span>
   </div>;
 }
 
@@ -365,7 +365,7 @@ function EmployeeTable({ employees, title, futureTree, onClose }: {
 
     {employees.length === 0 ? <Empty text="No employees in this role" icon="👤" /> :
     <div className="overflow-x-auto rounded-lg border border-[var(--border)]">
-      <table className="w-full text-[11px]">
+      <table className="w-full text-[15px]">
         <thead><tr className="bg-[var(--surface-2)]">
           <th className="px-3 py-2 text-left font-semibold text-[var(--text-muted)] uppercase">Name</th>
           <th className="px-3 py-2 text-left font-semibold text-[var(--text-muted)] uppercase">Level</th>
@@ -383,7 +383,7 @@ function EmployeeTable({ employees, title, futureTree, onClose }: {
             <td className="px-3 py-2 font-semibold text-[var(--text-primary)]">{e.name}</td>
             <td className="px-3 py-2"><span className="px-1.5 py-0.5 rounded-full font-bold font-data" style={{ background: trackBg(e.track), color: trackColor(e.track) }}>{e.level}</span></td>
             <td className="px-3 py-2 font-data">{e.tenure}y</td>
-            <td className="px-3 py-2"><div className="flex gap-1 flex-wrap">{e.skills.map(s => <span key={s} className="px-1 py-0.5 rounded bg-[var(--surface-2)] text-[9px]">{s}</span>)}</div></td>
+            <td className="px-3 py-2"><div className="flex gap-1 flex-wrap">{e.skills.map(s => <span key={s} className="px-1 py-0.5 rounded bg-[var(--surface-2)] text-[14px]">{s}</span>)}</div></td>
             <td className="px-3 py-2 font-semibold" style={{ color: perfColor }}>{e.performance}</td>
             <td className="px-3 py-2 font-semibold" style={{ color: riskColor }}>{e.flight_risk}</td>
             <td className="px-3 py-2">{e.redeployment_candidate ? <span className="text-[var(--accent-primary)] font-bold">Candidate</span> : <span className="text-[var(--text-muted)]">—</span>}</td>
@@ -396,19 +396,19 @@ function EmployeeTable({ employees, title, futureTree, onClose }: {
     <div className="grid grid-cols-4 gap-3 mt-3">
       <div className="bg-[var(--surface-2)] rounded-lg p-2 text-center">
         <div className="text-[16px] font-bold font-data text-[var(--text-primary)]">{employees.length}</div>
-        <div className="text-[8px] text-[var(--text-muted)] uppercase">Total</div>
+        <div className="text-[15px] text-[var(--text-muted)] uppercase">Total</div>
       </div>
       <div className="bg-[var(--surface-2)] rounded-lg p-2 text-center">
         <div className="text-[16px] font-bold font-data text-[var(--accent-primary)]">{employees.filter(e => e.redeployment_candidate).length}</div>
-        <div className="text-[8px] text-[var(--text-muted)] uppercase">Redeployable</div>
+        <div className="text-[15px] text-[var(--text-muted)] uppercase">Redeployable</div>
       </div>
       <div className="bg-[var(--surface-2)] rounded-lg p-2 text-center">
         <div className="text-[16px] font-bold font-data" style={{ color: "var(--risk)" }}>{employees.filter(e => e.flight_risk === "High").length}</div>
-        <div className="text-[8px] text-[var(--text-muted)] uppercase">Flight Risk</div>
+        <div className="text-[15px] text-[var(--text-muted)] uppercase">Flight Risk</div>
       </div>
       <div className="bg-[var(--surface-2)] rounded-lg p-2 text-center">
         <div className="text-[16px] font-bold font-data" style={{ color: "var(--warning)" }}>{employees.filter(e => e.single_incumbent).length}</div>
-        <div className="text-[8px] text-[var(--text-muted)] uppercase">Single Incumbent</div>
+        <div className="text-[15px] text-[var(--text-muted)] uppercase">Single Incumbent</div>
       </div>
     </div>
   </div>;
@@ -445,7 +445,7 @@ function ImpactDashboard({ currentTree, futureTree, mappings, jobs, employees, c
   }, 0);
 
   return <div className="mt-4">
-    <button onClick={onToggle} className="w-full flex items-center justify-between px-4 py-2 bg-[var(--surface-1)] border border-[var(--border)] rounded-t-xl text-[12px] font-semibold text-[var(--text-primary)] hover:bg-[var(--hover)]">
+    <button onClick={onToggle} className="w-full flex items-center justify-between px-4 py-2 bg-[var(--surface-1)] border border-[var(--border)] rounded-t-xl text-[15px] font-semibold text-[var(--text-primary)] hover:bg-[var(--hover)]">
       <span>Impact Dashboard</span>
       <span className="text-[var(--text-muted)]">{collapsed ? "▸ Show" : "▾ Hide"}</span>
     </button>
@@ -453,38 +453,38 @@ function ImpactDashboard({ currentTree, futureTree, mappings, jobs, employees, c
       <div className="grid grid-cols-6 gap-3 mb-4">
         <div className="bg-[var(--surface-2)] rounded-lg p-3 text-center">
           <div className="text-[20px] font-bold font-data text-green-400">+{addedCount}</div>
-          <div className="text-[9px] text-[var(--text-muted)] uppercase">Roles Added</div>
+          <div className="text-[14px] text-[var(--text-muted)] uppercase">Roles Added</div>
         </div>
         <div className="bg-[var(--surface-2)] rounded-lg p-3 text-center">
           <div className="text-[20px] font-bold font-data text-red-400">{sunsetCount}</div>
-          <div className="text-[9px] text-[var(--text-muted)] uppercase">Roles Sunset</div>
+          <div className="text-[14px] text-[var(--text-muted)] uppercase">Roles Sunset</div>
         </div>
         <div className="bg-[var(--surface-2)] rounded-lg p-3 text-center">
           <div className="text-[20px] font-bold font-data text-blue-400">{modifiedCount}</div>
-          <div className="text-[9px] text-[var(--text-muted)] uppercase">Mappings</div>
+          <div className="text-[14px] text-[var(--text-muted)] uppercase">Mappings</div>
         </div>
         <div className="bg-[var(--surface-2)] rounded-lg p-3 text-center">
           <div className="text-[20px] font-bold font-data text-[var(--accent-primary)]">{affectedPeople}</div>
-          <div className="text-[9px] text-[var(--text-muted)] uppercase">People Affected</div>
+          <div className="text-[14px] text-[var(--text-muted)] uppercase">People Affected</div>
         </div>
         <div className="bg-[var(--surface-2)] rounded-lg p-3 text-center">
           <div className={`text-[20px] font-bold font-data ${netDelta > 0 ? "text-green-400" : netDelta < 0 ? "text-red-400" : "text-[var(--text-muted)]"}`}>
             {netDelta > 0 ? `+${netDelta}` : netDelta}
           </div>
-          <div className="text-[9px] text-[var(--text-muted)] uppercase">Net HC Delta</div>
+          <div className="text-[14px] text-[var(--text-muted)] uppercase">Net HC Delta</div>
         </div>
         <div className="bg-[var(--surface-2)] rounded-lg p-3 text-center">
           <div className="text-[20px] font-bold font-data text-purple-400">{employees.filter(e => e.redeployment_candidate).length}</div>
-          <div className="text-[9px] text-[var(--text-muted)] uppercase">Reskill Needed</div>
+          <div className="text-[14px] text-[var(--text-muted)] uppercase">Reskill Needed</div>
         </div>
       </div>
 
       {/* What Changed log */}
       {changeLog.length > 0 && <div>
-        <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase mb-2">What Changed</div>
+        <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-2">What Changed</div>
         <div className="max-h-32 overflow-y-auto space-y-1 bg-[var(--surface-2)] rounded-lg p-2">
           {changeLog.slice(-20).reverse().map((entry, i) => (
-            <div key={i} className="text-[10px] text-[var(--text-secondary)] flex items-start gap-1.5">
+            <div key={i} className="text-[15px] text-[var(--text-secondary)] flex items-start gap-1.5">
               <span className="text-[var(--text-muted)] shrink-0">•</span>
               <span>{entry}</span>
             </div>
@@ -536,38 +536,38 @@ function SaveComparePanel({ model, futureTree, mappings, versions, onRefreshVers
 
   return <div className="mt-4 bg-[var(--surface-1)] border border-[var(--border)] rounded-xl p-4">
     <div className="flex items-center justify-between mb-3">
-      <h4 className="text-[13px] font-bold font-heading text-[var(--text-primary)]">Save & Compare Versions</h4>
+      <h4 className="text-[15px] font-bold font-heading text-[var(--text-primary)]">Save & Compare Versions</h4>
       <button onClick={() => setShowSave(!showSave)}
-        className="px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-[var(--accent-primary)] text-white hover:brightness-110 transition-all">
+        className="px-3 py-1.5 rounded-lg text-[15px] font-semibold bg-[var(--accent-primary)] text-white hover:brightness-110 transition-all">
         Save Current State
       </button>
     </div>
 
     {showSave && <div className="mb-4 p-3 bg-[var(--surface-2)] rounded-lg space-y-2">
       <input value={name} onChange={e => setName(e.target.value)} placeholder="Version name..."
-        className="w-full bg-[var(--surface-1)] border border-[var(--border)] rounded-lg px-3 py-2 text-[12px] text-[var(--text-primary)] outline-none focus:border-[var(--accent-primary)]" />
+        className="w-full bg-[var(--surface-1)] border border-[var(--border)] rounded-lg px-3 py-2 text-[15px] text-[var(--text-primary)] outline-none focus:border-[var(--accent-primary)]" />
       <input value={desc} onChange={e => setDesc(e.target.value)} placeholder="Description (optional)..."
-        className="w-full bg-[var(--surface-1)] border border-[var(--border)] rounded-lg px-3 py-2 text-[12px] text-[var(--text-primary)] outline-none focus:border-[var(--accent-primary)]" />
+        className="w-full bg-[var(--surface-1)] border border-[var(--border)] rounded-lg px-3 py-2 text-[15px] text-[var(--text-primary)] outline-none focus:border-[var(--accent-primary)]" />
       <div className="flex gap-2">
-        <button onClick={handleSave} className="px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-[var(--accent-primary)] text-white">Save</button>
-        <button onClick={() => setShowSave(false)} className="px-3 py-1.5 rounded-lg text-[11px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">Cancel</button>
+        <button onClick={handleSave} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold bg-[var(--accent-primary)] text-white">Save</button>
+        <button onClick={() => setShowSave(false)} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">Cancel</button>
       </div>
     </div>}
 
-    {versions.length === 0 ? <div className="text-[11px] text-[var(--text-muted)] text-center py-4">No saved versions yet. Design a future state and save it.</div> :
+    {versions.length === 0 ? <div className="text-[15px] text-[var(--text-muted)] text-center py-4">No saved versions yet. Design a future state and save it.</div> :
     <div className="space-y-2">
       {versions.map(v => (
         <div key={v.id} className={`flex items-center gap-3 p-3 rounded-lg border ${v.recommended ? "border-[var(--accent-primary)]/40 bg-[var(--accent-primary)]/5" : "border-[var(--border)]"} hover:bg-[var(--hover)]`}>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <span className="text-[12px] font-semibold text-[var(--text-primary)]">{v.name}</span>
-              {v.recommended && <span className="text-[8px] px-1.5 py-0.5 rounded bg-[var(--accent-primary)]/15 text-[var(--accent-primary)] font-bold">RECOMMENDED</span>}
+              <span className="text-[15px] font-semibold text-[var(--text-primary)]">{v.name}</span>
+              {v.recommended && <span className="text-[15px] px-1.5 py-0.5 rounded bg-[var(--accent-primary)]/15 text-[var(--accent-primary)] font-bold">RECOMMENDED</span>}
             </div>
-            {v.description && <div className="text-[10px] text-[var(--text-muted)] mt-0.5 truncate">{v.description}</div>}
+            {v.description && <div className="text-[15px] text-[var(--text-muted)] mt-0.5 truncate">{v.description}</div>}
           </div>
-          <button onClick={() => onLoadVersion(v)} className="text-[10px] text-[var(--accent-primary)] hover:underline shrink-0">Load</button>
-          <button onClick={() => handleRecommend(v.id)} className="text-[10px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] shrink-0">{v.recommended ? "Unrecommend" : "Recommend"}</button>
-          <button onClick={() => handleDelete(v.id)} className="text-[10px] text-[var(--text-muted)] hover:text-red-400 shrink-0">Delete</button>
+          <button onClick={() => onLoadVersion(v)} className="text-[15px] text-[var(--accent-primary)] hover:underline shrink-0">Load</button>
+          <button onClick={() => handleRecommend(v.id)} className="text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] shrink-0">{v.recommended ? "Unrecommend" : "Recommend"}</button>
+          <button onClick={() => handleDelete(v.id)} className="text-[15px] text-[var(--text-muted)] hover:text-red-400 shrink-0">Delete</button>
         </div>
       ))}
     </div>}
@@ -816,8 +816,8 @@ export function ArchitectureMapTab({ tree, jobs, employees, model }: {
     {/* ── COMPACT TREEMAP SUMMARY (top) ── */}
     <div className="mb-4 bg-[var(--surface-1)] border border-[var(--border)] rounded-xl p-3">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[11px] font-bold text-[var(--text-muted)] uppercase font-heading">Architecture Overview</span>
-        <span className="text-[10px] font-data text-[var(--text-muted)]">{jobs.length} roles · {orgHC.toLocaleString()} people · {tree.length} functions</span>
+        <span className="text-[15px] font-bold text-[var(--text-muted)] uppercase font-heading">Architecture Overview</span>
+        <span className="text-[15px] font-data text-[var(--text-muted)]">{jobs.length} roles · {orgHC.toLocaleString()} people · {tree.length} functions</span>
       </div>
       <div className="flex gap-1.5" style={{ height: 48 }}>
         {treemapData.map((d, i) => {
@@ -837,10 +837,10 @@ export function ArchitectureMapTab({ tree, jobs, employees, model }: {
     <div className="flex items-center gap-3 mb-4 flex-wrap">
       {/* Color metric selector */}
       <div className="flex items-center gap-1.5">
-        <span className="text-[10px] text-[var(--text-muted)] font-semibold uppercase">Color by:</span>
+        <span className="text-[15px] text-[var(--text-muted)] font-semibold uppercase">Color by:</span>
         {(["headcount", "ai_impact", "tenure_risk", "vacancy"] as ColorMetric[]).map(m => (
           <button key={m} onClick={() => setColorMetric(m)}
-            className={`px-2 py-1 rounded text-[10px] font-semibold ${colorMetric === m ? "bg-[var(--accent-primary)] text-white" : "text-[var(--text-muted)] border border-[var(--border)]"}`}>
+            className={`px-2 py-1 rounded text-[15px] font-semibold ${colorMetric === m ? "bg-[var(--accent-primary)] text-white" : "text-[var(--text-muted)] border border-[var(--border)]"}`}>
             {m === "headcount" ? "Headcount" : m === "ai_impact" ? "AI Impact" : m === "tenure_risk" ? "Tenure" : "Vacancy"}
           </button>
         ))}
@@ -850,24 +850,24 @@ export function ArchitectureMapTab({ tree, jobs, employees, model }: {
 
       {/* Mapping mode */}
       <button onClick={() => { setMappingMode(!mappingMode); setMappingFrom(null); }}
-        className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${mappingMode ? "bg-blue-500 text-white" : "text-[var(--text-muted)] border border-[var(--border)] hover:border-blue-400"}`}>
+        className={`px-3 py-1.5 rounded-lg text-[15px] font-semibold transition-all ${mappingMode ? "bg-blue-500 text-white" : "text-[var(--text-muted)] border border-[var(--border)] hover:border-blue-400"}`}>
         {mappingMode ? (mappingFrom ? "Click a future state role..." : "Click a current state role...") : "Enter Mapping Mode"}
       </button>
 
       {/* Undo/Redo */}
       <div className="flex gap-1">
         <button onClick={undo} disabled={historyIdx <= 0}
-          className={`px-2 py-1 rounded text-[10px] font-semibold ${historyIdx > 0 ? "text-[var(--text-secondary)] border border-[var(--border)] hover:border-[var(--accent-primary)]" : "text-[var(--text-muted)] border border-[var(--border)] opacity-40 cursor-not-allowed"}`}>
+          className={`px-2 py-1 rounded text-[15px] font-semibold ${historyIdx > 0 ? "text-[var(--text-secondary)] border border-[var(--border)] hover:border-[var(--accent-primary)]" : "text-[var(--text-muted)] border border-[var(--border)] opacity-40 cursor-not-allowed"}`}>
           Undo
         </button>
         <button onClick={redo} disabled={historyIdx >= history.length - 1}
-          className={`px-2 py-1 rounded text-[10px] font-semibold ${historyIdx < history.length - 1 ? "text-[var(--text-secondary)] border border-[var(--border)] hover:border-[var(--accent-primary)]" : "text-[var(--text-muted)] border border-[var(--border)] opacity-40 cursor-not-allowed"}`}>
+          className={`px-2 py-1 rounded text-[15px] font-semibold ${historyIdx < history.length - 1 ? "text-[var(--text-secondary)] border border-[var(--border)] hover:border-[var(--accent-primary)]" : "text-[var(--text-muted)] border border-[var(--border)] opacity-40 cursor-not-allowed"}`}>
           Redo
         </button>
       </div>
 
       {/* Reset */}
-      <button onClick={resetFuture} className="px-2 py-1 rounded text-[10px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:border-red-400 hover:text-red-400">
+      <button onClick={resetFuture} className="px-2 py-1 rounded text-[15px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:border-red-400 hover:text-red-400">
         Reset
       </button>
     </div>
@@ -879,8 +879,8 @@ export function ArchitectureMapTab({ tree, jobs, employees, model }: {
       <div className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl p-3 overflow-y-auto" style={{ maxHeight: "65vh" }}
         onClick={() => { if (mappingMode && currentSelected) handleMappingClick("current", currentSelected); }}>
         <div className="flex items-center justify-between mb-2">
-          <span className="text-[11px] font-bold text-[var(--text-muted)] uppercase font-heading">Current State</span>
-          <span className="text-[9px] font-data text-[var(--text-muted)]">{orgHC} people</span>
+          <span className="text-[15px] font-bold text-[var(--text-muted)] uppercase font-heading">Current State</span>
+          <span className="text-[14px] font-data text-[var(--text-muted)]">{orgHC} people</span>
         </div>
         {tree.length === 0 ? <Empty text="No architecture data" icon="📋" /> :
           tree.map(func => <CurrentStateNode key={func.id} node={func} depth={0}
@@ -895,15 +895,15 @@ export function ArchitectureMapTab({ tree, jobs, employees, model }: {
 
       {/* MAPPING CONNECTORS (center) */}
       <div className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl p-2 overflow-y-auto" style={{ maxHeight: "65vh" }}>
-        <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase font-heading mb-2 text-center">Mappings</div>
-        {mappingMode && <div className="text-[9px] text-center mb-2 px-2 py-1.5 rounded-lg bg-blue-500/10 text-blue-400 font-semibold">
+        <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase font-heading mb-2 text-center">Mappings</div>
+        {mappingMode && <div className="text-[14px] text-center mb-2 px-2 py-1.5 rounded-lg bg-blue-500/10 text-blue-400 font-semibold">
           {mappingFrom ? `From: ${mappingFrom}` : "Select current state role"}
         </div>}
         {mappings.length === 0 ? (
           <div className="text-center py-8 text-[var(--text-muted)]">
             <div className="text-xl mb-2 opacity-30">🔗</div>
-            <div className="text-[10px]">No mappings yet.</div>
-            <div className="text-[9px] mt-1">Use mapping mode to connect roles</div>
+            <div className="text-[15px]">No mappings yet.</div>
+            <div className="text-[14px] mt-1">Use mapping mode to connect roles</div>
           </div>
         ) : (
           <div className="space-y-0.5">
@@ -920,7 +920,7 @@ export function ArchitectureMapTab({ tree, jobs, employees, model }: {
             { color: "#4A9E6B", dash: false, label: "New Role", badge: "NEW" },
             { color: "#EF4444", dash: true, label: "Sunset", strike: true },
           ].map(l => (
-            <div key={l.label} className="flex items-center gap-1.5 text-[8px] text-[var(--text-muted)]">
+            <div key={l.label} className="flex items-center gap-1.5 text-[15px] text-[var(--text-muted)]">
               <div className="w-3 h-0.5 rounded" style={{ background: l.color, ...(l.dash ? { borderTop: `1px dashed ${l.color}`, background: "transparent" } : {}) }} />
               <span className={l.strike ? "line-through" : ""}>{l.label}</span>
             </div>
@@ -932,8 +932,8 @@ export function ArchitectureMapTab({ tree, jobs, employees, model }: {
       <div className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl p-3 overflow-y-auto" style={{ maxHeight: "65vh" }}
         onClick={() => { if (mappingMode && futureSelected) handleMappingClick("future", futureSelected); }}>
         <div className="flex items-center justify-between mb-2">
-          <span className="text-[11px] font-bold text-[var(--text-muted)] uppercase font-heading">Future State</span>
-          <span className="text-[9px] font-data text-[var(--text-muted)]">Editable · Right-click for options</span>
+          <span className="text-[15px] font-bold text-[var(--text-muted)] uppercase font-heading">Future State</span>
+          <span className="text-[14px] font-data text-[var(--text-muted)]">Editable · Right-click for options</span>
         </div>
         {futureTree.length === 0 ? <Empty text="Click Reset to initialize from current state" icon="🔧" /> :
           futureTree.map(func => <FutureStateNode key={func.id} node={func} depth={0}
