@@ -682,6 +682,13 @@ async def get_manager_development(model_id: str, func: str = "All", jf: str = "A
 @router.get("/export/summary/{model_id}")
 async def get_export_summary(model_id: str):
     """Gather all module data for report generation."""
+    # Get actual headcount from workforce data — single source of truth
+    wf_count = 0
+    ds = store.datasets.get(model_id)
+    if ds:
+        wf = ds.get("workforce", pd.DataFrame()) if isinstance(ds, dict) else pd.DataFrame()
+        wf_count = int(len(wf)) if not wf.empty else 0
+
     inv = await get_skills_inventory(model_id)
     gap = await get_skills_gap(model_id)
     adj = await get_skills_adjacency(model_id)
@@ -692,10 +699,10 @@ async def get_export_summary(model_id: str):
     chg = await get_change_readiness(model_id)
     reskill = await get_reskilling_pathways(model_id)
     mp = await get_talent_marketplace(model_id)
-    
+
     return _safe({
         "skills_coverage": inv.get("coverage", 0),
-        "total_employees": len(inv.get("employees", [])),
+        "total_employees": wf_count,
         "critical_gaps": gap.get("summary", {}).get("critical_gaps", 0),
         "fillable_internally": adj.get("summary", {}).get("fillable_internally", 0),
         "bbba_summary": bbba.get("summary", {}),

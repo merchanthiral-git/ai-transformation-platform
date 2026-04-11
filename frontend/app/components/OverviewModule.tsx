@@ -249,98 +249,92 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
   const totalExplored = PHASES.reduce((s, p) => s + p.modules.filter(id => (moduleStatus[id] || "not_started") !== "not_started").length, 0);
   const progressPct = totalModules > 0 ? Math.round((totalExplored / totalModules) * 100) : 0;
 
-  // Milestone positions — tighter vertical range to prevent label overlap with CTA
-  const pts = [
-    { x: 100, y: 180 },  // Discover — top
-    { x: 310, y: 300 },  // Diagnose — bottom
-    { x: 520, y: 170 },  // Design — top
-    { x: 730, y: 310 },  // Simulate — bottom
-    { x: 940, y: 180 },  // Mobilize — top
+  // Milestone positions matching the painted clearings on journey_bg.png (percentage-based)
+  const milestonePercents = [
+    { xPct: 12.3, yPct: 65.4 },  // Discover
+    { xPct: 30.2, yPct: 54.2 },  // Diagnose
+    { xPct: 49.9, yPct: 70.3 },  // Design
+    { xPct: 69.6, yPct: 86.5 },  // Simulate
+    { xPct: 87.6, yPct: 75.4 },  // Mobilize
   ];
-  const pathD = `M ${pts[0].x} ${pts[0].y} C ${pts[0].x+110} ${pts[0].y+80}, ${pts[1].x-110} ${pts[1].y}, ${pts[1].x} ${pts[1].y} C ${pts[1].x+110} ${pts[1].y-80}, ${pts[2].x-110} ${pts[2].y}, ${pts[2].x} ${pts[2].y} C ${pts[2].x+110} ${pts[2].y+80}, ${pts[3].x-110} ${pts[3].y}, ${pts[3].x} ${pts[3].y} C ${pts[3].x+110} ${pts[3].y-80}, ${pts[4].x-110} ${pts[4].y}, ${pts[4].x} ${pts[4].y}`;
 
-  // ── Journey Map ──
-  return <div className="relative min-h-[calc(100vh-48px)] flex flex-col items-center justify-center overflow-hidden" style={{ backgroundImage: "url(/journey_bg.png)", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }}>
+  // ── Journey Map — illustrated board game style ──
+  return <div className="relative min-h-[calc(100vh-48px)] overflow-hidden" style={{ backgroundImage: "url(/journey_bg.png)", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }}>
 
-    {/* Scroll-up hint at very top */}
-    {onBackToSplash && <div onClick={onBackToSplash} className="absolute top-0 left-0 right-0 z-20 flex justify-center py-2 cursor-pointer group" title="Back to landing">
-      <div className="animate-pulse text-[15px]" style={{ color: "rgba(255,255,255,0.15)" }}>&#9650;</div>
+    {/* Scroll-up hint */}
+    {onBackToSplash && <div onClick={onBackToSplash} className="absolute top-0 left-0 right-0 z-20 flex justify-center py-2 cursor-pointer">
+      <div className="animate-pulse text-[15px]" style={{ color: "rgba(255,255,255,0.3)" }}>{"\u25B2"}</div>
     </div>}
 
-    <div className="relative z-10 text-center w-full px-6" style={{ maxWidth: 1100 }}>
+    {/* Header overlay with dark gradient for readability */}
+    <div className="relative z-10 text-center pt-6 pb-4" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.15) 70%, transparent 100%)" }}>
       {/* Breadcrumb */}
-      <div style={{ fontSize: 15, color: "rgba(255,255,255,0.3)", marginBottom: 20, display: "flex", justifyContent: "center", gap: 6, alignItems: "center" }}>
-        {onBackToHub && <span onClick={onBackToHub} style={{ cursor: "pointer", transition: "color 0.2s" }} onMouseEnter={e => e.currentTarget.style.color = "#D4860A"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.3)"}>Home</span>}
-        {onBackToHub && <span style={{ opacity: 0.4 }}>›</span>}
-        {onBackToSplash && projectName && <span onClick={onBackToSplash} style={{ cursor: "pointer", transition: "color 0.2s" }} onMouseEnter={e => e.currentTarget.style.color = "#D4860A"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.3)"}>
+      <div style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginBottom: 8, display: "flex", justifyContent: "center", gap: 6, alignItems: "center" }}>
+        {onBackToHub && <span onClick={onBackToHub} style={{ cursor: "pointer", transition: "color 0.2s" }} onMouseEnter={e => e.currentTarget.style.color = "#fbbf24"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.5)"}>Home</span>}
+        {onBackToHub && <span style={{ opacity: 0.4 }}>{"\u203A"}</span>}
+        {onBackToSplash && projectName && <span onClick={onBackToSplash} style={{ cursor: "pointer", transition: "color 0.2s" }} onMouseEnter={e => e.currentTarget.style.color = "#fbbf24"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.5)"}>
           {projectName}
         </span>}
-        {onBackToSplash && <span style={{ opacity: 0.4 }}>›</span>}
-        <span style={{ color: "rgba(212,134,10,0.5)" }}>Journey Map</span>
+        {onBackToSplash && <span style={{ opacity: 0.4 }}>{"\u203A"}</span>}
+        <span style={{ color: "rgba(251,191,36,0.7)" }}>Journey Map</span>
       </div>
-
-      <h1 style={{ fontSize: 32, fontWeight: 800, fontFamily: "'Outfit', sans-serif", color: "#f0f0f5", marginBottom: 6 }}>Where are you in the journey?</h1>
-      <p style={{ fontSize: 15, color: "rgba(255,255,255,0.35)", marginBottom: 32 }}>Five phases. One proven methodology. Click a phase to explore.</p>
-
-      {/* Roadmap */}
-      <div className="relative" style={{ width: "100%", maxWidth: 1040, margin: "0 auto", height: 480 }}>
-        <svg viewBox="0 0 1040 480" width="100%" height="100%" style={{ position: "absolute", inset: 0 }}>
-          {/* Future path — light */}
-          <path d={pathD} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="4" strokeLinecap="round" />
-          {/* Completed path — amber */}
-          <path d={pathD} fill="none" stroke="rgba(212,134,10,0.55)" strokeWidth="4" strokeLinecap="round" strokeDasharray={`${(activeIdx + 1) / 5 * 100}% 200%`} />
-        </svg>
-
-        {/* Milestones */}
-        {PHASES.map((phase, pi) => {
-          const status = getPhaseStatus(phase);
-          const isCurrent = pi === activeIdx;
-          const isComplete = status === "complete";
-          const isReached = isComplete || isCurrent || status === "in_progress";
-          const pt = pts[pi];
-          const labelBelow = pi % 2 !== 0;
-          return <button key={phase.id} onClick={() => setSelectedPhase(phase.id)} className="absolute group" style={{
-            left: pt.x - 50, top: pt.y - 50, width: 100, height: 100,
-            opacity: 0, animation: `msIn 0.5s ease ${0.3 + pi * 0.12}s forwards`,
-          }}>
-            <div className="w-full h-full rounded-full flex items-center justify-center transition-all group-hover:scale-110" style={{
-              fontSize: 40,
-              background: isComplete ? "rgba(212,134,10,0.1)" : "transparent",
-              border: isComplete ? "2.5px solid #D4860A" : isCurrent ? "2.5px solid rgba(212,134,10,0.6)" : "2px solid rgba(255,255,255,0.1)",
-              animation: isCurrent ? "msPulse 3s ease-in-out infinite" : "none",
-            }}>
-              {isComplete ? <span style={{ color: "#D4860A", fontSize: 36 }}>✓</span> : <span style={{ opacity: isReached ? 1 : 0.4 }}>{phase.icon}</span>}
-            </div>
-            <div className="absolute left-1/2 -translate-x-1/2 text-center" style={{ [labelBelow ? "top" : "bottom"]: "100%", [labelBelow ? "marginTop" : "marginBottom"]: 12, width: 150 }}>
-              <div style={{ fontSize: 20, fontWeight: 700, fontFamily: "'Outfit', sans-serif", color: isReached ? "#f0f0f5" : "rgba(255,255,255,0.25)", lineHeight: 1.2 }}>{phase.label}</div>
-              <div style={{ fontSize: 14, marginTop: 4, color: isComplete ? "#D4860A" : isCurrent ? "rgba(255,255,255,0.45)" : "rgba(255,255,255,0.12)", lineHeight: 1.3 }}>{phase.desc}</div>
-            </div>
-          </button>;
-        })}
-      </div>
-
-      {/* CTA — 80px below roadmap container */}
-      <div style={{ marginTop: 40 }}>
-        <button onClick={() => setSelectedPhase(PHASES[activeIdx].id)} className="transition-all hover:translate-y-[-2px]" style={{ padding: "14px 40px", borderRadius: 14, fontSize: 15, fontWeight: 700, color: "#fff", background: "linear-gradient(135deg, #D4860A, #C07030)", boxShadow: "0 8px 28px rgba(212,134,10,0.25)", border: "none", cursor: "pointer" }}>
-          {activeIdx === 0 ? "Begin with Discovery \u2192" : `Continue ${PHASES[activeIdx].label} \u2192`}
-        </button>
-      </div>
-
-      {/* Progress bar */}
-      <div className="inline-flex items-center gap-5 px-5 py-2 rounded-full mt-5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-        <span style={{ fontSize: 15, fontWeight: 600, color: "rgba(212,134,10,0.5)" }}>Progress</span>
-        <div style={{ width: 60, height: 3, borderRadius: 2, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
-          <div style={{ width: `${progressPct}%`, height: "100%", borderRadius: 2, background: "#D4860A" }} />
-        </div>
-        <span style={{ fontSize: 15, fontWeight: 700, color: "#D4860A" }}>{progressPct}%</span>
-        <span style={{ fontSize: 15, color: "rgba(255,255,255,0.2)" }}>{totalExplored}/{totalModules} modules</span>
-      </div>
-
-      <style>{`
-        @keyframes msPulse { 0%,100% { box-shadow: 0 0 20px rgba(212,134,10,0.2); } 50% { box-shadow: 0 0 28px rgba(212,134,10,0.35); } }
-        @keyframes msIn { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
-      `}</style>
+      <h1 style={{ fontSize: 28, fontWeight: 800, fontFamily: "'Outfit', sans-serif", color: "#fff", textShadow: "0 2px 12px rgba(0,0,0,0.5)" }}>Your Transformation Journey</h1>
+      <p style={{ fontSize: 15, color: "rgba(255,255,255,0.6)", textShadow: "0 1px 4px rgba(0,0,0,0.3)" }}>Click a milestone to explore its modules</p>
     </div>
+
+    {/* Milestone game pieces — positioned on the painted clearings */}
+    <div className="absolute inset-0 z-10">
+      {PHASES.map((phase, pi) => {
+        const status = getPhaseStatus(phase);
+        const isCurrent = pi === activeIdx;
+        const isComplete = status === "complete";
+        const isReached = isComplete || isCurrent || status === "in_progress";
+        const pos = milestonePercents[pi];
+        return <button key={phase.id} onClick={() => setSelectedPhase(phase.id)} className="absolute group" style={{
+          left: `${pos.xPct}%`, top: `${pos.yPct}%`, transform: "translate(-50%, -50%)",
+          opacity: 0, animation: `msIn 0.5s ease ${0.3 + pi * 0.15}s forwards`,
+        }}>
+          {/* Game piece circle — white fill with colored border */}
+          <div style={{
+            width: 72, height: 72, borderRadius: "50%",
+            display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32,
+            background: isComplete ? "#fff" : "rgba(255,255,255,0.9)",
+            border: `3px solid ${isComplete ? "#D4860A" : isCurrent ? "#f59e0b" : "rgba(180,180,180,0.5)"}`,
+            boxShadow: isCurrent ? "0 4px 20px rgba(245,158,11,0.4), 0 0 0 4px rgba(245,158,11,0.15)" : "0 4px 16px rgba(0,0,0,0.3)",
+            transition: "all 0.2s",
+            animation: isCurrent ? "msPulse 2.5s ease-in-out infinite" : "none",
+          }}>
+            {isComplete ? <span style={{ fontSize: 28 }}>{"\u2713"}</span> : <span style={{ opacity: isReached ? 1 : 0.5 }}>{phase.icon}</span>}
+          </div>
+          {/* Label with dark background for readability */}
+          <div className="absolute left-1/2 -translate-x-1/2 text-center" style={{ top: "100%", marginTop: 6, width: 130 }}>
+            <div style={{ display: "inline-block", padding: "3px 10px", borderRadius: 8, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)" }}>
+              <div style={{ fontSize: 15, fontWeight: 700, fontFamily: "'Outfit', sans-serif", color: "#fff", textShadow: "0 1px 3px rgba(0,0,0,0.5)", whiteSpace: "nowrap" }}>{phase.label}</div>
+            </div>
+          </div>
+        </button>;
+      })}
+    </div>
+
+    {/* Bottom bar — CTA + progress */}
+    <div className="absolute bottom-0 left-0 right-0 z-20 text-center pb-5 pt-8" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)" }}>
+      <button onClick={() => setSelectedPhase(PHASES[activeIdx].id)} className="transition-all hover:translate-y-[-2px] mb-3" style={{ padding: "12px 36px", borderRadius: 14, fontSize: 15, fontWeight: 700, color: "rgba(180,100,10,1)", background: "rgba(255,255,255,0.9)", boxShadow: "0 4px 20px rgba(0,0,0,0.3)", border: "none", cursor: "pointer", backdropFilter: "blur(4px)" }}>
+        {activeIdx === 0 ? "Begin with Discovery \u2192" : `Continue ${PHASES[activeIdx].label} \u2192`}
+      </button>
+      <div className="inline-flex items-center gap-4 px-5 py-2 rounded-full" style={{ background: "rgba(0,0,0,0.35)", backdropFilter: "blur(4px)" }}>
+        <span style={{ fontSize: 14, fontWeight: 600, color: "rgba(251,191,36,0.8)" }}>Progress</span>
+        <div style={{ width: 60, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.15)", overflow: "hidden" }}>
+          <div style={{ width: `${progressPct}%`, height: "100%", borderRadius: 2, background: "#fbbf24" }} />
+        </div>
+        <span style={{ fontSize: 14, fontWeight: 700, color: "#fbbf24" }}>{progressPct}%</span>
+        <span style={{ fontSize: 14, color: "rgba(255,255,255,0.4)" }}>{totalExplored}/{totalModules}</span>
+      </div>
+    </div>
+
+    <style>{`
+      @keyframes msPulse { 0%,100% { box-shadow: 0 4px 20px rgba(245,158,11,0.4), 0 0 0 4px rgba(245,158,11,0.15); } 50% { box-shadow: 0 4px 28px rgba(245,158,11,0.6), 0 0 0 6px rgba(245,158,11,0.2); } }
+      @keyframes msIn { from { opacity: 0; transform: translate(-50%, -50%) scale(0.7); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+    `}</style>
   </div>;
 }
 
@@ -492,26 +486,26 @@ export function TransformationExecDashboard({ model, f, onBack, onNavigate, deci
     {/* Phase summary cards */}
     <div className="grid grid-cols-3 gap-4 mb-6">
       {[
-        { phase: "Discover", icon: "🔍", color: "#D4860A", items: [
-          { label: "Employees", value: data?.total_employees || 0 },
-          { label: "AI Readiness", value: `${data?.org_readiness || "—"}/5` },
-          { label: "Champions", value: mgr.champions || 0 },
-          { label: "At Risk", value: bands.at_risk || 0 },
+        { phase: "Discover", icon: "🔍", color: "#D4860A", ready: true, items: [
+          { label: "Employees", value: data?.total_employees ? Number(data.total_employees).toLocaleString() : "—" },
+          { label: "AI Readiness", value: data?.org_readiness ? `${data.org_readiness}/5` : "—" },
+          { label: "Champions", value: mgr.champions || "—" },
+          { label: "At Risk", value: bands.at_risk || "—" },
         ]},
-        { phase: "Design", icon: "✏️", color: "#10B981", items: [
-          { label: "Skills Coverage", value: `${data?.skills_coverage || 0}%` },
-          { label: "Critical Gaps", value: data?.critical_gaps || 0 },
-          { label: "Build Roles", value: bbba.build || 0 },
-          { label: "Buy Roles", value: bbba.buy || 0 },
+        { phase: "Design", icon: "✏️", color: "#10B981", ready: !!(bbba.build || bbba.buy || data?.skills_coverage), items: [
+          { label: "Skills Coverage", value: data?.skills_coverage ? `${data.skills_coverage}%` : "—" },
+          { label: "Critical Gaps", value: data?.critical_gaps || "—" },
+          { label: "Build Roles", value: bbba.build || "—" },
+          { label: "Buy Roles", value: bbba.buy || "—" },
         ]},
-        { phase: "Deliver", icon: "🚀", color: "#F59E0B", items: [
-          { label: "High Risk %", value: `${data?.high_risk_pct || 0}%` },
-          { label: "Internal Fill", value: mp.internal_fill || 0 },
-          { label: "Reskill Cost", value: `${fmtNum(reskill.total_investment || 0)}` },
-          { label: "Net HC Change", value: wf.net_change || 0 },
+        { phase: "Deliver", icon: "🚀", color: "#F59E0B", ready: !!(Number(reskill.total_investment) || Number(wf.net_change)), items: [
+          { label: "High Risk %", value: data?.high_risk_pct ? `${data.high_risk_pct}%` : "—" },
+          { label: "Internal Fill", value: mp.internal_fill || "—" },
+          { label: "Reskill Cost", value: Number(reskill.total_investment) ? fmtNum(reskill.total_investment) : "—" },
+          { label: "Net HC Change", value: wf.net_change != null && wf.net_change !== 0 ? wf.net_change : "—" },
         ]},
-      ].map(p => <div key={p.phase} className="rounded-2xl p-5 border transition-all hover:translate-y-[-2px]" style={{ background: `${p.color}08`, borderColor: `${p.color}20` }}>
-        <div className="flex items-center gap-2 mb-4"><span className="text-xl">{p.icon}</span><span className="text-[15px] font-bold" style={{ color: p.color }}>{p.phase}</span></div>
+      ].map(p => <div key={p.phase} className="rounded-2xl p-5 border transition-all hover:translate-y-[-2px]" style={{ background: `${p.color}08`, borderColor: `${p.color}20`, opacity: p.ready ? 1 : 0.6 }}>
+        <div className="flex items-center gap-2 mb-4"><span className="text-xl">{p.icon}</span><span className="text-[15px] font-bold" style={{ color: p.color }}>{p.phase}</span>{!p.ready && <span className="text-[13px] text-[var(--text-muted)]">Not started</span>}</div>
         <div className="grid grid-cols-2 gap-3">{p.items.map(it => <div key={it.label} className="text-center"><div className="text-[20px] font-extrabold text-[var(--text-primary)]">{String(it.value)}</div><div className="text-[14px] text-[var(--text-muted)] uppercase">{it.label}</div></div>)}</div>
       </div>)}
     </div>
