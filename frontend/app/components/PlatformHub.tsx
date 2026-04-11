@@ -16,12 +16,12 @@ export function PlatformHub({ user, onBack, onUpdateUser }: { user: authApi.Auth
   const isAdmin = user.username === "hiral";
   const tabs = [
     { id: "account", icon: "👤", label: "Account" },
-    { id: "about", icon: "✦", label: "About" },
     { id: "kb", icon: "📚", label: "Knowledge Base" },
     { id: "usecases", icon: "🏢", label: "Use Cases" },
     { id: "tutorials", icon: "🎬", label: "Tutorials" },
     { id: "releases", icon: "📋", label: "Release Notes" },
     { id: "feedback", icon: "💬", label: "Feedback" },
+    { id: "about", icon: "✦", label: "Meet the Creator" },
     ...(isAdmin ? [{ id: "admin", icon: "🛡️", label: "Admin" }] : []),
   ];
 
@@ -139,11 +139,14 @@ function AboutTab() {
   useEffect(() => { const t = setInterval(() => setQuoteIdx(p => (p + 1) % 3), 12000); return () => clearInterval(t); }, []);
 
   return <div>
+    {/* Intro framing */}
+    <div style={{ padding: "20px 40px 0", fontSize: 15, fontStyle: "italic", color: "rgba(255,230,200,0.35)" }}>Every tool has a story. Here is the person and philosophy behind the AI Transformation Platform.</div>
+
     {/* Hero Banner — full-width warm gradient */}
     <div className="relative overflow-hidden" style={{ height: 280, background: "linear-gradient(135deg, #3d2000 0%, #C07030 40%, #D4860A 70%, #E8C547 100%)" }}>
       <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 30% 60%, rgba(0,0,0,0.2) 0%, transparent 70%)" }} />
       <div className="relative z-10 flex items-center gap-8 h-full px-12">
-        <div style={{ width: 120, height: 120, borderRadius: "50%", background: "rgba(0,0,0,0.25)", backdropFilter: "blur(12px)", border: "4px solid rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 48, fontWeight: 800, color: "#fff", fontFamily: "'Outfit', sans-serif", boxShadow: "0 0 40px rgba(212,134,10,0.3)", flexShrink: 0 }}>HM</div>
+        <img src="/hiral_photo.jpg" alt="Hiral Merchant" style={{ width: 120, height: 120, borderRadius: "50%", border: "3px solid rgba(212,134,10,0.6)", boxShadow: "0 8px 32px rgba(0,0,0,0.4), 0 0 20px rgba(212,134,10,0.2)", objectFit: "cover", flexShrink: 0 }} />
         <div>
           <h1 style={{ fontSize: 36, fontWeight: 800, color: "#fff", fontFamily: "'Outfit', sans-serif", textShadow: "0 2px 16px rgba(0,0,0,0.3)", marginBottom: 4 }}>Hiral Merchant</h1>
           <div style={{ fontSize: 18, color: "rgba(255,230,200,0.85)", fontWeight: 500 }}>Consultant at Mercer &middot; New York</div>
@@ -251,7 +254,7 @@ function AboutTab() {
 
       {/* Signature */}
       <div className="flex items-center gap-3 mt-10 pt-6" style={{ borderTop: "1px solid rgba(212,134,10,0.08)" }}>
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center text-[14px] font-bold text-white shrink-0" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", fontFamily: "'Outfit',sans-serif" }}>HM</div>
+        <img src="/hiral_photo.jpg" alt="HM" style={{ width: 40, height: 40, borderRadius: 10, objectFit: "cover", border: "2px solid rgba(212,134,10,0.3)" }} />
         <div>
           <div className="text-[15px] font-semibold text-[var(--text-primary)] font-heading">Hiral Merchant</div>
           <div className="text-[15px]" style={{ color: "rgba(212,134,10,0.4)" }}>New York</div>
