@@ -297,14 +297,16 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
           opacity: 0, animation: `nodeIn 0.5s ease ${0.3 + pi * 0.15}s forwards`,
           pointerEvents: "auto",
         }}>
-          {/* Icon image */}
-          <img src={`/icon_${phase.id}.png`} alt={phase.label} style={{ width: 96, height: 96, objectFit: "contain", filter: isCurrent ? "drop-shadow(0 0 16px rgba(212,134,10,0.5))" : "drop-shadow(0 4px 16px rgba(0,0,0,0.5))", transition: "all 0.2s", opacity: isReached ? 1 : 0.6 }} />
-          {/* Label */}
+          {/* Icon image with solid navy circle background */}
+          <div style={{ width: 96, height: 96, borderRadius: "50%", background: "#1C2B3A", display: "flex", alignItems: "center", justifyContent: "center", filter: isCurrent ? "drop-shadow(0 0 16px rgba(212,134,10,0.5))" : "drop-shadow(0 4px 16px rgba(0,0,0,0.5))", transition: "all 0.2s", opacity: isReached ? 1 : 0.6 }}>
+            <img src={`/icon_${phase.id}.png`} alt={phase.label} style={{ width: 96, height: 96, objectFit: "contain", borderRadius: "50%" }} />
+          </div>
+          {/* Label — frosted dark pill */}
           <div className="text-center mt-3" style={{ width: 180, position: "relative", left: "50%", transform: "translateX(-50%)" }}>
-            <div style={{ display: "inline-block", padding: "4px 14px", borderRadius: 10, background: "rgba(255,255,255,0.75)", backdropFilter: "blur(6px)" }}>
-              <div style={{ fontSize: 24, fontWeight: 800, fontFamily: "'Outfit', sans-serif", color: "#1C2B3A", textShadow: "0 1px 3px rgba(255,255,255,0.8), 0 0 8px rgba(255,255,255,0.5)" }}>{phase.label}</div>
+            <div style={{ display: "inline-block", padding: "8px 16px", borderRadius: 12, background: "rgba(0,0,0,0.45)", backdropFilter: "blur(8px)" }}>
+              <div style={{ fontSize: 24, fontWeight: 700, fontFamily: "'Outfit', sans-serif", color: "#FFFFFF" }}>{phase.label}</div>
+              <div style={{ fontSize: 15, fontWeight: 500, color: "rgba(255,255,255,0.85)", marginTop: 2 }}>{phase.desc}</div>
             </div>
-            <div style={{ fontSize: 16, fontWeight: 600, color: "#2A3A4A", textShadow: "0 1px 3px rgba(255,255,255,0.8), 0 0 8px rgba(255,255,255,0.5)", marginTop: 4 }}>{phase.desc}</div>
           </div>
         </button>;
       })}
