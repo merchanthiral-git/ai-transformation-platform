@@ -257,17 +257,17 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
   const totalExplored = PHASES.reduce((s, p) => s + p.modules.filter(id => (moduleStatus[id] || "not_started") !== "not_started").length, 0);
   const progressPct = totalModules > 0 ? Math.round((totalExplored / totalModules) * 100) : 0;
 
-  // Milestone positions matching the road clearings in journey_bg.png
+  // Milestone positions — evenly spaced with comfortable margins
   const nodes = [
-    { xPct: 11.5, yPct: 66.7 },  // Discover
-    { xPct: 28.0, yPct: 61.1 },  // Diagnose
-    { xPct: 46.0, yPct: 67.6 },  // Design
-    { xPct: 64.0, yPct: 62.0 },  // Simulate
-    { xPct: 80.0, yPct: 65.7 },  // Mobilize
+    { xPct: 10, yPct: 66.7 },  // Discover
+    { xPct: 28, yPct: 61.1 },  // Diagnose
+    { xPct: 46, yPct: 67.6 },  // Design
+    { xPct: 64, yPct: 62.0 },  // Simulate
+    { xPct: 82, yPct: 65.7 },  // Mobilize
   ];
 
   // ── Journey Map — Mad Men golden hour aesthetic ──
-  return <div className="relative min-h-[calc(100vh-48px)] flex flex-col overflow-hidden" style={{ backgroundImage: "url(/journey_bg.png)", backgroundSize: "cover", backgroundPosition: "center" }}>
+  return <div className="relative min-h-[calc(100vh-48px)] flex flex-col" style={{ backgroundImage: "url(/journey_bg.png)", backgroundSize: "cover", backgroundPosition: "center" }}>
 
     {/* Header with subtle dark gradient for readability — z-20 to stay above milestone z-10 */}
     <div className="relative z-20 text-center pt-6 pb-4" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 80%, transparent 100%)" }}>
@@ -302,7 +302,7 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
             <img src={`/icon_${phase.id}.png`} alt={phase.label} style={{ width: 96, height: 96, objectFit: "contain", borderRadius: "50%" }} />
           </div>
           {/* Label — frosted navy pill */}
-          <div className="text-center mt-3" style={{ width: 180, position: "relative", left: "50%", transform: "translateX(-50%)" }}>
+          <div style={{ position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)", width: 180, textAlign: "center", marginTop: 12 }}>
             <div style={{ display: "inline-block", padding: "10px 18px", borderRadius: 14, background: "rgba(28,43,58,0.7)", backdropFilter: "blur(12px)", border: "1px solid rgba(212,168,67,0.2)" }}>
               <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "'Outfit', sans-serif", color: "#FFFFFF" }}>{phase.label}</div>
               <div style={{ fontSize: 13, fontWeight: 500, color: "rgba(255,255,255,0.8)", marginTop: 2 }}>{phase.desc}</div>
