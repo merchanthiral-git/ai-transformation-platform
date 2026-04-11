@@ -455,7 +455,6 @@ export function SidebarSelect({ label, options, value, onChange }: { label?: str
 
 export function ReadinessDot({ ready }: { ready: boolean }) { return <span className={`inline-block w-2 h-2 rounded-full mr-2 ${ready ? "bg-[var(--success)]" : "bg-[var(--risk)]"}`} />; }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 /* ═══════════════════════════════════════════════════════════════
    HOOKS — usePersisted, useDebounce, useApiData
    ═══════════════════════════════════════════════════════════════ */
@@ -478,7 +477,7 @@ export function useDebounce<T>(value: T, delay: number): T {
   return debounced;
 }
 
-export function useApiData(fetcher: () => Promise<any>, deps: unknown[]): [Record<string, unknown> | null, boolean] {
+export function useApiData(fetcher: () => Promise<Record<string, unknown> | null>, deps: unknown[]): [Record<string, unknown> | null, boolean] {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
   useEffect(() => { let cancelled = false; setLoading(true); fetcher().then((d: unknown) => { if (!cancelled) { setData(d as Record<string, unknown> | null); setLoading(false); } }).catch((err) => { console.error("[useApiData]", err); if (!cancelled) setLoading(false); }); return () => { cancelled = true; };

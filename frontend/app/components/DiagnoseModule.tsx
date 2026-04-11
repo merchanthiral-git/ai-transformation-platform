@@ -465,15 +465,18 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx }: { model: 
   const bands = (data?.bands || {}) as Record<string, number>;
   const dimensions = (data?.dimensions || []) as string[];
 
+  const hasData = !loading && individuals.length > 0;
+
   return <div>
     <PageHeader icon="🎯" title={viewCtx?.mode === "employee" ? "My AI Readiness" : "AI Readiness Assessment"} subtitle="Individual and team readiness for transformation" onBack={onBack} moduleId="readiness" />
     {model && <div className="flex justify-end mb-2"><ModuleExportButton model={model} module="readiness" label="Readiness Scores" /></div>}
     {loading && <LoadingBar />}
-    <div className="grid grid-cols-5 gap-3 mb-5">
+    {!loading && !hasData && <div className="text-center py-16"><div className="text-4xl mb-3 opacity-40">🎯</div><h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">No Readiness Data Yet</h3><p className="text-[15px] text-[var(--text-secondary)] max-w-md mx-auto">Upload workforce data with employee records to assess AI readiness. Each employee is scored across 5 dimensions: AI Awareness, Tool Adoption, Data Literacy, Change Openness, and AI Collaboration.</p></div>}
+    {hasData && <div className="grid grid-cols-5 gap-3 mb-5">
       <KpiCard label="Org Average" value={`${data?.org_average || "—"}/5`} accent /><KpiCard label="Ready Now" value={bands.ready_now || 0} /><KpiCard label="Coachable" value={bands.coachable || 0} /><KpiCard label="At Risk" value={bands.at_risk || 0} /><KpiCard label="Weakest" value={String(data?.lowest_dimension || "—")} />
-    </div>
+    </div>}
 
-    <div className="flex gap-2 mb-4">{(["org","individual"] as const).map(v => <button key={v} onClick={() => setViewLevel(v)} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold" style={{ background: viewLevel === v ? "var(--accent-primary)" : "var(--surface-2)", color: viewLevel === v ? "#fff" : "var(--text-muted)" }}>{v === "org" ? "Organization View" : "Individual Scores"}</button>)}</div>
+    {hasData && <><div className="flex gap-2 mb-4">{(["org","individual"] as const).map(v => <button key={v} onClick={() => setViewLevel(v)} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold" style={{ background: viewLevel === v ? "var(--accent-primary)" : "var(--surface-2)", color: viewLevel === v ? "#fff" : "var(--text-muted)" }}>{v === "org" ? "Organization View" : "Individual Scores"}</button>)}</div>
 
     {viewLevel === "org" ? <div className="grid grid-cols-2 gap-4">
       <Card title="Readiness by Dimension"><RadarViz data={Object.entries(dimAvgs).map(([k,v]) => ({ subject: k, current: v, max: 5 }))} /></Card>
@@ -532,7 +535,7 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx }: { model: 
       `${bands.at_risk || 0} At Risk employees need intensive support before AI rollout`,
     ]} icon="🎯" />
 
-    <NextStepBar currentModuleId="readiness" onNavigate={onNavigate || onBack} />
+    <NextStepBar currentModuleId="readiness" onNavigate={onNavigate || onBack} /></>}
   </div>;
 }
 
@@ -1062,6 +1065,8 @@ export function OrgHealthScorecard({ model, f, onBack, onNavigate, viewCtx }: { 
   return <div>
     <ContextStrip items={[`${metrics.filter(m => m.status === "green").length}/${metrics.length} metrics within benchmarks · vs. ${benchIndustryLabel} · Overall health: ${overallScore}%`]} />
     <PageHeader icon="🏥" title="Org Health Scorecard" subtitle="Auto-calculated metrics with industry benchmarks" onBack={onBack} moduleId="orghealth" viewCtx={viewCtx} />
+
+    {empCount === 0 && <div className="mb-4 px-4 py-3 rounded-xl border border-[var(--warning)]/20 bg-[var(--warning)]/5"><span className="text-[15px] text-[var(--warning)] font-semibold">⚠ No workforce data loaded.</span><span className="text-[15px] text-[var(--text-secondary)] ml-2">Upload employee data to populate your org metrics. Industry benchmarks are shown below for reference.</span></div>}
 
     {/* Benchmark industry selector */}
     <div className="flex items-center gap-3 mb-4">

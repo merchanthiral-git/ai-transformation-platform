@@ -53,7 +53,7 @@ async def global_exception_handler(request: Request, exc: Exception):
     print(f"[500 ERROR] {request.method} {request.url}\n{tb}", flush=True)
     return JSONResponse(
         status_code=500,
-        content={"detail": str(exc), "traceback": tb.split("\n")[-5:]},
+        content={"detail": "Internal server error"},
     )
 
 app.add_middleware(

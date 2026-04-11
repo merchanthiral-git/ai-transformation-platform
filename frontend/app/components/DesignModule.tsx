@@ -2599,9 +2599,7 @@ export function OMProps({ n, kpis, onChange, onDelete, onClose }: {
 // ── Main Canvas Component ──────────────────────────────────────────────────────
 
 export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId: string; onBack: ()=>void; onNavigateLab?: ()=>void }) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [nodes,    setNodes]    = usePersisted<OMNode2[]>(`${projectId}_om_nodes`, []);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [edges,    setEdges]    = usePersisted<OMEdge2[]>(`${projectId}_om_edges`, []);
   const [layers,   setLayers]   = usePersisted<OMLayer2[]>(`${projectId}_om_layers`, []);
   const [versions, setVersions] = usePersisted<OMVersion2[]>(`${projectId}_om_versions`, []);
@@ -3015,10 +3013,8 @@ export function KPIAlignmentInline({ projectId }: { projectId: string }) {
   const [subTab, setSubTab]         = useState<"objectives"|"kpis"|"traceability">("objectives");
   const [addingObj, setAddingObj]    = useState(false);
   const [addingKpi, setAddingKpi]    = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [newObj, setNewObj]          = useState<any>({priority:"high",status:"on-track"});
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [newKpi, setNewKpi]          = useState<any>({direction:"increase",status:"on-track",category:"People & Talent",linkedNodeIds:[]});
+  const [newObj, setNewObj]          = useState<Partial<OMObjective2>>({priority:"high",status:"on-track"});
+  const [newKpi, setNewKpi]          = useState<Partial<OMKpi2>>({direction:"increase",status:"on-track",category:"People & Talent",linkedNodeIds:[]});
 
   const IS: React.CSSProperties = {background:"var(--surface-2)",border:"1px solid var(--border)",borderRadius:6,color:"var(--text-primary)",padding:"6px 10px",fontSize: 15,width:"100%",boxSizing:"border-box",outline:"none",fontFamily:"'Outfit',sans-serif"};
   const FL: React.CSSProperties = {fontSize: 14,fontWeight:800,color:"var(--text-muted)",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:3};
@@ -3110,8 +3106,7 @@ export const KPI_DEFAULT_OBJECTIVES: {name:string;description:string;priority:"c
 
 export function KPIAlignmentModule({ projectId, canvasNodes, onBack }: {
   projectId: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  canvasNodes: any[];
+  canvasNodes: OMNode2[];
   onBack: ()=>void;
 }) {
   const [objectives, setObjectives] = usePersisted<OMObjective2[]>(`${projectId}_objectives`, []);
@@ -3119,10 +3114,8 @@ export function KPIAlignmentModule({ projectId, canvasNodes, onBack }: {
   const [tab, setTab]               = useState<"objectives"|"kpis"|"traceability"|"coverage">("objectives");
   const [addingObj,  setAddingObj]  = useState(false);
   const [addingKpi,  setAddingKpi]  = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [newObj, setNewObj]         = useState<any>({priority:"high",status:"on-track"});
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [newKpi, setNewKpi]         = useState<any>({direction:"increase",status:"on-track",category:"People & Talent",linkedNodeIds:[]});
+  const [newObj, setNewObj]         = useState<Partial<OMObjective2>>({priority:"high",status:"on-track"});
+  const [newKpi, setNewKpi]         = useState<Partial<OMKpi2>>({direction:"increase",status:"on-track",category:"People & Talent",linkedNodeIds:[]});
 
   const IS: React.CSSProperties = {background:"#1a1814",border:"1px solid #2e2b24",borderRadius:5,color:"#f0ece4",padding:"5px 8px",fontSize: 15,width:"100%",boxSizing:"border-box",outline:"none",fontFamily:"'Outfit',sans-serif"};
   const FL: React.CSSProperties = {fontSize: 14,fontWeight:800,color:"#7a7368",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:3};
@@ -3209,12 +3202,12 @@ export function KPIAlignmentModule({ projectId, canvasNodes, onBack }: {
           {addingObj&&(
             <div className="p-4 bg-[var(--surface-1)] rounded-xl border border-[var(--accent-primary)]/30 mb-4">
               <div className="grid grid-cols-2 gap-3 mb-3">
-                <div className="col-span-2"><div style={FL}>Name *</div><input value={newObj.name??""} onChange={e=>setNewObj((s:any)=>({...s,name:e.target.value}))} style={IS} /></div>
-                <div className="col-span-2"><div style={FL}>Description</div><textarea value={newObj.description??""} onChange={e=>setNewObj((s:any)=>({...s,description:e.target.value}))} rows={2} style={{...IS,resize:"vertical"}} /></div>
-                <div><div style={FL}>Priority</div><select value={newObj.priority} onChange={e=>setNewObj((s:any)=>({...s,priority:e.target.value}))} style={IS}>{["critical","high","medium","low"].map(p=><option key={p} value={p}>{p}</option>)}</select></div>
-                <div><div style={FL}>Owner</div><input value={newObj.owner??""} onChange={e=>setNewObj((s:any)=>({...s,owner:e.target.value}))} style={IS} /></div>
-                <div><div style={FL}>Target Date</div><input value={newObj.targetDate??""} onChange={e=>setNewObj((s:any)=>({...s,targetDate:e.target.value}))} placeholder="Q4 2026" style={IS} /></div>
-                <div><div style={FL}>Status</div><select value={newObj.status} onChange={e=>setNewObj((s:any)=>({...s,status:e.target.value}))} style={IS}>{["on-track","at-risk","off-track","achieved"].map(s=><option key={s} value={s}>{s.replace("-"," ")}</option>)}</select></div>
+                <div className="col-span-2"><div style={FL}>Name *</div><input value={newObj.name??""} onChange={e=>setNewObj((s)=>({...s,name:e.target.value}))} style={IS} /></div>
+                <div className="col-span-2"><div style={FL}>Description</div><textarea value={newObj.description??""} onChange={e=>setNewObj((s)=>({...s,description:e.target.value}))} rows={2} style={{...IS,resize:"vertical"}} /></div>
+                <div><div style={FL}>Priority</div><select value={newObj.priority} onChange={e=>setNewObj((s)=>({...s,priority:e.target.value}))} style={IS}>{["critical","high","medium","low"].map(p=><option key={p} value={p}>{p}</option>)}</select></div>
+                <div><div style={FL}>Owner</div><input value={newObj.owner??""} onChange={e=>setNewObj((s)=>({...s,owner:e.target.value}))} style={IS} /></div>
+                <div><div style={FL}>Target Date</div><input value={newObj.targetDate??""} onChange={e=>setNewObj((s)=>({...s,targetDate:e.target.value}))} placeholder="Q4 2026" style={IS} /></div>
+                <div><div style={FL}>Status</div><select value={newObj.status} onChange={e=>setNewObj((s)=>({...s,status:e.target.value}))} style={IS}>{["on-track","at-risk","off-track","achieved"].map(s=><option key={s} value={s}>{s.replace("-"," ")}</option>)}</select></div>
               </div>
               <div className="flex gap-2">
                 <button onClick={addObj} className="flex-1 py-1.5 rounded-lg text-[15px] font-bold bg-[var(--accent-primary)] text-white cursor-pointer border-none">Save</button>
@@ -3259,16 +3252,16 @@ export function KPIAlignmentModule({ projectId, canvasNodes, onBack }: {
           {addingKpi&&(
             <div className="p-4 bg-[var(--surface-1)] rounded-xl border border-[var(--accent-primary)]/30 mb-4">
               <div className="grid grid-cols-2 gap-3 mb-3">
-                <div><div style={FL}>KPI Name *</div><input value={newKpi.name??""} onChange={e=>setNewKpi((s:any)=>({...s,name:e.target.value}))} style={IS} /></div>
-                <div><div style={FL}>Objective *</div><select value={newKpi.objectiveId??""} onChange={e=>setNewKpi((s:any)=>({...s,objectiveId:e.target.value}))} style={IS}><option value="">Select…</option>{objectives.map(o=><option key={o.id} value={o.id}>{o.name.slice(0,32)}</option>)}</select></div>
-                <div><div style={FL}>Category</div><select value={newKpi.category} onChange={e=>setNewKpi((s:any)=>({...s,category:e.target.value}))} style={IS}>{KPI_CAT_LIST.map(c=><option key={c} value={c}>{c}</option>)}</select></div>
-                <div><div style={FL}>Unit</div><input value={newKpi.unit??""} onChange={e=>setNewKpi((s:any)=>({...s,unit:e.target.value}))} placeholder="%, days, $M, FTE…" style={IS} /></div>
-                <div><div style={FL}>Baseline</div><input type="number" value={newKpi.baselineValue??""} onChange={e=>setNewKpi((s:any)=>({...s,baselineValue:e.target.value}))} style={IS} /></div>
-                <div><div style={FL}>Current</div><input type="number" value={newKpi.currentValue??""} onChange={e=>setNewKpi((s:any)=>({...s,currentValue:e.target.value}))} style={IS} /></div>
-                <div><div style={FL}>Target</div><input type="number" value={newKpi.targetValue??""} onChange={e=>setNewKpi((s:any)=>({...s,targetValue:e.target.value}))} style={IS} /></div>
-                <div><div style={FL}>Direction</div><select value={newKpi.direction} onChange={e=>setNewKpi((s:any)=>({...s,direction:e.target.value}))} style={IS}><option value="increase">Increase</option><option value="decrease">Decrease</option><option value="maintain">Maintain</option></select></div>
-                <div><div style={FL}>Timeframe</div><input value={newKpi.timeframe??""} onChange={e=>setNewKpi((s:any)=>({...s,timeframe:e.target.value}))} placeholder="12 months" style={IS} /></div>
-                <div><div style={FL}>Status</div><select value={newKpi.status} onChange={e=>setNewKpi((s:any)=>({...s,status:e.target.value}))} style={IS}>{["on-track","at-risk","off-track","achieved"].map(s=><option key={s} value={s}>{s.replace("-"," ")}</option>)}</select></div>
+                <div><div style={FL}>KPI Name *</div><input value={newKpi.name??""} onChange={e=>setNewKpi((s)=>({...s,name:e.target.value}))} style={IS} /></div>
+                <div><div style={FL}>Objective *</div><select value={newKpi.objectiveId??""} onChange={e=>setNewKpi((s)=>({...s,objectiveId:e.target.value}))} style={IS}><option value="">Select…</option>{objectives.map(o=><option key={o.id} value={o.id}>{o.name.slice(0,32)}</option>)}</select></div>
+                <div><div style={FL}>Category</div><select value={newKpi.category} onChange={e=>setNewKpi((s)=>({...s,category:e.target.value}))} style={IS}>{KPI_CAT_LIST.map(c=><option key={c} value={c}>{c}</option>)}</select></div>
+                <div><div style={FL}>Unit</div><input value={newKpi.unit??""} onChange={e=>setNewKpi((s)=>({...s,unit:e.target.value}))} placeholder="%, days, $M, FTE…" style={IS} /></div>
+                <div><div style={FL}>Baseline</div><input type="number" value={newKpi.baselineValue??""} onChange={e=>setNewKpi((s)=>({...s,baselineValue:e.target.value}))} style={IS} /></div>
+                <div><div style={FL}>Current</div><input type="number" value={newKpi.currentValue??""} onChange={e=>setNewKpi((s)=>({...s,currentValue:e.target.value}))} style={IS} /></div>
+                <div><div style={FL}>Target</div><input type="number" value={newKpi.targetValue??""} onChange={e=>setNewKpi((s)=>({...s,targetValue:e.target.value}))} style={IS} /></div>
+                <div><div style={FL}>Direction</div><select value={newKpi.direction} onChange={e=>setNewKpi((s)=>({...s,direction:e.target.value}))} style={IS}><option value="increase">Increase</option><option value="decrease">Decrease</option><option value="maintain">Maintain</option></select></div>
+                <div><div style={FL}>Timeframe</div><input value={newKpi.timeframe??""} onChange={e=>setNewKpi((s)=>({...s,timeframe:e.target.value}))} placeholder="12 months" style={IS} /></div>
+                <div><div style={FL}>Status</div><select value={newKpi.status} onChange={e=>setNewKpi((s)=>({...s,status:e.target.value}))} style={IS}>{["on-track","at-risk","off-track","achieved"].map(s=><option key={s} value={s}>{s.replace("-"," ")}</option>)}</select></div>
               </div>
               <div className="flex gap-2">
                 <button onClick={addKpi} className="flex-1 py-1.5 rounded-lg text-[15px] font-bold bg-[var(--accent-primary)] text-white cursor-pointer border-none">Save KPI</button>
@@ -3350,7 +3343,7 @@ export function KPIAlignmentModule({ projectId, canvasNodes, onBack }: {
                           })}
                           <td className="px-2 py-2 border border-[var(--border)]">
                             <div className="flex gap-1 flex-wrap">
-                              {canvasNodes.slice(0,5).map((n:any)=>{
+                              {canvasNodes.slice(0,5).map((n)=>{
                                 const linked=k.linkedNodeIds.includes(n.id);
                                 return (
                                   <button key={n.id} onClick={()=>toggleKpiNode(k.id,n.id)}
@@ -3387,7 +3380,7 @@ export function KPIAlignmentModule({ projectId, canvasNodes, onBack }: {
             <div className="text-center py-12 text-[var(--text-muted)] text-[15px]"><div className="text-2xl mb-2 opacity-30">⬡</div>No canvas nodes — open OM Design Canvas first and create your operating model.</div>
           ):(
             <div className="grid grid-cols-3 gap-4">
-              {canvasNodes.map((n:any)=>{
+              {canvasNodes.map((n)=>{
                 const linkedKpis=kpis.filter(k=>k.linkedNodeIds.includes(n.id));
                 const atRisk=linkedKpis.filter(k=>k.status==="at-risk"||k.status==="off-track").length;
                 const hasAny=linkedKpis.length>0;

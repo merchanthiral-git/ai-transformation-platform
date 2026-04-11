@@ -436,8 +436,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
 
   // ── Persistent ODS state — scoped to project ──
   const [odsState, setOdsState] = usePersisted(`${projectId}_odsState`, { activeScenario: 0, view: "overview" });
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [omNodes] = usePersisted<any[]>(`${projectId}_om_nodes`, []);
+  const [omNodes] = usePersisted<Record<string, unknown>[]>(`${projectId}_om_nodes`, []);
 
   // ── Track visited modules — scoped to project ──
   const [visited, setVisited] = usePersisted<Record<string, boolean>>(`${projectId}_visited`, {});

@@ -161,13 +161,6 @@ export async function computeReconstruction(tasks: Record<string, unknown>[], sc
   });
 }
 
-// ─── Compensation ────────────────────────────────────────
-export async function getCompensation(modelId: string, f: Filters) {
-  return fetchJSON(`/api/compensation?model_id=${encodeURIComponent(modelId)}&${filterParams(f)}`, {
-    kpis: {}, positioning: [], by_function: [], by_level: [], pay_ranges: [], insights: [], detail: [],
-  });
-}
-
 // ─── Operating Model ─────────────────────────────────────
 export async function getOperatingModel(modelId: string, f: Filters) {
   return fetchJSON(`/api/operating-model?model_id=${encodeURIComponent(modelId)}&${filterParams(f)}`, {
@@ -218,17 +211,7 @@ export async function saveOMConfig(config: Record<string, unknown>) {
   });
 }
 
-export async function getOMConfig(modelId: string) {
-  return fetchJSON(`/api/om-taxonomy/config/${encodeURIComponent(modelId)}`, { config: {} });
-}
-
 // ─── Simulate ────────────────────────────────────────────
-export async function getScenarios(modelId: string, f: Filters) {
-  return fetchJSON(`/api/simulate/scenarios?model_id=${encodeURIComponent(modelId)}&${filterParams(f)}`, {
-    scenarios: {},
-  });
-}
-
 export async function getReadiness(modelId: string, f: Filters) {
   return fetchJSON(`/api/simulate/readiness?model_id=${encodeURIComponent(modelId)}&${filterParams(f)}`, {
     score: 0, total: 0, tier: "", dimensions: {}, dims: {},
@@ -250,101 +233,65 @@ export async function getRisk(modelId: string, f: Filters) {
   });
 }
 
-// ─── Export ──────────────────────────────────────────────
-export async function getExportDatasets(modelId: string, f: Filters) {
-  return fetchJSON(`/api/export/datasets?model_id=${encodeURIComponent(modelId)}&${filterParams(f)}`, {
-    exports: {}, summary: { available: 0, total_rows: 0, model_id: "" },
-  });
-}
-
-export function getDownloadUrl(modelId: string, datasetName: string, f: Filters) {
-  return `/api/export/download/${datasetName}?model_id=${encodeURIComponent(modelId)}&${filterParams(f)}`;
-}
-
-// Skills & Talent endpoints
+// ─── Skills & Talent ────────────────────────────────────
 export async function getSkillsInventory(modelId: string, filters?: Record<string, string>) {
   const params = new URLSearchParams(filters || {});
-  const r = await fetch(`/api/skills/inventory/${modelId}?${params}`);
-  return r.json();
+  return fetchJSON(`/api/skills/inventory/${encodeURIComponent(modelId)}?${params}`, { skills: [], summary: {} });
 }
 
 export async function getSkillsGap(modelId: string) {
-  const r = await fetch(`/api/skills/gap/${modelId}`);
-  return r.json();
+  return fetchJSON(`/api/skills/gap/${encodeURIComponent(modelId)}`, { gaps: [], summary: {} });
 }
 
 export async function getSkillsAdjacency(modelId: string) {
-  const r = await fetch(`/api/skills/adjacency/${modelId}`);
-  return r.json();
+  return fetchJSON(`/api/skills/adjacency/${encodeURIComponent(modelId)}`, { adjacencies: [], clusters: [] });
 }
 
-export async function checkAiHealth() {
-  const r = await fetch("/api/ai/health");
-  return r.json();
-}
+// ─── Build/Buy/Borrow/Automate ──────────────────────────
 export async function getBBBA(modelId: string, f?: Filters) {
   const q = f ? `?${filterParams(f)}` : "";
-  const r = await fetch(`/api/bbba/${modelId}${q}`);
-  return r.json();
+  return fetchJSON(`/api/bbba/${encodeURIComponent(modelId)}${q}`, { roles: [], summary: {} });
 }
 
 export async function getHeadcountPlan(modelId: string, f?: Filters) {
   const q = f ? `?${filterParams(f)}` : "";
-  const r = await fetch(`/api/headcount/${modelId}${q}`);
-  return r.json();
+  return fetchJSON(`/api/headcount/${encodeURIComponent(modelId)}${q}`, { plan: [], summary: {} });
 }
 
+// ─── Readiness & Reskilling ─────────────────────────────
 export async function getReadinessAssessment(modelId: string, f?: Filters) {
   const q = f ? `?${filterParams(f)}` : "";
-  const r = await fetch(`/api/readiness/${modelId}${q}`);
-  return r.json();
+  return fetchJSON(`/api/readiness/${encodeURIComponent(modelId)}${q}`, { assessment: [], summary: {} });
 }
 
 export async function getReskillingPathways(modelId: string, f?: Filters) {
   const q = f ? `?${filterParams(f)}` : "";
-  const r = await fetch(`/api/reskilling/${modelId}${q}`);
-  return r.json();
+  return fetchJSON(`/api/reskilling/${encodeURIComponent(modelId)}${q}`, { pathways: [], summary: {} });
 }
 
 export async function getTalentMarketplace(modelId: string, f?: Filters) {
   const q = f ? `?${filterParams(f)}` : "";
-  const r = await fetch(`/api/marketplace/${modelId}${q}`);
-  return r.json();
+  return fetchJSON(`/api/marketplace/${encodeURIComponent(modelId)}${q}`, { matches: [], summary: {} });
 }
 
+// ─── Manager & Change ───────────────────────────────────
 export async function getManagerCapability(modelId: string, f?: Filters) {
   const q = f ? `?${filterParams(f)}` : "";
-  const r = await fetch(`/api/manager-capability/${modelId}${q}`);
-  return r.json();
+  return fetchJSON(`/api/manager-capability/${encodeURIComponent(modelId)}${q}`, { managers: [], summary: {} });
 }
 
 export async function getChangeReadiness(modelId: string, f?: Filters) {
   const q = f ? `?${filterParams(f)}` : "";
-  const r = await fetch(`/api/change-readiness/${modelId}${q}`);
-  return r.json();
+  return fetchJSON(`/api/change-readiness/${encodeURIComponent(modelId)}${q}`, { segments: [], summary: {} });
 }
 
 export async function getManagerDevelopment(modelId: string, f?: Filters) {
   const q = f ? `?${filterParams(f)}` : "";
-  const r = await fetch(`/api/manager-development/${modelId}${q}`);
-  return r.json();
+  return fetchJSON(`/api/manager-development/${encodeURIComponent(modelId)}${q}`, { plans: [], summary: {} });
 }
 
+// ─── Export ─────────────────────────────────────────────
 export async function getExportSummary(modelId: string, f?: Filters) {
   const q = f ? `?${filterParams(f)}` : "";
-  const r = await fetch(`/api/export/summary/${modelId}${q}`);
-  return r.json();
-}
-
-// ─── OM Design State ─────────────────────────────────────
-export async function getDesignState(projectId: string) {
-  return fetchJSON(`/api/projects/${encodeURIComponent(projectId)}/design-state`, null);
-}
-
-export async function saveDesignState(projectId: string, state: Record<string, unknown>) {
-  return fetchJSON(`/api/projects/${encodeURIComponent(projectId)}/design-state`, { ok: false }, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(state),
-  });
+  return fetchJSON(`/api/export/summary/${encodeURIComponent(modelId)}${q}`, { summary: {} });
 }

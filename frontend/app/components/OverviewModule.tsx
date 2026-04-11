@@ -260,10 +260,10 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
   // Milestone positions matching the road clearings in journey_bg.png
   const nodes = [
     { xPct: 11.5, yPct: 66.7 },  // Discover
-    { xPct: 27.6, yPct: 61.1 },  // Diagnose
-    { xPct: 45.8, yPct: 67.6 },  // Design
-    { xPct: 66.7, yPct: 62.0 },  // Simulate
-    { xPct: 86.5, yPct: 65.7 },  // Mobilize
+    { xPct: 28.0, yPct: 61.1 },  // Diagnose
+    { xPct: 46.0, yPct: 67.6 },  // Design
+    { xPct: 64.0, yPct: 62.0 },  // Simulate
+    { xPct: 80.0, yPct: 65.7 },  // Mobilize
   ];
 
   // ── Journey Map — Mad Men golden hour aesthetic ──
@@ -298,13 +298,13 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
           pointerEvents: "auto",
         }}>
           {/* Icon image */}
-          <img src={`/icon_${phase.id}.png`} alt={phase.label} style={{ width: 96, height: 96, objectFit: "contain", filter: isCurrent ? "drop-shadow(0 0 16px rgba(212,134,10,0.5))" : "drop-shadow(0 4px 16px rgba(0,0,0,0.5))", transition: "all 0.2s", opacity: isReached ? 1 : 0.35 }} />
-          {/* Label with background pill */}
-          <div className="text-center mt-3" style={{ width: 180, marginLeft: -50 }}>
-            <div style={{ display: "inline-block", padding: "4px 14px", borderRadius: 10, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(4px)" }}>
-              <div style={{ fontSize: 24, fontWeight: 700, fontFamily: "'Outfit', sans-serif", color: "#fff" }}>{phase.label}</div>
+          <img src={`/icon_${phase.id}.png`} alt={phase.label} style={{ width: 96, height: 96, objectFit: "contain", filter: isCurrent ? "drop-shadow(0 0 16px rgba(212,134,10,0.5))" : "drop-shadow(0 4px 16px rgba(0,0,0,0.5))", transition: "all 0.2s", opacity: isReached ? 1 : 0.6 }} />
+          {/* Label */}
+          <div className="text-center mt-3" style={{ width: 180, position: "relative", left: "50%", transform: "translateX(-50%)" }}>
+            <div style={{ display: "inline-block", padding: "4px 14px", borderRadius: 10, background: "rgba(255,255,255,0.75)", backdropFilter: "blur(6px)" }}>
+              <div style={{ fontSize: 24, fontWeight: 800, fontFamily: "'Outfit', sans-serif", color: "#1C2B3A", textShadow: "0 1px 3px rgba(255,255,255,0.8), 0 0 8px rgba(255,255,255,0.5)" }}>{phase.label}</div>
             </div>
-            <div style={{ fontSize: 16, color: "rgba(255,255,255,0.8)", textShadow: "0 1px 8px rgba(0,0,0,0.8)", marginTop: 4 }}>{phase.desc}</div>
+            <div style={{ fontSize: 16, fontWeight: 600, color: "#2A3A4A", textShadow: "0 1px 3px rgba(255,255,255,0.8), 0 0 8px rgba(255,255,255,0.5)", marginTop: 4 }}>{phase.desc}</div>
           </div>
         </button>;
       })}

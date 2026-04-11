@@ -868,8 +868,9 @@ export function ReadinessArchetypes({ model, f, onBack, onNavigate }: { model: s
   //   Eager Learner = high_ready_low_impact  (high willingness + low ability)
   //   Skeptic       = low_ready_low_impact   (low willingness + high ability)
   //   At-Risk       = low_ready_high_impact  (low willingness + low ability)
-  let earlyPct = 32, eagerPct = 28, skepticPct = 25, atriskPct = 15;
-  if (quadrants && total > 0) {
+  let earlyPct = 0, eagerPct = 0, skepticPct = 0, atriskPct = 0;
+  const hasArchetypeData = quadrants !== null && total > 0;
+  if (hasArchetypeData) {
     const champCount = Number((quadrants.high_ready_high_impact as Record<string, unknown>)?.count || 0);
     const supportCount = Number((quadrants.high_ready_low_impact as Record<string, unknown>)?.count || 0);
     const monitorCount = Number((quadrants.low_ready_low_impact as Record<string, unknown>)?.count || 0);
@@ -895,8 +896,9 @@ export function ReadinessArchetypes({ model, f, onBack, onNavigate }: { model: s
     <ContextStrip items={["Consultant-grade workforce archetypes with targeted engagement playbooks"]} />
     <PageHeader icon="🎭" title="Readiness Archetypes" subtitle="Qualitative workforce segmentation with engagement strategies" onBack={onBack} moduleId="archetypes" />
 
-    {/* Archetype cards */}
-    <div className="grid grid-cols-2 gap-4 mb-6">
+    {!hasArchetypeData && <div className="text-center py-16"><div className="text-4xl mb-3 opacity-40">🎭</div><h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">Complete Change Readiness First</h3><p className="text-[15px] text-[var(--text-secondary)] max-w-md mx-auto">Readiness Archetypes are derived from the Change Readiness assessment. Complete AI Readiness (Diagnose phase) → Change Readiness to populate the workforce segmentation data.</p></div>}
+
+    {hasArchetypeData && <><div className="grid grid-cols-2 gap-4 mb-6">
       {archetypes.map(a => <div key={a.id} onClick={() => setExpanded(expanded === a.id ? null : a.id)} className="rounded-xl border cursor-pointer transition-all card-hover" style={{ background: a.bgColor, borderColor: `${a.color}30` }}>
         <div className="p-5">
           <div className="flex items-center justify-between mb-3">
@@ -918,7 +920,7 @@ export function ReadinessArchetypes({ model, f, onBack, onNavigate }: { model: s
       "Key lever: Manager capability — high-scoring managers accelerate archetype migration by 1.8x",
     ]} icon="🎯" />
 
-    <NextStepBar currentModuleId="changeready" onNavigate={onNavigate || onBack} />
+    <NextStepBar currentModuleId="changeready" onNavigate={onNavigate || onBack} /></>}
   </div>;
 }
 
