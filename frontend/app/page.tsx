@@ -798,6 +798,31 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
     return () => { clearTimeout(t); window.removeEventListener("click", close); window.removeEventListener("keydown", esc); };
   }, [accountMenuOpen]);
 
+  // Presentation mode module sequence (must be before conditional returns)
+  const PRESENT_MODULES = ["snapshot", "scan", "heatmap", "jobarch", "design", "opmodel", "simulate", "plan", "export"];
+  const presentIdx = PRESENT_MODULES.indexOf(page);
+  const presentPrev = useCallback(() => { if (presentIdx > 0) navigate(PRESENT_MODULES[presentIdx - 1]); }, [presentIdx, navigate]); // eslint-disable-line react-hooks/exhaustive-deps
+  const presentNext = useCallback(() => { if (presentIdx < PRESENT_MODULES.length - 1) navigate(PRESENT_MODULES[presentIdx + 1]); else if (page === "home") navigate(PRESENT_MODULES[0]); }, [presentIdx, page, navigate]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Presentation mode keyboard handler (must be before conditional returns)
+  useEffect(() => {
+    if (!presentMode) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") { e.preventDefault(); presentNext(); }
+      else if (e.key === "ArrowLeft") { e.preventDefault(); presentPrev(); }
+      else if (e.key === "n" || e.key === "N") { if ((e.target as HTMLElement).tagName !== "INPUT" && (e.target as HTMLElement).tagName !== "TEXTAREA") setPresentNotes(p => !p); }
+      else if (e.key === "Escape") { setPresentMode(false); }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [presentMode, presentNext, presentPrev]);
+
+  // Set data-present attribute (must be before conditional returns)
+  useEffect(() => {
+    document.documentElement.setAttribute("data-present", presentMode ? "true" : "false");
+    return () => document.documentElement.removeAttribute("data-present");
+  }, [presentMode]);
+
   // View selector pages — full screen, no sidebar
   if (!viewMode || viewMode === "job_select" || viewMode === "employee_select") {
     return <div style={{ minHeight: "100vh", background: "#0B1120" }}>
@@ -828,31 +853,6 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       <style>{`@keyframes splashIn { from { opacity: 0; } to { opacity: 1; } }`}</style>
     </div>;
   }
-
-  // Presentation mode module sequence
-  const PRESENT_MODULES = ["snapshot", "scan", "heatmap", "jobarch", "design", "opmodel", "simulate", "plan", "export"];
-  const presentIdx = PRESENT_MODULES.indexOf(page);
-  const presentPrev = () => { if (presentIdx > 0) navigate(PRESENT_MODULES[presentIdx - 1]); };
-  const presentNext = () => { if (presentIdx < PRESENT_MODULES.length - 1) navigate(PRESENT_MODULES[presentIdx + 1]); else if (page === "home") navigate(PRESENT_MODULES[0]); };
-
-  // Presentation mode keyboard handler
-  useEffect(() => {
-    if (!presentMode) return;
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight") { e.preventDefault(); presentNext(); }
-      else if (e.key === "ArrowLeft") { e.preventDefault(); presentPrev(); }
-      else if (e.key === "n" || e.key === "N") { if ((e.target as HTMLElement).tagName !== "INPUT" && (e.target as HTMLElement).tagName !== "TEXTAREA") setPresentNotes(p => !p); }
-      else if (e.key === "Escape") { setPresentMode(false); }
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [presentMode, presentIdx]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Set data-present attribute
-  useEffect(() => {
-    document.documentElement.setAttribute("data-present", presentMode ? "true" : "false");
-    return () => document.documentElement.removeAttribute("data-present");
-  }, [presentMode]);
 
   return <div className="flex min-h-screen w-full">
     {/* ── COMMAND PALETTE ── */}
