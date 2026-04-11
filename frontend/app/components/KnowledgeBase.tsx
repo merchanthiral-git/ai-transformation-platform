@@ -1096,10 +1096,94 @@ export const KNOWLEDGE_BASE: Record<string, KBEntry> = {
    KNOWLEDGE MODAL COMPONENT
    ═══════════════════════════════════════════════════════════════ */
 
+/* ═══ SLIDE VIEWER — reusable slideshow component ═══ */
+function SlideViewer({ slides, accentColor }: { slides: { title: string; content: React.ReactNode }[]; accentColor: string }) {
+  const [idx, setIdx] = useState(0);
+  const [dir, setDir] = useState(0); // -1 left, 1 right
+  const total = slides.length;
+  const go = (n: number) => { setDir(n > idx ? 1 : -1); setIdx(Math.max(0, Math.min(total - 1, n))); };
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => { if (e.key === "ArrowRight") go(idx + 1); if (e.key === "ArrowLeft") go(idx - 1); };
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  });
+  const slide = slides[idx];
+  if (!slide) return null;
+  return <div className="relative flex flex-col h-full">
+    {/* Slide counter */}
+    <div className="flex items-center justify-between mb-4">
+      <span style={{ fontSize: 10, fontWeight: 700, color: "var(--text-muted)", letterSpacing: 1 }}>SLIDE {idx + 1} OF {total}</span>
+    </div>
+    {/* Slide content */}
+    <div className="flex-1 min-h-0 relative overflow-hidden">
+      <div key={idx} style={{ animation: `slideFade 0.3s ease` }}>
+        <h3 style={{ fontSize: 22, fontWeight: 700, fontFamily: "'Outfit', sans-serif", color: "var(--text-primary)", marginBottom: 16 }}>{slide.title}</h3>
+        <div style={{ fontSize: 15, lineHeight: 1.7, color: "var(--text-secondary)" }}>{slide.content}</div>
+      </div>
+      {/* Nav arrows */}
+      {idx > 0 && <button onClick={() => go(idx - 1)} style={{ position: "absolute", left: -8, top: "50%", transform: "translateY(-50%)", width: 40, height: 40, borderRadius: 12, background: "rgba(212,134,10,0.08)", border: "1px solid rgba(212,134,10,0.15)", color: accentColor, fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", opacity: 0.5, transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.opacity = "1"} onMouseLeave={e => e.currentTarget.style.opacity = "0.5"}>←</button>}
+      {idx < total - 1 && <button onClick={() => go(idx + 1)} style={{ position: "absolute", right: -8, top: "50%", transform: "translateY(-50%)", width: 40, height: 40, borderRadius: 12, background: "rgba(212,134,10,0.08)", border: "1px solid rgba(212,134,10,0.15)", color: accentColor, fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", opacity: 0.5, transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.opacity = "1"} onMouseLeave={e => e.currentTarget.style.opacity = "0.5"}>→</button>}
+    </div>
+    {/* Dot indicators */}
+    <div className="flex justify-center gap-2 pt-4 shrink-0">
+      {slides.map((_, i) => <button key={i} onClick={() => go(i)} style={{ width: i === idx ? 20 : 8, height: 8, borderRadius: 4, background: i === idx ? accentColor : "rgba(255,255,255,0.06)", border: "none", cursor: "pointer", transition: "all 0.25s", padding: 0 }} />)}
+    </div>
+    <style>{`@keyframes slideFade { from { opacity: 0; transform: translateX(${dir >= 0 ? 20 : -20}px); } to { opacity: 1; transform: translateX(0); } }`}</style>
+  </div>;
+}
+
+/* Build slides from KB entry sections */
+function buildSlides(entry: KBEntry, sectionId: string): { title: string; content: React.ReactNode }[] {
+  const bullet = (items: string[], icon = "•", color = "var(--text-secondary)") => <ul style={{ listStyle: "none", padding: 0 }}>{items.map((t, i) => <li key={i} style={{ display: "flex", gap: 8, marginBottom: 8 }}><span style={{ color, flexShrink: 0 }}>{icon}</span><span>{t}</span></li>)}</ul>;
+
+  if (sectionId === "summary") {
+    const slides: { title: string; content: React.ReactNode }[] = [
+      { title: entry.title, content: <div><div style={{ fontSize: 16, lineHeight: 1.8 }}>{entry.summary}</div>{entry.related.length > 0 && <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid var(--border)" }}><div style={{ fontSize: 10, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", marginBottom: 8 }}>Related Concepts</div><div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>{entry.related.map(r => { const rel = KNOWLEDGE_BASE[r]; return rel ? <span key={r} style={{ fontSize: 11, padding: "4px 10px", borderRadius: 8, background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text-secondary)" }}>{rel.title}</span> : null; })}</div></div>}</div> },
+    ];
+    if (entry.what.length > 0) slides.push({ title: "Key Concepts", content: <div>{entry.what.map((w, i) => <div key={i} style={{ marginBottom: 16 }}><div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)", marginBottom: 4 }}>{w.heading}</div><div>{w.body}</div></div>)}</div> });
+    if (entry.why.length > 0) slides.push({ title: "Why This Matters", content: <div>{entry.why.map((w, i) => <div key={i} style={{ marginBottom: 16 }}><div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)", marginBottom: 4 }}>{w.heading}</div><div>{w.body}</div></div>)}</div> });
+    if (entry.how.length > 0) slides.push({ title: "Getting Started", content: <div>{entry.how.map((h, i) => <div key={i} style={{ marginBottom: 16 }}><div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)", marginBottom: 4 }}>{h.heading}</div><div>{h.body}</div></div>)}</div> });
+    return slides;
+  }
+
+  const sectionMap: Record<string, KBSection[]> = { who: entry.who, what: entry.what, where: entry.where, when: entry.when, why: entry.why, how: entry.how };
+  if (sectionMap[sectionId]) {
+    return sectionMap[sectionId].map(s => ({ title: s.heading, content: <div style={{ fontSize: 15, lineHeight: 1.8 }}>{s.body}</div> }));
+  }
+
+  if (sectionId === "terminology") {
+    // Group terms into slides of 3
+    const groups: typeof entry.terminology[] = [];
+    for (let i = 0; i < entry.terminology.length; i += 3) groups.push(entry.terminology.slice(i, i + 3));
+    return groups.map((g, gi) => ({ title: `Key Terms${groups.length > 1 ? ` (${gi + 1}/${groups.length})` : ""}`, content: <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>{g.map((t, i) => <div key={i} style={{ background: "var(--surface-2)", borderRadius: 12, padding: 16, border: "1px solid var(--border)" }}><div style={{ fontSize: 14, fontWeight: 700, color: "var(--accent-primary)" }}>{t.term}</div><div style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 4, lineHeight: 1.6 }}>{t.def}</div></div>)}</div> }));
+  }
+
+  if (sectionId === "practices") {
+    return [
+      { title: "Best Practices", content: bullet(entry.bestPractices, "✓", "var(--success)") },
+      { title: "Common Pitfalls to Avoid", content: bullet(entry.pitfalls, "✗", "var(--risk)") },
+    ];
+  }
+
+  if (sectionId === "scenario") {
+    // Split scenario into 2-3 slides by sentence count
+    const sentences = entry.scenario.split(/(?<=\.)\s+/);
+    const mid = Math.ceil(sentences.length / 2);
+    const slides = [
+      { title: "Real-World Scenario", content: <div style={{ background: "var(--surface-2)", borderRadius: 14, padding: 20, border: "1px solid rgba(212,134,10,0.15)", fontSize: 15, lineHeight: 1.8 }}>{sentences.slice(0, mid).join(" ")}</div> },
+    ];
+    if (mid < sentences.length) slides.push({ title: "Results & Impact", content: <div style={{ background: "var(--surface-2)", borderRadius: 14, padding: 20, border: "1px solid rgba(16,185,129,0.15)", fontSize: 15, lineHeight: 1.8 }}>{sentences.slice(mid).join(" ")}</div> });
+    return slides;
+  }
+
+  return [{ title: sectionId, content: <div>No content</div> }];
+}
+
 export function KnowledgeModal({ moduleId, onClose }: { moduleId: string; onClose: () => void }) {
   const entry = KNOWLEDGE_BASE[moduleId];
   const [activeSection, setActiveSection] = useState("summary");
   const [feedback, setFeedback] = useState<"up" | "down" | null>(null);
+  const [presenting, setPresenting] = useState(false);
 
   if (!entry) return null;
 
@@ -1116,7 +1200,19 @@ export function KnowledgeModal({ moduleId, onClose }: { moduleId: string; onClos
     { id: "scenario", label: "Example", icon: "🏢" },
   ];
 
-  const renderSections = (items: KBSection[]) => items.map((s, i) => <div key={i} className="mb-5"><h4 className="text-[14px] font-bold text-[var(--text-primary)] font-heading mb-1.5">{s.heading}</h4><p className="text-[13px] text-[var(--text-secondary)] leading-relaxed">{s.body}</p></div>);
+  const slides = buildSlides(entry, activeSection);
+  const accentColor = entry.categoryColor || "#D4860A";
+
+  // Full-screen presentation mode
+  if (presenting) {
+    return <div style={{ position: "fixed", inset: 0, zIndex: 999999, background: "var(--surface-1)", display: "flex", flexDirection: "column" }}>
+      <div style={{ padding: "16px 24px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>{entry.title} — {sections.find(s => s.id === activeSection)?.label}</div>
+        <button onClick={() => setPresenting(false)} style={{ padding: "6px 14px", borderRadius: 8, fontSize: 11, fontWeight: 600, background: "rgba(212,134,10,0.1)", border: "1px solid rgba(212,134,10,0.2)", color: "#D4860A", cursor: "pointer" }}>Exit Presentation</button>
+      </div>
+      <div style={{ flex: 1, padding: "40px 80px", overflow: "auto" }}><SlideViewer slides={slides} accentColor={accentColor} /></div>
+    </div>;
+  }
 
   return <div className="fixed inset-0 z-[99999] flex items-center justify-center" style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(6px)" }} onClick={onClose}>
     <div className="w-full rounded-2xl border border-[var(--border)] bg-[var(--surface-1)] shadow-2xl flex animate-card-enter" style={{ maxHeight: "90vh", minWidth: 800, maxWidth: 1100 }} onClick={e => e.stopPropagation()}>
@@ -1134,37 +1230,20 @@ export function KnowledgeModal({ moduleId, onClose }: { moduleId: string; onClos
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: `${entry.categoryColor}20`, color: entry.categoryColor }}>{entry.category}</span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: `${accentColor}20`, color: accentColor }}>{entry.category}</span>
               </div>
               <h2 className="text-[20px] font-bold text-[var(--text-primary)] font-heading">{entry.title}</h2>
             </div>
-            <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--hover)] transition-all text-lg">✕</button>
+            <div className="flex items-center gap-2">
+              <button onClick={() => setPresenting(true)} title="Present fullscreen" style={{ padding: "4px 10px", borderRadius: 6, fontSize: 10, fontWeight: 600, background: "rgba(212,134,10,0.06)", border: "1px solid rgba(212,134,10,0.12)", color: "rgba(212,134,10,0.6)", cursor: "pointer" }} onMouseEnter={e => { e.currentTarget.style.color = "#D4860A"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.3)"; }} onMouseLeave={e => { e.currentTarget.style.color = "rgba(212,134,10,0.6)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.12)"; }}>🖥 Present</button>
+              <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--hover)] transition-all text-lg">✕</button>
+            </div>
           </div>
         </div>
 
-        {/* Scrollable content */}
+        {/* Slideshow content */}
         <div className="flex-1 overflow-y-auto px-6 py-5">
-          {activeSection === "summary" && <div>
-            <p className="text-[14px] text-[var(--text-secondary)] leading-relaxed mb-4">{entry.summary}</p>
-            {entry.related.length > 0 && <div className="mt-4 pt-4 border-t border-[var(--border)]"><div className="text-[10px] font-bold text-[var(--text-muted)] uppercase mb-2">Related Concepts</div><div className="flex flex-wrap gap-1.5">{entry.related.map(r => { const rel = KNOWLEDGE_BASE[r]; return rel ? <span key={r} className="text-[10px] px-2 py-1 rounded-lg bg-[var(--surface-2)] text-[var(--text-secondary)] border border-[var(--border)]">{rel.title}</span> : null; })}</div></div>}
-          </div>}
-          {activeSection === "who" && renderSections(entry.who)}
-          {activeSection === "what" && renderSections(entry.what)}
-          {activeSection === "where" && renderSections(entry.where)}
-          {activeSection === "when" && renderSections(entry.when)}
-          {activeSection === "why" && renderSections(entry.why)}
-          {activeSection === "how" && renderSections(entry.how)}
-          {activeSection === "terminology" && <div>
-            {entry.terminology.length > 0 ? <div className="space-y-3">{entry.terminology.map((t, i) => <div key={i} className="bg-[var(--surface-2)] rounded-xl p-3 border border-[var(--border)]"><span className="text-[12px] font-bold text-[var(--accent-primary)] font-heading">{t.term}</span><p className="text-[11px] text-[var(--text-secondary)] mt-1 leading-relaxed">{t.def}</p></div>)}</div> : <Empty text="No terminology defined for this concept" />}
-          </div>}
-          {activeSection === "practices" && <div>
-            <div className="mb-4"><div className="text-[11px] font-bold text-[var(--success)] uppercase mb-2">Best Practices</div><ul className="space-y-2">{entry.bestPractices.map((p, i) => <li key={i} className="flex gap-2 text-[12px] text-[var(--text-secondary)] leading-relaxed"><span className="text-[var(--success)] shrink-0">✓</span>{p}</li>)}</ul></div>
-            <div><div className="text-[11px] font-bold text-[var(--risk)] uppercase mb-2">Common Pitfalls</div><ul className="space-y-2">{entry.pitfalls.map((p, i) => <li key={i} className="flex gap-2 text-[12px] text-[var(--text-secondary)] leading-relaxed"><span className="text-[var(--risk)] shrink-0">✗</span>{p}</li>)}</ul></div>
-          </div>}
-          {activeSection === "scenario" && <div>
-            <div className="text-[11px] font-bold text-[var(--accent-primary)] uppercase mb-2">Real-World Scenario</div>
-            <div className="bg-[var(--surface-2)] rounded-xl p-4 border border-[var(--accent-primary)]/20 text-[12px] text-[var(--text-secondary)] leading-relaxed">{entry.scenario}</div>
-          </div>}
+          <SlideViewer key={activeSection} slides={slides} accentColor={accentColor} />
 
           {/* Feedback */}
           <div className="mt-6 pt-4 border-t border-[var(--border)] flex items-center gap-3">

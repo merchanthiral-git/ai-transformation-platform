@@ -8,7 +8,7 @@ import {
   KpiCard, Card, Empty, Badge, InsightPanel, TabBar, PageHeader, LoadingBar, LoadingSkeleton,
   NextStepBar, ContextStrip,
   useApiData, usePersisted, useDebounce, callAI, showToast,
-  ErrorBoundary, AiJobSuggestButton, AiJobSuggestion,
+  ErrorBoundary, AiJobSuggestButton, AiJobSuggestion, ExpandableChart,
 } from "./shared";
 import { ArchitectureMapTab } from "./ArchitectureMapTab";
 
@@ -105,17 +105,18 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
   if (loading) return <div><PageHeader icon="🏗️" title="Job Architecture" subtitle="Enterprise job catalogue, hierarchy, and career framework" onBack={onBack} /><LoadingBar /><div className="grid grid-cols-3 gap-4"><LoadingSkeleton rows={8} /><LoadingSkeleton rows={8} /><LoadingSkeleton rows={8} /></div></div>;
 
   return <div>
-    <ContextStrip items={[`${stats.total_jobs || 0} roles · ${stats.total_headcount || 0} employees · ${stats.total_families || 0} job families · ${(analytics.health_score as number) || 0}/100 architecture health`]} />
+    <ContextStrip items={[`${Number(stats.total_headcount || 0).toLocaleString()} employees · ${stats.total_functions || 0} functions · ${stats.total_families || 0} job families · ${stats.total_sub_families || 0} sub-families · ${stats.total_jobs || 0} roles`]} />
     <PageHeader icon="🏗️" title="Job Architecture" subtitle="Enterprise job catalogue, hierarchy, career framework & validation" onBack={onBack} moduleId="jobarch" viewCtx={viewCtx} />
 
     {/* KPI Strip */}
-    <div className="grid grid-cols-6 gap-3 mb-5">
-      <KpiCard label="Total Roles" value={stats.total_jobs || 0} />
+    <div className="grid grid-cols-7 gap-3 mb-5">
       <KpiCard label="Headcount" value={Number(stats.total_headcount || 0).toLocaleString()} accent />
+      <KpiCard label="Functions" value={stats.total_functions || 0} />
       <KpiCard label="Job Families" value={stats.total_families || 0} />
+      <KpiCard label="Sub-Families" value={stats.total_sub_families || 0} />
+      <KpiCard label="Unique Roles" value={stats.total_jobs || 0} />
       <KpiCard label="Career Levels" value={stats.total_levels || 0} />
       <KpiCard label="Health Score" value={`${analytics.health_score || 0}/100`} accent />
-      <KpiCard label="Flags" value={`${analytics.critical_flags || 0}🔴 ${analytics.warning_flags || 0}🟡`} />
     </div>
 
     <TabBar tabs={[
@@ -394,16 +395,32 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
     {tab === "analytics" && <div className="animate-tab-enter">
       <div className="grid grid-cols-2 gap-4">
         <Card title="Family Size Distribution">
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={((analytics.family_sizes || []) as {family:string;headcount:number;roles:number}[])}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis dataKey="family" tick={{ fontSize: 9, fill: "var(--text-muted)" }} />
-              <YAxis tick={{ fontSize: 10, fill: "var(--text-muted)" }} />
-              <Tooltip contentStyle={{ ...TT }} />
-              <Bar dataKey="headcount" fill="#D4860A" name="Headcount" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="roles" fill="#E8C547" name="Roles" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          <ExpandableChart title="Family Size Distribution">{(() => {
+            const famData = ((analytics.family_sizes || []) as {family:string;headcount:number;roles:number}[]).slice(0, 15);
+            const totalHC = famData.reduce((s, f) => s + f.headcount, 0);
+            const famColors = ["#D4860A","#C07030","#E8C547","#8B6D3F","#D97706","#C98860","#A0734D","#4A9B8E","#9B7EC0","#C76B5A","#6B9E6B","#B8860B","#8B7355","#5F8A8B","#A67B5B"];
+            return <ResponsiveContainer width="100%" height={360}>
+              <BarChart data={famData} margin={{ bottom: 60 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="family" tick={{ fontSize: 11, fill: "var(--text-muted)" }} angle={-45} textAnchor="end" height={80} interval={0} />
+                <YAxis tick={{ fontSize: 10, fill: "var(--text-muted)" }} />
+                <Tooltip content={({ active, payload }) => {
+                  if (!active || !payload?.[0]) return null;
+                  const d = payload[0].payload;
+                  const pct = totalHC > 0 ? ((d.headcount / totalHC) * 100).toFixed(1) : "0";
+                  return <div style={{ background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 10, padding: "10px 14px", boxShadow: "0 8px 24px rgba(0,0,0,0.3)" }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)", marginBottom: 4 }}>{d.family}</div>
+                    <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{d.headcount.toLocaleString()} employees ({pct}%)</div>
+                    <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{d.roles} unique roles</div>
+                  </div>;
+                }} />
+                <defs>{famData.map((_, i) => <linearGradient key={i} id={`famBar${i}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={famColors[i % famColors.length]} stopOpacity={0.9} /><stop offset="100%" stopColor={famColors[i % famColors.length]} stopOpacity={0.65} /></linearGradient>)}</defs>
+                <Bar dataKey="headcount" name="Headcount" radius={[4, 4, 0, 0]}>
+                  {famData.map((_, i) => <Cell key={i} fill={`url(#famBar${i})`} />)}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>;
+          })()}</ExpandableChart>
         </Card>
 
         <Card title="AI Impact Heatmap">
@@ -420,7 +437,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
         </Card>
 
         <Card title="Level Distribution">
-          <ResponsiveContainer width="100%" height={250}>
+          <ExpandableChart title="Level Distribution"><ResponsiveContainer width="100%" height={250}>
             <BarChart data={((analytics.level_distribution || []) as {level:string;headcount:number}[])}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
               <XAxis dataKey="level" tick={{ fontSize: 10, fill: "var(--text-muted)" }} />
@@ -428,7 +445,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
               <Tooltip contentStyle={{ ...TT }} />
               <Bar dataKey="headcount" fill="#C07030" radius={[4, 4, 0, 0]} />
             </BarChart>
-          </ResponsiveContainer>
+          </ResponsiveContainer></ExpandableChart>
         </Card>
 
         <Card title="Architecture Completeness">

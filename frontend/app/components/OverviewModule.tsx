@@ -129,83 +129,181 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode }: { o
     const phase = PHASES[pi];
     if (!phase) { setSelectedPhase(null); return null; }
     const phaseMods = filteredModules.filter(m => (m as Record<string, unknown>).phase === phase.id);
-    return <div className="px-7 py-6">
-      {/* Back + Journey bar */}
-      <button onClick={() => setSelectedPhase(null)} className="text-[12px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mb-4 flex items-center gap-1 transition-colors">← Back to Journey Map</button>
-      <div className="flex items-center gap-2 mb-6">
-        {PHASES.map((p, i) => <React.Fragment key={p.id}>
-          {i > 0 && <div className="flex-1 h-px" style={{ background: `${p.color}20` }} />}
-          <button onClick={() => setSelectedPhase(p.id)} className="flex items-center gap-1.5 transition-all" style={{ opacity: p.id === selectedPhase ? 1 : 0.5 }}>
-            <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold" style={{ background: getPhaseStatus(p) === "complete" ? `${p.color}25` : p.id === selectedPhase ? `${p.color}20` : "rgba(255,255,255,0.03)", color: p.color, border: `1.5px solid ${p.color}${p.id === selectedPhase ? "80" : "30"}` }}>{getPhaseStatus(p) === "complete" ? "✓" : i + 1}</div>
-            <span className="text-[10px] font-semibold" style={{ color: p.id === selectedPhase ? p.color : "var(--text-muted)" }}>{p.label}</span>
-          </button>
-        </React.Fragment>)}
-      </div>
+    const exploredCount = phaseMods.filter(m => (moduleStatus[m.id] || "not_started") !== "not_started").length;
+    // Card gradient map for visual distinction
+    const cardGrad: Record<string, string> = {
+      dashboard: "linear-gradient(135deg, #1a1200 0%, #2d1f00 100%)", snapshot: "linear-gradient(135deg, #1a0f1a 0%, #251530 100%)",
+      skillshift: "linear-gradient(135deg, #001a0f 0%, #002818 100%)", jobarch: "linear-gradient(135deg, #0f1a1a 0%, #0a2525 100%)",
+      orghealth: "linear-gradient(135deg, #1a1005 0%, #2a1a08 100%)", scan: "linear-gradient(135deg, #1a0800 0%, #2d1200 100%)",
+      heatmap: "linear-gradient(135deg, #1a0505 0%, #2d0a0a 100%)", readiness: "linear-gradient(135deg, #18100a 0%, #2a1a10 100%)",
+      changeready: "linear-gradient(135deg, #1a0a0a 0%, #2a1010 100%)", clusters: "linear-gradient(135deg, #120f1a 0%, #1a1525 100%)",
+      recommendations: "linear-gradient(135deg, #1a1005 0%, #2a1a08 100%)", mgrcap: "linear-gradient(135deg, #10081a 0%, #1a1030 100%)",
+      skills: "linear-gradient(135deg, #1a1200 0%, #2a1e05 100%)", design: "linear-gradient(135deg, #001a0a 0%, #002515 100%)",
+      opmodel: "linear-gradient(135deg, #1a1200 0%, #2a1e05 100%)", build: "linear-gradient(135deg, #120f05 0%, #1f1a0a 100%)",
+      bbba: "linear-gradient(135deg, #120a05 0%, #201508 100%)", headcount: "linear-gradient(135deg, #0a0818 0%, #151028 100%)",
+      quickwins: "linear-gradient(135deg, #001a08 0%, #002a10 100%)", rolecompare: "linear-gradient(135deg, #18100a 0%, #2a1a10 100%)",
+      simulate: "linear-gradient(135deg, #0a0818 0%, #151028 100%)", plan: "linear-gradient(135deg, #1a0505 0%, #2a0a0a 100%)",
+      story: "linear-gradient(135deg, #1a1005 0%, #2a1a08 100%)", archetypes: "linear-gradient(135deg, #18100a 0%, #2a1a10 100%)",
+      mgrdev: "linear-gradient(135deg, #10081a 0%, #1a1030 100%)", reskill: "linear-gradient(135deg, #1a1200 0%, #2a1e05 100%)",
+      marketplace: "linear-gradient(135deg, #1a0800 0%, #2d1200 100%)", export: "linear-gradient(135deg, #1a0505 0%, #2a0a0a 100%)",
+    };
 
-      {/* Phase header */}
-      <div className="flex items-center gap-3 mb-2">
-        <span className="text-2xl">{phase.icon}</span>
-        <div>
-          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: phase.color }}>Phase {pi + 1} of 5</div>
-          <h2 className="text-[22px] font-bold font-heading text-[var(--text-primary)]">{phase.label}</h2>
+    return <div className="relative min-h-[calc(100vh-48px)] overflow-hidden">
+      {/* Background glow */}
+      <div className="absolute inset-0 z-0" style={{ background: `radial-gradient(ellipse at 40% 30%, ${phase.color}08 0%, transparent 60%), radial-gradient(ellipse at 70% 80%, ${phase.color}04 0%, transparent 50%)` }} />
+
+      <div className="relative z-10 px-7 py-6">
+        {/* Back button */}
+        <button onClick={() => setSelectedPhase(null)} className="text-[12px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mb-5 flex items-center gap-1 transition-colors">← Back to Journey Map</button>
+
+        {/* Journey bar — pill tabs */}
+        <div className="flex items-center gap-2 mb-8">
+          {PHASES.map((p, i) => {
+            const pStat = getPhaseStatus(p);
+            const isActive = p.id === selectedPhase;
+            return <React.Fragment key={p.id}>
+              {i > 0 && <div style={{ width: 24, height: 2, borderRadius: 1, background: pStat !== "not_started" || isActive ? `${p.color}40` : "rgba(255,255,255,0.04)" }} />}
+              <button onClick={() => setSelectedPhase(p.id)} style={{ padding: isActive ? "6px 16px" : "6px 12px", borderRadius: 20, fontSize: 11, fontWeight: 700, cursor: "pointer", transition: "all 0.25s", background: isActive ? `${p.color}20` : "transparent", border: `1.5px solid ${isActive ? p.color : pStat !== "not_started" ? `${p.color}30` : "rgba(255,255,255,0.06)"}`, color: isActive ? p.color : pStat !== "not_started" ? "var(--text-secondary)" : "var(--text-muted)", animation: isActive ? "subtlePulse 2.5s ease-in-out infinite" : "none" }}>
+                {pStat === "complete" ? "✓ " : ""}{p.label}
+              </button>
+            </React.Fragment>;
+          })}
+          <style>{`@keyframes subtlePulse { 0%,100% { box-shadow: none; } 50% { box-shadow: 0 0 12px ${phase.color}20; } }`}</style>
         </div>
-      </div>
-      <p className="text-[13px] text-[var(--text-secondary)] mb-6 max-w-xl">{(phase as Record<string, unknown>).guidance as string}</p>
 
-      {/* Module grid */}
-      <div className="grid grid-cols-3 gap-3">
-        {phaseMods.map(m => {
-          const status = moduleStatus[m.id] || "not_started";
-          const statusColor = status === "complete" ? "#10B981" : status === "in_progress" ? "#E09040" : "rgba(255,255,255,0.06)";
-          const mTitle = viewMode === "employee" && (m as Record<string, unknown>).empTitle ? String((m as Record<string, unknown>).empTitle) : viewMode === "job" && (m as Record<string, unknown>).jobTitle ? String((m as Record<string, unknown>).jobTitle) : m.title;
-          const mDesc = viewMode === "employee" && (m as Record<string, unknown>).empDesc ? String((m as Record<string, unknown>).empDesc) : viewMode === "job" && (m as Record<string, unknown>).jobDesc ? String((m as Record<string, unknown>).jobDesc) : m.desc;
-          return <button key={m.id} onClick={() => onNavigate(m.id)} className="text-left rounded-xl p-5 transition-all group" style={{ background: "var(--surface-1)", border: "1px solid var(--border)" }} onMouseEnter={e => { e.currentTarget.style.borderColor = `${m.color}40`; e.currentTarget.style.transform = "translateY(-2px)"; }} onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.transform = "none"; }}>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xl group-hover:scale-110 transition-transform">{m.icon}</span>
-              <div className="w-2 h-2 rounded-full" style={{ background: statusColor }} />
+        {/* Phase header — large and impactful */}
+        <div className="flex items-center gap-5 mb-3">
+          <div style={{ width: 80, height: 80, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 40, background: `linear-gradient(135deg, ${phase.color}15, ${phase.color}08)`, border: `2px solid ${phase.color}30`, boxShadow: `0 0 32px ${phase.color}15`, flexShrink: 0 }}>{phase.icon}</div>
+          <div>
+            <div className="flex items-center gap-3 mb-1">
+              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase" as const, color: phase.color, background: `${phase.color}12`, padding: "3px 12px", borderRadius: 10 }}>Phase {pi + 1} of 5</span>
+              {exploredCount > 0 && <span className="text-[10px] text-[var(--text-muted)]">{exploredCount}/{phaseMods.length} explored</span>}
             </div>
-            <div className="text-[13px] font-bold text-[var(--text-primary)] mb-1">{mTitle}</div>
-            <div className="text-[10px] text-[var(--text-muted)] leading-relaxed">{mDesc}</div>
-          </button>;
-        })}
+            <h2 style={{ fontSize: 32, fontWeight: 800, fontFamily: "'Outfit', sans-serif", color: "var(--text-primary)", lineHeight: 1.1 }}>{phase.label}</h2>
+          </div>
+        </div>
+        <p className="text-[15px] text-[var(--text-secondary)] mb-2 max-w-2xl leading-relaxed">{(phase as Record<string, unknown>).guidance as string}</p>
+        {/* Progress bar */}
+        <div className="flex items-center gap-3 mb-8 max-w-md">
+          <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.04)" }}>
+            <div className="h-full rounded-full transition-all" style={{ width: `${phaseMods.length > 0 ? (exploredCount / phaseMods.length) * 100 : 0}%`, background: `linear-gradient(90deg, ${phase.color}, ${phase.color}80)` }} />
+          </div>
+          <span className="text-[10px] font-bold shrink-0" style={{ color: phase.color }}>{exploredCount}/{phaseMods.length}</span>
+        </div>
+
+        {/* Module cards — premium grid */}
+        <div className="grid gap-4" style={{ gridTemplateColumns: phaseMods.length <= 2 ? "1fr 1fr" : phaseMods.length <= 4 ? "1fr 1fr" : "1fr 1fr 1fr" }}>
+          {phaseMods.map((m, mi) => {
+            const status = moduleStatus[m.id] || "not_started";
+            const statusColor = status === "complete" ? "#10B981" : status === "in_progress" ? "#E09040" : "rgba(255,255,255,0.08)";
+            const statusLabel = status === "complete" ? "Complete" : status === "in_progress" ? "In Progress" : "";
+            const mTitle = viewMode === "employee" && (m as Record<string, unknown>).empTitle ? String((m as Record<string, unknown>).empTitle) : viewMode === "job" && (m as Record<string, unknown>).jobTitle ? String((m as Record<string, unknown>).jobTitle) : m.title;
+            const mDesc = viewMode === "employee" && (m as Record<string, unknown>).empDesc ? String((m as Record<string, unknown>).empDesc) : viewMode === "job" && (m as Record<string, unknown>).jobDesc ? String((m as Record<string, unknown>).jobDesc) : m.desc;
+            const grad = cardGrad[m.id] || "linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%)";
+            return <button key={m.id} onClick={() => onNavigate(m.id)} className="text-left transition-all group" style={{
+              background: grad, borderRadius: 18, padding: "24px 24px 20px", minHeight: 200,
+              border: `1px solid ${m.color}15`, position: "relative", overflow: "hidden", cursor: "pointer",
+              display: "flex", flexDirection: "column", justifyContent: "space-between",
+              opacity: 0, animation: `cardFadeIn 0.5s ease ${0.1 + mi * 0.08}s forwards`,
+            }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-4px) scale(1.02)"; e.currentTarget.style.borderColor = `${m.color}40`; e.currentTarget.style.boxShadow = `0 16px 48px ${m.color}15`; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = `${m.color}15`; e.currentTarget.style.boxShadow = "none"; }}>
+              {/* Glow overlay */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: `radial-gradient(ellipse at 30% 20%, ${m.color}08 0%, transparent 70%)` }} />
+              <div className="relative z-10">
+                <div className="flex items-start justify-between mb-4">
+                  <div style={{ fontSize: 48, filter: `drop-shadow(0 4px 12px ${m.color}30)`, lineHeight: 1 }}>{m.icon}</div>
+                  {statusLabel && <div className="flex items-center gap-1.5 shrink-0"><div className="w-2 h-2 rounded-full" style={{ background: statusColor }} /><span className="text-[9px] font-bold uppercase" style={{ color: statusColor }}>{statusLabel}</span></div>}
+                </div>
+                <div style={{ fontSize: 20, fontWeight: 700, fontFamily: "'Outfit', sans-serif", color: "#f5e6d0", marginBottom: 6 }}>{mTitle}</div>
+                <div style={{ fontSize: 13, color: "rgba(255,230,200,0.4)", lineHeight: 1.6 }}>{mDesc}</div>
+              </div>
+              <div className="relative z-10 mt-4 flex items-center gap-2 text-[12px] font-semibold transition-all group-hover:gap-3" style={{ color: m.color }}>
+                <span>{status === "complete" ? "Review" : status === "in_progress" ? "Continue" : "Explore"} →</span>
+              </div>
+            </button>;
+          })}
+        </div>
+        <style>{`@keyframes cardFadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }`}</style>
+
+        {/* Recommendation tip */}
+        {exploredCount === 0 && phaseMods.length > 0 && <div className="mt-6 flex items-center gap-2 text-[12px]" style={{ color: "rgba(232,197,71,0.5)" }}>
+          <span>💡</span>
+          <span>Recommended starting point: <strong style={{ color: phase.color }}>{phaseMods[0].title}</strong></span>
+        </div>}
       </div>
     </div>;
   }
 
+  // Decorative icons between milestones
+  const pathDecorations = [
+    [{ icon: "📊", label: "Data Collection" }, { icon: "🔍", label: "Assessment" }],
+    [{ icon: "💡", label: "Insights" }, { icon: "📋", label: "Findings Review" }],
+    [{ icon: "✏️", label: "Architecture" }, { icon: "🔧", label: "Build Phase" }],
+    [{ icon: "📈", label: "Validation" }, { icon: "✅", label: "Sign-Off" }],
+  ];
+  const totalModules = PHASES.reduce((s, p) => s + p.modules.length, 0);
+  const totalExplored = PHASES.reduce((s, p) => s + p.modules.filter(id => (moduleStatus[id] || "not_started") !== "not_started").length, 0);
+  const progressPct = totalModules > 0 ? Math.round((totalExplored / totalModules) * 100) : 0;
+
   // ── Journey Map (default home view) ──
   return <div className="relative min-h-[calc(100vh-48px)] flex flex-col items-center justify-center overflow-hidden">
-    <div className="absolute inset-0 z-0" style={{ background: "radial-gradient(ellipse at 50% 40%, rgba(212,134,10,0.06) 0%, transparent 60%), radial-gradient(ellipse at 80% 70%, rgba(192,112,48,0.03) 0%, transparent 50%)" }} />
+    {/* Background layers */}
+    <div className="absolute inset-0 z-0" style={{ background: "radial-gradient(ellipse at 50% 30%, rgba(212,134,10,0.08) 0%, transparent 50%), radial-gradient(ellipse at 20% 70%, rgba(192,112,48,0.05) 0%, transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(232,197,71,0.03) 0%, transparent 40%)" }} />
+    {/* Subtle topographic texture */}
+    <div className="absolute inset-0 z-0 opacity-[0.02]" style={{ backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(212,134,10,0.3) 40px, rgba(212,134,10,0.3) 41px), repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(212,134,10,0.15) 40px, rgba(212,134,10,0.15) 41px)" }} />
 
-    <div className="relative z-10 text-center max-w-4xl w-full px-6">
-      <div className="text-[12px] font-bold uppercase tracking-[3px] mb-3" style={{ color: "rgba(212,134,10,0.4)" }}>Your Transformation Journey</div>
-      <h1 className="text-[28px] font-bold font-heading text-[var(--text-primary)] mb-2">Where are you in the journey?</h1>
-      <p className="text-[14px] text-[var(--text-muted)] mb-12">Five phases. One proven methodology. Click a phase to explore its modules.</p>
+    <div className="relative z-10 text-center w-full px-6" style={{ maxWidth: 1200 }}>
+      <div className="text-[13px] font-bold uppercase tracking-[3px] mb-3" style={{ color: "rgba(212,134,10,0.45)" }}>Your Transformation Journey</div>
+      <h1 className="text-[34px] font-bold font-heading text-[var(--text-primary)] mb-2">Where are you in the journey?</h1>
+      <p className="text-[15px] text-[var(--text-muted)] mb-12">Five phases. One proven methodology. Click a phase to explore its modules.</p>
 
-      {/* Journey timeline */}
-      <div className="flex items-center justify-center gap-0 mb-12">
+      {/* Journey timeline — massive nodes with decorations */}
+      <div className="flex items-center justify-center mb-10" style={{ gap: 0 }}>
         {PHASES.map((phase, pi) => {
           const status = getPhaseStatus(phase);
           const isCurrent = pi === activeIdx;
           const isComplete = status === "complete";
           const hasProgress = status === "in_progress";
+          const isReached = isComplete || pi <= activeIdx;
           return <React.Fragment key={phase.id}>
-            {pi > 0 && <div className="w-16 h-0.5 rounded-full" style={{ background: isComplete || pi <= activeIdx ? `linear-gradient(90deg, ${PHASES[pi-1].color}60, ${phase.color}60)` : "rgba(255,255,255,0.04)" }} />}
-            <button onClick={() => setSelectedPhase(phase.id)} className="flex flex-col items-center gap-3 group transition-all" style={{ minWidth: 100 }}>
-              <div className="relative">
-                <div className="w-20 h-20 rounded-full flex items-center justify-center text-2xl transition-all" style={{
-                  background: isComplete ? `${phase.color}15` : isCurrent ? `${phase.color}10` : "rgba(255,255,255,0.02)",
-                  border: `2px solid ${isComplete ? phase.color : isCurrent ? phase.color + "80" : "rgba(255,255,255,0.06)"}`,
-                  backdropFilter: "blur(12px)",
-                  boxShadow: isCurrent ? `0 0 24px ${phase.color}20` : "none",
-                  animation: isCurrent ? "pulse 3s ease-in-out infinite" : "none",
-                }} onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.08)"; e.currentTarget.style.boxShadow = `0 0 32px ${phase.color}30`; }} onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = isCurrent ? `0 0 24px ${phase.color}20` : "none"; }}>
-                  {isComplete ? <span style={{ color: phase.color, fontSize: 24 }}>✓</span> : <span>{phase.icon}</span>}
-                </div>
-                {hasProgress && !isComplete && <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full" style={{ background: phase.color, border: "2px solid var(--bg)" }} />}
+            {/* Connector with decorations */}
+            {pi > 0 && <div className="flex flex-col items-center" style={{ width: 100, flexShrink: 0 }}>
+              {/* Path line */}
+              <div style={{ width: "100%", height: 4, borderRadius: 2, position: "relative", background: isReached ? `linear-gradient(90deg, ${PHASES[pi-1].color}60, ${phase.color}60)` : "rgba(255,255,255,0.04)", boxShadow: isReached ? `0 2px 8px ${phase.color}15` : "none" }}>
+                {/* Animated dots on completed path */}
+                {isReached && <div style={{ position: "absolute", inset: 0, overflow: "hidden", borderRadius: 2 }}>
+                  <div style={{ width: 8, height: 4, borderRadius: 2, background: `${phase.color}80`, position: "absolute", animation: "pathDot 2s linear infinite" }} />
+                </div>}
+                {/* Waypoint dots */}
+                <div style={{ position: "absolute", top: -2, left: "33%", width: 8, height: 8, borderRadius: "50%", background: isReached ? `${phase.color}40` : "rgba(255,255,255,0.04)" }} />
+                <div style={{ position: "absolute", top: -2, left: "66%", width: 8, height: 8, borderRadius: "50%", background: isReached ? `${phase.color}30` : "rgba(255,255,255,0.04)" }} />
               </div>
-              <div>
-                <div className="text-[14px] font-bold font-heading" style={{ color: isComplete || isCurrent || hasProgress ? "var(--text-primary)" : "var(--text-muted)" }}>{phase.label}</div>
-                <div className="text-[10px] mt-0.5" style={{ color: isComplete ? `${phase.color}` : isCurrent ? "var(--text-secondary)" : "rgba(255,255,255,0.15)" }}>{phase.desc}</div>
+              {/* Decoration labels */}
+              <div className="flex gap-3 mt-2">
+                {(pathDecorations[pi - 1] || []).map((d, di) => <div key={di} className="flex items-center gap-1" style={{ opacity: isReached ? 0.5 : 0.15, transition: "opacity 0.3s" }}>
+                  <span style={{ fontSize: 14 }}>{d.icon}</span>
+                  <span style={{ fontSize: 8, color: "var(--text-muted)", whiteSpace: "nowrap" }}>{d.label}</span>
+                </div>)}
+              </div>
+            </div>}
+
+            {/* Milestone node */}
+            <button onClick={() => setSelectedPhase(phase.id)} className="flex flex-col items-center group" style={{ minWidth: 160, gap: 10, opacity: 0, animation: `milestoneIn 0.5s ease ${0.3 + pi * 0.2}s forwards` }}>
+              <div className="relative transition-all" style={{ width: 140, height: 140 }}>
+                <div className="absolute inset-0 rounded-full transition-all group-hover:scale-[1.12]" style={{
+                  display: "flex", alignItems: "center", justifyContent: "center", fontSize: 64,
+                  background: isComplete ? `${phase.color}12` : isCurrent ? `${phase.color}08` : "rgba(255,255,255,0.015)",
+                  border: `4px solid ${isComplete ? phase.color : isCurrent ? phase.color + "80" : "rgba(255,255,255,0.06)"}`,
+                  backdropFilter: "blur(16px)",
+                  boxShadow: isCurrent ? `0 0 30px ${phase.color}30, 0 0 60px ${phase.color}12, inset 0 0 20px ${phase.color}05` : isComplete ? `0 0 20px ${phase.color}15` : "none",
+                  animation: isCurrent ? "jmPulse 3s ease-in-out infinite" : "none",
+                }}>
+                  {isComplete ? <span style={{ color: phase.color, fontSize: 52 }}>✓</span> : <span>{phase.icon}</span>}
+                </div>
+                {hasProgress && !isComplete && <div className="absolute -bottom-1 left-1/2 -translate-x-1/2" style={{ width: 14, height: 14, borderRadius: "50%", background: phase.color, border: "3px solid var(--bg)", boxShadow: `0 0 8px ${phase.color}40` }} />}
+              </div>
+              <div style={{ maxWidth: 160 }}>
+                <div style={{ fontSize: 24, fontWeight: 700, fontFamily: "'Outfit', sans-serif", color: isComplete || isCurrent || hasProgress ? "var(--text-primary)" : "var(--text-muted)", lineHeight: 1.2 }}>{phase.label}</div>
+                <div style={{ fontSize: 14, marginTop: 4, lineHeight: 1.4, color: isComplete ? phase.color : isCurrent ? "var(--text-secondary)" : "rgba(255,255,255,0.15)" }}>{phase.desc}</div>
               </div>
             </button>
           </React.Fragment>;
@@ -213,10 +311,29 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode }: { o
       </div>
 
       {/* CTA */}
-      <button onClick={() => setSelectedPhase(PHASES[activeIdx].id)} className="px-8 py-3.5 rounded-2xl text-[14px] font-bold text-white transition-all hover:translate-y-[-2px]" style={{ background: `linear-gradient(135deg, ${PHASES[activeIdx].color}, ${PHASES[Math.min(activeIdx+1, PHASES.length-1)].color})`, boxShadow: `0 8px 32px ${PHASES[activeIdx].color}25` }}>
+      <button onClick={() => setSelectedPhase(PHASES[activeIdx].id)} className="transition-all hover:translate-y-[-3px] mb-8" style={{ padding: "18px 48px", borderRadius: 20, fontSize: 17, fontWeight: 700, color: "#fff", background: `linear-gradient(135deg, ${PHASES[activeIdx].color}, ${PHASES[Math.min(activeIdx+1, PHASES.length-1)].color})`, boxShadow: `0 12px 40px ${PHASES[activeIdx].color}30`, border: "none", cursor: "pointer" }}>
         {activeIdx === 0 ? "Begin with Discovery →" : `Continue ${PHASES[activeIdx].label} →`}
       </button>
-      <style>{`@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.85; } }`}</style>
+
+      {/* Journey stats bar */}
+      <div className="inline-flex items-center gap-6 px-6 py-2.5 rounded-full" style={{ background: "rgba(212,134,10,0.06)", border: "1px solid rgba(212,134,10,0.1)" }}>
+        <div className="flex items-center gap-2">
+          <span style={{ fontSize: 14 }}>🗺</span>
+          <span style={{ fontSize: 11, fontWeight: 600, color: "rgba(212,134,10,0.6)" }}>Journey Progress</span>
+          <div style={{ width: 60, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.04)", overflow: "hidden" }}>
+            <div style={{ width: `${progressPct}%`, height: "100%", borderRadius: 2, background: "#D4860A", transition: "width 0.5s" }} />
+          </div>
+          <span style={{ fontSize: 11, fontWeight: 700, color: "#D4860A" }}>{progressPct}%</span>
+        </div>
+        <div style={{ width: 1, height: 14, background: "rgba(212,134,10,0.1)" }} />
+        <span style={{ fontSize: 11, color: "rgba(255,230,200,0.35)" }}>Modules explored: <strong style={{ color: "rgba(212,134,10,0.6)" }}>{totalExplored}/{totalModules}</strong></span>
+      </div>
+
+      <style>{`
+        @keyframes jmPulse { 0%,100% { box-shadow: 0 0 30px var(--glow1, rgba(212,134,10,0.3)), 0 0 60px var(--glow2, rgba(212,134,10,0.12)); } 50% { box-shadow: 0 0 40px var(--glow1, rgba(212,134,10,0.4)), 0 0 80px var(--glow2, rgba(212,134,10,0.18)); } }
+        @keyframes milestoneIn { from { opacity: 0; transform: translateY(16px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes pathDot { 0% { left: -8px; } 100% { left: 100%; } }
+      `}</style>
     </div>
   </div>;
 }

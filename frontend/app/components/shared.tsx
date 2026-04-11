@@ -374,10 +374,42 @@ export function DataTable({ data, cols, pageSize = 15 }: { data: Record<string, 
   </div>;
 }
 
-export function BarViz({ data, labelKey = "name", valueKey = "value", color = "var(--accent-primary)" }: { data: Record<string, unknown>[]; labelKey?: string; valueKey?: string; color?: string }) {
+/* ═══ EXPANDABLE CHART WRAPPER ═══ */
+export function ExpandableChart({ title, children }: { title?: string; children: React.ReactNode }) {
+  const [expanded, setExpanded] = useState(false);
+  useEffect(() => {
+    if (!expanded) return;
+    const h = (e: KeyboardEvent) => { if (e.key === "Escape") setExpanded(false); };
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, [expanded]);
+
+  return <div className="relative group">
+    {/* Expand button */}
+    <button onClick={() => setExpanded(true)} title="Click to enlarge" className="absolute top-1 right-1 z-10 w-6 h-6 rounded-md flex items-center justify-center text-[11px] opacity-0 group-hover:opacity-100 transition-all" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "var(--text-muted)", cursor: "pointer" }} onMouseEnter={e => { e.currentTarget.style.color = "#D4860A"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.3)"; }} onMouseLeave={e => { e.currentTarget.style.color = "var(--text-muted)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}>⛶</button>
+    {/* Inline chart */}
+    <div onDoubleClick={() => setExpanded(true)}>{children}</div>
+    {/* Expanded modal */}
+    {expanded && <div style={{ position: "fixed", inset: 0, zIndex: 99998, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.8)", backdropFilter: "blur(8px)", animation: "ecFadeIn 0.2s ease" }} onClick={() => setExpanded(false)}>
+      <div style={{ width: "90vw", height: "85vh", background: "var(--surface-1)", borderRadius: 20, border: "1px solid var(--border)", boxShadow: "0 32px 80px rgba(0,0,0,0.5)", display: "flex", flexDirection: "column", overflow: "hidden" }} onClick={e => e.stopPropagation()}>
+        {/* Header */}
+        <div style={{ padding: "16px 24px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+          {title && <h3 style={{ fontSize: 22, fontWeight: 700, color: "var(--text-primary)", fontFamily: "'Outfit', sans-serif" }}>{title}</h3>}
+          {!title && <div />}
+          <button onClick={() => setExpanded(false)} style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(212,134,10,0.1)", border: "1px solid rgba(212,134,10,0.2)", color: "#D4860A", fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
+        </div>
+        {/* Chart area */}
+        <div style={{ flex: 1, padding: 24, overflow: "auto", fontSize: "130%" }}>{children}</div>
+      </div>
+      <style>{`@keyframes ecFadeIn { from { opacity: 0; } to { opacity: 1; } }`}</style>
+    </div>}
+  </div>;
+}
+
+export function BarViz({ data, labelKey = "name", valueKey = "value", color = "var(--accent-primary)", title }: { data: Record<string, unknown>[]; labelKey?: string; valueKey?: string; color?: string; title?: string }) {
   if (!data?.length) return null;
   const maxVal = Math.max(...data.map(d => Math.abs(Number(d[valueKey] || 0))), 1);
-  return <div className="space-y-2">{data.slice(0, 12).map((d, i) => {
+  const content = <div className="space-y-2">{data.slice(0, 12).map((d, i) => {
     const val = Number(d[valueKey] || 0);
     const label = String(d[labelKey] || "");
     const truncLabel = label.length > 24 ? label.slice(0, 22) + "…" : label;
@@ -387,19 +419,21 @@ export function BarViz({ data, labelKey = "name", valueKey = "value", color = "v
       <div className="text-[11px] font-semibold text-[var(--text-primary)] shrink-0" style={{ minWidth: 32, textAlign: "right" }}>{val}</div>
     </div>;
   })}</div>;
+  return <ExpandableChart title={title}>{content}</ExpandableChart>;
 }
 
-export function DonutViz({ data }: { data: { name: string; value: number }[] }) {
+export function DonutViz({ data, title }: { data: { name: string; value: number }[]; title?: string }) {
   if (!data?.length) return null;
-  return <div className="flex items-center gap-6">
+  const content = <div className="flex items-center gap-6">
     <ResponsiveContainer width={120} height={120}><PieChart><Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={30} outerRadius={52} strokeWidth={0}>{data.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Pie><Tooltip contentStyle={TT as object} /></PieChart></ResponsiveContainer>
     <div className="space-y-1">{data.map((d, i) => <div key={i} className="flex items-center gap-2 text-[12px]"><span className="w-2.5 h-2.5 rounded-full" style={{ background: COLORS[i % COLORS.length] }} /><span className="text-[var(--text-secondary)]">{d.name}</span><span className="font-semibold ml-auto">{d.value}</span></div>)}</div>
   </div>;
+  return <ExpandableChart title={title}>{content}</ExpandableChart>;
 }
 
-export function RadarViz({ data }: { data: { subject: string; current: number; future?: number; max: number }[] }) {
+export function RadarViz({ data, title }: { data: { subject: string; current: number; future?: number; max: number }[]; title?: string }) {
   if (!data?.length) return null;
-  return <ResponsiveContainer width="100%" height={280}>
+  const content = <ResponsiveContainer width="100%" height={280}>
     <RadarChart data={data} margin={{ top: 10, right: 30, bottom: 10, left: 30 }}>
       <PolarGrid stroke="#2A3555" /><PolarAngleAxis dataKey="subject" tick={{ fontSize: 11, fill: "#A3B1C6" }} /><PolarRadiusAxis domain={[0, data[0]?.max || 5]} tick={{ fontSize: 10, fill: "#7B8BA2" }} />
       <Radar name="Current" dataKey="current" stroke="#D4860A" fill="#D4860A" fillOpacity={0.2} strokeWidth={2} />
@@ -407,6 +441,7 @@ export function RadarViz({ data }: { data: { subject: string; current: number; f
       <Legend wrapperStyle={{ fontSize: 11, color: "#A3B1C6" }} /><Tooltip contentStyle={TT as object} />
     </RadarChart>
   </ResponsiveContainer>;
+  return <ExpandableChart title={title}>{content}</ExpandableChart>;
 }
 
 export function TabBar({ tabs, active, onChange }: { tabs: { id: string; label: string }[]; active: string; onChange: (id: string) => void }) {

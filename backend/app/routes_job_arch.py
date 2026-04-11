@@ -139,12 +139,16 @@ def _build_hierarchy(wf, jc, wd):
     mgr_count = sum(1 for j in jobs_flat if j["track"] in ("Manager", "Executive"))
     ic_count = len(jobs_flat) - mgr_count
     levels = sorted(set(j["level"] for j in jobs_flat if j["level"]))
+    functions = sorted(set(j["function"] for j in jobs_flat))
     families = sorted(set(j["family"] for j in jobs_flat))
+    sub_families = sorted(set(j["sub_family"] for j in jobs_flat))
 
     stats = {
         "total_jobs": len(jobs_flat),
         "total_headcount": total_hc,
+        "total_functions": len(functions),
         "total_families": len(families),
+        "total_sub_families": len(sub_families),
         "total_levels": len(levels),
         "levels": levels,
         "manager_roles": mgr_count,

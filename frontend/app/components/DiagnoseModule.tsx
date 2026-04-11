@@ -30,6 +30,7 @@ import {
   COLORS,
   AiInsightCard,
   fmtNum,
+  ExpandableChart,
   type ViewContext,
 } from "./shared";
 
@@ -996,7 +997,7 @@ export function OrgHealthScorecard({ model, f, onBack, onNavigate, viewCtx }: { 
     <Card title={`Benchmark Comparison — Your Org vs. ${benchIndustryLabel}`}>
       <div className="grid grid-cols-12 gap-4">
         <div className="col-span-7">
-          <ResponsiveContainer width="100%" height={320}>
+          <ExpandableChart title="Benchmark Comparison"><ResponsiveContainer width="100%" height={320}>
             <RadarChart data={radarData}>
               <PolarGrid stroke="var(--border)" />
               <PolarAngleAxis dataKey="subject" tick={{ fontSize: 11, fill: "var(--text-muted)" }} />
@@ -1007,7 +1008,7 @@ export function OrgHealthScorecard({ model, f, onBack, onNavigate, viewCtx }: { 
               <Tooltip contentStyle={{ ...TT }} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
             </RadarChart>
-          </ResponsiveContainer>
+          </ResponsiveContainer></ExpandableChart>
         </div>
         <div className="col-span-5 flex flex-col justify-center">
           <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-3">Dimension Breakdown</div>

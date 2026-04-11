@@ -102,6 +102,30 @@ const ALL_TRACKS: Track[] = [
   { id: 26, name: "Synthwave Drive", file: "/track26.mp3", genre: "electronic" },
   { id: 27, name: "Tropical Beats", file: "/track27.mp3", genre: "electronic" },
   { id: 28, name: "Dream Cloud", file: "/track28.mp3", genre: "electronic" },
+  // ── New tracks (29-47) ──
+  // Jazz Instrumentals (29-35)
+  { id: 29, name: "Le Cirque de Jazz", file: "/track29.mp3", genre: "jazz" },
+  { id: 30, name: "Lo-Fi Daydream", file: "/track30.mp3", genre: "chill" },
+  { id: 31, name: "Cuban Fusion", file: "/track31.mp3", genre: "jazz" },
+  { id: 32, name: "Smooth Swing", file: "/track32.mp3", genre: "jazz" },
+  { id: 33, name: "April Morning", file: "/track33.mp3", genre: "chill" },
+  { id: 34, name: "Walk Together", file: "/track34.mp3", genre: "chill" },
+  { id: 35, name: "Jazz Café", file: "/track35.mp3", genre: "jazz" },
+  // Ambient & Focus (36-40)
+  { id: 36, name: "Heavenly Raindrops", file: "/track36.mp3", genre: "ambient" },
+  { id: 37, name: "Melody of Nature", file: "/track37.mp3", genre: "ambient" },
+  { id: 38, name: "Acid Jazz I", file: "/track38.mp3", genre: "jazz" },
+  { id: 39, name: "Acid Jazz II", file: "/track39.mp3", genre: "jazz" },
+  { id: 40, name: "We Jazz", file: "/track40.mp3", genre: "jazz" },
+  // Deep Focus & Piano (41-44)
+  { id: 41, name: "Leva Eternity", file: "/track41.mp3", genre: "focus" },
+  { id: 42, name: "Sedative", file: "/track42.mp3", genre: "ambient" },
+  { id: 43, name: "Field Grass", file: "/track43.mp3", genre: "ambient" },
+  { id: 44, name: "Soulful Hip-Hop", file: "/track44.mp3", genre: "chill" },
+  // Piano (45-47)
+  { id: 45, name: "A Quiet Joy", file: "/track45.mp3", genre: "focus" },
+  { id: 46, name: "Plea for Forgiveness", file: "/track46.mp3", genre: "focus" },
+  { id: 47, name: "Snow Piano", file: "/track47.mp3", genre: "focus" },
 ];
 
 function MusicPlayer() {
@@ -600,17 +624,47 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       </div>
 
       {/* Account controls — anchored at sidebar bottom */}
-      <div className="pt-3 border-t border-[var(--border)]">
-        {user && <div className="flex items-center gap-2 mb-2">
-          <button onClick={onShowProfile} className="w-7 h-7 rounded-lg flex items-center justify-center text-[11px] font-bold shrink-0" style={{ background: "linear-gradient(135deg, rgba(212,134,10,0.2), rgba(192,112,48,0.15))", border: "1px solid rgba(224,144,64,0.2)", color: "#e09040", cursor: "pointer", fontFamily: "'Outfit', sans-serif" }} title="Profile Settings">{(user.display_name || user.username || "U")[0].toUpperCase()}</button>
-          <div className="flex-1 min-w-0">
-            <div className="text-[11px] font-semibold text-[var(--text-primary)] truncate">{user.display_name || user.username}</div>
-            {user.last_login && <div className="text-[8px] text-[var(--text-muted)] font-data truncate">Last: {new Date(user.last_login).toLocaleDateString()}</div>}
-          </div>
-        </div>}
-        <button onClick={() => authApi.logout()} className="w-full text-[10px] font-semibold py-1.5 rounded-md border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--risk)] hover:border-[var(--risk)]/30 transition-colors">Sign Out</button>
-        <div className="text-center text-[9px] text-[var(--text-muted)] mt-2 opacity-50">v4.0</div>
-      </div>
+      {(() => {
+        const [menuOpen, setMenuOpen] = useState(false);
+        const menuRef = useRef<HTMLDivElement>(null);
+        useEffect(() => {
+          if (!menuOpen) return;
+          const close = (e: MouseEvent) => { if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false); };
+          const esc = (e: KeyboardEvent) => { if (e.key === "Escape") setMenuOpen(false); };
+          const t = setTimeout(() => { window.addEventListener("click", close); window.addEventListener("keydown", esc); }, 50);
+          return () => { clearTimeout(t); window.removeEventListener("click", close); window.removeEventListener("keydown", esc); };
+        }, [menuOpen]);
+
+        return <div className="pt-3 border-t border-[var(--border)] relative" ref={menuRef}>
+          {/* Dropdown menu — pops upward */}
+          {menuOpen && <div style={{ position: "absolute", bottom: "100%", left: 0, right: 0, marginBottom: 8, borderRadius: 14, background: "rgba(15,12,8,0.95)", backdropFilter: "blur(20px)", border: "1px solid rgba(212,134,10,0.12)", boxShadow: "0 -8px 32px rgba(0,0,0,0.4)", padding: "6px", zIndex: 50, animation: "menuFadeIn 0.15s ease" }}>
+            {[
+              { icon: "👤", label: "My Account", action: () => { setMenuOpen(false); if (onShowPlatformHub) onShowPlatformHub(); } },
+              { icon: "🏠", label: "Platform Hub", action: () => { setMenuOpen(false); if (onShowPlatformHub) onShowPlatformHub(); } },
+              { icon: "📂", label: "My Projects", action: () => { setMenuOpen(false); onBackToHub(); } },
+              ...((user?.username === "hiral") ? [{ icon: "🛡️", label: "Admin Panel", action: () => { setMenuOpen(false); if (onShowPlatformHub) onShowPlatformHub(); } }] : []),
+            ].map(item => <button key={item.label} onClick={item.action} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] font-semibold text-[var(--text-secondary)] transition-all" style={{ background: "transparent" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(212,134,10,0.08)"; e.currentTarget.style.color = "#f5e6d0"; }} onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}>
+              <span className="text-[13px]">{item.icon}</span>{item.label}
+            </button>)}
+            <div className="h-px mx-2 my-1" style={{ background: "rgba(212,134,10,0.1)" }} />
+            <button onClick={() => { setMenuOpen(false); authApi.logout(); }} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] font-semibold text-[var(--text-muted)] transition-all" style={{ background: "transparent" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(239,68,68,0.08)"; e.currentTarget.style.color = "#ef4444"; }} onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-muted)"; }}>
+              <span className="text-[13px]">🚪</span>Sign Out
+            </button>
+            <style>{`@keyframes menuFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }`}</style>
+          </div>}
+
+          {/* Avatar + name — clickable to open dropdown */}
+          {user && <button onClick={() => setMenuOpen(!menuOpen)} className="w-full flex items-center gap-2 mb-2 rounded-lg px-1 py-1 transition-all" style={{ background: menuOpen ? "rgba(212,134,10,0.06)" : "transparent", cursor: "pointer", border: "none", textAlign: "left" }} onMouseEnter={e => { if (!menuOpen) e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }} onMouseLeave={e => { if (!menuOpen) e.currentTarget.style.background = "transparent"; }}>
+            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-[11px] font-bold shrink-0" style={{ background: "linear-gradient(135deg, rgba(212,134,10,0.2), rgba(192,112,48,0.15))", border: "1px solid rgba(224,144,64,0.2)", color: "#e09040", fontFamily: "'Outfit', sans-serif" }}>{(user.display_name || user.username || "U")[0].toUpperCase()}</div>
+            <div className="flex-1 min-w-0">
+              <div className="text-[11px] font-semibold text-[var(--text-primary)] truncate">{user.display_name || user.username}</div>
+              {user.last_login && <div className="text-[8px] text-[var(--text-muted)] font-data truncate">Last: {new Date(user.last_login).toLocaleDateString()}</div>}
+            </div>
+            <span className="text-[9px] text-[var(--text-muted)]">{menuOpen ? "▾" : "▸"}</span>
+          </button>}
+          <div className="text-center text-[9px] text-[var(--text-muted)] mt-1 opacity-50">v4.0</div>
+        </div>;
+      })()}
     </aside>
 
     {/* ── MAIN ── */}
@@ -1211,14 +1265,14 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
                 <th style={{ fontSize: 10, color: "rgba(239,68,68,0.6)", textAlign: "center", padding: "6px", fontWeight: 700 }}>LARGE-CAP</th>
               </tr></thead>
               <tbody>{[
-                { id: "technology", icon: "💻", label: "Technology", s: "PLTR · 3,800", m: "NOW · 8,000", l: "ADBE · 25,000" },
-                { id: "financial_services", icon: "🏦", label: "Financial Svc", s: "EVR · 2,200", m: "RJF · 8,000", l: "GS · 25,000" },
-                { id: "healthcare", icon: "🏥", label: "Healthcare", s: "HIMS · 1,500", m: "MOH · 8,000", l: "ELV · 25,000" },
-                { id: "retail", icon: "🛍️", label: "Retail", s: "FIVE · 3,000", m: "WSM · 8,000", l: "TGT · 25,000" },
-                { id: "manufacturing", icon: "🏭", label: "Manufacturing", s: "AXON · 4,000", m: "PH · 8,000", l: "HON · 25,000" },
-                { id: "consulting", icon: "💼", label: "Consulting", s: "HURN · 2,500", m: "BAH · 8,000", l: "ACN · 25,000" },
-                { id: "energy", icon: "⚡", label: "Energy", s: "SHLS · 1,800", m: "CHK · 3,000", l: "BKR · 25,000" },
-                { id: "aerospace", icon: "🚀", label: "Aerospace", s: "KTOS · 4,000", m: "LHX · 8,000", l: "NOC · 25,000" },
+                { id: "technology", icon: "💻", label: "Technology", s: "Palantir · 3,800", m: "ServiceNow · 8,000", l: "Adobe · 25,000" },
+                { id: "financial_services", icon: "🏦", label: "Financial Svc", s: "Evercore · 2,200", m: "Raymond James · 8,000", l: "Goldman Sachs · 25,000" },
+                { id: "healthcare", icon: "🏥", label: "Healthcare", s: "Hims & Hers · 1,500", m: "Molina · 8,000", l: "Elevance · 25,000" },
+                { id: "retail", icon: "🛍️", label: "Retail", s: "Five Below · 3,000", m: "Williams-Sonoma · 8,000", l: "Target · 25,000" },
+                { id: "manufacturing", icon: "🏭", label: "Manufacturing", s: "Axon · 4,000", m: "Parker Hannifin · 8,000", l: "Honeywell · 25,000" },
+                { id: "consulting", icon: "💼", label: "Consulting", s: "Huron · 2,500", m: "Booz Allen · 8,000", l: "Accenture · 25,000" },
+                { id: "energy", icon: "⚡", label: "Energy", s: "Shoals Tech · 1,800", m: "Chesapeake · 3,000", l: "Baker Hughes · 25,000" },
+                { id: "aerospace", icon: "🚀", label: "Aerospace", s: "Kratos · 4,000", m: "L3Harris · 8,000", l: "Northrop Grumman · 25,000" },
               ].map(ind => <tr key={ind.id}>
                 <td style={{ fontSize: 12, color: "rgba(200,180,255,0.7)", padding: "3px 10px", fontWeight: 600 }}><span style={{ marginRight: 6 }}>{ind.icon}</span>{ind.label}</td>
                 {[{size: "small", info: ind.s, color: "rgba(16,185,129,0.12)", border: "rgba(16,185,129,0.25)", text: "#6EE7B7"}, {size: "mid", info: ind.m, color: "rgba(212,134,10,0.12)", border: "rgba(212,134,10,0.25)", text: "#E8C547"}, {size: "large", info: ind.l, color: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.18)", text: "#FCA5A5"}].map(t => <td key={t.size} style={{ padding: 2 }}><button disabled={!!seedingId} onClick={async (e) => {
@@ -1256,62 +1310,63 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
         <p className="text-[15px]" style={{ color: "rgba(255,220,180,0.5)" }}>Select a project or create a new one</p>
       </div>
 
-      <div className="flex gap-5 flex-wrap justify-center" style={{ maxWidth: 1200 }}>
-        {/* Sandbox card — opens full-screen picker */}
-        <div onClick={() => setSandboxOpen(true)} style={{ width: cardWidth, minHeight: 180, borderRadius: 22, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, transition: "all 0.35s cubic-bezier(0.16,1,0.3,1)", background: "linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.08))", backdropFilter: "blur(20px)", border: "1px solid rgba(139,92,246,0.2)", position: "relative", overflow: "hidden" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-6px) scale(1.02)"; e.currentTarget.style.boxShadow = "0 24px 60px rgba(99,102,241,0.15)"; e.currentTarget.style.borderColor = "rgba(139,92,246,0.4)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.borderColor = "rgba(139,92,246,0.2)"; }}>
-          <div className="text-4xl" style={{ filter: "drop-shadow(0 2px 8px rgba(139,92,246,0.3))" }}>🎓</div>
-          <div className="text-[16px] font-bold text-white">Sandbox</div>
-          <div className="text-[11px]" style={{ color: "rgba(200,180,255,0.4)" }}>24 real companies</div>
+      {/* Three-section layout */}
+      <div style={{ maxWidth: 900, width: "100%" }}>
+        {/* Top row: Sandbox + New Project */}
+        <div className="flex gap-5 justify-center mb-8">
+          {/* Sandbox card */}
+          <div onClick={() => setSandboxOpen(true)} style={{ width: 380, minHeight: 180, borderRadius: 22, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, transition: "all 0.35s cubic-bezier(0.16,1,0.3,1)", background: "linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.08))", backdropFilter: "blur(20px)", border: "1px solid rgba(139,92,246,0.2)", position: "relative", overflow: "hidden" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-6px) scale(1.02)"; e.currentTarget.style.boxShadow = "0 24px 60px rgba(99,102,241,0.15)"; e.currentTarget.style.borderColor = "rgba(139,92,246,0.4)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.borderColor = "rgba(139,92,246,0.2)"; }}>
+            <div className="text-4xl" style={{ filter: "drop-shadow(0 2px 8px rgba(139,92,246,0.3))" }}>🎓</div>
+            <div className="text-[18px] font-bold text-white">Sandbox</div>
+            <div className="text-[12px]" style={{ color: "rgba(200,180,255,0.4)" }}>24 real companies · 8 industries</div>
+          </div>
+
+          {/* New Project card */}
+          <div onClick={() => setModalOpen(true)} style={{ width: 380, minHeight: 180, borderRadius: 22, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, transition: "all 0.35s cubic-bezier(0.16,1,0.3,1)", background: "rgba(255,230,200,0.1)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,200,150,0.15)", position: "relative", overflow: "hidden" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-6px) scale(1.02)"; e.currentTarget.style.boxShadow = "0 24px 60px rgba(0,0,0,0.2)"; e.currentTarget.style.background = "rgba(255,230,200,0.18)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.background = "rgba(255,230,200,0.1)"; }}>
+            <div className="text-4xl" style={{ filter: "drop-shadow(0 2px 8px rgba(200,120,40,0.3))" }}>✨</div>
+            <div className="text-[18px] font-bold text-white">New Project</div>
+            <div className="text-[12px]" style={{ color: "rgba(255,220,180,0.4)" }}>Start a transformation</div>
+          </div>
         </div>
 
-        {/* New Project card — glassmorphic with sparkle */}
-        <div onClick={() => setModalOpen(true)} style={{ width: cardWidth, minHeight: 180, borderRadius: 22, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, transition: "all 0.35s cubic-bezier(0.16,1,0.3,1)", background: "rgba(255,230,200,0.1)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,200,150,0.15)", position: "relative", overflow: "hidden" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-6px) scale(1.02)"; e.currentTarget.style.boxShadow = "0 24px 60px rgba(0,0,0,0.2)"; e.currentTarget.style.background = "rgba(255,230,200,0.18)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.background = "rgba(255,230,200,0.1)"; }}>
-          <div className="text-4xl" style={{ filter: "drop-shadow(0 2px 8px rgba(200,120,40,0.3))" }}>✨</div>
-          <div className="text-[16px] font-bold text-white">New Project</div>
-          <div className="text-[12px]" style={{ color: "rgba(255,220,180,0.4)" }}>Start a transformation</div>
-        </div>
-
-        {/* Existing project cards */}
-        {projects.map(p => {
-          let pStatus = p.status;
-          try { const v = localStorage.getItem(`${p.id}_visited`); if (v && Object.keys(JSON.parse(v)).length > 0) pStatus = "In Progress"; } catch {}
-          try { const vm = localStorage.getItem(`${p.id}_viewMode`); if (vm) pStatus = "In Progress"; } catch {}
-          const statusColor = pStatus === "In Progress" ? "#E09040" : pStatus === "Complete" ? "#10B981" : "rgba(255,200,150,0.3)";
-          // Count modules visited
-          let modulesVisited = 0;
-          try { const v = localStorage.getItem(`${p.id}_visited`); if (v) modulesVisited = Object.keys(JSON.parse(v)).length; } catch {}
-
-          return <div key={p.id} onClick={() => onOpenProject(p)} style={{ width: cardWidth, minHeight: 220, borderRadius: 22, cursor: "pointer", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "24px 24px 20px", transition: "all 0.35s cubic-bezier(0.16,1,0.3,1)", background: "rgba(255,255,255,0.06)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.08)", position: "relative" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-6px) scale(1.02)"; e.currentTarget.style.boxShadow = "0 24px 60px rgba(0,0,0,0.2)"; e.currentTarget.style.borderColor = "rgba(255,200,150,0.2)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}>
-            <div>
-              <div className="flex items-start justify-between mb-1">
-                <div className="text-[17px] font-bold text-white">{p.name}</div>
-                <div className="flex gap-1" style={{ opacity: 0, transition: "opacity 0.2s" }} onMouseEnter={e => e.currentTarget.style.opacity = "1"} onMouseLeave={e => e.currentTarget.style.opacity = "0"}>
-                  <button onClick={e => { e.stopPropagation(); cloneProject(p); }} style={{ color: "rgba(255,255,255,0.3)", fontSize: 11, background: "none", border: "none", cursor: "pointer", padding: "2px 4px" }} onMouseEnter={e => e.currentTarget.style.color = "#D4860A"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.3)"} title="Clone project">⧉</button>
-                  <button onClick={e => { e.stopPropagation(); setConfirmDelete(p.id); }} style={{ color: "rgba(255,255,255,0.3)", fontSize: 14, background: "none", border: "none", cursor: "pointer", padding: "2px 4px" }} onMouseEnter={e => e.currentTarget.style.color = "#ef4444"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.3)"} title="Delete project">✕</button>
-                </div>
-              </div>
-              {p.client && <div className="text-[12px] font-semibold mb-1" style={{ color: "rgba(255,220,180,0.6)" }}>{p.client}</div>}
-              <div className="flex gap-1.5 flex-wrap mb-2">
-                {p.industry && <span className="px-2 py-0.5 rounded-full text-[9px] font-semibold" style={{ background: "rgba(212,134,10,0.15)", color: "rgba(232,197,71,0.8)" }}>{p.industry}</span>}
-                {p.size && <span className="px-2 py-0.5 rounded-full text-[9px] font-semibold" style={{ background: "rgba(16,185,129,0.15)", color: "rgba(100,220,180,0.8)" }}>{p.size}</span>}
-              </div>
-              {p.lead && <div className="text-[10px] mb-1" style={{ color: "rgba(255,220,180,0.3)" }}>Lead: {p.lead}</div>}
-              {p.meta && !p.client && <div className="text-[11px] italic mb-2" style={{ color: "rgba(255,220,180,0.25)" }}>{p.meta}</div>}
+        {/* My Projects section */}
+        {projects.length > 0 && <div style={{ borderRadius: 22, background: "rgba(255,255,255,0.03)", backdropFilter: "blur(16px)", border: "1px solid rgba(255,255,255,0.06)", padding: "20px 24px", marginTop: 4 }}>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">📂</span>
+              <span className="text-[15px] font-bold text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>My Projects</span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "rgba(212,134,10,0.12)", color: "rgba(232,197,71,0.7)" }}>{projects.length}</span>
             </div>
-            <div>
-              {/* Progress bar */}
-              {modulesVisited > 0 && <div className="mb-2"><div className="flex justify-between text-[9px] mb-0.5" style={{ color: "rgba(255,255,255,0.2)" }}><span>Progress</span><span>{modulesVisited}/8 modules</span></div><div className="h-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}><div className="h-full rounded-full" style={{ width: `${(modulesVisited / 8) * 100}%`, background: statusColor }} /></div></div>}
-              <div className="flex items-center justify-between">
-                <div className="text-[10px]" style={{ color: "rgba(255,255,255,0.15)" }}>{p.created}</div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full" style={{ background: statusColor }} />
-                  <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: statusColor }}>{pStatus}</span>
+          </div>
+          <div className="grid gap-3" style={{ gridTemplateColumns: projects.length === 1 ? "1fr" : "1fr 1fr" }}>
+            {projects.map(p => {
+              let pStatus = p.status;
+              try { const v = localStorage.getItem(`${p.id}_visited`); if (v && Object.keys(JSON.parse(v)).length > 0) pStatus = "In Progress"; } catch {}
+              try { const vm = localStorage.getItem(`${p.id}_viewMode`); if (vm) pStatus = "In Progress"; } catch {}
+              const statusColor = pStatus === "In Progress" ? "#E09040" : pStatus === "Complete" ? "#10B981" : "rgba(255,200,150,0.3)";
+              let modulesVisited = 0;
+              try { const v = localStorage.getItem(`${p.id}_visited`); if (v) modulesVisited = Object.keys(JSON.parse(v)).length; } catch {}
+
+              return <div key={p.id} onClick={() => onOpenProject(p)} style={{ borderRadius: 16, cursor: "pointer", padding: "16px 20px", transition: "all 0.3s", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", position: "relative" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,200,150,0.05)"; e.currentTarget.style.borderColor = "rgba(255,200,150,0.15)"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.03)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; }}>
+                <div className="flex items-start justify-between mb-1">
+                  <div>
+                    <div className="text-[15px] font-bold text-white mb-0.5">{p.name}</div>
+                    <div className="flex items-center gap-2">
+                      {p.industry && <span className="text-[9px] px-1.5 py-0.5 rounded-full" style={{ background: "rgba(212,134,10,0.12)", color: "rgba(232,197,71,0.7)" }}>{p.industry}</span>}
+                      <div className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full" style={{ background: statusColor }} /><span className="text-[9px] font-bold uppercase" style={{ color: statusColor }}>{pStatus}</span></div>
+                      {modulesVisited > 0 && <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.2)" }}>{modulesVisited}/8 modules</span>}
+                    </div>
+                  </div>
+                  {/* Delete + Clone buttons */}
+                  <div className="flex gap-1 shrink-0" style={{ opacity: 0, transition: "opacity 0.15s" }} onMouseEnter={e => e.currentTarget.style.opacity = "1"} onMouseLeave={e => e.currentTarget.style.opacity = "0"}>
+                    <button onClick={e => { e.stopPropagation(); cloneProject(p); }} style={{ color: "rgba(255,255,255,0.25)", fontSize: 11, background: "none", border: "none", cursor: "pointer", padding: "2px 4px" }} onMouseEnter={e => e.currentTarget.style.color = "#D4860A"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.25)"} title="Clone">⧉</button>
+                    <button onClick={e => { e.stopPropagation(); setConfirmDelete(p.id); }} style={{ color: "rgba(255,255,255,0.25)", fontSize: 13, background: "none", border: "none", cursor: "pointer", padding: "2px 4px" }} onMouseEnter={e => e.currentTarget.style.color = "#ef4444"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.25)"} title="Delete">✕</button>
+                  </div>
                 </div>
-              </div>
-            </div>
-            <div style={{ position: "absolute", bottom: 20, right: 24, fontSize: 12, fontWeight: 600, color: "rgba(255,200,150,0.25)" }}>OPEN →</div>
-          </div>;
-        })}
+              </div>;
+            })}
+          </div>
+        </div>}
       </div>
     </div>
 

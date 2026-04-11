@@ -9,7 +9,7 @@ import {
   BarViz, DonutViz, RadarViz, TabBar, PageHeader, LoadingBar, LoadingSkeleton,
   ModuleExportButton, NextStepBar, ContextStrip, InfoButton,
   useApiData, usePersisted, callAI, showToast, logDec,
-  exportToCSV, EmptyWithAction, JobDesignState, AiInsightCard, fmtNum
+  exportToCSV, EmptyWithAction, JobDesignState, AiInsightCard, fmtNum, ExpandableChart
 } from "./shared";
 
 /* ═══════════════════════════════════════════════════════════════
@@ -425,6 +425,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
               <KpiCard label="Created" value={deptData.reduce((s, d) => s + d.created, 0)} />
               <KpiCard label="Net Change" value={`${deptData.reduce((s, d) => s + d.net - d.current, 0) >= 0 ? "+" : ""}${deptData.reduce((s, d) => s + d.net - d.current, 0)}`} />
             </div>
+          <ExpandableChart title="Capacity Waterfall">
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={deptData} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
@@ -437,6 +438,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
                 <Bar dataKey="created" name="Created" fill="#10B981" stackId="a" />
               </BarChart>
             </ResponsiveContainer>
+          </ExpandableChart>
           </>;
         })()}
       </Card>}
@@ -489,6 +491,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
             {/* FTE comparison bar chart */}
             <div>
               <div className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">FTE Released</div>
+          <ExpandableChart title="Savings Comparison">
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={savedScenarios.map((s, i) => ({ name: s.name, fte: s.totals.fte, fill: COLORS[i % COLORS.length] }))}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
@@ -498,10 +501,12 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
                   <Bar dataKey="fte" name="FTE Released">{savedScenarios.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Bar>
                 </BarChart>
               </ResponsiveContainer>
+          </ExpandableChart>
             </div>
             {/* Annual savings comparison */}
             <div>
               <div className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Annual Savings ($)</div>
+          <ExpandableChart title="Scenario Radar">
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={savedScenarios.map((s, i) => ({ name: s.name, savings: s.totals.savings, fill: COLORS[i % COLORS.length] }))}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
@@ -511,12 +516,14 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
                   <Bar dataKey="savings" name="Annual Savings">{savedScenarios.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Bar>
                 </BarChart>
               </ResponsiveContainer>
+          </ExpandableChart>
             </div>
           </div>
 
           {/* Radar comparison */}
           {savedScenarios.length >= 2 && <div className="mb-4">
             <div className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Multi-Dimension Comparison</div>
+          <ExpandableChart title="Readiness Dimensions">
             <ResponsiveContainer width="100%" height={280}>
               <RadarChart data={[
                 { dim: "FTE Freed", ...Object.fromEntries(savedScenarios.map(s => [s.name, s.totals.fte])) },
@@ -533,6 +540,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
                 <Tooltip contentStyle={{ background: "#1A2340", border: "1px solid #2A3555", borderRadius: 8, fontSize: 12, color: "#E8ECF4" }} />
               </RadarChart>
             </ResponsiveContainer>
+          </ExpandableChart>
           </div>}
 
           {/* Delta table */}
