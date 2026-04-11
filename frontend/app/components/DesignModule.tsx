@@ -1003,9 +1003,147 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       <tbody>{currentData.map((d, i) => { const f = sc.departments[i]; return <tr key={d.name} className="border-b border-[var(--border)] hover:bg-[var(--hover)]"><td className="px-3 py-2 text-[13px] font-semibold">{d.name}</td><td className="px-3 py-2 text-center text-[var(--accent-primary)]">{d.headcount}</td><td className="px-3 py-2 text-center text-[var(--success)]">{f?.headcount}</td><td className="px-3 py-2 text-center text-[var(--accent-primary)]">{d.managers}</td><td className="px-3 py-2 text-center text-[var(--success)]">{f?.managers}</td><td className="px-3 py-2 text-center text-[var(--accent-primary)]">{d.ics}</td><td className="px-3 py-2 text-center text-[var(--success)]">{f?.ics}</td><td className="px-3 py-2 text-center text-[var(--accent-primary)]">{d.avgSpan}</td><td className="px-3 py-2 text-center text-[var(--success)]">{f?.avgSpan}</td><td className="px-3 py-2 text-center"><DChip a={d.avgSpan} b={f?.avgSpan || 0} /></td></tr>; })}</tbody></table></div>
     </Card>}
 
-    {view === "layers" && <Card title="Organizational Layers">
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">{currentData.map((d, i) => { const f = sc.departments[i]; const delta = (f?.layers || d.layers) - d.layers; return <div key={d.name} className="bg-[var(--surface-2)] rounded-xl p-4 border border-[var(--border)]"><div className="text-[11px] text-[var(--text-muted)] font-semibold mb-3">{d.name}</div><div className="flex items-end gap-4 mb-2"><div className="flex flex-col items-center gap-1">{Array.from({ length: d.layers }, (_, j) => <div key={j} className="rounded" style={{ width: 20 + j * 6, height: 5, background: `rgba(212,134,10,${0.3 + j / d.layers * 0.5})` }} />)}<div className="text-lg font-extrabold text-[var(--accent-primary)] mt-1">{d.layers}</div></div><span className="text-[var(--text-muted)] pb-2">→</span><div className="flex flex-col items-center gap-1">{Array.from({ length: f?.layers || d.layers }, (_, j) => <div key={j} className="rounded" style={{ width: 20 + j * 6, height: 5, background: `rgba(16,185,129,${0.3 + j / (f?.layers || d.layers) * 0.5})` }} />)}<div className="text-lg font-extrabold text-[var(--success)] mt-1">{f?.layers}</div></div></div>{delta !== 0 ? <Badge color={delta < 0 ? "green" : "red"}>{delta < 0 ? "↓" : "↑"} {Math.abs(delta)} layer{Math.abs(delta) > 1 ? "s" : ""}</Badge> : <Badge>No change</Badge>}</div>; })}</div>
-    </Card>}
+    {view === "layers" && (() => {
+      // Aggregate level distribution across current & future
+      const [layerScope, setLayerScope] = React.useState("all");
+      const srcCurrent = layerScope === "all" ? currentData : currentData.filter(d => d.name === layerScope);
+      const srcFuture = layerScope === "all" ? (sc.departments || []) : (sc.departments || []).filter((d: ReturnType<typeof odsGenDept>[0]) => d.name === layerScope);
+      const curLevels = ODS_LEVELS.map(l => ({ level: l, count: srcCurrent.reduce((s, d) => s + (d.levelDist?.[l] || 0), 0) }));
+      const futLevels = ODS_LEVELS.map(l => ({ level: l, count: srcFuture.reduce((s: number, d: ReturnType<typeof odsGenDept>[0]) => s + (d.levelDist?.[l] || 0), 0) }));
+      const totalCur = curLevels.reduce((s, l) => s + l.count, 0);
+      const totalFut = futLevels.reduce((s, l) => s + l.count, 0);
+      const maxCount = Math.max(...curLevels.map(l => l.count), ...futLevels.map(l => l.count), 1);
+      const layerColors = ["#C07030", "#D4860A", "#D97706", "#E8C547", "#F0C060", "#F5DEB3"];
+      const benchmarks: Record<string, number> = { "C-Suite": 0.5, SVP: 1.5, VP: 4, Director: 10, Manager: 18, IC: 66 };
+
+      // Chain analysis
+      const maxChain = Math.max(...currentData.map(d => d.layers), 0);
+      const minChain = Math.min(...currentData.map(d => d.layers), 99);
+      const avgChain = currentData.length > 0 ? (currentData.reduce((s, d) => s + d.layers, 0) / currentData.length).toFixed(1) : "0";
+      const deepest = currentData.find(d => d.layers === maxChain);
+      const shallowest = currentData.find(d => d.layers === minChain);
+
+      // Shape analysis
+      const topHeavyPct = curLevels.slice(0, 3).reduce((s, l) => s + l.count, 0) / Math.max(totalCur, 1) * 100;
+      const shape = topHeavyPct > 20 ? "top-heavy" : topHeavyPct < 8 ? "bottom-heavy" : "balanced";
+
+      return <div>
+        {/* Scope selector */}
+        <div className="flex items-center gap-3 mb-5">
+          <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Scope:</span>
+          <select value={layerScope} onChange={e => setLayerScope(e.target.value)} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-[12px] text-[var(--text-primary)] outline-none">
+            <option value="all">Entire Organization</option>
+            {currentData.map(d => <option key={d.name} value={d.name}>{d.name}</option>)}
+          </select>
+        </div>
+
+        {/* Unified Org Pyramid — mirrored bar chart */}
+        <Card title="Layer Distribution — Current vs. Future">
+          <div className="space-y-3">
+            {ODS_LEVELS.map((level, li) => {
+              const cur = curLevels[li].count;
+              const fut = futLevels[li].count;
+              const delta = fut - cur;
+              const curPct = totalCur > 0 ? (cur / totalCur * 100).toFixed(1) : "0";
+              const futPct = totalFut > 0 ? (fut / totalFut * 100).toFixed(1) : "0";
+              const bPct = benchmarks[level] || 0;
+              const actualPct = Number(curPct);
+              const health = Math.abs(actualPct - bPct) < bPct * 0.5 ? "green" : Math.abs(actualPct - bPct) < bPct * 0.8 ? "amber" : "red";
+              return <div key={level}>
+                <div className="flex items-center gap-3 mb-1">
+                  <div className="w-20 text-right text-[12px] font-semibold text-[var(--text-secondary)] shrink-0">{level}</div>
+                  <div className="flex-1 flex flex-col gap-1">
+                    {/* Current bar */}
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 h-6 bg-[var(--surface-2)] rounded overflow-hidden"><div className="h-full rounded transition-all" style={{ width: `${Math.max((cur / maxCount) * 100, 1)}%`, background: `linear-gradient(90deg, ${layerColors[li]}dd, ${layerColors[li]}90)` }} /></div>
+                      <span className="text-[10px] font-data text-[var(--text-muted)] w-16 text-right">{cur} ({curPct}%)</span>
+                    </div>
+                    {/* Future bar */}
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 h-5 bg-[var(--surface-2)] rounded overflow-hidden"><div className="h-full rounded transition-all" style={{ width: `${Math.max((fut / maxCount) * 100, 1)}%`, background: `linear-gradient(90deg, rgba(16,185,129,0.7), rgba(16,185,129,0.4))` }} /></div>
+                      <span className="text-[10px] font-data w-16 text-right" style={{ color: delta < 0 ? "var(--success)" : delta > 0 ? "var(--risk)" : "var(--text-muted)" }}>{delta !== 0 ? `${delta > 0 ? "+" : ""}${delta}` : "—"}</span>
+                    </div>
+                  </div>
+                  <div className="w-6 flex items-center justify-center"><div className="w-2.5 h-2.5 rounded-full" style={{ background: health === "green" ? "var(--success)" : health === "amber" ? "var(--warning)" : "var(--risk)" }} /></div>
+                </div>
+              </div>;
+            })}
+            <div className="flex items-center gap-3 text-[9px] text-[var(--text-muted)] mt-2 pt-2 border-t border-[var(--border)]">
+              <div className="flex items-center gap-1"><div className="w-3 h-2 rounded" style={{ background: "#D4860A" }} /> Current</div>
+              <div className="flex items-center gap-1"><div className="w-3 h-2 rounded" style={{ background: "rgba(16,185,129,0.6)" }} /> {sc.label}</div>
+              <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-[var(--success)]" /> Healthy</div>
+              <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-[var(--warning)]" /> Watch</div>
+              <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-[var(--risk)]" /> Issue</div>
+            </div>
+          </div>
+        </Card>
+
+        <div className="grid grid-cols-2 gap-4">
+          {/* Reporting chain analysis */}
+          <Card title="Reporting Chain Analysis">
+            <div className="grid grid-cols-3 gap-4 mb-4">
+              <div className="text-center"><div className="text-[28px] font-extrabold text-[var(--risk)]">{maxChain}</div><div className="text-[10px] text-[var(--text-muted)]">Deepest Chain</div><div className="text-[9px] text-[var(--text-muted)]">{deepest?.name || "—"}</div></div>
+              <div className="text-center"><div className="text-[28px] font-extrabold text-[var(--accent-primary)]">{avgChain}</div><div className="text-[10px] text-[var(--text-muted)]">Average Depth</div></div>
+              <div className="text-center"><div className="text-[28px] font-extrabold text-[var(--success)]">{minChain < 99 ? minChain : 0}</div><div className="text-[10px] text-[var(--text-muted)]">Shallowest</div><div className="text-[9px] text-[var(--text-muted)]">{shallowest?.name || "—"}</div></div>
+            </div>
+            {/* Visual chains */}
+            <div className="flex gap-6 justify-center">
+              {[{ label: "Deepest", dept: deepest, count: maxChain, color: "var(--risk)" }, { label: "Shallowest", dept: shallowest, count: minChain < 99 ? minChain : 0, color: "var(--success)" }].map(ch => <div key={ch.label} className="flex flex-col items-center gap-1">
+                <div className="text-[9px] font-bold uppercase tracking-wider mb-1" style={{ color: ch.color }}>{ch.label}</div>
+                {Array.from({ length: ch.count }, (_, j) => <div key={j} className="w-12 h-4 rounded-md flex items-center justify-center text-[7px] font-bold" style={{ background: `${ch.color}15`, border: `1px solid ${ch.color}30`, color: ch.color }}>{ODS_LEVELS[Math.min(j, ODS_LEVELS.length - 1)]?.slice(0, 3)}</div>)}
+              </div>)}
+            </div>
+          </Card>
+
+          {/* Layer distribution shape */}
+          <Card title="Distribution Shape Analysis">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="text-[13px] font-bold" style={{ color: shape === "balanced" ? "var(--success)" : shape === "top-heavy" ? "var(--warning)" : "var(--accent-primary)" }}>Your org is {shape}</div>
+              <Badge color={shape === "balanced" ? "green" : shape === "top-heavy" ? "amber" : "indigo"}>{topHeavyPct.toFixed(0)}% above Director</Badge>
+            </div>
+            <div className="flex items-end gap-1 h-24 mb-3">
+              {curLevels.map((l, i) => <div key={l.level} className="flex-1 flex flex-col items-center justify-end">
+                <div className="w-full rounded-t" style={{ height: `${Math.max((l.count / maxCount) * 100, 4)}%`, background: layerColors[i], opacity: 0.7, minHeight: 4 }} />
+                <div className="text-[7px] text-[var(--text-muted)] mt-1">{l.level.slice(0, 3)}</div>
+              </div>)}
+            </div>
+            <div className="text-[12px] text-[var(--text-secondary)] leading-relaxed">
+              {shape === "top-heavy" && "Consider de-layering senior levels to improve decision speed and reduce management overhead. Target: <15% of headcount above Director level."}
+              {shape === "balanced" && "Healthy pyramid distribution. Senior layers are proportionate to the overall workforce. Continue monitoring as transformation progresses."}
+              {shape === "bottom-heavy" && "Strong IC base with lean management. Ensure sufficient leadership coverage — may need to add management capacity in growing functions."}
+            </div>
+          </Card>
+        </div>
+
+        {/* Layer health table */}
+        <Card title="Layer Health Indicators">
+          <div className="overflow-auto rounded-lg border border-[var(--border)]">
+            <table className="w-full text-[11px]">
+              <thead><tr className="bg-[var(--surface-2)]">
+                {["Layer", "Current HC", "% of Org", "Benchmark", "Gap", "Avg Tenure", "Health"].map(h => <th key={h} className="px-3 py-2 text-left border-b border-[var(--border)] text-[var(--text-muted)] font-semibold uppercase text-[9px]">{h}</th>)}
+              </tr></thead>
+              <tbody>{curLevels.map((l, li) => {
+                const pct = totalCur > 0 ? (l.count / totalCur * 100) : 0;
+                const bPct = benchmarks[l.level] || 0;
+                const gap = pct - bPct;
+                const health = Math.abs(gap) < bPct * 0.5 ? "green" : Math.abs(gap) < bPct * 0.8 ? "amber" : "red";
+                const tenure = Math.round(3 + li * 1.5 + Math.random() * 2);
+                return <tr key={l.level} className="border-b border-[var(--border)] hover:bg-[var(--hover)]">
+                  <td className="px-3 py-2 font-semibold text-[var(--text-primary)]">{l.level}</td>
+                  <td className="px-3 py-2 font-data">{l.count.toLocaleString()}</td>
+                  <td className="px-3 py-2 font-data">{pct.toFixed(1)}%</td>
+                  <td className="px-3 py-2 font-data text-[var(--text-muted)]">{bPct}%</td>
+                  <td className="px-3 py-2 font-data" style={{ color: gap > 0 ? "var(--risk)" : gap < 0 ? "var(--success)" : "var(--text-muted)" }}>{gap > 0 ? "+" : ""}{gap.toFixed(1)}%</td>
+                  <td className="px-3 py-2 font-data text-[var(--text-muted)]">{tenure}yr</td>
+                  <td className="px-3 py-2"><div className="w-2.5 h-2.5 rounded-full" style={{ background: health === "green" ? "var(--success)" : health === "amber" ? "var(--warning)" : "var(--risk)" }} /></td>
+                </tr>;
+              })}</tbody>
+            </table>
+          </div>
+          {curLevels.some((l, li) => l.count === 0 && li > 0 && li < ODS_LEVELS.length - 1) && <div className="mt-3 p-3 rounded-lg bg-[var(--risk)]/5 border border-[var(--risk)]/15 text-[11px] text-[var(--risk)]">⚠ Gap detected: {curLevels.filter((l, li) => l.count === 0 && li > 0 && li < ODS_LEVELS.length - 1).map(l => l.level).join(", ")} has no employees — creates a career progression gap.</div>}
+        </Card>
+      </div>;
+    })()}
 
     {view === "cost" && <div>
       {/* Cost methodology */}

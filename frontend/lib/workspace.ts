@@ -83,7 +83,7 @@ export function useWorkspaceController(): WorkspaceState {
       setJobs(fetchedJobs);
       setJobState((current) => {
         if (current && fetchedJobs.includes(current)) return current;
-        return fetchedJobs[0] || "";
+        return ""; // Default to "All Jobs" — user selects specific job explicitly
       });
     } catch {
       setJobs([]);
@@ -135,7 +135,7 @@ export function useWorkspaceController(): WorkspaceState {
         setJobs(nextJobs);
         setJobState((current) => {
           if (current && nextJobs.includes(current)) return current;
-          return nextJobs[0] || "";
+          return ""; // Keep "All Jobs" default
         });
       })
       .catch(() => {

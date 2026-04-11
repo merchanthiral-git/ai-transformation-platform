@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import * as authApi from "../../lib/auth-api";
 import { KNOWLEDGE_BASE, KnowledgeModal } from "./KnowledgeBase";
 

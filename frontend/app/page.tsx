@@ -609,8 +609,8 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       <SidebarSelect options={models.length ? models : [loadingModels ? "Loading..." : "No models"]} value={model || (models[0] || (loadingModels ? "Loading..." : "No models"))} onChange={setModel} />
       <div className="h-px bg-[var(--border)] my-3" /></>}
       {viewMode !== "employee" && <><div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-[1.2px] mb-2">Active Job</div>
-      <SidebarSelect options={hasJobs ? jobs : ["No jobs available"]} value={job || (jobs[0] || "No jobs available")} onChange={v => setJob(v === "No jobs available" ? "" : v)} />
-      {job && <div className="mt-1"><Badge color="indigo">{job}</Badge></div>}</>}
+      <SidebarSelect options={hasJobs ? ["All Jobs", ...jobs] : ["No jobs available"]} value={job || "All Jobs"} onChange={v => setJob(v === "All Jobs" || v === "No jobs available" ? "" : v)} />
+      {job && job !== "All Jobs" && <div className="mt-1"><Badge color="indigo">{job}</Badge></div>}</>}
       <div className="h-px bg-[var(--border)] my-3" />
       {viewMode === "org" && <div className="bg-[rgba(212,134,10,0.06)] border border-[var(--accent-primary)]/15 rounded-lg px-3 py-2 mb-2"><div className="text-[10px] font-bold text-[var(--accent-primary)] uppercase tracking-wider mb-0.5">🏢 Organization View</div><div className="text-[11px] text-[var(--text-muted)]">Full workforce analytics</div><button onClick={() => setViewMode("")} className="text-[10px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mt-1">Change View ↻</button></div>}
       {viewMode === "employee" && viewEmployee && <div className="bg-[rgba(139,92,246,0.1)] border border-[var(--purple)]/20 rounded-lg px-3 py-2 mb-2"><div className="text-[10px] font-bold text-[var(--purple)] uppercase tracking-wider mb-0.5">👤 Employee View</div><div className="text-[13px] font-semibold text-[var(--text-primary)] truncate">{viewEmployee}</div><button onClick={() => setViewMode("")} className="text-[10px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mt-1">Change View ↻</button></div>}

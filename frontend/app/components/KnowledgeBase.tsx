@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 
 /* ═══════════════════════════════════════════════════════════════
    KNOWLEDGE BASE — Comprehensive 5W1H content for every module
