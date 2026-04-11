@@ -152,8 +152,8 @@ export const TT: React.CSSProperties = { background: "#1A2340", border: "1px sol
 /* ═══════════════════════════════════════════════════════════════
    ERROR BOUNDARY — prevents white screen crashes
    ═══════════════════════════════════════════════════════════════ */
-export class ErrorBoundary extends React.Component<{ children: React.ReactNode; fallback?: React.ReactNode; onBack?: () => void; onNavigate?: (id: string) => void }, { hasError: boolean; error: Error | null }> {
-  constructor(props: { children: React.ReactNode; fallback?: React.ReactNode; onBack?: () => void; onNavigate?: (id: string) => void }) { super(props); this.state = { hasError: false, error: null }; }
+export class ErrorBoundary extends React.Component<{ children: React.ReactNode; fallback?: React.ReactNode; onBack?: () => void; onNavigate?: (id: string) => void; onExitProject?: () => void }, { hasError: boolean; error: Error | null; retryCount: number }> {
+  constructor(props: { children: React.ReactNode; fallback?: React.ReactNode; onBack?: () => void; onNavigate?: (id: string) => void; onExitProject?: () => void }) { super(props); this.state = { hasError: false, error: null, retryCount: 0 }; }
   static getDerivedStateFromError(error: Error) { return { hasError: true, error }; }
   render() {
     if (this.state.hasError) return this.props.fallback || <div className="p-8 text-center">
@@ -161,8 +161,9 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode; 
       <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">Something went wrong</h3>
       <p className="text-[13px] text-[var(--text-secondary)] mb-4 max-w-md mx-auto">{this.state.error?.message || "An unexpected error occurred."}</p>
       <div className="flex gap-3 justify-center flex-wrap mb-4">
-        {this.props.onBack && <button onClick={this.props.onBack} className="px-4 py-2 rounded-lg text-[13px] font-semibold border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--hover)] transition-colors">← Back to Home</button>}
-        <button onClick={() => this.setState({ hasError: false, error: null })} className="px-4 py-2 rounded-lg text-[13px] font-semibold bg-[var(--accent-primary)] text-white">Clear & Retry</button>
+        {this.props.onBack && <button onClick={() => { this.setState({ hasError: false, error: null, retryCount: 0 }); this.props.onBack!(); }} className="px-4 py-2 rounded-lg text-[13px] font-semibold border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--hover)] transition-colors">← Back to Overview</button>}
+        <button onClick={() => { if (this.state.retryCount >= 2) { if (this.props.onBack) this.props.onBack(); else this.setState({ hasError: false, error: null, retryCount: 0 }); } else { this.setState(prev => ({ hasError: false, error: null, retryCount: prev.retryCount + 1 })); } }} className="px-4 py-2 rounded-lg text-[13px] font-semibold bg-[var(--accent-primary)] text-white">{this.state.retryCount >= 2 ? "Go to Overview (retry limit)" : "Clear & Retry"}</button>
+        {this.props.onExitProject && <button onClick={() => { this.setState({ hasError: false, error: null, retryCount: 0 }); this.props.onExitProject!(); }} className="px-4 py-2 rounded-lg text-[13px] font-semibold text-[var(--risk)] border border-[var(--risk)]/30 hover:bg-[var(--risk)]/5 transition-colors">Exit Project</button>}
       </div>
       {this.props.onNavigate && <div className="border-t border-[var(--border)] pt-4 mt-4">
         <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Switch Module</div>
@@ -173,7 +174,7 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode; 
           { id: "design", label: "Design", icon: "✏️" },
           { id: "simulate", label: "Simulate", icon: "⚡" },
           { id: "plan", label: "Mobilize", icon: "🚀" },
-        ].map(m => <button key={m.id} onClick={() => { this.setState({ hasError: false, error: null }); this.props.onNavigate!(m.id); }} className="px-3 py-1.5 rounded-lg text-[11px] font-semibold border border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--accent-primary)]/30 hover:bg-[var(--hover)] transition-all">{m.icon} {m.label}</button>)}</div>
+        ].map(m => <button key={m.id} onClick={() => { this.setState({ hasError: false, error: null, retryCount: 0 }); this.props.onNavigate!(m.id); }} className="px-3 py-1.5 rounded-lg text-[11px] font-semibold border border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--accent-primary)]/30 hover:bg-[var(--hover)] transition-all">{m.icon} {m.label}</button>)}</div>
       </div>}
     </div>;
     return this.props.children;
