@@ -289,31 +289,8 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
           opacity: 0, animation: `nodeIn 0.5s ease ${0.3 + pi * 0.15}s forwards`,
           pointerEvents: "auto",
         }}>
-          {/* SVG icon with glow pool */}
-          <div style={{ filter: isCurrent ? "drop-shadow(0 0 16px rgba(212,134,10,0.4))" : "drop-shadow(0 4px 16px rgba(0,0,0,0.4))", transition: "all 0.2s", opacity: isReached ? 1 : 0.3 }}>
-            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-              {/* Glow pool beneath */}
-              <ellipse cx="40" cy="72" rx="30" ry="6" fill="rgba(212,134,10,0.15)" />
-              {isComplete ? (
-                <path d="M25 42L35 52L55 28" stroke="#D4860A" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-              ) : pi === 0 ? (
-                /* Discover — magnifying glass */
-                <><circle cx="35" cy="35" r="14" stroke="#fff" strokeWidth="2.5" fill="none" /><line x1="45" y1="45" x2="58" y2="58" stroke="#D4860A" strokeWidth="2.5" strokeLinecap="round" /></>
-              ) : pi === 1 ? (
-                /* Diagnose — pulse/heartbeat */
-                <polyline points="15,42 25,42 30,28 35,55 40,35 45,42 50,42 55,20 60,42 65,42" stroke="#fff" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-              ) : pi === 2 ? (
-                /* Design — pencil */
-                <><rect x="28" y="20" width="24" height="40" rx="2" stroke="#fff" strokeWidth="2.5" fill="none" transform="rotate(-15 40 40)" /><line x1="32" y1="52" x2="48" y2="48" stroke="#D4860A" strokeWidth="2" strokeLinecap="round" /></>
-              ) : pi === 3 ? (
-                /* Simulate — chart */
-                <><rect x="18" y="45" width="10" height="20" rx="2" fill="rgba(255,255,255,0.3)" stroke="#fff" strokeWidth="1.5" /><rect x="34" y="32" width="10" height="33" rx="2" fill="rgba(255,255,255,0.4)" stroke="#fff" strokeWidth="1.5" /><rect x="50" y="22" width="10" height="43" rx="2" fill="rgba(212,134,10,0.5)" stroke="#D4860A" strokeWidth="1.5" /><polyline points="22,42 38,30 54,20" stroke="#D4860A" strokeWidth="2" fill="none" strokeLinecap="round" /></>
-              ) : (
-                /* Mobilize — rocket */
-                <><path d="M40 15 C40 15 50 25 50 40 C50 50 45 58 40 62 C35 58 30 50 30 40 C30 25 40 15 40 15Z" stroke="#fff" strokeWidth="2.5" fill="none" /><circle cx="40" cy="38" r="4" fill="#D4860A" /><path d="M32 55 L28 65 L36 60" stroke="#D4860A" strokeWidth="2" fill="none" /><path d="M48 55 L52 65 L44 60" stroke="#D4860A" strokeWidth="2" fill="none" /></>
-              )}
-            </svg>
-          </div>
+          {/* Icon image */}
+          <img src={isComplete ? `/icon_${phase.id === "discover" ? "discover" : phase.id === "diagnose" ? "diagnose" : phase.id === "design" ? "design" : phase.id === "simulate" ? "simulate" : "mobilize"}.png` : `/icon_${phase.id === "discover" ? "discover" : phase.id === "diagnose" ? "diagnose" : phase.id === "design" ? "design" : phase.id === "simulate" ? "simulate" : "mobilize"}.png`} alt={phase.label} style={{ width: 96, height: 96, objectFit: "contain", filter: isCurrent ? "drop-shadow(0 0 16px rgba(212,134,10,0.5))" : "drop-shadow(0 4px 16px rgba(0,0,0,0.5))", transition: "all 0.2s", opacity: isReached ? 1 : 0.35 }} />
           {/* Label with background pill */}
           <div className="text-center mt-3" style={{ width: 180, marginLeft: -50 }}>
             <div style={{ display: "inline-block", padding: "4px 14px", borderRadius: 10, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(4px)" }}>
