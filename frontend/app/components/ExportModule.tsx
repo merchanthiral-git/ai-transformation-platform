@@ -8,7 +8,7 @@ import {
   BarViz, DonutViz, RadarViz, TabBar, PageHeader, LoadingBar, LoadingSkeleton,
   ModuleExportButton, NextStepBar, ContextStrip, InfoButton,
   useApiData, usePersisted, callAI, showToast, logDec,
-  exportToCSV, EmptyWithAction, fmtNum
+  exportToCSV, EmptyWithAction, fmtNum, HelpBookAccordion
 } from "./shared";
 
 export function ExportReport({ model, f, onBack }: { model: string; f: Filters; onBack: () => void }) {
