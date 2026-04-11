@@ -105,18 +105,19 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
   if (loading) return <div><PageHeader icon="🏗️" title="Job Architecture" subtitle="Enterprise job catalogue, hierarchy, and career framework" onBack={onBack} /><LoadingBar /><div className="grid grid-cols-3 gap-4"><LoadingSkeleton rows={8} /><LoadingSkeleton rows={8} /><LoadingSkeleton rows={8} /></div></div>;
 
   return <div>
-    <ContextStrip items={[`${Number(stats.total_headcount || 0).toLocaleString()} employees · ${stats.total_functions || 0} functions · ${stats.total_families || 0} job families · ${stats.total_sub_families || 0} sub-families · ${stats.total_jobs || 0} roles`]} />
+    <ContextStrip items={[`${Number(stats.total_headcount || 0).toLocaleString()} employees · ${stats.total_functions || 0} functions · ${stats.total_family_groups || 0} family groups · ${stats.total_families || 0} families · ${stats.total_jobs || 0} roles`]} />
     <PageHeader icon="🏗️" title="Job Architecture" subtitle="Enterprise job catalogue, hierarchy, career framework & validation" onBack={onBack} moduleId="jobarch" viewCtx={viewCtx} />
 
     {/* KPI Strip */}
-    <div className="grid grid-cols-7 gap-3 mb-5">
+    <div className="grid grid-cols-8 gap-3 mb-5">
       <KpiCard label="Headcount" value={Number(stats.total_headcount || 0).toLocaleString()} accent />
       <KpiCard label="Functions" value={stats.total_functions || 0} />
+      <KpiCard label="Family Groups" value={stats.total_family_groups || 0} />
       <KpiCard label="Job Families" value={stats.total_families || 0} />
       <KpiCard label="Sub-Families" value={stats.total_sub_families || 0} />
       <KpiCard label="Unique Roles" value={stats.total_jobs || 0} />
-      <KpiCard label="Career Levels" value={stats.total_levels || 0} />
-      <KpiCard label="Health Score" value={`${analytics.health_score || 0}/100`} accent />
+      <KpiCard label="Levels" value={stats.total_levels || 0} />
+      <KpiCard label="Health" value={`${analytics.health_score || 0}/100`} accent />
     </div>
 
     <TabBar tabs={[

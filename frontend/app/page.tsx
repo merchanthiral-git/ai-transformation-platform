@@ -1298,7 +1298,8 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
                   try { await fetch(`/api/tutorial/seed?industry=${ind.id}&size=${t.size}`); } catch {}
                   seedTutorialData(tid, ind.id);
                   setSeedingId(null);
-                  setPendingSandbox({ id: tid, name: `${ind.icon} ${ind.label} — ${t.size === "small" ? "Small" : t.size === "mid" ? "Mid-Cap" : "Large-Cap"}`, meta: `${t.info} · Guided Tour` });
+                  const companyName = t.info.split(" · ")[0] || ind.label;
+                  setPendingSandbox({ id: tid, name: companyName, meta: `${ind.label} · ${t.size === "small" ? "Small-Cap" : t.size === "mid" ? "Mid-Cap" : "Large-Cap"} · ${t.info.split(" · ")[1] || ""} employees` });
                 }} style={{ width: "100%", padding: "7px 8px", borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: seedingId ? "wait" : "pointer", background: seedingId === `tutorial_${t.size}_${ind.id}` ? "rgba(139,92,246,0.25)" : t.color, border: `1px solid ${seedingId === `tutorial_${t.size}_${ind.id}` ? "rgba(139,92,246,0.5)" : t.border}`, color: t.text, transition: "all 0.2s", textAlign: "center", lineHeight: 1.4, opacity: seedingId && seedingId !== `tutorial_${t.size}_${ind.id}` ? 0.4 : 1 }} onMouseEnter={e => { if (!seedingId) { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.borderColor = t.text; }}} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = t.border; }}>{seedingId === `tutorial_${t.size}_${ind.id}` ? "⏳ Loading..." : t.info}</button></td>)}
               </tr>)}</tbody>
             </table>

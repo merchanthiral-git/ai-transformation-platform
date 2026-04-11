@@ -5,7 +5,7 @@ SCHEMAS = {
         "required": ["Model ID", "Employee ID", "Employee Name"],
         "all": [
             "Model ID", "Employee ID", "Employee Name", "Manager ID", "Manager Name",
-            "Function ID", "Job Family", "Sub-Family", "Geography",
+            "Function ID", "Job Family Group", "Job Family", "Sub-Family", "Geography",
             "Career Track", "Career Level", "Job Title", "Job Description",
             "Department", "Org Unit", "FTE", "Base Pay", "Total Cash",
             "Hire Date", "Performance Rating", "Critical Role"

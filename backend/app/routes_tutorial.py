@@ -1156,6 +1156,24 @@ def _seed_tutorial_store(industry="technology", size_tier="mid"):
             return (real_func + " Leadership", "Executive")
         return (real_func, "Core Operations")
 
+    # Job Family Group: maps (function, job_family) → group name
+    # Groups cluster related families within a function
+    FAMILY_GROUP_MAP = {
+        # Corporate functions → grouped
+        "Finance": "Finance & Accounting", "FP&A": "Finance & Accounting", "Accounting": "Finance & Accounting",
+        "Human Resources": "People & Culture", "HR Operations": "People & Culture", "Talent Acquisition": "People & Culture",
+        "Legal & Compliance": "Legal & Governance", "Compliance": "Legal & Governance", "Legal Advisory": "Legal & Governance",
+        "Sales & Marketing": "Revenue & Growth", "Sales": "Revenue & Growth", "Marketing": "Revenue & Growth",
+        "Cybersecurity": "Technology & Security", "IT & Infrastructure": "Technology & Security",
+        "Software Engineering": "Engineering", "Data & Analytics": "Engineering", "Product & Design": "Engineering",
+    }
+    def _get_family_group(func: str, family: str) -> str:
+        """Derive job family group from function + family."""
+        if family in FAMILY_GROUP_MAP:
+            return FAMILY_GROUP_MAP[family]
+        # Default: use function name as the group
+        return func
+
     def _get_level_for_role(base_title):
         """Return the allowed career levels for a role from the industry hierarchy."""
         h = INDUSTRY_HIERARCHIES.get(industry, _TECH_HIERARCHY)
@@ -1190,6 +1208,7 @@ def _seed_tutorial_store(industry="technology", size_tier="mid"):
                 eid = f"EMP{str(emp_id).zfill(5)}"
 
                 jf, sf = _get_hierarchy(title, real_func)
+                jfg = _get_family_group(real_func, jf)
                 # Use hierarchy-specified level if available, else blueprint default
                 allowed = _get_level_for_role(title)
                 actual_level = random.choice(allowed) if allowed else level
@@ -1197,7 +1216,7 @@ def _seed_tutorial_store(industry="technology", size_tier="mid"):
                 ct, cl, cl_name = assign_career_track(real_title, actual_level, track, industry)
                 employees.append({
                     "Employee ID": eid, "Name": name, "Job Title": real_title,
-                    "Function": real_func, "Job Family": jf, "Sub-Function": sf,
+                    "Function": real_func, "Job Family Group": jfg, "Job Family": jf, "Sub-Function": sf,
                     "Career Level": cl, "Career Track": ct,
                     "Manager ID": "", "Compensation": comp,
                     "Tenure": random.randint(0, 20),

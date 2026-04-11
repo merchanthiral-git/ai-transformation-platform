@@ -261,14 +261,14 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
   // ── Journey Map — Mad Men golden hour aesthetic ──
   return <div className="relative min-h-[calc(100vh-48px)] flex flex-col overflow-hidden" style={{ backgroundImage: "url(/journey_bg.png)", backgroundSize: "cover", backgroundPosition: "center" }}>
 
-    {/* Header with subtle dark gradient for readability */}
-    <div className="relative z-10 text-center pt-6 pb-4" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 80%, transparent 100%)" }}>
-      <div style={{ fontSize: 14, color: "rgba(255,255,255,0.45)", marginBottom: 8, display: "flex", justifyContent: "center", gap: 6 }}>
-        {onBackToHub && <span onClick={onBackToHub} style={{ cursor: "pointer", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }} onMouseEnter={e => e.currentTarget.style.color = "#D4860A"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.45)"}>Home</span>}
+    {/* Header with subtle dark gradient for readability — z-20 to stay above milestone z-10 */}
+    <div className="relative z-20 text-center pt-6 pb-4" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 80%, transparent 100%)" }}>
+      <div style={{ fontSize: 14, color: "rgba(255,255,255,0.45)", marginBottom: 8, display: "flex", justifyContent: "center", gap: 6, alignItems: "center" }}>
+        {onBackToHub && <button onClick={onBackToHub} style={{ cursor: "pointer", textShadow: "0 1px 4px rgba(0,0,0,0.5)", background: "none", border: "none", color: "rgba(255,255,255,0.45)", fontSize: 14, padding: "2px 4px", borderRadius: 4, transition: "color 0.15s" }} onMouseEnter={e => e.currentTarget.style.color = "#D4860A"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.45)"}>Home</button>}
         {onBackToHub && <span style={{ opacity: 0.3 }}>/</span>}
-        {onBackToSplash && projectName && <span onClick={onBackToSplash} style={{ cursor: "pointer", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }} onMouseEnter={e => e.currentTarget.style.color = "#D4860A"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.45)"}>
+        {onBackToSplash && projectName && <button onClick={onBackToSplash} style={{ cursor: "pointer", textShadow: "0 1px 4px rgba(0,0,0,0.5)", background: "none", border: "none", color: "rgba(255,255,255,0.45)", fontSize: 14, padding: "2px 4px", borderRadius: 4, transition: "color 0.15s" }} onMouseEnter={e => e.currentTarget.style.color = "#D4860A"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.45)"}>
           {projectName}
-        </span>}
+        </button>}
         {onBackToSplash && <span style={{ opacity: 0.3 }}>/</span>}
         <span style={{ color: "rgba(212,134,10,0.7)", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>Journey</span>
       </div>
@@ -276,8 +276,8 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
       <p style={{ fontSize: 15, color: "rgba(255,255,255,0.5)", textShadow: "0 1px 6px rgba(0,0,0,0.4)" }}>Click a milestone to explore its modules</p>
     </div>
 
-    {/* Milestone icons positioned on the road clearings */}
-    <div className="absolute inset-0 z-10">
+    {/* Milestone icons — directly on road, no circles */}
+    <div className="absolute inset-0 z-10" style={{ pointerEvents: "none" }}>
       {PHASES.map((phase, pi) => {
         const status = getPhaseStatus(phase);
         const isCurrent = pi === activeIdx;
@@ -287,28 +287,16 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
         return <button key={phase.id} onClick={() => setSelectedPhase(phase.id)} className="absolute group" style={{
           left: `${n.xPct}%`, top: `${n.yPct}%`, transform: "translate(-50%, -50%)",
           opacity: 0, animation: `nodeIn 0.5s ease ${0.3 + pi * 0.15}s forwards`,
+          pointerEvents: "auto",
         }}>
-          <div className="relative">
-            {/* Frosted glass circle */}
-            <div style={{
-              width: 90, height: 90, borderRadius: "50%",
-              display: "flex", alignItems: "center", justifyContent: "center", fontSize: 40,
-              background: "rgba(255,255,255,0.08)",
-              backdropFilter: "blur(16px)",
-              border: `2px solid ${isComplete ? "#D4860A" : isCurrent ? "rgba(212,134,10,0.6)" : "rgba(255,255,255,0.1)"}`,
-              boxShadow: isCurrent ? "0 0 24px rgba(212,134,10,0.2), 0 0 48px rgba(212,134,10,0.08)" : "0 4px 16px rgba(0,0,0,0.4)",
-              transition: "all 0.25s",
-              animation: isCurrent ? "nodePulse 3s ease-in-out infinite" : "none",
-              opacity: isReached ? 1 : 0.5,
-            }}>
-              {isComplete ? <span style={{ color: "#D4860A", fontSize: 32 }}>{"\u2713"}</span> : <span>{phase.icon}</span>}
-            </div>
-            {isComplete && <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#10B981] flex items-center justify-center text-white text-[14px] font-bold">{"\u2713"}</div>}
+          {/* Large icon directly on road */}
+          <div style={{ fontSize: 96, lineHeight: 1, textShadow: "0 6px 24px rgba(0,0,0,0.7)", transition: "all 0.2s", opacity: isReached ? 1 : 0.35, filter: isCurrent ? "drop-shadow(0 0 20px rgba(212,134,10,0.5))" : "none" }}>
+            {isComplete ? <span style={{ fontSize: 80 }}>{"\u2713"}</span> : phase.icon}
           </div>
           {/* Label */}
-          <div className="text-center mt-3" style={{ width: 140, marginLeft: -25 }}>
-            <div style={{ fontSize: 20, fontWeight: 700, fontFamily: "'Outfit', sans-serif", color: "#fff", textShadow: "0 2px 8px rgba(0,0,0,0.8)" }}>{phase.label}</div>
-            <div style={{ fontSize: 14, color: "rgba(255,230,200,0.5)", textShadow: "0 1px 4px rgba(0,0,0,0.6)", marginTop: 2 }}>{phase.desc}</div>
+          <div className="text-center mt-3" style={{ width: 180, marginLeft: -42 }}>
+            <div style={{ fontSize: 28, fontWeight: 700, fontFamily: "'Outfit', sans-serif", color: "#fff", textShadow: "0 2px 12px rgba(0,0,0,0.9)" }}>{phase.label}</div>
+            <div style={{ fontSize: 16, color: "rgba(255,255,255,0.7)", textShadow: "0 1px 8px rgba(0,0,0,0.8)", marginTop: 3 }}>{phase.desc}</div>
           </div>
         </button>;
       })}

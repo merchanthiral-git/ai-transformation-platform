@@ -142,11 +142,16 @@ def _build_hierarchy(wf, jc, wd):
     functions = sorted(set(j["function"] for j in jobs_flat))
     families = sorted(set(j["family"] for j in jobs_flat))
     sub_families = sorted(set(j["sub_family"] for j in jobs_flat))
+    # Count family groups from workforce data if available
+    family_groups_count = 0
+    if wf is not None and not wf.empty and "Job Family Group" in wf.columns:
+        family_groups_count = int(get_series(wf, "Job Family Group").nunique())
 
     stats = {
         "total_jobs": len(jobs_flat),
         "total_headcount": total_hc,
         "total_functions": len(functions),
+        "total_family_groups": family_groups_count,
         "total_families": len(families),
         "total_sub_families": len(sub_families),
         "total_levels": len(levels),
