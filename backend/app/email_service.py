@@ -207,3 +207,18 @@ async def send_email_verified_confirmation(to_email: str, username: str) -> bool
     </div>
     """
     return await _send_email(to_email, f"[{APP_NAME}] Email Verified ✓", _wrap_html(body))
+
+
+async def send_project_created_notification(username: str, project_name: str, industry: str = "", size: str = "") -> bool:
+    """Notify admin that a user created a new project."""
+    now = datetime.now(timezone.utc).strftime("%B %d, %Y at %H:%M UTC")
+    body = f"""
+    <div style="font-size:16px;font-weight:700;color:#f5e6d0;margin-bottom:16px;">📊 New Project Created</div>
+    <table style="width:100%;border-collapse:collapse;">
+      <tr><td style="padding:8px 0;font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;width:100px;">Project</td><td style="padding:8px 0;font-size:14px;color:#f5e6d0;font-weight:600;">{project_name}</td></tr>
+      <tr><td style="padding:8px 0;font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;">Created By</td><td style="padding:8px 0;font-size:14px;color:#f5e6d0;">{username}</td></tr>
+      {f'<tr><td style="padding:8px 0;font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;">Industry</td><td style="padding:8px 0;font-size:13px;color:rgba(255,255,255,0.5);">{industry}</td></tr>' if industry else ''}
+      <tr><td style="padding:8px 0;font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;">Created</td><td style="padding:8px 0;font-size:13px;color:rgba(255,255,255,0.5);">{now}</td></tr>
+    </table>
+    """
+    return await _send_email(ADMIN_EMAIL, f"[{APP_NAME}] New project: {project_name} by {username}", _wrap_html(body))

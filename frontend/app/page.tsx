@@ -695,7 +695,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
     {/* ── MAIN ── */}
     <main className="flex-1 min-h-screen bg-[var(--bg)]">
       {page === "home" && <div>
-        <LandingPage onNavigate={navigate} moduleStatus={moduleStatus} hasData={hasData} viewMode={viewMode} />
+        <LandingPage onNavigate={navigate} moduleStatus={moduleStatus} hasData={hasData} viewMode={viewMode} projectName={projectName} onBackToHub={onBackToHub} onBackToSplash={() => { setShowSplash(true); try { sessionStorage.removeItem(`${projectId}_splashSeen`); } catch {} }} />
       </div>}
       {page !== "home" && <div className="px-7 py-6">
       {page === "snapshot" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><WorkforceSnapshot model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}

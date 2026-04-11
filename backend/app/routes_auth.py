@@ -1,6 +1,7 @@
 """Auth + Project API routes — mounted as /api/auth/* and /api/projects/*"""
 
 import uuid
+import asyncio
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -10,6 +11,10 @@ from app.auth import (
     RegisterRequest, LoginRequest, ForgotPasswordRequest, ResetPasswordRequest,
     ProjectCreateRequest, ProjectUpdateRequest, ProfileUpdateRequest,
     hash_password, verify_password, create_access_token, get_current_user, get_db,
+)
+from app.email_service import (
+    send_welcome_email, send_admin_new_user_notification,
+    send_password_reset_email, _send_email, _wrap_html, ADMIN_EMAIL, APP_NAME,
 )
 
 auth_router = APIRouter(prefix="/api/auth", tags=["auth"])
@@ -50,6 +55,14 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
     db.refresh(user)
 
     token = create_access_token(user.id, user.username)
+
+    # Send emails asynchronously (don't block registration)
+    async def _send_emails():
+        await send_welcome_email(user.email, user.display_name or user.username, "")
+        await send_admin_new_user_notification(user.username, user.email)
+    try: asyncio.get_event_loop().create_task(_send_emails())
+    except RuntimeError: pass  # No event loop in sync context — emails skipped
+
     return {
         "token": token,
         "user": {"id": user.id, "username": user.username, "email": user.email,
@@ -129,9 +142,11 @@ def forgot_password(req: ForgotPasswordRequest, db: Session = Depends(get_db)):
     db.add(reset)
     db.commit()
 
-    # TODO: Plug in email service (e.g. app.email_service) to send this via email
-    reset_link = f"/reset-password?token={reset_token}"
-    print(f"[PASSWORD RESET] User: {user.username} | Email: {email_clean} | Token: {reset_token} | Link: {reset_link}", flush=True)
+    # Send reset email
+    async def _send_reset():
+        await send_password_reset_email(email_clean, user.username, reset_token)
+    try: asyncio.get_event_loop().create_task(_send_reset())
+    except RuntimeError: pass
 
     return {
         "message": "If an account with that email exists, a reset link has been sent.",
@@ -434,3 +449,23 @@ def admin_ai_usage(user: UserDB = Depends(get_current_user)):
         "limit_per_user": RATE_LIMIT_PER_DAY,
         "per_user": usage,
     }
+
+
+# ═══════════════════════════════════════════════════════════════
+# EMAIL TEST ENDPOINT (admin only)
+# ═══════════════════════════════════════════════════════════════
+@auth_router.get("/admin/test-email")
+async def test_email(user: UserDB = Depends(get_current_user)):
+    """Send a test email to verify Resend configuration. Admin only."""
+    if user.username != "hiral":
+        raise HTTPException(status_code=403, detail="Admin only")
+    body = f"""
+    <div style="font-size:18px;font-weight:700;color:#f5e6d0;margin-bottom:12px;">Test Email</div>
+    <div style="font-size:13px;color:rgba(255,255,255,0.5);line-height:1.6;">
+      This is a test email from the {APP_NAME}.<br>
+      Sent at: {datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")}<br>
+      If you're reading this, email delivery is working.
+    </div>
+    """
+    success = await _send_email(ADMIN_EMAIL, f"[{APP_NAME}] Test Email", _wrap_html(body))
+    return {"sent": success, "to": ADMIN_EMAIL}

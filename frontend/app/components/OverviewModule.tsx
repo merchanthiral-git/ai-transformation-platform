@@ -110,7 +110,7 @@ export function TransformationDashboard({ data, jobStates, simState, viewCtx }: 
   </div>;
 }
 
-export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode }: { onNavigate: (id: string) => void; moduleStatus: Record<string, string>; hasData: boolean; viewMode?: string }) {
+export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, projectName, onBackToHub, onBackToSplash }: { onNavigate: (id: string) => void; moduleStatus: Record<string, string>; hasData: boolean; viewMode?: string; projectName?: string; onBackToHub?: () => void; onBackToSplash?: () => void }) {
   const [selectedPhase, setSelectedPhase] = useState<string | null>(null);
 
   const getPhaseStatus = (phase: typeof PHASES[0]) => {
@@ -237,98 +237,85 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode }: { o
   const totalExplored = PHASES.reduce((s, p) => s + p.modules.filter(id => (moduleStatus[id] || "not_started") !== "not_started").length, 0);
   const progressPct = totalModules > 0 ? Math.round((totalExplored / totalModules) * 100) : 0;
 
-  // Milestone positions along the S-curve — alternating above/below
-  const milestonePts = [
-    { x: 100, y: 200 },  // Discover — top-left
-    { x: 310, y: 340 },  // Diagnose — bottom
-    { x: 520, y: 180 },  // Design — top
-    { x: 730, y: 350 },  // Simulate — bottom
-    { x: 940, y: 200 },  // Mobilize — top-right
+  // Milestone positions — tighter vertical range to prevent label overlap with CTA
+  const pts = [
+    { x: 100, y: 180 },  // Discover — top
+    { x: 310, y: 300 },  // Diagnose — bottom
+    { x: 520, y: 170 },  // Design — top
+    { x: 730, y: 310 },  // Simulate — bottom
+    { x: 940, y: 180 },  // Mobilize — top
   ];
+  const pathD = `M ${pts[0].x} ${pts[0].y} C ${pts[0].x+110} ${pts[0].y+80}, ${pts[1].x-110} ${pts[1].y}, ${pts[1].x} ${pts[1].y} C ${pts[1].x+110} ${pts[1].y-80}, ${pts[2].x-110} ${pts[2].y}, ${pts[2].x} ${pts[2].y} C ${pts[2].x+110} ${pts[2].y+80}, ${pts[3].x-110} ${pts[3].y}, ${pts[3].x} ${pts[3].y} C ${pts[3].x+110} ${pts[3].y-80}, ${pts[4].x-110} ${pts[4].y}, ${pts[4].x} ${pts[4].y}`;
 
-  // SVG winding path through the milestones
-  const pathD = `M ${milestonePts[0].x} ${milestonePts[0].y} C ${milestonePts[0].x + 100} ${milestonePts[0].y + 100}, ${milestonePts[1].x - 100} ${milestonePts[1].y}, ${milestonePts[1].x} ${milestonePts[1].y} C ${milestonePts[1].x + 100} ${milestonePts[1].y - 100}, ${milestonePts[2].x - 100} ${milestonePts[2].y}, ${milestonePts[2].x} ${milestonePts[2].y} C ${milestonePts[2].x + 100} ${milestonePts[2].y + 100}, ${milestonePts[3].x - 100} ${milestonePts[3].y}, ${milestonePts[3].x} ${milestonePts[3].y} C ${milestonePts[3].x + 100} ${milestonePts[3].y - 100}, ${milestonePts[4].x - 100} ${milestonePts[4].y}, ${milestonePts[4].x} ${milestonePts[4].y}`;
-
-  // ── Journey Map (default home view) ──
-  return <div className="relative min-h-[calc(100vh-48px)] flex flex-col items-center justify-center overflow-hidden" style={{ background: "radial-gradient(ellipse at 30% 60%, rgba(40,25,10,0.95) 0%, rgba(15,10,5,1) 60%), radial-gradient(ellipse at 60% 40%, rgba(212,134,10,0.04) 0%, transparent 50%)" }}>
+  // ── Journey Map ──
+  return <div className="relative min-h-[calc(100vh-48px)] flex flex-col items-center justify-center overflow-hidden" style={{ background: "linear-gradient(180deg, #08080f 0%, #0c0e18 50%, #08080f 100%)" }}>
+    {/* Grid dot pattern */}
+    <div className="absolute inset-0 z-0" style={{ backgroundImage: "radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px)", backgroundSize: "30px 30px" }} />
+    {/* Subtle amber glow */}
+    <div className="absolute inset-0 z-0" style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(212,134,10,0.05) 0%, transparent 55%)" }} />
 
     <div className="relative z-10 text-center w-full px-6" style={{ maxWidth: 1100 }}>
-      <div className="text-[13px] font-bold uppercase tracking-[3px] mb-3" style={{ color: "rgba(212,134,10,0.4)" }}>Your Transformation Journey</div>
-      <h1 className="text-[32px] font-bold font-heading text-[var(--text-primary)] mb-2">Where are you in the journey?</h1>
-      <p className="text-[15px] text-[var(--text-muted)] mb-6">Five phases. One proven methodology. Click a phase to explore its modules.</p>
+      <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 3, color: "rgba(212,134,10,0.4)", marginBottom: 10 }}>Your Transformation Journey</div>
+      <h1 style={{ fontSize: 32, fontWeight: 800, fontFamily: "'Outfit', sans-serif", color: "#f0f0f5", marginBottom: 6 }}>Where are you in the journey?</h1>
+      <p style={{ fontSize: 15, color: "rgba(255,255,255,0.35)", marginBottom: 32 }}>Five phases. One proven methodology. Click a phase to explore.</p>
 
-      {/* Winding roadmap SVG */}
-      <div className="relative" style={{ width: "100%", maxWidth: 1040, margin: "0 auto", height: 460 }}>
-        <svg viewBox="0 0 1040 460" width="100%" height="100%" style={{ position: "absolute", inset: 0 }}>
-          <defs>
-            <linearGradient id="roadGrad" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#D4860A" stopOpacity="0.5" />
-              <stop offset="100%" stopColor="#E8C547" stopOpacity="0.4" />
-            </linearGradient>
-          </defs>
-          {/* Road shadow */}
-          <path d={pathD} fill="none" stroke="rgba(0,0,0,0.3)" strokeWidth="16" strokeLinecap="round" style={{ filter: "blur(6px)", transform: "translateY(4px)" }} />
-          {/* Road base — future (dashed) */}
-          <path d={pathD} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="10" strokeLinecap="round" />
-          {/* Road base — completed (solid amber) */}
-          <path d={pathD} fill="none" stroke="url(#roadGrad)" strokeWidth="10" strokeLinecap="round" strokeDasharray={`${(activeIdx + 1) / 5 * 100}% 200%`} style={{ animation: "roadDraw 1.5s ease forwards" }} />
-          {/* Center dashes */}
-          <path d={pathD} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="2" strokeLinecap="round" strokeDasharray="8 12" />
+      {/* Roadmap */}
+      <div className="relative" style={{ width: "100%", maxWidth: 1040, margin: "0 auto", height: 480 }}>
+        <svg viewBox="0 0 1040 480" width="100%" height="100%" style={{ position: "absolute", inset: 0 }}>
+          {/* Future path — light */}
+          <path d={pathD} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="4" strokeLinecap="round" />
+          {/* Completed path — amber */}
+          <path d={pathD} fill="none" stroke="rgba(212,134,10,0.55)" strokeWidth="4" strokeLinecap="round" strokeDasharray={`${(activeIdx + 1) / 5 * 100}% 200%`} />
         </svg>
 
-        {/* Milestone nodes positioned along the curve */}
+        {/* Milestones */}
         {PHASES.map((phase, pi) => {
           const status = getPhaseStatus(phase);
           const isCurrent = pi === activeIdx;
           const isComplete = status === "complete";
-          const isActive = isComplete || isCurrent || status === "in_progress";
-          const pt = milestonePts[pi];
-          const labelBelow = pi % 2 !== 0; // odd indices: label below
+          const isReached = isComplete || isCurrent || status === "in_progress";
+          const pt = pts[pi];
+          const labelBelow = pi % 2 !== 0;
           return <button key={phase.id} onClick={() => setSelectedPhase(phase.id)} className="absolute group" style={{
-            left: pt.x - 60, top: pt.y - 60, width: 120, height: 120,
-            opacity: 0, animation: `msIn 0.5s ease ${0.4 + pi * 0.15}s forwards`,
+            left: pt.x - 50, top: pt.y - 50, width: 100, height: 100,
+            opacity: 0, animation: `msIn 0.5s ease ${0.3 + pi * 0.12}s forwards`,
           }}>
-            {/* Circle */}
             <div className="w-full h-full rounded-full flex items-center justify-center transition-all group-hover:scale-110" style={{
-              fontSize: 48,
-              background: isComplete ? `${phase.color}15` : isCurrent ? `${phase.color}08` : "rgba(255,255,255,0.02)",
-              border: `3px solid ${isComplete ? phase.color : isCurrent ? phase.color + "80" : "rgba(255,255,255,0.06)"}`,
-              boxShadow: isCurrent ? `0 0 24px ${phase.color}30, 0 0 48px ${phase.color}10` : isComplete ? `0 0 16px ${phase.color}15` : "none",
+              fontSize: 40,
+              background: isComplete ? "rgba(212,134,10,0.1)" : "transparent",
+              border: isComplete ? "2.5px solid #D4860A" : isCurrent ? "2.5px solid rgba(212,134,10,0.6)" : "2px solid rgba(255,255,255,0.1)",
               animation: isCurrent ? "msPulse 3s ease-in-out infinite" : "none",
             }}>
-              {isComplete ? <span style={{ color: phase.color, fontSize: 40 }}>✓</span> : <span>{phase.icon}</span>}
+              {isComplete ? <span style={{ color: "#D4860A", fontSize: 36 }}>✓</span> : <span style={{ opacity: isReached ? 1 : 0.4 }}>{phase.icon}</span>}
             </div>
-            {/* Label */}
-            <div className="absolute left-1/2 -translate-x-1/2 text-center" style={{ [labelBelow ? "top" : "bottom"]: "100%", [labelBelow ? "marginTop" : "marginBottom"]: 8, width: 160 }}>
-              <div style={{ fontSize: 20, fontWeight: 700, fontFamily: "'Outfit', sans-serif", color: isActive ? "var(--text-primary)" : "var(--text-muted)", lineHeight: 1.2 }}>{phase.label}</div>
-              <div style={{ fontSize: 13, marginTop: 3, color: isComplete ? phase.color : isCurrent ? "var(--text-secondary)" : "rgba(255,255,255,0.12)" }}>{phase.desc}</div>
+            <div className="absolute left-1/2 -translate-x-1/2 text-center" style={{ [labelBelow ? "top" : "bottom"]: "100%", [labelBelow ? "marginTop" : "marginBottom"]: 12, width: 150 }}>
+              <div style={{ fontSize: 20, fontWeight: 700, fontFamily: "'Outfit', sans-serif", color: isReached ? "#f0f0f5" : "rgba(255,255,255,0.25)", lineHeight: 1.2 }}>{phase.label}</div>
+              <div style={{ fontSize: 14, marginTop: 4, color: isComplete ? "#D4860A" : isCurrent ? "rgba(255,255,255,0.45)" : "rgba(255,255,255,0.12)", lineHeight: 1.3 }}>{phase.desc}</div>
             </div>
           </button>;
         })}
       </div>
 
-      {/* CTA */}
-      <button onClick={() => setSelectedPhase(PHASES[activeIdx].id)} className="transition-all hover:translate-y-[-3px] mb-6" style={{ padding: "16px 44px", borderRadius: 18, fontSize: 16, fontWeight: 700, color: "#fff", background: `linear-gradient(135deg, ${PHASES[activeIdx].color}, ${PHASES[Math.min(activeIdx+1, PHASES.length-1)].color})`, boxShadow: `0 10px 36px ${PHASES[activeIdx].color}30`, border: "none", cursor: "pointer" }}>
-        {activeIdx === 0 ? "Begin with Discovery →" : `Continue ${PHASES[activeIdx].label} →`}
-      </button>
+      {/* CTA — 80px below roadmap container */}
+      <div style={{ marginTop: 40 }}>
+        <button onClick={() => setSelectedPhase(PHASES[activeIdx].id)} className="transition-all hover:translate-y-[-2px]" style={{ padding: "14px 40px", borderRadius: 14, fontSize: 15, fontWeight: 700, color: "#fff", background: "linear-gradient(135deg, #D4860A, #C07030)", boxShadow: "0 8px 28px rgba(212,134,10,0.25)", border: "none", cursor: "pointer" }}>
+          {activeIdx === 0 ? "Begin with Discovery \u2192" : `Continue ${PHASES[activeIdx].label} \u2192`}
+        </button>
+      </div>
 
-      {/* Journey stats bar */}
-      <div className="inline-flex items-center gap-6 px-6 py-2.5 rounded-full" style={{ background: "rgba(212,134,10,0.05)", border: "1px solid rgba(212,134,10,0.08)" }}>
-        <div className="flex items-center gap-2">
-          <span style={{ fontSize: 11, fontWeight: 600, color: "rgba(212,134,10,0.5)" }}>Journey Progress</span>
-          <div style={{ width: 60, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.04)", overflow: "hidden" }}>
-            <div style={{ width: `${progressPct}%`, height: "100%", borderRadius: 2, background: "#D4860A", transition: "width 0.5s" }} />
-          </div>
-          <span style={{ fontSize: 11, fontWeight: 700, color: "#D4860A" }}>{progressPct}%</span>
+      {/* Progress bar */}
+      <div className="inline-flex items-center gap-5 px-5 py-2 rounded-full mt-5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+        <span style={{ fontSize: 11, fontWeight: 600, color: "rgba(212,134,10,0.5)" }}>Progress</span>
+        <div style={{ width: 60, height: 3, borderRadius: 2, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
+          <div style={{ width: `${progressPct}%`, height: "100%", borderRadius: 2, background: "#D4860A" }} />
         </div>
-        <div style={{ width: 1, height: 14, background: "rgba(212,134,10,0.08)" }} />
-        <span style={{ fontSize: 11, color: "rgba(255,230,200,0.3)" }}>Modules: <strong style={{ color: "rgba(212,134,10,0.5)" }}>{totalExplored}/{totalModules}</strong></span>
+        <span style={{ fontSize: 11, fontWeight: 700, color: "#D4860A" }}>{progressPct}%</span>
+        <span style={{ fontSize: 11, color: "rgba(255,255,255,0.2)" }}>{totalExplored}/{totalModules} modules</span>
       </div>
 
       <style>{`
-        @keyframes msPulse { 0%,100% { box-shadow: 0 0 24px rgba(212,134,10,0.3), 0 0 48px rgba(212,134,10,0.1); } 50% { box-shadow: 0 0 32px rgba(212,134,10,0.4), 0 0 64px rgba(212,134,10,0.15); } }
+        @keyframes msPulse { 0%,100% { box-shadow: 0 0 20px rgba(212,134,10,0.2); } 50% { box-shadow: 0 0 28px rgba(212,134,10,0.35); } }
         @keyframes msIn { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
-        @keyframes roadDraw { from { stroke-dashoffset: 100%; } to { stroke-dashoffset: 0; } }
       `}</style>
     </div>
   </div>;
