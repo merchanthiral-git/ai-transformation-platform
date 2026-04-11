@@ -113,6 +113,18 @@ export function TransformationDashboard({ data, jobStates, simState, viewCtx }: 
 export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, projectName, onBackToHub, onBackToSplash }: { onNavigate: (id: string) => void; moduleStatus: Record<string, string>; hasData: boolean; viewMode?: string; projectName?: string; onBackToHub?: () => void; onBackToSplash?: () => void }) {
   const [selectedPhase, setSelectedPhase] = useState<string | null>(null);
 
+  // Escape key: go back to splash or deselect phase
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (selectedPhase) { setSelectedPhase(null); }
+        else if (onBackToSplash) { onBackToSplash(); }
+      }
+    };
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, [selectedPhase, onBackToSplash]);
+
   const getPhaseStatus = (phase: typeof PHASES[0]) => {
     const ms = phase.modules.map(id => moduleStatus[id] || "not_started");
     if (ms.every(s => s === "complete")) return "complete";
@@ -254,8 +266,23 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
     {/* Subtle amber glow */}
     <div className="absolute inset-0 z-0" style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(212,134,10,0.05) 0%, transparent 55%)" }} />
 
+    {/* Scroll-up hint at very top */}
+    {onBackToSplash && <div onClick={onBackToSplash} className="absolute top-0 left-0 right-0 z-20 flex justify-center py-2 cursor-pointer group" title="Back to landing">
+      <div className="animate-pulse text-[10px]" style={{ color: "rgba(255,255,255,0.15)" }}>&#9650;</div>
+    </div>}
+
     <div className="relative z-10 text-center w-full px-6" style={{ maxWidth: 1100 }}>
-      <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 3, color: "rgba(212,134,10,0.4)", marginBottom: 10 }}>Your Transformation Journey</div>
+      {/* Breadcrumb */}
+      <div style={{ fontSize: 13, color: "rgba(255,255,255,0.3)", marginBottom: 20, display: "flex", justifyContent: "center", gap: 6, alignItems: "center" }}>
+        {onBackToHub && <span onClick={onBackToHub} style={{ cursor: "pointer", transition: "color 0.2s" }} onMouseEnter={e => e.currentTarget.style.color = "#D4860A"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.3)"}>Home</span>}
+        {onBackToHub && <span style={{ opacity: 0.4 }}>›</span>}
+        {onBackToSplash && projectName && <span onClick={onBackToSplash} style={{ cursor: "pointer", transition: "color 0.2s" }} onMouseEnter={e => e.currentTarget.style.color = "#D4860A"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.3)"}>
+          {projectName}
+        </span>}
+        {onBackToSplash && <span style={{ opacity: 0.4 }}>›</span>}
+        <span style={{ color: "rgba(212,134,10,0.5)" }}>Journey Map</span>
+      </div>
+
       <h1 style={{ fontSize: 32, fontWeight: 800, fontFamily: "'Outfit', sans-serif", color: "#f0f0f5", marginBottom: 6 }}>Where are you in the journey?</h1>
       <p style={{ fontSize: 15, color: "rgba(255,255,255,0.35)", marginBottom: 32 }}>Five phases. One proven methodology. Click a phase to explore.</p>
 
