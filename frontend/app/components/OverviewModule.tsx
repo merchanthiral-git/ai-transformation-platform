@@ -874,7 +874,7 @@ export function WorkforceSnapshot({ model, f, onBack, onNavigate, viewCtx }: { m
     </div>}
 
     {/* AI Insights */}
-    <AiInsightCard title="✨ AI-Generated Workforce Insights" contextData={JSON.stringify({ kpis: (overviewData as Record<string,unknown>)?.kpis, func_distribution: (overviewData as Record<string,unknown>)?.func_distribution }).slice(0, 2000)} systemPrompt="You are a workforce analytics consultant. Generate exactly 3 concise, actionable insights from this workforce data. Each insight should be 1-2 sentences. Use specific numbers. No markdown." />
+    <AiInsightCard title="✨ AI-Generated Workforce Insights" contextData={JSON.stringify({ kpis: (data as Record<string,unknown>)?.kpis, func_distribution: (data as Record<string,unknown>)?.func_distribution }).slice(0, 2000)} systemPrompt="You are a workforce analytics consultant. Generate exactly 3 concise, actionable insights from this workforce data. Each insight should be 1-2 sentences. Use specific numbers. No markdown." />
 
     <NextStepBar currentModuleId="snapshot" onNavigate={onNavigate || onBack} />
   </div>;

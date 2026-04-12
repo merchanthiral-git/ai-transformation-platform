@@ -14,6 +14,7 @@ import {
   CareerFrameworkAccordion, HelpBookAccordion, ErrorBoundary,
   AiJobSuggestButton, AiJobSuggestion, fmtNum,
 } from "./shared";
+import { EmployeeOrgChart } from "./OverviewModule";
 
 export function BBBAFramework({ model, f, onBack, onNavigate }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void }) {
   const [data, setData] = useState<Record<string, unknown> | null>(null);

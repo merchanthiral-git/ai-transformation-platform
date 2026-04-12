@@ -12,6 +12,7 @@ import {
   useApiData, usePersisted, callAI, showToast, logDec,
   exportToCSV, EmptyWithAction, JobDesignState, AiInsightCard, fmtNum, ExpandableChart
 } from "./shared";
+import { PersonalImpactCard } from "./OverviewModule";
 
 /* ═══════════════════════════════════════════════════════════════
    SCENARIO NARRATIVE — AI-generated story from simulation data
@@ -520,7 +521,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
       </div>}
 
       {/* ═══ TAB: EXECUTIVE BRIEF (replaces narrative) ═══ */}
-      {scenSub === "brief" && <ScenarioNarrative scenario={cfg.label} adoption={adoption} timeline={timeline} totals={totals} totalPct={totalPct} totalInv={totalInv} breakEven={breakEven} activeJobs={activeJobs} scenData={scenData} model={model} />}
+      {scenSub === "brief" && <ScenarioNarrative scenario={cfg.label} adoption={Math.round(cfg.adoption * 100)} timeline={custom ? custTimeline : (cfg.timeline || 12)} totals={totals} totalPct={totalPct} totalInv={totalInv} breakEven={breakEven} activeJobs={activeJobs} scenData={scenData} model={model} />}
 
       {/* ═══ LEGACY TABS (kept for backward compat, hidden from tab bar) ═══ */}
       {scenSub === "detail" && <Card title={`Role Detail — ${cfg.label} Scenario`}>

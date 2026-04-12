@@ -101,6 +101,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx }: { model:
   const [empPage, setEmpPage] = useState(0);
   const EMP_PAGE_SIZE = 50;
   const [maturityScores, setMaturityScores] = useState<Record<string, number>>({});
+  const [selectedCareerRole, setSelectedCareerRole] = useState("");
 
   useEffect(() => {
     if (!model) return;
@@ -393,7 +394,8 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx }: { model:
 
     {/* ═══ TAB: CAREER PATHS ═══ */}
     {tab === "careers" && (() => {
-      const [selectedRole, setSelectedRole] = [selectedQ || (adjacencies[0]?.target_role || ""), setSelectedQ];
+      const selectedRole = selectedCareerRole || (adjacencies[0]?.target_role || "");
+      const setSelectedRole = setSelectedCareerRole;
       const selectedAdj = adjacencies.find(a => a.target_role === selectedRole);
       const moveTypes = [
         { type: "⬆️", label: "Promotion", color: "var(--success)", desc: "Move up a level" },
