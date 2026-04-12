@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useEffect, useState, useCallback } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { useAnimatedBg } from "../../lib/animated-bg-context";
 
 /**
@@ -70,10 +70,38 @@ export function VideoBackground({
     return () => observer.disconnect();
   }, [animatedEnabled, videoFailed]);
 
-  // Handle video errors silently
-  const handleError = useCallback(() => {
-    setVideoFailed(true);
-  }, []);
+  // Detect video source failures — <source> errors don't bubble to <video> onError,
+  // so we check networkState after the browser has had time to attempt loading.
+  useEffect(() => {
+    if (!animatedEnabled || videoFailed) return;
+    const video = videoRef.current;
+    if (!video) return;
+
+    const onSourceError = () => setVideoFailed(true);
+
+    // Listen for error on the last <source> — fires when all sources fail
+    const sources = video.querySelectorAll("source");
+    const lastSource = sources[sources.length - 1];
+    if (lastSource) {
+      lastSource.addEventListener("error", onSourceError);
+    }
+
+    // Also handle the video element's own error event (e.g. decode errors)
+    video.addEventListener("error", onSourceError);
+
+    // Safety net: if after 8s the video has no data and isn't playing, treat as failed
+    const timeout = setTimeout(() => {
+      if (video.readyState === 0 && video.networkState === 3) {
+        setVideoFailed(true);
+      }
+    }, 8000);
+
+    return () => {
+      if (lastSource) lastSource.removeEventListener("error", onSourceError);
+      video.removeEventListener("error", onSourceError);
+      clearTimeout(timeout);
+    };
+  }, [animatedEnabled, videoFailed]);
 
   const showVideo = animatedEnabled && !videoFailed;
   const gradient = fallbackGradient || DEFAULT_GRADIENT;
@@ -86,8 +114,32 @@ export function VideoBackground({
       className={`relative overflow-hidden ${className}`}
       style={{ isolation: "isolate" }}
     >
-      {/* Layer 1: Video, poster image, or gradient fallback */}
-      {showVideo ? (
+      {/* Layer 0: Gradient base — always present, never blank */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: gradient,
+          zIndex: 0,
+          filter: filterStyle,
+        }}
+      />
+
+      {/* Layer 0.5: Poster image — always present on top of gradient */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage: `url(${posterUrl})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          zIndex: 0,
+          filter: filterStyle,
+        }}
+      />
+
+      {/* Layer 1: Video — on top of poster, only when enabled and not failed */}
+      {showVideo && (
         <video
           ref={videoRef}
           autoPlay
@@ -96,7 +148,6 @@ export function VideoBackground({
           playsInline
           preload="auto"
           poster={posterUrl}
-          onError={handleError}
           style={{
             position: "absolute",
             inset: 0,
@@ -111,22 +162,6 @@ export function VideoBackground({
           <source src={`/videos/optimized/${name}.webm`} type="video/webm" />
           <source src={`/videos/optimized/${name}.mp4`} type="video/mp4" />
         </video>
-      ) : (
-        /* When animated is off: try poster image, fall back to gradient */
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage: `url(${posterUrl})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            zIndex: 0,
-            filter: filterStyle,
-          }}
-        >
-          {/* Gradient underneath poster in case poster 404s */}
-          <div style={{ position: "absolute", inset: 0, background: gradient }} />
-        </div>
       )}
 
       {/* Layer 2: Overlay for text readability */}
