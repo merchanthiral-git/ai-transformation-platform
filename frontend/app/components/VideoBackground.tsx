@@ -111,8 +111,8 @@ export function VideoBackground({
   return (
     <div
       ref={containerRef}
-      className={`relative overflow-hidden ${className}`}
-      style={{ isolation: "isolate" }}
+      className={`overflow-hidden ${className}`}
+      style={{ isolation: "isolate", position: "absolute" }}
     >
       {/* Layer 0: Gradient base — always present, never blank */}
       <div
