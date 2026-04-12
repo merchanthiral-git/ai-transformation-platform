@@ -78,8 +78,23 @@ function OrgChartBuilder({ employees, jobs }: { employees: Employee[]; jobs: Job
     return roots;
   }, [employees]);
 
-  // Collapsed state
-  const [collapsedIds, setCollapsedIds] = useState<Set<string>>(new Set());
+  // Collapsed state — auto-collapse below depth 2 on initial load
+  const [collapsedIds, setCollapsedIds] = useState<Set<string>>(() => {
+    const ids = new Set<string>();
+    const walk = (n: OrgNode, depth: number) => { if (depth >= 2 && n.children.length > 0) ids.add(n.id); n.children.forEach(c => walk(c, depth + 1)); };
+    // Will be empty until orgTree is built, then effect below handles it
+    return ids;
+  });
+  const initialCollapseRef = React.useRef(false);
+  React.useEffect(() => {
+    if (orgTree.length > 0 && !initialCollapseRef.current) {
+      initialCollapseRef.current = true;
+      const ids = new Set<string>();
+      const walk = (n: OrgNode, depth: number) => { if (depth >= 2 && n.children.length > 0) ids.add(n.id); n.children.forEach(c => walk(c, depth + 1)); };
+      orgTree.forEach(r => walk(r, 0));
+      setCollapsedIds(ids);
+    }
+  }, [orgTree]);
   const toggleCollapse = (id: string) => setCollapsedIds(prev => { const next = new Set(prev); if (next.has(id)) next.delete(id); else next.add(id); return next; });
   const expandAll = () => setCollapsedIds(new Set());
   const collapseAll = () => { const ids = new Set<string>(); const walk = (n: OrgNode) => { if (n.children.length > 0) ids.add(n.id); n.children.forEach(walk); }; orgTree.forEach(walk); setCollapsedIds(ids); };
@@ -166,14 +181,13 @@ function OrgChartBuilder({ employees, jobs }: { employees: Employee[]; jobs: Job
     const funcColor = ORG_FUNC_COLORS[node.function] || "#888";
     const hasChildren = node.children.length > 0;
     const isDragOver = dropTarget === node.id && dragNode !== node.id;
-    const scale = Math.min(1, 0.85 + (node.headcount / Math.max(...orgTree.map(r => r.headcount), 1)) * 0.15);
     const isSearchMatch = searchMatch?.id === node.id;
+    const lineColor = "rgba(255,255,255,0.15)";
 
-    return <div key={node.id} className="flex flex-col items-center" style={{ minWidth: 0 }}>
+    return <div key={node.id} className="flex flex-col items-center" style={{ minWidth: 180 }}>
       {/* Node card */}
       <div
         className="relative cursor-pointer transition-all"
-        style={{ transform: `scale(${scale})`, transformOrigin: "top center" }}
         draggable={stateMode === "future"}
         onDragStart={e => { e.dataTransfer.effectAllowed = "move"; setDragNode(node.id); }}
         onDragOver={e => { e.preventDefault(); setDropTarget(node.id); }}
@@ -182,36 +196,34 @@ function OrgChartBuilder({ employees, jobs }: { employees: Employee[]; jobs: Job
         onClick={e => { e.stopPropagation(); setSelectedId(node.id); }}
         onDoubleClick={e => { e.stopPropagation(); if (hasChildren) toggleCollapse(node.id); }}
       >
-        <div className="rounded-xl px-4 py-2.5 border-2 transition-all" style={{
-          width: 170, minHeight: 70,
-          background: "rgba(30,30,30,0.6)",
+        <div className="rounded-xl px-4 py-3 border-2 transition-all" style={{
+          width: 172, minHeight: 72,
+          background: "rgba(26,35,64,0.7)",
           backdropFilter: "blur(12px)",
-          borderColor: isSelected ? "#e09040" : isDragOver ? (stateMode === "future" ? "var(--success)" : "var(--risk)") : isSearchMatch ? "#e09040" : `${funcColor}40`,
-          boxShadow: isSelected ? "0 0 20px rgba(224,144,64,0.2)" : isDragOver && stateMode === "future" ? "0 0 15px rgba(16,185,129,0.2)" : "0 2px 8px rgba(0,0,0,0.15)",
+          borderColor: isSelected ? "#e09040" : isDragOver ? "var(--success)" : isSearchMatch ? "#e09040" : `${funcColor}30`,
+          boxShadow: isSelected ? "0 0 20px rgba(224,144,64,0.25)" : "0 2px 8px rgba(0,0,0,0.2)",
         }}>
-          {/* Function color bar */}
           <div className="absolute top-0 left-3 right-3 h-1 rounded-b" style={{ background: viewMode === "span" ? spanColor(node) : funcColor }} />
-          <div className="text-[13px] font-bold text-[var(--text-primary)] truncate mt-1">{node.name}</div>
-          <div className="text-[11px] text-[var(--text-muted)] truncate">{node.title}</div>
-          <div className="flex items-center justify-between mt-1">
+          <div className="text-[14px] font-bold text-[var(--text-primary)] truncate mt-1">{node.name}</div>
+          <div className="text-[12px] text-[var(--text-muted)] truncate">{node.title}</div>
+          <div className="flex items-center justify-between mt-1.5">
             <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded" style={{ background: `${funcColor}15`, color: funcColor }}>{node.function.slice(0, 12)}</span>
-            {showHeadcount && hasChildren && <span className="text-[11px] font-bold" style={{ color: viewMode === "span" ? spanColor(node) : "var(--text-muted)" }}>{node.children.length} direct · {node.headcount - 1} total</span>}
+            {showHeadcount && hasChildren && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.06)", color: viewMode === "span" ? spanColor(node) : "var(--text-muted)" }}>{node.children.length}</span>}
           </div>
         </div>
-        {/* Collapse indicator */}
-        {hasChildren && <button className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-[var(--surface-2)] border border-[var(--border)] text-[10px] font-bold text-[var(--text-muted)] flex items-center justify-center hover:text-[var(--accent-primary)] z-10" onClick={e => { e.stopPropagation(); toggleCollapse(node.id); }}>{isCollapsed ? `+${node.headcount - 1}` : "−"}</button>}
+        {hasChildren && <button className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-[var(--surface-1)] border border-[var(--border)] text-[10px] font-bold text-[var(--text-muted)] flex items-center justify-center hover:text-[var(--accent-primary)] hover:border-[var(--accent-primary)] z-10 transition-colors" onClick={e => { e.stopPropagation(); toggleCollapse(node.id); }}>{isCollapsed ? `+${node.headcount - 1}` : "−"}</button>}
       </div>
-      {/* Children */}
-      {hasChildren && !isCollapsed && <div className="mt-6 relative">
-        {/* Vertical line down from parent */}
-        <div className="absolute top-[-16px] left-1/2 w-0.5 h-4" style={{ background: "rgba(255,255,255,0.08)" }} />
-        {/* Horizontal line across children */}
-        {node.children.length > 1 && <div className="absolute top-0 h-0.5" style={{ background: "rgba(255,255,255,0.08)", left: `${100 / (node.children.length * 2)}%`, right: `${100 / (node.children.length * 2)}%` }} />}
-        <div className="flex gap-3 justify-center">
-          {node.children.map(child => <div key={child.id} className="relative">
-            {/* Vertical line down to child */}
-            <div className="absolute top-0 left-1/2 w-0.5 h-4 -translate-x-1/2" style={{ background: "rgba(255,255,255,0.08)" }} />
-            <div className="pt-4">{renderNode(child, depth + 1)}</div>
+      {/* Children with tree connectors */}
+      {hasChildren && !isCollapsed && <div style={{ marginTop: 28, position: "relative" }}>
+        {/* Vertical line from parent down to horizontal bar */}
+        <div style={{ position: "absolute", top: -20, left: "50%", width: 1.5, height: 20, background: lineColor, transform: "translateX(-50%)" }} />
+        {/* Horizontal connector bar across all children */}
+        {node.children.length > 1 && <div style={{ position: "absolute", top: 0, height: 1.5, background: lineColor, left: `calc(${100 / (node.children.length * 2)}% + 0px)`, right: `calc(${100 / (node.children.length * 2)}% + 0px)` }} />}
+        <div style={{ display: "flex", gap: 16, justifyContent: "center" }}>
+          {node.children.map(child => <div key={child.id} style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center" }}>
+            {/* Vertical line from horizontal bar down to child */}
+            <div style={{ width: 1.5, height: 20, background: lineColor }} />
+            {renderNode(child, depth + 1)}
           </div>)}
         </div>
       </div>}

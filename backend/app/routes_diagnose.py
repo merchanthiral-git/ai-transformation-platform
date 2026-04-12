@@ -43,12 +43,29 @@ def get_skill_analysis(model_id: str, fn: str = Query("All", alias="func"), jf: 
         return {"current": [], "future": [], "gap": []}
     recon = build_reconstruction(wd)
     current, future = build_skill_analysis(wd, recon)
+
+    # Normalize raw weights to a 1-5 proficiency scale
+    def normalize_to_scale(df):
+        if df.empty or "Weight" not in df.columns:
+            return df
+        out = df.copy()
+        max_w = out["Weight"].max()
+        if max_w > 0:
+            out["Weight"] = (out["Weight"] / max_w * 4 + 1).round(1).clip(1.0, 5.0)
+        return out
+
+    current_norm = normalize_to_scale(current)
+    future_norm = normalize_to_scale(future) if not future.empty else future
+
     gap = []
-    if not current.empty and not future.empty:
-        m = current.rename(columns={"Weight": "Current"}).merge(future.rename(columns={"Weight": "Future"}), on="Skill", how="outer").fillna(0)
-        m["Delta"] = m["Future"] - m["Current"]
-        gap = _j(m.sort_values("Delta"))
-    return _safe({"current": _j(current), "future": _j(future), "gap": gap})
+    if not current_norm.empty and not future_norm.empty:
+        m = current_norm.rename(columns={"Weight": "Current"}).merge(future_norm.rename(columns={"Weight": "Future"}), on="Skill", how="outer").fillna(0)
+        m["Current"] = m["Current"].round(1)
+        m["Future"] = m["Future"].round(1)
+        m["Delta"] = (m["Future"] - m["Current"]).round(1)
+        m = m.sort_values("Delta")
+        gap = _j(m)
+    return _safe({"current": _j(current_norm), "future": _j(future_norm), "gap": gap})
 
 
 @router.get("/diagnose/org")
@@ -104,56 +121,174 @@ def get_ai_heatmap(model_id: str, fn: str = Query("All", alias="func"), jf: str 
 
 @router.get("/diagnose/clusters")
 def get_role_clusters(model_id: str, fn: str = Query("All", alias="func"), jf: str = "All", sf: str = "All", cl: str = "All"):
-    """Role clustering — group roles by task overlap for consolidation candidates."""
-    wd = store.get_filtered_data(model_id, _f(fn, jf, sf, cl))["work_design"]
-    if wd.empty or "Job Title" not in wd.columns or "Task Name" not in wd.columns:
-        return {"clusters": [], "roles": []}
-    # Build task sets per role
-    role_tasks = {}
+    """Role clustering — group roles by structural + task similarity."""
+    data = store.get_filtered_data(model_id, _f(fn, jf, sf, cl))
+    wd = data["work_design"]
+    wf = data.get("workforce", pd.DataFrame())
+    jc = data.get("job_catalog", pd.DataFrame())
+
+    if wd.empty or "Job Title" not in wd.columns:
+        return {"clusters": [], "roles": [], "pairs": [], "opportunities": []}
+
+    # Build role profiles with structural AND task data
+    role_profiles = {}
     for title, g in wd.groupby(get_series(wd, "Job Title").astype(str)):
-        tasks = set()
-        for col in ["Task Type", "Logic", "Interaction", "Primary Skill", "Secondary Skill"]:
+        title = str(title).strip()
+        if not title:
+            continue
+        # Skills (weighted by importance)
+        skills = set()
+        for col in ["Primary Skill", "Secondary Skill"]:
             if col in g.columns:
-                tasks.update(get_series(g, col).dropna().astype(str).str.strip().tolist())
-        task_names = get_series(g, "Task Name").dropna().astype(str).tolist()
-        role_tasks[str(title)] = {"characteristics": tasks, "task_names": task_names, "task_count": len(task_names)}
-    # Calculate pairwise overlap
-    roles = sorted(role_tasks.keys())
+                skills.update(s.strip() for s in get_series(g, col).dropna().astype(str) if s.strip() and s.strip() != "nan")
+        task_names = [t.strip() for t in get_series(g, "Task Name").dropna().astype(str) if t.strip()]
+        # Get structural info from workforce/job_catalog
+        func_id = ""
+        family = ""
+        level = ""
+        track = ""
+        headcount = 1
+        if not wf.empty and "Job Title" in wf.columns:
+            matches = wf[get_series(wf, "Job Title").astype(str).str.strip() == title]
+            if not matches.empty:
+                func_id = str(matches.iloc[0].get("Function ID", "")).strip()
+                family = str(matches.iloc[0].get("Job Family", "")).strip()
+                level = str(matches.iloc[0].get("Career Level", "")).strip()
+                track = str(matches.iloc[0].get("Career Track", "")).strip()
+                headcount = len(matches)
+        role_profiles[title] = {
+            "skills": skills, "task_names": task_names, "task_count": len(task_names),
+            "function": func_id, "family": family, "level": level, "track": track, "headcount": headcount,
+        }
+
+    roles = sorted(role_profiles.keys())
+    if len(roles) < 2:
+        return {"clusters": [], "roles": [{"role": r, **role_profiles[r]} for r in roles], "pairs": [], "opportunities": []}
+
+    # Calculate pairwise similarity with multi-factor scoring
+    pairs = []
+    for i, r1 in enumerate(roles):
+        p1 = role_profiles[r1]
+        for r2 in roles[i+1:]:
+            p2 = role_profiles[r2]
+            score = 0.0
+            # Factor 1: Same function (+30 max)
+            if p1["function"] and p1["function"] == p2["function"]:
+                score += 30
+            # Factor 2: Same family (+20 max)
+            if p1["family"] and p1["family"] == p2["family"]:
+                score += 20
+            # Factor 3: Similar level (+15 max — adjacent levels score higher)
+            l1 = int("".join(c for c in p1["level"] if c.isdigit()) or "0")
+            l2 = int("".join(c for c in p2["level"] if c.isdigit()) or "0")
+            if l1 and l2:
+                level_diff = abs(l1 - l2)
+                score += max(0, 15 - level_diff * 5)
+            # Factor 4: Same track (+10)
+            if p1["track"] and p1["track"] == p2["track"]:
+                score += 10
+            # Factor 5: Skill overlap (+25 max)
+            if p1["skills"] and p2["skills"]:
+                skill_overlap = len(p1["skills"] & p2["skills"]) / max(len(p1["skills"] | p2["skills"]), 1)
+                score += skill_overlap * 25
+
+            if score >= 40:  # minimum threshold for meaningful similarity
+                pairs.append({"role_a": r1, "role_b": r2, "similarity": round(score), "max_score": 100})
+
+    pairs.sort(key=lambda p: -p["similarity"])
+
+    # Build clusters using greedy approach with function-first grouping
     clusters = []
     seen = set()
-    for i, r1 in enumerate(roles):
-        if r1 in seen:
+
+    # Group by function first, then find sub-clusters within each function
+    by_func = {}
+    for r in roles:
+        func = role_profiles[r]["function"] or "Other"
+        if func not in by_func:
+            by_func[func] = []
+        by_func[func].append(r)
+
+    for func, func_roles in by_func.items():
+        if len(func_roles) < 2:
             continue
-        cluster = [r1]
-        t1 = role_tasks[r1]["characteristics"]
-        for r2 in roles[i+1:]:
-            if r2 in seen:
+        # Within each function, cluster by family
+        by_family = {}
+        for r in func_roles:
+            fam = role_profiles[r]["family"] or "General"
+            if fam not in by_family:
+                by_family[fam] = []
+            by_family[fam].append(r)
+
+        for fam, fam_roles in by_family.items():
+            if len(fam_roles) < 2:
+                # Single-role families — group with nearby roles in same function
                 continue
-            t2 = role_tasks[r2]["characteristics"]
-            if not t1 or not t2:
-                continue
-            overlap = len(t1 & t2) / max(len(t1 | t2), 1)
-            if overlap >= 0.5:
-                cluster.append(r2)
-                seen.add(r2)
-        seen.add(r1)
-        if len(cluster) > 1:
-            # Calculate avg overlap within cluster
+            # Calculate avg similarity within this group
             overlaps = []
-            for a in cluster:
-                for b in cluster:
-                    if a < b:
-                        ta, tb = role_tasks[a]["characteristics"], role_tasks[b]["characteristics"]
-                        overlaps.append(round(len(ta & tb) / max(len(ta | tb), 1) * 100, 1))
-            avg_overlap = round(sum(overlaps) / max(len(overlaps), 1), 1) if overlaps else 0
+            for i, a in enumerate(fam_roles):
+                for b in fam_roles[i+1:]:
+                    pa, pb = role_profiles[a], role_profiles[b]
+                    if pa["skills"] and pb["skills"]:
+                        so = len(pa["skills"] & pb["skills"]) / max(len(pa["skills"] | pb["skills"]), 1)
+                        overlaps.append(round(so * 100))
+            avg_overlap = round(sum(overlaps) / max(len(overlaps), 1)) if overlaps else 50
+            total_hc = sum(role_profiles[r]["headcount"] for r in fam_roles)
+            shared_skills = sorted(set.intersection(*(role_profiles[r]["skills"] for r in fam_roles)) if fam_roles else set())[:8]
+
+            # Find highest-overlap pair within cluster
+            best_pair = None
+            best_sim = 0
+            for p in pairs:
+                if p["role_a"] in fam_roles and p["role_b"] in fam_roles and p["similarity"] > best_sim:
+                    best_pair = (p["role_a"], p["role_b"], p["similarity"])
+                    best_sim = p["similarity"]
+
             clusters.append({
-                "roles": cluster, "size": len(cluster), "avg_overlap": avg_overlap,
+                "name": f"{func} — {fam}" if fam != "General" else func,
+                "function": func,
+                "family": fam,
+                "roles": fam_roles,
+                "size": len(fam_roles),
+                "headcount": total_hc,
+                "avg_overlap": avg_overlap,
                 "consolidation_candidate": avg_overlap >= 70,
-                "shared_characteristics": sorted(set.intersection(*(role_tasks[r]["characteristics"] for r in cluster)) if cluster else set())[:10],
+                "shared_skills": shared_skills,
+                "highest_pair": best_pair,
             })
-    # Also return all roles with their task count
-    role_list = [{"role": r, "task_count": d["task_count"], "characteristics_count": len(d["characteristics"])} for r, d in role_tasks.items()]
-    return _safe({"clusters": sorted(clusters, key=lambda c: -c["avg_overlap"]), "roles": role_list})
+
+    # Generate consolidation opportunities from high-similarity pairs
+    opportunities = []
+    for p in pairs[:10]:
+        pa, pb = role_profiles[p["role_a"]], role_profiles[p["role_b"]]
+        hc = pa["headcount"] + pb["headcount"]
+        savings_est = round(min(pa["headcount"], pb["headcount"]) * 85000 * 0.15)  # 15% of smaller role's cost
+        impact = "High" if p["similarity"] >= 75 and hc >= 10 else "Medium" if p["similarity"] >= 60 else "Low"
+        opportunities.append({
+            "role_a": p["role_a"], "role_b": p["role_b"],
+            "similarity": p["similarity"],
+            "headcount_affected": hc,
+            "estimated_savings": savings_est,
+            "impact": impact,
+            "risk": "Low" if pa["level"] == pb["level"] and pa["track"] == pb["track"] else "Medium",
+        })
+
+    role_list = [{"role": r, "task_count": d["task_count"], "function": d["function"], "family": d["family"], "level": d["level"], "track": d["track"], "headcount": d["headcount"], "skills": sorted(d["skills"])[:8]} for r, d in role_profiles.items()]
+
+    return _safe({
+        "clusters": sorted(clusters, key=lambda c: -c["avg_overlap"]),
+        "roles": role_list,
+        "pairs": pairs[:20],
+        "opportunities": opportunities,
+        "summary": {
+            "total_roles": len(roles),
+            "total_clusters": len(clusters),
+            "consolidation_opportunities": len([o for o in opportunities if o["impact"] in ("High", "Medium")]),
+            "potential_savings": sum(o["estimated_savings"] for o in opportunities),
+            "roles_affected": len(set(o["role_a"] for o in opportunities) | set(o["role_b"] for o in opportunities)),
+            "highest_overlap": f"{pairs[0]['role_a']} ↔ {pairs[0]['role_b']}: {pairs[0]['similarity']}%" if pairs else "—",
+        },
+    })
 
 
 @router.get("/diagnose/data-quality")

@@ -26,82 +26,126 @@ export function BBBAFramework({ model, f, onBack, onNavigate }: { model: string;
   const dispColors: Record<string, string> = { Build: "var(--success)", Buy: "var(--accent-primary)", Borrow: "var(--warning)", Automate: "var(--purple)" };
   const dispIcons: Record<string, string> = { Build: "🏗️", Buy: "🛒", Borrow: "🤝", Automate: "🤖" };
 
+  // Strategy meta
+  const strategies = [
+    { id: "Build", icon: "🎓", color: "var(--success)", label: "Train your existing people", pros: "Cheapest long-term, retains culture", cons: "Slowest (3-12mo)", best: "Skills adjacent to current", cost: "$", time: "🕐🕐🕐" },
+    { id: "Buy", icon: "🛒", color: "var(--accent-primary)", label: "Hire new talent externally", pros: "Exact skills immediately", cons: "Expensive, culture risk", best: "Skills don't exist internally", cost: "$$$", time: "🕐🕐" },
+    { id: "Borrow", icon: "🤝", color: "var(--warning)", label: "Use contractors or consultants", pros: "Fastest, no commitment", cons: "No knowledge transfer", best: "Temporary or specialized need", cost: "$$", time: "🕐" },
+    { id: "Automate", icon: "🤖", color: "var(--purple)", label: "Deploy AI or technology", pros: "Scales infinitely, low ongoing cost", cons: "Upfront investment, change mgmt", best: "Repetitive, rule-based tasks", cost: "$$ then $", time: "🕐🕐" },
+  ];
+  const [showStratInfo, setShowStratInfo] = useState(true);
+  const getDisp = (role: string, orig: string) => overrides[role] || orig;
+  const setDisp = (role: string, disp: string) => { setOverrides(prev => ({...prev, [role]: disp})); logDec("BBBA", `Set ${role} to ${disp}`, `Changed talent strategy disposition`); };
+  const buildCount = roles.filter(r => getDisp(r.role, r.disposition) === "Build").length;
+  const buyCount = roles.filter(r => getDisp(r.role, r.disposition) === "Buy").length;
+  const borrowCount = roles.filter(r => getDisp(r.role, r.disposition) === "Borrow").length;
+  const autoCount = roles.filter(r => getDisp(r.role, r.disposition) === "Automate").length;
+  const totalCost = roles.reduce((s, r) => s + r.total_cost, 0);
+  const avgTimeline = roles.length ? Math.round(roles.reduce((s, r) => s + r.timeline_months, 0) / roles.length) : 0;
+
   return <div>
-    <PageHeader icon="🔀" title="Build / Buy / Borrow / Automate" subtitle="Talent sourcing strategy per redesigned role" onBack={onBack} moduleId="bbba" />
-    {model && <div className="flex justify-end mb-2"><ModuleExportButton model={model} module="bbba" label="BBBA Decisions" /></div>}
+    <PageHeader icon="🎯" title="Talent Strategy" subtitle="For each capability gap, decide the smartest way to close it" onBack={onBack} moduleId="bbba" />
+    {model && <div className="flex justify-end mb-2"><ModuleExportButton model={model} module="bbba" label="Talent Strategy" /></div>}
     {loading && <LoadingBar />}
-    {!loading && roles.length === 0 && <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-2xl p-8 text-center"><div className="text-3xl mb-3 opacity-40">🔀</div><h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">Complete Skills Gap Analysis First</h3><p className="text-[15px] text-[var(--text-secondary)]">BBBA dispositions are generated from gap analysis and adjacency results.</p></div>}
-    <div className="grid grid-cols-5 gap-3 mb-5">
-      <KpiCard label="Total Roles" value={Number(summary.total_roles || 0)} /><KpiCard label="Build" value={Number(summary.build || 0)} accent /><KpiCard label="Buy" value={Number(summary.buy || 0)} /><KpiCard label="Borrow" value={Number(summary.borrow || 0)} /><KpiCard label="Automate" value={Number(summary.automate || 0)} />
-    </div>
+    {!loading && roles.length === 0 && <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-2xl p-10 text-center"><div className="text-4xl mb-3 opacity-40">🎯</div><h3 className="text-[18px] font-bold font-heading text-[var(--text-primary)] mb-2">Complete Skills Gap Analysis First</h3><p className="text-[16px] text-[var(--text-secondary)] max-w-md mx-auto mb-4">Every gap has four options — each with different costs, timelines, and risks. This tool helps you choose.</p><div className="flex gap-3 justify-center">{onNavigate && <><button onClick={() => onNavigate("design")} className="px-4 py-2 rounded-xl text-[14px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>Go to Work Design Lab →</button><button onClick={() => onNavigate("scan")} className="px-4 py-2 rounded-xl text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">Go to AI Scan →</button></>}</div></div>}
 
-    <div className="grid grid-cols-2 gap-4 mb-4">
-      <Card title="Disposition Mix"><DonutViz data={[{name:"Build",value:Number(summary.build||0)},{name:"Buy",value:Number(summary.buy||0)},{name:"Borrow",value:Number(summary.borrow||0)},{name:"Automate",value:Number(summary.automate||0)}]} /></Card>
-      <Card title="Investment Summary"><div className="space-y-3">
-        <div className="flex justify-between p-3 rounded-lg bg-[var(--surface-2)]"><span className="text-[15px]">Reskilling (Build)</span><span className="text-[15px] font-extrabold text-[var(--success)]">{fmtNum(summary.reskilling_investment||0)}</span></div>
-        <div className="flex justify-between p-3 rounded-lg bg-[var(--surface-2)]"><span className="text-[15px]">Hiring (Buy)</span><span className="text-[15px] font-extrabold text-[var(--accent-primary)]">{fmtNum(summary.hiring_cost||0)}</span></div>
-        <div className="flex justify-between p-3 rounded-lg bg-[var(--surface-2)] border-t-2 border-[var(--text-primary)]"><span className="text-[15px] font-bold">Total Investment</span><span className="text-[17px] font-extrabold text-[var(--text-primary)]">{fmtNum(summary.total_investment||0)}</span></div>
-      </div></Card>
-    </div>
+    {/* ═══ STRATEGY EXPLAINER CARDS ═══ */}
+    {roles.length > 0 && <div className="mb-5">
+      <button onClick={() => setShowStratInfo(!showStratInfo)} className="text-[13px] text-[var(--text-muted)] mb-2 hover:text-[var(--accent-primary)]">{showStratInfo ? "▾ Hide" : "▸ Show"} strategy guide</button>
+      {showStratInfo && <div className="grid grid-cols-4 gap-3">
+        {strategies.map(s => <div key={s.id} className="rounded-xl p-4" style={{ borderLeft: `3px solid ${s.color}`, background: "var(--surface-1)", boxShadow: "0 1px 6px rgba(0,0,0,0.08)" }}>
+          <div className="flex items-center gap-2 mb-2"><span className="text-[20px]">{s.icon}</span><span className="text-[15px] font-bold" style={{ color: s.color }}>{s.id}</span></div>
+          <div className="text-[13px] text-[var(--text-secondary)] mb-2">{s.label}</div>
+          <div className="text-[12px] text-[var(--success)] mb-0.5">✓ {s.pros}</div>
+          <div className="text-[12px] text-[var(--risk)] mb-0.5">✗ {s.cons}</div>
+          <div className="text-[12px] text-[var(--text-muted)] italic mt-1">Best when: {s.best}</div>
+          <div className="flex justify-between mt-2 text-[11px] text-[var(--text-muted)]"><span>Cost: {s.cost}</span><span>{s.time}</span></div>
+        </div>)}
+      </div>}
+    </div>}
 
-    <Card title="Role-by-Role Decision Matrix">
-      <div className="text-[15px] text-[var(--text-secondary)] mb-3">Click the disposition badge to override AI recommendation. All dispositions are current recommendations until locked.</div>
-      <div className="overflow-auto rounded-lg border border-[var(--border)]"><table className="w-full text-[15px]"><thead><tr className="bg-[var(--surface-2)]"><th className="px-3 py-2 text-left font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Role</th><th className="px-2 py-2 text-center font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Disposition</th><th className="px-2 py-2 text-left font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Reason</th><th className="px-2 py-2 text-center font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Internal</th><th className="px-2 py-2 text-center font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">FTE</th><th className="px-2 py-2 text-center font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Cost</th><th className="px-2 py-2 text-center font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Timeline</th></tr></thead>
-      <tbody>{roles.map(r => { const disp = overrides[r.role] || r.disposition; return <tr key={r.role} className="border-b border-[var(--border)] hover:bg-[var(--hover)]">
-        <td className="px-3 py-2 font-semibold text-[var(--text-primary)]">{r.role}</td>
-        <td className="px-2 py-2 text-center"><button onClick={() => { const opts = ["Build","Buy","Borrow","Automate"]; const idx = opts.indexOf(disp); setOverrides(prev => ({...prev, [r.role]: opts[(idx+1)%4]})); }} className="px-2 py-1 rounded-full text-[15px] font-bold cursor-pointer" style={{background:`${dispColors[disp]}15`,color:dispColors[disp],border:`1px solid ${dispColors[disp]}30`}}>{dispIcons[disp]} {disp}</button></td>
-        <td className="px-2 py-2 text-[var(--text-secondary)] text-[15px]">{r.reason}</td>
-        <td className="px-2 py-2 text-center">{r.strong_candidates}+{r.reskillable_candidates}</td>
-        <td className="px-2 py-2 text-center font-bold">{r.fte_needed}</td>
-        <td className="px-2 py-2 text-center font-semibold">{fmtNum(r.total_cost)}</td>
-        <td className="px-2 py-2 text-center">{r.timeline_months}mo</td>
-      </tr>; })}</tbody></table></div>
-    </Card>
-
-    {/* Cost Comparison by Disposition */}
-    <Card title="Cost Comparison by Sourcing Strategy">
-      <div className="flex items-end gap-2 h-40 px-4 mb-4">{[
-        {label:"Build",value:roles.filter(r => (overrides[r.role] || r.disposition) === "Build").reduce((s,r) => s+r.total_cost, 0),color:"var(--success)"},
-        {label:"Buy",value:roles.filter(r => (overrides[r.role] || r.disposition) === "Buy").reduce((s,r) => s+r.total_cost, 0),color:"var(--accent-primary)"},
-        {label:"Borrow",value:roles.filter(r => (overrides[r.role] || r.disposition) === "Borrow").reduce((s,r) => s+r.total_cost, 0),color:"var(--warning)"},
-        {label:"Automate",value:roles.filter(r => (overrides[r.role] || r.disposition) === "Automate").reduce((s,r) => s+r.total_cost, 0),color:"var(--purple)"},
-      ].map(bar => {
-        const maxVal = Math.max(...roles.map(r => r.total_cost), 1);
-        const totalByType = bar.value;
-        const h = (totalByType / (maxVal * roles.length || 1)) * 100;
-        return <div key={bar.label} className="flex-1 flex flex-col items-center justify-end">
-          <div className="text-[15px] font-bold mb-1" style={{color:bar.color}}>{fmtNum(totalByType)}</div>
-          <div className="w-full rounded-t-lg" style={{height:`${Math.max(h*3, 8)}%`, background:`${bar.color}30`, border:`1px solid ${bar.color}50`}} />
-          <div className="text-[14px] text-[var(--text-muted)] mt-1">{bar.label}</div>
+    {/* ═══ ROLE DECISION CARDS ═══ */}
+    {roles.length > 0 && <div className="space-y-4 mb-6">
+      {roles.map(r => {
+        const disp = getDisp(r.role, r.disposition);
+        return <div key={r.role} className="rounded-2xl border border-[var(--border)] bg-[var(--surface-1)] overflow-hidden" style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
+          {/* Role header */}
+          <div className="px-5 py-3 flex items-center justify-between border-b border-[var(--border)]" style={{ background: "var(--surface-2)" }}>
+            <div className="flex items-center gap-3">
+              <span className="text-[18px] font-bold text-[var(--text-primary)] font-heading">{r.role}</span>
+              <span className="text-[12px] px-2 py-0.5 rounded-full bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] font-semibold">{r.fte_needed} FTE</span>
+            </div>
+            <div className="flex items-center gap-2 text-[13px] text-[var(--text-muted)]">
+              <span>✨ AI Recommends:</span>
+              <span className="font-bold" style={{ color: dispColors[r.disposition] }}>{dispIcons[r.disposition]} {r.disposition}</span>
+            </div>
+          </div>
+          {/* Four strategy panels */}
+          <div className="grid grid-cols-4 gap-0">
+            {strategies.map(s => {
+              const isSelected = disp === s.id;
+              const costEst = s.id === "Build" ? Math.round(r.total_cost * 0.3) : s.id === "Buy" ? Math.round(r.total_cost * 1.2) : s.id === "Borrow" ? Math.round(r.total_cost * 0.7) : Math.round(r.total_cost * 0.5);
+              const timeEst = s.id === "Build" ? Math.max(r.timeline_months, 6) : s.id === "Buy" ? Math.round(r.timeline_months * 0.6) : s.id === "Borrow" ? Math.max(Math.round(r.timeline_months * 0.3), 1) : Math.round(r.timeline_months * 0.8);
+              const riskLevel = s.id === "Build" ? "Low" : s.id === "Buy" ? "Medium" : s.id === "Borrow" ? "Low" : "High";
+              return <button key={s.id} onClick={() => setDisp(r.role, s.id)} className="p-4 text-left transition-all border-r border-[var(--border)] last:border-r-0" style={{
+                background: isSelected ? `${s.color}08` : "transparent",
+                borderTop: isSelected ? `3px solid ${s.color}` : "3px solid transparent",
+              }}>
+                <div className="flex items-center gap-1.5 mb-2">
+                  <span className="text-[16px]">{s.icon}</span>
+                  <span className="text-[14px] font-bold" style={{ color: isSelected ? s.color : "var(--text-primary)" }}>{s.id}</span>
+                  {isSelected && <span className="text-[12px] ml-auto" style={{ color: s.color }}>✓</span>}
+                </div>
+                <div className="text-[13px] text-[var(--text-secondary)] mb-1">{s.id === "Build" ? `Train ${r.strong_candidates + r.reskillable_candidates} people` : s.id === "Buy" ? `Hire ${r.fte_needed} new` : s.id === "Borrow" ? `Contract ${Math.max(1, Math.round(r.fte_needed * 0.7))}` : "Deploy AI tool"}</div>
+                <div className="text-[12px] text-[var(--text-muted)]">Cost: <span className="font-bold font-data">{fmtNum(costEst)}</span></div>
+                <div className="text-[12px] text-[var(--text-muted)]">Time: <span className="font-bold">{timeEst}mo</span></div>
+                <div className="text-[12px]" style={{ color: riskLevel === "High" ? "var(--risk)" : riskLevel === "Medium" ? "var(--warning)" : "var(--success)" }}>Risk: {riskLevel}</div>
+              </button>;
+            })}
+          </div>
+          {/* Selected strategy detail */}
+          <div className="px-5 py-3 text-[14px] text-[var(--text-secondary)] border-t border-[var(--border)]" style={{ background: `${dispColors[disp]}04` }}>
+            <span className="font-semibold" style={{ color: dispColors[disp] }}>{dispIcons[disp]} {disp}:</span> {r.reason}
+            {r.required_skills.length > 0 && <span className="text-[var(--text-muted)]"> · Skills: {r.required_skills.slice(0, 3).join(", ")}</span>}
+          </div>
         </div>;
-      })}</div>
-    </Card>
+      })}
+    </div>}
 
-    {/* Risk per Disposition */}
-    <Card title="Risk Assessment per Decision">
-      <div className="space-y-2">{roles.map(r => {
-        const disp = overrides[r.role] || r.disposition;
-        const riskMap: Record<string,{risk:string;color:string}> = {
-          Build: {risk:"Reskilling may take longer than planned; employee may not reach target proficiency",color:"var(--warning)"},
-          Buy: {risk:"Market competition for this role; longer time-to-fill; cultural integration risk",color:"var(--risk)"},
-          Borrow: {risk:"Contractor dependency; knowledge transfer gaps; higher ongoing cost",color:"var(--warning)"},
-          Automate: {risk:"Implementation complexity; change resistance; ongoing maintenance cost",color:"var(--purple)"},
-        };
-        const rk = riskMap[disp] || riskMap.Build;
-        return <div key={r.role} className="flex items-center gap-3 p-2 rounded-lg bg-[var(--surface-2)]">
-          <span className="text-[15px] font-semibold w-40 shrink-0 text-[var(--text-primary)]">{r.role}</span>
-          <Badge color={disp==="Build"?"green":disp==="Buy"?"indigo":disp==="Borrow"?"amber":"purple"}>{disp}</Badge>
-          <span className="text-[15px] text-[var(--text-secondary)] flex-1">{rk.risk}</span>
-        </div>;
-      })}</div>
-    </Card>
-
-    <InsightPanel title="Sourcing Strategy Insights" items={[
-      `${roles.filter(r => (overrides[r.role]||r.disposition)==="Build").length} Build roles — total reskilling: ${fmtNum(roles.filter(r => (overrides[r.role]||r.disposition)==="Build").reduce((s,r) => s+r.total_cost,0))}`,
-      `${roles.filter(r => (overrides[r.role]||r.disposition)==="Buy").length} Buy roles — hiring cost: ${fmtNum(roles.filter(r => (overrides[r.role]||r.disposition)==="Buy").reduce((s,r) => s+r.total_cost,0))}`,
-      `Build is ${Math.round(20000/85000*100)}% the cost of Buy per role — favor internal mobility where adjacency > 60%`,
-      `Average transition timeline: ${Math.round(roles.reduce((s,r) => s+r.timeline_months,0)/Math.max(roles.length,1))} months across all roles`,
-    ]} icon="🔀" />
+    {/* ═══ STRATEGY MIX DASHBOARD ═══ */}
+    {roles.length > 0 && <div className="grid grid-cols-2 gap-5 mb-5">
+      <Card title="Strategy Mix">
+        <DonutViz data={[{name:"Build",value:buildCount},{name:"Buy",value:buyCount},{name:"Borrow",value:borrowCount},{name:"Automate",value:autoCount}]} />
+        {/* Benchmark comparison */}
+        <div className="mt-4 space-y-2">
+          <div className="text-[13px] text-[var(--text-muted)] uppercase tracking-wider mb-1">Your Mix vs. Benchmark</div>
+          {[{ label: "Build", yours: Math.round(buildCount / Math.max(roles.length, 1) * 100), bench: 35, color: "var(--success)" },
+            { label: "Buy", yours: Math.round(buyCount / Math.max(roles.length, 1) * 100), bench: 25, color: "var(--accent-primary)" },
+            { label: "Borrow", yours: Math.round(borrowCount / Math.max(roles.length, 1) * 100), bench: 15, color: "var(--warning)" },
+            { label: "Automate", yours: Math.round(autoCount / Math.max(roles.length, 1) * 100), bench: 25, color: "var(--purple)" },
+          ].map(b => <div key={b.label} className="flex items-center gap-2 text-[13px]">
+            <span className="w-16 text-[var(--text-muted)]">{b.label}</span>
+            <div className="flex-1 h-3 bg-[var(--surface-2)] rounded-full overflow-hidden relative">
+              <div className="h-full rounded-full" style={{ width: `${b.yours}%`, background: b.color }} />
+              <div className="absolute top-0 h-full w-0.5 bg-white/30" style={{ left: `${b.bench}%` }} title={`Benchmark: ${b.bench}%`} />
+            </div>
+            <span className="font-bold font-data w-10 text-right" style={{ color: b.color }}>{b.yours}%</span>
+          </div>)}
+        </div>
+      </Card>
+      <Card title="Investment Summary">
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          {[{ l: "Total Investment", v: fmtNum(totalCost), c: "var(--text-primary)" }, { l: "Avg Timeline", v: `${avgTimeline}mo`, c: "#0EA5E9" }, { l: "To Reskill", v: String(buildCount), c: "var(--success)" }, { l: "To Hire", v: String(buyCount), c: "var(--accent-primary)" }].map(k => <div key={k.l} className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[18px] font-extrabold font-data" style={{ color: k.c }}>{k.v}</div><div className="text-[11px] text-[var(--text-muted)] uppercase">{k.l}</div></div>)}
+        </div>
+        {/* Insight */}
+        {buildCount > buyCount * 1.5 && <div className="rounded-xl p-3 border-l-3" style={{ borderLeft: "3px solid var(--accent-primary)", background: "rgba(212,134,10,0.04)" }}>
+          <div className="text-[14px] text-[var(--text-secondary)]">💡 You{"'"}re investing heavily in BUILD ({Math.round(buildCount / Math.max(roles.length, 1) * 100)}%) — cost-effective but extends timeline by ~3 months vs. a BUY-heavy approach.</div>
+        </div>}
+        {buyCount > buildCount && <div className="rounded-xl p-3 border-l-3" style={{ borderLeft: "3px solid var(--warning)", background: "rgba(245,158,11,0.04)" }}>
+          <div className="text-[14px] text-[var(--text-secondary)]">⚠️ BUY-heavy strategy ({Math.round(buyCount / Math.max(roles.length, 1) * 100)}%) is fast but expensive. Consider shifting 2-3 roles to BUILD where skill adjacency is high.</div>
+        </div>}
+      </Card>
+    </div>}
 
     <NextStepBar currentModuleId="bbba" onNavigate={onNavigate || onBack} />
   </div>;

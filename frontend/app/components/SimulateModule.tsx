@@ -118,61 +118,97 @@ Paragraph 6 (RECOMMENDATION): Is this scenario right, and what are the specific 
     }
   }, [narrative, model]);
 
-  return <div className="mb-4">
-    <button onClick={() => setCollapsed(!collapsed)} className="w-full flex items-center justify-between px-5 py-3 bg-[var(--surface-1)] border border-[var(--border)] rounded-t-xl hover:bg-[var(--hover)] transition-all" style={{ borderRadius: collapsed ? 12 : undefined, borderBottomLeftRadius: collapsed ? 12 : 0, borderBottomRightRadius: collapsed ? 12 : 0 }}>
+  const roi = totals.savings > 0 ? (totals.savings / Math.max(totalInv, 1)).toFixed(1) : "0";
+
+  return <div className="mb-5">
+    <button onClick={() => setCollapsed(!collapsed)} className="w-full flex items-center justify-between px-5 py-3.5 bg-[var(--surface-1)] border border-[var(--border)] hover:bg-[var(--hover)] transition-all" style={{ borderRadius: collapsed ? 16 : undefined, borderTopLeftRadius: 16, borderTopRightRadius: 16, borderBottomLeftRadius: collapsed ? 16 : 0, borderBottomRightRadius: collapsed ? 16 : 0, boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
       <div className="flex items-center gap-2">
         <span className="text-lg">📖</span>
-        <span className="text-[15px] font-bold text-[var(--text-primary)] font-heading">Scenario Narrative</span>
-        <span className="text-[15px] text-[var(--text-muted)]">— {scenario} scenario</span>
+        <span className="text-[16px] font-bold text-[var(--text-primary)] font-heading">Scenario Narrative</span>
       </div>
-      <span className="text-[var(--text-muted)] text-[15px]">{collapsed ? "▸" : "▾"}</span>
+      <span className="text-[var(--text-muted)] text-[14px]">{collapsed ? "▸" : "▾"}</span>
     </button>
 
-    {!collapsed && <div className="border border-[var(--border)] border-t-0 rounded-b-xl overflow-hidden" style={{ background: "linear-gradient(180deg, #faf8f4 0%, #f5ede2 100%)" }}>
-      {/* Amber accent bar */}
-      <div style={{ height: 3, background: "linear-gradient(90deg, #D4860A, #E8C547, #C07030)" }} />
+    {!collapsed && <div className="border border-[var(--border)] border-t-0 rounded-b-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.015)" }}>
 
-      <div className="px-6 py-5">
-        {/* Loading state */}
-        {loading && <div className="text-center py-8">
+      <div className="px-6 py-6 space-y-5">
+        {/* ═══ TOP BANNER ═══ */}
+        <div className="rounded-xl p-5 border-l-4" style={{ borderLeftColor: "var(--accent-primary)", background: "var(--surface-1)", boxShadow: "0 2px 12px rgba(0,0,0,0.1)" }}>
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div>
+              <div className="text-[20px] font-extrabold text-[var(--text-primary)] font-heading">The {scenario} Scenario</div>
+              <div className="text-[15px] text-[var(--text-muted)] mt-0.5">Redesigns {activeJobs.length} roles over {timeline} months</div>
+            </div>
+            <div className="flex gap-3">
+              {[
+                { icon: "💰", label: `$${totals.savings.toLocaleString()}`, sub: "savings/yr", color: "var(--success)" },
+                { icon: "📈", label: `${roi}x`, sub: "ROI", color: "var(--accent-primary)" },
+                { icon: "⏱️", label: `${breakEven}mo`, sub: "payback", color: "#0EA5E9" },
+              ].map(b => <div key={b.sub} className="rounded-xl px-4 py-2.5 text-center" style={{ background: `${b.color}08`, border: `1px solid ${b.color}20` }}>
+                <div className="text-[11px] opacity-60">{b.icon}</div>
+                <div className="text-[18px] font-extrabold font-data" style={{ color: b.color }}>{b.label}</div>
+                <div className="text-[11px] text-[var(--text-muted)] uppercase">{b.sub}</div>
+              </div>)}
+            </div>
+          </div>
+        </div>
+
+        {/* ═══ THREE INSIGHT CARDS ═══ */}
+        <div className="grid grid-cols-3 gap-4">
+          <div className="rounded-xl p-4 border-l-3" style={{ borderLeft: "3px solid #0EA5E9", background: "var(--surface-1)", boxShadow: "0 1px 6px rgba(0,0,0,0.08)" }}>
+            <div className="flex items-center gap-2 mb-2"><span className="text-[16px]">⚡</span><span className="text-[14px] font-bold text-[var(--text-primary)]">Impact</span></div>
+            <div className="text-[14px] text-[var(--text-secondary)] leading-relaxed">{totals.rel.toLocaleString()} hrs/month freed across {activeJobs.length} roles</div>
+            <div className="text-[13px] text-[var(--text-muted)] mt-1">{totals.fte.toFixed(1)} FTE equivalents → strategic work</div>
+          </div>
+          <div className="rounded-xl p-4" style={{ borderLeft: "3px solid var(--accent-primary)", background: "var(--surface-1)", boxShadow: "0 1px 6px rgba(0,0,0,0.08)" }}>
+            <div className="flex items-center gap-2 mb-2"><span className="text-[16px]">💰</span><span className="text-[14px] font-bold text-[var(--text-primary)]">Investment</span></div>
+            <div className="text-[14px] text-[var(--text-secondary)]">Total: ${totalInv.toLocaleString()}</div>
+            <div className="text-[13px] text-[var(--text-muted)]">Annual savings: ${totals.savings.toLocaleString()}</div>
+            <div className="text-[13px] text-[var(--success)] font-semibold mt-0.5">3yr NPV: ${Math.round(threeYearNet).toLocaleString()}</div>
+          </div>
+          <div className="rounded-xl p-4" style={{ borderLeft: "3px solid var(--success)", background: "var(--surface-1)", boxShadow: "0 1px 6px rgba(0,0,0,0.08)" }}>
+            <div className="flex items-center gap-2 mb-2"><span className="text-[16px]">📅</span><span className="text-[14px] font-bold text-[var(--text-primary)]">Timeline</span></div>
+            <div className="text-[14px] text-[var(--text-secondary)]">{enhanced} roles enhanced with AI</div>
+            <div className="text-[13px] text-[var(--text-muted)]">{redesigned} roles redesigned</div>
+            <div className="text-[13px] text-[var(--text-muted)]">Avg retraining: {Math.round(timeline * 0.4)} months</div>
+          </div>
+        </div>
+
+        {/* ═══ NARRATIVE SECTION ═══ */}
+        {loading && <div className="text-center py-10">
           <div className="text-2xl mb-2 animate-pulse">🧠</div>
-          <div className="text-[15px] text-[#C07030] font-semibold">Generating scenario narrative...</div>
+          <div className="text-[15px] text-[var(--accent-primary)] font-semibold">Generating scenario narrative...</div>
         </div>}
 
-        {/* Narrative content */}
         {!loading && narrative && <>
           {editing ? (
             <textarea value={narrative} onChange={e => setNarrative(e.target.value)}
-              className="w-full bg-white border border-[#D4860A]/20 rounded-xl p-4 text-[15px] leading-[1.9] outline-none resize-y"
-              style={{ color: "#333", fontFamily: "'Outfit', sans-serif", minHeight: 300 }}
+              className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl p-5 text-[16px] leading-[1.8] outline-none resize-y text-[var(--text-primary)]"
+              style={{ fontFamily: "'Outfit', sans-serif", minHeight: 300 }}
               onBlur={() => setEditing(false)} />
           ) : (
-            <div onClick={() => setEditing(true)} className="cursor-text" title="Click to edit">
+            <div onClick={() => setEditing(true)} className="cursor-text rounded-xl p-5" style={{ borderLeft: "2px solid rgba(212,134,10,0.25)", background: "var(--surface-1)" }} title="Click to edit">
               {narrative.split("\n\n").map((para, i) => {
-                if (i === 0) {
-                  // Headline paragraph — large and bold
-                  return <p key={i} style={{ fontSize: 17, fontWeight: 700, color: "#1a1a2e", lineHeight: 1.5, marginBottom: 16, fontFamily: "'Outfit', sans-serif" }}>{para}</p>;
-                }
-                // Body paragraphs — highlight numbers in amber
-                const highlighted = para.replace(/(\$[\d,]+[KMB]?|[\d,]+%|[\d,]+\.\d+x|[\d,]+ (?:roles?|months?|employees?|FTE|hours?))/g, '<span style="color:#C07030;font-weight:700">$1</span>');
-                return <p key={i} style={{ fontSize: 15, color: "#444", lineHeight: 1.85, marginBottom: 14, fontFamily: "'Outfit', sans-serif" }} dangerouslySetInnerHTML={{ __html: highlighted }} />;
+                if (i === 0) return <p key={i} className="font-heading" style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)", lineHeight: 1.5, marginBottom: 18 }}>{para}</p>;
+                const highlighted = para.replace(/(\$[\d,]+[KMB]?|[\d,]+%|[\d,]+\.\d+x|[\d,]+ (?:roles?|months?|employees?|FTE|hours?))/g, '<span style="color:var(--accent-primary);font-weight:700">$1</span>');
+                return <p key={i} style={{ fontSize: 16, color: "var(--text-secondary)", lineHeight: 1.8, marginBottom: 16, fontFamily: "'Outfit', sans-serif" }} dangerouslySetInnerHTML={{ __html: highlighted }} />;
               })}
             </div>
           )}
 
-          {/* Action buttons */}
-          <div className="flex items-center gap-2 mt-4 pt-3" style={{ borderTop: "1px solid rgba(212,134,10,0.1)" }}>
-            <button onClick={generateNarrative} disabled={loading} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold text-white disabled:opacity-50" style={{ background: "linear-gradient(135deg, #D4860A, #C07030)" }}>
+          {/* ═══ ACTION BAR ═══ */}
+          <div className="flex items-center gap-2 pt-4" style={{ borderTop: "1px solid var(--border)" }}>
+            <button onClick={generateNarrative} disabled={loading} className="px-4 py-2 rounded-xl text-[14px] font-semibold text-white disabled:opacity-50 glow-pulse" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>
               {loading ? "..." : "✨ Regenerate with AI"}
             </button>
-            <button onClick={copyToClipboard} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold text-[#C07030] border border-[#D4860A]/20 hover:bg-[#D4860A]/5">
-              Copy to Clipboard
+            <button onClick={copyToClipboard} className="px-3 py-2 rounded-xl text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--accent-primary)] hover:border-[var(--accent-primary)]/30 transition-all">
+              📋 Copy
             </button>
-            <button onClick={() => setEditing(!editing)} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold text-[#888] border border-[#ddd] hover:border-[#C07030]/30">
-              {editing ? "Done Editing" : "Edit"}
+            <button onClick={() => setEditing(!editing)} className="px-3 py-2 rounded-xl text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--accent-primary)] transition-all">
+              {editing ? "✓ Done" : "✏️ Edit"}
             </button>
             <div className="flex-1" />
-            <span className="text-[14px] text-[#aaa]">Click text to edit · AI enhances with richer language</span>
+            <span className="text-[12px] text-[var(--text-muted)] opacity-50">Click text to edit</span>
           </div>
         </>}
       </div>
@@ -184,7 +220,7 @@ Paragraph 6 (RECOMMENDATION): Is this scenario right, and what are the specific 
 export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simState, setSimState, viewCtx }: { onBack: () => void; onNavigate?: (id: string) => void; model: string; f: Filters; jobStates: Record<string, JobDesignState>; simState: { scenario: string; custom: boolean; custAdopt: number; custTimeline: number; investment: number }; setSimState: (s: { scenario: string; custom: boolean; custAdopt: number; custTimeline: number; investment: number }) => void; viewCtx?: ViewContext }) {
   const [tab, setTab] = useState("scenarios");
   const [redeployBuckets, setRedeployBuckets] = useState<Record<string, number>>({ hv: 25, inn: 25, cap: 25, opt: 25 });
-  const [scenSub, setScenSub] = useState("detail");
+  const [scenSub, setScenSub] = useState("impact");
   const [rdSub, setRdSub] = useState("dashboard");
   const [expandDim, setExpandDim] = useState<string | null>(null);
 
@@ -327,7 +363,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
     <ContextStrip items={[realJobs ? `${realJobs.length} roles from Work Design Lab` : "Using demo data — complete Work Design Lab for real numbers", Object.values(jobStates).filter(s => s.finalized).length > 0 ? `${Object.values(jobStates).filter(s => s.finalized).length} jobs finalized` : ""].filter(Boolean)} />
     <PageHeader icon="⚡" title="Impact Simulator" subtitle="Model transformation scenarios and assess organizational AI readiness" onBack={onBack} moduleId="simulate" />
     {realJobs ? <div className="bg-[rgba(16,185,129,0.08)] border border-[var(--success)]/30 rounded-lg px-4 py-2 mb-4 text-[15px] text-[var(--success)]">✓ Using your Work Design data — {realJobs.length} roles from your submitted jobs</div> : <div className="bg-[rgba(245,158,11,0.08)] border border-[var(--warning)]/30 rounded-lg px-4 py-2 mb-4 text-[15px] text-[var(--warning)]">Using demo data — complete jobs in the Work Design Lab to see your real numbers here</div>}
-    <TabBar tabs={[{ id: "scenarios", label: "⚡ Scenarios" }, { id: "readiness", label: "◎ AI Readiness" }]} active={tab} onChange={setTab} />
+    <TabBar tabs={[{ id: "scenarios", label: "⚡ Scenarios" }, { id: "readiness", label: "◎ AI Readiness" }, { id: "mgrready", label: "👔 Manager Prep" }, { id: "questions", label: "❓ Question Sim" }, { id: "ripple", label: "🌊 Ripple Effect" }, { id: "teamtrack", label: "📋 Team Tracker" }]} active={tab} onChange={setTab} />
 
     {tab === "scenarios" && <div>
       {/* Scenario pills */}
@@ -346,15 +382,126 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
         </div>
       </div>}
 
-      {/* Scenario sub-tabs */}
-      <TabBar tabs={[{ id: "detail", label: "Role Detail" }, { id: "waterfall", label: "Capacity Waterfall" }, { id: "fte", label: "FTE Impact" }, { id: "compare", label: "Comparison" }, { id: "redeploy", label: "Redeployment" }, { id: "roi", label: "Investment & ROI" }]} active={scenSub} onChange={setScenSub} />
-
-      {/* Metric cards */}
-      <div className="grid grid-cols-5 gap-3 mb-5">
-        <KpiCard label="Current Hours" value={`${totals.cur.toLocaleString()}h`} /><KpiCard label="Released Hours" value={`${totals.rel.toLocaleString()}h`} accent delta={`${totalPct}% of total`} /><KpiCard label="FTE Equivalent" value={totals.fte.toFixed(1)} /><KpiCard label="Annual Savings" value={fmtNum(totals.savings)} accent /><KpiCard label="Break-Even" value={breakEven <= 36 ? `${breakEven}mo` : "36mo+"} />
+      {/* ═══ PERSISTENT KPI STRIP ═══ */}
+      <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-1)] p-4 mb-5" style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.1)" }}>
+        <div className="grid grid-cols-5 gap-4">
+          {[
+            { label: "Annual Savings", value: fmtNum(totals.savings), color: "var(--success)", icon: "💰" },
+            { label: "ROI", value: `${totals.savings > 0 ? (totals.savings / Math.max(totalInv, 1)).toFixed(1) : "0"}x`, color: "var(--accent-primary)", icon: "📈" },
+            { label: "Payback", value: breakEven <= 36 ? `${breakEven}mo` : "36+", color: "#0EA5E9", icon: "⏱️" },
+            { label: "FTEs Impacted", value: totals.fte.toFixed(1), color: "var(--purple)", icon: "👥" },
+            { label: "Risk Level", value: totalPct > 40 ? "High" : totalPct > 20 ? "Medium" : "Low", color: totalPct > 40 ? "var(--risk)" : totalPct > 20 ? "var(--warning)" : "var(--success)", icon: totalPct > 40 ? "🔴" : totalPct > 20 ? "🟡" : "🟢" },
+          ].map(k => <div key={k.label} className="text-center">
+            <div className="text-[11px] text-[var(--text-muted)] uppercase tracking-wider mb-1">{k.icon} {k.label}</div>
+            <div className="text-[22px] font-extrabold font-data" style={{ color: k.color }}>{k.value}</div>
+          </div>)}
+        </div>
       </div>
 
-      {/* Role detail table */}
+      {/* ═══ REDESIGNED SUB-TABS ═══ */}
+      <TabBar tabs={[{ id: "impact", label: "📊 Impact Model" }, { id: "financial", label: "💰 Financial Case" }, { id: "compare", label: "⚖️ Scenario Comparison" }, { id: "redeploy", label: "🔀 Redeployment" }, { id: "brief", label: "📋 Executive Brief" }]} active={scenSub} onChange={setScenSub} />
+
+      {/* ═══ TAB: IMPACT MODEL (merges role detail + waterfall + FTE) ═══ */}
+      {scenSub === "impact" && <div className="space-y-5">
+        {/* Capacity Waterfall — visual */}
+        <Card title="Capacity Waterfall">
+          <div className="flex items-end gap-2 justify-center mb-4" style={{ height: 260 }}>
+            {[{ label: "Current", value: totals.cur, color: "var(--accent-primary)" },
+              { label: "AI Freed", value: -totals.rel, color: "var(--risk)" },
+              { label: "Redesigned", value: Math.round(totals.rel * 0.15), color: "var(--success)" },
+              { label: "Future", value: totals.fut, color: "var(--purple)" },
+            ].map((seg, i) => {
+              const maxH = Math.max(totals.cur, totals.fut, 1);
+              const barH = Math.max(Math.abs(seg.value) / maxH * 200, 8);
+              return <div key={i} className="flex flex-col items-center group cursor-pointer" style={{ width: 120 }}>
+                <div className="text-[14px] font-data font-bold mb-1" style={{ color: seg.color }}>{seg.value > 0 ? "+" : ""}{seg.value.toLocaleString()}h</div>
+                <div className="rounded-t-lg transition-all group-hover:opacity-80" style={{ width: 64, height: barH, background: seg.color }} />
+                <div className="text-[13px] text-[var(--text-muted)] mt-2 text-center font-heading">{seg.label}</div>
+              </div>;
+            })}
+          </div>
+        </Card>
+        {/* FTE by Function — table */}
+        <Card title={`Impact by Function — ${cfg.label} Scenario`}>
+          <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full text-[14px]"><thead><tr className="bg-[var(--surface-2)]">
+            {["Function", "Roles", "Current Hrs", "Released", "Future", "FTE Impact", "% Saved"].map(h => <th key={h} className="px-3 py-2 text-left text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">{h}</th>)}
+          </tr></thead><tbody>
+            {(() => {
+              const byDept: Record<string, typeof scenData> = {};
+              scenData.forEach(j => { if (!byDept[j.dept]) byDept[j.dept] = []; byDept[j.dept].push(j); });
+              return Object.entries(byDept).sort(([,a],[,b]) => b.reduce((s,j)=>s+j.released,0) - a.reduce((s,j)=>s+j.released,0)).map(([dept, roles]) => {
+                const dCur = roles.reduce((s,j)=>s+j.currentHrs,0);
+                const dRel = roles.reduce((s,j)=>s+j.released,0);
+                const dFut = roles.reduce((s,j)=>s+j.future,0);
+                const dFte = roles.reduce((s,j)=>s+j.fte,0);
+                const dPct = dCur > 0 ? Math.round(dRel/dCur*100) : 0;
+                return <tr key={dept} className="border-b border-[var(--border)]" style={{ borderLeft: `3px solid ${dPct > 30 ? "var(--risk)" : dPct > 15 ? "var(--warning)" : "var(--success)"}` }}>
+                  <td className="px-3 py-2 font-semibold text-[var(--text-primary)]">{dept}</td>
+                  <td className="px-3 py-2 text-[var(--text-muted)]">{roles.length}</td>
+                  <td className="px-3 py-2 font-data text-[var(--text-secondary)]">{dCur.toLocaleString()}</td>
+                  <td className="px-3 py-2 font-data font-bold" style={{ color: "var(--risk)" }}>-{dRel.toLocaleString()}</td>
+                  <td className="px-3 py-2 font-data text-[var(--text-secondary)]">{dFut.toLocaleString()}</td>
+                  <td className="px-3 py-2 font-data font-bold" style={{ color: cfg.color }}>{dFte.toFixed(1)}</td>
+                  <td className="px-3 py-2"><Badge color={dPct > 30 ? "red" : dPct > 15 ? "amber" : "green"}>{dPct}%</Badge></td>
+                </tr>;
+              });
+            })()}
+          </tbody></table></div>
+        </Card>
+      </div>}
+
+      {/* ═══ TAB: FINANCIAL CASE (merges ROI + investment) ═══ */}
+      {scenSub === "financial" && <div className="space-y-5">
+        <div className="grid grid-cols-2 gap-5">
+          {/* Investment breakdown */}
+          <Card title="Investment Breakdown">
+            <div className="space-y-3">
+              {[
+                { label: "Technology & Tools", pct: 40, amount: Math.round(totalInv * 0.4), color: "var(--purple)" },
+                { label: "Reskilling Programs", pct: 25, amount: Math.round(totalInv * 0.25), color: "var(--accent-primary)" },
+                { label: "Change Management", pct: 20, amount: Math.round(totalInv * 0.2), color: "#0EA5E9" },
+                { label: "Hiring & Transition", pct: 15, amount: Math.round(totalInv * 0.15), color: "var(--success)" },
+              ].map(item => <div key={item.label}>
+                <div className="flex justify-between text-[14px] mb-1"><span className="text-[var(--text-secondary)]">{item.label}</span><span className="font-bold font-data" style={{ color: item.color }}>${item.amount.toLocaleString()}</span></div>
+                <div className="h-2 bg-[var(--surface-2)] rounded-full overflow-hidden"><div className="h-full rounded-full" style={{ width: `${item.pct}%`, background: item.color }} /></div>
+              </div>)}
+              <div className="pt-2 border-t border-[var(--border)] flex justify-between text-[16px] font-bold"><span>Total Investment</span><span className="font-data text-[var(--warning)]">${totalInv.toLocaleString()}</span></div>
+            </div>
+          </Card>
+          {/* Savings breakdown */}
+          <Card title="Annual Savings Breakdown">
+            <div className="space-y-3">
+              {[
+                { label: "Automation Savings", pct: 50, amount: Math.round(totals.savings * 0.5), color: "var(--success)" },
+                { label: "Efficiency Gains", pct: 30, amount: Math.round(totals.savings * 0.3), color: "var(--accent-primary)" },
+                { label: "Headcount Optimization", pct: 20, amount: Math.round(totals.savings * 0.2), color: "#0EA5E9" },
+              ].map(item => <div key={item.label}>
+                <div className="flex justify-between text-[14px] mb-1"><span className="text-[var(--text-secondary)]">{item.label}</span><span className="font-bold font-data" style={{ color: item.color }}>${item.amount.toLocaleString()}</span></div>
+                <div className="h-2 bg-[var(--surface-2)] rounded-full overflow-hidden"><div className="h-full rounded-full" style={{ width: `${item.pct}%`, background: item.color }} /></div>
+              </div>)}
+              <div className="pt-2 border-t border-[var(--border)] flex justify-between text-[16px] font-bold"><span>Annual Savings</span><span className="font-data text-[var(--success)]">${totals.savings.toLocaleString()}</span></div>
+            </div>
+          </Card>
+        </div>
+        {/* Business case summary */}
+        <Card title="Business Case Summary">
+          <div className="grid grid-cols-6 gap-3">
+            {[
+              { label: "Investment", val: `$${totalInv.toLocaleString()}`, color: "var(--warning)" },
+              { label: "Annual Savings", val: `$${totals.savings.toLocaleString()}`, color: "var(--success)" },
+              { label: "Net Year 1", val: `$${(totals.savings - totalInv).toLocaleString()}`, color: totals.savings - totalInv > 0 ? "var(--success)" : "var(--risk)" },
+              { label: "3-Year NPV", val: `$${Math.round(totals.savings * 3 - totalInv).toLocaleString()}`, color: "var(--success)" },
+              { label: "Payback", val: `${breakEven}mo`, color: "#0EA5E9" },
+              { label: "ROI", val: `${totals.savings > 0 ? (totals.savings / Math.max(totalInv, 1)).toFixed(1) : "0"}x`, color: "var(--accent-primary)" },
+            ].map(k => <div key={k.label} className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[11px] text-[var(--text-muted)] uppercase mb-1">{k.label}</div><div className="text-[20px] font-extrabold font-data" style={{ color: k.color }}>{k.val}</div></div>)}
+          </div>
+        </Card>
+      </div>}
+
+      {/* ═══ TAB: EXECUTIVE BRIEF (replaces narrative) ═══ */}
+      {scenSub === "brief" && <ScenarioNarrative scenario={cfg.label} adoption={adoption} timeline={timeline} totals={totals} totalPct={totalPct} totalInv={totalInv} breakEven={breakEven} activeJobs={activeJobs} scenData={scenData} model={model} />}
+
+      {/* ═══ LEGACY TABS (kept for backward compat, hidden from tab bar) ═══ */}
       {scenSub === "detail" && <Card title={`Role Detail — ${cfg.label} Scenario`}>
         <div className="overflow-x-auto rounded-lg border border-[var(--border)]">
           <table className="w-full text-left"><thead><tr className="bg-[var(--surface-2)]">{["Role","Dept","Current","Eligible","Released","Future","FTE Freed","Saved %","AI Tasks"].map((h, i) => <th key={h} className={`px-3 py-2 text-[15px] font-semibold text-[var(--text-muted)] uppercase tracking-wider border-b border-[var(--border)] ${i >= 2 ? "text-right" : ""}`}>{h}</th>)}</tr></thead>
@@ -693,6 +840,210 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
       scenData={scenData}
       model={model}
     />}
+
+    {/* ═══ MANAGER READINESS PLANNER ═══ */}
+    {tab === "mgrready" && <div className="space-y-5">
+      <Card title="Manager Impact Timeline — HRBP Weekly Action List">
+        <div className="text-[15px] text-[var(--text-secondary)] mb-4">Your managers, sorted by when their teams are affected. Check off actions as you complete them.</div>
+        {(() => {
+          type MgrAction = { id: string; manager: string; team: number; wave: string; month: number; category: string; action: string; done: boolean; concern: string };
+          const [mgrActions, setMgrActions] = usePersisted<MgrAction[]>(`${model}_mgr_actions`, [
+            { id: "ma1", manager: "Sarah Chen", team: 42, wave: "Wave 1", month: 1, category: "Champion", action: "Brief on restructuring impact — 12 roles affected", done: false, concern: "Team morale during transition" },
+            { id: "ma2", manager: "James Park", team: 28, wave: "Wave 1", month: 1, category: "Needs Dev", action: "Provide talking points and FAQ document", done: false, concern: "Lacks change management experience" },
+            { id: "ma3", manager: "Mike Rodriguez", team: 8, wave: "Wave 1", month: 2, category: "Flight Risk", action: "1:1 engagement — assess commitment level", done: false, concern: "May leave before transition completes" },
+            { id: "ma4", manager: "Lisa Wang", team: 35, wave: "Wave 2", month: 3, category: "Champion", action: "Activate as change champion for Operations", done: false, concern: "Already leading 2 other initiatives" },
+            { id: "ma5", manager: "David Kim", team: 15, wave: "Wave 2", month: 3, category: "Needs Dev", action: "Schedule coaching sessions on AI adoption", done: false, concern: "Low digital literacy" },
+            { id: "ma6", manager: "Anna Torres", team: 22, wave: "Wave 2", month: 4, category: "Champion", action: "Coordinate group briefing with 3 other Wave 2 managers", done: false, concern: "None — strong advocate" },
+          ]);
+          const catColors: Record<string, string> = { Champion: "var(--success)", "Needs Dev": "var(--warning)", "Flight Risk": "var(--risk)" };
+          return <div className="space-y-2">{mgrActions.sort((a, b) => a.month - b.month).map(ma => <div key={ma.id} className="flex items-center gap-3 rounded-xl p-4" style={{ background: ma.done ? "rgba(16,185,129,0.04)" : "var(--surface-1)", border: `1px solid ${ma.done ? "var(--success)" : "var(--border)"}`, borderLeft: `4px solid ${catColors[ma.category] || "var(--text-muted)"}`, opacity: ma.done ? 0.6 : 1 }}>
+            <button onClick={() => setMgrActions(prev => prev.map(a => a.id === ma.id ? { ...a, done: !a.done } : a))} className="w-6 h-6 rounded-lg border-2 flex items-center justify-center shrink-0 transition-all" style={{ borderColor: ma.done ? "var(--success)" : "var(--border)", background: ma.done ? "var(--success)" : "transparent", color: "white" }}>{ma.done ? "✓" : ""}</button>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-0.5">
+                <span className="text-[15px] font-bold text-[var(--text-primary)]">{ma.manager}</span>
+                <span className="text-[13px] text-[var(--text-muted)]">{ma.team} reports</span>
+                <Badge color={ma.category === "Champion" ? "green" : ma.category === "Flight Risk" ? "red" : "amber"}>{ma.category}</Badge>
+                <span className="text-[12px] font-data text-[var(--text-muted)]">{ma.wave} · Month {ma.month}</span>
+              </div>
+              <div className="text-[14px] text-[var(--text-secondary)]" style={{ textDecoration: ma.done ? "line-through" : "none" }}>{ma.action}</div>
+              {ma.concern && <div className="text-[13px] text-[var(--text-muted)] italic mt-0.5">Concern: {ma.concern}</div>}
+            </div>
+          </div>)}</div>;
+        })()}
+      </Card>
+
+      {/* Manager Conversation Toolkit */}
+      <Card title="Manager Conversation Toolkit">
+        <div className="text-[15px] text-[var(--text-secondary)] mb-4">Select a manager to see their prep sheet. Customize before your 1:1.</div>
+        <div className="grid grid-cols-2 gap-4">
+          {[
+            { mgr: "Sarah Chen", role: "Dir, Technology", team: 42, changing: "12 of 42 roles redesigned, 4 tasks automated, 8 people reskilling", concerns: "Headcount reduction, team morale, her own role", talking: ["Your team isn't shrinking — 4 tasks are automated but those people are being reskilled into higher-value work", "You'll be involved in deciding reskilling paths for your team", "Your role is expanding — managing a team that works WITH AI"], avoid: "Avoid 'restructuring' — use 'role evolution'", followup: "Schedule skip-level with her top 3 ICs" },
+            { mgr: "Mike Rodriguez", role: "Mgr, Finance", team: 8, changing: "3 roles enhanced with AI tools, 2 tasks automated", concerns: "His own future, skill relevance, pace of change", talking: ["The Finance function is getting stronger, not smaller", "We're investing in your development — AI leadership training starts next month", "You're critical to this transition — your team trusts you"], avoid: "Don't discuss other managers' situations", followup: "Check in again in 2 weeks, monitor engagement" },
+          ].map(sheet => <div key={sheet.mgr} className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4">
+            <div className="text-[16px] font-bold text-[var(--text-primary)] mb-1">{sheet.mgr}</div>
+            <div className="text-[13px] text-[var(--text-muted)] mb-3">{sheet.role} · {sheet.team} reports</div>
+            <div className="space-y-2 text-[14px]">
+              <div><span className="font-bold text-[var(--accent-primary)]">What{"'"}s changing:</span> <span className="text-[var(--text-secondary)]">{sheet.changing}</span></div>
+              <div><span className="font-bold text-[var(--warning)]">Likely concerns:</span> <span className="text-[var(--text-secondary)]">{sheet.concerns}</span></div>
+              <div><span className="font-bold text-[var(--success)]">Say:</span>{sheet.talking.map((t, i) => <div key={i} className="text-[var(--text-secondary)] ml-3">• &ldquo;{t}&rdquo;</div>)}</div>
+              <div><span className="font-bold text-[var(--risk)]">Don{"'"}t say:</span> <span className="text-[var(--text-secondary)]">{sheet.avoid}</span></div>
+              <div><span className="font-bold text-[var(--text-muted)]">Follow-up:</span> <span className="text-[var(--text-secondary)]">{sheet.followup}</span></div>
+            </div>
+          </div>)}
+        </div>
+      </Card>
+    </div>}
+
+    {/* ═══ QUESTION SIMULATOR ═══ */}
+    {tab === "questions" && <div className="space-y-5">
+      <Card title="Question Simulator — What Will They Ask?">
+        <div className="text-[15px] text-[var(--text-secondary)] mb-4">Prepare for the questions you{"'"}ll face. Review answers, customize for your context, mark as ready.</div>
+        {(() => {
+          const [qReadyState, setQReadyState] = usePersisted<Record<string, boolean>>(`${model}_q_ready`, {});
+          const audiences = [
+            { group: "Individual Contributors", icon: "👤", questions: [
+              { q: "Is my job going away?", a: "Your role is evolving, not disappearing. Specific tasks may change, but the core purpose of your role remains. We'll provide full details about what changes and what support is available." },
+              { q: "Will I need to learn new skills?", a: "Yes — and we're investing in your development. Training programs are being designed for every affected role, with dedicated learning time built into your schedule." },
+              { q: "When will this affect me?", a: "Your function is in the transformation timeline — your manager will share specific dates in the next briefing. Nothing changes without advance notice and preparation." },
+              { q: "What if I don't want to change?", a: "We understand change is hard. We'll work with you individually on options. There's support available including coaching, reskilling, and career advisory." },
+              { q: "Will my pay change?", a: "Base compensation is protected during the transition. If your role is re-leveled, that could lead to an adjustment — always communicated transparently in advance." },
+            ]},
+            { group: "Managers", icon: "👔", questions: [
+              { q: "How many people am I losing?", a: "Your team structure is being optimized, not necessarily reduced. Your HRBP will walk through the specific impact on your team in your briefing session." },
+              { q: "Do I need to have difficult conversations?", a: "Your HRBP will be present for every sensitive conversation. You won't be alone in this — we'll prepare talking points and support materials together." },
+              { q: "What support do I get?", a: "Manager toolkit with talking points, dedicated HRBP support, leadership coaching sessions, and a peer network of other managers going through the same transition." },
+              { q: "What's the timeline for my team?", a: "Your team's specific timeline is in the wave plan — your HRBP will share this in your individual briefing. You'll have at least 4 weeks' notice before any changes." },
+            ]},
+            { group: "Executives", icon: "👑", questions: [
+              { q: "What's the ROI?", a: "The business case shows [X]x ROI over 3 years. We can walk through the detailed financial model including phased investment options." },
+              { q: "What if we lose key talent?", a: "We've identified retention risks and have engagement plans for each. Our data shows [X] high-performers who need proactive attention." },
+              { q: "When do we see results?", a: "Quick wins in Months 1-3, measurable impact by Month 6, full transformation by Month 12-18. Milestone tracking is built into the program." },
+            ]},
+          ];
+          return <div className="space-y-4">{audiences.map(aud => <div key={aud.group} className="rounded-2xl border border-[var(--border)] bg-[var(--surface-1)] overflow-hidden">
+            <div className="px-5 py-3 border-b border-[var(--border)]" style={{ background: "var(--surface-2)" }}>
+              <span className="text-[16px] font-bold text-[var(--text-primary)] font-heading">{aud.icon} {aud.group}</span>
+              <span className="text-[13px] text-[var(--text-muted)] ml-2">{aud.questions.filter(q => qReadyState[`${aud.group}_${q.q}`]).length}/{aud.questions.length} prepared</span>
+            </div>
+            <div className="divide-y divide-[var(--border)]">{aud.questions.map(q => {
+              const key = `${aud.group}_${q.q}`;
+              const ready = qReadyState[key];
+              return <div key={q.q} className="px-5 py-3 flex gap-3" style={{ opacity: ready ? 0.7 : 1 }}>
+                <button onClick={() => setQReadyState(prev => ({ ...prev, [key]: !ready }))} className="w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all" style={{ borderColor: ready ? "var(--success)" : "var(--border)", background: ready ? "var(--success)" : "transparent", color: "white" }}>{ready ? "✓" : ""}</button>
+                <div className="flex-1">
+                  <div className="text-[15px] font-semibold text-[var(--text-primary)] mb-1" style={{ textDecoration: ready ? "line-through" : "none" }}>&ldquo;{q.q}&rdquo;</div>
+                  <div className="text-[14px] text-[var(--text-secondary)] leading-relaxed">{q.a}</div>
+                </div>
+              </div>;
+            })}</div>
+          </div>)}</div>;
+        })()}
+      </Card>
+    </div>}
+
+    {/* ═══ RIPPLE EFFECT ANALYZER ═══ */}
+    {tab === "ripple" && <div className="space-y-5">
+      <Card title="Ripple Effect Analyzer — If We Change THIS, What ELSE Changes?">
+        <div className="text-[15px] text-[var(--text-secondary)] mb-4">Select a change decision to see all downstream impacts across people, process, finance, and risk.</div>
+        {(() => {
+          const [selectedChange, setSelectedChange] = useState("automate_close");
+          const changes: Record<string, { label: string; direct: string; second: { type: string; desc: string; link: string }[]; conflicts: string[] }> = {
+            automate_close: { label: "Automate monthly financial close", direct: "12 Finance Analysts affected, 480 hours/month freed",
+              second: [
+                { type: "👥 People", desc: "12 Finance Analysts need reskilling to FP&A or advisory roles", link: "reskill" },
+                { type: "📊 Org", desc: "Finance Manager span drops from 12 to 8 — consider absorbing adjacent team", link: "build" },
+                { type: "🏢 Shared Svc", desc: "Shared Services loses 30% Finance workload — capacity for HR admin absorption", link: "opmodel" },
+                { type: "⚙️ Process", desc: "3 downstream processes need redesign for automated inputs", link: "opmodel" },
+                { type: "💰 Finance", desc: "Month-end overtime budget ($45K/yr) eliminated", link: "simulate" },
+                { type: "🛡️ Compliance", desc: "Internal audit needs to update 4 controls for automated process", link: "plan" },
+              ],
+              conflicts: ["Reskilling doesn't start until Month 5 but automation goes live Month 3 — 2-month gap", "If analysts reskill to FP&A, that team may be over-staffed by Q3"],
+            },
+            restructure_tech: { label: "Restructure Technology function (reduce 1 layer)", direct: "340 employees affected, 15 managers impacted",
+              second: [
+                { type: "👥 People", desc: "15 managers need role redefinition — 5 become senior ICs", link: "build" },
+                { type: "📊 Org", desc: "Avg span increases from 5.2 to 7.8 — within healthy range", link: "build" },
+                { type: "💰 Finance", desc: "Management overhead reduced by $1.2M annually", link: "simulate" },
+                { type: "🔄 Change", desc: "High change fatigue risk — Technology already went through reorg 8 months ago", link: "changeready" },
+              ],
+              conflicts: ["Technology is your #1 strategic capability — restructuring now may slow delivery", "3 Flight Risk managers in Technology may leave during transition"],
+            },
+          };
+          const sel = changes[selectedChange];
+          const typeColors: Record<string, string> = { "👥 People": "#0891B2", "📊 Org": "var(--purple)", "🏢 Shared Svc": "var(--accent-primary)", "⚙️ Process": "var(--warning)", "💰 Finance": "var(--success)", "🛡️ Compliance": "var(--risk)", "🔄 Change": "var(--warning)" };
+          return <div>
+            <div className="flex gap-2 mb-5">{Object.entries(changes).map(([k, v]) => <button key={k} onClick={() => setSelectedChange(k)} className="px-4 py-2 rounded-xl text-[14px] font-semibold transition-all" style={{ background: selectedChange === k ? "rgba(212,134,10,0.12)" : "var(--surface-2)", color: selectedChange === k ? "var(--accent-primary)" : "var(--text-muted)", border: selectedChange === k ? "1px solid rgba(212,134,10,0.3)" : "1px solid var(--border)" }}>{v.label}</button>)}</div>
+            {sel && <div className="space-y-4">
+              {/* Direct impact */}
+              <div className="rounded-xl p-4 border-l-4" style={{ borderLeftColor: "var(--accent-primary)", background: "rgba(212,134,10,0.04)" }}>
+                <div className="text-[13px] font-bold text-[var(--accent-primary)] uppercase mb-1">Direct Impact</div>
+                <div className="text-[16px] font-semibold text-[var(--text-primary)]">{sel.direct}</div>
+              </div>
+              {/* Second-order effects */}
+              <div className="text-[14px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Second-Order Effects</div>
+              <div className="space-y-2">{sel.second.map((eff, i) => <div key={i} className="flex items-center gap-3 rounded-xl p-4 bg-[var(--surface-1)] border border-[var(--border)]" style={{ borderLeft: `3px solid ${typeColors[eff.type] || "var(--text-muted)"}` }}>
+                <span className="text-[14px] font-bold shrink-0" style={{ color: typeColors[eff.type] }}>{eff.type}</span>
+                <div className="flex-1 text-[14px] text-[var(--text-secondary)]">{eff.desc}</div>
+                {onNavigate && <button onClick={() => onNavigate(eff.link)} className="text-[12px] text-[var(--accent-primary)] shrink-0 hover:underline">View →</button>}
+              </div>)}</div>
+              {/* Conflicts */}
+              {sel.conflicts.length > 0 && <div className="rounded-xl p-4 border border-[var(--risk)]/20 bg-[rgba(239,68,68,0.04)]">
+                <div className="text-[14px] font-bold text-[var(--risk)] mb-2">⚠️ What Breaks</div>
+                {sel.conflicts.map((c, i) => <div key={i} className="text-[14px] text-[var(--text-secondary)] mb-1">• {c}</div>)}
+              </div>}
+            </div>}
+          </div>;
+        })()}
+      </Card>
+    </div>}
+
+    {/* ═══ TEAM TRANSITION TRACKER ═══ */}
+    {tab === "teamtrack" && <div className="space-y-5">
+      <Card title="Team Transition Tracker — Your Working Notebook">
+        <div className="text-[15px] text-[var(--text-secondary)] mb-4">Track your teams through the transition. Log sentiment, check off milestones, flag issues.</div>
+        {(() => {
+          const [teamData] = usePersisted<{ mgr: string; team: number; func: string; wave: string; milestones: { label: string; done: boolean }[]; issues: number }[]>(`${model}_team_track`, [
+            { mgr: "Sarah Chen", team: 42, func: "Technology", wave: "Wave 1", milestones: [{ label: "Manager briefed", done: true }, { label: "Team town hall", done: false }, { label: "Reskilling started", done: false }, { label: "Go-live", done: false }], issues: 1 },
+            { mgr: "James Park", team: 28, func: "Technology", wave: "Wave 1", milestones: [{ label: "Manager briefed", done: true }, { label: "Team town hall", done: true }, { label: "Reskilling started", done: false }, { label: "Go-live", done: false }], issues: 0 },
+            { mgr: "Lisa Wang", team: 35, func: "Operations", wave: "Wave 2", milestones: [{ label: "Manager briefed", done: false }, { label: "Team town hall", done: false }, { label: "Reskilling started", done: false }, { label: "Go-live", done: false }], issues: 2 },
+            { mgr: "David Kim", team: 15, func: "Finance", wave: "Wave 2", milestones: [{ label: "Manager briefed", done: false }, { label: "Team town hall", done: false }, { label: "Reskilling started", done: false }, { label: "Go-live", done: false }], issues: 0 },
+          ]);
+          return <div className="space-y-3">{teamData.map(t => {
+            const doneMilestones = t.milestones.filter(m => m.done).length;
+            const pct = Math.round((doneMilestones / t.milestones.length) * 100);
+            const status = pct >= 75 ? "🟢" : pct >= 25 ? "🟡" : "🔴";
+            return <div key={t.mgr} className="rounded-xl border border-[var(--border)] bg-[var(--surface-1)] p-4" style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.06)" }}>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-3"><span>{status}</span><span className="text-[16px] font-bold text-[var(--text-primary)]">{t.mgr}</span><span className="text-[13px] text-[var(--text-muted)]">{t.func} · {t.team} people · {t.wave}</span></div>
+                {t.issues > 0 && <span className="px-2 py-0.5 rounded-full text-[12px] font-bold bg-[rgba(239,68,68,0.1)] text-[var(--risk)]">{t.issues} issue{t.issues > 1 ? "s" : ""}</span>}
+              </div>
+              <div className="flex gap-2 mb-2">{t.milestones.map(m => <div key={m.label} className="flex-1 text-center">
+                <div className="text-[11px] text-[var(--text-muted)] mb-1">{m.label}</div>
+                <div className="w-full h-2 rounded-full" style={{ background: m.done ? "var(--success)" : "var(--surface-2)" }} />
+              </div>)}</div>
+              <div className="h-1.5 bg-[var(--surface-2)] rounded-full overflow-hidden"><div className="h-full rounded-full bg-[var(--success)]" style={{ width: `${pct}%` }} /></div>
+            </div>;
+          })}</div>;
+        })()}
+      </Card>
+
+      {/* Pulse logger */}
+      <Card title="Quick Pulse Logger">
+        <div className="text-[14px] text-[var(--text-muted)] mb-3">Log sentiment after every interaction. Build a picture over time.</div>
+        {(() => {
+          const [pulseLog, setPulseLog] = usePersisted<{ date: string; person: string; sentiment: number; concern: string }[]>(`${model}_pulse_log`, []);
+          return <div>
+            <div className="space-y-1 mb-3 max-h-[200px] overflow-y-auto">{pulseLog.slice().reverse().map((p, i) => <div key={i} className="flex items-center gap-3 p-2 rounded-lg bg-[var(--surface-2)] text-[14px]">
+              <span className="font-data text-[var(--text-muted)] w-20">{p.date}</span>
+              <span className="font-semibold text-[var(--text-primary)] w-28">{p.person}</span>
+              <span>{["😢","😟","😐","😊","🤩"][p.sentiment - 1] || "😐"}</span>
+              <span className="text-[var(--text-secondary)] flex-1">{p.concern}</span>
+            </div>)}</div>
+            <button onClick={() => { const person = prompt("Person name:"); if (!person) return; const sentiment = Number(prompt("Sentiment (1-5):") || "3"); const concern = prompt("Key concern or note:") || ""; setPulseLog(prev => [...prev, { date: new Date().toISOString().split("T")[0], person, sentiment, concern }]); }} className="px-4 py-2 rounded-xl text-[14px] font-semibold text-[var(--text-muted)] border border-dashed border-[var(--border)] hover:border-[var(--accent-primary)] hover:text-[var(--accent-primary)] w-full">+ Log a Pulse Check</button>
+          </div>;
+        })()}
+      </Card>
+    </div>}
 
     <NextStepBar currentModuleId="simulate" onNavigate={onNavigate || onBack} />
   </div>;

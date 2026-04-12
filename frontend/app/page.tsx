@@ -610,7 +610,7 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
 
   // ── Mini state: small floating icon ──
   if (viewState === "mini") return <button onClick={() => { setViewState("collapsed"); toggle(); }}
-    style={{ position: "fixed", bottom: 20, right: 20, zIndex: 40, width: 36, height: 36, borderRadius: 18, background: "linear-gradient(135deg, rgba(224,144,64,0.9), rgba(192,112,48,0.9))", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff", fontSize: 16, cursor: "pointer", boxShadow: "0 4px 20px rgba(224,144,64,0.3)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s" }}
+    style={{ position: "fixed", bottom: 20, left: 240, zIndex: 40, width: 36, height: 36, borderRadius: 18, background: "linear-gradient(135deg, rgba(224,144,64,0.9), rgba(192,112,48,0.9))", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff", fontSize: 16, cursor: "pointer", boxShadow: "0 4px 20px rgba(224,144,64,0.3)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s" }}
     onMouseEnter={e => e.currentTarget.style.transform = "scale(1.15)"} onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}>♪</button>;
 
   // ── Collapsed state: slim bar with mini visualizer ──
@@ -1552,7 +1552,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       {page === "home" && <div>
         <LandingPage onNavigate={navigate} moduleStatus={moduleStatus} hasData={hasData} viewMode={viewMode} projectName={projectName} onBackToHub={onBackToHub} onBackToSplash={() => { setShowSplash(true); try { sessionStorage.removeItem(`${projectId}_splashSeen`); } catch {} }} cardBackgrounds={cardBgs} phaseBackgrounds={phaseBgs} />
       </div>}
-      {page !== "home" && <div className="px-7 py-6">
+      {page !== "home" && <div className="px-7 py-6" style={{ paddingBottom: 80 }}>
       {page === "snapshot" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><WorkforceSnapshot model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {(page === "jobs" || page === "jobarch") && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><JobArchitectureModule model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "scan" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><AiOpportunityScan model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
@@ -2130,7 +2130,7 @@ function TutorialOverlay({ step, totalSteps, steps, onNext, onPrev, onClose, onJ
 function TutorialBadge({ onClick, step, total }: { onClick: () => void; step: number; total: number }) {
   const pct = Math.round(((step + 1) / total) * 100);
   const isComplete = step >= total - 1;
-  return <button onClick={onClick} style={{ position: "fixed", bottom: 16, right: 16, zIndex: 40, padding: "8px 14px", borderRadius: 14, fontSize: 14, fontWeight: 700, cursor: "pointer", background: "rgba(15,12,8,0.92)", backdropFilter: "blur(16px)", border: "1px solid rgba(212,134,10,0.15)", color: "#E09040", display: "flex", alignItems: "center", gap: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.3)", transition: "all 0.3s" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.35)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.15)"; }}>
+  return <button onClick={onClick} style={{ position: "fixed", bottom: 56, right: 16, zIndex: 35, padding: "8px 14px", borderRadius: 14, fontSize: 14, fontWeight: 700, cursor: "pointer", background: "rgba(15,12,8,0.92)", backdropFilter: "blur(16px)", border: "1px solid rgba(212,134,10,0.15)", color: "#E09040", display: "flex", alignItems: "center", gap: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.3)", transition: "all 0.3s" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.35)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.15)"; }}>
     <span>{isComplete ? "📖" : "🎓"}</span>
     <span>{isComplete ? "Guide" : "Tutorial"}</span>
     {!isComplete && <><span style={{ fontSize: 13, opacity: 0.5 }}>{pct}%</span><div style={{ width: 28, height: 3, borderRadius: 2, background: "rgba(212,134,10,0.15)", overflow: "hidden" }}><div style={{ width: `${pct}%`, height: "100%", background: "#D4860A", borderRadius: 2 }} /></div></>}

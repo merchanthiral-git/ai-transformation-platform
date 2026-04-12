@@ -62,6 +62,10 @@ app.add_middleware(
     allow_credentials=True, allow_methods=["*"], allow_headers=["*"],
 )
 
+# GZip compression for API responses
+from starlette.middleware.gzip import GZipMiddleware
+app.add_middleware(GZipMiddleware, minimum_size=500)
+
 # ── Mount all routers ──
 app.include_router(auth_router)
 app.include_router(project_router)
