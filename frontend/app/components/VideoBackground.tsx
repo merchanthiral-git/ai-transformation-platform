@@ -51,7 +51,7 @@ export function VideoBackground({
 
   // Intersection Observer — pause/play based on visibility
   useEffect(() => {
-    if (!containerRef.current || !animatedEnabled || videoFailed) return;
+    if (!containerRef.current || !animatedEnabled) return;
     const video = videoRef.current;
     if (!video) return;
 
@@ -68,49 +68,44 @@ export function VideoBackground({
 
     observer.observe(containerRef.current);
     return () => observer.disconnect();
-  }, [animatedEnabled, videoFailed]);
+  }, [animatedEnabled]);
 
-  // Detect video source failures — <source> errors don't bubble to <video> onError,
-  // so we check networkState after the browser has had time to attempt loading.
+  // Detect source failures — only the LAST <source> error event is reliable
+  // (fires after the browser has exhausted all sources). A 2-second grace period
+  // avoids false positives during React hydration where the DOM is rebuilt.
   useEffect(() => {
-    if (!animatedEnabled || videoFailed) return;
+    if (!animatedEnabled) return;
     const video = videoRef.current;
     if (!video) return;
 
-    const onSourceError = (e: Event) => {
-      console.error(`[VideoBackground] ${name} source failed:`, (e.target as HTMLSourceElement)?.src || "unknown", e);
-      setVideoFailed(true);
-    };
+    let cancelled = false;
 
-    // Listen for error on the last <source> — fires when all sources fail
-    const sources = video.querySelectorAll("source");
-    const lastSource = sources[sources.length - 1];
-    if (lastSource) {
-      lastSource.addEventListener("error", onSourceError);
-    }
+    const grace = setTimeout(() => {
+      if (cancelled) return;
+      const sources = video.querySelectorAll("source");
+      const lastSource = sources[sources.length - 1];
+      if (!lastSource) return;
 
-    // Also handle the video element's own error event (e.g. decode errors)
-    video.addEventListener("error", onSourceError);
-
-    // Safety net: if after 8s the video has no data and isn't playing, treat as failed
-    const timeout = setTimeout(() => {
-      if (video.readyState === 0 && video.networkState === 3) {
-        console.error(`[VideoBackground] ${name} timed out — readyState=${video.readyState}, networkState=${video.networkState}`);
-        setVideoFailed(true);
-      }
-    }, 8000);
+      const onSourceError = () => {
+        if (!cancelled) {
+          console.error(`[VideoBackground] ${name}: all sources failed`);
+          setVideoFailed(true);
+        }
+      };
+      lastSource.addEventListener("error", onSourceError, { once: true });
+    }, 2000);
 
     return () => {
-      if (lastSource) lastSource.removeEventListener("error", onSourceError);
-      video.removeEventListener("error", onSourceError);
-      clearTimeout(timeout);
+      cancelled = true;
+      clearTimeout(grace);
     };
-  }, [animatedEnabled, videoFailed]);
+  }, [animatedEnabled, name]);
 
-  const showVideo = animatedEnabled && !videoFailed;
   const gradient = fallbackGradient || DEFAULT_GRADIENT;
   const posterUrl = poster || `/videos/optimized/${name}-poster.jpg`;
   const filterStyle = blur > 0 ? `blur(${blur}px)` : undefined;
+  // Video is always in the DOM to survive hydration. Hide via opacity when disabled/failed.
+  const videoVisible = animatedEnabled && !videoFailed;
 
   return (
     <div
@@ -142,39 +137,32 @@ export function VideoBackground({
         }}
       />
 
-      {/* Layer 1: Video — on top of poster, only when enabled and not failed */}
-      {showVideo && (
-        <video
-          ref={videoRef}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          poster={posterUrl}
-          onError={(e) => {
-            console.error(`[VideoBackground] ${name} video element error:`, e);
-            setVideoFailed(true);
-          }}
-          onCanPlay={() => {
-            const v = videoRef.current;
-            if (v && v.paused) v.play().catch(() => {});
-          }}
-          style={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            zIndex: 1,
-            willChange: "transform",
-            filter: filterStyle,
-          }}
-        >
-          <source src={`/videos/optimized/${name}.webm`} type="video/webm" />
-          <source src={`/videos/optimized/${name}.mp4`} type="video/mp4" />
-        </video>
-      )}
+      {/* Layer 1: Video — ALWAYS in the DOM (avoids hydration removal).
+          Hidden via opacity when user-disabled or all sources failed. */}
+      <video
+        ref={videoRef}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        poster={posterUrl}
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          zIndex: 1,
+          willChange: "transform",
+          filter: filterStyle,
+          opacity: videoVisible ? 1 : 0,
+          transition: "opacity 0.6s ease",
+        }}
+      >
+        <source src={`/videos/optimized/${name}.webm`} type="video/webm" />
+        <source src={`/videos/optimized/${name}.mp4`} type="video/mp4" />
+      </video>
 
       {/* Layer 2: Overlay for text readability */}
       <div
@@ -182,12 +170,12 @@ export function VideoBackground({
           position: "absolute",
           inset: 0,
           background: `rgba(${hexToRgb(overlayColor)}, ${overlay})`,
-          zIndex: 1,
+          zIndex: 2,
         }}
       />
 
       {/* Layer 3: Content */}
-      <div style={{ position: "relative", zIndex: 2 }}>
+      <div style={{ position: "relative", zIndex: 3 }}>
         {children}
       </div>
     </div>
