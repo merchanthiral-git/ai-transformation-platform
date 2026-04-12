@@ -1,6 +1,7 @@
 "use client";
 import React, { useRef, useEffect, useState } from "react";
 import { useAnimatedBg } from "../../lib/animated-bg-context";
+import { CDN_BASE } from "../../lib/cdn";
 
 /**
  * VideoBackground — ambient MP4/WebM background with graceful fallbacks.
@@ -120,7 +121,7 @@ export function VideoBackground({
   }, [animatedEnabled, name]);
 
   const gradient = fallbackGradient || DEFAULT_GRADIENT;
-  const posterUrl = poster || `/videos/optimized/${name}-poster.jpg`;
+  const posterUrl = poster || `${CDN_BASE}/videos/optimized/${name}-poster.jpg`;
   const filterStyle = blur > 0 ? `blur(${blur}px)` : undefined;
   // Video fades in only when enabled, not failed, AND has data to show
   const videoVisible = animatedEnabled && !videoFailed && videoReady;
@@ -193,8 +194,8 @@ export function VideoBackground({
           transition: "opacity 0.6s ease",
         }}
       >
-        <source src={`/videos/optimized/${name}.webm`} type="video/webm" />
-        <source src={`/videos/optimized/${name}.mp4`} type="video/mp4" />
+        <source src={`${CDN_BASE}/videos/optimized/${name}.webm`} type="video/webm" />
+        <source src={`${CDN_BASE}/videos/optimized/${name}.mp4`} type="video/mp4" />
       </video>
 
       {/* Shimmer keyframes (injected once, deduplicated by browser) */}

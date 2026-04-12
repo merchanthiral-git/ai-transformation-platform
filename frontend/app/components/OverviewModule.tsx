@@ -4,6 +4,7 @@ import { ResponsiveContainer, PieChart, Pie, Cell, RadarChart, Radar, PolarGrid,
 import * as api from "../../lib/api";
 import type { Filters } from "../../lib/api";
 import { VideoBackground } from "./VideoBackground";
+import { CDN_BASE } from "../../lib/cdn";
 import {
   KpiCard,
   Card,
@@ -269,7 +270,7 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
 
   // ── Journey Map — Mad Men golden hour aesthetic ──
   return <div className="relative min-h-[calc(100vh-48px)] flex flex-col">
-    <VideoBackground name="journey_bg" overlay={0.25} poster="/journey_bg.png" fallbackGradient="linear-gradient(135deg, #0B1120 0%, #1a1040 100%)" className="absolute inset-0" />
+    <VideoBackground name="journey_bg" overlay={0.25} poster={`${CDN_BASE}/journey_bg.png`} fallbackGradient="linear-gradient(135deg, #0B1120 0%, #1a1040 100%)" className="absolute inset-0" />
 
     {/* Header with subtle dark gradient for readability — z-20 to stay above milestone z-10 */}
     <div className="relative z-20 text-center pt-6 pb-4" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 80%, transparent 100%)" }}>
@@ -300,7 +301,7 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
         }}>
           {/* Icon image with solid navy circle background */}
           <div className="milestone-icon" style={{ width: 96, height: 96, borderRadius: "50%", background: "#1C2B3A", display: "flex", alignItems: "center", justifyContent: "center", filter: isCurrent ? "drop-shadow(0 0 16px rgba(212,134,10,0.5))" : isReached ? "drop-shadow(0 4px 16px rgba(0,0,0,0.5))" : "grayscale(0.5) drop-shadow(0 4px 16px rgba(0,0,0,0.5))", transition: "transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease" }}>
-            <img src={`/icon_${phase.id}.png`} alt={phase.label} style={{ width: 96, height: 96, objectFit: "contain", borderRadius: "50%" }} />
+            <img src={`${CDN_BASE}/icon_${phase.id}.png`} alt={phase.label} style={{ width: 96, height: 96, objectFit: "contain", borderRadius: "50%" }} />
           </div>
           {/* Label — frosted navy pill */}
           <div className="milestone-label" style={{ position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)", width: 180, textAlign: "center", marginTop: 12, transition: "filter 0.2s ease" }}>

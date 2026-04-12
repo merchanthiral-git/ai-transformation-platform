@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from "react"
 import * as api from "../../lib/api";
 import type { Filters } from "../../lib/api";
 import { VideoBackground } from "./VideoBackground";
+import { CDN_BASE } from "../../lib/cdn";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, CartesianGrid, Legend } from "recharts";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -1674,7 +1675,7 @@ export function ViewSelector({ onSelect, employees, jobs, filterOptions, onBack 
 
   return <div style={{ position: "fixed", inset: 0, overflow: "auto", background: "#0B1120" }}>
     {/* Full bleed background */}
-    <VideoBackground name="view_bg" overlay={0.2} poster="/view_bg.png" fallbackGradient="linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 65%, #0a0f1a 100%)" className="absolute inset-0 w-screen h-screen" />
+    <VideoBackground name="view_bg" overlay={0.2} poster={`${CDN_BASE}/view_bg.png`} fallbackGradient="linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 65%, #0a0f1a 100%)" className="absolute inset-0 w-screen h-screen" />
     <div style={{ position: "absolute", inset: 0, zIndex: 1, background: revealed ? "rgba(8,12,24,0.75)" : "radial-gradient(ellipse at center, rgba(8,12,24,0.2) 0%, rgba(8,12,24,0.5) 60%, rgba(8,12,24,0.7) 100%)", transition: "background 0.6s ease", width: "100vw", height: "100vh" }} />
 
     {/* Back button */}
@@ -1830,14 +1831,14 @@ export const MODULES = [
 ];
 
 export const PHASE_BACKGROUNDS: Record<string, string> = {
-  discover: "/cards/backgrounds/discover.png",
-  diagnose: "/cards/backgrounds/diagnose.png",
-  design: "/cards/backgrounds/design.png",
-  simulate: "/cards/backgrounds/simulate.png",
-  mobilize: "/cards/backgrounds/mobilize.png",
+  discover: `${CDN_BASE}/cards/backgrounds/discover.png`,
+  diagnose: `${CDN_BASE}/cards/backgrounds/diagnose.png`,
+  design: `${CDN_BASE}/cards/backgrounds/design.png`,
+  simulate: `${CDN_BASE}/cards/backgrounds/simulate.png`,
+  mobilize: `${CDN_BASE}/cards/backgrounds/mobilize.png`,
 };
 
-const TILE_IMAGES = Array.from({ length: 16 }, (_, i) => `/cards/tiles/tile_${String(i + 1).padStart(2, "0")}.png`);
+const TILE_IMAGES = Array.from({ length: 16 }, (_, i) => `${CDN_BASE}/cards/tiles/tile_${String(i + 1).padStart(2, "0")}.png`);
 
 /** Generate a mapping of card IDs → tile images, unique within each phase group */
 export function generateCardBackgrounds(): Record<string, string> {

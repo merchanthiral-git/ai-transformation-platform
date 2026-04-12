@@ -16,6 +16,8 @@
  *   view_bg.mp4     — View selector / employee picker
  */
 
+import { CDN_BASE } from "./cdn";
+
 export type VideoConfig = {
   name: string;
   overlay: number;
@@ -27,37 +29,37 @@ export const VIDEO_BACKGROUNDS = {
   LOGIN: {
     name: "login_bg",
     overlay: 0.5,
-    poster: "/login_bg.png",
+    poster: `${CDN_BASE}/login_bg.png`,
     fallbackGradient: "linear-gradient(135deg, #1a1208 0%, #2a1a0a 30%, #0f0d08 70%, #1a1510 100%)",
   },
   PROJECT_HUB: {
     name: "hero_bg",
     overlay: 0.35,
-    poster: "/hero_bg.png",
+    poster: `${CDN_BASE}/hero_bg.png`,
     fallbackGradient: "linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 65%, #0a0f1a 100%)",
   },
   LANDING: {
     name: "landing_bg",
     overlay: 0.4,
-    poster: "/landing_bg.png",
+    poster: `${CDN_BASE}/landing_bg.png`,
     fallbackGradient: "linear-gradient(135deg, #0B1120 0%, #0c1e3a 100%)",
   },
   JOURNEY: {
     name: "journey_bg",
     overlay: 0.4,
-    poster: "/journey_bg.png",
+    poster: `${CDN_BASE}/journey_bg.png`,
     fallbackGradient: "linear-gradient(135deg, #0B1120 0%, #1a1040 100%)",
   },
   SANDBOX: {
     name: "sandbox_bg",
     overlay: 0.4,
-    poster: "/sandbox_bg.png",
+    poster: `${CDN_BASE}/sandbox_bg.png`,
     fallbackGradient: "linear-gradient(160deg, #0B1120 0%, #1a1a30 40%, #12182a 100%)",
   },
   VIEW: {
     name: "view_bg",
     overlay: 0.35,
-    poster: "/view_bg.png",
+    poster: `${CDN_BASE}/view_bg.png`,
     fallbackGradient: "linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 65%, #0a0f1a 100%)",
   },
 } as const;
