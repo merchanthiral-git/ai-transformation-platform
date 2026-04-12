@@ -2192,9 +2192,18 @@ function ProjectHub({ onOpenProject, onStartTutorial, onOpenSandbox, showSandbox
   const [newLead, setNewLead] = useState("");
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [seedingId, setSeedingId] = useState<string | null>(null);
-  const [sandboxOpen, setSandboxOpen] = useState(false);
+  const [sandboxOpen, setSandboxOpen] = useState(!!showSandboxPicker);
   const [sandboxPanelOpen, setSandboxPanelOpen] = useState(false);
   const [pendingSandbox, setPendingSandbox] = useState<{ id: string; name: string; meta: string } | null>(null);
+  const [sandboxError, setSandboxError] = useState<string | null>(null);
+
+  // Sync parent's showSandboxPicker prop → local sandboxOpen state
+  useEffect(() => {
+    if (showSandboxPicker) {
+      setSandboxOpen(true);
+      setSandboxPanelOpen(true);
+    }
+  }, [showSandboxPicker]);
 
   // Load projects from localStorage (deferred for SSR safety)
   useEffect(() => {
@@ -2259,6 +2268,7 @@ function ProjectHub({ onOpenProject, onStartTutorial, onOpenSandbox, showSandbox
       setPendingSandbox(null);
       setSandboxOpen(false);
       setSandboxPanelOpen(false);
+      onCloseSandbox?.();
       onOpenProject(pendingSandbox);
     }} />;
   }
@@ -2271,7 +2281,7 @@ function ProjectHub({ onOpenProject, onStartTutorial, onOpenSandbox, showSandbox
       <div style={{ position: "absolute", inset: 0, background: sandboxPanelOpen ? "rgba(8,12,24,0.55)" : "radial-gradient(ellipse at 35% 40%, rgba(8,12,24,0.1) 0%, rgba(8,12,24,0.35) 50%, rgba(8,12,24,0.6) 100%)", transition: "background 0.5s ease" }} />
 
       {/* Back button */}
-      <button onClick={() => { setSandboxOpen(false); setSandboxPanelOpen(false); }} style={{ position: "absolute", top: 24, left: 24, zIndex: 30, padding: "8px 16px", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: "pointer", background: "rgba(0,0,0,0.4)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,200,150,0.12)", color: "rgba(255,230,200,0.8)", transition: "all 0.2s" }}>← Back</button>
+      <button onClick={() => { setSandboxOpen(false); setSandboxPanelOpen(false); onCloseSandbox?.(); }} style={{ position: "absolute", top: 24, left: 24, zIndex: 30, padding: "8px 16px", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: "pointer", background: "rgba(0,0,0,0.4)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,200,150,0.12)", color: "rgba(255,230,200,0.8)", transition: "all 0.2s" }}>← Back</button>
 
       {/* Click-to-open area */}
       {!sandboxPanelOpen && <div style={{ position: "absolute", inset: 0, zIndex: 10, cursor: "pointer" }} onClick={() => setSandboxPanelOpen(true)}>
@@ -2318,7 +2328,13 @@ function ProjectHub({ onOpenProject, onStartTutorial, onOpenSandbox, showSandbox
                   e.stopPropagation();
                   const tid = `tutorial_${t.size}_${ind.id}`;
                   setSeedingId(tid);
-                  try { await fetch(`/api/tutorial/seed?industry=${ind.id}&size=${t.size}`); } catch {}
+                  setSandboxError(null);
+                  try {
+                    const res = await fetch(`/api/tutorial/seed?industry=${ind.id}&size=${t.size}`);
+                    if (!res.ok) throw new Error(`Server returned ${res.status}`);
+                  } catch (err) {
+                    console.warn("Backend seed failed, continuing with local data:", err);
+                  }
                   seedTutorialData(tid, ind.id);
                   setSeedingId(null);
                   const companyName = t.info.split(" · ")[0] || ind.label;
@@ -2327,6 +2343,11 @@ function ProjectHub({ onOpenProject, onStartTutorial, onOpenSandbox, showSandbox
               </tr>)}</tbody>
             </table>
           </div>
+
+          {/* Error message */}
+          {sandboxError && <div style={{ marginTop: 16, padding: "12px 16px", borderRadius: 12, background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)" }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: "#FCA5A5" }}>{sandboxError}</div>
+          </div>}
 
           {/* Guided tour note */}
           <div style={{ marginTop: 20, padding: "12px 16px", borderRadius: 12, background: "rgba(139,92,246,0.06)", border: "1px solid rgba(139,92,246,0.12)" }}>
@@ -2368,7 +2389,7 @@ function ProjectHub({ onOpenProject, onStartTutorial, onOpenSandbox, showSandbox
           </div>; })()}
 
           {/* Sandbox card */}
-          <div onClick={() => onOpenSandbox?.()} style={{ borderRadius: 18, cursor: "pointer", padding: "24px 28px", transition: "all 0.3s", background: "linear-gradient(135deg, rgba(249,115,22,0.1), rgba(234,88,12,0.06))", backdropFilter: "blur(20px)", border: "1px solid rgba(249,115,22,0.2)" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.borderColor = "rgba(249,115,22,0.4)"; e.currentTarget.style.boxShadow = "0 12px 40px rgba(249,115,22,0.12)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "rgba(249,115,22,0.2)"; e.currentTarget.style.boxShadow = "none"; }}>
+          <div onClick={() => { setSandboxOpen(true); setSandboxPanelOpen(true); onOpenSandbox?.(); }} style={{ borderRadius: 18, cursor: "pointer", padding: "24px 28px", transition: "all 0.3s", background: "linear-gradient(135deg, rgba(249,115,22,0.1), rgba(234,88,12,0.06))", backdropFilter: "blur(20px)", border: "1px solid rgba(249,115,22,0.2)" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.borderColor = "rgba(249,115,22,0.4)"; e.currentTarget.style.boxShadow = "0 12px 40px rgba(249,115,22,0.12)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "rgba(249,115,22,0.2)"; e.currentTarget.style.boxShadow = "none"; }}>
             <div className="flex items-center gap-3 mb-2">
               <span className="text-2xl">🧪</span>
               <div>
@@ -2970,7 +2991,7 @@ export default function Page() {
   if (showPlatformHub) return <PlatformHub user={user} onBack={() => setShowPlatformHub(false)} onUpdateUser={u => setUser(u)} />;
 
   // Tutorial overlay (standalone, no data needed)
-  if (showTutorial) return <Tutorial onClose={() => setShowTutorial(false)} onGoToSandbox={() => { setShowTutorial(false); setShowSandboxPicker(true); }} onGoToNewProject={() => { setShowTutorial(false); }} />;
+  if (showTutorial) return <Tutorial onClose={() => { setShowTutorial(false); setShowSandboxPicker(false); }} onGoToSandbox={() => { setShowTutorial(false); setShowSandboxPicker(true); }} onGoToNewProject={() => { setShowTutorial(false); setShowSandboxPicker(false); }} />;
 
   if (!activeProject) return <>{hubAccountBar}{profileModal}<ProjectHub onOpenProject={setActiveProject} onStartTutorial={() => setShowTutorial(true)} onOpenSandbox={() => setShowSandboxPicker(true)} showSandboxPicker={showSandboxPicker} onCloseSandbox={() => setShowSandboxPicker(false)} /><MusicPlayer projectActive={false} /></>;
   return <>{profileModal}<Home key={activeProject.id} projectId={activeProject.id} projectName={activeProject.name} projectMeta={activeProject.meta} onBackToHub={() => setActiveProject(null)} user={user} onShowProfile={() => setShowProfile(true)} onShowPlatformHub={() => setShowPlatformHub(true)} /><MusicPlayer projectActive={true} /></>;
