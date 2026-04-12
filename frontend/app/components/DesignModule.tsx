@@ -1550,7 +1550,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
     if(co.archetype) setArch(co.archetype); if(co.opModel) setOpModel(co.opModel); if(co.governance) setGov(co.governance);
     setSandboxLoading(companyKey);
     try {
-      const resp = await fetch(`/api/sandbox/company?company=${encodeURIComponent(companyKey)}`);
+      const resp = await api.apiFetch(`/api/sandbox/company?company=${encodeURIComponent(companyKey)}`);
       if (resp.ok) {
         const data = await resp.json();
         if (data.model) {

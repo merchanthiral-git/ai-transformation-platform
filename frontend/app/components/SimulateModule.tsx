@@ -113,7 +113,7 @@ Paragraph 6 (RECOMMENDATION): Is this scenario right, and what are the specific 
     if (narrative) {
       try { localStorage.setItem(`${model}_scenario_narrative`, narrative); } catch {}
       // Fire-and-forget POST to backend for inclusion in DOCX/PPTX/PDF exports
-      fetch(`/api/export/narrative/${model}`, {
+      api.apiFetch(`/api/export/narrative/${model}`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ narrative }),
       }).catch(() => {});

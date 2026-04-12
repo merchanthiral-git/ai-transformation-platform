@@ -27,6 +27,15 @@ function getAuthHeaders(): Record<string, string> {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+/** Authenticated fetch — wraps native fetch() with auth headers. Use for non-JSON
+ *  endpoints (binary downloads, fire-and-forget calls) where fetchJSON() isn't appropriate. */
+export function apiFetch(url: string, init?: RequestInit): Promise<Response> {
+  return fetch(url, {
+    ...init,
+    headers: { ...getAuthHeaders(), ...(init?.headers || {}) },
+  });
+}
+
 async function fetchJSON<T>(path: string, fallback: T, options?: RequestInit): Promise<T> {
   try {
     const res = await fetch(path, {

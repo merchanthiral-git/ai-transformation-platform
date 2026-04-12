@@ -26,22 +26,21 @@ export function useAnimatedBg() {
 }
 
 export function AnimatedBgProvider({ children }: { children: React.ReactNode }) {
-  const [userPref, setUserPref] = useState<"on" | "off">("on");
+  // Initialise from localStorage synchronously so the very first render is correct.
+  // First visit (no key) → "on".  Returning user → whatever they chose last time.
+  const [userPref, setUserPref] = useState<"on" | "off">(() => {
+    if (typeof window === "undefined") return "on";
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored === "off") return "off";
+    return "on"; // default: videos ON for first visit and any non-"off" value
+  });
   const [forced, setForced] = useState(false);
   const [forceReason, setForceReason] = useState("");
 
-  // Read from localStorage on mount + detect device constraints
+  // Detect device constraints that override user preference
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    // Read stored preference
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === "on" || stored === "off") {
-      setUserPref(stored);
-    }
-
-    // Detect device constraints
-    const mobile = window.innerWidth < 768;
     const nav = navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } };
     const saveData = nav.connection?.saveData === true;
     const slow = ["slow-2g", "2g"].includes(nav.connection?.effectiveType || "");
@@ -51,24 +50,18 @@ export function AnimatedBgProvider({ children }: { children: React.ReactNode }) 
     if (reducedMotion) {
       setForced(true);
       setForceReason("Reduced motion preference detected");
-      setUserPref("off");
-    } else if (mobile) {
-      setForced(true);
-      setForceReason("Disabled for performance on mobile");
-      setUserPref("off");
     } else if (saveData || slow) {
       setForced(true);
       setForceReason("Disabled for performance on slow connections");
-      setUserPref("off");
     }
+    // NOTE: mobile width no longer forces videos off — let users on tablets/small
+    // laptops see videos. They can toggle off manually if performance is an issue.
 
     // Listen for reduced motion changes
     const handler = (e: MediaQueryListEvent) => {
       if (e.matches) {
         setForced(true);
         setForceReason("Reduced motion preference detected");
-        setUserPref("off");
-        localStorage.setItem(STORAGE_KEY, "off");
       } else {
         setForced(false);
         setForceReason("");

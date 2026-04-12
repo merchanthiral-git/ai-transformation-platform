@@ -75,7 +75,7 @@ PUBLIC_PATHS = {
     "/api/auth/reset-password", "/api/auth/check-username", "/api/auth/check-email",
     "/api/health",
 }
-PUBLIC_PREFIXES = ("/docs", "/openapi.json", "/redoc")
+PUBLIC_PREFIXES = ("/docs", "/openapi.json", "/redoc", "/api/tutorial/", "/api/sandbox/")
 
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):

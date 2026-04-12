@@ -805,7 +805,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
   });
   const [agentRunning, setAgentRunning] = useState<string | null>(null);
   const [aiProviders, setAiProviders] = useState<{ claude: boolean; gemini: boolean; no_key_message?: string | null } | null>(null);
-  useEffect(() => { fetch("/api/ai/providers").then(r => r.json()).then(d => setAiProviders(d)).catch(() => {}); }, []);
+  useEffect(() => { api.apiFetch("/api/ai/providers").then(r => r.json()).then(d => setAiProviders(d)).catch(() => {}); }, []);
   const [agentResults, setAgentResults] = usePersisted<{ id: string; agent: string; agentName: string; result: string; time: string; reviewed: boolean }[]>(`${projectId}_agent_results`, []);
   const [presentStartTime, setPresentStartTime] = useState(0);
   const [presentNotes, setPresentNotes] = useState(false);
@@ -881,7 +881,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
         if (derivedModel.startsWith("Tutorial_")) {
           setModel(derivedModel);
           // Also re-trigger the backend seed in case it wasn't seeded yet
-          fetch(`/api/tutorial/seed?industry=${projectId.split("_").slice(2).join("_")}&size=${projectId.split("_")[1]}`).catch(() => {});
+          api.apiFetch(`/api/tutorial/seed?industry=${projectId.split("_").slice(2).join("_")}&size=${projectId.split("_")[1]}`).catch(() => {});
         }
       }
     }
@@ -2349,7 +2349,7 @@ function ProjectHub({ onOpenProject, onStartTutorial, onOpenSandbox, showSandbox
                   setSeedingId(tid);
                   setSandboxError(null);
                   try {
-                    const res = await fetch(`/api/tutorial/seed?industry=${ind.id}&size=${t.size}`);
+                    const res = await api.apiFetch(`/api/tutorial/seed?industry=${ind.id}&size=${t.size}`);
                     if (!res.ok) throw new Error(`Server returned ${res.status}`);
                   } catch (err) {
                     console.warn("Backend seed failed, continuing with local data:", err);

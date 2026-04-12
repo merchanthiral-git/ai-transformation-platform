@@ -23,7 +23,7 @@ export function ExportReport({ model, f, onBack, onNavigate, jobStates, simState
   const generateDocx = async () => {
     setGenerating(true);
     try {
-      const resp = await fetch(`/api/export/docx/${model}`);
+      const resp = await api.apiFetch(`/api/export/docx/${model}`);
       if (resp.ok) { const blob = await resp.blob(); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `AI_Transformation_Report.docx`; a.click(); URL.revokeObjectURL(url); setGenerated(true); showToast("📋 Word document downloaded"); }
       else { showToast("Couldn't export — check that the backend is running"); }
     } catch { showToast("The export service isn't responding — try again shortly"); }
@@ -132,7 +132,7 @@ export function ExportReport({ model, f, onBack, onNavigate, jobStates, simState
           <div className="text-[15px] text-[var(--text-muted)] mb-3">All datasets as formatted sheets</div>
           <button onClick={async () => {
             try {
-              const resp = await fetch(`/api/export/download/workforce?model_id=${model}&${Object.entries(f).map(([k,v])=>`${k}=${v}`).join("&")}`);
+              const resp = await api.apiFetch(`/api/export/download/workforce?model_id=${model}&${Object.entries(f).map(([k,v])=>`${k}=${v}`).join("&")}`);
               if (resp.ok) { const blob = await resp.blob(); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `${model}_data_export.xlsx`; a.click(); URL.revokeObjectURL(url); showToast("📊 Excel downloaded"); }
             } catch { showToast("Couldn't export — try again in a moment"); }
           }} className="px-5 py-2 rounded-xl text-[15px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:border-[var(--accent-primary)]/30">Download .xlsx</button>
@@ -151,7 +151,7 @@ export function ExportReport({ model, f, onBack, onNavigate, jobStates, simState
           <button onClick={async () => {
             setGenerating(true);
             try {
-              const resp = await fetch(`/api/export/pptx/${model}`);
+              const resp = await api.apiFetch(`/api/export/pptx/${model}`);
               if (resp.ok) { const blob = await resp.blob(); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `AI_Transformation_Deck.pptx`; a.click(); URL.revokeObjectURL(url); showToast("📽️ PowerPoint downloaded"); }
               else showToast("Couldn't generate the PowerPoint — try again");
             } catch { showToast("The export service isn't responding — try again shortly"); }
@@ -169,7 +169,7 @@ export function ExportReport({ model, f, onBack, onNavigate, jobStates, simState
           <button onClick={async () => {
             setGenerating(true);
             try {
-              const resp = await fetch(`/api/export/pdf/${model}`);
+              const resp = await api.apiFetch(`/api/export/pdf/${model}`);
               if (resp.ok) { const blob = await resp.blob(); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `AI_Executive_Summary.pdf`; a.click(); URL.revokeObjectURL(url); showToast("📄 PDF downloaded"); }
               else showToast("Couldn't generate the PDF — try again");
             } catch { showToast("The export service isn't responding — try again shortly"); }

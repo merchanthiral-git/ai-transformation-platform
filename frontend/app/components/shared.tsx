@@ -560,7 +560,7 @@ export function ModuleExportButton({ model, module, label }: { model: string; mo
   return <button onClick={async () => {
     setExporting(true);
     try {
-      const resp = await fetch(`/api/export/module/${model}/${module}`);
+      const resp = await api.apiFetch(`/api/export/module/${model}/${module}`);
       if (resp.ok) { const blob = await resp.blob(); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `${module}_export.xlsx`; a.click(); URL.revokeObjectURL(url); showToast(`📥 ${label || module} exported`); }
       else showToast("Couldn't export — try again in a moment");
     } catch { showToast("Couldn't export — check that the backend is running"); }
