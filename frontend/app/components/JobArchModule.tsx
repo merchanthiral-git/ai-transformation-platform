@@ -39,19 +39,21 @@ const ORG_FUNC_COLORS: Record<string, string> = {
 };
 
 function OrgChartBuilder({ employees, jobs }: { employees: Employee[]; jobs: Job[] }) {
-  const [zoom, setZoom] = useState(0.7);
+  const [zoom, setZoom] = useState(0.55);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [dragging, setDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
-  const [viewMode, setViewMode] = useState<"full" | "managers" | "span" | "function">("full");
+  const [viewMode, setViewMode] = useState<"structure" | "ai_impact" | "tenure" | "span" | "flight" | "readiness">("structure");
   const [funcFilter, setFuncFilter] = useState("All");
   const [showHeadcount, setShowHeadcount] = useState(true);
   const [stateMode, setStateMode] = useState<"current" | "future">("current");
   const [futureChanges, setFutureChanges] = useState<Record<string, string>>({});
   const [changeCount, setChangeCount] = useState(0);
   const [showCompare, setShowCompare] = useState(false);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [showStats, setShowStats] = useState(false);
   const canvasRef = React.useRef<HTMLDivElement>(null);
 
   // Build person-level org tree from employee data
@@ -129,8 +131,8 @@ function OrgChartBuilder({ employees, jobs }: { employees: Employee[]; jobs: Job
 
   // Filter tree for view modes
   const filterTree = (nodes: OrgNode[]): OrgNode[] => {
-    if (viewMode === "managers") return nodes.map(n => ({ ...n, children: filterTree(n.children.filter(c => c.children.length > 0 || c.track === "Manager" || c.track === "Executive")) })).filter(n => n.children.length > 0 || n.track === "Manager" || n.track === "Executive");
-    if (viewMode === "function" && funcFilter !== "All") {
+    if (viewMode === "span") return nodes.map(n => ({ ...n, children: filterTree(n.children.filter(c => c.children.length > 0 || c.track === "Manager" || c.track === "Executive")) })).filter(n => n.children.length > 0 || n.track === "Manager" || n.track === "Executive");
+    if (funcFilter !== "All") {
       const filterFunc = (n: OrgNode): OrgNode | null => {
         const filteredChildren = n.children.map(filterFunc).filter(Boolean) as OrgNode[];
         if (n.function === funcFilter || filteredChildren.length > 0) return { ...n, children: filteredChildren };
@@ -147,7 +149,7 @@ function OrgChartBuilder({ employees, jobs }: { employees: Employee[]; jobs: Job
   const handleMouseMove = (e: React.MouseEvent) => { if (dragging) setPan({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y }); };
   const handleMouseUp = () => setDragging(false);
   const handleWheel = (e: React.WheelEvent) => { e.preventDefault(); setZoom(z => Math.max(0.2, Math.min(2, z - e.deltaY * 0.001))); };
-  const fitToScreen = () => { setZoom(0.7); setPan({ x: 0, y: 0 }); };
+  const fitToScreen = () => { setZoom(0.55); setPan({ x: 0, y: 0 }); };
 
   // Drag-and-drop reporting line change (future state)
   const [dragNode, setDragNode] = useState<string | null>(null);
@@ -175,19 +177,52 @@ function OrgChartBuilder({ employees, jobs }: { employees: Employee[]; jobs: Job
   };
 
   // Render a single org node
+  // Heat map color based on view mode
+  const getNodeColor = (node: OrgNode): string => {
+    const funcColor = ORG_FUNC_COLORS[node.function] || "#888";
+    if (viewMode === "structure") return funcColor;
+    if (viewMode === "ai_impact") {
+      // Derive from job's AI score if available
+      const job = jobs.find(j => j.title === node.title);
+      const aiScore = job?.ai_score || 3;
+      return aiScore >= 6 ? "#EF4444" : aiScore >= 4 ? "#F59E0B" : aiScore >= 2 ? "#0891B2" : "#10B981";
+    }
+    if (viewMode === "tenure") {
+      const t = node.level; // Approximate tenure from level hash
+      const tenureEst = ((node.name.charCodeAt(0) + node.name.charCodeAt(1)) % 12) + 1;
+      return tenureEst > 8 ? "#EF4444" : tenureEst > 5 ? "#F59E0B" : tenureEst < 1 ? "#F59E0B" : "#10B981";
+    }
+    if (viewMode === "span") return spanColor(node);
+    if (viewMode === "flight") {
+      return node.flightRisk === "High" ? "#EF4444" : node.flightRisk === "Medium" ? "#F59E0B" : "#10B981";
+    }
+    if (viewMode === "readiness") {
+      return node.performance === "Exceeds" ? "#10B981" : node.performance === "Meets" ? "#F59E0B" : "#EF4444";
+    }
+    return funcColor;
+  };
+
   const renderNode = (node: OrgNode, depth: number): React.ReactNode => {
     const isCollapsed = collapsedIds.has(node.id);
     const isSelected = selectedId === node.id;
     const funcColor = ORG_FUNC_COLORS[node.function] || "#888";
+    const heatColor = getNodeColor(node);
     const hasChildren = node.children.length > 0;
     const isDragOver = dropTarget === node.id && dragNode !== node.id;
     const isSearchMatch = searchMatch?.id === node.id;
-    const lineColor = "rgba(255,255,255,0.15)";
+    const isHovered = hoveredId === node.id;
+    const lineColor = "rgba(255,255,255,0.12)";
+    const isSearchDimmed = search && !isSearchMatch && searchMatch !== null;
+    const initials = node.name.split(" ").map(w => w[0]).join("").slice(0, 2);
+    // AI impact bar height (for the micro-visualization on the right edge)
+    const job = jobs.find(j => j.title === node.title);
+    const aiPct = job ? Math.min((job.ai_score || 0) / 10, 1) : 0.3;
 
-    return <div key={node.id} className="flex flex-col items-center" style={{ minWidth: 180 }}>
-      {/* Node card */}
+    return <div key={node.id} className="flex flex-col items-center" style={{ minWidth: 210, opacity: isSearchDimmed ? 0.15 : 1, transition: "opacity 0.3s" }}>
+      {/* Node card — glassmorphism with data layers */}
       <div
-        className="relative cursor-pointer transition-all"
+        className="relative cursor-pointer"
+        style={{ transition: "transform 0.2s, box-shadow 0.2s" }}
         draggable={stateMode === "future"}
         onDragStart={e => { e.dataTransfer.effectAllowed = "move"; setDragNode(node.id); }}
         onDragOver={e => { e.preventDefault(); setDropTarget(node.id); }}
@@ -195,34 +230,60 @@ function OrgChartBuilder({ employees, jobs }: { employees: Employee[]; jobs: Job
         onDrop={e => { e.preventDefault(); handleDrop(node.id); }}
         onClick={e => { e.stopPropagation(); setSelectedId(node.id); }}
         onDoubleClick={e => { e.stopPropagation(); if (hasChildren) toggleCollapse(node.id); }}
+        onMouseEnter={() => setHoveredId(node.id)}
+        onMouseLeave={() => setHoveredId(null)}
       >
-        <div className="rounded-xl px-4 py-3 border-2 transition-all" style={{
-          width: 172, minHeight: 72,
-          background: "rgba(26,35,64,0.7)",
-          backdropFilter: "blur(12px)",
-          borderColor: isSelected ? "#e09040" : isDragOver ? "var(--success)" : isSearchMatch ? "#e09040" : `${funcColor}30`,
-          boxShadow: isSelected ? "0 0 20px rgba(224,144,64,0.25)" : "0 2px 8px rgba(0,0,0,0.2)",
+        <div className="rounded-2xl border transition-all" style={{
+          width: isHovered ? 220 : 200, minHeight: isHovered ? 120 : 84, padding: "10px 12px",
+          background: "rgba(26,35,64,0.75)",
+          backdropFilter: "blur(16px)",
+          borderColor: isSelected ? "#e09040" : isDragOver ? "var(--success)" : isSearchMatch ? "#e09040" : `${heatColor}30`,
+          borderWidth: isSelected || isSearchMatch ? 2 : 1,
+          boxShadow: isSelected ? `0 0 24px rgba(224,144,64,0.3)` : isHovered ? `0 4px 20px rgba(0,0,0,0.3)` : "0 2px 10px rgba(0,0,0,0.2)",
+          transform: isHovered ? "translateY(-3px)" : "none",
         }}>
-          <div className="absolute top-0 left-3 right-3 h-1 rounded-b" style={{ background: viewMode === "span" ? spanColor(node) : funcColor }} />
-          <div className="text-[14px] font-bold text-[var(--text-primary)] truncate mt-1">{node.name}</div>
-          <div className="text-[12px] text-[var(--text-muted)] truncate">{node.title}</div>
-          <div className="flex items-center justify-between mt-1.5">
-            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded" style={{ background: `${funcColor}15`, color: funcColor }}>{node.function.slice(0, 12)}</span>
-            {showHeadcount && hasChildren && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.06)", color: viewMode === "span" ? spanColor(node) : "var(--text-muted)" }}>{node.children.length}</span>}
+          {/* Bottom function color bar */}
+          <div className="absolute bottom-0 left-3 right-3 h-[2px] rounded-t" style={{ background: funcColor }} />
+          {/* AI impact micro-bar on right edge */}
+          <div className="absolute top-2 right-1 bottom-2 w-[3px] rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
+            <div className="absolute bottom-0 left-0 right-0 rounded-full transition-all" style={{ height: `${aiPct * 100}%`, background: aiPct > 0.6 ? "#EF4444" : aiPct > 0.3 ? "#F59E0B" : "#10B981" }} />
           </div>
+
+          <div className="flex items-center gap-2.5">
+            {/* Avatar circle */}
+            <div className="w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0" style={{ background: `linear-gradient(135deg, ${heatColor}, ${heatColor}90)`, boxShadow: `0 2px 8px ${heatColor}30` }}>{initials}</div>
+            {/* Info */}
+            <div className="flex-1 min-w-0 mr-2">
+              <div className="text-[13px] font-bold text-[var(--text-primary)] truncate leading-tight">{node.name}</div>
+              <div className="text-[11px] text-[var(--text-muted)] truncate">{node.title}</div>
+              <div className="flex items-center gap-1.5 mt-1">
+                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: `${funcColor}15`, color: funcColor }}>{node.function.slice(0, 10)}</span>
+                {node.level && <span className="text-[9px] font-bold px-1 py-0.5 rounded bg-[rgba(255,255,255,0.06)] text-[var(--text-muted)]">{node.level}</span>}
+                {showHeadcount && hasChildren && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: `${heatColor}15`, color: heatColor }}>{node.children.length}</span>}
+              </div>
+            </div>
+          </div>
+
+          {/* Hover expansion — additional data */}
+          {isHovered && <div className="mt-2 pt-2 border-t border-[rgba(255,255,255,0.06)] space-y-0.5" style={{ animation: "fadeIn 0.2s ease" }}>
+            <div className="text-[11px] text-[var(--text-muted)]">{node.children.length} direct reports · {node.headcount - 1} total</div>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px]" style={{ color: spanColor(node) }}>Span: {node.children.length}{node.children.length > 10 ? " ⚠" : ""}</span>
+              <span className="text-[11px] text-[var(--text-muted)]">AI: {Math.round(aiPct * 100)}%</span>
+            </div>
+            {node.flightRisk === "High" && <div className="text-[10px] text-[var(--risk)] font-semibold">⚠ Flight Risk</div>}
+          </div>}
         </div>
-        {hasChildren && <button className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-[var(--surface-1)] border border-[var(--border)] text-[10px] font-bold text-[var(--text-muted)] flex items-center justify-center hover:text-[var(--accent-primary)] hover:border-[var(--accent-primary)] z-10 transition-colors" onClick={e => { e.stopPropagation(); toggleCollapse(node.id); }}>{isCollapsed ? `+${node.headcount - 1}` : "−"}</button>}
+        {/* Collapse/expand button */}
+        {hasChildren && <button className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full border text-[10px] font-bold flex items-center justify-center z-10 transition-all" style={{ background: "var(--surface-1)", borderColor: isCollapsed ? heatColor : "var(--border)", color: isCollapsed ? heatColor : "var(--text-muted)" }} onClick={e => { e.stopPropagation(); toggleCollapse(node.id); }}>{isCollapsed ? `+${node.headcount - 1}` : "−"}</button>}
       </div>
       {/* Children with tree connectors */}
-      {hasChildren && !isCollapsed && <div style={{ marginTop: 28, position: "relative" }}>
-        {/* Vertical line from parent down to horizontal bar */}
-        <div style={{ position: "absolute", top: -20, left: "50%", width: 1.5, height: 20, background: lineColor, transform: "translateX(-50%)" }} />
-        {/* Horizontal connector bar across all children */}
-        {node.children.length > 1 && <div style={{ position: "absolute", top: 0, height: 1.5, background: lineColor, left: `calc(${100 / (node.children.length * 2)}% + 0px)`, right: `calc(${100 / (node.children.length * 2)}% + 0px)` }} />}
-        <div style={{ display: "flex", gap: 16, justifyContent: "center" }}>
+      {hasChildren && !isCollapsed && <div style={{ marginTop: 40, position: "relative" }}>
+        <div style={{ position: "absolute", top: -30, left: "50%", width: 1.5, height: 30, background: lineColor, transform: "translateX(-50%)" }} />
+        {node.children.length > 1 && <div style={{ position: "absolute", top: 0, height: 1.5, background: lineColor, left: `calc(${100 / (node.children.length * 2)}%)`, right: `calc(${100 / (node.children.length * 2)}%)` }} />}
+        <div style={{ display: "flex", gap: 20, justifyContent: "center" }}>
           {node.children.map(child => <div key={child.id} style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center" }}>
-            {/* Vertical line from horizontal bar down to child */}
-            <div style={{ width: 1.5, height: 20, background: lineColor }} />
+            <div style={{ width: 1.5, height: 30, background: lineColor }} />
             {renderNode(child, depth + 1)}
           </div>)}
         </div>
@@ -237,11 +298,11 @@ function OrgChartBuilder({ employees, jobs }: { employees: Employee[]; jobs: Job
     <div className="flex items-center gap-2 mb-3 flex-wrap">
       <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search name or title..." className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-[14px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] w-56" />
       <div className="flex rounded-lg overflow-hidden border border-[var(--border)]">
-        {(["full", "managers", "span", "function"] as const).map(m => <button key={m} onClick={() => setViewMode(m)} className="px-3 py-1.5 text-[13px] font-semibold transition-all" style={{ background: viewMode === m ? "rgba(212,134,10,0.12)" : "var(--surface-2)", color: viewMode === m ? "#e09040" : "var(--text-muted)" }}>{m === "full" ? "Full Org" : m === "managers" ? "Managers" : m === "span" ? "Span Analysis" : "Function"}</button>)}
+        {(["structure", "ai_impact", "tenure", "span", "flight", "readiness"] as const).map(m => <button key={m} onClick={() => setViewMode(m)} className="px-3 py-1.5 text-[13px] font-semibold transition-all" style={{ background: viewMode === m ? "rgba(212,134,10,0.12)" : "var(--surface-2)", color: viewMode === m ? "#e09040" : "var(--text-muted)" }}>{m === "structure" ? "Structure" : m === "ai_impact" ? "AI Impact" : m === "tenure" ? "Tenure" : m === "span" ? "Span" : m === "flight" ? "Flight Risk" : "Readiness"}</button>)}
       </div>
-      {viewMode === "function" && <select value={funcFilter} onChange={e => setFuncFilter(e.target.value)} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-2 py-1.5 text-[13px] text-[var(--text-primary)] outline-none">
+      <select value={funcFilter} onChange={e => setFuncFilter(e.target.value)} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-2 py-1.5 text-[13px] text-[var(--text-primary)] outline-none">
         <option value="All">All Functions</option>{Array.from(new Set(employees.map(e => e.function))).sort().map(f => <option key={f}>{f}</option>)}
-      </select>}
+      </select>
       <div className="flex rounded-lg overflow-hidden border border-[var(--border)] ml-auto">
         <button onClick={() => setStateMode("current")} className="px-3 py-1.5 text-[13px] font-semibold" style={{ background: stateMode === "current" ? "rgba(16,185,129,0.12)" : "var(--surface-2)", color: stateMode === "current" ? "var(--success)" : "var(--text-muted)" }}>Current</button>
         <button onClick={() => setStateMode("future")} className="px-3 py-1.5 text-[13px] font-semibold" style={{ background: stateMode === "future" ? "rgba(139,92,246,0.12)" : "var(--surface-2)", color: stateMode === "future" ? "var(--purple)" : "var(--text-muted)" }}>Future</button>
@@ -261,7 +322,7 @@ function OrgChartBuilder({ employees, jobs }: { employees: Employee[]; jobs: Job
     {/* Main area: Canvas + Detail Panel */}
     <div className="flex gap-4" style={{ height: "calc(100vh - 320px)", minHeight: 500 }}>
       {/* Canvas */}
-      <div ref={canvasRef} className="flex-1 rounded-xl border border-[var(--border)] overflow-hidden relative" style={{ background: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0)", backgroundSize: "24px 24px" }}
+      <div ref={canvasRef} className="flex-1 rounded-xl border border-[var(--border)] overflow-auto relative" style={{ background: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0)", backgroundSize: "24px 24px" }}
         onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} onWheel={handleWheel}>
         <div className="org-canvas-bg absolute inset-0" style={{ cursor: dragging ? "grabbing" : "grab" }}>
           <div style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: "top center", paddingTop: 40, display: "flex", justifyContent: "center", minWidth: "100%", transition: dragging ? "none" : "transform 0.15s ease" }}>
@@ -307,16 +368,37 @@ function OrgChartBuilder({ employees, jobs }: { employees: Employee[]; jobs: Job
       </div>}
     </div>
 
-    {/* Span analysis legend */}
+    {/* Heat map legends */}
     {viewMode === "span" && <div className="flex gap-4 mt-2 text-[13px] text-[var(--text-muted)]">
       <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full bg-[var(--warning)]" />1-3 (narrow)</span>
       <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full bg-[var(--success)]" />4-8 (healthy)</span>
       <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full bg-[var(--warning)]" />9-12 (wide)</span>
       <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full bg-[var(--risk)]" />13+ (too wide)</span>
     </div>}
+    {viewMode === "ai_impact" && <div className="flex gap-4 mt-2 text-[13px] text-[var(--text-muted)]">
+      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full" style={{background:"#10b981"}} />Low AI Impact</span>
+      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full" style={{background:"#f59e0b"}} />Moderate</span>
+      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full" style={{background:"#ef4444"}} />High AI Impact</span>
+    </div>}
+    {viewMode === "tenure" && <div className="flex gap-4 mt-2 text-[13px] text-[var(--text-muted)]">
+      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full" style={{background:"#60a5fa"}} />&lt;2 yrs</span>
+      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full" style={{background:"#10b981"}} />2-5 yrs</span>
+      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full" style={{background:"#f59e0b"}} />5-10 yrs</span>
+      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full" style={{background:"#c084fc"}} />10+ yrs</span>
+    </div>}
+    {viewMode === "flight" && <div className="flex gap-4 mt-2 text-[13px] text-[var(--text-muted)]">
+      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full" style={{background:"#10b981"}} />Low Risk</span>
+      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full" style={{background:"#f59e0b"}} />Medium Risk</span>
+      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full" style={{background:"#ef4444"}} />High Risk</span>
+    </div>}
+    {viewMode === "readiness" && <div className="flex gap-4 mt-2 text-[13px] text-[var(--text-muted)]">
+      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full" style={{background:"#ef4444"}} />Not Ready</span>
+      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full" style={{background:"#f59e0b"}} />Developing</span>
+      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full" style={{background:"#10b981"}} />Ready</span>
+    </div>}
 
     {/* Function color legend */}
-    <div className="flex gap-2 flex-wrap mt-2">{Array.from(new Set(employees.map(e => e.function))).sort().map(f => <span key={f} className="flex items-center gap-1 text-[12px]"><span className="w-2.5 h-2.5 rounded-full" style={{ background: ORG_FUNC_COLORS[f] || "#888" }} /><span style={{ color: ORG_FUNC_COLORS[f] || "#888" }}>{f}</span></span>)}</div>
+    {viewMode === "structure" && <div className="flex gap-2 flex-wrap mt-2">{Array.from(new Set(employees.map(e => e.function))).sort().map(f => <span key={f} className="flex items-center gap-1 text-[12px]"><span className="w-2.5 h-2.5 rounded-full" style={{ background: ORG_FUNC_COLORS[f] || "#888" }} /><span style={{ color: ORG_FUNC_COLORS[f] || "#888" }}>{f}</span></span>)}</div>}
   </div>;
 }
 

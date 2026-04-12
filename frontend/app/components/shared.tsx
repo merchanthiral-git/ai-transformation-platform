@@ -969,7 +969,7 @@ export function PageHeader({ icon, title, subtitle, onBack, moduleId, onUpload, 
   const noTemplate = moduleId === "opmodel"; // Op Model Lab is a sandbox, no upload needed
 
   return <div className="mb-6">
-    <button onClick={onBack} className="text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mb-3 flex items-center gap-1 transition-colors">← Back to Home</button>
+    <button onClick={onBack} className="text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mb-3 flex items-center gap-1 transition-colors">← {(() => { if (!moduleId) return "Back to Home"; const mod = MODULES.find(m => m.id === moduleId); if (!mod) return "Back to Home"; const phase = PHASES.find(p => p.modules.includes(moduleId)); return phase ? `Back to ${phase.label}` : "Back to Home"; })()}</button>
     <div className="flex items-center justify-between flex-wrap gap-4">
       <div className="flex items-center gap-3">
         <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#e09040] to-[#c07030] flex items-center justify-center text-xl" style={{ boxShadow: "0 2px 8px rgba(224,144,64,0.25)" }}>{icon}</div>

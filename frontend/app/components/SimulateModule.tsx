@@ -227,6 +227,26 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
   // Saved scenarios for comparison
   type SavedScenario = { name: string; scenario: string; custom: boolean; adoption: number; timeline: number; investment: number; savedAt: string; totals: { cur: number; rel: number; fte: number; savings: number; breakEven: number; pct: number } };
   const [savedScenarios, setSavedScenarios] = usePersisted<SavedScenario[]>(`${model}_saved_scenarios`, []);
+
+  // HRBP module state (hoisted from render closures to avoid Rules of Hooks violation)
+  type MgrAction = { id: string; manager: string; team: number; wave: string; month: number; category: string; action: string; done: boolean; concern: string };
+  const [mgrActions, setMgrActions] = usePersisted<MgrAction[]>(`${model}_mgr_actions`, [
+    { id: "ma1", manager: "Sarah Chen", team: 42, wave: "Wave 1", month: 1, category: "Champion", action: "Brief on restructuring impact — 12 roles affected", done: false, concern: "Team morale during transition" },
+    { id: "ma2", manager: "James Park", team: 28, wave: "Wave 1", month: 1, category: "Needs Dev", action: "Provide talking points and FAQ document", done: false, concern: "Lacks change management experience" },
+    { id: "ma3", manager: "Mike Rodriguez", team: 8, wave: "Wave 1", month: 2, category: "Flight Risk", action: "1:1 engagement — assess commitment level", done: false, concern: "May leave before transition completes" },
+    { id: "ma4", manager: "Lisa Wang", team: 35, wave: "Wave 2", month: 3, category: "Champion", action: "Activate as change champion for Operations", done: false, concern: "Already leading 2 other initiatives" },
+    { id: "ma5", manager: "David Kim", team: 15, wave: "Wave 2", month: 3, category: "Needs Dev", action: "Schedule coaching sessions on AI adoption", done: false, concern: "Low digital literacy" },
+    { id: "ma6", manager: "Anna Torres", team: 22, wave: "Wave 2", month: 4, category: "Champion", action: "Coordinate group briefing with 3 other Wave 2 managers", done: false, concern: "None — strong advocate" },
+  ]);
+  const [qReadyState, setQReadyState] = usePersisted<Record<string, boolean>>(`${model}_q_ready`, {});
+  const [selectedChange, setSelectedChange] = useState("automate_close");
+  const [teamData] = usePersisted<{ mgr: string; team: number; func: string; wave: string; milestones: { label: string; done: boolean }[]; issues: number }[]>(`${model}_team_track`, [
+    { mgr: "Sarah Chen", team: 42, func: "Technology", wave: "Wave 1", milestones: [{ label: "Manager briefed", done: true }, { label: "Team town hall", done: false }, { label: "Reskilling started", done: false }, { label: "Go-live", done: false }], issues: 1 },
+    { mgr: "James Park", team: 28, func: "Technology", wave: "Wave 1", milestones: [{ label: "Manager briefed", done: true }, { label: "Team town hall", done: true }, { label: "Reskilling started", done: false }, { label: "Go-live", done: false }], issues: 0 },
+    { mgr: "Lisa Wang", team: 35, func: "Operations", wave: "Wave 2", milestones: [{ label: "Manager briefed", done: false }, { label: "Team town hall", done: false }, { label: "Reskilling started", done: false }, { label: "Go-live", done: false }], issues: 2 },
+    { mgr: "David Kim", team: 15, func: "Finance", wave: "Wave 2", milestones: [{ label: "Manager briefed", done: false }, { label: "Team town hall", done: false }, { label: "Reskilling started", done: false }, { label: "Go-live", done: false }], issues: 0 },
+  ]);
+  const [pulseLog, setPulseLog] = usePersisted<{ date: string; person: string; sentiment: number; concern: string }[]>(`${model}_pulse_log`, []);
   const [scenarioName, setScenarioName] = useState("");
 
   // Use persisted state
@@ -846,15 +866,6 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
       <Card title="Manager Impact Timeline — HRBP Weekly Action List">
         <div className="text-[15px] text-[var(--text-secondary)] mb-4">Your managers, sorted by when their teams are affected. Check off actions as you complete them.</div>
         {(() => {
-          type MgrAction = { id: string; manager: string; team: number; wave: string; month: number; category: string; action: string; done: boolean; concern: string };
-          const [mgrActions, setMgrActions] = usePersisted<MgrAction[]>(`${model}_mgr_actions`, [
-            { id: "ma1", manager: "Sarah Chen", team: 42, wave: "Wave 1", month: 1, category: "Champion", action: "Brief on restructuring impact — 12 roles affected", done: false, concern: "Team morale during transition" },
-            { id: "ma2", manager: "James Park", team: 28, wave: "Wave 1", month: 1, category: "Needs Dev", action: "Provide talking points and FAQ document", done: false, concern: "Lacks change management experience" },
-            { id: "ma3", manager: "Mike Rodriguez", team: 8, wave: "Wave 1", month: 2, category: "Flight Risk", action: "1:1 engagement — assess commitment level", done: false, concern: "May leave before transition completes" },
-            { id: "ma4", manager: "Lisa Wang", team: 35, wave: "Wave 2", month: 3, category: "Champion", action: "Activate as change champion for Operations", done: false, concern: "Already leading 2 other initiatives" },
-            { id: "ma5", manager: "David Kim", team: 15, wave: "Wave 2", month: 3, category: "Needs Dev", action: "Schedule coaching sessions on AI adoption", done: false, concern: "Low digital literacy" },
-            { id: "ma6", manager: "Anna Torres", team: 22, wave: "Wave 2", month: 4, category: "Champion", action: "Coordinate group briefing with 3 other Wave 2 managers", done: false, concern: "None — strong advocate" },
-          ]);
           const catColors: Record<string, string> = { Champion: "var(--success)", "Needs Dev": "var(--warning)", "Flight Risk": "var(--risk)" };
           return <div className="space-y-2">{mgrActions.sort((a, b) => a.month - b.month).map(ma => <div key={ma.id} className="flex items-center gap-3 rounded-xl p-4" style={{ background: ma.done ? "rgba(16,185,129,0.04)" : "var(--surface-1)", border: `1px solid ${ma.done ? "var(--success)" : "var(--border)"}`, borderLeft: `4px solid ${catColors[ma.category] || "var(--text-muted)"}`, opacity: ma.done ? 0.6 : 1 }}>
             <button onClick={() => setMgrActions(prev => prev.map(a => a.id === ma.id ? { ...a, done: !a.done } : a))} className="w-6 h-6 rounded-lg border-2 flex items-center justify-center shrink-0 transition-all" style={{ borderColor: ma.done ? "var(--success)" : "var(--border)", background: ma.done ? "var(--success)" : "transparent", color: "white" }}>{ma.done ? "✓" : ""}</button>
@@ -899,7 +910,6 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
       <Card title="Question Simulator — What Will They Ask?">
         <div className="text-[15px] text-[var(--text-secondary)] mb-4">Prepare for the questions you{"'"}ll face. Review answers, customize for your context, mark as ready.</div>
         {(() => {
-          const [qReadyState, setQReadyState] = usePersisted<Record<string, boolean>>(`${model}_q_ready`, {});
           const audiences = [
             { group: "Individual Contributors", icon: "👤", questions: [
               { q: "Is my job going away?", a: "Your role is evolving, not disappearing. Specific tasks may change, but the core purpose of your role remains. We'll provide full details about what changes and what support is available." },
@@ -946,7 +956,6 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
       <Card title="Ripple Effect Analyzer — If We Change THIS, What ELSE Changes?">
         <div className="text-[15px] text-[var(--text-secondary)] mb-4">Select a change decision to see all downstream impacts across people, process, finance, and risk.</div>
         {(() => {
-          const [selectedChange, setSelectedChange] = useState("automate_close");
           const changes: Record<string, { label: string; direct: string; second: { type: string; desc: string; link: string }[]; conflicts: string[] }> = {
             automate_close: { label: "Automate monthly financial close", direct: "12 Finance Analysts affected, 480 hours/month freed",
               second: [
@@ -1002,12 +1011,6 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
       <Card title="Team Transition Tracker — Your Working Notebook">
         <div className="text-[15px] text-[var(--text-secondary)] mb-4">Track your teams through the transition. Log sentiment, check off milestones, flag issues.</div>
         {(() => {
-          const [teamData] = usePersisted<{ mgr: string; team: number; func: string; wave: string; milestones: { label: string; done: boolean }[]; issues: number }[]>(`${model}_team_track`, [
-            { mgr: "Sarah Chen", team: 42, func: "Technology", wave: "Wave 1", milestones: [{ label: "Manager briefed", done: true }, { label: "Team town hall", done: false }, { label: "Reskilling started", done: false }, { label: "Go-live", done: false }], issues: 1 },
-            { mgr: "James Park", team: 28, func: "Technology", wave: "Wave 1", milestones: [{ label: "Manager briefed", done: true }, { label: "Team town hall", done: true }, { label: "Reskilling started", done: false }, { label: "Go-live", done: false }], issues: 0 },
-            { mgr: "Lisa Wang", team: 35, func: "Operations", wave: "Wave 2", milestones: [{ label: "Manager briefed", done: false }, { label: "Team town hall", done: false }, { label: "Reskilling started", done: false }, { label: "Go-live", done: false }], issues: 2 },
-            { mgr: "David Kim", team: 15, func: "Finance", wave: "Wave 2", milestones: [{ label: "Manager briefed", done: false }, { label: "Team town hall", done: false }, { label: "Reskilling started", done: false }, { label: "Go-live", done: false }], issues: 0 },
-          ]);
           return <div className="space-y-3">{teamData.map(t => {
             const doneMilestones = t.milestones.filter(m => m.done).length;
             const pct = Math.round((doneMilestones / t.milestones.length) * 100);
@@ -1031,7 +1034,6 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
       <Card title="Quick Pulse Logger">
         <div className="text-[14px] text-[var(--text-muted)] mb-3">Log sentiment after every interaction. Build a picture over time.</div>
         {(() => {
-          const [pulseLog, setPulseLog] = usePersisted<{ date: string; person: string; sentiment: number; concern: string }[]>(`${model}_pulse_log`, []);
           return <div>
             <div className="space-y-1 mb-3 max-h-[200px] overflow-y-auto">{pulseLog.slice().reverse().map((p, i) => <div key={i} className="flex items-center gap-3 p-2 rounded-lg bg-[var(--surface-2)] text-[14px]">
               <span className="font-data text-[var(--text-muted)] w-20">{p.date}</span>
