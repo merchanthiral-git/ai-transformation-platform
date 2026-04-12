@@ -83,6 +83,68 @@ class PasswordResetDB(Base):
     used = Column(String(5), default="false")
 
 
+# ── Agent System Tables ──
+class AgentSessionDB(Base):
+    __tablename__ = "agent_sessions"
+    id = Column(String, primary_key=True, default=lambda: uuid.uuid4().hex[:8])
+    project_id = Column(String, index=True, nullable=False)
+    agent_name = Column(String(50), nullable=False)
+    status = Column(String(20), default="running")  # running, completed, failed
+    run_data = Column(JSON, default=dict)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    completed_at = Column(DateTime, nullable=True)
+
+
+class AgentEventDB(Base):
+    __tablename__ = "agent_events"
+    id = Column(String, primary_key=True, default=lambda: uuid.uuid4().hex[:8])
+    session_id = Column(String, index=True, nullable=True)
+    project_id = Column(String, index=True, nullable=False)
+    event_type = Column(String(50), nullable=False)
+    agent = Column(String(50), nullable=False)
+    data = Column(JSON, default=dict)
+    timestamp = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+
+class AgentMemoryDB(Base):
+    __tablename__ = "agent_memories"
+    id = Column(String, primary_key=True, default=lambda: uuid.uuid4().hex[:8])
+    project_id = Column(String, index=True, default="")  # empty = global memory
+    category = Column(String(100), nullable=False)
+    content = Column(Text, nullable=False)
+    confidence = Column(String(10), default="0.8")
+    source_project = Column(String, default="")
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+
+# ── Decision Log & Annotations Tables ──
+class DecisionLogDB(Base):
+    __tablename__ = "decision_log"
+    id = Column(String, primary_key=True, default=lambda: uuid.uuid4().hex[:8])
+    project_id = Column(String, index=True, nullable=False)
+    module = Column(String(100), default="")
+    decision_type = Column(String(100), default="")
+    detail = Column(Text, default="")
+    user_id = Column(String, default="")
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+
+class AnnotationDB(Base):
+    __tablename__ = "annotations"
+    id = Column(String, primary_key=True, default=lambda: uuid.uuid4().hex[:8])
+    project_id = Column(String, index=True, nullable=False)
+    module_id = Column(String(100), default="")
+    x_pct = Column(String(20), default="0")
+    y_pct = Column(String(20), default="0")
+    text = Column(Text, default="")
+    color = Column(String(20), default="amber")
+    tag = Column(String(100), default="")
+    priority = Column(String(20), default="Medium")
+    resolved = Column(String(5), default="false")
+    author = Column(String(100), default="")
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+
 # Create tables (will add new columns if they don't exist via migrate helper below)
 Base.metadata.create_all(bind=engine)
 

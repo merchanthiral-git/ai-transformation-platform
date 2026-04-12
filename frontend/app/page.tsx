@@ -59,7 +59,173 @@ import { ExportReport } from "./components/ExportModule";
 
 import { JobArchitectureModule } from "./components/JobArchModule";
 import { PlatformHub } from "./components/PlatformHub";
+import { Canvas, useFrame } from "@react-three/fiber";
+import * as THREE from "three";
 
+/* ═══════════════════════════════════════════════════════════════
+   3D AUDIO ORB VISUALIZER
+   ═══════════════════════════════════════════════════════════════ */
+
+const orbVertexShader = `
+  uniform float uBass;
+  uniform float uMid;
+  uniform float uHigh;
+  uniform float uTime;
+  varying vec3 vNormal;
+  varying vec3 vPosition;
+  varying float vDisplacement;
+
+  // Simplex-like noise
+  vec3 mod289(vec3 x) { return x - floor(x * (1.0/289.0)) * 289.0; }
+  vec4 mod289(vec4 x) { return x - floor(x * (1.0/289.0)) * 289.0; }
+  vec4 permute(vec4 x) { return mod289(((x*34.0)+1.0)*x); }
+  float snoise(vec3 v) {
+    const vec2 C = vec2(1.0/6.0, 1.0/3.0);
+    vec3 i = floor(v + dot(v, C.yyy));
+    vec3 x0 = v - i + dot(i, C.xxx);
+    vec3 g = step(x0.yzx, x0.xyz);
+    vec3 l = 1.0 - g;
+    vec3 i1 = min(g.xyz, l.zxy);
+    vec3 i2 = max(g.xyz, l.zxy);
+    vec3 x1 = x0 - i1 + C.xxx;
+    vec3 x2 = x0 - i2 + C.yyy;
+    vec3 x3 = x0 - 0.5;
+    i = mod289(i);
+    vec4 p = permute(permute(permute(i.z+vec4(0.,i1.z,i2.z,1.))+i.y+vec4(0.,i1.y,i2.y,1.))+i.x+vec4(0.,i1.x,i2.x,1.));
+    vec4 j = p - 49.0 * floor(p * (1.0/49.0));
+    vec4 x_ = floor(j * (1.0/7.0));
+    vec4 y_ = floor(j - 7.0 * x_);
+    vec4 x1_ = (x_ * 2.0 + 0.5) / 7.0 - 1.0;
+    vec4 y1_ = (y_ * 2.0 + 0.5) / 7.0 - 1.0;
+    vec4 h = 1.0 - abs(x1_) - abs(y1_);
+    vec4 b0 = vec4(x1_.xy, y1_.xy);
+    vec4 b1 = vec4(x1_.zw, y1_.zw);
+    vec4 sh = -step(h, vec4(0.0));
+    vec4 a0 = b0.xzyw + (floor(b0.xzyw) * 2.0 + 1.0) * sh.xxyy;
+    vec4 a1 = b1.xzyw + (floor(b1.xzyw) * 2.0 + 1.0) * sh.zzww;
+    vec3 p0 = vec3(a0.xy, h.x);
+    vec3 p1 = vec3(a0.zw, h.y);
+    vec3 p2 = vec3(a1.xy, h.z);
+    vec3 p3 = vec3(a1.zw, h.w);
+    vec4 norm = 1.79284291400159 - 0.85373472095314 * vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3));
+    p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+    vec4 m = max(0.6 - vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)), 0.0);
+    m = m * m;
+    return 42.0 * dot(m*m, vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));
+  }
+
+  void main() {
+    vNormal = normal;
+    vPosition = position;
+    float noise = snoise(position * 2.0 + uTime * 0.3) * uMid * 0.3;
+    float bassDisp = uBass * 0.15;
+    float highDisp = snoise(position * 6.0 + uTime * 0.5) * uHigh * 0.08;
+    float displacement = bassDisp + noise + highDisp;
+    vDisplacement = displacement;
+    vec3 newPos = position + normal * displacement;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(newPos, 1.0);
+  }
+`;
+
+const orbFragmentShader = `
+  uniform float uBass;
+  uniform float uMid;
+  uniform float uAmplitude;
+  uniform vec3 uColor;
+  varying vec3 vNormal;
+  varying vec3 vPosition;
+  varying float vDisplacement;
+
+  void main() {
+    // Fresnel edge glow
+    vec3 viewDir = normalize(cameraPosition - vPosition);
+    float fresnel = pow(1.0 - max(dot(viewDir, vNormal), 0.0), 2.5);
+    vec3 baseColor = uColor;
+    vec3 glowColor = vec3(1.0, 0.85, 0.5);
+    float glowIntensity = fresnel * (0.5 + uAmplitude * 0.8);
+    vec3 color = mix(baseColor, glowColor, glowIntensity);
+    color += vDisplacement * vec3(0.8, 0.4, 0.1) * 2.0;
+    float alpha = 0.85 + fresnel * 0.15;
+    gl_FragColor = vec4(color, alpha);
+  }
+`;
+
+function AudioOrb({ freqData, bassEnergy, midEnergy, highEnergy, amplitude }: { freqData: Uint8Array; bassEnergy: number; midEnergy: number; highEnergy: number; amplitude: number }) {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const matRef = useRef<THREE.ShaderMaterial>(null);
+  const scaleRef = useRef(1);
+
+  useFrame((_, delta) => {
+    if (meshRef.current) {
+      meshRef.current.rotation.y += delta * 0.2;
+      meshRef.current.rotation.x += delta * 0.05;
+      // Beat scale spring
+      const target = 1 + amplitude * 0.08;
+      scaleRef.current += (target - scaleRef.current) * 0.15;
+      meshRef.current.scale.setScalar(scaleRef.current);
+      // Floating motion
+      meshRef.current.position.y = Math.sin(Date.now() * 0.001) * 0.08;
+    }
+    if (matRef.current) {
+      matRef.current.uniforms.uBass.value += (bassEnergy - matRef.current.uniforms.uBass.value) * 0.15;
+      matRef.current.uniforms.uMid.value += (midEnergy - matRef.current.uniforms.uMid.value) * 0.15;
+      matRef.current.uniforms.uHigh.value += (highEnergy - matRef.current.uniforms.uHigh.value) * 0.15;
+      matRef.current.uniforms.uAmplitude.value += (amplitude - matRef.current.uniforms.uAmplitude.value) * 0.15;
+      matRef.current.uniforms.uTime.value = Date.now() * 0.001;
+    }
+  });
+
+  return <mesh ref={meshRef}>
+    <icosahedronGeometry args={[1, 4]} />
+    <shaderMaterial ref={matRef} vertexShader={orbVertexShader} fragmentShader={orbFragmentShader} transparent uniforms={{
+      uBass: { value: 0 }, uMid: { value: 0 }, uHigh: { value: 0 }, uAmplitude: { value: 0 }, uTime: { value: 0 },
+      uColor: { value: new THREE.Color("#D4860A") },
+    }} />
+  </mesh>;
+}
+
+function AudioParticles({ amplitude, bassEnergy }: { amplitude: number; bassEnergy: number }) {
+  const pointsRef = useRef<THREE.Points>(null);
+  const positionsRef = useRef<Float32Array | null>(null);
+  const count = 150;
+
+  useMemo(() => {
+    const pos = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      const r = 1.5 + Math.random() * 1.5;
+      pos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+      pos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+      pos[i * 3 + 2] = r * Math.cos(phi);
+    }
+    positionsRef.current = pos;
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useFrame((_, delta) => {
+    if (pointsRef.current && positionsRef.current) {
+      pointsRef.current.rotation.y += delta * 0.05;
+      const spread = 1 + bassEnergy * 0.3;
+      pointsRef.current.scale.setScalar(spread);
+    }
+  });
+
+  if (!positionsRef.current) return null;
+
+  return <points ref={pointsRef}>
+    <bufferGeometry><bufferAttribute attach="attributes-position" array={positionsRef.current} count={count} itemSize={3} /></bufferGeometry>
+    <pointsMaterial size={0.03} color="#D4860A" transparent opacity={0.4 + amplitude * 0.3} sizeAttenuation />
+  </points>;
+}
+
+function OrbScene({ freqData, bassEnergy, midEnergy, highEnergy, amplitude }: { freqData: Uint8Array; bassEnergy: number; midEnergy: number; highEnergy: number; amplitude: number }) {
+  return <Canvas camera={{ position: [0, 0, 3.2], fov: 50 }} dpr={[1, 2]} gl={{ antialias: true, alpha: true }} style={{ background: "transparent" }}>
+    <ambientLight intensity={0.2} />
+    <pointLight position={[3, 3, 3]} intensity={0.5} color="#E8C547" />
+    <AudioOrb freqData={freqData} bassEnergy={bassEnergy} midEnergy={midEnergy} highEnergy={highEnergy} amplitude={amplitude} />
+    <AudioParticles amplitude={amplitude} bassEnergy={bassEnergy} />
+  </Canvas>;
+}
 
 /* ═══════════════════════════════════════════════════════════════
    MUSIC PLAYER — Modern, genre-organized, frosted glass
@@ -174,6 +340,12 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
   // Mood & Favorites
   const [activeMood, setActiveMood] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<Set<number>>(() => { try { const s = localStorage.getItem("music_favs"); return s ? new Set(JSON.parse(s)) : new Set(); } catch { return new Set(); } });
+  // Audio band energies for visualizer
+  const [bassEnergy, setBassEnergy] = useState(0);
+  const [midEnergy, setMidEnergy] = useState(0);
+  const [highEnergy, setHighEnergy] = useState(0);
+  const [amplitude, setAmplitude] = useState(0);
+  const [immersive, setImmersive] = useState(false);
   // Focus Timer
   const [focusActive, setFocusActive] = useState(false);
   const [focusDuration, setFocusDuration] = useState(25 * 60);
@@ -236,9 +408,20 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     // Combined progress + visualizer animation loop
     const tick = () => {
       if (audio.duration > 0) { setProgress(audio.currentTime / audio.duration); setCurTime(audio.currentTime); }
-      // Draw visualizers
+      // Extract frequency data and band energies
       if (analyserRef.current) {
         analyserRef.current.getByteFrequencyData(freqDataRef.current);
+        // Band energies for 3D orb
+        const fd = freqDataRef.current;
+        let bass = 0, mid = 0, high = 0, total = 0;
+        for (let i = 0; i < 4; i++) bass += fd[i] || 0;
+        for (let i = 4; i < 32; i++) mid += fd[i] || 0;
+        for (let i = 32; i < 64; i++) high += fd[i] || 0;
+        for (let i = 0; i < 64; i++) total += fd[i] || 0;
+        setBassEnergy(bass / (4 * 255));
+        setMidEnergy(mid / (28 * 255));
+        setHighEnergy(high / (32 * 255));
+        setAmplitude(total / (64 * 255));
         // Main canvas
         const canvas = canvasRef.current;
         if (canvas) {
@@ -406,13 +589,13 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
   const btnBase: React.CSSProperties = { background: "none", border: "none", cursor: "pointer", transition: "all 0.2s", display: "flex", alignItems: "center", justifyContent: "center" };
   const expandedRef = useRef<HTMLDivElement>(null);
 
-  // Escape key collapses expanded player
+  // Escape key collapses expanded player or exits immersive
   useEffect(() => {
-    if (viewState !== "expanded") return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setViewState("collapsed"); };
+    if (viewState !== "expanded" && !immersive) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") { if (immersive) setImmersive(false); else setViewState("collapsed"); } };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [viewState]);
+  }, [viewState, immersive]);
 
   // Click outside expanded player to collapse
   useEffect(() => {
@@ -457,11 +640,10 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     <div style={{ maxWidth: 900, margin: "0 auto", padding: "16px 24px 20px" }}>
       {/* Top row: visualizer + info + controls */}
       <div style={{ display: "flex", gap: 16, alignItems: "center", marginBottom: 12 }}>
-        {/* Audio Visualizer Canvas */}
-        <div style={{ width: 72, height: 72, borderRadius: 14, overflow: "hidden", flexShrink: 0, background: "linear-gradient(135deg, rgba(212,134,10,0.15), rgba(139,69,19,0.1))", boxShadow: "0 4px 16px rgba(212,134,10,0.15)", position: "relative" }}>
-          <canvas ref={canvasRef} width={144} height={144} style={{ width: "100%", height: "100%", display: "block" }} />
-          {/* Focus timer overlay */}
-          {focusActive && <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.6)", borderRadius: 14 }}>
+        {/* 3D Audio Orb Visualizer */}
+        <div style={{ width: 80, height: 80, borderRadius: 16, overflow: "hidden", flexShrink: 0, background: "radial-gradient(circle, rgba(212,134,10,0.08), rgba(0,0,0,0.3))", boxShadow: `0 4px 20px rgba(212,134,10,${0.1 + amplitude * 0.2})`, position: "relative", cursor: "pointer" }} onClick={() => setImmersive(true)} title="Enter Immersive Mode">
+          <OrbScene freqData={freqDataRef.current} bassEnergy={bassEnergy} midEnergy={midEnergy} highEnergy={highEnergy} amplitude={amplitude} />
+          {focusActive && <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.6)", borderRadius: 16 }}>
             <div style={{ fontSize: 16, fontWeight: 800, color: "#E8C547", fontFamily: "'IBM Plex Mono', monospace" }}>{Math.floor(focusRemaining / 60)}:{String(focusRemaining % 60).padStart(2, "0")}</div>
             <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: 1 }}>Focus</div>
           </div>}
@@ -510,6 +692,7 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
         {!focusActive ? <div style={{ display: "flex", gap: 3 }}>
           {[25, 45, 60].map(mins => <button key={mins} onClick={() => startFocus(mins)} style={{ ...btnBase, fontSize: 12, color: "rgba(255,255,255,0.3)", padding: "2px 8px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.06)" }} title={`${mins}min focus session`}>🎯 {mins}m</button>)}
         </div> : <button onClick={() => { setFocusActive(false); setFocusRemaining(0); }} style={{ ...btnBase, fontSize: 12, color: "#E8C547", padding: "2px 10px", borderRadius: 6, border: "1px solid rgba(232,197,71,0.2)" }}>🎯 End Focus ({Math.floor(focusRemaining / 60)}:{String(focusRemaining % 60).padStart(2, "0")})</button>}
+        <button onClick={() => setImmersive(true)} style={{ ...btnBase, fontSize: 12, color: "rgba(255,255,255,0.3)", padding: "2px 8px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.06)" }} title="Fullscreen visualizer">🌌 Immersive</button>
       </div>
 
       {/* Genre pills + track list */}
@@ -532,6 +715,32 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
         </button>)}
       </div>}
     </div>
+
+    {/* ═══ IMMERSIVE MODE — Fullscreen 3D Visualizer ═══ */}
+    {immersive && <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "#000" }}>
+      <div style={{ position: "absolute", inset: 0 }}>
+        <OrbScene freqData={freqDataRef.current} bassEnergy={bassEnergy} midEnergy={midEnergy} highEnergy={highEnergy} amplitude={amplitude} />
+      </div>
+      {/* Track info — subtle */}
+      <div style={{ position: "absolute", bottom: 80, left: 32, zIndex: 1 }}>
+        <div style={{ fontSize: 18, fontWeight: 700, color: "rgba(255,255,255,0.4)", fontFamily: "'Outfit', sans-serif" }}>{track?.name || "—"}</div>
+        <div style={{ fontSize: 14, color: "rgba(255,255,255,0.2)" }}>{activeMood ? `${MOODS.find(m => m.id === activeMood)?.icon} ${MOODS.find(m => m.id === activeMood)?.label}` : GENRES.find(g => g.id === genre)?.label}</div>
+      </div>
+      {/* Controls */}
+      <div style={{ position: "absolute", bottom: 24, left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 20, zIndex: 1 }}>
+        <button onClick={prevTrack} style={{ ...btnBase, color: "rgba(255,255,255,0.4)", fontSize: 20 }}>⏮</button>
+        <button onClick={toggle} style={{ width: 56, height: 56, borderRadius: 28, background: "linear-gradient(135deg, #e09040, #c07030)", border: "none", color: "#fff", fontSize: 22, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 24px rgba(224,144,64,0.4)" }}>{playing ? "⏸" : "▶"}</button>
+        <button onClick={nextTrack} style={{ ...btnBase, color: "rgba(255,255,255,0.4)", fontSize: 20 }}>⏭</button>
+      </div>
+      {/* Progress */}
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 3 }}>
+        <div style={{ height: "100%", background: "linear-gradient(90deg, #D4860A, #E8C547)", width: `${progress * 100}%`, transition: "width 0.1s linear" }} />
+      </div>
+      {/* Time */}
+      <div style={{ position: "absolute", bottom: 6, right: 16, fontSize: 13, color: "rgba(255,255,255,0.2)", fontFamily: "'IBM Plex Mono', monospace", zIndex: 1 }}>{fmt(currentTime)} / {fmt(duration)}</div>
+      {/* Exit */}
+      <button onClick={() => setImmersive(false)} style={{ position: "absolute", top: 20, right: 20, padding: "8px 16px", borderRadius: 10, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)", fontSize: 14, fontWeight: 600, cursor: "pointer", zIndex: 1 }}>Exit Immersive</button>
+    </div>}
   </div>;
 }
 
@@ -555,6 +764,17 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
   const [showCoPilot, setShowCoPilot] = useState(false);
   const [presentMode, setPresentMode] = useState(false);
   const [showStoryEngine, setShowStoryEngine] = useState(false);
+  const [showAgentHub, setShowAgentHub] = useState(false);
+  const [agentHistory, setAgentHistory] = usePersisted<{ id: string; agent: string; name: string; action: string; time: string; result?: string }[]>(`${projectId}_agent_history`, []);
+  const [agentSettings, setAgentSettings] = usePersisted<Record<string, { enabled: boolean; autonomy: string }>>(`${projectId}_agent_settings`, {
+    watcher: { enabled: true, autonomy: "suggest" }, analyst: { enabled: true, autonomy: "suggest" },
+    designer: { enabled: true, autonomy: "suggest" }, planner: { enabled: true, autonomy: "suggest" },
+    narrator: { enabled: true, autonomy: "suggest" }, quality: { enabled: true, autonomy: "observe" },
+  });
+  const [agentRunning, setAgentRunning] = useState<string | null>(null);
+  const [aiProviders, setAiProviders] = useState<{ claude: boolean; gemini: boolean } | null>(null);
+  useEffect(() => { fetch("/api/ai/providers").then(r => r.json()).then(d => setAiProviders(d)).catch(() => {}); }, []);
+  const [agentResults, setAgentResults] = usePersisted<{ id: string; agent: string; agentName: string; result: string; time: string; reviewed: boolean }[]>(`${projectId}_agent_results`, []);
   const [presentStartTime, setPresentStartTime] = useState(0);
   const [presentNotes, setPresentNotes] = useState(false);
   const [viewMode, setViewMode] = usePersisted<string>(`${projectId}_viewMode`, "");
@@ -829,6 +1049,47 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
     return parts.join(". ");
   }, [model, job, jobs, jobStates, f, page, simState]);
 
+  // Agent system
+  const AGENT_DEFS = [
+    { id: "watcher", name: "The Watcher", icon: "👁️", desc: "Monitors data changes and inconsistencies" },
+    { id: "analyst", name: "The Analyst", icon: "🔬", desc: "Detects patterns and surfaces insights" },
+    { id: "designer", name: "The Designer", icon: "✏️", desc: "Autonomously redesigns roles and structures" },
+    { id: "planner", name: "The Planner", icon: "📋", desc: "Maintains the living transformation plan" },
+    { id: "narrator", name: "The Narrator", icon: "📖", desc: "Keeps the executive narrative current" },
+    { id: "quality", name: "Quality Controller", icon: "✅", desc: "Validates consistency across all modules" },
+  ];
+  const runAgent = useCallback(async (agentId: string) => {
+    if (agentRunning) return;
+    const agent = AGENT_DEFS.find(a => a.id === agentId);
+    if (!agent || !agentSettings[agentId]?.enabled) return;
+    setAgentRunning(agentId);
+    try {
+      const ctx = buildAiContext();
+      const prompts: Record<string, string> = {
+        watcher: `As The Watcher, analyze for changes and anomalies. Context: ${ctx}. Return 2 observations.`,
+        analyst: `As The Analyst, detect patterns in this data. Context: ${ctx}. Return 3 insights with specific numbers.`,
+        designer: `As The Designer, identify top 3 roles for AI redesign. Context: ${ctx}. Return role names and reasons.`,
+        planner: `As The Planner, check if the plan needs updates. Context: ${ctx}. Return 2 recommendations.`,
+        narrator: `As The Narrator, generate a 3-sentence executive summary update. Context: ${ctx}.`,
+        quality: `As Quality Controller, check for data inconsistencies. Context: ${ctx}. Return 2 issues found.`,
+      };
+      const result = await callAI(`You are ${agent.name}, a specialized AI agent. Be specific and concise.`, prompts[agentId] || ctx);
+      const entry = { id: `ar_${Date.now()}`, agent: agentId, agentName: agent.name, result: result.slice(0, 500), time: new Date().toISOString(), reviewed: false };
+      setAgentResults(prev => [entry, ...prev].slice(0, 50));
+      setAgentHistory(prev => [{ id: entry.id, agent: agentId, name: agent.name, action: "Completed analysis", time: entry.time }, ...prev].slice(0, 100));
+      showToast(`${agent.icon} ${agent.name} completed analysis`);
+    } catch { showToast(`${agent.name} failed — try again`); }
+    setAgentRunning(null);
+  }, [agentRunning, agentSettings, buildAiContext, showToast]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const runAllAgents = useCallback(async () => {
+    for (const agent of AGENT_DEFS) {
+      if (agentSettings[agent.id]?.enabled) {
+        await runAgent(agent.id);
+      }
+    }
+  }, [agentSettings, runAgent]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const viewCtx: ViewContext = { mode: viewMode || "org", employee: viewEmployee, job: viewJob, custom: viewCustom };
 
   // Tutorial mode state and handlers
@@ -912,6 +1173,8 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       { id: "act_theme", icon: theme === "dark" ? "☀️" : "🌙", label: theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode", desc: "Toggle the color theme", category: "Actions", shortcut: "Cmd+D", action: toggleTheme, keywords: "dark light mode theme toggle" },
       { id: "act_shortcuts", icon: "⌨️", label: "Keyboard Shortcuts", desc: "View all keyboard shortcuts", category: "Actions", shortcut: "Cmd+/", action: () => { setShowCmdPalette(false); setShowShortcuts(true); } },
       { id: "act_export", icon: "📤", label: "Export Report", desc: "Generate and download deliverables", category: "Actions", action: () => navigate("export"), keywords: "export download pdf pptx docx" },
+      { id: "act_agents", icon: "🤖", label: "Open Agent Hub", desc: "Multi-agent AI system for autonomous analysis", category: "Actions", action: () => { setShowAgentHub(true); setShowCmdPalette(false); }, keywords: "agent hub AI autonomous watcher analyst designer planner" },
+      { id: "act_agents_run", icon: "▶️", label: "Run All Agents", desc: "Trigger all AI agents to analyze your project", category: "Actions", action: () => { setShowCmdPalette(false); runAllAgents(); }, keywords: "run agents analyze AI" },
       { id: "act_story", icon: "📖", label: "Generate Executive Story", desc: "AI-generated data narrative for client presentation", category: "Actions", action: () => { setShowStoryEngine(true); setShowCmdPalette(false); }, keywords: "story narrative executive report generate AI" },
       { id: "act_present", icon: "🖥️", label: "Enter Presentation Mode", desc: "Full-screen client-ready presentation", category: "Actions", shortcut: "Cmd+P", action: () => { setPresentMode(true); setPresentStartTime(Date.now()); setShowCmdPalette(false); setShowCoPilot(false); if (page === "home") navigate("snapshot"); }, keywords: "present presentation slides client meeting" },
       { id: "act_reset", icon: "🔄", label: "Reset Data", desc: "Clear all data and start fresh", category: "Actions", action: () => { if (confirm("Reset all data? This cannot be undone.")) reset(); }, keywords: "reset clear" },
@@ -1116,7 +1379,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
             </div>}
             <div className="flex gap-2">
               <button onClick={() => setWizStep(3)} className="px-4 py-2 rounded-lg text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">← Back</button>
-              <button onClick={wizDoImport} disabled={wizImporting} className="flex-1 px-4 py-3 rounded-xl text-[16px] font-bold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: wizImporting ? 0.5 : 1 }}>{wizImporting ? "Importing..." : "🚀 Import Data"}</button>
+              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={wizDoImport} disabled={wizImporting} className="flex-1 px-4 py-3 rounded-xl text-[16px] font-bold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: wizImporting ? 0.5 : 1 }}>{wizImporting ? "Importing..." : "🚀 Import Data"}</motion.button>
             </div>
             {wizImporting && <div className="h-2 bg-[var(--surface-2)] rounded-full overflow-hidden"><div className="h-full rounded-full bg-[var(--accent-primary)] animate-pulse" style={{ width: "80%" }} /></div>}
           </div>}
@@ -1144,10 +1407,10 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       {PRESENT_MODULES.map((m, i) => {
         const mod = MODULES.find(x => x.id === m);
         const isCurrent = page === m;
-        return <button key={m} onClick={() => navigate(m)} className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[12px] font-semibold transition-all" style={{ background: isCurrent ? "rgba(212,134,10,0.15)" : "transparent", color: isCurrent ? "#f0a050" : "rgba(255,255,255,0.3)", border: isCurrent ? "1px solid rgba(212,134,10,0.3)" : "1px solid transparent" }}>
+        return <motion.button key={m} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05, duration: 0.3 }} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => navigate(m)} className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[12px] font-semibold transition-all" style={{ background: isCurrent ? "rgba(212,134,10,0.15)" : "transparent", color: isCurrent ? "#f0a050" : "rgba(255,255,255,0.3)", border: isCurrent ? "1px solid rgba(212,134,10,0.3)" : "1px solid transparent" }}>
           <span className="text-[14px]">{mod?.icon}</span>
           <span className="hidden lg:inline">{mod?.title?.split(" ").slice(0, 2).join(" ") || m}</span>
-        </button>;
+        </motion.button>;
       })}
     </div>}
 
@@ -1172,7 +1435,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
         <ThemeToggle theme={theme} onToggle={toggleTheme} />
       </div>
       <button onClick={() => { if (page === "home" && viewMode) { setViewMode(""); } else { onBackToHub(); } }} className="w-full text-left text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mt-1 mb-1 flex items-center gap-1 transition-colors">{page === "home" && viewMode ? "← Back to Views" : page !== "home" ? "← Back to Home" : "← Back to Projects"}</button>
-      <div className="bg-[var(--surface-2)] rounded-lg px-3 py-2 mb-2 border border-[var(--border)]"><div className="text-[15px] font-bold text-[var(--accent-primary)] uppercase tracking-wider mb-0.5">Active Project</div><div className="text-[15px] font-semibold text-[var(--text-primary)] truncate">{projectName}</div>{projectMeta && <div className="text-[15px] text-[var(--text-muted)] truncate mt-0.5 italic">{projectMeta}</div>}</div>
+      <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.1 }} className="bg-[var(--surface-2)] rounded-lg px-3 py-2 mb-2 border border-[var(--border)]"><div className="text-[15px] font-bold text-[var(--accent-primary)] uppercase tracking-wider mb-0.5">Active Project</div><div className="text-[15px] font-semibold text-[var(--text-primary)] truncate">{projectName}</div>{projectMeta && <div className="text-[15px] text-[var(--text-muted)] truncate mt-0.5 italic">{projectMeta}</div>}</motion.div>
       {/* Journey progress bar */}
       <div className="flex items-center gap-1 mb-2 mt-1">
         {PHASES.map((phase, pi) => {
@@ -1180,9 +1443,9 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
           const pStatus = ms.every(s => s === "complete") ? "complete" : ms.some(s => s !== "not_started") ? "in_progress" : "not_started";
           return <React.Fragment key={phase.id}>
             {pi > 0 && <div className="flex-1 h-px" style={{ background: pStatus !== "not_started" ? `${phase.color}40` : "var(--border)" }} />}
-            <button onClick={() => { setPage("home"); }} title={`Phase ${pi+1}: ${phase.label}`} className="flex items-center gap-1 shrink-0 transition-all" style={{ opacity: pStatus !== "not_started" ? 1 : 0.4 }}>
+            <motion.button initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: pStatus !== "not_started" ? 1 : 0.4 }} transition={{ delay: pi * 0.1, duration: 0.3 }} onClick={() => { setPage("home"); }} title={`Phase ${pi+1}: ${phase.label}`} className="flex items-center gap-1 shrink-0 transition-all">
               <div className="w-4 h-4 rounded-full flex items-center justify-center text-[15px] font-bold" style={{ background: pStatus === "complete" ? `${phase.color}20` : pStatus === "in_progress" ? `${phase.color}10` : "transparent", color: phase.color, border: `1px solid ${phase.color}${pStatus !== "not_started" ? "60" : "20"}` }}>{pStatus === "complete" ? "✓" : pStatus === "in_progress" ? "●" : "○"}</div>
-            </button>
+            </motion.button>
           </React.Fragment>;
         })}
       </div>
@@ -1190,7 +1453,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       <div className="h-px bg-[var(--border)] my-3" />
       <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-[1.2px] mb-2">Data Intake</div>
       <input ref={fileRef} type="file" multiple accept=".xlsx,.xls,.csv,.tsv" onChange={e => e.target.files && upload(e.target.files)} className="hidden" />
-      <button onClick={() => { setShowImportWizard(true); setWizStep(1); setWizFiles([]); setWizPreview(null); setWizMappings({}); setWizValidation([]); }} className="w-full bg-[var(--accent-primary)] hover:opacity-90 text-white text-[15px] font-semibold py-1.5 rounded-md mb-1.5">⬆ Smart Import</button>
+      <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={() => { setShowImportWizard(true); setWizStep(1); setWizFiles([]); setWizPreview(null); setWizMappings({}); setWizValidation([]); }} className="w-full bg-[var(--accent-primary)] hover:opacity-90 text-white text-[15px] font-semibold py-1.5 rounded-md mb-1.5">⬆ Smart Import</motion.button>
       <a href="/api/template" download className="block w-full bg-[var(--surface-3)] hover:bg-[var(--hover)] border border-[var(--accent-primary)] text-[var(--accent-primary)] text-[15px] font-semibold py-1.5 rounded-md mb-1.5 text-center no-underline">⬇ Export Template</a>
       <button onClick={reset} className="w-full bg-[var(--surface-2)] hover:bg-[var(--hover)] border border-[var(--border)] text-[var(--text-secondary)] text-[15px] font-semibold py-1 rounded-md">Reset</button>
       {msg && <div className="mt-1.5 text-[15px] text-[var(--accent-primary)] bg-[rgba(212,134,10,0.1)] rounded px-2 py-1">{msg}</div>}
@@ -1217,12 +1480,15 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       {/* Decision Log + Platform Hub */}
       <div className="mt-auto">
         <div className="h-px bg-[var(--border)] my-3" />
-        <button onClick={() => setShowStoryEngine(true)} className="w-full text-left px-2 py-1.5 rounded-lg text-[15px] mb-1 flex items-center gap-2 text-[var(--text-muted)] hover:bg-[var(--hover)] transition-all">
+        <button onClick={() => setShowAgentHub(!showAgentHub)} className={`w-full text-left px-2 py-1.5 rounded-lg text-[15px] mb-1 flex items-center gap-2 transition-all ${showAgentHub ? "bg-[rgba(139,92,246,0.1)] text-[var(--purple)] font-semibold" : "text-[var(--text-muted)] hover:bg-[var(--hover)]"}`}>
+          <span className="text-[15px]">🤖</span> Agent Hub {agentResults.filter(r => !r.reviewed).length > 0 && <span className="text-[12px] px-1.5 py-0.5 rounded-full bg-[rgba(139,92,246,0.2)] text-[var(--purple)] font-bold">{agentResults.filter(r => !r.reviewed).length}</span>}
+        </button>
+        <motion.button whileHover={{ x: 2 }} whileTap={{ scale: 0.97 }} onClick={() => setShowStoryEngine(true)} className="w-full text-left px-2 py-1.5 rounded-lg text-[15px] mb-1 flex items-center gap-2 text-[var(--text-muted)] hover:bg-[var(--hover)] transition-all">
           <span className="text-[15px]">📖</span> Generate Story
-        </button>
-        <button onClick={() => { setPresentMode(true); setPresentStartTime(Date.now()); setShowCoPilot(false); setShowAnnoPanel(false); setAnnotateMode(false); if (page === "home") navigate("snapshot"); }} className="w-full text-left px-2 py-1.5 rounded-lg text-[15px] mb-1 flex items-center gap-2 text-[var(--text-muted)] hover:bg-[var(--hover)] transition-all">
+        </motion.button>
+        <motion.button whileHover={{ x: 2 }} whileTap={{ scale: 0.97 }} onClick={() => { setPresentMode(true); setPresentStartTime(Date.now()); setShowCoPilot(false); setShowAnnoPanel(false); setAnnotateMode(false); if (page === "home") navigate("snapshot"); }} className="w-full text-left px-2 py-1.5 rounded-lg text-[15px] mb-1 flex items-center gap-2 text-[var(--text-muted)] hover:bg-[var(--hover)] transition-all">
           <span className="text-[15px]">🖥️</span> Present
-        </button>
+        </motion.button>
         <button onClick={() => setShowCoPilot(!showCoPilot)} className={`w-full text-left px-2 py-1.5 rounded-lg text-[15px] mb-1 flex items-center gap-2 transition-all ${showCoPilot ? "bg-[rgba(212,134,10,0.1)] text-[var(--accent-primary)] font-semibold" : "text-[var(--text-muted)] hover:bg-[var(--hover)]"}`}>
           <span className="text-[15px]">🤖</span> AI Co-Pilot
         </button>
@@ -1273,6 +1539,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
           <span className="text-[14px] text-[var(--text-muted)]">{accountMenuOpen ? "▾" : "▸"}</span>
         </button>}
         <div className="text-center text-[14px] text-[var(--text-muted)] mt-1 opacity-50">v4.0</div>
+        {aiProviders && <div className="text-center text-[12px] mt-0.5 opacity-40" style={{ color: aiProviders.claude && aiProviders.gemini ? "var(--success)" : aiProviders.gemini ? "var(--warning)" : "var(--risk)" }}>{aiProviders.claude && aiProviders.gemini ? "🟢 AI: Claude + Gemini" : aiProviders.gemini ? "🟡 AI: Gemini" : aiProviders.claude ? "🟡 AI: Claude" : "🔴 AI: Offline"}</div>}
         <button onClick={() => setShowShortcuts(true)} className="text-[12px] text-[var(--text-muted)] opacity-40 hover:opacity-80 transition-opacity mt-1 flex items-center justify-center gap-1"><span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: 18, height: 16, padding: "0 4px", borderRadius: 4, background: "var(--surface-2)", border: "1px solid var(--border)", fontSize: 10, fontFamily: "'IBM Plex Mono', monospace" }}>⌘/</span> shortcuts</button>
       </div>
     </aside>
@@ -1327,6 +1594,59 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
     {/* AI Co-Pilot sidebar */}
     <AnimatePresence>{showCoPilot && <AiCoPilot moduleId={page} contextData={buildAiContext()} open={showCoPilot} onClose={() => setShowCoPilot(false)} onNavigate={navigate} />}</AnimatePresence>
     <AnimatePresence>{showAnnoPanel && <AnnotationPanel annotations={annotations} onUpdate={a => setAnnotations(prev => prev.map(x => x.id === a.id ? a : x))} onDelete={id => setAnnotations(prev => prev.filter(x => x.id !== id))} onClose={() => setShowAnnoPanel(false)} />}</AnimatePresence>
+
+    {/* ═══ AGENT HUB PANEL ═══ */}
+    <AnimatePresence>{showAgentHub && <motion.div className="fixed top-0 right-0 bottom-0 w-[380px] z-[9997] flex flex-col" style={{ background: "var(--surface-1)", borderLeft: "1px solid var(--border)", boxShadow: "-4px 0 24px rgba(0,0,0,0.15)" }} initial={{ x: 380 }} animate={{ x: 0 }} exit={{ x: 380 }} transition={{ duration: 0.25, ease: "easeOut" }}>
+      {/* Header */}
+      <div className="px-4 py-3 flex items-center justify-between border-b border-[var(--border)]" style={{ background: "linear-gradient(135deg, rgba(139,92,246,0.06), transparent)" }}>
+        <div className="flex items-center gap-2.5"><span className="text-[18px]">🤖</span><div><div className="text-[15px] font-bold text-[var(--text-primary)] font-heading">Agent Hub</div><div className="text-[12px] text-[var(--text-muted)]">{AGENT_DEFS.filter(a => agentSettings[a.id]?.enabled).length} agents active</div></div></div>
+        <div className="flex items-center gap-2">
+          <button onClick={runAllAgents} disabled={!!agentRunning} className="px-3 py-1.5 rounded-lg text-[12px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #8B5CF6, #7C3AED)", opacity: agentRunning ? 0.5 : 1 }}>{agentRunning ? "Running..." : "▶ Run All"}</button>
+          <button onClick={() => setShowAgentHub(false)} className="text-[16px] text-[var(--text-muted)] hover:text-[var(--text-primary)]">×</button>
+        </div>
+      </div>
+
+      {/* Agent cards */}
+      <div className="px-3 py-3 space-y-2 border-b border-[var(--border)] overflow-y-auto" style={{ maxHeight: "40vh" }}>
+        {AGENT_DEFS.map(agent => {
+          const settings = agentSettings[agent.id] || { enabled: true, autonomy: "suggest" };
+          const isRunning = agentRunning === agent.id;
+          const recentResult = agentResults.find(r => r.agent === agent.id);
+          return <div key={agent.id} className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-[18px]">{agent.icon}</span>
+              <div className="flex-1 min-w-0"><div className="text-[14px] font-bold text-[var(--text-primary)]">{agent.name}</div><div className="text-[12px] text-[var(--text-muted)]">{agent.desc}</div></div>
+              <div className="flex items-center gap-1.5">
+                {isRunning && <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: "var(--purple)" }} />}
+                <button onClick={() => setAgentSettings(prev => ({...prev, [agent.id]: {...settings, enabled: !settings.enabled}}))} className="w-8 h-4 rounded-full transition-all relative" style={{ background: settings.enabled ? "var(--purple)" : "var(--surface-2)", border: "1px solid var(--border)" }}><div className="w-3 h-3 rounded-full bg-white absolute top-0.5 transition-all" style={{ left: settings.enabled ? 16 : 1 }} /></button>
+              </div>
+            </div>
+            {settings.enabled && <div className="flex items-center gap-2">
+              <div className="flex gap-0.5">{(["observe", "suggest", "auto"] as const).map(a => <button key={a} onClick={() => setAgentSettings(prev => ({...prev, [agent.id]: {...settings, autonomy: a}}))} className="px-2 py-0.5 rounded text-[11px] font-semibold" style={{ background: settings.autonomy === a ? "rgba(139,92,246,0.15)" : "transparent", color: settings.autonomy === a ? "var(--purple)" : "var(--text-muted)" }}>{a}</button>)}</div>
+              <div className="flex-1" />
+              <button onClick={() => runAgent(agent.id)} disabled={!!agentRunning || !settings.enabled} className="px-2 py-0.5 rounded-lg text-[11px] font-semibold text-[var(--purple)] border border-[var(--purple)]/20 hover:bg-[rgba(139,92,246,0.08)] disabled:opacity-30">Run</button>
+            </div>}
+            {recentResult && !recentResult.reviewed && <div className="mt-2 rounded-lg bg-[rgba(139,92,246,0.04)] border border-[var(--purple)]/10 p-2">
+              <div className="text-[12px] text-[var(--text-secondary)] line-clamp-2">{recentResult.result.slice(0, 120)}...</div>
+              <div className="flex gap-1 mt-1"><button onClick={() => setAgentResults(prev => prev.map(r => r.id === recentResult.id ? {...r, reviewed: true} : r))} className="text-[11px] text-[var(--success)]">Accept</button><button onClick={() => setAgentResults(prev => prev.filter(r => r.id !== recentResult.id))} className="text-[11px] text-[var(--text-muted)]">Dismiss</button></div>
+            </div>}
+          </div>;
+        })}
+      </div>
+
+      {/* Results feed */}
+      <div className="flex-1 overflow-y-auto px-3 py-3">
+        <div className="text-[12px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Activity Feed</div>
+        {agentHistory.length === 0 && <div className="text-center py-8 text-[var(--text-muted)] text-[13px]">No agent activity yet. Click &quot;Run All&quot; to start.</div>}
+        <div className="space-y-1.5">{agentHistory.slice(0, 20).map(h => {
+          const agent = AGENT_DEFS.find(a => a.id === h.agent);
+          return <div key={h.id} className="flex items-start gap-2 p-2 rounded-lg hover:bg-[var(--surface-2)] transition-colors">
+            <span className="text-[14px] shrink-0">{agent?.icon || "🤖"}</span>
+            <div className="flex-1 min-w-0"><div className="text-[13px] text-[var(--text-secondary)]"><strong className="text-[var(--text-primary)]">{h.name}</strong> {h.action}</div><div className="text-[11px] text-[var(--text-muted)]">{new Date(h.time).toLocaleTimeString()}</div></div>
+          </div>;
+        })}</div>
+      </div>
+    </motion.div>}</AnimatePresence>
     <AnimatePresence>{showStoryEngine && <StoryEngine projectName={projectName} model={model} contextData={buildAiContext()} onClose={() => setShowStoryEngine(false)} onNavigate={navigate} />}</AnimatePresence>
     {isTutorial && tutorialVisible && <TutorialOverlay step={tutorialStep} totalSteps={tutorialSteps.length} steps={tutorialSteps} onNext={tutorialNext} onPrev={tutorialPrev} onClose={() => setTutorialVisible(false)} onJump={tutorialJump} />}
     {isTutorial && !tutorialVisible && <TutorialBadge onClick={() => setTutorialVisible(true)} step={tutorialStep} total={tutorialSteps.length} />}
@@ -1516,108 +1836,121 @@ function getTutorialCompany(projectId: string): { name: string; employees: numbe
   return { ...co, industry, size };
 }
 
-type TutorialStep = { page: string; icon: string; title: string; body: string };
+type TutorialStep = { page: string; icon: string; title: string; body: string; tip?: string; subtitle?: string };
 
 function buildTutorialSteps(projectId: string): TutorialStep[] {
   const co = getTutorialCompany(projectId);
   const n = co.employees;
   const nm = co.name;
-  const genCount = Math.min(n, 2000);
-  const fnCount = n <= 150 ? 4 : n <= 500 ? 6 : n <= 2000 ? 8 : 9;
-  const mgrCount = Math.max(3, Math.round(genCount * 0.08));
 
   return [
-  // ═══ Steps 1-3: Welcome & Orientation ═══
-  { page: "home", icon: "🎓", title: "Welcome to Your AI Transformation Sandbox",
-    body: `Welcome to ${nm}, a ${co.industry.replace(/_/g, " ")} organization with ${n.toLocaleString()} employees across ${fnCount} functions. This sandbox is a fully interactive environment loaded with realistic workforce data, AI readiness scores, skills inventories, and manager capability assessments. Everything you see is generated data flowing through real analytics engines. You can explore, modify, and experiment freely — nothing you do here affects any real project or data. Use the Next button to follow the guided tour, or close this panel and explore on your own at any time.` },
+  { page: "home", icon: "👋", title: "Welcome to the Digital Playground", subtitle: "Getting Started",
+    body: `Welcome to the AI Transformation Platform — your command center for workforce transformation. This guided tour will walk you through every module, showing you how to understand your organization, design its future, simulate the impact, and build the plan to make it happen. You're exploring ${nm}, a ${co.industry.replace(/_/g, " ")} organization with ${n.toLocaleString()} employees. Each step explains one capability. Take your time — you can always come back to this tour from the Tutorial badge.`,
+    tip: "Complete the Discover phase first. Everything downstream depends on understanding your current state." },
 
-  { page: "home", icon: "🗺️", title: "Platform Overview — Six Module Architecture",
-    body: `The platform is organized into six core modules that mirror the phases of an AI transformation engagement. Overview gives you the baseline workforce picture. Diagnose uncovers organizational health, AI readiness, and change risk. Design is where you deconstruct jobs into tasks, redesign roles, and plan talent sourcing. Simulate lets you model different adoption scenarios and see financial impact. Mobilize builds the change management roadmap, reskilling pathways, and stakeholder plans. Export generates the deliverables your steering committee needs. Each module feeds data forward — decisions in Design drive what you see in Simulate, which shapes Mobilize.` },
+  { page: "home", icon: "🗺️", title: "The Transformation Journey", subtitle: "Navigation",
+    body: `The platform follows a proven 5-phase methodology: Discover → Diagnose → Design → Simulate → Mobilize. You can work through these in order or jump to any module. The journey map shows your progress — completed phases light up, and the platform suggests what to do next. Think of it as your GPS for transformation. Use the sidebar to navigate, the Command Palette (⌘K) to search anything, and the AI Co-Pilot for real-time guidance.`,
+    tip: "In a real engagement, Discover and Diagnose take 2-3 weeks. Design takes 4-6 weeks. Simulate and Mobilize overlap." },
 
-  { page: "home", icon: "🔬", title: "Sandbox Data & View Modes",
-    body: `The sandbox data for ${nm} was generated to be internally consistent: employee skills match their job families, readiness scores correlate with tenure and function, and manager capability reflects team size and seniority. Before entering the platform, you selected a view mode. Organization View shows aggregate data across the entire workforce. Job View focuses on a single role and its task-level detail. Employee View tracks an individual through every module. Custom Slice applies filters (function, job family, career level) so you can narrow to a specific population. You can change your view mode at any time from the sidebar.` },
+  { page: "home", icon: "📊", title: "Your Data — The Foundation", subtitle: "Data Intake",
+    body: `Everything in this platform runs on your workforce data. Upload your employee data using Smart Import — it auto-maps columns from Workday, SAP, Oracle, or any custom format, validates quality, and flags issues. For sandbox companies like ${nm}, data is pre-loaded. The sidebar shows your active project, model, and global filters. Changing a filter here updates EVERY module instantly.`,
+    tip: "Data quality determines output quality. Spend time validating before analysis — garbage in, garbage out." },
 
-  // ═══ Steps 4-5: Overview Tab ═══
-  { page: "snapshot", icon: "📊", title: "Overview — Workforce Snapshot & KPIs",
-    body: `The Workforce Snapshot is your executive summary. Six KPI cards show headcount (${genCount.toLocaleString()} employees), role count, task coverage percentage, average AI readiness score, skills assessment completion, and transformation progress. Below the KPIs, the function distribution chart shows headcount by department, the AI impact donut summarizes how much work is automatable (populated after Work Design), and the readiness radar shows relative scores across five dimensions. The Skill Shift Index tracks how skill demand is changing across the organization. These are the visuals you would put in a steering committee deck to establish the baseline.` },
+  { page: "snapshot", icon: "🔍", title: "Workforce Snapshot — Your Starting Point", subtitle: "Phase 1: Discover",
+    body: `The Workforce Snapshot gives you the big picture: total headcount, roles, functions, span of control, management layers, and AI readiness score. This is the first slide in any transformation presentation. The Upload Intelligence panel auto-generates observations about your data — use these as conversation starters with leadership. Click any KPI to drill deeper.`,
+    tip: "If span of control is above 8 or below 4, flag it immediately. Both create management problems." },
 
-  { page: "dashboard", icon: "📈", title: "Overview — Executive Dashboard & Decision Log",
-    body: `The Transformation Executive Dashboard aggregates signals from every module into a single command center. It shows transformation progress by phase, risk register entries, recent decisions logged across modules, and key metrics trending over time. The Decision Log in the sidebar tracks every significant action you take — confirming a skills inventory, submitting a deconstruction, overriding a BBBA disposition. This audit trail is critical for governance: it shows who decided what and when. The dashboard is designed to be the first thing a program sponsor opens each morning during a live engagement.` },
+  { page: "dashboard", icon: "📈", title: "Transformation Dashboard — Your Scoreboard", subtitle: "Phase 1: Discover",
+    body: `The Transformation Dashboard aggregates metrics across all three horizons: Discover (where you are), Design (what you've planned), and Deliver (execution status). Every number is clickable — click to see where it comes from. Numbers show '—' until you've completed the relevant module. This dashboard is designed to be screenshot-ready for steering committee meetings.`,
+    tip: "Don't present this dashboard until at least the Discover phase is complete. Blank metrics undermine credibility." },
 
-  // ═══ Steps 6-8: Diagnose ═══
-  { page: "orghealth", icon: "🏥", title: "Diagnose — Org Health Scorecard & AI Impact Heatmap",
-    body: `The Org Health Scorecard gives you a composite view of organizational readiness across multiple dimensions: leadership alignment, cultural adaptability, digital maturity, process standardization, and data quality. Each dimension is scored and benchmarked. The AI Impact Heatmap (accessible from the Diagnose module) visualizes which functions and job families have the highest automation potential. Hot spots (red/orange) indicate areas where AI can deliver the most value — these are your quick wins. Cool spots (blue/green) indicate human-intensive work that requires augmentation rather than automation. Together, these tools tell you where to focus first.` },
+  { page: "skillshift", icon: "🎯", title: "Skill Shift Index — What's Changing", subtitle: "Phase 1: Discover",
+    body: `The Skill Shift Index shows which skills are declining (being automated), which are amplified (growing in importance), and which are net-new (didn't exist before). This is critical for reskilling planning — it tells you where to invest in people development. The visualization groups skills by category so you can see patterns: technical skills shifting fastest, leadership skills staying stable.`,
+    tip: "Share this with L&D teams early. Reskilling programs take 6-12 months to design and launch." },
 
-  { page: "readiness", icon: "🎯", title: "Diagnose — AI Readiness & Change Readiness",
-    body: `AI Readiness scores every employee on five dimensions: AI Awareness, Tool Adoption, Data Literacy, Change Openness, and AI Collaboration. Scores of 4-5 mean "Ready Now" — these employees already use data tools daily and embrace change. Scores below 2.5 are "At Risk" — they need targeted intervention before any transformation begins. The Change Readiness module adds another lens: a 4-quadrant matrix crossing readiness with impact level. High Impact + Low Readiness employees are your biggest risk — they will be most affected but least prepared. Each quadrant has a specific intervention playbook. The combination of these two assessments drives your entire people strategy.` },
+  { page: "orghealth", icon: "🏥", title: "Org Health Scorecard — Structural Fitness", subtitle: "Phase 2: Diagnose",
+    body: `The Org Health Scorecard evaluates your organization across 6 dimensions: span of control, management layers, AI readiness, high-impact roles, management ratio, and unique roles. Each metric is benchmarked against your industry. Green means healthy, amber needs attention, red is critical. The radar chart at the bottom compares you against industry average and best-in-class.`,
+    tip: "The most common issue we see is too many management layers. Every unnecessary layer adds decision latency and cost." },
 
-  { page: "recommendations", icon: "🤖", title: "Diagnose — AI Recommendations & Role Clustering",
-    body: `The AI Recommendations Engine synthesizes data from every diagnostic module and generates prioritized action items. It identifies which roles should be redesigned first, which skills gaps are most critical, which managers need immediate development, and where quick wins exist. Each recommendation includes an impact estimate and effort level. Role Clustering groups similar roles by their task composition, skill requirements, and AI impact profiles. Clusters reveal hidden patterns — roles in different functions that share 80% of their task DNA and could be consolidated. This analysis often uncovers organizational redundancy that traditional org charts miss entirely.` },
+  { page: "heatmap", icon: "🔥", title: "AI Impact Heatmap — Where AI Hits Hardest", subtitle: "Phase 2: Diagnose",
+    body: `The AI Impact Heatmap shows which functions and roles have the highest automation and augmentation potential. Darker cells mean higher impact. Click any cell to drill into the specific tasks affected. This is the most frequently requested slide in AI transformation presentations — it answers 'which parts of our org are most affected?'`,
+    tip: "High AI impact doesn't mean job loss. Most roles shift from execution to oversight. Frame it as 'role evolution' not 'role elimination.'" },
 
-  // ═══ Steps 9-11: Job Architecture ═══
-  { page: "jobs", icon: "🗂️", title: "Job Architecture — Catalogue & Role Profiles",
-    body: `The Job Catalog lists every position in ${nm} organized by function and job family. Each role shows its career level, compensation range, headcount, and reporting structure. This is the structural backbone of the platform — every other module references this catalog. You can browse roles by function, search by title, and click into any role to see its full profile. The AI Job Profile Generator lets you type any role name and instantly generate a structured profile with typical tasks, skills, and career progression. This is useful when you need to add roles that don't exist in the current catalog, or when you want to compare your organization's role definitions against market standards.` },
+  { page: "changeready", icon: "🔄", title: "Change Readiness — Is Your Org Ready?", subtitle: "Phase 2: Diagnose",
+    body: `Change Readiness segments your workforce into readiness archetypes: Champions (eager early adopters), Early Adopters, Pragmatists (need proof), Skeptics (need support), and Resistors (need intensive intervention). Each group requires a different engagement strategy. The assessment also feeds into the ADKAR analysis in the Mobilize phase.`,
+    tip: "You only need 15-20% Champions to reach critical mass. Focus on activating them as change agents, not converting Resistors." },
 
-  { page: "jobs", icon: "🏗️", title: "Job Architecture — Architecture Map & Career Framework",
-    body: `The Architecture Map visualizes the current state of ${nm}'s job structure: how many layers exist between the CEO and individual contributors, which functions have the most roles, and where career paths converge or diverge. The future state overlay (available after completing Work Design) shows how the architecture changes after AI transformation — which roles are eliminated, which are created, and how career ladders shift. This before/after comparison is one of the most powerful visuals for executive buy-in. The Career Framework Accordion shows standardized career levels with expected competencies, typical tenure, and advancement criteria for each band.` },
+  { page: "jobs", icon: "🏗️", title: "Job Architecture — Your Organizational Blueprint", subtitle: "Phase 2: Diagnose",
+    body: `Job Architecture is the structural framework of your organization: functions, job family groups, job families, sub-families, career tracks, and levels. Browse the Job Catalogue to explore roles. Use the Org Chart for visual hierarchy. Run Validation to auto-detect structural issues like orphaned roles, inconsistent leveling, or title inflation. The Job Profiles tab lets you generate AI-powered job descriptions.`,
+    tip: "A healthy JA has 8-15 job families, consistent leveling across families, and clear IC-to-Manager career forks." },
 
-  { page: "jobs", icon: "🔍", title: "Job Architecture — Validation & Calibration",
-    body: `Every role in the catalog carries validation flags that indicate data quality and calibration status. Green flags mean the role has complete task data, confirmed skills, and validated compensation ranges. Yellow flags indicate partial data — the role exists but some fields need enrichment. Red flags mean critical data is missing and the role cannot be reliably analyzed in downstream modules. The calibration panel lets you compare roles side-by-side to ensure consistency: are two roles at the same career level actually equivalent in scope and compensation? This quality check is essential before running any workforce analytics, because garbage in means garbage out in every subsequent module.` },
+  { page: "scan", icon: "🔬", title: "AI Opportunity Scan — Finding the Gold", subtitle: "Phase 2: Diagnose",
+    body: `The AI Opportunity Scan scores every task in your organization for AI impact — automation potential, augmentation potential, and human-essential classification. It identifies quick wins (high impact, low effort), strategic bets (high impact, high effort), and tasks to leave alone. The scored task table is the input for the Work Design Lab.`,
+    tip: "Start with the 'quick wins' quadrant. These build momentum and prove value before tackling complex redesigns." },
 
-  // ═══ Steps 12-14: Design ═══
-  { page: "design", icon: "✏️", title: "Design — Work Design Lab (Deconstruction & Reconstruction)",
-    body: `The Work Design Lab is the analytical engine of the platform. Select a role from the sidebar to see its task portfolio. Each task is characterized by four dimensions: Task Type (Repetitive vs Variable), Logic (Deterministic vs Judgment-heavy), Interaction (Independent vs Collaborative), and AI Impact (High/Moderate/Low). Deconstruction breaks the role into individual tasks with time allocations. The pattern is clear: Repetitive + Deterministic + Independent tasks have high AI impact (60% time savings through automation), while Variable + Judgment-heavy + Collaborative tasks remain human-led. Reconstruction shows the future state — how freed capacity gets redeployed to higher-value work. The Redeployment tab assigns each task a decision: Automate, Augment, or Retain.` },
+  { page: "design", icon: "🛠️", title: "Work Design Lab — Redesigning How Work Gets Done", subtitle: "Phase 3: Design",
+    body: `The Work Design Lab is the platform's core differentiator. Select a job, then walk through a guided process: Context → Task Deconstruction → Work Options Analysis → Role Reconstruction → Skills Impact → Redeployment Planning → Impact Summary. For each task, you decide: automate, augment with AI, move to shared services, outsource, or keep. The reconstructed role shows what the job looks like after redesign.`,
+    tip: "The Mercer methodology starts with the WORK, not the ORG CHART. Understand tasks first, then redesign roles around them." },
 
-  { page: "opmodel", icon: "🧬", title: "Design — Operating Model & Capability Maturity",
-    body: `The Operating Model Lab configures the target organizational architecture. The Blueprint shows five layers: Governance, Core Components, Shared Services, Enabling, and Interface. Switch between archetypes — Functional (siloed departments), Platform (shared services hub), or Matrix (cross-functional teams) — to see how each layer transforms. The Capability Maturity tab lets you rate each component from 1 (Ad Hoc) to 5 (Optimized) for both current and target state. The gap between current and target drives investment estimates. A function scoring 2 today with a target of 4 needs significant investment in process, technology, and people. The Operating Model Canvas lets you drag-and-drop components to design a custom architecture.` },
+  { page: "opmodel", icon: "🧬", title: "Operating Model Lab — How Value Gets Delivered", subtitle: "Phase 3: Design",
+    body: `The Operating Model Lab is your most comprehensive design tool. It covers: Strategic Intent (priorities and design principles), Architecture (capabilities, processes, service delivery, technology, governance), People & Organization (culture, structure, workforce model), and Execution (financials, KPIs, transition planning). The guided step navigator walks you through 14 steps to build a complete Target Operating Model.`,
+    tip: "Start with Strategy — design principles constrain all downstream decisions. Don't jump to org structure before defining how value should be delivered." },
 
-  { page: "bbba", icon: "🔀", title: "Design — BBBA Framework, Org Design Studio & Headcount Planning",
-    body: `Build/Buy/Borrow/Automate is the sourcing strategy layer. Each redesigned role gets a recommendation based on gap analysis and adjacency scores. Build means reskilling internal candidates (lowest risk, moderate cost). Buy means external hiring (fast but expensive). Borrow means contractors or gig workers (flexible but temporary). Automate means the role is fully replaced by technology. The Org Design Studio models structural changes: span of control ratios, layer reduction, function merges. Headcount Planning shows the waterfall: starting headcount minus automation eliminations, plus natural attrition absorption, plus internal redeployments, plus new hires, equals the net change your CFO cares about. The Financial Impact section shows whether the transformation pays for itself in Year 1.` },
+  { page: "bbba", icon: "⚖️", title: "BBBA — Build, Buy, Borrow, Automate", subtitle: "Phase 3: Design",
+    body: `For every capability gap identified in your transformation, BBBA helps you decide the optimal sourcing strategy: Build (train existing employees), Buy (hire externally), Borrow (use contractors/consultants), or Automate (deploy AI/technology). Each disposition includes cost modeling so you can see the financial impact of your choices.`,
+    tip: "Most organizations over-index on 'Buy.' Internal reskilling is 3-5x cheaper than external hiring when you factor in ramp-up time." },
 
-  // ═══ Steps 15-17: Simulate ═══
-  { page: "simulate", icon: "⚡", title: "Simulate — Scenarios & Presets",
-    body: `The Impact Simulator lets you model three adoption scenarios. Conservative (30% AI adoption) produces small, safe changes over 18 months — ideal for risk-averse organizations. Balanced (55% adoption) delivers moderate transformation over 10 months — the most common starting point. Aggressive (80% adoption) maximizes automation with the fastest ROI but carries the highest change management risk. You can also create a Custom scenario by adjusting adoption rate, timeline, and per-role investment independently. Each scenario instantly recalculates every downstream metric: hours released, FTE equivalents freed, redeployment capacity, and financial returns. Toggle between scenarios to see how the numbers shift — this is the sensitivity analysis your board will ask for.` },
+  { page: "build", icon: "📐", title: "Org Design Studio — Reshaping the Structure", subtitle: "Phase 3: Design",
+    body: `The Org Design Studio provides analytical views of your organization: span detail, layers analysis, cost modeling, role migration, and department drill-down. Use it to model restructuring scenarios: what if we reduce a layer? What if we widen spans? What if we consolidate functions? Each scenario shows headcount, cost, and structural impact.`,
+    tip: "The most impactful restructuring move is usually removing one management layer. It saves cost AND speeds decision-making." },
 
-  { page: "simulate", icon: "📊", title: "Simulate — Capacity Waterfall & FTE Impact",
-    body: `The Capacity Waterfall visualization shows how time is freed across the organization. Starting from total weekly hours, each bar subtracts automated tasks and augmented tasks, leaving the remaining human hours. The FTE Impact calculation translates freed hours into full-time-equivalent reductions (or reallocations). This is not necessarily a headcount reduction — the Redeployment sub-tab shows how freed time can be redirected: Higher-Value Work, Innovation, Customer Engagement, or Training. The split between these categories determines whether your transformation story is about efficiency (doing the same with less) or growth (doing more with the same). Most successful transformations aim for 60% redeployment to higher-value work and 20% to innovation.` },
+  { page: "headcount", icon: "📊", title: "Headcount Planning — The Numbers Game", subtitle: "Phase 3: Design",
+    body: `Headcount Planning shows a waterfall chart: starting headcount → automated roles → natural attrition → redeployed roles → new roles needed → net ending headcount. This translates your Design decisions into concrete workforce numbers. Green bars are additions, red bars are reductions. The net change bar is what matters for budgeting.`,
+    tip: "Always model attrition savings separately. Natural turnover often covers 30-50% of headcount reductions without any layoffs." },
 
-  { page: "simulate", icon: "💰", title: "Simulate — Cost/ROI Model & Scenario Comparison",
-    body: `The Cost/ROI Model calculates the full financial picture. Investment costs include technology licensing, implementation, reskilling programs, change management, and severance. Returns include labor cost savings from automation, productivity gains from augmentation, and revenue uplift from redeployment to growth activities. The payback period shows when cumulative returns exceed cumulative investment — typically 8-14 months for a balanced scenario. The Scenario Comparison view puts Conservative, Balanced, and Aggressive side by side across every metric. This is the slide that gets the most attention in board presentations, because it shows the trade-off between speed, risk, and return in concrete financial terms.` },
+  { page: "simulate", icon: "⚡", title: "Scenario Builder — Testing Your Assumptions", subtitle: "Phase 4: Simulate",
+    body: `The Scenario Builder lets you model different transformation approaches: Conservative (minimal disruption, lower savings), Balanced (moderate change, moderate return), and Transformative (maximum transformation, highest savings but highest risk). You can also build custom scenarios. Compare scenarios side by side to find the right balance for your organization.`,
+    tip: "Always present three scenarios to leadership. It frames the decision as 'which approach' not 'whether to transform.'" },
 
-  // ═══ Steps 18-21: Mobilize ═══
-  { page: "plan", icon: "🚀", title: "Mobilize — Change Planner & Gantt Chart",
-    body: `The Change Planner auto-generates a transformation roadmap from everything you have configured. Click "Auto-Build Plan" and the AI creates initiatives organized into waves: Foundation (assessments, tool setup), Quick Wins (high-impact, low-effort changes), Core Transformation (major role redesigns), and Optimization (fine-tuning). Each initiative has an owner, priority level, dependencies, and timeline. The Gantt chart visualization shows initiatives sequenced across waves with dependency arrows. Every row is fully editable — change owners, shift priorities, move initiatives between waves. The critical path is highlighted to show which delays would push back the entire program. Stakeholder mapping identifies who needs to approve, champion, or be informed for each initiative.` },
+  { page: "simulate", icon: "💰", title: "ROI Calculator — The Business Case", subtitle: "Phase 4: Simulate",
+    body: `The ROI Calculator aggregates all financial impacts: technology investment, reskilling costs, hiring costs, and projected savings from automation, efficiency gains, and headcount optimization. It calculates: total investment, annual savings, payback period, and 3-year NPV. This is the slide that gets the budget approved.`,
+    tip: "CFOs trust bottom-up ROI models (built from specific role-level savings) more than top-down estimates." },
 
-  { page: "plan", icon: "⚠️", title: "Mobilize — Risk Register & Communication Plan",
-    body: `The Risk Register aggregates risks identified across all modules: skills gaps too large to close internally, managers below capability threshold, functions with low change readiness, and headcount changes that exceed natural attrition capacity. Each risk has a probability rating, impact severity, proposed mitigation, and assigned owner. The Communication Plan outlines what messages need to go to which audiences at each phase of the transformation. It distinguishes between executive sponsors (who need ROI data), middle managers (who need operational detail), and frontline employees (who need reassurance and clarity). The plan includes suggested channels, frequency, and messaging frameworks for each audience segment.` },
+  { page: "simulate", icon: "🔀", title: "Capacity Waterfall & Redeployment", subtitle: "Phase 4: Simulate",
+    body: `The Capacity Waterfall shows how freed capacity (from automation and redesign) can be redeployed to higher-value work. Instead of eliminating roles, you're redirecting human effort. The Redeployment tab shows where each displaced employee could be placed based on skill adjacency.`,
+    tip: "Position redeployment as career growth, not displacement. '40 hours freed for strategic work' is better than '40 hours automated.'" },
 
-  { page: "story", icon: "📖", title: "Mobilize — Story Builder & Readiness Archetypes",
-    body: `The Transformation Story Builder helps you craft the narrative that ties together all the analytical work. It takes your data — which roles are changing, what skills are growing, how the operating model shifts — and structures it into a compelling change story with a beginning (why we must transform), middle (what changes and how), and end (the future state and its benefits). Readiness Archetypes segment your workforce into behavioral profiles: Early Adopters (enthusiastic, ready to champion), Pragmatic Majority (willing but need evidence), Skeptics (resistant but persuadable), and Active Resistors (need intensive intervention). Each archetype has a tailored engagement strategy, communication approach, and support plan.` },
+  { page: "plan", icon: "📋", title: "Change Planner — Your Transformation Roadmap", subtitle: "Phase 5: Mobilize",
+    body: `The Change Planner brings everything together into an executable plan. The Roadmap shows the high-level phases. The Gantt chart details the timeline. Workstreams organize activities by function. The Stakeholder Map identifies who needs to be managed and how. The Risk Register tracks what could go wrong. The Comms Plan ensures everyone hears the right message at the right time.`,
+    tip: "The #1 reason transformations fail is not poor design — it's poor change management. Spend as much time on Mobilize as you did on Design." },
 
-  { page: "reskill", icon: "📚", title: "Mobilize — Reskilling Pathways & Talent Marketplace",
-    body: `Reskilling Pathways creates personalized learning plans for every employee with skill gaps. The system matches gap severity with readiness level to determine pathway intensity: high-readiness employees with small gaps get short, self-paced modules; low-readiness employees with large gaps need instructor-led intensive programs. Each pathway includes estimated duration, cost, and recommended providers. The Talent Marketplace matches internal candidates to redesigned roles using a composite score of skill adjacency, readiness level, and reskilling timeline. Strong matches (above 70%) are Build candidates — reskilling is cost-effective. Weak matches (below 50%) signal external hire needs. This data directly feeds the BBBA framework's sourcing recommendations.` },
+  { page: "plan", icon: "👥", title: "Stakeholder Management — Winning Hearts and Minds", subtitle: "Phase 5: Mobilize",
+    body: `The Stakeholder Map uses a Power/Interest grid to categorize stakeholders: Manage Closely (high power, high interest), Keep Satisfied (high power, low interest), Keep Informed (low power, high interest), and Monitor. Each stakeholder has an engagement plan and sentiment tracker. The ADKAR tab scores readiness on Awareness, Desire, Knowledge, Ability, and Reinforcement.`,
+    tip: "Identify your biggest skeptic with the most power. Convert them early — they become your most credible champion." },
 
-  // ═══ Steps 22-23: Export ═══
-  { page: "export", icon: "📦", title: "Export — Excel, PowerPoint & PDF Generation",
-    body: `The Export module generates board-ready deliverables from your analysis. Excel exports include the full data tables: employee-level skills inventories, role-by-role task deconstructions, financial models with formulas preserved, and risk registers with status tracking. PowerPoint exports create formatted slide decks with visualizations, key findings, and executive summaries — ready for steering committee presentations. PDF exports produce formatted reports suitable for stakeholder distribution. Each export type lets you select which modules to include, so you can generate a focused Skills Gap Report or a comprehensive Transformation Business Case. Data readiness indicators show which modules have complete data and which need more input before exporting.` },
+  { page: "plan", icon: "📊", title: "ADKAR — Structured Change Methodology", subtitle: "Phase 5: Mobilize",
+    body: `ADKAR scores your stakeholder groups on five dimensions: Awareness, Desire, Knowledge, Ability, Reinforcement. The magic is in the sequence — you can't build Desire before Awareness. The tool identifies the 'barrier point' for each group and generates targeted interventions. If managers score low on Desire, you need to address their fears before training them.`,
+    tip: "The barrier point is where you should spend your budget. Training (Knowledge) is useless if people don't want to change (Desire)." },
 
-  { page: "export", icon: "✅", title: "Export — Data Readiness & Deliverable Quality",
-    body: `Before generating exports, the Data Readiness panel shows a checklist of what is complete and what is missing. Green checkmarks mean the module has sufficient data for a reliable export. Yellow warnings mean partial data exists but some assumptions will be made. Red flags mean critical inputs are missing and the export may contain gaps. The platform prioritizes honest reporting over impressive-looking slides — if your skills data only covers 60% of employees, the export will clearly state that limitation. Deliverable quality depends on the depth of your analysis: a transformation program that has completed Diagnose, Design, and Simulate will produce a much richer export than one that only completed Overview. The system guides you on what to complete next for maximum deliverable quality.` },
+  { page: "reskill", icon: "🎓", title: "Reskilling Pathways — Developing Your People", subtitle: "Phase 5: Mobilize",
+    body: `Reskilling Pathways creates personalized development plans based on the skills gaps identified in your transformation. For each affected employee group: current skills, required skills, gap analysis, recommended training, estimated duration, and cost. This connects directly to the Skills module and BBBA dispositions.`,
+    tip: "Make reskilling voluntary first. Employees who self-select into development programs complete them at 3x the rate of those who are mandated." },
 
-  // ═══ Steps 24-25: AI Features ═══
-  { page: "home", icon: "☕", title: "AI Features — AI Espresso Chat Assistant",
-    body: `AI Espresso is the platform's built-in AI assistant, accessible via the coffee cup button in the bottom-right corner of any module. It has full context of your current view, selected model, active job, and module state. Ask it questions like "Give me an executive summary of this workforce," "What are the biggest skill gaps?," or "Draft a change communication for the finance team." It can generate analysis narratives, compare scenarios in natural language, identify patterns across modules, and draft stakeholder communications. The assistant understands the domain vocabulary — task deconstruction, BBBA dispositions, readiness archetypes, capacity waterfalls — and responds with consultant-grade language suitable for client deliverables.` },
+  { page: "export", icon: "📤", title: "Export & Deliverables — Client-Ready Outputs", subtitle: "Phase 5: Mobilize",
+    body: `The Export module generates three types of deliverables: Excel workbooks (complete data tables), PowerPoint decks (formatted slides with visualizations), and PDF reports (executive summaries). The AI Narrative feature generates a complete written report from your analysis. The Data Story Engine creates a full executive narrative. Everything is formatted and ready to present.`,
+    tip: "Export early and often. A weekly 'data pack' keeps stakeholders engaged and prevents end-of-project surprises." },
 
-  { page: "home", icon: "💡", title: "AI Features — Insight Cards & Intelligent Recommendations",
-    body: `Throughout the platform, AI-generated insight cards appear when the system detects noteworthy patterns, risks, or opportunities in your data. These are not generic tips — they are computed from your specific workforce data. For example, if the skills gap analysis reveals that 40% of your workforce lacks AI Literacy but your readiness scores show high Change Openness, the system will recommend prioritizing AI literacy training because the workforce is receptive. Insight cards appear in the Workforce Snapshot, AI Opportunity Scan, Skills Analysis, and Change Readiness modules. They surface cross-module connections that might not be obvious when looking at each module in isolation. Think of them as a virtual analyst who has read all your data and is flagging what matters most.` },
+  { page: "home", icon: "🤖", title: "AI Features — Your AI Co-Pilot", subtitle: "Platform Features",
+    body: `AI is embedded throughout the platform. The AI Co-Pilot sidebar proactively suggests insights as you work. The Command Palette (⌘K) searches everything instantly. Auto-suggest generates job profiles, task lists, and skills. The Story Engine creates executive narratives. All AI features use the Gemini API with your actual project data — not generic responses.`,
+    tip: "Ask the AI Co-Pilot 'what should I do next?' — it knows which modules you've completed and recommends the logical next step." },
 
-  // ═══ Step 26: Platform Hub ═══
-  { page: "home", icon: "🏠", title: "Platform Hub — Account, Knowledge Base & Resources",
-    body: `The Platform Hub (accessible from the sidebar) is your home base for account management and learning resources. The Account section manages your profile, preferences, and session history. The About section explains the platform's methodology, data model, and analytical frameworks. The Knowledge Base contains deep-dive articles on every module: what it does, how to interpret the outputs, and best practices for client conversations. The Use Cases library shows real-world examples of how the platform has been used across industries — from a 500-person tech startup to a 50,000-employee healthcare system. The Tutorials section (where this guided tour lives) offers self-paced walkthroughs for specific workflows. All resources are searchable and organized by topic.` },
+  { page: "home", icon: "🏛️", title: "Platform Hub — Your Command Center", subtitle: "Platform Features",
+    body: `The Platform Hub contains your account settings, knowledge base (articles and guides for every module), use cases (real-world transformation examples), tutorials, release notes, and feedback form. The Knowledge Base is especially useful — each article is a comprehensive slideshow covering the What, Who, How, When, Where, Why, and examples for every module.`,
+    tip: "Read the Knowledge Base article for a module BEFORE using it. It's like reading the manual — saves time and prevents mistakes." },
 
-  // ═══ Step 27: Next Steps ═══
-  { page: "home", icon: "🎉", title: "Next Steps — You've Completed the Tour",
-    body: `Congratulations — you have explored the entire platform across all six modules. You have seen how task-level deconstruction drives AI impact scores, how skills gaps determine talent sourcing strategy, how manager capability multiplies team readiness, and how everything flows into a financial model and change management roadmap. To start a real engagement, click "Back to Projects" and create a New Project with your organization's data. Upload employee rosters, skills assessments, and task inventories using the template (downloadable from the sidebar). The platform will guide you through the same analytical journey you just experienced, but with your real data. If you need help at any point, use AI Espresso or revisit this sandbox to refresh your memory. Good luck with your transformation.` },
+  { page: "home", icon: "🎯", title: "You're Ready — What's Next", subtitle: "Next Steps",
+    body: `You've completed the full platform tour. Here's your recommended next action: if you're using sandbox data, explore 2-3 modules that interest you most. If you're ready with real data, click Smart Import to upload your workforce file. Start with Discover (Workforce Snapshot), then work through Diagnose. The platform will guide you from there. Welcome to the Digital Playground — let's build something transformative.`,
+    tip: "The most successful transformations start small. Pick one function, redesign its top 5 roles, prove the value, then scale." },
   ];
 }
 
@@ -1655,93 +1988,152 @@ function SandboxViewSelector({ companyName, onSelect }: { companyName: string; o
 }
 
 
-/* ═══ TUTORIAL PANEL — fixed-position bottom companion card ═══ */
+/* ═══ TUTORIAL — Fullscreen immersive cinematic experience ═══ */
+
+const TUTORIAL_VISUALS: Record<number, string> = { 0: "👋", 1: "🗺️", 2: "📊", 3: "🔍", 4: "📈", 5: "🎯", 6: "🏥", 7: "🔥", 8: "🔄", 9: "🏗️", 10: "🔬", 11: "🛠️", 12: "🧬", 13: "⚖️", 14: "📐", 15: "📊", 16: "⚡", 17: "💰", 18: "🔀", 19: "📋", 20: "👥", 21: "📊", 22: "🎓", 23: "📤", 24: "🤖", 25: "🏛️", 26: "🎯" };
+
+const TUTORIAL_PHASES = [
+  { label: "Start", icon: "👋", range: [0, 2], color: "#D4860A" },
+  { label: "Discover", icon: "🔍", range: [3, 5], color: "#E8C547" },
+  { label: "Diagnose", icon: "🩺", range: [6, 10], color: "#C07030" },
+  { label: "Design", icon: "✏️", range: [11, 15], color: "#10B981" },
+  { label: "Simulate", icon: "⚡", range: [16, 18], color: "#8B5CF6" },
+  { label: "Mobilize", icon: "🚀", range: [19, 23], color: "#F59E0B" },
+  { label: "Platform", icon: "🏛️", range: [24, 26], color: "#0891B2" },
+];
+
 function TutorialOverlay({ step, totalSteps, steps, onNext, onPrev, onClose, onJump }: {
-  step: number; totalSteps: number;
-  steps: TutorialStep[];
+  step: number; totalSteps: number; steps: TutorialStep[];
   onNext: () => void; onPrev: () => void; onClose: () => void; onJump: (s: number) => void;
 }) {
   const s = steps[step];
   if (!s) return null;
   const isLast = step === totalSteps - 1;
   const pct = Math.round(((step + 1) / totalSteps) * 100);
-  // Phase labels based on step ranges
-  const phaseLabel = step < 3 ? "Welcome" : step < 5 ? "Overview" : step < 8 ? "Diagnose" : step < 11 ? "Job Architecture" : step < 14 ? "Design" : step < 17 ? "Simulate" : step < 21 ? "Mobilize" : step < 23 ? "Export" : step < 25 ? "AI Features" : step < 26 ? "Platform Hub" : "Finish";
-  const phaseColor = step < 3 ? "#D4860A" : step < 5 ? "#E8C547" : step < 8 ? "#C07030" : step < 11 ? "#D4860A" : step < 14 ? "#E09040" : step < 17 ? "#E8C547" : step < 21 ? "#C07030" : step < 23 ? "#D4860A" : step < 25 ? "#E09040" : step < 26 ? "#E8C547" : "#10B981";
+  const phase = TUTORIAL_PHASES.find(p => step >= p.range[0] && step <= p.range[1]) || TUTORIAL_PHASES[0];
+  const [dir, setDir] = useState(1); // 1 = forward, -1 = back
+  const [animKey, setAnimKey] = useState(0);
+  const [finishing, setFinishing] = useState(false);
 
-  const [visible, setVisible] = useState(false);
-  useEffect(() => { setVisible(false); const t = setTimeout(() => setVisible(true), 30); return () => clearTimeout(t); }, [step]);
+  useEffect(() => { setAnimKey(k => k + 1); }, [step]);
 
-  // Escape to close
   useEffect(() => {
-    const h = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    const h = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowRight") { setDir(1); onNext(); }
+      if (e.key === "ArrowLeft") { setDir(-1); onPrev(); }
+    };
     window.addEventListener("keydown", h);
     return () => window.removeEventListener("keydown", h);
-  }, [onClose]);
+  }, [onClose, onNext, onPrev]);
 
-  return <div style={{
-    position: "fixed", bottom: 16, right: 16, zIndex: 50,
-    width: 440, maxHeight: "min(420px, calc(100vh - 100px))",
-    borderRadius: 18,
-    background: "rgba(15,12,8,0.92)",
-    backdropFilter: "blur(24px)",
-    border: "1px solid rgba(212,134,10,0.15)",
-    boxShadow: "0 16px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(212,134,10,0.05)",
-    display: "flex", flexDirection: "column",
-    opacity: visible ? 1 : 0,
-    transform: visible ? "translateY(0)" : "translateY(8px)",
-    transition: "opacity 0.35s ease, transform 0.35s ease",
-    overflow: "hidden",
-  }}>
-    {/* Header */}
-    <div style={{ padding: "14px 16px 10px", flexShrink: 0, borderBottom: "1px solid rgba(212,134,10,0.08)" }}>
-      {/* Progress bar */}
-      <div style={{ height: 3, borderRadius: 2, background: "rgba(255,255,255,0.06)", marginBottom: 10 }}>
-        <div style={{ height: "100%", borderRadius: 2, background: `linear-gradient(90deg, ${phaseColor}, #D4860A)`, width: `${pct}%`, transition: "width 0.5s ease" }} />
-      </div>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
-          <span style={{ fontSize: 26, flexShrink: 0 }}>{s.icon}</span>
-          <div style={{ minWidth: 0 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
-              <span style={{ fontSize: 15, fontWeight: 700, color: "#D4860A", letterSpacing: 1 }}>STEP {step + 1}/{totalSteps}</span>
-              <span style={{ fontSize: 14, fontWeight: 700, color: phaseColor, background: `${phaseColor}18`, padding: "1px 7px", borderRadius: 4 }}>{phaseLabel}</span>
-              <span style={{ fontSize: 14, color: "rgba(255,230,200,0.3)" }}>{pct}%</span>
-            </div>
-            <div style={{ fontSize: 15, fontWeight: 800, color: "#f5e6d0", fontFamily: "'Outfit', sans-serif", lineHeight: 1.2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.title}</div>
+  const handleNext = () => { if (isLast) { setFinishing(true); setTimeout(() => { onClose(); setFinishing(false); }, 2600); } else { setDir(1); onNext(); } };
+  const handlePrev = () => { setDir(-1); onPrev(); };
+
+  // Split body into lines for staggered reveal
+  const bodyLines = s.body.split(". ").filter(Boolean).map((line, i, arr) => i < arr.length - 1 ? line + "." : line);
+
+  return <div style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", flexDirection: "column" }}>
+    {/* Dark overlay — platform visible but dimmed */}
+    <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.85)", transition: "opacity 0.6s", opacity: finishing ? 0 : 1 }} />
+
+    {/* Finishing message */}
+    {finishing && <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2 }}>
+      <div style={{ fontSize: 28, fontWeight: 300, color: "rgba(255,230,200,0.8)", fontFamily: "'Outfit', sans-serif", textAlign: "center", animation: "fadeIn 0.6s ease", letterSpacing: 0.5 }}>You{"'"}re ready. Build something transformative.</div>
+    </div>}
+
+    {/* Main content area */}
+    {!finishing && <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 64px 0" }}>
+      <div key={animKey} style={{ maxWidth: 900, width: "100%", display: "flex", gap: 48, alignItems: "center", animation: `tutSlideIn${dir > 0 ? "R" : "L"} 0.4s ease-out` }}>
+        <style>{`
+          @keyframes tutSlideInR { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+          @keyframes tutSlideInL { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: translateX(0); } }
+          @keyframes tutLineIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+          @keyframes tutTipIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+        `}</style>
+
+        {/* LEFT: Hero visual (40%) */}
+        <div style={{ width: "35%", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ width: 220, height: 220, borderRadius: 28, background: `radial-gradient(circle at 40% 40%, ${phase.color}20, transparent 70%), rgba(255,255,255,0.02)`, border: `1px solid ${phase.color}20`, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 0 60px ${phase.color}10`, animation: "tutSlideInR 0.5s ease-out" }}>
+            <span style={{ fontSize: 80, filter: `drop-shadow(0 4px 20px ${phase.color}30)`, animation: "tutSlideInR 0.6s ease-out" }}>{TUTORIAL_VISUALS[step] || s.icon}</span>
           </div>
         </div>
-        <button onClick={onClose} title="Close tutorial" style={{ width: 26, height: 26, borderRadius: 7, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", cursor: "pointer", color: "rgba(255,230,200,0.35)", fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "#f5e6d0"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; e.currentTarget.style.color = "rgba(255,230,200,0.35)"; }}>✕</button>
+
+        {/* RIGHT: Text content (60%) */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {/* Step label */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8, animation: "tutLineIn 0.3s ease-out" }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(212,134,10,0.6)", letterSpacing: 1.5, textTransform: "uppercase" }}>Step {step + 1} of {totalSteps}</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: phase.color, background: `${phase.color}18`, padding: "3px 10px", borderRadius: 6, letterSpacing: 0.5 }}>{phase.label}</span>
+          </div>
+
+          {/* Title — cinematic entrance */}
+          <h2 style={{ fontSize: 32, fontWeight: 800, color: "#f5e6d0", fontFamily: "'Outfit', sans-serif", lineHeight: 1.15, margin: "0 0 6px", animation: "tutLineIn 0.4s ease-out" }}>{s.title}</h2>
+
+          {/* Subtitle */}
+          {s.subtitle && <div style={{ fontSize: 16, fontWeight: 600, color: phase.color, marginBottom: 20, animation: "tutLineIn 0.5s ease-out", opacity: 0.7 }}>{s.subtitle}</div>}
+
+          {/* Body — line by line staggered reveal */}
+          <div style={{ marginBottom: 20 }}>
+            {bodyLines.map((line, i) => <span key={i} style={{ display: "inline", fontSize: 17, lineHeight: 1.75, color: "rgba(255,230,200,0.7)", animation: `tutLineIn 0.4s ease-out ${0.3 + i * 0.08}s both` }}>{line}{i < bodyLines.length - 1 ? " " : ""}</span>)}
+          </div>
+
+          {/* Pro tip */}
+          {s.tip && <div style={{ padding: "14px 18px", borderRadius: 12, background: "rgba(212,134,10,0.06)", borderLeft: "3px solid rgba(212,134,10,0.4)", animation: `tutTipIn 0.4s ease-out ${0.5 + bodyLines.length * 0.08}s both` }}>
+            <span style={{ fontSize: 15, fontStyle: "italic", color: "rgba(255,230,200,0.55)", lineHeight: 1.65 }}>
+              <span style={{ fontWeight: 700, color: "#D4860A", fontStyle: "normal" }}>💡 Pro tip: </span>{s.tip}
+            </span>
+          </div>}
+        </div>
       </div>
-    </div>
+    </div>}
 
-    {/* Body — scrollable */}
-    <div style={{ padding: "12px 16px 10px", overflowY: "auto", flex: 1, minHeight: 0 }}>
-      <p style={{ fontSize: 15, lineHeight: 1.75, color: "rgba(255,230,200,0.6)", margin: 0 }}>{s.body}</p>
-    </div>
+    {/* Bottom: Progress timeline + controls */}
+    {!finishing && <div style={{ position: "relative", zIndex: 1, flexShrink: 0, padding: "0 64px 32px" }}>
+      {/* Phase timeline */}
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 0, marginBottom: 24, height: 50 }}>
+        {TUTORIAL_PHASES.map(p => {
+          const phaseSteps = p.range[1] - p.range[0] + 1;
+          const phaseWidth = (phaseSteps / totalSteps) * 100;
+          const inPhase = step >= p.range[0] && step <= p.range[1];
+          const completed = step > p.range[1];
+          const phasePct = inPhase ? ((step - p.range[0]) / (phaseSteps - 1)) * 100 : completed ? 100 : 0;
+          return <div key={p.label} style={{ width: `${phaseWidth}%`, position: "relative" }}>
+            {/* Phase label */}
+            <div style={{ textAlign: "center", marginBottom: 8 }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: inPhase ? p.color : completed ? `${p.color}80` : "rgba(255,255,255,0.15)", textTransform: "uppercase", letterSpacing: 1, transition: "color 0.3s" }}>{p.icon} {p.label}</span>
+            </div>
+            {/* Track */}
+            <div style={{ height: 4, borderRadius: 2, background: "rgba(255,255,255,0.06)", position: "relative", marginLeft: 1, marginRight: 1 }}>
+              <div style={{ height: "100%", borderRadius: 2, background: p.color, width: `${phasePct}%`, transition: "width 0.5s ease", boxShadow: inPhase ? `0 0 8px ${p.color}40` : "none" }} />
+              {/* Current position dot */}
+              {inPhase && <div style={{ position: "absolute", top: -4, left: `calc(${phasePct}% - 6px)`, width: 12, height: 12, borderRadius: 6, background: p.color, border: "2px solid rgba(0,0,0,0.5)", boxShadow: `0 0 12px ${p.color}60`, transition: "left 0.5s ease" }} />}
+            </div>
+          </div>;
+        })}
+      </div>
 
-    {/* Step dots */}
-    <div style={{ padding: "4px 16px 6px", display: "flex", gap: 2, justifyContent: "center", flexWrap: "wrap", flexShrink: 0 }}>
-      {steps.map((_ts, i) => <button key={i} onClick={() => onJump(i)} title={`Step ${i+1}: ${steps[i].title}`} style={{ width: i === step ? 14 : 6, height: 6, borderRadius: 3, background: i === step ? "#D4860A" : i < step ? "rgba(212,134,10,0.3)" : "rgba(255,255,255,0.06)", border: "none", cursor: "pointer", transition: "all 0.25s", flexShrink: 0, padding: 0 }} />)}
-    </div>
-
-    {/* Controls */}
-    <div style={{ padding: "8px 16px 14px", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0, gap: 8 }}>
-      <button onClick={onPrev} disabled={step === 0} style={{ padding: "8px 14px", borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: step === 0 ? "not-allowed" : "pointer", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,230,200,0.5)", opacity: step === 0 ? 0.3 : 1, transition: "all 0.2s" }}>Back</button>
-      <button onClick={onClose} style={{ padding: "6px 12px", borderRadius: 8, fontSize: 15, cursor: "pointer", background: "none", border: "none", color: "rgba(255,230,200,0.25)", transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.color = "rgba(255,230,200,0.5)"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,230,200,0.25)"}>Skip Tour</button>
-      <button onClick={onNext} style={{ padding: "8px 20px", borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: "pointer", border: "none", color: "#fff", background: isLast ? "linear-gradient(135deg, #10B981, #059669)" : "linear-gradient(135deg, #E09040, #C07030)", boxShadow: isLast ? "0 3px 10px rgba(16,185,129,0.25)" : "0 3px 10px rgba(224,144,64,0.2)", transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.transform = "translateY(-1px)"} onMouseLeave={e => e.currentTarget.style.transform = "none"}>{isLast ? "Finish Tour" : "Next"}</button>
-    </div>
+      {/* Controls */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", maxWidth: 900, margin: "0 auto" }}>
+        <button onClick={handlePrev} disabled={step === 0} style={{ padding: "10px 20px", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: step === 0 ? "not-allowed" : "pointer", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,230,200,0.5)", opacity: step === 0 ? 0.3 : 1, transition: "all 0.2s" }}>← Back</button>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <span style={{ fontSize: 14, color: "rgba(255,230,200,0.2)", fontFamily: "'IBM Plex Mono', monospace" }}>{pct}%</span>
+          <button onClick={onClose} style={{ padding: "8px 16px", borderRadius: 10, fontSize: 14, cursor: "pointer", background: "none", border: "1px solid rgba(255,255,255,0.06)", color: "rgba(255,230,200,0.3)", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.color = "rgba(255,230,200,0.6)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)"; }} onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,230,200,0.3)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; }}>Minimize</button>
+        </div>
+        <button onClick={handleNext} style={{ padding: "10px 28px", borderRadius: 12, fontSize: 16, fontWeight: 700, cursor: "pointer", border: "none", color: "#fff", background: isLast ? "linear-gradient(135deg, #10B981, #059669)" : "linear-gradient(135deg, #E09040, #C07030)", boxShadow: isLast ? "0 4px 16px rgba(16,185,129,0.3)" : "0 4px 16px rgba(224,144,64,0.25)", transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"} onMouseLeave={e => e.currentTarget.style.transform = "none"}>{isLast ? "Finish" : "Next →"}</button>
+      </div>
+    </div>}
   </div>;
 }
 
-/* ═══ TUTORIAL BADGE — persistent reopener with progress ═══ */
+/* ═══ TUTORIAL BADGE — Guide re-entry ═══ */
 function TutorialBadge({ onClick, step, total }: { onClick: () => void; step: number; total: number }) {
   const pct = Math.round(((step + 1) / total) * 100);
-  return <button onClick={onClick} style={{ position: "fixed", bottom: 16, right: 16, zIndex: 40, padding: "8px 14px", borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: "pointer", background: "rgba(15,12,8,0.92)", backdropFilter: "blur(16px)", border: "1px solid rgba(212,134,10,0.15)", color: "#E09040", display: "flex", alignItems: "center", gap: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.3)", transition: "all 0.3s" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.35)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.15)"; }}>
-    <span>🎓</span>
-    <span>Tutorial</span>
-    <span style={{ fontSize: 14, opacity: 0.5 }}>{pct}%</span>
-    <div style={{ width: 28, height: 3, borderRadius: 2, background: "rgba(212,134,10,0.15)", overflow: "hidden" }}><div style={{ width: `${pct}%`, height: "100%", background: "#D4860A", borderRadius: 2 }} /></div>
+  const isComplete = step >= total - 1;
+  return <button onClick={onClick} style={{ position: "fixed", bottom: 16, right: 16, zIndex: 40, padding: "8px 14px", borderRadius: 14, fontSize: 14, fontWeight: 700, cursor: "pointer", background: "rgba(15,12,8,0.92)", backdropFilter: "blur(16px)", border: "1px solid rgba(212,134,10,0.15)", color: "#E09040", display: "flex", alignItems: "center", gap: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.3)", transition: "all 0.3s" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.35)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.15)"; }}>
+    <span>{isComplete ? "📖" : "🎓"}</span>
+    <span>{isComplete ? "Guide" : "Tutorial"}</span>
+    {!isComplete && <><span style={{ fontSize: 13, opacity: 0.5 }}>{pct}%</span><div style={{ width: 28, height: 3, borderRadius: 2, background: "rgba(212,134,10,0.15)", overflow: "hidden" }}><div style={{ width: `${pct}%`, height: "100%", background: "#D4860A", borderRadius: 2 }} /></div></>}
   </button>;
 }
 

@@ -574,6 +574,682 @@ function JobProfileLibrary({ jobs, model }: { jobs: Job[]; model: string }) {
 }
 
 /* ═══════════════════════════════════════════════════════════════
+   JOB EVALUATION — Mercer IPE / Hay-style job grading
+   ═══════════════════════════════════════════════════════════════ */
+
+const EVAL_METHODOLOGIES = {
+  ipe: { name: "Mercer IPE-Style", factors: [
+    { id: "impact", name: "Impact", desc: "The degree to which the role impacts organizational outcomes", levels: ["Limited local impact", "Contributes to team results", "Impacts department outcomes", "Significant functional impact", "Shapes business unit direction", "Drives enterprise strategy", "Defines organizational direction", "Transforms industry/market"] },
+    { id: "innovation", name: "Innovation", desc: "The level of creative thinking and problem-solving required", levels: ["Follows established procedures", "Minor improvements to processes", "Adapts methods to new situations", "Develops new approaches", "Creates novel solutions", "Innovates at organizational level", "Pioneers industry practices", "Redefines paradigms"] },
+    { id: "knowledge", name: "Knowledge", desc: "The depth and breadth of expertise required", levels: ["Basic operational knowledge", "Working knowledge of discipline", "Solid functional expertise", "Deep specialist knowledge", "Multi-discipline mastery", "Strategic domain expertise", "Cross-functional authority", "Industry thought leadership"] },
+    { id: "communication", name: "Communication", desc: "Complexity and influence of interactions required", levels: ["Routine information sharing", "Explains and clarifies", "Persuades within team", "Influences across functions", "Negotiates at senior levels", "Shapes organizational narrative", "Represents externally", "Influences industry/policy"] },
+    { id: "risk", name: "Risk", desc: "Financial, operational, or reputational risk managed", levels: ["Minimal risk exposure", "Manages task-level risk", "Manages project risk", "Manages functional risk", "Manages business unit risk", "Manages enterprise risk", "Manages strategic risk", "Manages existential risk"] },
+  ]},
+  hay: { name: "Hay/Korn Ferry-Style", factors: [
+    { id: "knowhow", name: "Know-How", desc: "Total of every kind of knowledge and skill needed to do the job", levels: ["Elementary procedures", "Routine vocational", "Advanced vocational", "Basic professional", "Seasoned professional", "Advanced professional", "Mastery of discipline", "Unique expertise"] },
+    { id: "problem", name: "Problem Solving", desc: "The original thinking required to analyze, evaluate, create", levels: ["Simple recall", "Patterned responses", "Interpolative analysis", "Adaptive thinking", "Uncharted problem-solving", "Strategic thinking", "Visionary thinking", "Paradigm-defining"] },
+    { id: "accountability", name: "Accountability", desc: "Answerability for actions and consequences", levels: ["Prescribed actions", "Standardized output", "Activities within guidelines", "Operational results", "Functional performance", "Business results", "Enterprise outcomes", "Stakeholder value creation"] },
+    { id: "conditions", name: "Working Conditions", desc: "Physical and environmental demands", levels: ["Standard office", "Some travel/variation", "Regular field work", "Demanding conditions", "High-pressure environment", "Crisis management", "Extreme demands", "Life-critical decisions"] },
+  ]},
+};
+
+function JobEvaluationTab({ jobs, model }: { jobs: Job[]; model: string }) {
+  const [methodology, setMethodology] = useState<"ipe" | "hay">("ipe");
+  const [selectedJobId, setSelectedJobId] = useState("");
+  const [scores, setScores] = usePersisted<Record<string, Record<string, number>>>(`${model}_job_eval`, {});
+  const [aiEvalLoading, setAiEvalLoading] = useState(false);
+  const [evalView, setEvalView] = useState<"score" | "comparison" | "batch">("score");
+
+  const meth = EVAL_METHODOLOGIES[methodology];
+  const selectedJob = jobs.find(j => j.id === selectedJobId);
+  const jobScores = scores[selectedJobId] || {};
+  const totalScore = meth.factors.reduce((s, f) => s + (jobScores[f.id] || 0), 0);
+  const maxScore = meth.factors.length * 8;
+  const grade = totalScore <= 0 ? "—" : totalScore <= maxScore * 0.2 ? "G8-10" : totalScore <= maxScore * 0.35 ? "G11-13" : totalScore <= maxScore * 0.5 ? "G14-16" : totalScore <= maxScore * 0.65 ? "G17-19" : totalScore <= maxScore * 0.8 ? "G20-22" : "G23+";
+  const percentile = jobs.filter(j => {
+    const js = scores[j.id]; if (!js) return false;
+    const jTotal = meth.factors.reduce((s, f) => s + (js[f.id] || 0), 0);
+    return jTotal < totalScore;
+  }).length;
+  const evaluatedCount = jobs.filter(j => scores[j.id] && meth.factors.some(f => (scores[j.id]?.[f.id] || 0) > 0)).length;
+
+  const aiEvaluateAll = async () => {
+    setAiEvalLoading(true);
+    try {
+      const jobList = jobs.slice(0, 30).map(j => `${j.title} (${j.function}, ${j.level}, ${j.track})`).join("; ");
+      const factorNames = meth.factors.map(f => f.id).join(", ");
+      const raw = await callAI("Return ONLY valid JSON.", `Score these jobs on ${factorNames} (1-8 each). Jobs: ${jobList}. Return JSON: {"results":[{"title":"...", ${meth.factors.map(f => `"${f.id}":N`).join(", ")}}]}`);
+      const parsed = JSON.parse(raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim());
+      if (parsed.results) {
+        const newScores = { ...scores };
+        parsed.results.forEach((r: Record<string, unknown>) => {
+          const job = jobs.find(j => j.title === r.title);
+          if (job) { newScores[job.id] = {}; meth.factors.forEach(f => { newScores[job.id][f.id] = Number(r[f.id]) || 0; }); }
+        });
+        setScores(newScores);
+        showToast(`Evaluated ${parsed.results.length} roles`);
+      }
+    } catch { showToast("AI evaluation failed"); }
+    setAiEvalLoading(false);
+  };
+
+  return <div className="animate-tab-enter space-y-5">
+    {/* Methodology selector */}
+    <div className="flex items-center gap-3 mb-4">
+      <span className="text-[14px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Methodology:</span>
+      {(["ipe", "hay"] as const).map(m => <button key={m} onClick={() => setMethodology(m)} className="px-4 py-2 rounded-xl text-[14px] font-semibold transition-all" style={{ background: methodology === m ? "rgba(212,134,10,0.12)" : "var(--surface-2)", color: methodology === m ? "#e09040" : "var(--text-muted)", border: methodology === m ? "1px solid rgba(212,134,10,0.3)" : "1px solid var(--border)" }}>{EVAL_METHODOLOGIES[m].name}</button>)}
+      <div className="ml-auto flex gap-2">
+        {(["score", "comparison", "batch"] as const).map(v => <button key={v} onClick={() => setEvalView(v)} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold" style={{ background: evalView === v ? "rgba(212,134,10,0.1)" : "transparent", color: evalView === v ? "#e09040" : "var(--text-muted)" }}>{v === "score" ? "Score" : v === "comparison" ? "Compare" : "Batch AI"}</button>)}
+      </div>
+    </div>
+
+    {/* ─── SCORING VIEW ─── */}
+    {evalView === "score" && <div>
+      <div className="flex gap-4 mb-4">
+        <select value={selectedJobId} onChange={e => setSelectedJobId(e.target.value)} className="flex-1 bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-[15px] text-[var(--text-primary)] outline-none"><option value="">Select a job to evaluate...</option>{jobs.map(j => <option key={j.id} value={j.id}>{j.title} ({j.function}, {j.level})</option>)}</select>
+        {totalScore > 0 && <div className="flex gap-3">
+          <div className="rounded-xl px-4 py-2 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold text-[var(--accent-primary)] font-data">{totalScore}</div><div className="text-[11px] text-[var(--text-muted)] uppercase">Points</div></div>
+          <div className="rounded-xl px-4 py-2 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold text-[var(--success)] font-data">{grade}</div><div className="text-[11px] text-[var(--text-muted)] uppercase">Grade</div></div>
+          {evaluatedCount > 1 && <div className="rounded-xl px-4 py-2 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold text-[var(--purple)] font-data">P{Math.round((percentile / evaluatedCount) * 100)}</div><div className="text-[11px] text-[var(--text-muted)] uppercase">Percentile</div></div>}
+        </div>}
+      </div>
+      {selectedJob && <div className="grid grid-cols-1 gap-4">
+        {meth.factors.map(factor => {
+          const score = jobScores[factor.id] || 0;
+          return <Card key={factor.id} title={`${factor.name} — ${factor.desc}`}>
+            <div className="grid grid-cols-4 lg:grid-cols-8 gap-2">
+              {factor.levels.map((level, li) => {
+                const n = li + 1;
+                const isSelected = score === n;
+                return <button key={li} onClick={() => setScores(prev => ({ ...prev, [selectedJobId]: { ...(prev[selectedJobId] || {}), [factor.id]: score === n ? 0 : n } }))} className="rounded-xl p-3 text-left transition-all" style={{
+                  background: isSelected ? "rgba(212,134,10,0.12)" : "var(--surface-2)",
+                  border: isSelected ? "2px solid var(--accent-primary)" : "1px solid var(--border)",
+                  boxShadow: isSelected ? "0 0 12px rgba(212,134,10,0.15)" : "none",
+                }}>
+                  <div className="text-[14px] font-bold mb-1" style={{ color: isSelected ? "var(--accent-primary)" : "var(--text-primary)" }}>Level {n}</div>
+                  <div className="text-[12px] text-[var(--text-muted)] leading-snug">{level}</div>
+                </button>;
+              })}
+            </div>
+          </Card>;
+        })}
+      </div>}
+      {!selectedJob && <div className="text-center py-16 text-[var(--text-muted)]"><div className="text-[40px] mb-3 opacity-40">⚖️</div><div className="text-[16px]">Select a job above to begin evaluation</div></div>}
+    </div>}
+
+    {/* ─── COMPARISON VIEW ─── */}
+    {evalView === "comparison" && <Card title="Evaluation Comparison — Score vs. Level">
+      <div className="text-[15px] text-[var(--text-secondary)] mb-4">Roles above the trend line may be under-leveled. Roles below may be over-leveled (title inflation).</div>
+      {evaluatedCount < 2 ? <div className="text-center py-12 text-[var(--text-muted)]">Evaluate at least 2 roles to see the comparison chart.</div> : <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full text-[14px]"><thead><tr className="bg-[var(--surface-2)]">
+        <th className="px-3 py-2 text-left text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Role</th>
+        <th className="px-2 py-2 text-center text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Level</th>
+        {meth.factors.map(f => <th key={f.id} className="px-2 py-2 text-center text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">{f.name.slice(0, 6)}</th>)}
+        <th className="px-2 py-2 text-center text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Total</th>
+        <th className="px-2 py-2 text-center text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Grade</th>
+        <th className="px-2 py-2 text-center text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Flag</th>
+      </tr></thead><tbody>
+        {jobs.filter(j => scores[j.id] && meth.factors.some(f => (scores[j.id]?.[f.id] || 0) > 0)).sort((a, b) => {
+          const aT = meth.factors.reduce((s, f) => s + (scores[a.id]?.[f.id] || 0), 0);
+          const bT = meth.factors.reduce((s, f) => s + (scores[b.id]?.[f.id] || 0), 0);
+          return bT - aT;
+        }).map(j => {
+          const js = scores[j.id] || {};
+          const jTotal = meth.factors.reduce((s, f) => s + (js[f.id] || 0), 0);
+          const jGrade = jTotal <= maxScore * 0.2 ? "G8-10" : jTotal <= maxScore * 0.35 ? "G11-13" : jTotal <= maxScore * 0.5 ? "G14-16" : jTotal <= maxScore * 0.65 ? "G17-19" : jTotal <= maxScore * 0.8 ? "G20-22" : "G23+";
+          const levelNum = parseInt(j.level.replace(/\D/g, "")) || 3;
+          const expectedGradeNum = levelNum <= 2 ? 1 : levelNum <= 4 ? 2 : levelNum <= 6 ? 3 : 4;
+          const actualGradeNum = jTotal <= maxScore * 0.35 ? 1 : jTotal <= maxScore * 0.5 ? 2 : jTotal <= maxScore * 0.65 ? 3 : 4;
+          const flag = actualGradeNum > expectedGradeNum ? "Under-leveled" : actualGradeNum < expectedGradeNum ? "Over-leveled" : "";
+          return <tr key={j.id} className="border-b border-[var(--border)]">
+            <td className="px-3 py-2 font-semibold text-[var(--text-primary)]">{j.title}<div className="text-[12px] text-[var(--text-muted)]">{j.function}</div></td>
+            <td className="px-2 py-2 text-center">{j.level}</td>
+            {meth.factors.map(f => <td key={f.id} className="px-2 py-2 text-center font-data text-[var(--text-secondary)]">{js[f.id] || "—"}</td>)}
+            <td className="px-2 py-2 text-center font-bold font-data text-[var(--accent-primary)]">{jTotal}</td>
+            <td className="px-2 py-2 text-center font-bold" style={{ color: "var(--success)" }}>{jGrade}</td>
+            <td className="px-2 py-2 text-center">{flag && <span className="px-2 py-0.5 rounded-full text-[11px] font-bold" style={{ background: flag === "Under-leveled" ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.1)", color: flag === "Under-leveled" ? "var(--success)" : "var(--risk)" }}>{flag}</span>}</td>
+          </tr>;
+        })}
+      </tbody></table></div>}
+    </Card>}
+
+    {/* ─── BATCH AI VIEW ─── */}
+    {evalView === "batch" && <Card title="Batch AI Evaluation">
+      <div className="text-[15px] text-[var(--text-secondary)] mb-4">Use AI to auto-evaluate all roles based on title, function, and level. Review and adjust scores after generation.</div>
+      <div className="flex items-center gap-4 mb-4">
+        <button onClick={aiEvaluateAll} disabled={aiEvalLoading} className="px-5 py-2.5 rounded-xl text-[15px] font-bold text-white glow-pulse" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: aiEvalLoading ? 0.5 : 1 }}>{aiEvalLoading ? "Evaluating..." : `✨ AI Evaluate All (${Math.min(jobs.length, 30)} roles)`}</button>
+        <span className="text-[14px] text-[var(--text-muted)]">{evaluatedCount} of {jobs.length} roles evaluated</span>
+      </div>
+      {evaluatedCount > 0 && <div className="grid grid-cols-3 gap-3 mb-4">
+        <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold text-[var(--text-primary)]">{evaluatedCount}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">Evaluated</div></div>
+        <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold text-[var(--warning)]">{jobs.filter(j => { const js = scores[j.id]; if (!js) return false; const jTotal = meth.factors.reduce((s, f) => s + (js[f.id] || 0), 0); const levelNum = parseInt(j.level.replace(/\D/g, "")) || 3; const expectedGradeNum = levelNum <= 2 ? 1 : levelNum <= 4 ? 2 : 3; const actualGradeNum = jTotal <= maxScore * 0.35 ? 1 : jTotal <= maxScore * 0.5 ? 2 : 3; return actualGradeNum !== expectedGradeNum; }).length}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">Level Mismatches</div></div>
+        <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold text-[var(--success)]">{jobs.length - evaluatedCount}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">Remaining</div></div>
+      </div>}
+    </Card>}
+  </div>;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CAREER LATTICE — Visual career path network
+   ═══════════════════════════════════════════════════════════════ */
+
+function CareerLatticeTab({ jobs, model }: { jobs: Job[]; model: string }) {
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
+  const [pathData, setPathData] = usePersisted<Record<string, { nextMoves: string[]; lateralMoves: string[]; crossTrack: string[] }>>(`${model}_career_paths`, {});
+  const [aiGenerating, setAiGenerating] = useState(false);
+
+  // Group jobs by track and level
+  const tracks = Array.from(new Set(jobs.map(j => j.track))).sort();
+  const levels = Array.from(new Set(jobs.map(j => j.level))).sort((a, b) => {
+    const aNum = parseInt(a.replace(/\D/g, "")) || 0;
+    const bNum = parseInt(b.replace(/\D/g, "")) || 0;
+    return aNum - bNum;
+  });
+  const trackColors: Record<string, string> = { IC: "#0891B2", Manager: "#8B5CF6", Executive: "#D4860A", P: "#0891B2", S: "#10B981", T: "#F59E0B", ST: "#EC4899", M: "#8B5CF6", E: "#D4860A" };
+
+  const selectedJob = jobs.find(j => j.id === selectedJobId);
+  const paths = selectedJobId ? pathData[selectedJobId] : null;
+
+  const generatePaths = async () => {
+    if (!selectedJob) return;
+    setAiGenerating(true);
+    try {
+      const allTitles = jobs.map(j => `${j.title} (${j.track} ${j.level})`).join("; ");
+      const raw = await callAI("Return ONLY valid JSON.", `For "${selectedJob.title}" (${selectedJob.track} ${selectedJob.level} in ${selectedJob.function}), identify career moves from this list: ${allTitles.slice(0, 2000)}. Return JSON: {"nextMoves":["3 promotion titles"],"lateralMoves":["2 lateral same-level titles"],"crossTrack":["2 cross-track titles"]}`);
+      const parsed = JSON.parse(raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim());
+      if (parsed.nextMoves) setPathData(prev => ({ ...prev, [selectedJob.id]: parsed }));
+    } catch { showToast("Path generation failed"); }
+    setAiGenerating(false);
+  };
+
+  return <div className="animate-tab-enter space-y-5">
+    <Card title="Career Lattice — Interactive Career Path Network">
+      <div className="text-[15px] text-[var(--text-secondary)] mb-4">Click any role to see possible career moves. Colors represent career tracks. Lines show progression paths.</div>
+
+      {/* Lattice grid */}
+      <div className="overflow-x-auto rounded-xl border border-[var(--border)]">
+        <table className="w-full" style={{ minWidth: tracks.length * 180 }}>
+          <thead><tr className="bg-[var(--surface-2)]">
+            <th className="px-3 py-3 text-left text-[13px] font-bold text-[var(--text-muted)] uppercase border-b border-[var(--border)] sticky left-0 bg-[var(--surface-2)] z-10 w-20">Level</th>
+            {tracks.map(t => <th key={t} className="px-3 py-3 text-center text-[13px] font-bold border-b border-[var(--border)]" style={{ color: trackColors[t] || "#888" }}>{t} Track</th>)}
+          </tr></thead>
+          <tbody>
+            {levels.map(level => <tr key={level} className="border-b border-[var(--border)]">
+              <td className="px-3 py-3 text-[14px] font-bold text-[var(--text-muted)] sticky left-0 bg-[var(--bg)] z-10">{level}</td>
+              {tracks.map(track => {
+                const cellJobs = jobs.filter(j => j.track === track && j.level === level);
+                return <td key={track} className="px-2 py-2 text-center align-top" style={{ minWidth: 160 }}>
+                  <div className="space-y-1.5">
+                    {cellJobs.map(j => {
+                      const isSelected = selectedJobId === j.id;
+                      const isPath = paths && (paths.nextMoves.includes(j.title) || paths.lateralMoves.includes(j.title) || paths.crossTrack.includes(j.title));
+                      const pathType = paths?.nextMoves.includes(j.title) ? "promotion" : paths?.lateralMoves.includes(j.title) ? "lateral" : paths?.crossTrack.includes(j.title) ? "cross" : null;
+                      const dimmed = selectedJobId && !isSelected && !isPath;
+                      return <button key={j.id} onClick={() => { setSelectedJobId(isSelected ? null : j.id); }} className="w-full rounded-xl px-3 py-2 text-left transition-all" style={{
+                        background: isSelected ? "rgba(212,134,10,0.15)" : isPath ? `${pathType === "promotion" ? "rgba(16,185,129,0.08)" : pathType === "lateral" ? "rgba(139,92,246,0.08)" : "rgba(14,165,233,0.08)"}` : "var(--surface-2)",
+                        border: isSelected ? "2px solid var(--accent-primary)" : isPath ? `1px solid ${pathType === "promotion" ? "var(--success)" : pathType === "lateral" ? "var(--purple)" : "#0EA5E9"}30` : "1px solid var(--border)",
+                        opacity: dimmed ? 0.3 : 1,
+                        boxShadow: isSelected ? "0 0 12px rgba(212,134,10,0.2)" : "none",
+                      }}>
+                        <div className="text-[13px] font-semibold truncate" style={{ color: isSelected ? "var(--accent-primary)" : "var(--text-primary)" }}>{j.title}</div>
+                        <div className="text-[11px] text-[var(--text-muted)] truncate">{j.function} · {j.headcount} HC</div>
+                        {isPath && <div className="text-[10px] font-bold mt-0.5" style={{ color: pathType === "promotion" ? "var(--success)" : pathType === "lateral" ? "var(--purple)" : "#0EA5E9" }}>{pathType === "promotion" ? "↑ Promotion" : pathType === "lateral" ? "↔ Lateral" : "↗ Cross-track"}</div>}
+                      </button>;
+                    })}
+                    {cellJobs.length === 0 && <div className="text-[12px] text-[var(--text-muted)] opacity-30 py-2">—</div>}
+                  </div>
+                </td>;
+              })}
+            </tr>)}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Selected role detail */}
+      {selectedJob && <div className="mt-4 rounded-xl border border-[var(--accent-primary)]/20 bg-[rgba(212,134,10,0.04)] p-5">
+        <div className="flex items-center justify-between mb-3">
+          <div><div className="text-[18px] font-bold text-[var(--text-primary)] font-heading">{selectedJob.title}</div><div className="text-[14px] text-[var(--text-muted)]">{selectedJob.function} · {selectedJob.track} · {selectedJob.level} · {selectedJob.headcount} people</div></div>
+          <button onClick={generatePaths} disabled={aiGenerating} className="px-4 py-2 rounded-xl text-[14px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: aiGenerating ? 0.5 : 1 }}>{aiGenerating ? "Generating..." : "✨ AI Generate Paths"}</button>
+        </div>
+        {paths ? <div className="grid grid-cols-3 gap-4">
+          <div><div className="text-[13px] font-bold text-[var(--success)] uppercase mb-2">↑ Promotion Paths</div>{paths.nextMoves.map(t => <div key={t} className="text-[14px] text-[var(--text-secondary)] mb-1">• {t}</div>)}{paths.nextMoves.length === 0 && <div className="text-[13px] text-[var(--text-muted)]">None identified</div>}</div>
+          <div><div className="text-[13px] font-bold text-[var(--purple)] uppercase mb-2">↔ Lateral Moves</div>{paths.lateralMoves.map(t => <div key={t} className="text-[14px] text-[var(--text-secondary)] mb-1">• {t}</div>)}{paths.lateralMoves.length === 0 && <div className="text-[13px] text-[var(--text-muted)]">None identified</div>}</div>
+          <div><div className="text-[13px] font-bold uppercase mb-2" style={{ color: "#0EA5E9" }}>↗ Cross-Track</div>{paths.crossTrack.map(t => <div key={t} className="text-[14px] text-[var(--text-secondary)] mb-1">• {t}</div>)}{paths.crossTrack.length === 0 && <div className="text-[13px] text-[var(--text-muted)]">None identified</div>}</div>
+        </div> : <div className="text-[14px] text-[var(--text-muted)]">Click &quot;AI Generate Paths&quot; to identify career moves for this role.</div>}
+      </div>}
+
+      {/* Legend */}
+      <div className="flex gap-4 mt-3 text-[13px] text-[var(--text-muted)]">
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded border-2 border-[var(--accent-primary)]" style={{ background: "rgba(212,134,10,0.15)" }} />Selected</span>
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-[rgba(16,185,129,0.15)]" />Promotion</span>
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-[rgba(139,92,246,0.15)]" />Lateral</span>
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-[rgba(14,165,233,0.15)]" />Cross-track</span>
+      </div>
+    </Card>
+  </div>;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   JA GOVERNANCE — Role lifecycle, approvals, health dashboard
+   ═══════════════════════════════════════════════════════════════ */
+
+type JAChangeRequest = { id: string; type: "new" | "modify" | "deprecate"; roleTitle: string; requestedBy: string; justification: string; status: "Draft" | "Pending" | "Approved" | "Rejected"; date: string; approver: string };
+
+function JAGovernanceTab({ jobs, employees, model }: { jobs: Job[]; employees: Employee[]; model: string }) {
+  const [govView, setGovView] = useState<"health" | "changes" | "review">("health");
+  const [changeReqs, setChangeReqs] = usePersisted<JAChangeRequest[]>(`${model}_ja_changes`, []);
+  const [addingChange, setAddingChange] = useState(false);
+  const [reviewStep, setReviewStep] = useState(0);
+
+  // JA Health metrics
+  const uniqueTitles = new Set(jobs.map(j => j.title));
+  const singleIncumbent = jobs.filter(j => j.headcount === 1);
+  const noTasksRoles = jobs.filter(j => !j.tasks_mapped || j.tasks_mapped === 0);
+  const titleDuplicates = (() => {
+    const byTitle: Record<string, Set<string>> = {};
+    jobs.forEach(j => { const base = j.title.replace(/^(Sr\.|Senior|Jr\.|Junior|Lead|Principal|Staff)\s*/i, "").trim(); if (!byTitle[base]) byTitle[base] = new Set(); byTitle[base].add(j.level); });
+    return Object.entries(byTitle).filter(([, levels]) => levels.size > 1);
+  })();
+  const levelCompression = (() => {
+    const byFunc: Record<string, Record<string, number>> = {};
+    jobs.forEach(j => { if (!byFunc[j.function]) byFunc[j.function] = {}; byFunc[j.function][j.level] = (byFunc[j.function][j.level] || 0) + j.headcount; });
+    return Object.entries(byFunc).filter(([, levels]) => {
+      const vals = Object.values(levels);
+      const total = vals.reduce((s, v) => s + v, 0);
+      const sorted = vals.sort((a, b) => b - a);
+      return sorted.length >= 2 && (sorted[0] + sorted[1]) / total > 0.7;
+    });
+  })();
+  const healthScore = Math.max(0, Math.min(100, 100 - singleIncumbent.length * 2 - noTasksRoles.length * 3 - titleDuplicates.length * 5 - levelCompression.length * 8));
+
+  return <div className="animate-tab-enter space-y-5">
+    <div className="flex gap-1 rounded-xl bg-[var(--surface-2)] p-1 border border-[var(--border)] mb-4">
+      {([
+        { id: "health" as const, label: "JA Health Dashboard", icon: "📊" },
+        { id: "changes" as const, label: "Change Requests", icon: "📝" },
+        { id: "review" as const, label: "Annual Review", icon: "📋" },
+      ]).map(v => <button key={v.id} onClick={() => setGovView(v.id)} className="flex-1 px-3 py-2 rounded-lg text-[14px] font-semibold transition-all" style={{ background: govView === v.id ? "rgba(212,134,10,0.12)" : "transparent", color: govView === v.id ? "#e09040" : "var(--text-muted)" }}>{v.icon} {v.label}</button>)}
+    </div>
+
+    {/* ─── HEALTH DASHBOARD ─── */}
+    {govView === "health" && <div className="space-y-5">
+      {/* Health score */}
+      <div className="grid grid-cols-5 gap-3">
+        <div className="rounded-xl p-4 bg-[var(--surface-2)] text-center col-span-1"><div className="text-[32px] font-extrabold" style={{ color: healthScore >= 70 ? "var(--success)" : healthScore >= 40 ? "var(--warning)" : "var(--risk)" }}>{healthScore}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">JA Health</div></div>
+        <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold text-[var(--warning)]">{singleIncumbent.length}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">Single Incumbent</div></div>
+        <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold text-[var(--risk)]">{noTasksRoles.length}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">No Task Data</div></div>
+        <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold text-[var(--purple)]">{titleDuplicates.length}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">Title Variants</div></div>
+        <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold text-[var(--warning)]">{levelCompression.length}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">Level Compression</div></div>
+      </div>
+
+      {/* Issues */}
+      <Card title="JA Health Issues">
+        <div className="space-y-3">
+          {singleIncumbent.length > 0 && <div className="rounded-lg p-3 border-l-3" style={{ borderLeft: "3px solid var(--warning)", background: "rgba(245,158,11,0.04)" }}>
+            <div className="flex items-center justify-between mb-1"><span className="text-[14px] font-bold text-[var(--warning)]">Single Incumbent Risk</span><Badge color="amber">{singleIncumbent.length} roles</Badge></div>
+            <div className="text-[13px] text-[var(--text-secondary)]">These roles have only 1 person — key-person dependency risk.</div>
+            <div className="flex flex-wrap gap-1 mt-2">{singleIncumbent.slice(0, 8).map(j => <span key={j.id} className="px-2 py-0.5 rounded text-[12px] bg-[var(--surface-2)] text-[var(--text-muted)]">{j.title}</span>)}{singleIncumbent.length > 8 && <span className="text-[12px] text-[var(--text-muted)]">+{singleIncumbent.length - 8} more</span>}</div>
+          </div>}
+
+          {titleDuplicates.length > 0 && <div className="rounded-lg p-3" style={{ borderLeft: "3px solid var(--purple)", background: "rgba(139,92,246,0.04)" }}>
+            <div className="flex items-center justify-between mb-1"><span className="text-[14px] font-bold text-[var(--purple)]">Cross-Function Title Inconsistency</span><Badge color="purple">{titleDuplicates.length} titles</Badge></div>
+            <div className="text-[13px] text-[var(--text-secondary)]">Same title exists at different levels across functions — standardize.</div>
+            <div className="space-y-1 mt-2">{titleDuplicates.slice(0, 5).map(([title, levels]) => <div key={title} className="text-[13px] text-[var(--text-muted)]">&quot;{title}&quot; found at levels: {[...levels].join(", ")}</div>)}</div>
+          </div>}
+
+          {levelCompression.length > 0 && <div className="rounded-lg p-3" style={{ borderLeft: "3px solid var(--warning)", background: "rgba(245,158,11,0.04)" }}>
+            <div className="flex items-center justify-between mb-1"><span className="text-[14px] font-bold text-[var(--warning)]">Level Compression</span><Badge color="amber">{levelCompression.length} functions</Badge></div>
+            <div className="text-[13px] text-[var(--text-secondary)]">&gt;70% of headcount concentrated in 2 adjacent levels — limited career progression.</div>
+            <div className="flex flex-wrap gap-1 mt-2">{levelCompression.map(([func]) => <span key={func} className="px-2 py-0.5 rounded text-[12px] bg-[var(--surface-2)] text-[var(--text-muted)]">{func}</span>)}</div>
+          </div>}
+
+          {noTasksRoles.length > 0 && <div className="rounded-lg p-3" style={{ borderLeft: "3px solid var(--risk)", background: "rgba(239,68,68,0.04)" }}>
+            <div className="flex items-center justify-between mb-1"><span className="text-[14px] font-bold text-[var(--risk)]">Missing Task Data</span><Badge color="red">{noTasksRoles.length} roles</Badge></div>
+            <div className="text-[13px] text-[var(--text-secondary)]">These roles have no task-level data — they cannot be analyzed in the Work Design Lab.</div>
+          </div>}
+
+          {healthScore >= 80 && <div className="rounded-lg p-3" style={{ borderLeft: "3px solid var(--success)", background: "rgba(16,185,129,0.04)" }}>
+            <div className="text-[14px] font-bold text-[var(--success)]">JA is in good health</div>
+            <div className="text-[13px] text-[var(--text-secondary)]">No critical issues detected. Continue regular maintenance.</div>
+          </div>}
+        </div>
+      </Card>
+    </div>}
+
+    {/* ─── CHANGE REQUESTS ─── */}
+    {govView === "changes" && <Card title="Role Change Requests">
+      <div className="text-[15px] text-[var(--text-secondary)] mb-4">Track requests to create, modify, or deprecate roles in the job architecture.</div>
+      <div className="grid grid-cols-4 gap-3 mb-4">
+        {[{ l: "Total", v: changeReqs.length, c: "var(--text-primary)" }, { l: "Pending", v: changeReqs.filter(r => r.status === "Pending").length, c: "var(--warning)" }, { l: "Approved", v: changeReqs.filter(r => r.status === "Approved").length, c: "var(--success)" }, { l: "Rejected", v: changeReqs.filter(r => r.status === "Rejected").length, c: "var(--risk)" }].map(k => <div key={k.l} className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[18px] font-extrabold" style={{ color: k.c }}>{k.v}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">{k.l}</div></div>)}
+      </div>
+      {changeReqs.length > 0 && <div className="overflow-x-auto rounded-lg border border-[var(--border)] mb-4"><table className="w-full text-[14px]"><thead><tr className="bg-[var(--surface-2)]">
+        {["Type", "Role", "Requested By", "Justification", "Date", "Status", ""].map(h => <th key={h} className="px-3 py-2 text-left text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">{h}</th>)}
+      </tr></thead><tbody>
+        {changeReqs.map(cr => {
+          const typeColors: Record<string, string> = { new: "var(--success)", modify: "var(--warning)", deprecate: "var(--risk)" };
+          const statusColors: Record<string, string> = { Draft: "var(--text-muted)", Pending: "var(--warning)", Approved: "var(--success)", Rejected: "var(--risk)" };
+          return <tr key={cr.id} className="border-b border-[var(--border)]">
+            <td className="px-3 py-2"><span className="px-2 py-0.5 rounded-full text-[11px] font-bold" style={{ background: `${typeColors[cr.type]}12`, color: typeColors[cr.type] }}>{cr.type}</span></td>
+            <td className="px-3 py-2 font-semibold text-[var(--text-primary)]">{cr.roleTitle}</td>
+            <td className="px-3 py-2 text-[var(--text-muted)]">{cr.requestedBy}</td>
+            <td className="px-3 py-2 text-[var(--text-secondary)] max-w-[200px] truncate">{cr.justification}</td>
+            <td className="px-3 py-2 text-[var(--text-muted)]">{cr.date}</td>
+            <td className="px-3 py-2"><button onClick={() => { const cycle: JAChangeRequest["status"][] = ["Draft", "Pending", "Approved", "Rejected"]; setChangeReqs(prev => prev.map(r => r.id === cr.id ? { ...r, status: cycle[(cycle.indexOf(r.status) + 1) % cycle.length] } : r)); }} className="px-2 py-0.5 rounded-full text-[11px] font-bold" style={{ background: `${statusColors[cr.status]}12`, color: statusColors[cr.status] }}>{cr.status}</button></td>
+            <td className="px-3 py-2"><button onClick={() => setChangeReqs(prev => prev.filter(r => r.id !== cr.id))} className="text-[var(--text-muted)] hover:text-[var(--risk)] text-[12px]">×</button></td>
+          </tr>;
+        })}
+      </tbody></table></div>}
+      {addingChange ? <div className="rounded-xl border border-[var(--accent-primary)]/30 bg-[rgba(212,134,10,0.04)] p-4 space-y-3">
+        <div className="grid grid-cols-2 gap-3">
+          <select id="cr-type" className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-[14px] outline-none"><option value="new">New Role</option><option value="modify">Modify Role</option><option value="deprecate">Deprecate Role</option></select>
+          <input id="cr-role" placeholder="Role title..." className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-[14px] outline-none placeholder:text-[var(--text-muted)]" />
+          <input id="cr-by" placeholder="Requested by..." className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-[14px] outline-none placeholder:text-[var(--text-muted)]" />
+          <input id="cr-just" placeholder="Business justification..." className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-[14px] outline-none placeholder:text-[var(--text-muted)]" />
+        </div>
+        <div className="flex gap-2">
+          <button onClick={() => { const el = (id: string) => (document.getElementById(id) as HTMLInputElement | HTMLSelectElement)?.value || ""; const role = el("cr-role"); if (!role) return; setChangeReqs(prev => [...prev, { id: `cr${Date.now()}`, type: el("cr-type") as JAChangeRequest["type"], roleTitle: role, requestedBy: el("cr-by"), justification: el("cr-just"), status: "Draft", date: new Date().toISOString().split("T")[0], approver: "" }]); setAddingChange(false); }} className="px-4 py-2 rounded-lg text-[14px] font-semibold text-white" style={{ background: "var(--accent-primary)" }}>Submit</button>
+          <button onClick={() => setAddingChange(false)} className="px-4 py-2 rounded-lg text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">Cancel</button>
+        </div>
+      </div> : <button onClick={() => setAddingChange(true)} className="w-full px-4 py-2 rounded-xl text-[14px] font-semibold text-[var(--text-muted)] border border-dashed border-[var(--border)] hover:border-[var(--accent-primary)] hover:text-[var(--accent-primary)] transition-all">+ New Change Request</button>}
+    </Card>}
+
+    {/* ─── ANNUAL REVIEW ─── */}
+    {govView === "review" && <Card title="Annual JA Review Workflow">
+      <div className="text-[15px] text-[var(--text-secondary)] mb-4">Structured 5-step annual review process for job architecture quality assurance.</div>
+      <div className="space-y-3">
+        {[
+          { step: 1, title: "Data Quality Check", desc: "Flag stale, incomplete, or orphaned roles", icon: "🔍", check: noTasksRoles.length === 0 },
+          { step: 2, title: "Market Alignment", desc: "Verify levels are consistent with external benchmarks", icon: "📊", check: false },
+          { step: 3, title: "Structural Review", desc: "Ensure family/sub-family organization still makes sense", icon: "🏗️", check: titleDuplicates.length === 0 },
+          { step: 4, title: "Career Path Review", desc: "Verify all paths are valid, identify dead ends", icon: "🪜", check: false },
+          { step: 5, title: "Stakeholder Sign-off", desc: "HR Head, Function Heads approve the reviewed JA", icon: "✅", check: false },
+        ].map((s, i) => <div key={s.step} className="rounded-xl border bg-[var(--surface-2)] p-4 flex items-center gap-4" style={{ borderColor: reviewStep >= i ? (s.check ? "var(--success)" : "var(--accent-primary)") : "var(--border)", opacity: reviewStep >= i ? 1 : 0.5 }}>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-[18px] shrink-0" style={{ background: reviewStep > i ? "rgba(16,185,129,0.1)" : reviewStep === i ? "rgba(212,134,10,0.1)" : "var(--surface-2)" }}>{reviewStep > i ? "✓" : s.icon}</div>
+          <div className="flex-1"><div className="text-[15px] font-bold text-[var(--text-primary)]">Step {s.step}: {s.title}</div><div className="text-[13px] text-[var(--text-muted)]">{s.desc}</div></div>
+          {reviewStep === i && <button onClick={() => setReviewStep(i + 1)} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold text-white" style={{ background: "var(--accent-primary)" }}>Complete</button>}
+        </div>)}
+      </div>
+      {reviewStep >= 5 && <div className="mt-4 rounded-xl bg-[rgba(16,185,129,0.06)] border border-[var(--success)]/20 p-4 text-center">
+        <div className="text-[18px] font-bold text-[var(--success)] mb-1">Annual Review Complete</div>
+        <div className="text-[14px] text-[var(--text-muted)]">All 5 steps completed. JA is reviewed and approved.</div>
+        <button onClick={() => setReviewStep(0)} className="mt-2 text-[13px] text-[var(--text-muted)] hover:text-[var(--accent-primary)]">Reset for next review</button>
+      </div>}
+    </Card>}
+  </div>;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   JA INTELLIGENCE — Role evolution, emerging roles, drift detection
+   ═══════════════════════════════════════════════════════════════ */
+
+function JAIntelligenceTab({ jobs, employees, model }: { jobs: Job[]; employees: Employee[]; model: string }) {
+  const [intView, setIntView] = useState<"evolution" | "emerging" | "drift" | "vitals">("evolution");
+  const [aiInsights, setAiInsights] = usePersisted<{ id: string; type: string; severity: string; title: string; body: string; affected: number; action: string }[]>(`${model}_ja_insights`, []);
+  const [aiLoading, setAiLoading] = useState(false);
+
+  // Compute insights from data
+  const singleIncumbent = jobs.filter(j => j.headcount === 1);
+  const highAiImpact = jobs.filter(j => j.ai_score >= 5);
+  const lowTaskCoverage = jobs.filter(j => !j.tasks_mapped || j.tasks_mapped < 3);
+  const jdComplete = jobs.filter(j => j.tasks_mapped > 0).length;
+  const jdPct = jobs.length ? Math.round((jdComplete / jobs.length) * 100) : 0;
+  const evalPct = 0; // from evaluation tab
+  const pathPct = 0; // from lattice tab
+
+  const generateInsights = async () => {
+    setAiLoading(true);
+    try {
+      const jobSummary = jobs.slice(0, 30).map(j => `${j.title}(${j.function},${j.level},HC:${j.headcount},AI:${j.ai_score?.toFixed(1)})`).join("; ");
+      const raw = await callAI("Return ONLY valid JSON array.", `Analyze these roles and generate 5 intelligence insights about the job architecture. Types: "evolution" (role changing), "emerging" (new role needed), "convergence" (roles merging), "compression" (role at risk), "drift" (architecture misalignment). Each: {"type":"...","severity":"urgent|watch|opportunity","title":"...","body":"2 sentences","affected":N,"action":"recommended action"}. Roles: ${jobSummary}`);
+      const parsed = JSON.parse(raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim());
+      if (Array.isArray(parsed)) setAiInsights(parsed.map((p: Record<string, unknown>, i: number) => ({ ...p, id: `ins_${i}` })) as typeof aiInsights);
+    } catch { showToast("Insight generation failed"); }
+    setAiLoading(false);
+  };
+
+  return <div className="animate-tab-enter space-y-5">
+    <div className="flex gap-1 rounded-xl bg-[var(--surface-2)] p-1 border border-[var(--border)] mb-4">
+      {([
+        { id: "evolution" as const, label: "Role Evolution", icon: "🔄" },
+        { id: "emerging" as const, label: "Emerging Roles", icon: "🌱" },
+        { id: "drift" as const, label: "Architecture Drift", icon: "📡" },
+        { id: "vitals" as const, label: "Vital Signs", icon: "💓" },
+      ]).map(v => <button key={v.id} onClick={() => setIntView(v.id)} className="flex-1 px-3 py-2 rounded-lg text-[14px] font-semibold transition-all" style={{ background: intView === v.id ? "rgba(212,134,10,0.12)" : "transparent", color: intView === v.id ? "#e09040" : "var(--text-muted)" }}>{v.icon} {v.label}</button>)}
+    </div>
+
+    {/* ─── ROLE EVOLUTION ─── */}
+    {intView === "evolution" && <Card title="Role Evolution Detector">
+      <div className="text-[15px] text-[var(--text-secondary)] mb-4">AI-detected roles that are transforming, converging, or at risk of compression.</div>
+      <button onClick={generateInsights} disabled={aiLoading} className="px-5 py-2 rounded-xl text-[14px] font-bold text-white mb-4" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: aiLoading ? 0.5 : 1 }}>{aiLoading ? "Analyzing..." : "✨ AI Detect Role Evolution"}</button>
+      {/* Auto-detected insights */}
+      <div className="space-y-3">
+        {highAiImpact.length > 0 && <div className="rounded-xl border-l-4 p-4" style={{ borderLeftColor: "var(--risk)", background: "rgba(239,68,68,0.04)" }}>
+          <div className="flex items-center gap-2 mb-1"><span className="text-[14px]">🔴</span><span className="text-[15px] font-bold text-[var(--text-primary)]">High AI Impact Roles — Compression Risk</span><Badge color="red">{highAiImpact.length} roles</Badge></div>
+          <div className="text-[14px] text-[var(--text-secondary)] mb-2">These roles have AI impact scores above 5.0 — significant portions of their tasks are automatable. Plan redeployment for {highAiImpact.reduce((s, j) => s + j.headcount, 0)} incumbents.</div>
+          <div className="flex flex-wrap gap-1">{highAiImpact.slice(0, 8).map(j => <span key={j.id} className="px-2 py-0.5 rounded text-[12px] bg-[var(--surface-2)] text-[var(--text-muted)]">{j.title} ({j.ai_score?.toFixed(1)})</span>)}</div>
+        </div>}
+        {singleIncumbent.length > 3 && <div className="rounded-xl border-l-4 p-4" style={{ borderLeftColor: "var(--warning)", background: "rgba(245,158,11,0.04)" }}>
+          <div className="flex items-center gap-2 mb-1"><span className="text-[14px]">🟡</span><span className="text-[15px] font-bold text-[var(--text-primary)]">Key-Person Dependency</span><Badge color="amber">{singleIncumbent.length} roles</Badge></div>
+          <div className="text-[14px] text-[var(--text-secondary)]">{singleIncumbent.length} roles have only 1 incumbent. If they leave, there is no backup. Build succession plans or cross-train.</div>
+        </div>}
+        {/* AI-generated insights */}
+        {aiInsights.filter(i => i.type === "evolution" || i.type === "convergence" || i.type === "compression").map(ins => {
+          const sevColors: Record<string, string> = { urgent: "var(--risk)", watch: "var(--warning)", opportunity: "var(--success)" };
+          const sevIcons: Record<string, string> = { urgent: "🔴", watch: "🟡", opportunity: "🟢" };
+          return <div key={ins.id} className="rounded-xl border-l-4 p-4" style={{ borderLeftColor: sevColors[ins.severity] || "var(--text-muted)", background: `${sevColors[ins.severity] || "var(--text-muted)"}06` }}>
+            <div className="flex items-center gap-2 mb-1"><span className="text-[14px]">{sevIcons[ins.severity] || "⚪"}</span><span className="text-[15px] font-bold text-[var(--text-primary)]">{ins.title}</span>{ins.affected > 0 && <Badge color="gray">{ins.affected} affected</Badge>}</div>
+            <div className="text-[14px] text-[var(--text-secondary)] mb-1">{ins.body}</div>
+            <div className="text-[13px] text-[var(--accent-primary)]">→ {ins.action}</div>
+          </div>;
+        })}
+      </div>
+    </Card>}
+
+    {/* ─── EMERGING ROLES ─── */}
+    {intView === "emerging" && <Card title="Emerging Role Predictor">
+      <div className="text-[15px] text-[var(--text-secondary)] mb-4">Based on AI impact analysis and transformation plans, these roles will likely be needed within 12 months.</div>
+      {aiInsights.filter(i => i.type === "emerging").length > 0 ? <div className="space-y-3">
+        {aiInsights.filter(i => i.type === "emerging").map(ins => <div key={ins.id} className="rounded-xl border border-[var(--success)]/20 bg-[rgba(16,185,129,0.04)] p-4">
+          <div className="flex items-center gap-2 mb-2"><span className="text-[16px]">🌱</span><span className="text-[16px] font-bold text-[var(--text-primary)]">{ins.title}</span></div>
+          <div className="text-[14px] text-[var(--text-secondary)] mb-2">{ins.body}</div>
+          <div className="text-[13px] text-[var(--accent-primary)]">→ {ins.action}</div>
+        </div>)}
+      </div> : <div className="text-center py-12"><div className="text-[40px] mb-3 opacity-40">🌱</div><div className="text-[14px] text-[var(--text-muted)]">Click &quot;AI Detect Role Evolution&quot; in the Evolution tab to generate predictions.</div></div>}
+      {/* Common emerging roles */}
+      <div className="mt-5"><div className="text-[14px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-3">Common AI-Era Emerging Roles</div>
+        <div className="grid grid-cols-2 gap-3">{[
+          { title: "AI Operations Specialist", desc: "Manages AI tools, monitors outputs, handles exceptions", family: "Technology", level: "P3" },
+          { title: "Human-AI Workflow Designer", desc: "Designs how humans and AI collaborate on processes", family: "Operations", level: "P4" },
+          { title: "Data Ethics Officer", desc: "Ensures AI decisions are fair, explainable, compliant", family: "Legal", level: "P4" },
+          { title: "Automation Reliability Engineer", desc: "Maintains and troubleshoots automated workflows", family: "Technology", level: "P3" },
+          { title: "Prompt Engineer", desc: "Designs and optimizes AI prompts for business processes", family: "Technology", level: "P2" },
+          { title: "AI Change Champion", desc: "Drives adoption of AI tools across the organization", family: "HR", level: "P3" },
+        ].map(r => <div key={r.title} className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-3">
+          <div className="text-[14px] font-bold text-[var(--text-primary)]">{r.title}</div>
+          <div className="text-[13px] text-[var(--text-muted)] mb-1">{r.desc}</div>
+          <div className="text-[12px] text-[var(--text-muted)]">{r.family} · {r.level}</div>
+        </div>)}</div>
+      </div>
+    </Card>}
+
+    {/* ─── ARCHITECTURE DRIFT ─── */}
+    {intView === "drift" && <Card title="Architecture Drift Monitor">
+      <div className="text-[15px] text-[var(--text-secondary)] mb-4">Detects when the actual workforce drifts away from the designed architecture.</div>
+      <div className="space-y-3">
+        {aiInsights.filter(i => i.type === "drift").map(ins => <div key={ins.id} className="rounded-xl border-l-4 p-4" style={{ borderLeftColor: "var(--warning)", background: "rgba(245,158,11,0.04)" }}>
+          <div className="text-[15px] font-bold text-[var(--text-primary)] mb-1">{ins.title}</div>
+          <div className="text-[14px] text-[var(--text-secondary)]">{ins.body}</div>
+        </div>)}
+        {/* Static drift indicators */}
+        <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4">
+          <div className="text-[14px] font-bold text-[var(--text-muted)] uppercase mb-3">Architecture Coverage</div>
+          <div className="space-y-2">
+            {[
+              { label: "Employees mapped to JA roles", val: employees.length, total: employees.length, color: "var(--success)" },
+              { label: "Roles with task data", val: jdComplete, total: jobs.length, color: jdPct >= 70 ? "var(--success)" : "var(--warning)" },
+              { label: "Unique job titles in use", val: new Set(jobs.map(j => j.title)).size, total: jobs.length, color: "var(--accent-primary)" },
+            ].map(m => <div key={m.label}>
+              <div className="flex justify-between text-[14px] mb-1"><span className="text-[var(--text-secondary)]">{m.label}</span><span className="font-bold font-data" style={{ color: m.color }}>{m.val}/{m.total}</span></div>
+              <div className="h-2 bg-[var(--bg)] rounded-full overflow-hidden"><div className="h-full rounded-full" style={{ width: `${(m.val / Math.max(m.total, 1)) * 100}%`, background: m.color }} /></div>
+            </div>)}
+          </div>
+        </div>
+      </div>
+    </Card>}
+
+    {/* ─── VITAL SIGNS ─── */}
+    {intView === "vitals" && <Card title="Architecture Vital Signs">
+      <div className="text-[15px] text-[var(--text-secondary)] mb-4">Real-time health metrics for your job architecture. Action queue shows what to fix first.</div>
+      <div className="grid grid-cols-5 gap-3 mb-5">
+        {[
+          { label: "JA Coverage", val: `${employees.length > 0 ? "100" : "0"}%`, color: "var(--success)" },
+          { label: "JD Complete", val: `${jdPct}%`, color: jdPct >= 70 ? "var(--success)" : jdPct >= 40 ? "var(--warning)" : "var(--risk)" },
+          { label: "Roles Evaluated", val: `${evalPct}%`, color: evalPct >= 70 ? "var(--success)" : "var(--warning)" },
+          { label: "Career Paths", val: `${pathPct}%`, color: pathPct >= 70 ? "var(--success)" : "var(--warning)" },
+          { label: "Total Roles", val: String(jobs.length), color: "var(--text-primary)" },
+        ].map(v => <div key={v.label} className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[22px] font-extrabold font-data" style={{ color: v.color }}>{v.val}</div><div className="text-[11px] text-[var(--text-muted)] uppercase">{v.label}</div></div>)}
+      </div>
+      {/* Action queue */}
+      <div className="text-[14px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-3">Priority Action Queue</div>
+      <div className="space-y-2">
+        {[
+          { priority: 1, action: `Write task data for ${lowTaskCoverage.length} roles with no/low task coverage`, impact: `Improves JD completeness to ${Math.round(((jdComplete + lowTaskCoverage.length) / Math.max(jobs.length, 1)) * 100)}%`, effort: "Medium" },
+          { priority: 2, action: `Evaluate ${jobs.length} roles using the Job Evaluation tab`, impact: "Enables leveling consistency analysis", effort: "High" },
+          { priority: 3, action: `Build career paths for roles in the Career Lattice tab`, impact: "Enables succession planning and mobility", effort: "Medium" },
+          { priority: 4, action: `Review ${singleIncumbent.length} single-incumbent roles for succession risk`, impact: "Reduces key-person dependency", effort: "Low" },
+        ].map(a => <div key={a.priority} className="flex items-center gap-3 rounded-xl p-3 bg-[var(--surface-2)] border border-[var(--border)]">
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center text-[14px] font-bold text-white shrink-0" style={{ background: "var(--accent-primary)" }}>#{a.priority}</div>
+          <div className="flex-1"><div className="text-[14px] font-semibold text-[var(--text-primary)]">{a.action}</div><div className="text-[12px] text-[var(--text-muted)]">Impact: {a.impact} · Effort: {a.effort}</div></div>
+        </div>)}
+      </div>
+    </Card>}
+  </div>;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ROLE NETWORK — Task overlap, skill adjacency, dependencies
+   ═══════════════════════════════════════════════════════════════ */
+
+function RoleNetworkTab({ jobs, model }: { jobs: Job[]; model: string }) {
+  const [netView, setNetView] = useState<"overlap" | "skills" | "succession">("overlap");
+  const [selectedRoleId, setSelectedRoleId] = useState<string | null>(null);
+
+  // Compute task overlap (simulated based on family/sub-family proximity)
+  const overlapPairs = useMemo(() => {
+    const pairs: { a: Job; b: Job; overlap: number; type: "high" | "medium" | "low" }[] = [];
+    for (let i = 0; i < Math.min(jobs.length, 30); i++) {
+      for (let j = i + 1; j < Math.min(jobs.length, 30); j++) {
+        const a = jobs[i], b = jobs[j];
+        let overlap = 0;
+        if (a.family === b.family) overlap += 40;
+        if (a.sub_family === b.sub_family) overlap += 30;
+        if (a.function === b.function) overlap += 15;
+        if (a.level === b.level) overlap += 10;
+        if (Math.abs(a.ai_score - b.ai_score) < 1) overlap += 5;
+        if (overlap >= 50) pairs.push({ a, b, overlap, type: overlap >= 70 ? "high" : overlap >= 60 ? "medium" : "low" });
+      }
+    }
+    return pairs.sort((a, b) => b.overlap - a.overlap).slice(0, 30);
+  }, [jobs]);
+
+  const selectedJob = jobs.find(j => j.id === selectedRoleId);
+  const selectedPairs = selectedRoleId ? overlapPairs.filter(p => p.a.id === selectedRoleId || p.b.id === selectedRoleId) : [];
+
+  return <div className="animate-tab-enter space-y-5">
+    <div className="flex gap-1 rounded-xl bg-[var(--surface-2)] p-1 border border-[var(--border)] mb-4">
+      {([
+        { id: "overlap" as const, label: "Task Overlap", icon: "🔗" },
+        { id: "skills" as const, label: "Skill Adjacency", icon: "🧠" },
+        { id: "succession" as const, label: "Succession Risk", icon: "⚠️" },
+      ]).map(v => <button key={v.id} onClick={() => setNetView(v.id)} className="flex-1 px-3 py-2 rounded-lg text-[14px] font-semibold transition-all" style={{ background: netView === v.id ? "rgba(212,134,10,0.12)" : "transparent", color: netView === v.id ? "#e09040" : "var(--text-muted)" }}>{v.icon} {v.label}</button>)}
+    </div>
+
+    {/* ─── TASK OVERLAP ─── */}
+    {netView === "overlap" && <Card title="Task Overlap Network">
+      <div className="text-[15px] text-[var(--text-secondary)] mb-4">Roles connected by shared task profiles. High overlap = potential consolidation candidate. Click a role to see its connections.</div>
+      {/* Role selector */}
+      <div className="flex gap-2 mb-4">
+        <select value={selectedRoleId || ""} onChange={e => setSelectedRoleId(e.target.value || null)} className="flex-1 bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-3 py-2 text-[14px] text-[var(--text-primary)] outline-none"><option value="">All roles — showing top overlaps</option>{jobs.slice(0, 50).map(j => <option key={j.id} value={j.id}>{j.title} ({j.function})</option>)}</select>
+      </div>
+      {/* Overlap pairs */}
+      <div className="space-y-2">
+        {(selectedRoleId ? selectedPairs : overlapPairs).slice(0, 15).map((pair, i) => {
+          const overlapColor = pair.type === "high" ? "var(--risk)" : pair.type === "medium" ? "var(--warning)" : "var(--success)";
+          const overlapLabel = pair.type === "high" ? "Likely Duplication" : pair.type === "medium" ? "Potential Redundancy" : "Healthy Collaboration";
+          return <div key={i} className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-3 flex items-center gap-3">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 text-[14px]">
+                <button onClick={() => setSelectedRoleId(pair.a.id)} className="font-semibold text-[var(--text-primary)] hover:text-[var(--accent-primary)]">{pair.a.title}</button>
+                <span className="text-[var(--text-muted)]">↔</span>
+                <button onClick={() => setSelectedRoleId(pair.b.id)} className="font-semibold text-[var(--text-primary)] hover:text-[var(--accent-primary)]">{pair.b.title}</button>
+              </div>
+              <div className="text-[12px] text-[var(--text-muted)]">{pair.a.function} · {pair.a.level} | {pair.b.function} · {pair.b.level}</div>
+            </div>
+            <div className="text-right shrink-0">
+              <div className="text-[16px] font-bold font-data" style={{ color: overlapColor }}>{pair.overlap}%</div>
+              <div className="text-[11px]" style={{ color: overlapColor }}>{overlapLabel}</div>
+            </div>
+          </div>;
+        })}
+      </div>
+      <div className="flex gap-4 mt-3 text-[13px] text-[var(--text-muted)]">
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[var(--risk)]" />&gt;70% (Duplication)</span>
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[var(--warning)]" />60-70% (Redundancy)</span>
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[var(--success)]" />50-60% (Collaboration)</span>
+      </div>
+    </Card>}
+
+    {/* ─── SKILL ADJACENCY ─── */}
+    {netView === "skills" && <Card title="Skill Adjacency Map">
+      <div className="text-[15px] text-[var(--text-secondary)] mb-4">Roles that share skills are &quot;skill neighbors&quot; — ideal candidates for internal mobility and reskilling pathways.</div>
+      <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full text-[14px]"><thead><tr className="bg-[var(--surface-2)]">
+        <th className="px-3 py-2 text-left text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">From Role</th>
+        <th className="px-3 py-2 text-left text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">To Role</th>
+        <th className="px-2 py-2 text-center text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Shared</th>
+        <th className="px-2 py-2 text-center text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Gap</th>
+        <th className="px-2 py-2 text-center text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Move Type</th>
+      </tr></thead><tbody>
+        {overlapPairs.slice(0, 12).map((pair, i) => {
+          const sharedSkills = Math.round(pair.overlap * 0.8);
+          const gapSkills = 100 - sharedSkills;
+          const moveType = pair.a.level === pair.b.level ? "Lateral" : "Vertical";
+          return <tr key={i} className="border-b border-[var(--border)]">
+            <td className="px-3 py-2 font-semibold text-[var(--text-primary)]">{pair.a.title}<div className="text-[12px] text-[var(--text-muted)]">{pair.a.function}</div></td>
+            <td className="px-3 py-2 font-semibold text-[var(--text-primary)]">{pair.b.title}<div className="text-[12px] text-[var(--text-muted)]">{pair.b.function}</div></td>
+            <td className="px-2 py-2 text-center font-bold font-data" style={{ color: sharedSkills >= 70 ? "var(--success)" : "var(--warning)" }}>{sharedSkills}%</td>
+            <td className="px-2 py-2 text-center font-data text-[var(--text-muted)]">{gapSkills}%</td>
+            <td className="px-2 py-2 text-center"><span className="px-2 py-0.5 rounded-full text-[11px] font-bold" style={{ background: moveType === "Lateral" ? "rgba(139,92,246,0.1)" : "rgba(16,185,129,0.1)", color: moveType === "Lateral" ? "var(--purple)" : "var(--success)" }}>{moveType}</span></td>
+          </tr>;
+        })}
+      </tbody></table></div>
+    </Card>}
+
+    {/* ─── SUCCESSION RISK ─── */}
+    {netView === "succession" && <Card title="Succession Risk Map">
+      <div className="text-[15px] text-[var(--text-secondary)] mb-4">Roles colored by succession risk. Red = no ready successor. Amber = 1 person. Green = 2+ bench depth.</div>
+      <div className="grid grid-cols-3 gap-3 mb-4">
+        {[
+          { label: "Critical Risk", val: jobs.filter(j => j.headcount === 1 && j.track === "Manager").length, color: "var(--risk)", desc: "Manager roles with single incumbent" },
+          { label: "Watch List", val: jobs.filter(j => j.headcount <= 2 && j.track === "Manager").length, color: "var(--warning)", desc: "Manager roles with ≤2 people" },
+          { label: "Healthy", val: jobs.filter(j => j.headcount > 2 || j.track !== "Manager").length, color: "var(--success)", desc: "Adequate bench depth" },
+        ].map(k => <div key={k.label} className="rounded-xl p-4 bg-[var(--surface-2)] text-center"><div className="text-[22px] font-extrabold" style={{ color: k.color }}>{k.val}</div><div className="text-[13px] font-bold" style={{ color: k.color }}>{k.label}</div><div className="text-[12px] text-[var(--text-muted)]">{k.desc}</div></div>)}
+      </div>
+      {/* Risk list */}
+      <div className="space-y-2">
+        {jobs.filter(j => j.headcount <= 2 && (j.track === "Manager" || j.track === "Executive")).sort((a, b) => a.headcount - b.headcount).slice(0, 12).map(j => {
+          const risk = j.headcount === 1 ? "Critical" : "Watch";
+          const riskColor = risk === "Critical" ? "var(--risk)" : "var(--warning)";
+          return <div key={j.id} className="flex items-center gap-3 rounded-lg p-3 bg-[var(--surface-2)] border border-[var(--border)]">
+            <div className="w-3 h-3 rounded-full shrink-0" style={{ background: riskColor }} />
+            <div className="flex-1"><div className="text-[14px] font-semibold text-[var(--text-primary)]">{j.title}</div><div className="text-[12px] text-[var(--text-muted)]">{j.function} · {j.level} · {j.track}</div></div>
+            <div className="text-right"><div className="text-[14px] font-bold" style={{ color: riskColor }}>{j.headcount} incumbent{j.headcount > 1 ? "s" : ""}</div><div className="text-[11px]" style={{ color: riskColor }}>{risk}</div></div>
+          </div>;
+        })}
+      </div>
+    </Card>}
+  </div>;
+}
+
+/* ═══════════════════════════════════════════════════════════════
    JOB ARCHITECTURE MODULE — premium consulting-grade experience
    ═══════════════════════════════════════════════════════════════ */
 
@@ -674,7 +1350,12 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
       { id: "map", label: "🗺️ Architecture Map" },
       { id: "validation", label: "✅ Validation" },
       { id: "analytics", label: "📊 Analytics" },
-      { id: "compare", label: "⚖️ Compare" },
+      { id: "evaluation", label: "⚖️ Job Evaluation" },
+      { id: "lattice", label: "🪜 Career Lattice" },
+      { id: "jagovernance", label: "🏛️ Governance" },
+      { id: "intelligence", label: "🧠 Intelligence" },
+      { id: "rolenet", label: "🕸️ Role Network" },
+      { id: "compare", label: "🔍 Compare" },
     ]} active={tab} onChange={setTab} />
 
     {/* ═══ CATALOGUE TAB ═══ */}
@@ -1018,6 +1699,21 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
         </Card>
       </div>
     </div>}
+
+    {/* ═══ JOB EVALUATION TAB ═══ */}
+    {tab === "evaluation" && <JobEvaluationTab jobs={jobs} model={model} />}
+
+    {/* ═══ CAREER LATTICE TAB ═══ */}
+    {tab === "lattice" && <CareerLatticeTab jobs={jobs} model={model} />}
+
+    {/* ═══ JA GOVERNANCE TAB ═══ */}
+    {tab === "jagovernance" && <JAGovernanceTab jobs={jobs} employees={employees} model={model} />}
+
+    {/* ═══ INTELLIGENCE TAB ═══ */}
+    {tab === "intelligence" && <JAIntelligenceTab jobs={jobs} employees={employees} model={model} />}
+
+    {/* ═══ ROLE NETWORK TAB ═══ */}
+    {tab === "rolenet" && <RoleNetworkTab jobs={jobs} model={model} />}
 
     {/* ═══ COMPARE TAB ═══ */}
     {tab === "compare" && <div className="animate-tab-enter">

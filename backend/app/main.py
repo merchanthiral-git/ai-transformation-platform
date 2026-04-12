@@ -77,6 +77,32 @@ app.include_router(analytics_router)
 app.include_router(tutorial_router)
 app.include_router(export_ext_router)
 
+# Agent system
+from app.routes_agents import router as agents_router
+app.include_router(agents_router)
+
+# AI Provider abstraction
+from app.ai_providers import call_ai_sync, get_ai_status, anthropic_client
+
+@app.post("/api/ai/ask")
+def ask_ai_endpoint(request: dict):
+    """Unified AI endpoint — routes to Claude or Gemini based on task type"""
+    prompt = request.get("prompt", "")
+    task_type = request.get("task_type", "general")
+    system = request.get("system", None)
+    if not prompt:
+        return {"error": "No prompt provided"}
+    try:
+        response, provider = call_ai_sync(prompt, task_type, system)
+        return {"response": response, "provider": provider}
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/api/ai/providers")
+def ai_providers_status():
+    """Return status of all AI providers"""
+    return get_ai_status()
+
 
 
 @app.get("/api/health")
@@ -96,6 +122,7 @@ def health_check():
         "status": "ok" if db_ok else "degraded",
         "python": sys.version,
         "db": "connected" if db_ok else f"ERROR: {db_error}",
+        "db_type": "postgresql" if "postgresql" in (os.environ.get("DATABASE_URL", "") or "") else "sqlite",
     }
 
 # ═══════════════════════════════════════════════════════════════════════
