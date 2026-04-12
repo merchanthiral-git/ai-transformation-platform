@@ -11,7 +11,8 @@ import json
 import traceback
 from dotenv import load_dotenv
 
-load_dotenv()
+# Load .env from backend/ directory explicitly
+load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 
 # ── Claude (Anthropic) ──
 anthropic_client = None
