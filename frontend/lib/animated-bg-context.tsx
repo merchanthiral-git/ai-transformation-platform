@@ -37,38 +37,23 @@ export function AnimatedBgProvider({ children }: { children: React.ReactNode }) 
   const [forced, setForced] = useState(false);
   const [forceReason, setForceReason] = useState("");
 
-  // Detect device constraints that override user preference
+  // Detect device constraints that override user preference.
+  // Only network/bandwidth constraints force videos off — these are real performance
+  // concerns. prefers-reduced-motion is NOT checked here because ambient looping
+  // video backgrounds are non-distracting and don't constitute UI animation.
+  // prefers-reduced-motion should be handled at the CSS level for transitions,
+  // slide-ins, bouncing, and other motion-based UI effects.
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     const nav = navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } };
     const saveData = nav.connection?.saveData === true;
     const slow = ["slow-2g", "2g"].includes(nav.connection?.effectiveType || "");
-    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const reducedMotion = mql.matches;
 
-    if (reducedMotion) {
-      setForced(true);
-      setForceReason("Reduced motion preference detected");
-    } else if (saveData || slow) {
+    if (saveData || slow) {
       setForced(true);
       setForceReason("Disabled for performance on slow connections");
     }
-    // NOTE: mobile width no longer forces videos off — let users on tablets/small
-    // laptops see videos. They can toggle off manually if performance is an issue.
-
-    // Listen for reduced motion changes
-    const handler = (e: MediaQueryListEvent) => {
-      if (e.matches) {
-        setForced(true);
-        setForceReason("Reduced motion preference detected");
-      } else {
-        setForced(false);
-        setForceReason("");
-      }
-    };
-    mql.addEventListener("change", handler);
-    return () => mql.removeEventListener("change", handler);
   }, []);
 
   const toggle = useCallback(() => {
