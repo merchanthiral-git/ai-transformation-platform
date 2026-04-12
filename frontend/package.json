@@ -5,8 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "postbuild": "cp -r public .next/standalone/public && cp -r .next/static .next/standalone/.next/static",
-    "start": "node .next/standalone/server.js"
+    "start": "next start"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",

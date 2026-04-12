@@ -65,172 +65,33 @@ import { FlightRecorder } from "./components/FlightRecorder";
 import { Tutorial } from "./components/Tutorial";
 import { VideoBackground } from "./components/VideoBackground";
 import { useAnimatedBg } from "../lib/animated-bg-context";
-import { Canvas, useFrame } from "@react-three/fiber";
-import * as THREE from "three";
+// Three.js removed — was causing "Context Lost" and deprecated Clock warnings.
+// Audio orb visualizer now uses pure CSS (see CSSAudioOrb below).
 
 /* ═══════════════════════════════════════════════════════════════
-   3D AUDIO ORB VISUALIZER
+   CSS AUDIO ORB VISUALIZER — replaces Three.js to avoid WebGL
+   context-lost errors and deprecated THREE.Clock warnings.
    ═══════════════════════════════════════════════════════════════ */
 
-const orbVertexShader = `
-  uniform float uBass;
-  uniform float uMid;
-  uniform float uHigh;
-  uniform float uTime;
-  varying vec3 vNormal;
-  varying vec3 vPosition;
-  varying float vDisplacement;
-
-  // Simplex-like noise
-  vec3 mod289(vec3 x) { return x - floor(x * (1.0/289.0)) * 289.0; }
-  vec4 mod289(vec4 x) { return x - floor(x * (1.0/289.0)) * 289.0; }
-  vec4 permute(vec4 x) { return mod289(((x*34.0)+1.0)*x); }
-  float snoise(vec3 v) {
-    const vec2 C = vec2(1.0/6.0, 1.0/3.0);
-    vec3 i = floor(v + dot(v, C.yyy));
-    vec3 x0 = v - i + dot(i, C.xxx);
-    vec3 g = step(x0.yzx, x0.xyz);
-    vec3 l = 1.0 - g;
-    vec3 i1 = min(g.xyz, l.zxy);
-    vec3 i2 = max(g.xyz, l.zxy);
-    vec3 x1 = x0 - i1 + C.xxx;
-    vec3 x2 = x0 - i2 + C.yyy;
-    vec3 x3 = x0 - 0.5;
-    i = mod289(i);
-    vec4 p = permute(permute(permute(i.z+vec4(0.,i1.z,i2.z,1.))+i.y+vec4(0.,i1.y,i2.y,1.))+i.x+vec4(0.,i1.x,i2.x,1.));
-    vec4 j = p - 49.0 * floor(p * (1.0/49.0));
-    vec4 x_ = floor(j * (1.0/7.0));
-    vec4 y_ = floor(j - 7.0 * x_);
-    vec4 x1_ = (x_ * 2.0 + 0.5) / 7.0 - 1.0;
-    vec4 y1_ = (y_ * 2.0 + 0.5) / 7.0 - 1.0;
-    vec4 h = 1.0 - abs(x1_) - abs(y1_);
-    vec4 b0 = vec4(x1_.xy, y1_.xy);
-    vec4 b1 = vec4(x1_.zw, y1_.zw);
-    vec4 sh = -step(h, vec4(0.0));
-    vec4 a0 = b0.xzyw + (floor(b0.xzyw) * 2.0 + 1.0) * sh.xxyy;
-    vec4 a1 = b1.xzyw + (floor(b1.xzyw) * 2.0 + 1.0) * sh.zzww;
-    vec3 p0 = vec3(a0.xy, h.x);
-    vec3 p1 = vec3(a0.zw, h.y);
-    vec3 p2 = vec3(a1.xy, h.z);
-    vec3 p3 = vec3(a1.zw, h.w);
-    vec4 norm = 1.79284291400159 - 0.85373472095314 * vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3));
-    p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
-    vec4 m = max(0.6 - vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)), 0.0);
-    m = m * m;
-    return 42.0 * dot(m*m, vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));
-  }
-
-  void main() {
-    vNormal = normal;
-    vPosition = position;
-    float noise = snoise(position * 2.0 + uTime * 0.3) * uMid * 0.3;
-    float bassDisp = uBass * 0.15;
-    float highDisp = snoise(position * 6.0 + uTime * 0.5) * uHigh * 0.08;
-    float displacement = bassDisp + noise + highDisp;
-    vDisplacement = displacement;
-    vec3 newPos = position + normal * displacement;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(newPos, 1.0);
-  }
-`;
-
-const orbFragmentShader = `
-  uniform float uBass;
-  uniform float uMid;
-  uniform float uAmplitude;
-  uniform vec3 uColor;
-  varying vec3 vNormal;
-  varying vec3 vPosition;
-  varying float vDisplacement;
-
-  void main() {
-    // Fresnel edge glow
-    vec3 viewDir = normalize(cameraPosition - vPosition);
-    float fresnel = pow(1.0 - max(dot(viewDir, vNormal), 0.0), 2.5);
-    vec3 baseColor = uColor;
-    vec3 glowColor = vec3(1.0, 0.85, 0.5);
-    float glowIntensity = fresnel * (0.5 + uAmplitude * 0.8);
-    vec3 color = mix(baseColor, glowColor, glowIntensity);
-    color += vDisplacement * vec3(0.8, 0.4, 0.1) * 2.0;
-    float alpha = 0.85 + fresnel * 0.15;
-    gl_FragColor = vec4(color, alpha);
-  }
-`;
-
-function AudioOrb({ freqData, bassEnergy, midEnergy, highEnergy, amplitude }: { freqData: Uint8Array; bassEnergy: number; midEnergy: number; highEnergy: number; amplitude: number }) {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const matRef = useRef<THREE.ShaderMaterial>(null);
-  const scaleRef = useRef(1);
-
-  useFrame((_, delta) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.y += delta * 0.2;
-      meshRef.current.rotation.x += delta * 0.05;
-      // Beat scale spring
-      const target = 1 + amplitude * 0.08;
-      scaleRef.current += (target - scaleRef.current) * 0.15;
-      meshRef.current.scale.setScalar(scaleRef.current);
-      // Floating motion
-      meshRef.current.position.y = Math.sin(Date.now() * 0.001) * 0.08;
-    }
-    if (matRef.current) {
-      matRef.current.uniforms.uBass.value += (bassEnergy - matRef.current.uniforms.uBass.value) * 0.15;
-      matRef.current.uniforms.uMid.value += (midEnergy - matRef.current.uniforms.uMid.value) * 0.15;
-      matRef.current.uniforms.uHigh.value += (highEnergy - matRef.current.uniforms.uHigh.value) * 0.15;
-      matRef.current.uniforms.uAmplitude.value += (amplitude - matRef.current.uniforms.uAmplitude.value) * 0.15;
-      matRef.current.uniforms.uTime.value = Date.now() * 0.001;
-    }
-  });
-
-  return <mesh ref={meshRef}>
-    <icosahedronGeometry args={[1, 4]} />
-    <shaderMaterial ref={matRef} vertexShader={orbVertexShader} fragmentShader={orbFragmentShader} transparent uniforms={{
-      uBass: { value: 0 }, uMid: { value: 0 }, uHigh: { value: 0 }, uAmplitude: { value: 0 }, uTime: { value: 0 },
-      uColor: { value: new THREE.Color("#D4860A") },
+function OrbScene({ amplitude, bassEnergy }: { freqData: Uint8Array; bassEnergy: number; midEnergy: number; highEnergy: number; amplitude: number }) {
+  const scale = 1 + amplitude * 0.15;
+  const glow = 20 + bassEnergy * 40;
+  const hue = 30 + amplitude * 10; // warm amber shift
+  return <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+    {/* Outer glow ring */}
+    <div style={{
+      position: "absolute", width: 90, height: 90, borderRadius: "50%",
+      background: `radial-gradient(circle, hsla(${hue},80%,55%,${0.1 + amplitude * 0.15}) 0%, transparent 70%)`,
+      transform: `scale(${scale * 1.6})`, transition: "transform 0.15s ease-out",
     }} />
-  </mesh>;
-}
-
-function AudioParticles({ amplitude, bassEnergy }: { amplitude: number; bassEnergy: number }) {
-  const pointsRef = useRef<THREE.Points>(null);
-  const positionsRef = useRef<Float32Array | null>(null);
-  const count = 150;
-
-  useMemo(() => {
-    const pos = new Float32Array(count * 3);
-    for (let i = 0; i < count; i++) {
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(2 * Math.random() - 1);
-      const r = 1.5 + Math.random() * 1.5;
-      pos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
-      pos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
-      pos[i * 3 + 2] = r * Math.cos(phi);
-    }
-    positionsRef.current = pos;
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useFrame((_, delta) => {
-    if (pointsRef.current && positionsRef.current) {
-      pointsRef.current.rotation.y += delta * 0.05;
-      const spread = 1 + bassEnergy * 0.3;
-      pointsRef.current.scale.setScalar(spread);
-    }
-  });
-
-  if (!positionsRef.current) return null;
-
-  return <points ref={pointsRef}>
-    <bufferGeometry><bufferAttribute attach="attributes-position" array={positionsRef.current} count={count} itemSize={3} /></bufferGeometry>
-    <pointsMaterial size={0.03} color="#D4860A" transparent opacity={0.4 + amplitude * 0.3} sizeAttenuation />
-  </points>;
-}
-
-function OrbScene({ freqData, bassEnergy, midEnergy, highEnergy, amplitude }: { freqData: Uint8Array; bassEnergy: number; midEnergy: number; highEnergy: number; amplitude: number }) {
-  return <Canvas camera={{ position: [0, 0, 3.2], fov: 50 }} dpr={[1, 2]} gl={{ antialias: true, alpha: true }} style={{ background: "transparent" }}>
-    <ambientLight intensity={0.2} />
-    <pointLight position={[3, 3, 3]} intensity={0.5} color="#E8C547" />
-    <AudioOrb freqData={freqData} bassEnergy={bassEnergy} midEnergy={midEnergy} highEnergy={highEnergy} amplitude={amplitude} />
-    <AudioParticles amplitude={amplitude} bassEnergy={bassEnergy} />
-  </Canvas>;
+    {/* Core orb */}
+    <div style={{
+      width: 56, height: 56, borderRadius: "50%",
+      background: `radial-gradient(circle at 35% 35%, hsl(${hue},85%,65%), hsl(${hue},75%,40%) 60%, hsl(${hue},60%,25%))`,
+      boxShadow: `0 0 ${glow}px ${glow * 0.4}px hsla(${hue},80%,50%,0.35), inset 0 -4px 12px rgba(0,0,0,0.3)`,
+      transform: `scale(${scale})`, transition: "transform 0.15s ease-out, box-shadow 0.15s ease-out",
+    }} />
+  </div>;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -325,7 +186,7 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
   const [genre, setGenre] = useState("jazz");
   const [playing, setPlaying] = useState(false);
   const [trackIdx, setTrackIdx] = useState(() => { try { const saved = localStorage.getItem("music_track"); return saved ? Number(saved) : ACID_JAZZ_II_IDX; } catch { return ACID_JAZZ_II_IDX; } });
-  const [volume, setVolume] = useState(() => { try { return Number(localStorage.getItem("music_vol") || "0.25"); } catch { return 0.25; } });
+  const [volume, setVolume] = useState(() => { try { return Number(localStorage.getItem("music_vol") || "0.5"); } catch { return 0.5; } });
   const [viewState, setViewState] = useState<"mini" | "collapsed" | "expanded">("mini");
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -373,6 +234,8 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     const audio = new Audio();
     audio.preload = "none";
     audio.crossOrigin = "anonymous";
+    audio.volume = 0.5; // ensure audible default — never start muted
+    audio.muted = false;
     audioRef.current = audio;
 
     // Web Audio API — analyser for visualizer
@@ -521,20 +384,18 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     if (!playing) toggle();
   };
 
-  // Auto-play when entering a project (or sandbox)
+  // Pre-load the first track when entering a project so the play button works instantly,
+  // but do NOT auto-play — browsers block autoplay with sound and it confuses users.
   useEffect(() => {
-    if (projectActive && !playing && !autoPlayTriggeredRef.current) {
+    if (projectActive && !autoPlayTriggeredRef.current) {
       autoPlayTriggeredRef.current = true;
       const a = audioRef.current;
-      if (a) {
+      if (a && (!a.src || !a.src.includes("/audio/"))) {
         const t = genreTracks[trackIdx % genreTracks.length] || genreTracks[0];
         if (t) {
           a.src = t.file;
           a.volume = volume;
-          a.load();
-          a.play()
-            .then(() => setPlaying(true))
-            .catch(e => console.warn("[MusicPlayer] Auto-play blocked by browser:", e.message));
+          a.load(); // preload only — no play()
         }
       }
     }
@@ -615,7 +476,7 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
   }, [viewState]);
 
   // ── Mini state: small floating icon ──
-  if (viewState === "mini") return <button onClick={() => { setViewState("collapsed"); toggle(); }}
+  if (viewState === "mini") return <button onClick={() => { setViewState("collapsed"); }}
     style={{ position: "fixed", bottom: 20, left: 240, zIndex: 40, width: 36, height: 36, borderRadius: 18, background: "linear-gradient(135deg, rgba(224,144,64,0.9), rgba(192,112,48,0.9))", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff", fontSize: 16, cursor: "pointer", boxShadow: "0 4px 20px rgba(224,144,64,0.3)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s" }}
     onMouseEnter={e => e.currentTarget.style.transform = "scale(1.15)"} onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}>♪</button>;
 
@@ -632,6 +493,8 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     </div>
     <button onClick={e => { e.stopPropagation(); toggle(); }} style={{ ...btnBase, color: "#f5e6d0", fontSize: 16, width: 32, height: 32 }}>{playing ? "⏸" : "▶"}</button>
     <button onClick={e => { e.stopPropagation(); nextTrack(); }} style={{ ...btnBase, color: "rgba(255,255,255,0.4)", fontSize: 15 }}>⏭</button>
+    <button onClick={e => { e.stopPropagation(); changeVolume(volume > 0 ? 0 : 0.5); }} style={{ ...btnBase, fontSize: 13, color: "rgba(255,255,255,0.3)" }}>{volume === 0 ? "🔇" : "🔊"}</button>
+    <input type="range" min={0} max={1} step={0.02} value={volume} onClick={e => e.stopPropagation()} onChange={e => { e.stopPropagation(); changeVolume(Number(e.target.value)); }} style={{ width: 50, accentColor: "#e09040", height: 3, flexShrink: 0 }} />
     <button onClick={e => { e.stopPropagation(); setViewState("mini"); }} style={{ ...btnBase, color: "rgba(255,255,255,0.25)", fontSize: 14 }} title="Hide player">✕</button>
   </div>;
 
@@ -676,7 +539,7 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
 
         {/* Volume */}
         <div style={{ display: "flex", alignItems: "center", gap: 5, width: 100, flexShrink: 0 }}>
-          <button onClick={() => changeVolume(volume > 0 ? 0 : 0.25)} style={{ ...btnBase, fontSize: 14, color: "rgba(255,255,255,0.35)" }}>{volume === 0 ? "🔇" : volume < 0.3 ? "🔈" : "🔊"}</button>
+          <button onClick={() => changeVolume(volume > 0 ? 0 : 0.5)} style={{ ...btnBase, fontSize: 14, color: "rgba(255,255,255,0.35)" }}>{volume === 0 ? "🔇" : volume < 0.3 ? "🔈" : "🔊"}</button>
           <input type="range" min={0} max={1} step={0.02} value={volume} onChange={e => changeVolume(Number(e.target.value))} style={{ flex: 1, accentColor: "#e09040", height: 3 }} />
         </div>
       </div>
@@ -809,7 +672,10 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
   const [agentResults, setAgentResults] = usePersisted<{ id: string; agent: string; agentName: string; result: string; time: string; reviewed: boolean }[]>(`${projectId}_agent_results`, []);
   const [presentStartTime, setPresentStartTime] = useState(0);
   const [presentNotes, setPresentNotes] = useState(false);
-  const [viewMode, setViewMode] = usePersisted<string>(`${projectId}_viewMode`, "");
+  // Sync-read viewMode so the first render already has the value set by SandboxViewSelector.
+  // usePersisted reads via useEffect (async) which causes a flash of the ViewSelector.
+  const _initViewMode = typeof window !== "undefined" ? (() => { try { const s = localStorage.getItem(`${projectId}_viewMode`); if (s) return JSON.parse(s); } catch {} return ""; })() : "";
+  const [viewMode, setViewMode] = usePersisted<string>(`${projectId}_viewMode`, _initViewMode);
   const [viewEmployee, setViewEmployee] = usePersisted<string>(`${projectId}_viewEmployee`, "");
   const [viewJob, setViewJob] = usePersisted<string>(`${projectId}_viewJob`, "");
 

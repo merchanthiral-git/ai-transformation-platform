@@ -5,11 +5,14 @@ import { useAnimatedBg } from "../../lib/animated-bg-context";
 /**
  * VideoBackground — ambient MP4/WebM background with graceful fallbacks.
  *
- * Respects:
- * - AnimatedBgContext (user preference toggle)
- * - prefers-reduced-motion (OS-level)
- * - Mobile / data saver / slow connection detection
- * - Intersection Observer (pause when off-screen)
+ * Loading strategy:
+ * 1. Gradient base renders instantly (CSS, zero cost)
+ * 2. Poster image loads next (small JPG, ~100KB, cached immutable)
+ * 3. Video starts with preload="metadata" (downloads only headers)
+ * 4. IntersectionObserver upgrades to preload="auto" when in viewport
+ * 5. Video fades in over 0.6s once it has data to play
+ *
+ * Never shows a blank/black screen during any transition.
  */
 
 interface VideoBackgroundProps {
@@ -40,6 +43,7 @@ export function VideoBackground({
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [videoFailed, setVideoFailed] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
   const { enabled: animatedEnabled } = useAnimatedBg();
 
   // Set playback speed
@@ -49,7 +53,8 @@ export function VideoBackground({
     }
   }, [speed]);
 
-  // Intersection Observer — pause/play based on visibility
+  // IntersectionObserver — controls preload upgrade and play/pause.
+  // Starts with preload="metadata"; upgrades to "auto" when visible.
   useEffect(() => {
     if (!containerRef.current || !animatedEnabled) return;
     const video = videoRef.current;
@@ -58,6 +63,8 @@ export function VideoBackground({
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
+          // Upgrade preload and start playing when in viewport
+          if (video.preload !== "auto") video.preload = "auto";
           video.play().catch(() => {});
         } else {
           video.pause();
@@ -69,6 +76,17 @@ export function VideoBackground({
     observer.observe(containerRef.current);
     return () => observer.disconnect();
   }, [animatedEnabled]);
+
+  // Track when video has enough data to display a frame
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const onReady = () => setVideoReady(true);
+    // readyState >= 2 means at least one frame is available
+    if (video.readyState >= 2) { setVideoReady(true); return; }
+    video.addEventListener("canplay", onReady, { once: true });
+    return () => video.removeEventListener("canplay", onReady);
+  }, []);
 
   // Detect source failures — only the LAST <source> error event is reliable
   // (fires after the browser has exhausted all sources). A 2-second grace period
@@ -104,8 +122,8 @@ export function VideoBackground({
   const gradient = fallbackGradient || DEFAULT_GRADIENT;
   const posterUrl = poster || `/videos/optimized/${name}-poster.jpg`;
   const filterStyle = blur > 0 ? `blur(${blur}px)` : undefined;
-  // Video is always in the DOM to survive hydration. Hide via opacity when disabled/failed.
-  const videoVisible = animatedEnabled && !videoFailed;
+  // Video fades in only when enabled, not failed, AND has data to show
+  const videoVisible = animatedEnabled && !videoFailed && videoReady;
 
   return (
     <div
@@ -124,7 +142,7 @@ export function VideoBackground({
         }}
       />
 
-      {/* Layer 0.5: Poster image — always present on top of gradient */}
+      {/* Layer 0.5: Poster image — loads instantly from cache, shows while video downloads */}
       <div
         style={{
           position: "absolute",
@@ -137,15 +155,30 @@ export function VideoBackground({
         }}
       />
 
+      {/* Layer 0.75: Shimmer — subtle pulse while video loads, hidden once video is ready */}
+      {animatedEnabled && !videoFailed && !videoReady && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 0,
+            background: "linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.015) 50%, transparent 70%)",
+            backgroundSize: "200% 100%",
+            animation: "bgShimmer 2s ease-in-out infinite",
+          }}
+        />
+      )}
+
       {/* Layer 1: Video — ALWAYS in the DOM (avoids hydration removal).
-          Hidden via opacity when user-disabled or all sources failed. */}
+          Starts with preload="metadata"; IntersectionObserver upgrades to "auto".
+          Hidden via opacity until ready. */}
       <video
         ref={videoRef}
         autoPlay
         muted
         loop
         playsInline
-        preload="auto"
+        preload="metadata"
         poster={posterUrl}
         style={{
           position: "absolute",
@@ -154,7 +187,7 @@ export function VideoBackground({
           height: "100%",
           objectFit: "cover",
           zIndex: 1,
-          willChange: "transform",
+          willChange: "opacity",
           filter: filterStyle,
           opacity: videoVisible ? 1 : 0,
           transition: "opacity 0.6s ease",
@@ -163,6 +196,9 @@ export function VideoBackground({
         <source src={`/videos/optimized/${name}.webm`} type="video/webm" />
         <source src={`/videos/optimized/${name}.mp4`} type="video/mp4" />
       </video>
+
+      {/* Shimmer keyframes (injected once, deduplicated by browser) */}
+      <style>{`@keyframes bgShimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }`}</style>
 
       {/* Layer 2: Overlay for text readability */}
       <div

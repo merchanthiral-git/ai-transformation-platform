@@ -1683,11 +1683,11 @@ export function ViewSelector({ onSelect, employees, jobs, filterOptions, onBack 
     {/* Click-to-reveal state */}
     {!revealed && <div style={{ position: "absolute", inset: 0, zIndex: 10, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }} onClick={() => setRevealed(true)}>
       <div className="text-center">
-        <div className="mb-8 animate-[fadeIn_1s_ease]">
+        <div className="mb-8">
           <div className="text-[28px] font-extrabold text-white mb-2" style={{ textShadow: "0 2px 20px rgba(0,0,0,0.4)" }}>Choose Your Perspective</div>
           <p className="text-[15px]" style={{ color: "rgba(255,220,180,0.5)" }}>The platform adapts to how you want to explore</p>
         </div>
-        <div className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl animate-pulse" style={{ background: "rgba(0,0,0,0.3)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,200,150,0.15)" }}>
+        <div className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl" style={{ background: "rgba(0,0,0,0.3)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,200,150,0.15)" }}>
           <span className="text-[14px]" style={{ color: "rgba(255,230,200,0.8)" }}>Click anywhere to continue</span>
           <span className="text-[16px]">→</span>
         </div>
@@ -1695,7 +1695,7 @@ export function ViewSelector({ onSelect, employees, jobs, filterOptions, onBack 
     </div>}
 
     {/* View cards — revealed on click */}
-    {revealed && <div style={{ position: "absolute", inset: 0, zIndex: 10, display: "flex", alignItems: "center", justifyContent: "center" }} className="animate-[slideUp_0.4s_ease]">
+    {revealed && <div style={{ position: "absolute", inset: 0, zIndex: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div className="max-w-2xl w-full px-6">
         <div className="text-center mb-6">
           <div className="text-[22px] font-extrabold text-white mb-1" style={{ textShadow: "0 2px 16px rgba(0,0,0,0.3)" }}>Select Your View</div>
@@ -1739,17 +1739,7 @@ export function ViewSelector({ onSelect, employees, jobs, filterOptions, onBack 
           </div>
         </div>}
 
-        {/* Guide cards */}
-        <div className="flex gap-3 mt-4">
-          <button onClick={() => setGuideOpen("consultant")} className="flex-1 flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:translate-y-[-1px]" style={{ background: "rgba(212,134,10,0.06)", backdropFilter: "blur(12px)", border: "1px solid rgba(212,134,10,0.12)" }} onMouseEnter={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.3)"} onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.12)"}>
-            <span style={{ fontSize: 22 }}>📘</span>
-            <div className="text-left"><div className="text-[15px] font-bold" style={{ color: "rgba(255,230,200,0.8)" }}>Consultant Guide</div><div className="text-[14px]" style={{ color: "rgba(255,230,200,0.3)" }}>Role-specific guidance</div></div>
-          </button>
-          <button onClick={() => setGuideOpen("hr")} className="flex-1 flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:translate-y-[-1px]" style={{ background: "rgba(16,185,129,0.06)", backdropFilter: "blur(12px)", border: "1px solid rgba(16,185,129,0.1)" }} onMouseEnter={e => e.currentTarget.style.borderColor = "rgba(16,185,129,0.25)"} onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(16,185,129,0.1)"}>
-            <span style={{ fontSize: 22 }}>📗</span>
-            <div className="text-left"><div className="text-[15px] font-bold" style={{ color: "rgba(200,255,220,0.8)" }}>HR Professional Guide</div><div className="text-[14px]" style={{ color: "rgba(200,255,220,0.3)" }}>For HRBPs, CHROs, leads</div></div>
-          </button>
-        </div>
+        {/* Guide cards removed — not yet implemented */}
       </div>
     </div>}
 
