@@ -10,11 +10,12 @@ from .memory import MEMORY_DIR, get_project_memory
 
 
 def _load_all_memories() -> list[dict]:
-    """Load all project memory files for benchmarking."""
+    """Load all project memory files for benchmarking (anonymized scores only)."""
     memories = []
     if not MEMORY_DIR.exists():
         return memories
-    for f in MEMORY_DIR.glob("*.json"):
+    # Scan flat files and user-scoped subdirectories
+    for f in MEMORY_DIR.rglob("*.json"):
         try:
             data = json.loads(f.read_text())
             if data.get("snapshots"):

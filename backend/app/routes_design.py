@@ -101,6 +101,7 @@ def compute_reconstruction_endpoint(payload: ReconstructionRequest):
 
 @router.get("/operating-model")
 def get_operating_model(model_id: str, fn: str = Query("All", alias="func"), jf: str = "All", sf: str = "All", cl: str = "All"):
+    model_id = store.resolve_model_id(model_id)
     if model_id not in store.datasets:
         return _safe({"kpis": {}, "maturity": [], "structure": [], "workflow": [], "decisions": [], "insights": [], "layer_agg": [], "service_split": [], "scope_dist": [], "decision_load": [], "stage_throughput": []})
     data = store.get_filtered_data(model_id, _f(fn, jf, sf, cl))

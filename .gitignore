@@ -4,6 +4,7 @@ __pycache__/
 *.pyc
 venv/
 .env
+.env.local
 .DS_Store
 *.egg-info/
 dist/
@@ -11,3 +12,22 @@ build/
 
 # Agent memory (persistent per-project, not committed)
 backend/data/agent_memory/*.json
+backend/data/agent_memory/**/*.json
+
+# SQLite database
+*.db
+
+# User data
+backend/data/users.json
+
+# NLQ query history
+backend/data/nlq/*.json
+
+# Skills graph cache
+backend/data/skills_graph/*.json
+
+# Flight recorder
+backend/data/flight_recorder/*.json
+
+# Architecture versions
+backend/data/arch_versions/*.json

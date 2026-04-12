@@ -1,6 +1,12 @@
 "use client";
 import React, { useState, useCallback } from "react";
 
+function authHeaders(): Record<string, string> {
+  if (typeof window === "undefined") return {};
+  const token = localStorage.getItem("auth_token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 /* ═══════════════════════════════════════════════════════════════
    AGENT PANEL — reusable side panel for individual agents
    ═══════════════════════════════════════════════════════════════ */
@@ -54,7 +60,7 @@ export function AgentPanel({ agentName, projectId, sessionData, title, dataChang
     try {
       const resp = await fetch(config.endpoint, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify({ project_id: projectId, session_data: sessionData }),
       });
       const data = await resp.json();
@@ -72,7 +78,7 @@ export function AgentPanel({ agentName, projectId, sessionData, title, dataChang
     try {
       await fetch("/api/agents/answer-question", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify({
           project_id: projectId,
           agent: agentName,
@@ -332,7 +338,7 @@ export function AgentOrchestrator({ projectId, sessionData }: OrchestratorProps)
     try {
       const resp = await fetch("/api/agents/orchestrate", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify({ project_id: projectId, intent: intentId, session_data: sessionData }),
       });
       const data = await resp.json();

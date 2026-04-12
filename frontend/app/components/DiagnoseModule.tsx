@@ -431,7 +431,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx }: { model:
                 {(selectedAdj.top_candidates || []).slice(0, 9).map((c, ci) => {
                   const moveType = c.adjacency_pct >= 80 ? moveTypes[0] : c.adjacency_pct >= 60 ? moveTypes[1] : c.adjacency_pct >= 40 ? moveTypes[2] : moveTypes[3];
                   const lineColor = c.adjacency_pct >= 70 ? "var(--success)" : c.adjacency_pct >= 50 ? "var(--warning)" : "var(--risk)";
-                  return <div key={c.employee || ci} className="rounded-xl border bg-[var(--surface-1)] p-4 transition-all hover:border-[var(--accent-primary)]/30" style={{ borderColor: "var(--border)", boxShadow: "0 1px 6px rgba(0,0,0,0.08)" }}>
+                  return <div key={c.employee || ci} className="rounded-xl border bg-[var(--surface-1)] p-4 transition-all hover:border-[var(--accent-primary)]/30" style={{ borderColor: "var(--border)", boxShadow: "var(--shadow-1)" }}>
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-[16px]">{moveType.type}</span>
                       <span className="text-[15px] font-bold text-[var(--text-primary)]">{c.employee}</span>
@@ -687,7 +687,7 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx }: { model: 
         <div className="text-[64px] mb-4">🎯</div>
         <h2 className="text-[28px] font-extrabold text-[var(--text-primary)] font-heading mb-3">What{"'"}s Your AI Readiness Score?</h2>
         <p className="text-[16px] text-[var(--text-muted)] mb-6">A 5-minute assessment across 5 dimensions to understand how prepared your organization is for AI transformation.</p>
-        <button onClick={() => { setAssessActive(true); setAssessQ(0); }} className="px-8 py-3.5 rounded-2xl text-[17px] font-bold text-white glow-pulse" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", boxShadow: "0 4px 20px rgba(224,144,64,0.3)" }}>Take the Assessment →</button>
+        <button onClick={() => { setAssessActive(true); setAssessQ(0); }} className="px-8 py-3.5 rounded-2xl text-[17px] font-bold text-white glow-pulse" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", boxShadow: "var(--shadow-2)" }}>Take the Assessment →</button>
         <p className="text-[14px] text-[var(--text-muted)] mt-4">Based on responses from your leadership team. Takes approximately 5 minutes.</p>
         <div className="flex justify-center gap-4 mt-6">{ASSESS_DIMS.map(d => <div key={d.id} className="text-center"><div className="text-[20px]">{d.icon}</div><div className="text-[12px] text-[var(--text-muted)]">{d.id}</div></div>)}</div>
       </div>
@@ -801,7 +801,7 @@ export function ManagerCapability({ model, f, onBack, onNavigate }: { model: str
         ].map(panel => {
           const isExpanded = expandedCat === panel.cat;
           const catMgrs = managers.filter(m => m.category === panel.cat).sort((a, b) => b.direct_reports - a.direct_reports);
-          return <div key={panel.cat} className="rounded-2xl border overflow-hidden" style={{ borderColor: `${catColors[panel.cat]}30`, boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
+          return <div key={panel.cat} className="rounded-2xl border overflow-hidden" style={{ borderColor: `${catColors[panel.cat]}30`, boxShadow: "var(--shadow-1)" }}>
             <button onClick={() => setExpandedCat(isExpanded ? null : panel.cat)} className="w-full px-5 py-4 text-left flex items-center justify-between transition-all hover:bg-[var(--hover)]" style={{ background: `${catColors[panel.cat]}06`, borderLeft: `4px solid ${catColors[panel.cat]}` }}>
               <div className="flex items-center gap-3">
                 <span className="text-[22px]">{catIcons[panel.cat]}</span>
@@ -934,7 +934,7 @@ export function ChangeReadiness({ model, f, onBack, onNavigate }: { model: strin
       {campaigns.map(c => {
         const completedActs = c.activities.filter(a => a.status === "Completed").length;
         const pct = c.activities.length ? Math.round((completedActs / c.activities.length) * 100) : 0;
-        return <div key={c.id} className="rounded-2xl border bg-[var(--surface-1)] p-5 cursor-pointer transition-all hover:border-[var(--accent-primary)]/30" style={{ borderColor: activeCampaignId === c.id ? "var(--accent-primary)" : "var(--border)", borderLeft: `4px solid ${statusColors[c.status] || "var(--text-muted)"}`, boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }} onClick={() => { setActiveCampaignId(c.id); setCrTab("activities"); }}>
+        return <div key={c.id} className="rounded-2xl border bg-[var(--surface-1)] p-5 cursor-pointer transition-all hover:border-[var(--accent-primary)]/30" style={{ borderColor: activeCampaignId === c.id ? "var(--accent-primary)" : "var(--border)", borderLeft: `4px solid ${statusColors[c.status] || "var(--text-muted)"}`, boxShadow: "var(--shadow-1)" }} onClick={() => { setActiveCampaignId(c.id); setCrTab("activities"); }}>
           <div className="flex items-center justify-between mb-2">
             <div className="text-[18px] font-bold text-[var(--text-primary)] font-heading">{c.name}</div>
             <span className="px-3 py-1 rounded-full text-[13px] font-bold" style={{ background: `${statusColors[c.status] || "var(--text-muted)"}12`, color: statusColors[c.status] }}>{c.status}</span>
@@ -1235,10 +1235,10 @@ Rank by impact score (0-100). Make recommendations specific to this org's data, 
         setGenerated(true);
         showToast("🤖 AI recommendations generated");
       } catch {
-        showToast("Failed to parse AI response — try again");
+        showToast("AI response wasn't in the expected format — try again");
       }
     } catch {
-      showToast("Error generating recommendations");
+      showToast("Couldn't generate recommendations — check your data and try again");
     }
     setLoading(false);
   }, [model, f]);
@@ -1263,7 +1263,7 @@ Rank by impact score (0-100). Make recommendations specific to this org's data, 
           AI will analyze your workforce data, AI readiness scores, and task-level impact analysis to generate
           ranked, actionable recommendations for your AI transformation journey.
         </p>
-        <button onClick={generate} className="px-8 py-3 rounded-2xl text-[14px] font-bold text-white transition-all hover:translate-y-[-2px] hover:shadow-lg" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", boxShadow: "0 4px 20px rgba(224,144,64,0.2)" }}>
+        <button onClick={generate} className="px-8 py-3 rounded-2xl text-[14px] font-bold text-white transition-all hover:translate-y-[-2px] hover:shadow-lg" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", boxShadow: "var(--shadow-2)" }}>
           🤖 Generate Recommendations
         </button>
       </div>
@@ -1626,7 +1626,7 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
       {clusters.map((c, i) => {
         const isExpanded = expandedCluster === i;
         const funcColor = funcColors[c.function] || "var(--text-muted)";
-        return <div key={i} className="rounded-2xl border overflow-hidden" style={{ background: "var(--surface-1)", borderColor: c.consolidation_candidate ? "rgba(239,68,68,0.3)" : "var(--border)", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
+        return <div key={i} className="rounded-2xl border overflow-hidden" style={{ background: "var(--surface-1)", borderColor: c.consolidation_candidate ? "rgba(239,68,68,0.3)" : "var(--border)", boxShadow: "var(--shadow-1)" }}>
           <button onClick={() => setExpandedCluster(isExpanded ? null : i)} className="w-full px-5 py-4 text-left flex items-center justify-between transition-all hover:bg-[var(--hover)]">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center text-[15px] font-bold text-white shrink-0" style={{ background: funcColor }}>{c.size}</div>

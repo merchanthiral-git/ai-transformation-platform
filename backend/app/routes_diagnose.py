@@ -293,6 +293,7 @@ def get_role_clusters(model_id: str, fn: str = Query("All", alias="func"), jf: s
 
 @router.get("/diagnose/data-quality")
 def get_data_quality(model_id: str):
+    model_id = store.resolve_model_id(model_id)
     if model_id not in store.datasets:
         raise HTTPException(404, "Model not found")
     readiness_df = store.readiness_summary(model_id)

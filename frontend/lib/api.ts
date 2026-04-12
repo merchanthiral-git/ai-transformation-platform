@@ -20,16 +20,41 @@ function filterParams(f: Filters) {
 let _apiToast: ((msg: string) => void) | null = null;
 export function setApiToast(fn: (msg: string) => void) { _apiToast = fn; }
 
+// Auth headers — include JWT token on every API call
+function getAuthHeaders(): Record<string, string> {
+  if (typeof window === "undefined") return {};
+  const token = localStorage.getItem("auth_token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 async function fetchJSON<T>(path: string, fallback: T, options?: RequestInit): Promise<T> {
   try {
-    const res = await fetch(path, options);
+    const res = await fetch(path, {
+      ...options,
+      headers: {
+        ...getAuthHeaders(),
+        ...(options?.headers || {}),
+      },
+    });
+    if (res.status === 401) {
+      // Token expired or invalid — redirect to login
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("auth_user");
+      window.location.reload();
+      return fallback;
+    }
     if (!res.ok) {
       const text = await res.text().catch(() => "");
       const detail = (() => { try { return JSON.parse(text)?.detail || ""; } catch { return ""; } })();
       const msg = detail || `${res.status} ${res.statusText}`;
       console.error(`[API ERROR] ${path} → ${msg}`, text.slice(0, 200));
       if (_apiToast && res.status >= 400) {
-        _apiToast(`API error: ${msg.slice(0, 100)}`);
+        const friendly = res.status === 401 ? "Your session has expired — please sign in again"
+          : res.status === 403 ? "You don't have access to this resource"
+          : res.status === 404 ? "The requested data wasn't found — it may have been moved or deleted"
+          : res.status === 500 ? "Something went wrong on the server — try again in a moment"
+          : `Couldn't complete this request — ${msg.slice(0, 80)}`;
+        _apiToast(friendly);
       }
       return fallback;
     }
@@ -38,9 +63,37 @@ async function fetchJSON<T>(path: string, fallback: T, options?: RequestInit): P
   } catch (err) {
     console.error(`[API NETWORK ERROR] ${path}`, err);
     if (_apiToast) {
-      _apiToast("Network error — check backend connection");
+      _apiToast("Can't reach the server — check that the backend is running and try again");
     }
     return fallback;
+  }
+}
+
+// ─── Prefetch cache ──────────────────────────────────────
+const _prefetchCache: Record<string, { data: unknown; ts: number }> = {};
+const PREFETCH_TTL = 30000; // 30s cache
+
+export async function prefetch(moduleName: string, modelId: string) {
+  const key = `${moduleName}:${modelId}`;
+  const cached = _prefetchCache[key];
+  if (cached && Date.now() - cached.ts < PREFETCH_TTL) return;
+  const f = { func: "All", jf: "All", sf: "All", cl: "All" };
+  const prefetchMap: Record<string, () => Promise<unknown>> = {
+    snapshot: () => getOverview(modelId, f),
+    scan: () => getAIPriority(modelId, f),
+    design: () => getJobContext(modelId, "", f),
+    simulate: () => getReadiness(modelId, f),
+    plan: () => getRoadmap(modelId, f),
+    export: () => getExportSummary(modelId, f),
+    jobs: () => getJobArchitecture(modelId, f),
+    skills: () => getSkillAnalysis(modelId, f),
+  };
+  const fn = prefetchMap[moduleName];
+  if (fn) {
+    try {
+      const data = await fn();
+      _prefetchCache[key] = { data, ts: Date.now() };
+    } catch {}
   }
 }
 

@@ -227,8 +227,9 @@ def _validate_architecture(tree, jobs, wf):
 @router.get("/job-architecture")
 def get_job_architecture(model_id: str, fn: str = Query("All", alias="func"), jf: str = "All", sf: str = "All", cl: str = "All"):
     """Full job architecture data — hierarchy, jobs, analytics, validation flags."""
+    model_id = store.resolve_model_id(model_id)
     if model_id not in store.datasets:
-        return _safe({"tree": [], "jobs": [], "stats": {}, "flags": [], "analytics": {}})
+        return _safe({"tree": [], "jobs": [], "stats": {}, "flags": [], "analytics": {}, "employees": []})
 
     data = store.get_filtered_data(model_id, _f(fn, jf, sf, cl))
     wf = data["workforce"]

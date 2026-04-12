@@ -25,8 +25,8 @@ export function ExportReport({ model, f, onBack }: { model: string; f: Filters; 
     try {
       const resp = await fetch(`/api/export/docx/${model}`);
       if (resp.ok) { const blob = await resp.blob(); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `AI_Transformation_Report.docx`; a.click(); URL.revokeObjectURL(url); setGenerated(true); showToast("📋 Word document downloaded"); }
-      else { showToast("Export failed — check backend"); }
-    } catch { showToast("Export failed — backend unavailable"); }
+      else { showToast("Couldn't export — check that the backend is running"); }
+    } catch { showToast("The export service isn't responding — try again shortly"); }
     setGenerating(false);
   };
   const generateAiNarrative = async () => {
@@ -104,7 +104,7 @@ export function ExportReport({ model, f, onBack }: { model: string; f: Filters; 
             try {
               const resp = await fetch(`/api/export/download/workforce?model_id=${model}&${Object.entries(f).map(([k,v])=>`${k}=${v}`).join("&")}`);
               if (resp.ok) { const blob = await resp.blob(); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `${model}_data_export.xlsx`; a.click(); URL.revokeObjectURL(url); showToast("📊 Excel downloaded"); }
-            } catch { showToast("Export failed"); }
+            } catch { showToast("Couldn't export — try again in a moment"); }
           }} className="px-5 py-2 rounded-xl text-[15px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:border-[var(--accent-primary)]/30">Download .xlsx</button>
         </div>
       </div>
@@ -123,8 +123,8 @@ export function ExportReport({ model, f, onBack }: { model: string; f: Filters; 
             try {
               const resp = await fetch(`/api/export/pptx/${model}`);
               if (resp.ok) { const blob = await resp.blob(); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `AI_Transformation_Deck.pptx`; a.click(); URL.revokeObjectURL(url); showToast("📽️ PowerPoint downloaded"); }
-              else showToast("PowerPoint export failed");
-            } catch { showToast("Export failed — backend unavailable"); }
+              else showToast("Couldn't generate the PowerPoint — try again");
+            } catch { showToast("The export service isn't responding — try again shortly"); }
             setGenerating(false);
           }} disabled={generating} className="px-4 py-2 rounded-xl text-[15px] font-semibold text-white shrink-0 disabled:opacity-50" style={{ background: "linear-gradient(135deg, #D97706, #B8602A)" }}>{generating ? "..." : "Download .pptx"}</button>
         </div>
@@ -141,8 +141,8 @@ export function ExportReport({ model, f, onBack }: { model: string; f: Filters; 
             try {
               const resp = await fetch(`/api/export/pdf/${model}`);
               if (resp.ok) { const blob = await resp.blob(); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `AI_Executive_Summary.pdf`; a.click(); URL.revokeObjectURL(url); showToast("📄 PDF downloaded"); }
-              else showToast("PDF export failed");
-            } catch { showToast("Export failed — backend unavailable"); }
+              else showToast("Couldn't generate the PDF — try again");
+            } catch { showToast("The export service isn't responding — try again shortly"); }
             setGenerating(false);
           }} disabled={generating} className="px-4 py-2 rounded-xl text-[15px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 hover:bg-[var(--accent-primary)]/5 shrink-0 disabled:opacity-50">{generating ? "..." : "Download .pdf"}</button>
         </div>
@@ -219,10 +219,10 @@ Be specific with numbers from the data. Keep each item to 1-2 sentences max.`
         setShowPreview(true);
         showToast("📊 Executive summary generated");
       } catch {
-        showToast("Failed to parse summary — try again");
+        showToast("Summary format was unexpected — try again");
       }
     } catch {
-      showToast("Error generating summary");
+      showToast("Couldn't generate the summary — try again in a moment");
     }
     setGenerating(false);
   };
@@ -264,7 +264,7 @@ Be specific with numbers from the data. Keep each item to 1-2 sentences max.`
         AI will pull KPIs from Overview, top findings from Diagnose, recommended redesigns from Design,
         and projected impact from Simulate into a board-ready one-pager. Exportable as PDF.
       </p>
-      <button onClick={generate} disabled={generating} className="px-6 py-3 rounded-2xl text-[14px] font-bold text-white transition-all hover:translate-y-[-2px] disabled:opacity-50" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", boxShadow: "0 4px 20px rgba(224,144,64,0.2)" }}>
+      <button onClick={generate} disabled={generating} className="px-6 py-3 rounded-2xl text-[14px] font-bold text-white transition-all hover:translate-y-[-2px] disabled:opacity-50" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", boxShadow: "var(--shadow-2)" }}>
         {generating ? "Generating..." : "📊 Generate Executive Summary"}
       </button>
     </div>}

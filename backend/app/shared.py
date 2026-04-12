@@ -42,6 +42,16 @@ def _f(func="All", jf="All", sf="All", cl="All"):
     return {"Function": func, "Job Family": jf, "Sub-Family": sf, "Career Level": cl}
 
 
+def resolve_mid(model_id: str, request=None) -> str:
+    """Resolve a display model_id to a user-scoped internal model_id.
+    Uses request.state.user_id from the auth middleware."""
+    from app.store import store
+    user_id = ""
+    if request and hasattr(request, "state") and hasattr(request.state, "user_id"):
+        user_id = request.state.user_id
+    return store.resolve_model_id(model_id, user_id)
+
+
 def _job_list_for_model(store, model_id: str):
     from app.helpers import get_series
     if not model_id or model_id not in store.datasets:

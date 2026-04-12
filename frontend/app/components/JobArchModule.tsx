@@ -91,7 +91,7 @@ function OrgChartBuilder({ employees, jobs }: { employees: Employee[]; jobs: Job
   // Collapsed state — auto-collapse below depth 2 on initial load
   const [collapsedIds, setCollapsedIds] = useState<Set<string>>(() => {
     const ids = new Set<string>();
-    const walk = (n: OrgNode, depth: number) => { if (depth >= 2 && n.children.length > 0) ids.add(n.id); n.children.forEach(c => walk(c, depth + 1)); };
+    const walk = (n: OrgNode, depth: number) => { if (n.children.length > 0) ids.add(n.id); n.children.forEach(c => walk(c, depth + 1)); };
     // Will be empty until orgTree is built, then effect below handles it
     return ids;
   });
@@ -100,7 +100,7 @@ function OrgChartBuilder({ employees, jobs }: { employees: Employee[]; jobs: Job
     if (orgTree.length > 0 && !initialCollapseRef.current) {
       initialCollapseRef.current = true;
       const ids = new Set<string>();
-      const walk = (n: OrgNode, depth: number) => { if (depth >= 2 && n.children.length > 0) ids.add(n.id); n.children.forEach(c => walk(c, depth + 1)); };
+      const walk = (n: OrgNode, depth: number) => { if (n.children.length > 0) ids.add(n.id); n.children.forEach(c => walk(c, depth + 1)); };
       orgTree.forEach(r => walk(r, 0));
       setCollapsedIds(ids);
     }
@@ -157,7 +157,6 @@ function OrgChartBuilder({ employees, jobs }: { employees: Employee[]; jobs: Job
   const handleMouseMove = (e: React.MouseEvent) => { if (dragging) setPan({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y }); };
   const handleMouseUp = () => setDragging(false);
   const handleWheel = (e: React.WheelEvent) => { e.preventDefault(); setZoom(z => Math.max(0.2, Math.min(2, z - e.deltaY * 0.001))); };
-  const fitToScreen = () => { setZoom(0.55); setPan({ x: 0, y: 0 }); };
 
   // Drag-and-drop reporting line change (future state)
   const [dragNode, setDragNode] = useState<string | null>(null);
@@ -276,45 +275,94 @@ function OrgChartBuilder({ employees, jobs }: { employees: Employee[]; jobs: Job
     </div>;
   };
 
-  // ── Recursive tree layout: children grouped under parents ──
+  // ── Recursive tree layout: children grouped under parents, wrapping rows ──
   const NODE_W = 200;
   const NODE_H = 100;
-  const H_GAP = 24;
-  const V_GAP = 60;
+  const H_GAP = 20;
+  const V_GAP = 56;
+  const MAX_CHILDREN_PER_ROW = 6;
 
   const layoutData = useMemo(() => {
     const positions: Record<string, { x: number; y: number }> = {};
     const edges: { parentId: string; childId: string }[] = [];
 
-    // Calculate subtree width recursively
+    // Calculate subtree width recursively, wrapping children into rows
     const subtreeWidth = (node: OrgNode): number => {
       if (collapsedIds.has(node.id) || node.children.length === 0) return NODE_W;
-      const childrenWidth = node.children.reduce((sum, c) => sum + subtreeWidth(c), 0) + (node.children.length - 1) * H_GAP;
-      return Math.max(NODE_W, childrenWidth);
+      const rowCount = Math.ceil(node.children.length / MAX_CHILDREN_PER_ROW);
+      let maxRowWidth = 0;
+      for (let r = 0; r < rowCount; r++) {
+        const rowChildren = node.children.slice(r * MAX_CHILDREN_PER_ROW, (r + 1) * MAX_CHILDREN_PER_ROW);
+        const rowWidth = rowChildren.reduce((sum, c) => sum + subtreeWidth(c), 0) + (rowChildren.length - 1) * H_GAP;
+        maxRowWidth = Math.max(maxRowWidth, rowWidth);
+      }
+      return Math.max(NODE_W, maxRowWidth);
     };
 
-    // Position nodes recursively — parent centered above children
+    // Position nodes recursively — parent centered above children, wrapping rows
     const positionNode = (node: OrgNode, x: number, y: number) => {
       const width = subtreeWidth(node);
-      // This node is centered in its subtree's width
       positions[node.id] = { x: x + width / 2, y };
 
       if (!collapsedIds.has(node.id) && node.children.length > 0) {
-        let childX = x;
-        for (const child of node.children) {
-          const cw = subtreeWidth(child);
-          edges.push({ parentId: node.id, childId: child.id });
-          positionNode(child, childX, y + NODE_H + V_GAP);
-          childX += cw + H_GAP;
+        const rowCount = Math.ceil(node.children.length / MAX_CHILDREN_PER_ROW);
+        let rowY = y + NODE_H + V_GAP;
+        for (let r = 0; r < rowCount; r++) {
+          const rowChildren = node.children.slice(r * MAX_CHILDREN_PER_ROW, (r + 1) * MAX_CHILDREN_PER_ROW);
+          const rowWidth = rowChildren.reduce((sum, c) => sum + subtreeWidth(c), 0) + (rowChildren.length - 1) * H_GAP;
+          // Center row under parent
+          let childX = x + (width - rowWidth) / 2;
+          for (const child of rowChildren) {
+            const cw = subtreeWidth(child);
+            edges.push({ parentId: node.id, childId: child.id });
+            positionNode(child, childX, rowY);
+            childX += cw + H_GAP;
+          }
+          // Calculate the max depth of this row's subtrees for the next row offset
+          let maxRowDepth = NODE_H;
+          const rowSubtreeDepth = (n: OrgNode): number => {
+            if (collapsedIds.has(n.id) || n.children.length === 0) return NODE_H;
+            const childRows = Math.ceil(n.children.length / MAX_CHILDREN_PER_ROW);
+            let maxChildDepth = 0;
+            for (const c of n.children) {
+              if (!collapsedIds.has(n.id)) maxChildDepth = Math.max(maxChildDepth, rowSubtreeDepth(c));
+            }
+            return NODE_H + V_GAP + (childRows - 1) * (NODE_H + V_GAP) + maxChildDepth;
+          };
+          for (const child of rowChildren) {
+            maxRowDepth = Math.max(maxRowDepth, rowSubtreeDepth(child));
+          }
+          rowY += maxRowDepth + V_GAP;
         }
       }
     };
 
-    // Position all roots side by side
-    let rootX = 0;
-    for (const root of displayTree) {
-      positionNode(root, rootX, 0);
-      rootX += subtreeWidth(root) + H_GAP * 2;
+    // If multiple roots, create a virtual root so they stack under one center point
+    if (displayTree.length > 1) {
+      // Treat all roots as children of a virtual top node — lay them out in wrapped rows
+      const rowCount = Math.ceil(displayTree.length / MAX_CHILDREN_PER_ROW);
+      let rowY = 0;
+      for (let r = 0; r < rowCount; r++) {
+        const rowRoots = displayTree.slice(r * MAX_CHILDREN_PER_ROW, (r + 1) * MAX_CHILDREN_PER_ROW);
+        const rowWidth = rowRoots.reduce((sum, c) => sum + subtreeWidth(c), 0) + (rowRoots.length - 1) * H_GAP;
+        let childX = -rowWidth / 2;
+        for (const root of rowRoots) {
+          const cw = subtreeWidth(root);
+          positionNode(root, childX, rowY);
+          childX += cw + H_GAP;
+        }
+        rowY += NODE_H + V_GAP;
+        // Add extra space for any expanded subtrees
+        let maxSubDepth = NODE_H;
+        for (const root of rowRoots) {
+          if (!collapsedIds.has(root.id) && root.children.length > 0) {
+            maxSubDepth = Math.max(maxSubDepth, NODE_H + V_GAP + Math.ceil(root.children.length / MAX_CHILDREN_PER_ROW) * (NODE_H + V_GAP));
+          }
+        }
+        rowY += maxSubDepth;
+      }
+    } else if (displayTree.length === 1) {
+      positionNode(displayTree[0], 0, 0);
     }
 
     // Calculate bounds
@@ -333,7 +381,30 @@ function OrgChartBuilder({ employees, jobs }: { employees: Employee[]; jobs: Job
     return { positions, edges, totalWidth, totalHeight, offsetX };
   }, [displayTree, collapsedIds]);
 
+  // Fit-to-screen: calculate zoom so the full tree fits the viewport
+  const fitToScreen = useCallback(() => {
+    if (!canvasRef.current || layoutData.totalWidth <= 0) { setZoom(0.7); setPan({ x: 0, y: 0 }); return; }
+    const rect = canvasRef.current.getBoundingClientRect();
+    const zx = (rect.width - 40) / layoutData.totalWidth;
+    const zy = (rect.height - 40) / layoutData.totalHeight;
+    const newZoom = Math.max(0.3, Math.min(1, Math.min(zx, zy)));
+    setZoom(newZoom);
+    setPan({ x: 0, y: 0 });
+  }, [layoutData.totalWidth, layoutData.totalHeight]);
+
+  // Auto-fit on first render after layout is computed
+  const autoFitRef = React.useRef(false);
+  React.useEffect(() => {
+    if (layoutData.totalWidth > 0 && !autoFitRef.current && canvasRef.current) {
+      autoFitRef.current = true;
+      requestAnimationFrame(() => fitToScreen());
+    }
+  }, [layoutData.totalWidth, fitToScreen]);
+
   if (!employees.length) return <div className="text-center py-20"><div className="text-[40px] mb-3">🏢</div><div className="text-[15px] font-semibold text-[var(--text-primary)] mb-1">No Employee Data</div><div className="text-[14px] text-[var(--text-muted)]">Upload workforce data with Manager ID fields to generate the org chart.</div></div>;
+
+  // Graceful empty state for when data exists but tree is empty (filter mismatch)
+  if (!displayTree.length) return <div className="text-center py-20"><div className="text-[40px] mb-3">🔍</div><div className="text-[15px] font-semibold text-[var(--text-primary)] mb-1">No Matching Employees</div><div className="text-[14px] text-[var(--text-muted)]">Adjust your filters to see the org hierarchy.</div></div>;
 
   return <div className="animate-tab-enter">
     {/* Toolbar */}
@@ -530,7 +601,7 @@ function JobProfileLibrary({ jobs, model }: { jobs: Job[]; model: string }) {
       const raw = await callAI("You are an HR expert. Generate realistic, specific job profiles — not generic descriptions.", prompt);
       const parsed = JSON.parse(raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim());
       if (parsed.purpose) setProfiles(prev => ({ ...prev, [job.id]: { ...emptyProfile, ...parsed } }));
-    } catch { showToast("Generation failed — try again"); }
+    } catch { showToast("Couldn't generate content — try again in a moment"); }
     setGenerating(false);
   };
 
@@ -787,7 +858,7 @@ function JobEvaluationTab({ jobs, model }: { jobs: Job[]; model: string }) {
         setScores(newScores);
         showToast(`Evaluated ${parsed.results.length} roles`);
       }
-    } catch { showToast("AI evaluation failed"); }
+    } catch { showToast("AI evaluation didn't complete — try again"); }
     setAiEvalLoading(false);
   };
 
@@ -915,7 +986,7 @@ function CareerLatticeTab({ jobs, model }: { jobs: Job[]; model: string }) {
       const raw = await callAI("Return ONLY valid JSON.", `For "${selectedJob.title}" (${selectedJob.track} ${selectedJob.level} in ${selectedJob.function}), identify career moves from this list: ${allTitles.slice(0, 2000)}. Return JSON: {"nextMoves":["3 promotion titles"],"lateralMoves":["2 lateral same-level titles"],"crossTrack":["2 cross-track titles"]}`);
       const parsed = JSON.parse(raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim());
       if (parsed.nextMoves) setPathData(prev => ({ ...prev, [selectedJob.id]: parsed }));
-    } catch { showToast("Path generation failed"); }
+    } catch { showToast("Couldn't compute the career path — try again"); }
     setAiGenerating(false);
   };
 
@@ -1160,7 +1231,7 @@ function JAIntelligenceTab({ jobs, employees, model }: { jobs: Job[]; employees:
       const raw = await callAI("Return ONLY valid JSON array.", `Analyze these roles and generate 5 intelligence insights about the job architecture. Types: "evolution" (role changing), "emerging" (new role needed), "convergence" (roles merging), "compression" (role at risk), "drift" (architecture misalignment). Each: {"type":"...","severity":"urgent|watch|opportunity","title":"...","body":"2 sentences","affected":N,"action":"recommended action"}. Roles: ${jobSummary}`);
       const parsed = JSON.parse(raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim());
       if (Array.isArray(parsed)) setAiInsights(parsed.map((p: Record<string, unknown>, i: number) => ({ ...p, id: `ins_${i}` })) as typeof aiInsights);
-    } catch { showToast("Insight generation failed"); }
+    } catch { showToast("Couldn't generate insights — try again in a moment"); }
     setAiLoading(false);
   };
 
@@ -1803,7 +1874,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
                   if (!active || !payload?.[0]) return null;
                   const d = payload[0].payload;
                   const pct = totalHC > 0 ? ((d.headcount / totalHC) * 100).toFixed(1) : "0";
-                  return <div style={{ background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 10, padding: "10px 14px", boxShadow: "0 8px 24px rgba(0,0,0,0.3)" }}>
+                  return <div style={{ background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 10, padding: "10px 14px", boxShadow: "var(--shadow-3)" }}>
                     <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", marginBottom: 4 }}>{d.family}</div>
                     <div style={{ fontSize: 15, color: "var(--text-secondary)" }}>{d.headcount.toLocaleString()} employees ({pct}%)</div>
                     <div style={{ fontSize: 15, color: "var(--text-muted)" }}>{d.roles} unique roles</div>

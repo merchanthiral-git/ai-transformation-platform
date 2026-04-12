@@ -365,7 +365,7 @@ class DataStore:
         self.__init__()
 
     # ---- INGESTION ----
-    def process_uploads(self, file_list):
+    def process_uploads(self, file_list, user_id: str = ""):
         summary = []
         for fname, content_bytes in file_list:
             sheets = _load_excel_or_csv(content_bytes, fname)
@@ -382,6 +382,9 @@ class DataStore:
                     raw_df["Model ID"] = fallback
                 for mid in mids:
                     mid = str(mid).strip() or fallback
+                    # Scope to user
+                    if user_id and not mid.startswith(f"{user_id}:"):
+                        mid = f"{user_id}:{mid}"
                     sub = raw_df[get_series(raw_df, "Model ID").astype(str).str.strip() == mid].copy()
                     self.raw_uploads.append({"id": str(uuid.uuid4())[:8], "file": fname, "sheet": sname,
                                              "type": dtype, "model_id": mid, "rows": len(sub)})
@@ -427,6 +430,7 @@ class DataStore:
 
     # ---- DERIVED VIEWS ----
     def get_bundle(self, model_id):
+        model_id = self.resolve_model_id(model_id)
         self.ensure_model_bundle(model_id)
         return self.datasets[model_id]
 
@@ -458,7 +462,27 @@ class DataStore:
         org = bundle.get("org_design", pd.DataFrame())
         return org if not org.empty else bundle.get("workforce", pd.DataFrame()).copy()
 
+    def resolve_model_id(self, model_id: str, user_id: str = "") -> str:
+        """Resolve display model_id to internal scoped model_id.
+        Tries user_id:model_id first, then model_id as-is, then any user-scoped match."""
+        if not model_id:
+            return model_id
+        # Direct match
+        if model_id in self.datasets:
+            return model_id
+        # Try user-scoped
+        if user_id:
+            scoped = f"{user_id}:{model_id}"
+            if scoped in self.datasets:
+                return scoped
+        # Try finding any scoped version (for routes that don't have user context)
+        for key in self.datasets:
+            if key.endswith(f":{model_id}"):
+                return key
+        return model_id
+
     def get_filtered_data(self, model_id, filters):
+        model_id = self.resolve_model_id(model_id)
         if not model_id or model_id not in self.datasets:
             return {k: pd.DataFrame() for k in SCHEMAS}
         bundle = self.get_bundle(model_id)

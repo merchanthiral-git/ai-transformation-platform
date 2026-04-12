@@ -52,7 +52,7 @@ import { ImpactSimulator } from "./components/SimulateModule";
 
 import {
   ChangePlanner, ReskillingPathways, TalentMarketplace,
-  TransformationStoryBuilder, ReadinessArchetypes,
+  TransformationStoryBuilder, ReadinessArchetypes, SkillsNetwork,
 } from "./components/MobilizeModule";
 
 import { ExportReport } from "./components/ExportModule";
@@ -60,6 +60,11 @@ import { ExportReport } from "./components/ExportModule";
 import { JobArchitectureModule } from "./components/JobArchModule";
 import { PlatformHub } from "./components/PlatformHub";
 import { AgentOrchestrator } from "./components/AgentPanel";
+import { NLQBar } from "./components/NLQBar";
+import { FlightRecorder } from "./components/FlightRecorder";
+import { Tutorial } from "./components/Tutorial";
+import { VideoBackground } from "./components/VideoBackground";
+import { useAnimatedBg } from "../lib/animated-bg-context";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
@@ -756,6 +761,7 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
    ═══════════════════════════════════════════════════════════════ */
 function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowProfile, onShowPlatformHub }: { projectId: string; projectName: string; projectMeta: string; onBackToHub: () => void; user?: authApi.AuthUser; onShowProfile?: () => void; onShowPlatformHub?: () => void }) {
   const { theme, toggle: toggleTheme } = useTheme();
+  const animatedBg = useAnimatedBg();
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showCmdPalette, setShowCmdPalette] = useState(false);
   const [cmdRecentIds, setCmdRecentIds] = usePersisted<string[]>(`${projectId}_cmd_recent`, []);
@@ -1149,6 +1155,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
     { key: "/", ctrl: true, label: "Show keyboard shortcuts", action: () => setShowShortcuts(true), category: "Tools" },
     { key: "?", label: "Show keyboard shortcuts", action: () => setShowShortcuts(true), category: "Tools" },
     { key: "f", ctrl: true, label: "Focus search/filter", action: () => { const el = document.querySelector<HTMLInputElement>("input[placeholder*='earch'], input[placeholder*='ilter']"); if (el) el.focus(); }, category: "Tools" },
+    { key: "s", ctrl: true, label: "Save current state", action: () => { showToast("State saved"); }, category: "Tools" },
   ], [navigate, setPage, toggleTheme, showShortcuts, showImportWizard, showCmdPalette, page]); // eslint-disable-line react-hooks/exhaustive-deps
   useKeyboardShortcuts(shortcutDefs);
 
@@ -1249,7 +1256,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
   // ── Landing splash screen — pure full-screen background image, click to enter ──
   if (showSplash && page === "home") {
     return <div onClick={() => { setShowSplash(false); try { sessionStorage.setItem(`${projectId}_splashSeen`, "1"); } catch {} }} style={{ position: "fixed", inset: 0, cursor: "pointer", zIndex: 30 }}>
-      <div style={{ position: "absolute", inset: 0, backgroundImage: "url(/landing_bg.png)", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat", animation: "splashIn 0.8s ease" }} />
+      <VideoBackground name="landing_bg" overlay={0.15} poster="/landing_bg.png" fallbackGradient="linear-gradient(135deg, #0B1120 0%, #0c1e3a 100%)" className="absolute inset-0" />
       <style>{`@keyframes splashIn { from { opacity: 0; } to { opacity: 1; } }`}</style>
     </div>;
   }
@@ -1430,7 +1437,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       </div>
     </div>}
 
-    <aside className={`w-[220px] min-h-screen bg-[var(--surface-1)] flex flex-col px-4 py-5 shrink-0 overflow-y-auto sticky top-0 border-r border-[var(--border)] transition-all duration-300 ${presentMode ? "-ml-[220px] opacity-0 pointer-events-none" : ""}`} style={{ height: "100vh" }}>
+    <aside className="min-h-screen bg-[var(--surface-1)] flex flex-col px-4 py-5 shrink-0 overflow-y-auto sticky top-0 border-r border-[var(--border)] transition-all duration-300" style={{ width: "var(--sidebar-width)", height: "100vh", ...(presentMode ? { marginLeft: "calc(var(--sidebar-width) * -1)", opacity: 0, pointerEvents: "none" } : {}) }}>
       <div className="flex items-center justify-between mb-1">
         <div className="cursor-pointer" onClick={goHome}><div className="text-sm font-extrabold text-[var(--text-primary)]">AI Transformation</div><div className="text-[15px] font-semibold text-[var(--accent-primary)] uppercase tracking-[1.5px]">PLATFORM</div></div>
         <ThemeToggle theme={theme} onToggle={toggleTheme} />
@@ -1458,7 +1465,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       <a href="/api/template" download className="block w-full bg-[var(--surface-3)] hover:bg-[var(--hover)] border border-[var(--accent-primary)] text-[var(--accent-primary)] text-[15px] font-semibold py-1.5 rounded-md mb-1.5 text-center no-underline">⬇ Export Template</a>
       <button onClick={reset} className="w-full bg-[var(--surface-2)] hover:bg-[var(--hover)] border border-[var(--border)] text-[var(--text-secondary)] text-[15px] font-semibold py-1 rounded-md">Reset</button>
       {msg && <div className="mt-1.5 text-[15px] text-[var(--accent-primary)] bg-[rgba(212,134,10,0.1)] rounded px-2 py-1">{msg}</div>}
-      {!backendOk && <div className="mt-1.5 text-[15px] text-[var(--risk)] bg-[rgba(239,68,68,0.1)] rounded px-2 py-1.5 border border-[var(--risk)]/20">⚠ Backend offline<br/><span className="text-[15px] text-[var(--text-muted)]">Run: uvicorn main:app --port 8000</span></div>}
+      {!backendOk && <div className="mt-1.5 text-[15px] text-[var(--risk)] bg-[rgba(239,68,68,0.1)] rounded px-2 py-1.5 border border-[var(--risk)]/20">⚠ Can't reach the server<br/><span className="text-[15px] text-[var(--text-muted)]">Start the backend: cd backend && python3 main.py</span></div>}
       {backendOk && model && <div className="mt-1.5 text-[15px] text-[var(--success)] bg-[rgba(16,185,129,0.1)] rounded px-2 py-1">✓ Connected · {model}</div>}
       <div className="h-px bg-[var(--border)] my-3" />
       {viewMode !== "employee" && <><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-[1.2px] mb-2">Model</div>
@@ -1499,6 +1506,9 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
         <button onClick={() => setShowAnnoPanel(!showAnnoPanel)} className={`w-full text-left px-2 py-1.5 rounded-lg text-[15px] mb-1 flex items-center gap-2 transition-all ${showAnnoPanel ? "bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] font-semibold" : "text-[var(--text-muted)] hover:bg-[var(--hover)]"}`}>
           <span className="text-[15px]">📋</span> Notes {annotations.length > 0 && <span className="text-[14px] px-1.5 py-0.5 rounded-full bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] font-bold">{annotations.length}</span>}
         </button>
+        <button onClick={() => navigate("flightrecorder")} className={`w-full text-left px-2 py-1.5 rounded-lg text-[15px] mb-1 flex items-center gap-2 transition-all ${page === "flightrecorder" ? "bg-[rgba(212,134,10,0.08)] text-[var(--accent-primary)] font-semibold" : "text-[var(--text-muted)] hover:bg-[var(--hover)]"}`}>
+          <span className="text-[15px]">🛫</span> Flight Recorder
+        </button>
         <button onClick={() => setShowDecLog(!showDecLog)} className={`w-full text-left px-2 py-1.5 rounded-lg text-[15px] mb-1 flex items-center gap-2 transition-all ${showDecLog ? "bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] font-semibold" : "text-[var(--text-muted)] hover:bg-[var(--hover)]"}`}>
           <span className="text-[15px]">📝</span> Decision Log {decisionLog.length > 0 && <span className="text-[14px] px-1.5 py-0.5 rounded-full bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] font-bold">{decisionLog.length}</span>}
         </button>
@@ -1514,7 +1524,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       {/* Account controls — anchored at sidebar bottom */}
       <div className="pt-3 border-t border-[var(--border)] relative" ref={accountMenuRef}>
         {/* Dropdown menu — pops upward */}
-        {accountMenuOpen && <div style={{ position: "absolute", bottom: "100%", left: 0, right: 0, marginBottom: 8, borderRadius: 14, background: "rgba(15,12,8,0.95)", backdropFilter: "blur(20px)", border: "1px solid rgba(212,134,10,0.12)", boxShadow: "0 -8px 32px rgba(0,0,0,0.4)", padding: "6px", zIndex: 50, animation: "menuFadeIn 0.15s ease" }}>
+        {accountMenuOpen && <div style={{ position: "absolute", bottom: "100%", left: 0, right: 0, marginBottom: 8, borderRadius: 14, background: "rgba(15,12,8,0.95)", backdropFilter: "blur(20px)", border: "1px solid rgba(212,134,10,0.12)", boxShadow: "var(--shadow-4)", padding: "6px", zIndex: 50, animation: "menuFadeIn 0.15s ease" }}>
           {[
             { icon: "👤", label: "My Account", action: () => { setAccountMenuOpen(false); if (onShowPlatformHub) onShowPlatformHub(); } },
             { icon: "🏠", label: "Platform Hub", action: () => { setAccountMenuOpen(false); if (onShowPlatformHub) onShowPlatformHub(); } },
@@ -1523,6 +1533,16 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
           ].map(item => <button key={item.label} onClick={item.action} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[15px] font-semibold text-[var(--text-secondary)] transition-all" style={{ background: "transparent" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(212,134,10,0.08)"; e.currentTarget.style.color = "#f5e6d0"; }} onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}>
             <span className="text-[15px]">{item.icon}</span>{item.label}
           </button>)}
+          <div className="h-px mx-2 my-1" style={{ background: "rgba(212,134,10,0.1)" }} />
+          {/* Animated backgrounds toggle */}
+          <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg" title={animatedBg.forced ? animatedBg.forceReason : undefined} style={{ opacity: animatedBg.forced ? 0.4 : 1 }}>
+            <span className="text-[15px]">🎬</span>
+            <span className="text-[14px] text-[var(--text-secondary)] flex-1">Animated BGs</span>
+            <button onClick={animatedBg.toggle} disabled={animatedBg.forced} className="w-8 h-4 rounded-full transition-all relative" style={{ background: animatedBg.enabled ? "var(--accent-primary)" : "var(--surface-3)", border: "1px solid var(--border)", cursor: animatedBg.forced ? "not-allowed" : "pointer" }}>
+              <div className="w-3 h-3 rounded-full bg-white absolute top-0.5 transition-all" style={{ left: animatedBg.enabled ? 16 : 1 }} />
+            </button>
+          </div>
+          {animatedBg.forced && <div className="px-3 pb-1 text-[10px] text-[var(--text-muted)] italic">{animatedBg.forceReason}</div>}
           <div className="h-px mx-2 my-1" style={{ background: "rgba(212,134,10,0.1)" }} />
           <button onClick={() => { setAccountMenuOpen(false); authApi.logout(); }} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[15px] font-semibold text-[var(--text-muted)] transition-all" style={{ background: "transparent" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(239,68,68,0.08)"; e.currentTarget.style.color = "#ef4444"; }} onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-muted)"; }}>
             <span className="text-[15px]">🚪</span>Sign Out
@@ -1553,7 +1573,8 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       {page === "home" && <div>
         <LandingPage onNavigate={navigate} moduleStatus={moduleStatus} hasData={hasData} viewMode={viewMode} projectName={projectName} onBackToHub={onBackToHub} onBackToSplash={() => { setShowSplash(true); try { sessionStorage.removeItem(`${projectId}_splashSeen`); } catch {} }} cardBackgrounds={cardBgs} phaseBackgrounds={phaseBgs} />
       </div>}
-      {page !== "home" && <div className="px-7 py-6" style={{ paddingBottom: 80 }}>
+      {page !== "home" && <div style={{ padding: "var(--space-6) var(--space-8)", paddingBottom: 80 }}>
+      {model && <NLQBar projectId={projectId} modelId={model} currentModule={page} />}
       {page === "snapshot" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><WorkforceSnapshot model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {(page === "jobs" || page === "jobarch") && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><JobArchitectureModule model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "scan" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><AiOpportunityScan model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
@@ -1574,6 +1595,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       {page === "headcount" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><HeadcountPlanning model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
       {page === "reskill" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ReskillingPathways model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "marketplace" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><TalentMarketplace model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
+      {page === "skillnet" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><SkillsNetwork model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
       {page === "skills" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><SkillsTalent model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "design" && model && viewCtx.mode !== "employee" && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><WorkDesignLab model={model} f={f} job={viewCtx.mode === "job" ? viewCtx.job || job : job} jobs={jobs} onBack={goHome} jobStates={jobStates} setJobState={setJobState} onSelectJob={setJob} /></ErrorBoundary>}
       {page === "simulate" && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ImpactSimulator onBack={goHome} onNavigate={navigate} model={model} viewCtx={viewCtx} f={f} jobStates={jobStates} simState={simState} setSimState={setSimState} /></ErrorBoundary>}
@@ -1586,7 +1608,8 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       {page === "om_canvas" && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><OMDesignCanvas projectId={projectId} onBack={goHome} onNavigateLab={() => navigate("opmodel")} /></ErrorBoundary>}
       {page === "rolecompare" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><RoleComparison model={model} f={f} onBack={goHome} jobs={jobs} jobStates={jobStates} /></ErrorBoundary>}
       {page === "quickwins" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><QuickWinIdentifier model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
-      {!model && page !== "home" && <div className="text-center py-20"><div className="text-4xl mb-3 opacity-30">📂</div><h3 className="text-lg font-semibold mb-1">Select a model first</h3><p className="text-[15px] text-[var(--text-secondary)]">Upload data or select Demo_Model in the sidebar.</p><button onClick={goHome} className="mt-4 text-[var(--accent-primary)] text-[15px] font-semibold">← Back to Home</button></div>}
+      {page === "flightrecorder" && <FlightRecorder projectId={projectId} projectName={projectName} onBack={goHome} />}
+      {!model && page !== "home" && page !== "flightrecorder" && <div className="text-center py-20"><div className="text-4xl mb-3 opacity-30">📂</div><h3 className="text-lg font-semibold mb-1">Select a model first</h3><p className="text-[15px] text-[var(--text-secondary)]">Upload data or select Demo_Model in the sidebar.</p><button onClick={goHome} className="mt-4 text-[var(--accent-primary)] text-[15px] font-semibold">← Back to Home</button></div>}
       </div>}
       </motion.div>
       </AnimatePresence>
@@ -2134,7 +2157,7 @@ function TutorialOverlay({ step, totalSteps, steps, onNext, onPrev, onClose, onJ
 function TutorialBadge({ onClick, step, total }: { onClick: () => void; step: number; total: number }) {
   const pct = Math.round(((step + 1) / total) * 100);
   const isComplete = step >= total - 1;
-  return <button onClick={onClick} style={{ position: "fixed", bottom: 56, right: 16, zIndex: 35, padding: "8px 14px", borderRadius: 14, fontSize: 14, fontWeight: 700, cursor: "pointer", background: "rgba(15,12,8,0.92)", backdropFilter: "blur(16px)", border: "1px solid rgba(212,134,10,0.15)", color: "#E09040", display: "flex", alignItems: "center", gap: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.3)", transition: "all 0.3s" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.35)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.15)"; }}>
+  return <button onClick={onClick} style={{ position: "fixed", bottom: 56, right: 16, zIndex: 35, padding: "8px 14px", borderRadius: 14, fontSize: 14, fontWeight: 700, cursor: "pointer", background: "rgba(15,12,8,0.92)", backdropFilter: "blur(16px)", border: "1px solid rgba(212,134,10,0.15)", color: "#E09040", display: "flex", alignItems: "center", gap: 8, boxShadow: "var(--shadow-2)", transition: "all 0.3s" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.35)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.15)"; }}>
     <span>{isComplete ? "📖" : "🎓"}</span>
     <span>{isComplete ? "Guide" : "Tutorial"}</span>
     {!isComplete && <><span style={{ fontSize: 13, opacity: 0.5 }}>{pct}%</span><div style={{ width: 28, height: 3, borderRadius: 2, background: "rgba(212,134,10,0.15)", overflow: "hidden" }}><div style={{ width: `${pct}%`, height: "100%", background: "#D4860A", borderRadius: 2 }} /></div></>}
@@ -2153,7 +2176,7 @@ function TutorialBadge({ onClick, step, total }: { onClick: () => void; step: nu
 /* ═══════════════════════════════════════════════════════════════
    PROJECT HUB
    ═══════════════════════════════════════════════════════════════ */
-function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: string; meta: string }) => void }) {
+function ProjectHub({ onOpenProject, onStartTutorial, onOpenSandbox, showSandboxPicker, onCloseSandbox }: { onOpenProject: (p: { id: string; name: string; meta: string }) => void; onStartTutorial?: () => void; onOpenSandbox?: () => void; showSandboxPicker?: boolean; onCloseSandbox?: () => void }) {
   const [projects, setProjects] = useState<{ id: string; name: string; meta: string; client?: string; industry?: string; size?: string; lead?: string; created: string; status: string }[]>(() => {
     if (typeof window === "undefined") return [];
     try { const saved = localStorage.getItem("hub_projects"); if (saved) return JSON.parse(saved); } catch {}
@@ -2244,7 +2267,7 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
   if (sandboxOpen) {
     return <div style={{ position: "fixed", inset: 0, overflow: "hidden", background: "#0B1120" }}>
       {/* Full-bleed storefront background */}
-      <div style={{ position: "absolute", inset: 0, backgroundImage: "url(/sandbox_bg.png), linear-gradient(160deg, #0B1120 0%, #1a1a30 40%, #12182a 100%)", backgroundSize: "cover, cover", backgroundPosition: "center 60%, center center", backgroundRepeat: "no-repeat, no-repeat" }} />
+      <VideoBackground name="sandbox_bg" overlay={0.2} poster="/sandbox_bg.png" fallbackGradient="linear-gradient(160deg, #0B1120 0%, #1a1a30 40%, #12182a 100%)" className="absolute inset-0" />
       <div style={{ position: "absolute", inset: 0, background: sandboxPanelOpen ? "rgba(8,12,24,0.55)" : "radial-gradient(ellipse at 35% 40%, rgba(8,12,24,0.1) 0%, rgba(8,12,24,0.35) 50%, rgba(8,12,24,0.6) 100%)", transition: "background 0.5s ease" }} />
 
       {/* Back button */}
@@ -2316,8 +2339,8 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
   }
 
   return <div style={{ position: "fixed", inset: 0, overflow: "auto", background: "#0B1120" }}>
-    {/* Full-bleed background */}
-    <div style={{ position: "absolute", inset: 0, backgroundImage: "url(/hero_bg.png), linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 65%, #0a0f1a 100%)", backgroundSize: "cover, cover", backgroundPosition: "center center, center center", backgroundRepeat: "no-repeat, no-repeat", width: "100vw", height: "100vh" }} />
+    {/* Full-bleed background — video-ready */}
+    <VideoBackground name="hero_bg" overlay={0.35} poster="/hero_bg.png" fallbackGradient="linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 65%, #0a0f1a 100%)" className="absolute inset-0 w-screen h-screen" />
     <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(11,17,32,0.25) 0%, rgba(11,17,32,0.45) 40%, rgba(11,17,32,0.7) 100%)", width: "100vw", height: "100vh" }} />
 
     {/* Content */}
@@ -2329,20 +2352,44 @@ function ProjectHub({ onOpenProject }: { onOpenProject: (p: { id: string; name: 
 
       {/* Three-section layout */}
       <div style={{ maxWidth: 900, width: "100%" }}>
-        {/* Top row: Sandbox + New Project */}
-        <div className="flex gap-5 justify-center mb-8">
-          {/* Sandbox card */}
-          <div onClick={() => setSandboxOpen(true)} style={{ width: 380, minHeight: 180, borderRadius: 22, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, transition: "all 0.35s cubic-bezier(0.16,1,0.3,1)", background: "linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.08))", backdropFilter: "blur(20px)", border: "1px solid rgba(139,92,246,0.2)", position: "relative", overflow: "hidden" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-6px) scale(1.02)"; e.currentTarget.style.boxShadow = "0 24px 60px rgba(99,102,241,0.15)"; e.currentTarget.style.borderColor = "rgba(139,92,246,0.4)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.borderColor = "rgba(139,92,246,0.2)"; }}>
-            <div className="text-4xl" style={{ filter: "drop-shadow(0 2px 8px rgba(139,92,246,0.3))" }}>🎓</div>
-            <div className="text-[18px] font-bold text-white">Sandbox</div>
-            <div className="text-[15px]" style={{ color: "rgba(200,180,255,0.4)" }}>24 real companies · 8 industries</div>
-          </div>
+        {/* Top row: Tutorial + Sandbox */}
+        <div className="grid grid-cols-2 gap-4 mb-4" style={{ maxWidth: 780 }}>
+          {/* Tutorial card */}
+          {(() => { const completed = typeof window !== "undefined" && localStorage.getItem("tutorial_completed") === "true"; return <div onClick={() => onStartTutorial?.()} style={{ borderRadius: 18, cursor: "pointer", padding: "24px 28px", transition: "all 0.3s", background: "linear-gradient(135deg, rgba(59,130,246,0.1), rgba(99,102,241,0.06))", backdropFilter: "blur(20px)", border: "1px solid rgba(59,130,246,0.2)" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.borderColor = "rgba(59,130,246,0.4)"; e.currentTarget.style.boxShadow = "0 12px 40px rgba(59,130,246,0.12)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "rgba(59,130,246,0.2)"; e.currentTarget.style.boxShadow = "none"; }}>
+            <div className="flex items-center gap-3 mb-2">
+              <span className="text-2xl">🎓</span>
+              <div>
+                <div className="text-[16px] font-bold text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>Platform Tutorial</div>
+                <div className="text-[13px]" style={{ color: "rgba(147,197,253,0.6)" }}>Learn how the platform works — no data needed</div>
+              </div>
+              <span className="ml-auto px-2 py-0.5 rounded-full text-[11px] font-bold" style={{ background: "rgba(59,130,246,0.15)", color: "#60a5fa" }}>~8 min</span>
+            </div>
+            <div className="text-[13px] font-semibold" style={{ color: "#60a5fa" }}>{completed ? "✓ Completed · Retake Tutorial →" : "Start Tutorial →"}</div>
+          </div>; })()}
 
-          {/* New Project card */}
-          <div onClick={() => setModalOpen(true)} style={{ width: 380, minHeight: 180, borderRadius: 22, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, transition: "all 0.35s cubic-bezier(0.16,1,0.3,1)", background: "rgba(255,230,200,0.1)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,200,150,0.15)", position: "relative", overflow: "hidden" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-6px) scale(1.02)"; e.currentTarget.style.boxShadow = "0 24px 60px rgba(0,0,0,0.2)"; e.currentTarget.style.background = "rgba(255,230,200,0.18)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.background = "rgba(255,230,200,0.1)"; }}>
-            <div className="text-4xl" style={{ filter: "drop-shadow(0 2px 8px rgba(200,120,40,0.3))" }}>✨</div>
-            <div className="text-[18px] font-bold text-white">New Project</div>
-            <div className="text-[15px]" style={{ color: "rgba(255,220,180,0.4)" }}>Start a transformation</div>
+          {/* Sandbox card */}
+          <div onClick={() => onOpenSandbox?.()} style={{ borderRadius: 18, cursor: "pointer", padding: "24px 28px", transition: "all 0.3s", background: "linear-gradient(135deg, rgba(249,115,22,0.1), rgba(234,88,12,0.06))", backdropFilter: "blur(20px)", border: "1px solid rgba(249,115,22,0.2)" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.borderColor = "rgba(249,115,22,0.4)"; e.currentTarget.style.boxShadow = "0 12px 40px rgba(249,115,22,0.12)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "rgba(249,115,22,0.2)"; e.currentTarget.style.boxShadow = "none"; }}>
+            <div className="flex items-center gap-3 mb-2">
+              <span className="text-2xl">🧪</span>
+              <div>
+                <div className="text-[16px] font-bold text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>Data Sandbox</div>
+                <div className="text-[13px]" style={{ color: "rgba(251,191,36,0.6)" }}>Explore with pre-built company datasets</div>
+              </div>
+              <span className="ml-auto px-2 py-0.5 rounded-full text-[11px] font-bold" style={{ background: "rgba(249,115,22,0.15)", color: "#f97316" }}>24 companies</span>
+            </div>
+            <div className="text-[13px] font-semibold" style={{ color: "#f97316" }}>Open Sandbox →</div>
+          </div>
+        </div>
+
+        {/* Second row: New Project */}
+        <div className="flex gap-4 mb-6" style={{ maxWidth: 780 }}>
+          <div onClick={() => setModalOpen(true)} style={{ flex: 1, borderRadius: 14, cursor: "pointer", padding: "16px 24px", transition: "all 0.3s", background: "rgba(255,230,200,0.06)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,200,150,0.12)", display: "flex", alignItems: "center", gap: 12 }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = "rgba(224,144,64,0.3)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "rgba(255,200,150,0.12)"; }}>
+            <span className="text-xl">✨</span>
+            <div>
+              <div className="text-[15px] font-bold text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>New Project</div>
+              <div className="text-[12px]" style={{ color: "rgba(255,220,180,0.4)" }}>Start from scratch with your own data</div>
+            </div>
+            <span className="ml-auto text-[13px] font-semibold" style={{ color: "#e09040" }}>Create →</span>
           </div>
         </div>
 
@@ -2612,10 +2659,10 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
   if (successUser) {
     return (
       <div style={{ position: "fixed", inset: 0, zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ position: "absolute", inset: 0, backgroundImage: "url(/login_bg.png), linear-gradient(135deg, #1a1208 0%, #2a1a0a 30%, #0f0d08 70%, #1a1510 100%)", backgroundSize: "cover, cover", backgroundPosition: "center center, center center", backgroundRepeat: "no-repeat, no-repeat" }} />
+        <VideoBackground name="login_bg" overlay={0.5} poster="/login_bg.png" fallbackGradient="linear-gradient(135deg, #1a1208 0%, #2a1a0a 30%, #0f0d08 70%, #1a1510 100%)" className="absolute inset-0" />
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, rgba(10,8,5,0.3) 0%, rgba(10,8,5,0.75) 100%)" }} />
         <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 420, padding: "0 24px", textAlign: "center" }}>
-          <div style={{ background: "rgba(15,12,8,0.7)", backdropFilter: "blur(30px)", borderRadius: 24, border: "1px solid rgba(255,255,255,0.1)", padding: "40px 32px", boxShadow: "0 32px 100px rgba(0,0,0,0.6)" }}>
+          <div style={{ background: "rgba(15,12,8,0.7)", backdropFilter: "blur(30px)", borderRadius: 24, border: "1px solid rgba(255,255,255,0.1)", padding: "40px 32px", boxShadow: "var(--shadow-4)" }}>
             <div style={{ fontSize: 48, marginBottom: 16 }}>🎉</div>
             <h2 style={{ fontSize: 22, fontWeight: 700, color: "#f5e6d0", marginBottom: 8, fontFamily: "'Outfit', sans-serif" }}>Welcome, {successUser.display_name || successUser.username}!</h2>
             <p style={{ fontSize: 15, color: "rgba(255,255,255,0.5)", marginBottom: 28, lineHeight: 1.6 }}>Your account is ready. Start exploring the AI Transformation Platform.</p>
@@ -2637,7 +2684,7 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
 
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <div style={{ position: "absolute", inset: 0, backgroundImage: "url(/login_bg.png), linear-gradient(135deg, #1a1208 0%, #2a1a0a 30%, #0f0d08 70%, #1a1510 100%)", backgroundSize: "cover, cover", backgroundPosition: "center center, center center", backgroundRepeat: "no-repeat, no-repeat" }} />
+      <VideoBackground name="login_bg" overlay={0.5} poster="/login_bg.png" fallbackGradient="linear-gradient(135deg, #1a1208 0%, #2a1a0a 30%, #0f0d08 70%, #1a1510 100%)" className="absolute inset-0" />
       <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, rgba(10,8,5,0.25) 0%, rgba(10,8,5,0.7) 100%)" }} />
 
       <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 400, padding: "0 24px" }}>
@@ -2843,6 +2890,8 @@ export default function Page() {
   const [showProfile, setShowProfile] = useState(false);
   const [sessionWarned, setSessionWarned] = useState(false);
   const [showPlatformHub, setShowPlatformHub] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [showSandboxPicker, setShowSandboxPicker] = useState(false);
 
   // Session management — check for inactivity timeout
   useEffect(() => {
@@ -2920,7 +2969,10 @@ export default function Page() {
   // Platform Hub — accessible from BOTH the project selection page and inside the app
   if (showPlatformHub) return <PlatformHub user={user} onBack={() => setShowPlatformHub(false)} onUpdateUser={u => setUser(u)} />;
 
-  if (!activeProject) return <>{hubAccountBar}{profileModal}<ProjectHub onOpenProject={setActiveProject} /><MusicPlayer projectActive={false} /></>;
+  // Tutorial overlay (standalone, no data needed)
+  if (showTutorial) return <Tutorial onClose={() => setShowTutorial(false)} onGoToSandbox={() => { setShowTutorial(false); setShowSandboxPicker(true); }} onGoToNewProject={() => { setShowTutorial(false); }} />;
+
+  if (!activeProject) return <>{hubAccountBar}{profileModal}<ProjectHub onOpenProject={setActiveProject} onStartTutorial={() => setShowTutorial(true)} onOpenSandbox={() => setShowSandboxPicker(true)} showSandboxPicker={showSandboxPicker} onCloseSandbox={() => setShowSandboxPicker(false)} /><MusicPlayer projectActive={false} /></>;
   return <>{profileModal}<Home key={activeProject.id} projectId={activeProject.id} projectName={activeProject.name} projectMeta={activeProject.meta} onBackToHub={() => setActiveProject(null)} user={user} onShowProfile={() => setShowProfile(true)} onShowPlatformHub={() => setShowPlatformHub(true)} /><MusicPlayer projectActive={true} /></>;
 }
 
@@ -2966,7 +3018,7 @@ function ProfileModal({ user, onClose, onUpdate }: { user: authApi.AuthUser; onC
 
   return <div style={{ position: "fixed", inset: 0, zIndex: 99998, display: "flex", alignItems: "center", justifyContent: "center" }}>
     <div onClick={onClose} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)" }} />
-    <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 420, background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 20, padding: "28px 24px", boxShadow: "0 24px 60px rgba(0,0,0,0.4)" }}>
+    <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 420, background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 20, padding: "28px 24px", boxShadow: "var(--shadow-4)" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
         <h2 className="font-heading" style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>Profile Settings</h2>
         <button onClick={onClose} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 16, cursor: "pointer" }}>✕</button>

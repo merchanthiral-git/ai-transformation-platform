@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import * as api from "../../lib/api";
 import type { Filters } from "../../lib/api";
+import { fmt } from "../../lib/formatters";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Legend, CartesianGrid } from "recharts";
 import {
   ViewContext, COLORS, TT, SPAN_BENCHMARKS,
@@ -53,7 +54,7 @@ export function BBBAFramework({ model, f, onBack, onNavigate }: { model: string;
     {roles.length > 0 && <div className="mb-5">
       <button onClick={() => setShowStratInfo(!showStratInfo)} className="text-[13px] text-[var(--text-muted)] mb-2 hover:text-[var(--accent-primary)]">{showStratInfo ? "▾ Hide" : "▸ Show"} strategy guide</button>
       {showStratInfo && <div className="grid grid-cols-4 gap-3">
-        {strategies.map(s => <div key={s.id} className="rounded-xl p-4" style={{ borderLeft: `3px solid ${s.color}`, background: "var(--surface-1)", boxShadow: "0 1px 6px rgba(0,0,0,0.08)" }}>
+        {strategies.map(s => <div key={s.id} className="rounded-xl p-4" style={{ borderLeft: `3px solid ${s.color}`, background: "var(--surface-1)", boxShadow: "var(--shadow-1)" }}>
           <div className="flex items-center gap-2 mb-2"><span className="text-[20px]">{s.icon}</span><span className="text-[15px] font-bold" style={{ color: s.color }}>{s.id}</span></div>
           <div className="text-[13px] text-[var(--text-secondary)] mb-2">{s.label}</div>
           <div className="text-[12px] text-[var(--success)] mb-0.5">✓ {s.pros}</div>
@@ -68,7 +69,7 @@ export function BBBAFramework({ model, f, onBack, onNavigate }: { model: string;
     {roles.length > 0 && <div className="space-y-4 mb-6">
       {roles.map(r => {
         const disp = getDisp(r.role, r.disposition);
-        return <div key={r.role} className="rounded-2xl border border-[var(--border)] bg-[var(--surface-1)] overflow-hidden" style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
+        return <div key={r.role} className="rounded-2xl border border-[var(--border)] bg-[var(--surface-1)] overflow-hidden" style={{ boxShadow: "var(--shadow-1)" }}>
           {/* Role header */}
           <div className="px-5 py-3 flex items-center justify-between border-b border-[var(--border)]" style={{ background: "var(--surface-2)" }}>
             <div className="flex items-center gap-3">
@@ -796,7 +797,7 @@ Rules:
           <div className="text-2xl mb-2">✨</div>
           <h3 className="text-[15px] font-bold font-heading text-[var(--text-primary)] mb-1">No tasks yet for {job}</h3>
           <p className="text-[15px] text-[var(--text-secondary)] mb-4 max-w-md mx-auto">Let AI generate a detailed task breakdown, or add tasks manually below.</p>
-          <button onClick={generateTasks} className="px-5 py-2.5 rounded-xl text-[14px] font-semibold text-white transition-all hover:opacity-90" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", boxShadow: "0 4px 20px rgba(200,120,40,0.3)" }}>✨ Auto-Generate Task Breakdown</button>
+          <button onClick={generateTasks} className="px-5 py-2.5 rounded-xl text-[14px] font-semibold text-white transition-all hover:opacity-90" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", boxShadow: "var(--shadow-2)" }}>✨ Auto-Generate Task Breakdown</button>
         </div>}
         {aiGenerating && <div className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl p-6 mb-4 text-center animate-pulse">
           <div className="text-2xl mb-2">🧠</div>
@@ -1040,7 +1041,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
     const diff = b - a; const pos = inv ? diff < 0 : diff > 0; const neg = inv ? diff > 0 : diff < 0;
     const c = pos ? "var(--success)" : neg ? "var(--risk)" : "var(--text-muted)";
     const ar = diff > 0 ? "↑" : diff < 0 ? "↓" : "→";
-    return <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[15px] font-bold" style={{ color: c, background: pos ? "rgba(16,185,129,0.1)" : neg ? "rgba(239,68,68,0.1)" : "transparent" }}>{ar}{Math.abs(diff).toFixed(1)}</span>;
+    return <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[15px] font-bold" style={{ color: c, background: pos ? "rgba(16,185,129,0.1)" : neg ? "rgba(239,68,68,0.1)" : "transparent" }}>{ar}{fmt(Math.abs(diff))}</span>;
   };
 
   const HBar = ({ value, max, color }: { value: number; max: number; color: string }) => <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: `${color}12` }}><div className="h-full rounded-full transition-all" style={{ width: `${Math.min((value / max) * 100, 100)}%`, background: color }} /></div>;
@@ -1049,9 +1050,9 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
     <div className="bg-[var(--surface-2)] rounded-xl p-4 border border-[var(--border)]">
       <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">{label}</div>
       <div className="flex items-baseline gap-3">
-        <div><div className="text-[15px] text-[var(--text-muted)]">Current</div><div className="text-xl font-extrabold text-[var(--accent-primary)]">{current.toFixed(current > 100 ? 0 : 1)}</div></div>
+        <div><div className="text-[15px] text-[var(--text-muted)]">Current</div><div className="text-xl font-extrabold text-[var(--accent-primary)]">{fmt(current)}</div></div>
         <span className="text-[var(--text-muted)]">→</span>
-        <div><div className="text-[15px] text-[var(--text-muted)]">Scenario</div><div className="text-xl font-extrabold text-[var(--success)]">{future.toFixed(future > 100 ? 0 : 1)}</div></div>
+        <div><div className="text-[15px] text-[var(--text-muted)]">Scenario</div><div className="text-xl font-extrabold text-[var(--success)]">{fmt(future)}</div></div>
       </div>
       <div className="mt-1"><DChip a={current} b={future} inv={inv} /></div>
     </div>
@@ -1311,9 +1312,9 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
         </div>
         <div className="flex items-center justify-center gap-4 p-4 rounded-xl border border-[var(--border)] bg-[var(--surface-2)]">
           <div className="text-center"><div className="text-[15px] text-[var(--text-muted)] uppercase">Net Change</div><div className="text-2xl font-extrabold" style={{ color: fA.cost < cA.cost ? "var(--success)" : "var(--risk)" }}>{fmtNum((fA.cost - cA.cost))}</div></div>
-          <div className="text-center"><div className="text-[15px] text-[var(--text-muted)] uppercase">Percent Change</div><div className="text-2xl font-extrabold" style={{ color: fA.cost < cA.cost ? "var(--success)" : "var(--risk)" }}>{cA.cost > 0 ? (((fA.cost - cA.cost) / cA.cost) * 100).toFixed(1) : "0"}%</div></div>
-          <div className="text-center"><div className="text-[15px] text-[var(--text-muted)] uppercase">HC Change</div><div className="text-2xl font-extrabold" style={{ color: fA.hc < cA.hc ? "var(--success)" : "var(--risk)" }}>{fA.hc - cA.hc}</div></div>
-          <div className="text-center"><div className="text-[15px] text-[var(--text-muted)] uppercase">Cost per Head</div><div className="text-lg font-extrabold text-[var(--text-primary)]">${cA.hc > 0 ? ((cA.cost / cA.hc) / 1000).toFixed(0) : "0"}K → ${fA.hc > 0 ? ((fA.cost / fA.hc) / 1000).toFixed(0) : "0"}K</div></div>
+          <div className="text-center"><div className="text-[15px] text-[var(--text-muted)] uppercase">Percent Change</div><div className="text-2xl font-extrabold" style={{ color: fA.cost < cA.cost ? "var(--success)" : "var(--risk)" }}>{cA.cost > 0 ? fmt(((fA.cost - cA.cost) / cA.cost) * 100, "pct") : "0%"}</div></div>
+          <div className="text-center"><div className="text-[15px] text-[var(--text-muted)] uppercase">HC Change</div><div className="text-2xl font-extrabold" style={{ color: fA.hc < cA.hc ? "var(--success)" : "var(--risk)" }}>{fmt(fA.hc - cA.hc, "delta")}</div></div>
+          <div className="text-center"><div className="text-[15px] text-[var(--text-muted)] uppercase">Cost per Head</div><div className="text-lg font-extrabold text-[var(--text-primary)]">{fmt(cA.hc > 0 ? (cA.cost / cA.hc) : 0, "$")} → {fmt(fA.hc > 0 ? (fA.cost / fA.hc) : 0, "$")}</div></div>
         </div>
       </Card>
       <Card title="Cost by Department">
@@ -1385,9 +1386,9 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
     {/* Scenario Compare — all scenarios side by side */}
     {view === "compare" && <Card title="Multi-Scenario Comparison">
       <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full"><thead><tr className="bg-[var(--surface-2)]"><th className="px-3 py-2 text-left text-[15px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Metric</th><th className="px-3 py-2 text-center text-[15px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Current</th>{scenarios.map((s, i) => <th key={s.id} className="px-3 py-2 text-center text-[15px] font-semibold border-b border-[var(--border)]" style={{ color: COLORS[i % COLORS.length] }}>{s.label}</th>)}</tr></thead>
-      <tbody>{[{ label: "Headcount", key: "hc", inv: true }, { label: "Avg Span", key: "avgS" }, { label: "Avg Layers", key: "avgL", inv: true }, { label: "Managers", key: "mgr", inv: true }, { label: "Est. Cost ($M)", key: "cost", inv: true, fmt: (v: number) => `${fmtNum(v)}` }].map(m => {
+      <tbody>{[{ label: "Headcount", key: "hc", inv: true }, { label: "Avg Span", key: "avgS" }, { label: "Avg Layers", key: "avgL", inv: true }, { label: "Managers", key: "mgr", inv: true }, { label: "Est. Cost ($M)", key: "cost", inv: true, fmtFn: (v: number) => `${fmtNum(v)}` }].map(m => {
         const cVal = cA[m.key as keyof typeof cA] as number;
-        return <tr key={m.label} className="border-b border-[var(--border)]"><td className="px-3 py-2 text-[15px] font-semibold">{m.label}</td><td className="px-3 py-2 text-center text-[var(--text-secondary)]">{m.fmt ? m.fmt(cVal) : cVal.toFixed(1)}</td>{scenarios.map((s, i) => { const a = odsAgg(s.departments); const v = a[m.key as keyof typeof a] as number; return <td key={s.id} className="px-3 py-2 text-center"><span className="font-bold" style={{ color: COLORS[i % COLORS.length] }}>{m.fmt ? m.fmt(v) : v.toFixed(1)}</span> <DChip a={cVal} b={v} inv={m.inv} /></td>; })}</tr>;
+        return <tr key={m.label} className="border-b border-[var(--border)]"><td className="px-3 py-2 text-[15px] font-semibold">{m.label}</td><td className="px-3 py-2 text-center text-[var(--text-secondary)]">{m.fmtFn ? m.fmtFn(cVal) : fmt(cVal)}</td>{scenarios.map((s, i) => { const a = odsAgg(s.departments); const v = a[m.key as keyof typeof a] as number; return <td key={s.id} className="px-3 py-2 text-center"><span className="font-bold" style={{ color: COLORS[i % COLORS.length] }}>{m.fmtFn ? m.fmtFn(v) : fmt(v)}</span> <DChip a={cVal} b={v} inv={m.inv} /></td>; })}</tr>;
       })}</tbody></table></div>
     </Card>}
 
@@ -1405,7 +1406,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       // Manager ratio analysis
       const mgrRatio = cA.mgr / Math.max(cA.hc, 1) * 100;
       const fMgrRatio = fA.mgr / Math.max(fA.hc, 1) * 100;
-      insights.push({ type: mgrRatio > 15 ? "warning" : "info", title: `Manager Ratio: ${mgrRatio.toFixed(1)}% → ${fMgrRatio.toFixed(1)}%`, body: `Current org has 1 manager per ${Math.round(cA.hc / Math.max(cA.mgr, 1))} employees. ${mgrRatio > 15 ? "Above the 12-15% benchmark — indicates over-management." : mgrRatio < 8 ? "Below 8% — may indicate insufficient leadership coverage." : "Within healthy 8-15% range."} The ${sc.label} scenario ${fMgrRatio < mgrRatio ? "improves" : "maintains"} this to ${fMgrRatio.toFixed(1)}%.`, color: mgrRatio > 15 ? "var(--warning)" : "var(--accent-primary)", metric: `${mgrRatio.toFixed(0)}%` });
+      insights.push({ type: mgrRatio > 15 ? "warning" : "info", title: `Manager Ratio: ${fmt(mgrRatio, "pct")} → ${fmt(fMgrRatio, "pct")}`, body: `Current org has 1 manager per ${fmt(Math.round(cA.hc / Math.max(cA.mgr, 1)))} employees. ${mgrRatio > 15 ? "Above the 12-15% benchmark — indicates over-management." : mgrRatio < 8 ? "Below 8% — may indicate insufficient leadership coverage." : "Within healthy 8-15% range."} The ${sc.label} scenario ${fMgrRatio < mgrRatio ? "improves" : "maintains"} this to ${fmt(fMgrRatio, "pct")}.`, color: mgrRatio > 15 ? "var(--warning)" : "var(--accent-primary)", metric: `${fmt(mgrRatio, "pct")}` });
       // Cost insights
       if (fA.cost < cA.cost) { const savings = cA.cost - fA.cost; const pct = (savings / Math.max(cA.cost, 1) * 100); insights.push({ type: "positive", title: `${fmtNum(savings)} Annual Savings (${pct.toFixed(0)}%)`, body: `The ${sc.label} scenario achieves labor cost reduction through structural efficiency. At current compensation levels, removing ${cA.hc - fA.hc} positions saves ${fmtNum(savings)}/year. Break-even on restructuring costs (est. ${fmtNum((cA.hc - fA.hc) * 50000)} severance) within ${Math.ceil(((cA.hc - fA.hc) * 50000) / Math.max(savings, 1) * 12)} months.`, color: "var(--success)", metric: `${fmtNum(savings)}` }); }
       if (fA.cost > cA.cost) { const increase = fA.cost - cA.cost; insights.push({ type: "warning", title: `${fmtNum(increase)} Cost Increase`, body: `The ${sc.label} scenario adds ${fA.hc - cA.hc} headcount costing ${fmtNum(increase)}/year. Verify this represents strategic investment (new capabilities, growth functions) rather than structural bloat.`, color: "var(--warning)", metric: `+${fmtNum(increase)}` }); }
@@ -1422,11 +1423,11 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       const lowFte = currentData.filter(d => d.fteRatio < 0.8);
       if (lowFte.length > 0) insights.push({ type: "warning", title: `High Contractor Reliance`, body: `${lowFte.map(d => `${d.name} (${Math.round(d.fteRatio * 100)}% FTE)`).join(", ")} — FTE ratio below 80% indicates dependency on contingent workforce. Consider converting key contractor roles to FTE for knowledge retention.`, color: "var(--warning)", metric: `${Math.round(avgFte * 100)}% avg` });
       // Scenario-specific
-      insights.push({ type: "info", title: `${sc.label} Scenario Summary`, body: `This scenario changes headcount from ${cA.hc} → ${fA.hc} (${fA.hc > cA.hc ? "+" : ""}${fA.hc - cA.hc}), adjusts average span from ${cA.avgS.toFixed(1)} → ${fA.avgS.toFixed(1)}, and shifts cost from ${fmtNum(cA.cost)} → ${fmtNum(fA.cost)}. The primary lever is ${fA.avgL < cA.avgL ? "layer compression" : fA.hc < cA.hc ? "headcount reduction" : "span optimization"}.`, color: "var(--accent-primary)" });
+      insights.push({ type: "info", title: `${sc.label} Scenario Summary`, body: `This scenario changes headcount from ${fmt(cA.hc)} → ${fmt(fA.hc)} (${fmt(fA.hc - cA.hc, "delta")}), adjusts average span from ${fmt(cA.avgS)} → ${fmt(fA.avgS)}, and shifts cost from ${fmtNum(cA.cost)} → ${fmtNum(fA.cost)}. The primary lever is ${fA.avgL < cA.avgL ? "layer compression" : fA.hc < cA.hc ? "headcount reduction" : "span optimization"}.`, color: "var(--accent-primary)" });
 
       if (!insights.length) insights.push({ type: "info", title: "No Major Flags", body: "Current scenario changes are within normal ranges.", color: "var(--accent-primary)" });
       return <div>
-        <div className="text-[15px] text-[var(--text-secondary)] mb-4">{insights.length} insights generated from structural analysis of {currentData.length} departments, {cA.hc.toLocaleString()} employees, comparing current state to {sc.label} scenario.</div>
+        <div className="text-[15px] text-[var(--text-secondary)] mb-4">{insights.length} insights generated from structural analysis of {currentData.length} departments, {fmt(cA.hc)} employees, comparing current state to {sc.label} scenario.</div>
         <div className="space-y-3">{insights.map((ins, i) => <div key={i} className="rounded-xl p-5 border" style={{ background: `${ins.color}08`, borderColor: `${ins.color}20`, borderLeftWidth: 4, borderLeftColor: ins.color }}>
           <div className="flex items-center justify-between mb-1"><div className="text-[14px] font-bold" style={{ color: ins.color }}>{ins.title}</div>{ins.metric && <span className="px-2 py-0.5 rounded-full text-[15px] font-bold" style={{ background: `${ins.color}15`, color: ins.color }}>{ins.metric}</span>}</div>
           <div className="text-[15px] text-[var(--text-secondary)] leading-relaxed">{ins.body}</div>
@@ -1470,12 +1471,12 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
         <div className="grid grid-cols-3 gap-3">
           <div className="rounded-xl p-4 bg-[var(--surface-1)] border border-[var(--border)] text-center">
             <div className="text-[15px] text-[var(--text-muted)] uppercase mb-1">Your Avg Span</div>
-            <div className="text-[22px] font-extrabold text-[var(--text-primary)]">{(cA.hc / Math.max(cA.mgr, 1)).toFixed(1)}</div>
+            <div className="text-[22px] font-extrabold text-[var(--text-primary)]">{fmt(cA.hc / Math.max(cA.mgr, 1))}</div>
             <div className="text-[14px] text-[var(--text-muted)] mt-1">vs benchmark 6-10</div>
           </div>
           <div className="rounded-xl p-4 bg-[var(--surface-1)] border border-[var(--border)] text-center">
             <div className="text-[15px] text-[var(--text-muted)] uppercase mb-1">Your Avg Layers</div>
-            <div className="text-[22px] font-extrabold text-[var(--text-primary)]">{(currentData.reduce((s, d) => s + d.layers, 0) / currentData.length).toFixed(1)}</div>
+            <div className="text-[22px] font-extrabold text-[var(--text-primary)]">{fmt(currentData.reduce((s, d) => s + d.layers, 0) / currentData.length)}</div>
             <div className="text-[14px] text-[var(--text-muted)] mt-1">vs benchmark 4-6</div>
           </div>
           <div className="rounded-xl p-4 bg-[var(--surface-1)] border border-[var(--border)] text-center">
@@ -1558,7 +1559,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
           showToast(`🏢 ${co.name || companyKey} loaded — ${data.employees} employees, ${data.tasks} tasks`);
         }
       }
-    } catch { showToast("Sandbox seeding failed — check backend"); }
+    } catch { showToast("Couldn't load sandbox data — check that the backend is running"); }
     setSandboxLoading(null);
   };
   const [aiOmLoading, setAiOmLoading] = useState(false);
@@ -2507,7 +2508,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
                   const prompt = `Generate a compelling 3-5 sentence target state vision for an organization with these strategic priorities: ${priLabels || "not yet defined"}. Design principles: ${principles}. Function focus: ${fnD.label}. Archetype: ${archD.label}. Operating model: ${opModel.replace("_"," ")}. Write in first-person plural ("We will..."). Be specific and strategic, not generic.`;
                   const result = await callAI("You are a McKinsey-level operating model strategist. Write a concise, powerful target state vision statement.", prompt);
                   setStratVision(result.replace(/```/g, "").replace(/^["']|["']$/g, "").trim());
-                } catch { showToast("Vision generation failed"); }
+                } catch { showToast("AI couldn't draft the vision — try again"); }
                 setStratVisionGenerating(false);
               }} disabled={stratVisionGenerating} className="px-4 py-2 rounded-xl text-[15px] font-semibold text-white flex items-center gap-2" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: stratVisionGenerating ? 0.5 : 1 }}>
                 {stratVisionGenerating ? "Generating..." : "✨ AI Draft Vision"}
@@ -3590,7 +3591,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
                     const raw = await callAI("Return ONLY valid JSON array.", `Generate 6-8 detailed process steps for the "${procSelected.name}" process. Each step: {"name":"step name","func":"owning function","duration":"estimate","system":"system used","automation":"Manual|Semi-Auto|Automated","isHandoff":true/false}. Mark cross-functional transitions as handoffs. Be specific to the process.`);
                     const steps = JSON.parse(raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim());
                     if (Array.isArray(steps)) { setProcProcesses(prev => prev.map(p => p.id === procSelected.id ? { ...p, steps: steps.map((s: Record<string, unknown>, i: number) => ({ ...s, id: `${procSelected.id}s${i+1}`, automation: s.automation || "Manual" })) as ProcStep[] } : p)); }
-                  } catch { showToast("AI generation failed"); }
+                  } catch { showToast("AI couldn't complete the generation — try again"); }
                   setProcAiGenerating(false);
                 }} disabled={procAiGenerating} className="ml-auto px-3 py-1.5 rounded-lg text-[14px] font-semibold text-white shrink-0" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: procAiGenerating ? 0.5 : 1 }}>{procAiGenerating ? "Generating..." : "✨ AI Generate Steps"}</button>
               </div>
@@ -4432,7 +4433,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
                   <div className="kpi-glass" style={{ background: `linear-gradient(135deg, ${delta <= 0 ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)"}, rgba(19,27,46,0.9))` }}><div className="flex items-center justify-center gap-2"><span className="text-[18px]">{delta <= 0 ? "↓" : "↑"}</span><span className="text-[24px] font-extrabold font-data" style={{ color: delta <= 0 ? "var(--success)" : "var(--risk)", animation: "countUp 0.5s ease-out" }}>${fmtK(Math.abs(delta))}</span></div><div className="text-[13px] text-[var(--text-muted)] uppercase tracking-wider mt-1" style={{ fontFamily: "'Outfit', sans-serif" }}>{delta <= 0 ? "Annual Savings" : "Additional Cost"}</div></div>
                 </div>
                 {/* Premium table */}
-                <div className="overflow-x-auto rounded-2xl border border-[var(--border)]" style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.15)" }}><table className="w-full"><thead><tr style={{ background: "linear-gradient(135deg, var(--surface-2), var(--surface-3))" }}>
+                <div className="overflow-x-auto rounded-2xl border border-[var(--border)]" style={{ boxShadow: "var(--shadow-2)" }}><table className="w-full"><thead><tr style={{ background: "linear-gradient(135deg, var(--surface-2), var(--surface-3))" }}>
                   <th className="px-4 py-3 text-left text-[13px] font-bold text-[var(--text-muted)] uppercase tracking-wider border-b border-[var(--border)]" style={{ fontFamily: "'Outfit', sans-serif" }}>Function</th>
                   {["People","Technology","Outsource","Facilities"].map(h => <th key={h} className="px-2 py-3 text-center text-[12px] font-bold text-[var(--text-muted)] uppercase tracking-wider border-b border-[var(--border)]" colSpan={2} style={{ fontFamily: "'Outfit', sans-serif" }}>{h}<div className="flex justify-center gap-2 mt-1"><span className="text-[11px] font-semibold" style={{ color: "var(--accent-primary)" }}>Now</span><span className="text-[11px] font-semibold" style={{ color: "#0EA5E9" }}>Target</span></div></th>)}
                   <th className="px-3 py-3 text-center text-[12px] font-bold text-[var(--text-muted)] uppercase border-b border-[var(--border)]" style={{ fontFamily: "'Outfit', sans-serif" }}>Total</th>

@@ -223,11 +223,20 @@ async def agent_orchestrate(payload: dict):
 
 
 @router.post("/api/agents/diagnose")
-async def agent_diagnose(payload: dict):
+async def agent_diagnose(payload: dict, request: Request):
     project_id = payload.get("project_id", "")
     if not project_id:
         return {"error": True, "message": "project_id is required"}
-    return run_diagnosis(project_id, payload.get("session_data", {}))
+    result = run_diagnosis(project_id, payload.get("session_data", {}))
+    if not result.get("error"):
+        from app.flight_recorder import recorder
+        recorder.record(project_id, getattr(request.state, "user_id", ""), getattr(request.state, "username", ""),
+            "analysis.diagnosis_run", "diagnose",
+            f"Diagnosis completed — confidence {result.get('confidence', 0):.0%}",
+            result.get("executive_summary", "AI transformation diagnosis completed"),
+            agent_context={"confidence": result.get("confidence"), "areas": len(result.get("opportunity_areas", []))},
+            significance="major")
+    return result
 
 
 @router.post("/api/agents/design")
@@ -255,11 +264,20 @@ async def agent_scenario(payload: dict):
 
 
 @router.post("/api/agents/readiness")
-async def agent_readiness(payload: dict):
+async def agent_readiness(payload: dict, request: Request):
     project_id = payload.get("project_id", "")
     if not project_id:
         return {"error": True, "message": "project_id is required"}
-    return run_readiness(project_id, payload.get("session_data", {}))
+    result = run_readiness(project_id, payload.get("session_data", {}))
+    if not result.get("error"):
+        from app.flight_recorder import recorder
+        recorder.record(project_id, getattr(request.state, "user_id", ""), getattr(request.state, "username", ""),
+            "analysis.readiness_assessed", "diagnose",
+            f"Readiness assessed — {result.get('maturity_level', '?')} ({result.get('overall_score', 0)}/100)",
+            result.get("trajectory_note", ""),
+            agent_context={"score": result.get("overall_score"), "maturity": result.get("maturity_level")},
+            significance="major")
+    return result
 
 
 @router.post("/api/agents/espresso")
@@ -304,3 +322,108 @@ async def agent_answer_question(payload: dict):
 async def agent_benchmarks(project_id: str):
     """Returns benchmark percentiles for a project."""
     return get_benchmarks(project_id)
+
+
+@router.post("/api/agents/negotiate")
+async def agent_negotiate(payload: dict, request: Request):
+    """Scenario negotiation — find optimal scenario satisfying constraints."""
+    from app.agents.negotiator import run_negotiation
+    project_id = payload.get("project_id", "")
+    constraints = payload.get("constraints", [])
+    model_id = payload.get("model_id", "")
+    if not project_id:
+        return {"error": True, "message": "project_id is required"}
+    if not constraints:
+        return {"error": True, "message": "At least one constraint is required"}
+    user_id = getattr(request.state, "user_id", "")
+    result = run_negotiation(project_id, constraints, model_id, user_id)
+    if not result.get("error"):
+        from app.flight_recorder import recorder
+        sc = result.get("scenario", {})
+        recorder.record(project_id, user_id, getattr(request.state, "username", ""),
+            "simulate.negotiation_run", "simulate",
+            f"Negotiated: {sc.get('name', 'scenario')} — {result.get('feasibility', '?')}",
+            f"{len(constraints)} constraints, {len(result.get('tradeoffs', []))} tradeoffs identified",
+            data_snapshot={"after": {"headcount_delta": sc.get("headcount_delta"), "cost_delta_pct": sc.get("cost_delta_pct"), "timeline": sc.get("timeline_months")}},
+            agent_context={"feasibility": result.get("feasibility"), "confidence": result.get("confidence")},
+            significance="major")
+    return result
+
+
+@router.post("/api/agents/stress-test")
+async def agent_stress_test(payload: dict, request: Request):
+    """Org stress testing — cascade shock impacts across all dimensions."""
+    from app.agents.stress_tester import run_stress_test
+    project_id = payload.get("project_id", "")
+    shock = payload.get("shock", {})
+    model_id = payload.get("model_id", "")
+    if not project_id:
+        return {"error": True, "message": "project_id is required"}
+    if not shock:
+        return {"error": True, "message": "shock definition is required"}
+    user_id = getattr(request.state, "user_id", "")
+    result = run_stress_test(project_id, shock, model_id, user_id)
+    if not result.get("error"):
+        from app.flight_recorder import recorder
+        recorder.record(project_id, user_id, getattr(request.state, "username", ""),
+            "analysis.stress_test_run", "simulate",
+            f"Stress test: {result.get('shock_summary', shock.get('description', ''))[:80]}",
+            f"Severity: {result.get('severity', '?')} — {len(result.get('cascade_effects', []))} cascade effects",
+            data_snapshot={"after": {"severity": result.get("severity"), "recovery_months": result.get("recovery_path", {}).get("total_recovery_months"), "recovery_cost": result.get("recovery_path", {}).get("total_cost_estimate")}},
+            agent_context={"severity": result.get("severity"), "confidence": result.get("confidence")},
+            significance="major")
+    return result
+
+
+# ── Skills Graph endpoints ──
+
+@router.post("/api/skills/graph")
+async def skills_graph(payload: dict, request: Request):
+    """Build or retrieve the skills adjacency graph."""
+    from app.agents.skills_graph import build_skills_graph
+    project_id = payload.get("project_id", "")
+    model_id = payload.get("model_id", "")
+    if not project_id:
+        return {"error": True, "message": "project_id is required"}
+    user_id = getattr(request.state, "user_id", "")
+    return build_skills_graph(project_id, model_id, user_id)
+
+
+@router.post("/api/skills/path")
+async def skills_path(payload: dict):
+    """Find shortest path between two skills."""
+    from app.agents.skills_graph import build_skills_graph, find_shortest_path
+    project_id = payload.get("project_id", "")
+    model_id = payload.get("model_id", "")
+    source = payload.get("source_skill", "")
+    target = payload.get("target_skill", "")
+    if not source or not target:
+        return {"error": True, "message": "source_skill and target_skill are required"}
+    graph = build_skills_graph(project_id, model_id)
+    if graph.get("error"):
+        return graph
+    return find_shortest_path(graph, source, target)
+
+
+@router.post("/api/skills/role-transition")
+async def skills_role_transition(payload: dict, request: Request):
+    """Find skill transition paths between roles."""
+    from app.agents.skills_graph import build_skills_graph, find_role_transition
+    project_id = payload.get("project_id", "")
+    model_id = payload.get("model_id", "")
+    current_role = payload.get("current_role", "")
+    target_role = payload.get("target_role", "")
+    if not current_role or not target_role:
+        return {"error": True, "message": "current_role and target_role are required"}
+    user_id = getattr(request.state, "user_id", "")
+    graph = build_skills_graph(project_id, model_id, user_id)
+    if graph.get("error"):
+        return graph
+    return find_role_transition(graph, current_role, target_role, model_id, user_id)
+
+
+@router.get("/api/skills/graph/status/{project_id}")
+async def skills_graph_status(project_id: str, model_id: str = ""):
+    """Check if a skills graph is built and current."""
+    from app.agents.skills_graph import get_graph_status
+    return get_graph_status(project_id, model_id)

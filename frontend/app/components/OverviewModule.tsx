@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { ResponsiveContainer, PieChart, Pie, Cell, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Legend, Tooltip } from "recharts";
 import * as api from "../../lib/api";
 import type { Filters } from "../../lib/api";
+import { VideoBackground } from "./VideoBackground";
 import {
   KpiCard,
   Card,
@@ -267,7 +268,8 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
   ];
 
   // ── Journey Map — Mad Men golden hour aesthetic ──
-  return <div className="relative min-h-[calc(100vh-48px)] flex flex-col" style={{ backgroundImage: "url(/journey_bg.png)", backgroundSize: "cover", backgroundPosition: "center" }}>
+  return <div className="relative min-h-[calc(100vh-48px)] flex flex-col">
+    <VideoBackground name="journey_bg" overlay={0.25} poster="/journey_bg.png" fallbackGradient="linear-gradient(135deg, #0B1120 0%, #1a1040 100%)" className="absolute inset-0" />
 
     {/* Header with subtle dark gradient for readability — z-20 to stay above milestone z-10 */}
     <div className="relative z-20 text-center pt-6 pb-4" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 80%, transparent 100%)" }}>
@@ -738,19 +740,66 @@ function UploadIntelligencePanel({ insights, funcDist, onNavigate }: {
             </div> : <span className="text-[15px] text-[var(--text-muted)]">No data</span>}
           </div>
 
-          {/* Mini bar chart — career levels */}
+          {/* Grouped bar chart — career levels by track */}
           <div className="col-span-4 bg-[var(--surface-1)] rounded-xl p-3 border border-[var(--border)]">
             <div className="text-[14px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Career Level Distribution</div>
-            {insights.level_distribution.length > 0 ? <div className="flex items-end gap-1 h-14">
-              {insights.level_distribution.slice(0, 8).map((d, i) => {
-                const maxVal = Math.max(...insights.level_distribution.map(x => x.count));
-                const h = Math.max(4, (d.count / Math.max(maxVal, 1)) * 100);
-                return <div key={d.level} className="flex-1 flex flex-col items-center justify-end">
-                  <div className="w-full rounded-t" style={{ height: `${h}%`, background: COLORS[i % COLORS.length], minHeight: 4 }} />
-                  <div className="text-[15px] text-[var(--text-muted)] mt-1 font-data">{d.level}</div>
-                </div>;
-              })}
-            </div> : <span className="text-[15px] text-[var(--text-muted)]">No level data</span>}
+            {insights.level_distribution.length > 0 ? (() => {
+              // Group levels by track prefix, sort numerically within each
+              const TRACK_NAMES: Record<string, string> = { P: "Professional", M: "Management", S: "Senior", E: "Executive", L: "Level", I: "Individual", D: "Director", A: "Associate", C: "C-Suite" };
+              const TRACK_COLORS: Record<string, string> = { P: "#0891B2", M: "#D4860A", S: "#8B5CF6", E: "#EC4899", L: "#D4860A", I: "#10B981", D: "#F59E0B", A: "#6366F1", C: "#EF4444" };
+
+              // Detect track prefixes dynamically from data
+              const groups: Record<string, { level: string; count: number; num: number }[]> = {};
+              for (const d of insights.level_distribution) {
+                const match = d.level.match(/^([A-Za-z]+)(\d+)$/);
+                const prefix = match ? match[1].toUpperCase() : "Other";
+                const num = match ? parseInt(match[2]) : 0;
+                if (!groups[prefix]) groups[prefix] = [];
+                groups[prefix].push({ level: d.level, count: d.count, num });
+              }
+              // Sort levels numerically within each group
+              for (const g of Object.values(groups)) g.sort((a, b) => a.num - b.num);
+
+              // Sort groups: common career tracks first, then alphabetical
+              const trackOrder = ["I", "A", "P", "S", "M", "D", "E", "C", "L"];
+              const sortedTracks = Object.keys(groups).sort((a, b) => {
+                const ai = trackOrder.indexOf(a), bi = trackOrder.indexOf(b);
+                if (ai !== -1 && bi !== -1) return ai - bi;
+                if (ai !== -1) return -1;
+                if (bi !== -1) return 1;
+                return a.localeCompare(b);
+              });
+
+              const maxVal = Math.max(...insights.level_distribution.map(x => x.count));
+
+              return <div className="space-y-1">
+                {sortedTracks.map(track => {
+                  const items = groups[track];
+                  const trackLabel = TRACK_NAMES[track] || track;
+                  const trackColor = TRACK_COLORS[track] || "#D4860A";
+                  const trackTotal = items.reduce((s, d) => s + d.count, 0);
+                  return <div key={track}>
+                    {/* Track header */}
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <div className="w-1.5 h-1.5 rounded-full" style={{ background: trackColor }} />
+                      <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: trackColor }}>{trackLabel}</span>
+                      <span className="text-[10px] text-[var(--text-muted)] font-data">{trackTotal}</span>
+                    </div>
+                    {/* Bars */}
+                    <div className="flex items-end gap-1 h-10 mb-1.5">
+                      {items.map(d => {
+                        const h = Math.max(6, (d.count / Math.max(maxVal, 1)) * 100);
+                        return <div key={d.level} className="flex-1 flex flex-col items-center justify-end" title={`${d.level}: ${d.count}`}>
+                          <div className="text-[9px] font-bold font-data mb-0.5" style={{ color: trackColor }}>{d.count}</div>
+                          <div className="w-full rounded-t transition-all" style={{ height: `${h}%`, background: trackColor, opacity: 0.7, minHeight: 4 }} />
+                          <div className="text-[9px] text-[var(--text-muted)] mt-0.5 font-data">{d.level}</div>
+                        </div>;
+                      })}
+                    </div>
+                  </div>;
+                })}
+              </div>;
+            })() : <span className="text-[15px] text-[var(--text-muted)]">No level data</span>}
           </div>
 
           {/* Traffic light + readiness headline */}

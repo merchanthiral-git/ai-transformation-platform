@@ -100,7 +100,7 @@ function AccountTab({ user, onUpdate }: { user: authApi.AuthUser; onUpdate: (u: 
     {/* Profile hero card */}
     <div className="rounded-2xl p-6 mb-6" style={{ background: "linear-gradient(135deg, rgba(212,134,10,0.08), rgba(192,112,48,0.04))", border: "1px solid rgba(212,134,10,0.12)" }}>
       <div className="flex items-center gap-5 mb-5">
-        <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-[28px] font-bold text-white shrink-0" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", fontFamily: "'Outfit',sans-serif", boxShadow: "0 8px 24px rgba(212,134,10,0.25)" }}>{(dn || "U")[0].toUpperCase()}</div>
+        <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-[28px] font-bold text-white shrink-0" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", fontFamily: "'Outfit',sans-serif", boxShadow: "var(--shadow-3)" }}>{(dn || "U")[0].toUpperCase()}</div>
         <div>
           <div className="text-[18px] font-bold text-[var(--text-primary)] font-heading">{user.username}</div>
           <div className="flex gap-4 mt-1.5 text-[15px] font-data" style={{ color: "rgba(212,134,10,0.5)" }}>
@@ -129,7 +129,7 @@ function AccountTab({ user, onUpdate }: { user: authApi.AuthUser; onUpdate: (u: 
       </div>
     </div>
 
-    <button onClick={save} disabled={saving} className="px-8 py-3 rounded-xl text-[15px] font-semibold text-white transition-all hover:translate-y-[-1px] disabled:opacity-50" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", boxShadow: "0 4px 16px rgba(212,134,10,0.25)" }}>{saving ? "Saving..." : "Save Changes"}</button>
+    <button onClick={save} disabled={saving} className="px-8 py-3 rounded-xl text-[15px] font-semibold text-white transition-all hover:translate-y-[-1px] disabled:opacity-50" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", boxShadow: "var(--shadow-2)" }}>{saving ? "Saving..." : "Save Changes"}</button>
   </div>;
 }
 
@@ -146,7 +146,7 @@ function AboutTab() {
     <div className="relative overflow-hidden" style={{ height: 280, background: "linear-gradient(135deg, #3d2000 0%, #C07030 40%, #D4860A 70%, #E8C547 100%)" }}>
       <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 30% 60%, rgba(0,0,0,0.2) 0%, transparent 70%)" }} />
       <div className="relative z-10 flex items-center gap-8 h-full px-12">
-        <img src="/hiral_photo.jpg" alt="Hiral Merchant" style={{ width: 120, height: 120, borderRadius: "50%", border: "3px solid rgba(212,134,10,0.6)", boxShadow: "0 8px 32px rgba(0,0,0,0.4), 0 0 20px rgba(212,134,10,0.2)", objectFit: "cover", flexShrink: 0 }} />
+        <img src="/hiral_photo.jpg" alt="Hiral Merchant" style={{ width: 120, height: 120, borderRadius: "50%", border: "3px solid rgba(212,134,10,0.6)", boxShadow: "var(--shadow-4)", objectFit: "cover", flexShrink: 0 }} />
         <div>
           <h1 style={{ fontSize: 36, fontWeight: 800, color: "#fff", fontFamily: "'Outfit', sans-serif", textShadow: "0 2px 16px rgba(0,0,0,0.3)", marginBottom: 4 }}>Hiral Merchant</h1>
           <div style={{ fontSize: 18, color: "rgba(255,230,200,0.85)", fontWeight: 500 }}>Consultant at Mercer &middot; New York</div>

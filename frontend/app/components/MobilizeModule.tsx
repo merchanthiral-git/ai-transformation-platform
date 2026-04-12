@@ -1,7 +1,8 @@
 "use client";
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import * as api from "../../lib/api";
 import type { Filters } from "../../lib/api";
+import { fmt } from "../../lib/formatters";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Legend, CartesianGrid } from "recharts";
 import {
   ViewContext, COLORS, TT,
@@ -12,87 +13,281 @@ import {
   exportToCSV, EmptyWithAction, JobDesignState, fmtNum
 } from "./shared";
 
+type Pathway = {
+  employee: string; employee_id: string;
+  current_role: string; target_role: string;
+  function: string; family: string; level: string; track: string;
+  ai_score: number; readiness_score: number; readiness_band: string;
+  total_months: number; estimated_cost: number; priority: string;
+  gap_skills: string[]; matching_skills: string[];
+  skills_to_develop: { skill: string; current: number; target: number; delta: number; intervention: string; months: number }[];
+  wave: string;
+};
+
 export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext }) {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
 
-  const [bbbaOverrides2] = usePersisted<Record<string, string>>(`${model}_bbba_overrides`, {});
-  useEffect(() => { if (!model) return; setLoading(true); api.getReskillingPathways(model, f).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false)); }, [model, f.func, f.jf, f.sf, f.cl, bbbaOverrides2]);
+  // Filters
+  const [fFunc, setFFunc] = useState<string[]>([]);
+  const [fPriority, setFPriority] = useState<string[]>([]);
+  const [fWave, setFWave] = useState<string[]>([]);
+  const [fSearch, setFSearch] = useState("");
 
-  const pathways = (data?.pathways || []) as { employee: string; target_role: string; readiness_score: number; readiness_band: string; skills_to_develop: { skill: string; current: number; target: number; delta: number; intervention: string; months: number }[]; total_months: number; estimated_cost: number; priority: string }[];
+  useEffect(() => { if (!model) return; setLoading(true); api.getReskillingPathways(model, f).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false)); }, [model, f.func, f.jf, f.sf, f.cl]);
+
+  const allPathways = (data?.pathways || []) as Pathway[];
   const summary = (data?.summary || {}) as Record<string, unknown>;
 
+  // Dynamic filter options from data
+  const funcOptions = useMemo(() => [...new Set(allPathways.map(p => p.function).filter(Boolean))].sort(), [allPathways]);
+  const waveOptions = useMemo(() => [...new Set(allPathways.map(p => p.wave).filter(Boolean))].sort(), [allPathways]);
+  const priorityOptions = useMemo(() => {
+    const s = new Set(allPathways.map(p => p.priority));
+    return ["High", "Medium", "Low"].filter(p => s.has(p));
+  }, [allPathways]);
+
+  // Apply filters
+  const filtered = useMemo(() => {
+    let list = allPathways;
+    if (fFunc.length > 0) list = list.filter(p => fFunc.includes(p.function));
+    if (fPriority.length > 0) list = list.filter(p => fPriority.includes(p.priority));
+    if (fWave.length > 0) list = list.filter(p => fWave.includes(p.wave));
+    if (fSearch) {
+      const q = fSearch.toLowerCase();
+      list = list.filter(p => p.employee.toLowerCase().includes(q) || p.current_role.toLowerCase().includes(q) || p.target_role.toLowerCase().includes(q));
+    }
+    return list;
+  }, [allPathways, fFunc, fPriority, fWave, fSearch]);
+
+  const hasFilters = fFunc.length > 0 || fPriority.length > 0 || fWave.length > 0 || fSearch.length > 0;
+  const clearFilters = () => { setFFunc([]); setFPriority([]); setFWave([]); setFSearch(""); };
+
+  // Filtered summary
+  const fHigh = filtered.filter(p => p.priority === "High").length;
+  const fMed = filtered.filter(p => p.priority === "Medium").length;
+  const fLow = filtered.filter(p => p.priority === "Low").length;
+  const fAvgMo = filtered.length > 0 ? (filtered.reduce((s, p) => s + p.total_months, 0) / filtered.length) : 0;
+  const fTotalInv = filtered.reduce((s, p) => s + p.estimated_cost, 0);
+
+  const selected = selectedIdx !== null && selectedIdx < filtered.length ? filtered[selectedIdx] : null;
+
+  // Virtualized list: only render visible rows
+  const ROW_H = 64;
+  const listRef = useRef<HTMLDivElement>(null);
+  const [scrollTop, setScrollTop] = useState(0);
+  const visibleCount = 12; // approximate visible rows
+
+  const startIdx = Math.max(0, Math.floor(scrollTop / ROW_H) - 2);
+  const endIdx = Math.min(filtered.length, startIdx + visibleCount + 4);
+  const visibleSlice = filtered.slice(startIdx, endIdx);
+
+  const priColor = (p: string) => p === "High" ? "var(--risk)" : p === "Medium" ? "#F59E0B" : "var(--success)";
+  const priBg = (p: string) => p === "High" ? "rgba(239,68,68,0.1)" : p === "Medium" ? "rgba(245,158,11,0.1)" : "rgba(16,185,129,0.1)";
+
+  // Toggle chip helper
+  const toggleChip = (arr: string[], val: string, setter: (v: string[]) => void) => {
+    setter(arr.includes(val) ? arr.filter(v => v !== val) : [...arr, val]);
+  };
+
   return <div>
-    <PageHeader icon="📚" title={viewCtx?.mode === "employee" ? "My Learning Path" : "Reskilling Pathways"} subtitle="Per-employee learning plans and timelines" onBack={onBack} moduleId="reskill" />
-    {model && <div className="flex justify-end mb-2"><ModuleExportButton model={model} module="reskilling" label="Reskilling Plans" /></div>}
+    <PageHeader icon="📚" title={viewCtx?.mode === "employee" ? "My Learning Path" : "Reskilling Pathways"} subtitle="Per-employee learning plans · All employees in scope" onBack={onBack} moduleId="reskill" />
     {loading && <LoadingBar />}
-    <div className="grid grid-cols-5 gap-3 mb-5">
-      <KpiCard label="Employees" value={Number(summary.total_employees || 0)} /><KpiCard label="High Priority" value={Number(summary.high_priority || 0)} accent /><KpiCard label="Medium" value={Number(summary.medium_priority || 0)} /><KpiCard label="Avg Duration" value={`${summary.avg_months || "—"}mo`} /><KpiCard label="Investment" value={fmtNum(summary.total_investment || 0)} />
+
+    {/* KPI Summary */}
+    <div className="grid grid-cols-5 gap-3 mb-4">
+      <KpiCard label="Employees" value={fmt(filtered.length)} delta={hasFilters ? `of ${fmt(allPathways.length)}` : undefined} />
+      <KpiCard label="High Priority" value={fmt(fHigh)} accent />
+      <KpiCard label="Medium Priority" value={fmt(fMed)} />
+      <KpiCard label="Avg Duration" value={fAvgMo > 0 ? `${fmt(fAvgMo)} mo` : "—"} />
+      <KpiCard label="Investment" value={fmtNum(fTotalInv)} />
     </div>
 
-    {pathways.slice(0, 20).map((p, i) => <Card key={i} title={`${p.employee} → ${p.target_role}`}>
-      <div className="flex items-center gap-3 mb-3">
-        <Badge color={p.priority==="High"?"green":p.priority==="Medium"?"amber":"gray"}>{p.priority} Priority</Badge>
-        <Badge color={p.readiness_band==="Ready Now"?"green":p.readiness_band==="Coachable"?"amber":"red"}>Readiness: {p.readiness_score}/5</Badge>
-        <span className="text-[15px] text-[var(--text-muted)]">{p.total_months} months · {fmtNum(p.estimated_cost)}</span>
+    {/* Filter Bar */}
+    <div className="flex items-center gap-2 mb-4 flex-wrap">
+      <input value={fSearch} onChange={e => setFSearch(e.target.value)} placeholder="Search name or role..." className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-[13px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] w-52" />
+
+      {/* Priority chips */}
+      {priorityOptions.map(p => <button key={p} onClick={() => toggleChip(fPriority, p, setFPriority)} className="px-2.5 py-1 rounded-full text-[12px] font-bold transition-all" style={{ background: fPriority.includes(p) ? priBg(p) : "var(--surface-2)", color: fPriority.includes(p) ? priColor(p) : "var(--text-muted)", border: `1px solid ${fPriority.includes(p) ? priColor(p) + "40" : "var(--border)"}` }}>{p}</button>)}
+
+      {/* Wave chips */}
+      {waveOptions.length > 1 && waveOptions.map(w => <button key={w} onClick={() => toggleChip(fWave, w, setFWave)} className="px-2.5 py-1 rounded-full text-[12px] font-bold transition-all" style={{ background: fWave.includes(w) ? "rgba(139,92,246,0.1)" : "var(--surface-2)", color: fWave.includes(w) ? "var(--purple)" : "var(--text-muted)", border: `1px solid ${fWave.includes(w) ? "rgba(139,92,246,0.3)" : "var(--border)"}` }}>{w}</button>)}
+
+      {/* Function dropdown */}
+      {funcOptions.length > 1 && <select value={fFunc.length === 1 ? fFunc[0] : ""} onChange={e => setFFunc(e.target.value ? [e.target.value] : [])} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-2 py-1.5 text-[12px] text-[var(--text-primary)] outline-none">
+        <option value="">All Functions</option>
+        {funcOptions.map(fo => <option key={fo} value={fo}>{fo}</option>)}
+      </select>}
+
+      {hasFilters && <button onClick={clearFilters} className="text-[12px] text-[var(--accent-primary)] hover:underline ml-auto">Clear all filters</button>}
+      {hasFilters && <span className="text-[12px] text-[var(--text-muted)]">Showing {fmt(filtered.length)} of {fmt(allPathways.length)}</span>}
+    </div>
+
+    {allPathways.length === 0 && !loading && <Card><Empty text="Upload workforce data to generate reskilling pathways" icon="📚" /></Card>}
+
+    {/* Two-panel layout */}
+    {allPathways.length > 0 && <div className="flex gap-4" style={{ height: "calc(100vh - 380px)", minHeight: 500 }}>
+
+      {/* LEFT: Employee list (virtualized) */}
+      <div className="w-[40%] shrink-0 rounded-xl border border-[var(--border)] bg-[var(--surface-1)] flex flex-col overflow-hidden">
+        <div className="px-3 py-2 border-b border-[var(--border)] text-[12px] text-[var(--text-muted)] font-bold uppercase tracking-wider flex items-center justify-between">
+          <span>{fmt(filtered.length)} employees</span>
+          {model && <ModuleExportButton model={model} module="reskilling" label="Export" />}
+        </div>
+        <div ref={listRef} className="flex-1 overflow-y-auto" onScroll={e => setScrollTop((e.target as HTMLDivElement).scrollTop)}>
+          {filtered.length === 0 && <div className="text-center py-12"><div className="text-3xl mb-2 opacity-40">🔍</div><div className="text-[14px] text-[var(--text-muted)] mb-2">No employees match these filters</div><button onClick={clearFilters} className="text-[13px] text-[var(--accent-primary)] hover:underline">Clear all filters</button></div>}
+          <div style={{ height: filtered.length * ROW_H, position: "relative" }}>
+            {visibleSlice.map((p, vi) => {
+              const idx = startIdx + vi;
+              const isSelected = selectedIdx === idx;
+              return <div key={p.employee_id || idx} onClick={() => setSelectedIdx(idx)} className="absolute left-0 right-0 flex items-center gap-3 px-3 cursor-pointer transition-colors" style={{ top: idx * ROW_H, height: ROW_H, background: isSelected ? "rgba(212,134,10,0.08)" : "transparent", borderLeft: isSelected ? "3px solid var(--accent-primary)" : "3px solid transparent", borderBottom: "1px solid var(--border)" }}>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[13px] font-bold text-[var(--text-primary)] truncate">{p.employee}</div>
+                  <div className="text-[11px] text-[var(--text-muted)] truncate">{p.current_role}{p.target_role !== p.current_role ? ` → ${p.target_role}` : ""}</div>
+                </div>
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold shrink-0" style={{ background: priBg(p.priority), color: priColor(p.priority) }}>{p.priority}</span>
+                <div className="w-8 text-center shrink-0"><div className="text-[12px] font-bold" style={{ color: p.readiness_score >= 70 ? "var(--success)" : p.readiness_score >= 40 ? "#F59E0B" : "var(--risk)" }}>{p.readiness_score}</div><div className="text-[9px] text-[var(--text-muted)]">ready</div></div>
+                <div className="w-10 text-right shrink-0 text-[11px] text-[var(--text-muted)]">{p.total_months > 0 ? `${p.total_months}mo` : "—"}</div>
+              </div>;
+            })}
+          </div>
+        </div>
       </div>
-      {/* Skills timeline */}
-      <div className="space-y-2">{(p.skills_to_develop || []).map(s => <div key={s.skill} className="flex items-center gap-3 p-2 rounded-lg bg-[var(--surface-2)]">
-        <span className="text-[15px] font-semibold w-36 shrink-0">{s.skill}</span>
-        <div className="flex items-center gap-1 text-[15px]"><span style={{color:"var(--warning)"}}>{s.current}</span><span className="text-[var(--text-muted)]">→</span><span style={{color:"var(--success)"}}>{s.target}</span></div>
-        <div className="flex-1 h-2 bg-[var(--bg)] rounded-full overflow-hidden"><div className="h-full rounded-full" style={{width:`${(s.current/s.target)*100}%`,background:"var(--accent-primary)"}} /></div>
-        <Badge color={s.intervention==="Course"?"green":s.intervention.includes("Coaching")?"amber":"red"}>{s.intervention}</Badge>
-        <span className="text-[15px] text-[var(--text-muted)] w-10 text-right">{s.months}mo</span>
-      </div>)}</div>
-    </Card>)}
-    {pathways.length === 0 && !loading && <Card><Empty text="Complete Skills Gap Analysis and BBBA to generate reskilling pathways" icon="📚" /></Card>}
 
-    {/* Cohort Grouping */}
-    {pathways.length > 0 && <Card title="Training Cohorts — Batch by Skill Gap">
-      {(() => {
-        const cohorts: Record<string, typeof pathways> = {};
-        pathways.forEach(p => {
-          (p.skills_to_develop || []).forEach(s => {
-            if (!cohorts[s.skill]) cohorts[s.skill] = [];
-            if (!cohorts[s.skill].some(c => c.employee === p.employee)) cohorts[s.skill].push(p);
-          });
-        });
-        return <div className="grid grid-cols-3 gap-3">{Object.entries(cohorts).sort((a,b) => b[1].length - a[1].length).slice(0,6).map(([skill, members]) => {
-          const avgMonths = Math.round(members.reduce((s,m) => s + m.total_months, 0) / members.length);
-          const totalCost = members.reduce((s,m) => s + m.estimated_cost, 0);
-          return <div key={skill} className="rounded-xl p-4 bg-[var(--surface-2)] border border-[var(--border)] transition-all hover:border-[var(--accent-primary)]/30">
-            <div className="text-[15px] font-bold text-[var(--text-primary)] mb-1">{skill}</div>
-            <div className="text-[20px] font-extrabold text-[var(--accent-primary)] mb-1">{members.length} <span className="text-[15px] font-normal text-[var(--text-muted)]">employees</span></div>
-            <div className="text-[15px] text-[var(--text-muted)]">Avg {avgMonths}mo · {fmtNum(totalCost)} total</div>
-            <div className="flex gap-1 flex-wrap mt-2">{members.slice(0,4).map(m => <span key={m.employee} className="px-1.5 py-0.5 rounded text-[15px] bg-[var(--surface-1)] text-[var(--text-muted)]">{m.employee.split(" ")[0]}</span>)}{members.length > 4 && <span className="text-[15px] text-[var(--text-muted)]">+{members.length-4}</span>}</div>
-          </div>;
-        })}</div>;
-      })()}
-    </Card>}
+      {/* RIGHT: Detail or aggregate */}
+      <div className="flex-1 rounded-xl border border-[var(--border)] bg-[var(--surface-1)] overflow-y-auto p-5">
+        {!selected ? <>
+          {/* Aggregate view */}
+          <div className="text-[16px] font-bold text-[var(--text-primary)] font-heading mb-4">Workforce Reskilling Overview</div>
 
-    {/* Budget Allocation */}
-    {pathways.length > 0 && <Card title="Budget Allocation by Priority">
-      <div className="grid grid-cols-3 gap-4">{[
-        {label:"High Priority",filter:(p: typeof pathways[0]) => p.priority==="High",color:"var(--success)"},
-        {label:"Medium Priority",filter:(p: typeof pathways[0]) => p.priority==="Medium",color:"var(--warning)"},
-        {label:"Low Priority",filter:(p: typeof pathways[0]) => p.priority==="Low",color:"var(--text-muted)"},
-      ].map(tier => {
-        const group = pathways.filter(tier.filter);
-        const cost = group.reduce((s,p) => s + p.estimated_cost, 0);
-        return <div key={tier.label} className="rounded-xl p-4 text-center border border-[var(--border)]">
-          <div className="text-[15px] font-semibold mb-1" style={{color:tier.color}}>{tier.label}</div>
-          <div className="text-[22px] font-extrabold text-[var(--text-primary)]">{fmtNum(cost)}</div>
-          <div className="text-[15px] text-[var(--text-muted)]">{group.length} employees</div>
-        </div>;
-      })}</div>
-    </Card>}
+          {/* Priority distribution */}
+          <div className="grid grid-cols-3 gap-3 mb-5">
+            {[{ label: "High Priority", count: fHigh, color: "var(--risk)" }, { label: "Medium Priority", count: fMed, color: "#F59E0B" }, { label: "Low Priority", count: fLow, color: "var(--success)" }].map(t => <div key={t.label} className="rounded-xl p-4 text-center border border-[var(--border)]">
+              <div className="text-[12px] font-bold uppercase tracking-wider mb-1" style={{ color: t.color }}>{t.label}</div>
+              <div className="text-[24px] font-extrabold text-[var(--text-primary)]">{fmt(t.count)}</div>
+              <div className="text-[11px] text-[var(--text-muted)]">{filtered.length > 0 ? Math.round(t.count / filtered.length * 100) : 0}%</div>
+            </div>)}
+          </div>
 
-    <InsightPanel title="Reskilling Strategy" items={[
-      `${pathways.length} employees need reskilling across ${new Set(pathways.map(p => p.target_role)).size} target roles`,
-      `High priority: ${pathways.filter(p => p.priority === "High").length} employees — start these immediately`,
-      `Average pathway duration: ${Number(summary.avg_months || 0)} months`,
-      `Total reskilling investment: ${fmtNum(summary.total_investment || 0)} — invest in high-priority cohorts first`,
-    ]} icon="📚" />
+          {/* Top target roles */}
+          {(() => {
+            const roleCounts: Record<string, number> = {};
+            filtered.forEach(p => { if (p.target_role !== p.current_role) roleCounts[p.target_role] = (roleCounts[p.target_role] || 0) + 1; });
+            const topRoles = Object.entries(roleCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+            if (!topRoles.length) return null;
+            const maxC = topRoles[0]?.[1] || 1;
+            return <div className="mb-5">
+              <div className="text-[13px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Top Evolving Roles</div>
+              {topRoles.map(([role, count]) => <div key={role} className="flex items-center gap-3 mb-1.5">
+                <span className="text-[12px] text-[var(--text-primary)] font-semibold w-44 truncate shrink-0">{role}</span>
+                <div className="flex-1 h-2 bg-[var(--surface-3)] rounded-full overflow-hidden"><div className="h-full rounded-full bg-[var(--accent-primary)]" style={{ width: `${(count / maxC) * 100}%` }} /></div>
+                <span className="text-[12px] font-bold text-[var(--accent-primary)] w-10 text-right">{fmt(count)}</span>
+              </div>)}
+            </div>;
+          })()}
+
+          {/* Readiness by function */}
+          {(() => {
+            const byFunc: Record<string, { sum: number; count: number }> = {};
+            filtered.forEach(p => { if (!byFunc[p.function]) byFunc[p.function] = { sum: 0, count: 0 }; byFunc[p.function].sum += p.readiness_score; byFunc[p.function].count++; });
+            const funcs = Object.entries(byFunc).map(([fn, d]) => ({ fn, avg: Math.round(d.sum / d.count), count: d.count })).sort((a, b) => b.avg - a.avg);
+            if (!funcs.length) return null;
+            return <div className="mb-5">
+              <div className="text-[13px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Avg Readiness by Function</div>
+              {funcs.map(fn => <div key={fn.fn} className="flex items-center gap-3 mb-1.5">
+                <span className="text-[12px] text-[var(--text-primary)] font-semibold w-32 truncate shrink-0">{fn.fn}</span>
+                <div className="flex-1 h-2 bg-[var(--surface-3)] rounded-full overflow-hidden"><div className="h-full rounded-full" style={{ width: `${fn.avg}%`, background: fn.avg >= 70 ? "var(--success)" : fn.avg >= 40 ? "#F59E0B" : "var(--risk)" }} /></div>
+                <span className="text-[12px] font-bold w-8 text-right" style={{ color: fn.avg >= 70 ? "var(--success)" : fn.avg >= 40 ? "#F59E0B" : "var(--risk)" }}>{fn.avg}</span>
+              </div>)}
+            </div>;
+          })()}
+
+          {/* Investment & prompt */}
+          <div className="rounded-xl p-4 bg-[var(--surface-2)] border border-[var(--border)] text-center">
+            <div className="text-[12px] text-[var(--text-muted)] uppercase mb-1">Total Reskilling Investment</div>
+            <div className="text-[28px] font-extrabold text-[var(--accent-primary)]">{fmtNum(fTotalInv)}</div>
+            <div className="text-[12px] text-[var(--text-muted)] mt-2">Select an employee from the list to see their full pathway →</div>
+          </div>
+        </> : <>
+          {/* Employee detail */}
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <div className="text-[18px] font-bold text-[var(--text-primary)] font-heading">{selected.employee}</div>
+              <div className="text-[13px] text-[var(--text-muted)]">{selected.function} · {selected.level} · {selected.track}</div>
+            </div>
+            <button onClick={() => setSelectedIdx(null)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-[16px]">×</button>
+          </div>
+
+          {/* Pathway card */}
+          <div className="rounded-xl p-4 mb-4 border border-[var(--border)] bg-[var(--surface-2)]">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="flex-1">
+                <div className="text-[11px] text-[var(--text-muted)] uppercase mb-0.5">Current Role</div>
+                <div className="text-[15px] font-bold text-[var(--text-primary)]">{selected.current_role}</div>
+              </div>
+              <div className="text-[20px] text-[var(--accent-primary)]">→</div>
+              <div className="flex-1">
+                <div className="text-[11px] text-[var(--text-muted)] uppercase mb-0.5">Target Role</div>
+                <div className="text-[15px] font-bold text-[var(--text-primary)]">{selected.target_role}</div>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <span className="px-2 py-0.5 rounded-full text-[11px] font-bold" style={{ background: priBg(selected.priority), color: priColor(selected.priority) }}>{selected.priority} Priority</span>
+              <span className="px-2 py-0.5 rounded-full text-[11px] font-bold" style={{ background: selected.readiness_score >= 70 ? "rgba(16,185,129,0.1)" : selected.readiness_score >= 40 ? "rgba(245,158,11,0.1)" : "rgba(239,68,68,0.1)", color: selected.readiness_score >= 70 ? "var(--success)" : selected.readiness_score >= 40 ? "#F59E0B" : "var(--risk)" }}>{selected.readiness_band} ({selected.readiness_score})</span>
+              <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[rgba(139,92,246,0.1)] text-[var(--purple)]">{selected.wave}</span>
+            </div>
+          </div>
+
+          {/* Timeline + cost */}
+          <div className="grid grid-cols-3 gap-3 mb-4">
+            <div className="rounded-xl p-3 bg-[var(--surface-2)] border border-[var(--border)] text-center">
+              <div className="text-[11px] text-[var(--text-muted)] uppercase">Duration</div>
+              <div className="text-[20px] font-extrabold text-[var(--text-primary)]">{selected.total_months > 0 ? `${selected.total_months} mo` : "TBD"}</div>
+            </div>
+            <div className="rounded-xl p-3 bg-[var(--surface-2)] border border-[var(--border)] text-center">
+              <div className="text-[11px] text-[var(--text-muted)] uppercase">Investment</div>
+              <div className="text-[20px] font-extrabold text-[var(--accent-primary)]">{fmtNum(selected.estimated_cost)}</div>
+            </div>
+            <div className="rounded-xl p-3 bg-[var(--surface-2)] border border-[var(--border)] text-center">
+              <div className="text-[11px] text-[var(--text-muted)] uppercase">AI Impact</div>
+              <div className="text-[20px] font-extrabold" style={{ color: selected.ai_score >= 7 ? "var(--risk)" : selected.ai_score >= 4 ? "#F59E0B" : "var(--success)" }}>{fmt(selected.ai_score)}/10</div>
+            </div>
+          </div>
+
+          {/* Skills to develop */}
+          {selected.skills_to_develop.length > 0 && <div className="mb-4">
+            <div className="text-[13px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Learning Plan</div>
+            <div className="space-y-2">{selected.skills_to_develop.map(s => <div key={s.skill} className="rounded-lg p-3 bg-[var(--surface-2)] border border-[var(--border)]">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[13px] font-bold text-[var(--text-primary)]">{s.skill}</span>
+                <span className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: s.intervention === "Course" ? "rgba(16,185,129,0.1)" : s.intervention === "Coaching" ? "rgba(245,158,11,0.1)" : "rgba(139,92,246,0.1)", color: s.intervention === "Course" ? "var(--success)" : s.intervention === "Coaching" ? "#F59E0B" : "var(--purple)" }}>{s.intervention} · {s.months}mo</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-bold w-6" style={{ color: "#F59E0B" }}>{s.current}</span>
+                <div className="flex-1 h-2 bg-[var(--surface-3)] rounded-full overflow-hidden relative">
+                  <div className="absolute inset-y-0 left-0 rounded-full bg-[#F59E0B]" style={{ width: `${(s.current / Math.max(s.target, 1)) * 100}%` }} />
+                  <div className="absolute inset-y-0 left-0 rounded-full border-r-2 border-[var(--success)]" style={{ width: `${Math.min(100, (s.target / 5) * 100)}%`, borderStyle: "dashed" }} />
+                </div>
+                <span className="text-[11px] font-bold w-6 text-right" style={{ color: "var(--success)" }}>{s.target}</span>
+              </div>
+            </div>)}</div>
+          </div>}
+
+          {selected.skills_to_develop.length === 0 && selected.total_months === 0 && <div className="rounded-xl p-6 bg-[var(--surface-2)] border border-[var(--border)] text-center mb-4">
+            <div className="text-2xl mb-2 opacity-50">✅</div>
+            <div className="text-[14px] font-semibold text-[var(--text-primary)]">No reskilling needed</div>
+            <div className="text-[12px] text-[var(--text-muted)] mt-1">This role has low AI impact — current skills are sufficient</div>
+          </div>}
+
+          {/* Current skills */}
+          {selected.matching_skills.length > 0 && <div>
+            <div className="text-[13px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Current Skills</div>
+            <div className="flex flex-wrap gap-1.5">{selected.matching_skills.map(s => <span key={s} className="px-2 py-1 rounded-lg text-[12px] bg-[var(--surface-2)] text-[var(--text-secondary)] border border-[var(--border)]">{s}</span>)}</div>
+          </div>}
+        </>}
+      </div>
+    </div>}
 
     <NextStepBar currentModuleId="reskill" onNavigate={onNavigate || onBack} />
   </div>;
@@ -774,7 +969,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, viewCtx
                 const raw = await callAI("Return ONLY valid JSON array.", `Generate 12 specific change management actions to address these ADKAR barriers: ${context}. Each action: {"priority":1,"group":"group name","dim":"ADKAR dimension","action":"specific action","owner":"suggested role","timeline":"Week X-Y","status":"Not Started"}. Be specific and practical.`);
                 const actions = JSON.parse(raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim());
                 if (Array.isArray(actions)) { setAdkarActions(actions.map((a: Record<string, unknown>, i: number) => ({ ...a, id: `adkar_ai_${i}` })) as typeof adkarActions); showToast(`Generated ${actions.length} AI actions`); }
-              } catch { showToast("AI generation failed"); }
+              } catch { showToast("AI couldn't complete the generation — try again"); }
               setAdkarAiGenerating(false);
             }} disabled={adkarAiGenerating || barriers.length === 0} className="px-4 py-2 rounded-lg text-[14px] font-semibold text-white mb-4" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: adkarAiGenerating || barriers.length === 0 ? 0.4 : 1 }}>{adkarAiGenerating ? "Generating..." : "✨ AI Generate Actions"}</button>
           </>;
@@ -1054,7 +1249,7 @@ export function TransformationStoryBuilder({ model, f, onBack, onNavigate }: { m
       setStory(raw);
       setEdited(false);
       showToast("Narrative generated");
-    } catch { showToast("Generation failed"); }
+    } catch { showToast("Couldn't generate content — try again in a moment"); }
     setLoading(false);
   };
 
@@ -1170,6 +1365,285 @@ export function ReadinessArchetypes({ model, f, onBack, onNavigate }: { model: s
     ]} icon="🎯" />
 
     <NextStepBar currentModuleId="changeready" onNavigate={onNavigate || onBack} /></>}
+  </div>;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   SKILLS ADJACENCY NETWORK — interactive graph + path finder
+   ═══════════════════════════════════════════════════════════════ */
+
+type GraphNode = { id: string; name: string; category: string; proficiency_avg: number; employee_count: number; ai_relevance: number; task_count: number; role_count: number };
+type GraphEdge = { source: string; target: string; weight: number; overlap_type: string; shared_tasks: string[] };
+type PathStep = { from_skill: string; to_skill: string; adjacency_score: number; shared_tasks: string[]; learning_approach: string; estimated_weeks: number };
+type PathResult = { path: string[]; total_distance: number; estimated_months: number; estimated_weeks: number; steps: PathStep[]; already_have_pct: number; error?: boolean; message?: string };
+
+function _authHeaders(): Record<string, string> {
+  if (typeof window === "undefined") return {};
+  const token = localStorage.getItem("auth_token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+// Lightweight force simulation (no D3 dependency)
+type SimNode = GraphNode & { x: number; y: number; vx: number; vy: number };
+
+function forceSimulate(nodes: SimNode[], edges: GraphEdge[], width: number, height: number, iterations: number = 200) {
+  // Initialize random positions
+  nodes.forEach(n => { n.x = width / 2 + (Math.random() - 0.5) * width * 0.6; n.y = height / 2 + (Math.random() - 0.5) * height * 0.6; n.vx = 0; n.vy = 0; });
+  const edgeMap = new Map<string, Set<string>>();
+  edges.forEach(e => { if (!edgeMap.has(e.source)) edgeMap.set(e.source, new Set()); edgeMap.get(e.source)!.add(e.target); if (!edgeMap.has(e.target)) edgeMap.set(e.target, new Set()); edgeMap.get(e.target)!.add(e.source); });
+  const nodeMap = new Map(nodes.map(n => [n.id, n]));
+
+  for (let iter = 0; iter < iterations; iter++) {
+    const alpha = 0.3 * (1 - iter / iterations);
+    // Repulsion (all pairs — simplified Barnes-Hut for small graphs)
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const dx = nodes[j].x - nodes[i].x;
+        const dy = nodes[j].y - nodes[i].y;
+        const d = Math.sqrt(dx * dx + dy * dy) || 1;
+        const force = 800 / (d * d);
+        const fx = (dx / d) * force * alpha;
+        const fy = (dy / d) * force * alpha;
+        nodes[i].vx -= fx; nodes[i].vy -= fy;
+        nodes[j].vx += fx; nodes[j].vy += fy;
+      }
+    }
+    // Attraction (edges)
+    edges.forEach(e => {
+      const a = nodeMap.get(e.source); const b = nodeMap.get(e.target);
+      if (!a || !b) return;
+      const dx = b.x - a.x; const dy = b.y - a.y;
+      const d = Math.sqrt(dx * dx + dy * dy) || 1;
+      const force = (d - 100) * 0.05 * e.weight * alpha;
+      const fx = (dx / d) * force; const fy = (dy / d) * force;
+      a.vx += fx; a.vy += fy;
+      b.vx -= fx; b.vy -= fy;
+    });
+    // Center gravity
+    nodes.forEach(n => { n.vx += (width / 2 - n.x) * 0.01 * alpha; n.vy += (height / 2 - n.y) * 0.01 * alpha; });
+    // Apply velocities with damping
+    nodes.forEach(n => { n.vx *= 0.6; n.vy *= 0.6; n.x += n.vx; n.y += n.vy; n.x = Math.max(30, Math.min(width - 30, n.x)); n.y = Math.max(30, Math.min(height - 30, n.y)); });
+  }
+}
+
+const CATEGORY_COLORS: Record<string, string> = { Technology: "#0891B2", Finance: "#D4860A", HR: "#8B5CF6", Operations: "#F59E0B", Product: "#10B981", "Sales & Marketing": "#EC4899", Marketing: "#EC4899", Sales: "#6366F1", General: "#888", Legal: "#EF4444" };
+
+export function SkillsNetwork({ model, f, onBack, onNavigate }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void }) {
+  const [graph, setGraph] = useState<{ nodes: GraphNode[]; edges: GraphEdge[]; stats?: Record<string, unknown> } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [colorBy, setColorBy] = useState<"category" | "ai" | "employees">("category");
+  const [minWeight, setMinWeight] = useState(0.15);
+  const [selectedNode, setSelectedNode] = useState<string | null>(null);
+  const [hoveredNode, setHoveredNode] = useState<string | null>(null);
+  const [pathSource, setPathSource] = useState("");
+  const [pathTarget, setPathTarget] = useState("");
+  const [pathResult, setPathResult] = useState<PathResult | null>(null);
+  const [pathLoading, setPathLoading] = useState(false);
+  const [simNodes, setSimNodes] = useState<SimNode[]>([]);
+
+  const svgW = 700;
+  const svgH = 500;
+
+  // Load graph
+  useEffect(() => {
+    if (!model) return;
+    setLoading(true);
+    fetch("/api/skills/graph", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ..._authHeaders() },
+      body: JSON.stringify({ project_id: model, model_id: model }),
+    }).then(r => r.json()).then(d => {
+      if (!d.error) setGraph(d);
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }, [model]);
+
+  // Run force simulation when graph loads
+  useEffect(() => {
+    if (!graph?.nodes?.length) return;
+    const nodes: SimNode[] = graph.nodes.map(n => ({ ...n, x: 0, y: 0, vx: 0, vy: 0 }));
+    const filteredEdges = graph.edges.filter(e => e.weight >= minWeight);
+    forceSimulate(nodes, filteredEdges, svgW, svgH);
+    setSimNodes(nodes);
+  }, [graph, minWeight]);
+
+  const filteredEdges = useMemo(() => (graph?.edges || []).filter(e => e.weight >= minWeight), [graph, minWeight]);
+  const nodeMap = useMemo(() => new Map(simNodes.map(n => [n.id, n])), [simNodes]);
+  const pathSet = useMemo(() => new Set(pathResult?.path || []), [pathResult]);
+  const pathEdgeSet = useMemo(() => {
+    if (!pathResult?.steps) return new Set<string>();
+    const s = new Set<string>();
+    pathResult.steps.forEach(st => { s.add(`${st.from_skill}→${st.to_skill}`); s.add(`${st.to_skill}→${st.from_skill}`); });
+    return s;
+  }, [pathResult]);
+  const hasPath = pathSet.size > 0;
+
+  const getNodeColor = (n: GraphNode) => {
+    if (colorBy === "category") return CATEGORY_COLORS[n.category] || "#888";
+    if (colorBy === "ai") { const t = Math.min(1, n.ai_relevance / 10); return `hsl(${30 + (1 - t) * 180}, 80%, ${45 + (1 - t) * 15}%)`; }
+    const t = Math.min(1, n.employee_count / 100); return `hsl(${30 + (1 - t) * 180}, 70%, 50%)`;
+  };
+  const getNodeRadius = (n: GraphNode) => Math.max(6, Math.min(20, 6 + Math.sqrt(n.employee_count) * 1.5));
+
+  const findPath = async () => {
+    if (!pathSource || !pathTarget) return;
+    setPathLoading(true);
+    setPathResult(null);
+    try {
+      const resp = await fetch("/api/skills/path", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ..._authHeaders() },
+        body: JSON.stringify({ project_id: model, model_id: model, source_skill: pathSource, target_skill: pathTarget }),
+      });
+      setPathResult(await resp.json());
+    } catch { setPathResult({ error: true, message: "Request failed", path: [], total_distance: 0, estimated_months: 0, estimated_weeks: 0, steps: [], already_have_pct: 0 }); }
+    setPathLoading(false);
+  };
+
+  const skillOptions = useMemo(() => (graph?.nodes || []).map(n => n.id).sort(), [graph]);
+
+  return <div>
+    <PageHeader icon="🕸️" title="Skills Adjacency Network" subtitle="Interactive skill graph with shortest reskilling paths" onBack={onBack} moduleId="skillnet" />
+    {loading && <LoadingBar />}
+
+    {graph?.error && <Card><Empty text={String((graph as Record<string, unknown>).message || "Add more skills data to unlock the network view")} icon="🕸️" /></Card>}
+
+    {!loading && !graph?.error && graph && <div className="flex gap-4" style={{ height: "calc(100vh - 300px)", minHeight: 550 }}>
+      {/* Left panel — controls & path finder */}
+      <div className="w-[35%] shrink-0 space-y-4 overflow-y-auto">
+        {/* Graph controls */}
+        <Card title="Graph Controls">
+          <div className="space-y-3">
+            <div>
+              <div className="text-[11px] font-bold text-[var(--text-muted)] uppercase mb-1">Color by</div>
+              <div className="flex gap-1">{(["category", "ai", "employees"] as const).map(c => <button key={c} onClick={() => setColorBy(c)} className="px-2.5 py-1 rounded-lg text-[12px] font-semibold transition-all" style={{ background: colorBy === c ? "rgba(212,134,10,0.1)" : "var(--surface-2)", color: colorBy === c ? "var(--accent-primary)" : "var(--text-muted)", border: `1px solid ${colorBy === c ? "rgba(212,134,10,0.3)" : "var(--border)"}` }}>{c === "ai" ? "AI Relevance" : c === "employees" ? "Employee Count" : "Category"}</button>)}</div>
+            </div>
+            <div>
+              <div className="text-[11px] font-bold text-[var(--text-muted)] uppercase mb-1">Min connection: {minWeight.toFixed(2)}</div>
+              <input type="range" min={0.15} max={0.8} step={0.05} value={minWeight} onChange={e => setMinWeight(Number(e.target.value))} className="w-full" style={{ accentColor: "var(--accent-primary)" }} />
+            </div>
+          </div>
+          <div className="text-[11px] text-[var(--text-muted)] mt-2">{graph.nodes.length} skills · {filteredEdges.length} connections</div>
+        </Card>
+
+        {/* Path finder */}
+        <Card title="Find the shortest reskilling path">
+          <div className="space-y-2">
+            <div>
+              <label className="text-[11px] font-bold text-[var(--text-muted)] uppercase block mb-1">From skill</label>
+              <select value={pathSource} onChange={e => setPathSource(e.target.value)} className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-lg px-2 py-1.5 text-[13px] text-[var(--text-primary)] outline-none">
+                <option value="">Select...</option>
+                {skillOptions.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="text-[11px] font-bold text-[var(--text-muted)] uppercase block mb-1">To skill</label>
+              <select value={pathTarget} onChange={e => setPathTarget(e.target.value)} className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-lg px-2 py-1.5 text-[13px] text-[var(--text-primary)] outline-none">
+                <option value="">Select...</option>
+                {skillOptions.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+            <button onClick={findPath} disabled={pathLoading || !pathSource || !pathTarget} className="w-full py-2 rounded-xl text-[13px] font-bold text-white transition-all disabled:opacity-40" style={{ background: "linear-gradient(135deg, #D4860A, #C07030)" }}>{pathLoading ? "Finding..." : "Find Path →"}</button>
+          </div>
+
+          {/* Path results */}
+          {pathResult && !pathResult.error && <div className="mt-4 pt-3 border-t border-[var(--border)]">
+            <div className="text-[12px] font-bold text-[var(--text-muted)] uppercase mb-2">Path: {pathResult.path.length} steps · {pathResult.estimated_weeks} weeks</div>
+            <div className="space-y-0">{pathResult.steps.map((step, i) => <div key={i}>
+              {i === 0 && <div className="flex items-center gap-2 py-1.5">
+                <div className="w-3 h-3 rounded-full bg-[var(--success)]" />
+                <span className="text-[12px] font-bold text-[var(--success)]">{step.from_skill}</span>
+                <span className="text-[10px] text-[var(--text-muted)]">you have this</span>
+              </div>}
+              <div className="flex items-center gap-2 pl-1.5">
+                <div className="w-px h-6 bg-[var(--border)] ml-[5px]" />
+                <span className="text-[10px] text-[var(--text-muted)]">{step.estimated_weeks}w · {Math.round(step.adjacency_score * 100)}% overlap</span>
+              </div>
+              <div className="flex items-center gap-2 py-1.5">
+                <div className="w-3 h-3 rounded-full" style={{ background: i === pathResult.steps.length - 1 ? "var(--accent-primary)" : "var(--surface-3)", border: `2px solid ${i === pathResult.steps.length - 1 ? "var(--accent-primary)" : "var(--border)"}` }} />
+                <span className="text-[12px] font-bold text-[var(--text-primary)]">{step.to_skill}</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: step.learning_approach === "build" ? "rgba(16,185,129,0.1)" : step.learning_approach === "borrow" ? "rgba(245,158,11,0.1)" : "rgba(239,68,68,0.1)", color: step.learning_approach === "build" ? "var(--success)" : step.learning_approach === "borrow" ? "#F59E0B" : "var(--risk)" }}>{step.learning_approach}</span>
+              </div>
+            </div>)}</div>
+            <div className="mt-3 p-3 rounded-lg bg-[var(--surface-2)] border border-[var(--border)]">
+              <div className="text-[13px] font-bold text-[var(--accent-primary)]">{pathResult.estimated_months} months total</div>
+              <div className="text-[11px] text-[var(--text-muted)]">{pathResult.already_have_pct}% of the way there already</div>
+            </div>
+          </div>}
+
+          {pathResult?.error && <div className="mt-3 text-[12px] text-[var(--risk)]">{pathResult.message}</div>}
+        </Card>
+
+        {/* Selected node detail */}
+        {selectedNode && (() => {
+          const node = nodeMap.get(selectedNode);
+          if (!node) return null;
+          const connections = filteredEdges.filter(e => e.source === selectedNode || e.target === selectedNode).sort((a, b) => b.weight - a.weight);
+          return <Card title={node.name}>
+            <div className="grid grid-cols-3 gap-2 mb-3">
+              <div className="text-center p-2 rounded-lg bg-[var(--surface-2)]"><div className="text-[16px] font-extrabold text-[var(--accent-primary)]">{node.employee_count}</div><div className="text-[10px] text-[var(--text-muted)]">employees</div></div>
+              <div className="text-center p-2 rounded-lg bg-[var(--surface-2)]"><div className="text-[16px] font-extrabold" style={{ color: node.ai_relevance >= 7 ? "var(--risk)" : node.ai_relevance >= 4 ? "#F59E0B" : "var(--success)" }}>{node.ai_relevance}</div><div className="text-[10px] text-[var(--text-muted)]">AI relevance</div></div>
+              <div className="text-center p-2 rounded-lg bg-[var(--surface-2)]"><div className="text-[16px] font-extrabold text-[var(--text-primary)]">{node.proficiency_avg}</div><div className="text-[10px] text-[var(--text-muted)]">avg prof.</div></div>
+            </div>
+            <div className="text-[11px] font-bold text-[var(--text-muted)] uppercase mb-1">Adjacent skills ({connections.length})</div>
+            <div className="space-y-1 max-h-[120px] overflow-y-auto">{connections.slice(0, 8).map((e, i) => {
+              const other = e.source === selectedNode ? e.target : e.source;
+              return <div key={i} className="flex items-center justify-between text-[12px]">
+                <span className="text-[var(--text-primary)]">{other}</span>
+                <span className="font-data text-[var(--accent-primary)]">{Math.round(e.weight * 100)}%</span>
+              </div>;
+            })}</div>
+          </Card>;
+        })()}
+      </div>
+
+      {/* Right panel — SVG graph */}
+      <div className="flex-1 rounded-xl border border-[var(--border)] bg-[var(--surface-1)] overflow-hidden relative">
+        {simNodes.length === 0 && <div className="absolute inset-0 flex items-center justify-center">
+          <div className="text-center"><div className="text-3xl mb-2 opacity-30">🕸️</div><div className="text-[13px] text-[var(--text-muted)]">Building your skills network...</div></div>
+        </div>}
+        <svg width="100%" height="100%" viewBox={`0 0 ${svgW} ${svgH}`} className="block">
+          {/* Edges */}
+          {filteredEdges.map((e, i) => {
+            const a = nodeMap.get(e.source);
+            const b = nodeMap.get(e.target);
+            if (!a || !b) return null;
+            const isPathEdge = pathEdgeSet.has(`${e.source}→${e.target}`);
+            const dim = hasPath && !isPathEdge;
+            return <line key={i} x1={a.x} y1={a.y} x2={b.x} y2={b.y}
+              stroke={isPathEdge ? "#D4860A" : e.overlap_type === "task" ? "rgba(8,145,178,0.3)" : "rgba(139,92,246,0.25)"}
+              strokeWidth={isPathEdge ? 3 : Math.max(0.5, e.weight * 4)}
+              opacity={dim ? 0.08 : 1}
+            />;
+          })}
+          {/* Nodes */}
+          {simNodes.map(n => {
+            const r = getNodeRadius(n);
+            const isPath = pathSet.has(n.id);
+            const isSelected = selectedNode === n.id;
+            const isHovered = hoveredNode === n.id;
+            const dim = hasPath && !isPath;
+            return <g key={n.id} onClick={() => { setSelectedNode(n.id === selectedNode ? null : n.id); }} onMouseEnter={() => setHoveredNode(n.id)} onMouseLeave={() => setHoveredNode(null)} className="cursor-pointer">
+              <circle cx={n.x} cy={n.y} r={r + 2} fill="none" stroke={isSelected ? "#D4860A" : isPath ? "#D4860A" : "none"} strokeWidth={isSelected ? 3 : 2} opacity={dim ? 0.15 : 1} />
+              <circle cx={n.x} cy={n.y} r={r} fill={isPath ? "#D4860A" : getNodeColor(n)} opacity={dim ? 0.15 : isHovered ? 1 : 0.85} />
+              {(isHovered || isSelected || isPath) && <text x={n.x} y={n.y - r - 4} textAnchor="middle" fill="var(--text-primary)" fontSize={10} fontWeight={700} fontFamily="Outfit, sans-serif">{n.name}</text>}
+            </g>;
+          })}
+        </svg>
+
+        {/* Legend */}
+        <div className="absolute bottom-3 left-3 flex gap-3 text-[10px] text-[var(--text-muted)] bg-[rgba(0,0,0,0.4)] rounded-lg px-3 py-1.5 backdrop-blur">
+          {colorBy === "category" && Object.entries(CATEGORY_COLORS).slice(0, 5).map(([cat, col]) => <span key={cat} className="flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{ background: col }} />{cat}</span>)}
+          {colorBy === "ai" && <><span>Low AI</span><span className="text-[var(--accent-primary)]">→</span><span>High AI</span></>}
+          {colorBy === "employees" && <><span>Few</span><span className="text-[var(--accent-primary)]">→</span><span>Many</span></>}
+        </div>
+      </div>
+    </div>}
+
+    {!loading && !graph && <Card><Empty text="Upload workforce data with skills to build the adjacency network" icon="🕸️" /></Card>}
+
+    <NextStepBar currentModuleId="skillnet" onNavigate={onNavigate || onBack} />
   </div>;
 }
 

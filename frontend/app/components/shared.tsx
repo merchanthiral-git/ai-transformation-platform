@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import * as api from "../../lib/api";
 import type { Filters } from "../../lib/api";
+import { VideoBackground } from "./VideoBackground";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, CartesianGrid, Legend } from "recharts";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -87,7 +88,7 @@ export function PressButton({ children, onClick, className, style, disabled, tit
 
 // Hover card with lift effect
 export function HoverCard({ children, className, style, onClick }: { children: React.ReactNode; className?: string; style?: React.CSSProperties; onClick?: () => void }) {
-  return <motion.div className={className} style={style} onClick={onClick} whileHover={{ y: -3, boxShadow: "0 8px 28px rgba(0,0,0,0.2)" }} transition={{ type: "spring", stiffness: 300, damping: 20 }}>
+  return <motion.div className={className} style={style} onClick={onClick} whileHover={{ y: -3, boxShadow: "var(--shadow-3)" }} transition={{ type: "spring", stiffness: 300, damping: 20 }}>
     {children}
   </motion.div>;
 }
@@ -152,7 +153,7 @@ export function useKeyboardShortcuts(shortcuts: ShortcutDef[], enabled = true) {
   }, [shortcuts, enabled]);
 }
 
-const KBD_STYLE: React.CSSProperties = { display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: 24, height: 22, padding: "0 6px", borderRadius: 5, background: "var(--surface-2)", border: "1px solid var(--border)", fontSize: 12, fontFamily: "'IBM Plex Mono', monospace", fontWeight: 600, color: "var(--text-muted)", boxShadow: "0 1px 2px rgba(0,0,0,0.1)", lineHeight: 1 };
+const KBD_STYLE: React.CSSProperties = { display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: 24, height: 22, padding: "0 6px", borderRadius: 5, background: "var(--surface-2)", border: "1px solid var(--border)", fontSize: 12, fontFamily: "'IBM Plex Mono', monospace", fontWeight: 600, color: "var(--text-muted)", boxShadow: "var(--shadow-1)", lineHeight: 1 };
 
 export function Kbd({ children }: { children: React.ReactNode }) {
   return <span style={KBD_STYLE}>{children}</span>;
@@ -163,7 +164,7 @@ export function KeyboardShortcutsPanel({ shortcuts, onClose }: { shortcuts: { ke
   const mod = isMac ? "⌘" : "Ctrl";
   const categories = Array.from(new Set(shortcuts.map(s => s.category)));
   return <AnimatedModal onClose={onClose}>
-    <div className="bg-[var(--bg)] rounded-2xl border border-[var(--border)] w-[520px] max-h-[80vh] overflow-y-auto" style={{ boxShadow: "0 8px 40px rgba(0,0,0,0.3)" }}>
+    <div className="bg-[var(--bg)] rounded-2xl border border-[var(--border)] w-[520px] max-h-[80vh] overflow-y-auto" style={{ boxShadow: "var(--shadow-4)" }}>
       <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)]">
         <div className="text-[18px] font-bold text-[var(--text-primary)] font-heading">Keyboard Shortcuts</div>
         <button onClick={onClose} className="text-[18px] text-[var(--text-muted)] hover:text-[var(--text-primary)]">×</button>
@@ -283,7 +284,7 @@ export function CommandPalette({ actions, recentIds, onClose }: { actions: CmdAc
 
   return <motion.div className="fixed inset-0 z-[99999] flex items-start justify-center pt-[15vh]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} onClick={onClose}>
     <div className="absolute inset-0" style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(8px)" }} />
-    <motion.div className="relative w-[580px] max-h-[60vh] flex flex-col rounded-2xl border border-[var(--border)] overflow-hidden" style={{ background: "var(--surface-1)", boxShadow: "0 16px 70px rgba(0,0,0,0.4)" }} initial={{ opacity: 0, scale: 0.96, y: -10 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} onClick={e => e.stopPropagation()}>
+    <motion.div className="relative w-[580px] max-h-[60vh] flex flex-col rounded-2xl border border-[var(--border)] overflow-hidden" style={{ background: "var(--surface-1)", boxShadow: "var(--shadow-4)" }} initial={{ opacity: 0, scale: 0.96, y: -10 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} onClick={e => e.stopPropagation()}>
       {/* Search input */}
       <div className="flex items-center gap-3 px-5 py-4 border-b border-[var(--border)]">
         <span className="text-[18px] text-[var(--text-muted)]">🔍</span>
@@ -378,14 +379,14 @@ export function AnnotationLayer({ annotations, moduleId, onAdd, onUpdate, onDele
           whileHover={{ scale: 1.3 }} onClick={e => { e.stopPropagation(); setEditingId(isEditing ? null : a.id); }} />
         {/* Hover tooltip */}
         {!isEditing && <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity" style={{ width: 200 }}>
-          <div className="rounded-xl p-3 text-[13px]" style={{ background: "var(--surface-1)", border: `1px solid ${colorHex(a.color)}30`, boxShadow: "0 4px 16px rgba(0,0,0,0.25)" }}>
+          <div className="rounded-xl p-3 text-[13px]" style={{ background: "var(--surface-1)", border: `1px solid ${colorHex(a.color)}30`, boxShadow: "var(--shadow-2)" }}>
             <div className="font-semibold text-[var(--text-primary)] mb-1" style={{ textDecoration: a.resolved ? "line-through" : "none" }}>{a.text.slice(0, 80)}{a.text.length > 80 ? "..." : ""}</div>
             <div className="flex items-center gap-2 text-[11px] text-[var(--text-muted)]">{a.tag && <span>{a.tag}</span>}<span>{a.createdAt}</span><span className="font-semibold" style={{ color: colorHex(a.color) }}>{a.priority}</span></div>
           </div>
         </div>}
         {/* Edit panel */}
         {isEditing && <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-40" style={{ width: 280 }} onClick={e => e.stopPropagation()}>
-          <div className="rounded-xl p-4 space-y-2" style={{ background: "var(--surface-1)", border: `1px solid ${colorHex(a.color)}30`, boxShadow: "0 8px 30px rgba(0,0,0,0.3)" }}>
+          <div className="rounded-xl p-4 space-y-2" style={{ background: "var(--surface-1)", border: `1px solid ${colorHex(a.color)}30`, boxShadow: "var(--shadow-3)" }}>
             <textarea value={a.text} onChange={e => onUpdate({ ...a, text: e.target.value })} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-[14px] text-[var(--text-primary)] outline-none resize-none" rows={3} />
             <div className="flex gap-1">{ANNO_COLORS.map(c => <button key={c.id} onClick={() => onUpdate({ ...a, color: c.id })} className="w-6 h-6 rounded-full border-2 transition-all" style={{ background: c.hex, borderColor: a.color === c.id ? "white" : "transparent", transform: a.color === c.id ? "scale(1.2)" : "scale(1)" }} title={c.label} />)}</div>
             <div className="flex gap-2">
@@ -399,7 +400,7 @@ export function AnnotationLayer({ annotations, moduleId, onAdd, onUpdate, onDele
     })}
     {/* Creation popup */}
     {creating && <div className="absolute z-40" style={{ left: `${creating.x}%`, top: `${creating.y}%`, transform: "translate(-50%, 10px)" }} onClick={e => e.stopPropagation()}>
-      <motion.div className="rounded-xl p-4 space-y-3" style={{ width: 280, background: "var(--surface-1)", border: "1px solid var(--accent-primary)", boxShadow: "0 8px 30px rgba(0,0,0,0.3)" }} initial={{ opacity: 0, y: -5, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.2 }}>
+      <motion.div className="rounded-xl p-4 space-y-3" style={{ width: 280, background: "var(--surface-1)", border: "1px solid var(--accent-primary)", boxShadow: "var(--shadow-3)" }} initial={{ opacity: 0, y: -5, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.2 }}>
         <textarea value={newText} onChange={e => setNewText(e.target.value)} placeholder="Add your observation..." className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-[14px] text-[var(--text-primary)] outline-none resize-none placeholder:text-[var(--text-muted)]" rows={3} maxLength={500} autoFocus />
         <div className="flex items-center gap-2">
           <div className="flex gap-1">{ANNO_COLORS.map(c => <button key={c.id} onClick={() => setNewColor(c.id)} className="w-5 h-5 rounded-full border-2 transition-all" style={{ background: c.hex, borderColor: newColor === c.id ? "white" : "transparent", transform: newColor === c.id ? "scale(1.2)" : "scale(1)" }} title={c.label} />)}</div>
@@ -455,18 +456,19 @@ export function AnnotationPanel({ annotations, onUpdate, onDelete, onClose, onSc
 }
 
 /** Smart number formatting: currency ($1.2M), headcount (1,200), percentage (45.3%) */
+export { fmt } from "../../lib/formatters";
 export function fmtNum(value: number | string | null | undefined, type: "currency" | "headcount" | "percentage" = "currency"): string {
   const n = Number(value ?? 0);
   if (!isFinite(n)) return "—";
-  if (type === "percentage") return `${n.toFixed(1)}%`;
-  if (type === "headcount") return n >= 1e6 ? `${(n / 1e6).toFixed(1)}M` : n.toLocaleString();
+  if (type === "percentage") { const s = n.toFixed(1); return `${s.replace(/\.0$/, "")}%`; }
+  if (type === "headcount") return n >= 1e6 ? `${(n / 1e6).toFixed(1).replace(/\.0$/, "")}M` : Math.round(n).toLocaleString();
   // currency
   const abs = Math.abs(n);
   const sign = n < 0 ? "-" : "";
   if (abs < 1000) return `${sign}$${Math.round(abs).toLocaleString()}`;
-  if (abs < 1e6) return `${sign}$${(abs / 1000).toFixed(abs < 10000 ? 1 : 0)}K`;
-  if (abs < 1e9) return `${sign}$${(abs / 1e6).toFixed(abs < 100e6 ? 1 : 0)}M`;
-  return `${sign}$${(abs / 1e9).toFixed(1)}B`;
+  if (abs < 1e6) return `${sign}$${(abs / 1000).toFixed(abs < 10000 ? 1 : 0).replace(/\.0$/, "")}K`;
+  if (abs < 1e9) return `${sign}$${(abs / 1e6).toFixed(abs < 100e6 ? 1 : 0).replace(/\.0$/, "")}M`;
+  return `${sign}$${(abs / 1e9).toFixed(1).replace(/\.0$/, "")}B`;
 }
 
 export const COLORS = ["#D4860A","#C07030","#E8C547","#B8602A","#D97706","#F59E0B","#A0522D","#E09040"];
@@ -480,16 +482,17 @@ export async function callAI(system: string, message: string, retries = 1): Prom
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 55000);
+      const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
       const resp = await fetch("/api/ai/generate", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({ system, message }),
         signal: controller.signal,
       });
       clearTimeout(timeoutId);
       if (!resp.ok) {
         if (attempt < retries) { await new Promise(r => setTimeout(r, 1500)); continue; }
-        return "[AI unavailable — backend returned an error. Check that your backend is running on port 8000.]";
+        return "[AI is temporarily unavailable — check that your backend is running and try again]";
       }
       const data = await resp.json();
       // Track remaining requests
@@ -506,7 +509,7 @@ export async function callAI(system: string, message: string, retries = 1): Prom
     } catch (e) {
       console.error(`AI call attempt ${attempt + 1} failed:`, e);
       if (attempt < retries) { await new Promise(r => setTimeout(r, 1500)); continue; }
-      return "[AI unavailable — could not connect to backend. Make sure the backend is running on port 8000.]";
+      return "[Couldn't reach the AI service — check your connection and try again]";
     }
   }
   return "";
@@ -559,10 +562,10 @@ export function ModuleExportButton({ model, module, label }: { model: string; mo
     try {
       const resp = await fetch(`/api/export/module/${model}/${module}`);
       if (resp.ok) { const blob = await resp.blob(); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `${module}_export.xlsx`; a.click(); URL.revokeObjectURL(url); showToast(`📥 ${label || module} exported`); }
-      else showToast("Export failed");
-    } catch { showToast("Export failed — check backend"); }
+      else showToast("Couldn't export — try again in a moment");
+    } catch { showToast("Couldn't export — check that the backend is running"); }
     setExporting(false);
-  }} disabled={exporting} className="px-3 py-1 rounded-lg text-[15px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:border-[var(--accent-primary)]/30 hover:text-[var(--accent-primary)] transition-all" style={{opacity: exporting ? 0.5 : 1}}>
+  }} disabled={exporting} className="btn-interactive px-3 py-1 rounded-lg text-[15px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:border-[var(--accent-primary)]/30 hover:text-[var(--accent-primary)]" style={{opacity: exporting ? 0.5 : 1}}>
     {exporting ? "..." : "↓ Export"}
   </button>;
 }
@@ -632,7 +635,7 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode; 
 export function KpiCard({ label, value, accent, delta }: { label: string; value: string | number; accent?: boolean; delta?: string }) {
   const numVal = typeof value === "number" ? value : parseFloat(String(value).replace(/[^0-9.-]/g, ""));
   const isNum = !isNaN(numVal) && typeof value === "number";
-  return <motion.div className={`bg-[var(--surface-1)] border rounded-2xl px-5 py-4 ${accent ? "border-l-[3px] border-l-[var(--accent-primary)] border-[var(--border)]" : "border-[var(--border)]"}`} style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }} whileHover={{ y: -2, boxShadow: "0 6px 20px rgba(0,0,0,0.18)" }}>
+  return <motion.div className={`bg-[var(--surface-1)] border rounded-2xl px-5 py-4 ${accent ? "border-l-[3px] border-l-[var(--accent-primary)] border-[var(--border)]" : "border-[var(--border)]"}`} style={{ boxShadow: "var(--shadow-1)" }} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }} whileHover={{ y: -2, boxShadow: "var(--shadow-3)" }}>
     <div className="text-[14px] font-semibold text-[var(--text-muted)] uppercase tracking-[0.5px] mb-1.5 font-heading">{label}</div>
     <div className="text-[24px] font-extrabold text-[var(--text-primary)] tracking-tight font-data">{isNum ? <AnimatedNumber value={numVal} /> : value}</div>
     {delta && <div className="text-[14px] font-semibold text-[var(--success)] mt-1.5">{delta}</div>}
@@ -640,14 +643,21 @@ export function KpiCard({ label, value, accent, delta }: { label: string; value:
 }
 
 export function Card({ children, title }: { children: React.ReactNode; title?: string }) {
-  return <motion.div className="bg-[var(--surface-1)] border border-[var(--border)] rounded-2xl p-6 mb-5" style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.12)" }} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: "easeOut" }}>
+  return <motion.div className="bg-[var(--surface-1)] border border-[var(--border)] rounded-2xl mb-5" style={{ padding: "var(--card-padding)", boxShadow: "var(--shadow-1)" }} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}>
     {title && <h3 className="text-[18px] font-semibold text-[var(--text-primary)] pb-3 mb-4 border-b border-[var(--border)] font-heading">{title}</h3>}
     {children}
   </motion.div>;
 }
 
-export function Empty({ text, icon = "📭" }: { text: string; icon?: string }) {
-  return <div className="text-center py-12 text-[var(--text-secondary)]"><div className="text-3xl mb-2 opacity-40">{icon}</div><div className="text-sm max-w-xs mx-auto leading-relaxed">{text}</div></div>;
+export function Empty({ text, icon = "📭", action, onAction }: { text: string; icon?: string; action?: string; onAction?: () => void }) {
+  return <div className="text-center py-12 text-[var(--text-secondary)]">
+    <div className="relative inline-block mb-3">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="opacity-15 mx-auto"><circle cx="24" cy="24" r="20" stroke="var(--text-muted)" strokeWidth="1.5" strokeDasharray="4 4" /><circle cx="24" cy="24" r="10" stroke="var(--accent-primary)" strokeWidth="1" opacity="0.4" /></svg>
+      <div className="absolute inset-0 flex items-center justify-center text-2xl opacity-40">{icon}</div>
+    </div>
+    <div className="text-sm max-w-sm mx-auto leading-relaxed">{text}</div>
+    {action && onAction && <button onClick={onAction} className="btn-interactive mt-3 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-semibold bg-[var(--accent-primary)] text-white">{action}</button>}
+  </div>;
 }
 
 export function Badge({ children, color = "gray" }: { children: React.ReactNode; color?: string }) {
@@ -842,7 +852,7 @@ export function ExpandableChart({ title, children }: { title?: string; children:
     <div onDoubleClick={() => setExpanded(true)}>{children}</div>
     {/* Expanded modal */}
     {expanded && <div style={{ position: "fixed", inset: 0, zIndex: 99998, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.8)", backdropFilter: "blur(8px)", animation: "ecFadeIn 0.2s ease" }} onClick={() => setExpanded(false)}>
-      <div style={{ width: "90vw", height: "85vh", background: "var(--surface-1)", borderRadius: 20, border: "1px solid var(--border)", boxShadow: "0 32px 80px rgba(0,0,0,0.5)", display: "flex", flexDirection: "column", overflow: "hidden" }} onClick={e => e.stopPropagation()}>
+      <div style={{ width: "90vw", height: "85vh", background: "var(--surface-1)", borderRadius: 20, border: "1px solid var(--border)", boxShadow: "var(--shadow-4)", display: "flex", flexDirection: "column", overflow: "hidden" }} onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div style={{ padding: "16px 24px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
           {title && <h3 style={{ fontSize: 22, fontWeight: 700, color: "var(--text-primary)", fontFamily: "'Outfit', sans-serif" }}>{title}</h3>}
@@ -972,7 +982,7 @@ export function PageHeader({ icon, title, subtitle, onBack, moduleId, onUpload, 
     <button onClick={onBack} className="text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mb-3 flex items-center gap-1 transition-colors">← {(() => { if (!moduleId) return "Back to Home"; const mod = MODULES.find(m => m.id === moduleId); if (!mod) return "Back to Home"; const phase = PHASES.find(p => p.modules.includes(moduleId)); return phase ? `Back to ${phase.label}` : "Back to Home"; })()}</button>
     <div className="flex items-center justify-between flex-wrap gap-4">
       <div className="flex items-center gap-3">
-        <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#e09040] to-[#c07030] flex items-center justify-center text-xl" style={{ boxShadow: "0 2px 8px rgba(224,144,64,0.25)" }}>{icon}</div>
+        <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#e09040] to-[#c07030] flex items-center justify-center text-xl" style={{ boxShadow: "var(--shadow-1)" }}>{icon}</div>
         <div><h1 className="text-[22px] font-extrabold text-[var(--text-primary)] tracking-tight font-heading">{title}</h1><p className="text-[16px] text-[var(--text-secondary)]">{subtitle}</p></div>
         {moduleId && <InfoButton moduleId={moduleId} />}
       </div>
@@ -1481,7 +1491,7 @@ export function StoryEngine({ projectName, model, contextData, onClose, onNaviga
 
   return <motion.div className="fixed inset-0 z-[99998] flex" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
     <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-    <motion.div className="relative mx-auto my-4 w-full max-w-[900px] rounded-2xl border border-[var(--border)] overflow-hidden flex flex-col" style={{ background: "var(--bg)", boxShadow: "0 16px 70px rgba(0,0,0,0.4)", maxHeight: "calc(100vh - 32px)" }} initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.3 }}>
+    <motion.div className="relative mx-auto my-4 w-full max-w-[900px] rounded-2xl border border-[var(--border)] overflow-hidden flex flex-col" style={{ background: "var(--bg)", boxShadow: "var(--shadow-4)", maxHeight: "calc(100vh - 32px)" }} initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.3 }}>
       {/* Header */}
       <div className="flex items-center justify-between px-8 py-5 border-b border-[var(--border)]" style={{ background: "linear-gradient(135deg, rgba(212,134,10,0.06), transparent)" }}>
         <div>
@@ -1536,7 +1546,7 @@ export function StoryEngine({ projectName, model, contextData, onClose, onNaviga
               background: isSummary ? "rgba(212,134,10,0.04)" : "var(--surface-1)",
               border: `1px solid ${isSummary ? "rgba(212,134,10,0.15)" : "var(--border)"}`,
               borderLeftColor: isSummary ? "var(--accent-primary)" : undefined,
-              boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+              boxShadow: "var(--shadow-1)",
             }}>
               {/* Headline metric */}
               {section.metric && isSummary && <div className="mb-4 text-center"><span className="text-[36px] font-extrabold font-data" style={{ color: "var(--accent-primary)" }}>{section.metric}</span>{section.metricLabel && <span className="text-[14px] text-[var(--text-muted)] ml-2 uppercase tracking-wider">{section.metricLabel}</span>}</div>}
@@ -1664,7 +1674,7 @@ export function ViewSelector({ onSelect, employees, jobs, filterOptions, onBack 
 
   return <div style={{ position: "fixed", inset: 0, overflow: "auto", background: "#0B1120" }}>
     {/* Full bleed background */}
-    <div style={{ position: "absolute", inset: 0, backgroundImage: "url(/view_bg.png), linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 65%, #0a0f1a 100%)", backgroundSize: "cover, cover", backgroundPosition: "center center, center center", backgroundRepeat: "no-repeat, no-repeat", width: "100vw", height: "100vh" }} />
+    <VideoBackground name="view_bg" overlay={0.2} poster="/view_bg.png" fallbackGradient="linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 65%, #0a0f1a 100%)" className="absolute inset-0 w-screen h-screen" />
     <div style={{ position: "absolute", inset: 0, background: revealed ? "rgba(8,12,24,0.75)" : "radial-gradient(ellipse at center, rgba(8,12,24,0.2) 0%, rgba(8,12,24,0.5) 60%, rgba(8,12,24,0.7) 100%)", transition: "background 0.6s ease", width: "100vw", height: "100vh" }} />
 
     {/* Back button */}
@@ -2195,7 +2205,7 @@ Return ONLY valid JSON in this exact format:
 
   return <div style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center" }}>
     <div onClick={onClose} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)" }} />
-    <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 720, maxHeight: "85vh", overflow: "auto", background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 20, padding: "24px", boxShadow: "0 24px 60px rgba(0,0,0,0.4)" }}>
+    <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 720, maxHeight: "85vh", overflow: "auto", background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 20, padding: "24px", boxShadow: "var(--shadow-4)" }}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>

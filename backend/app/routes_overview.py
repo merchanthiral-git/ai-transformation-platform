@@ -13,6 +13,7 @@ router = APIRouter(prefix="/api", tags=["overview"])
 
 @router.get("/filter-options")
 def get_filter_options(model_id: str, fn: str = Query("All", alias="func"), jf: str = "All", sf: str = "All"):
+    model_id = store.resolve_model_id(model_id)
     if model_id not in store.datasets:
         return {"functions": ["All"], "job_families": ["All"], "sub_families": ["All"], "career_levels": ["All"]}
     from app.helpers import build_filter_dimension_source, clean_options
@@ -44,6 +45,7 @@ def get_filter_options(model_id: str, fn: str = Query("All", alias="func"), jf: 
 
 @router.get("/job-options")
 def get_job_options(model_id: str, fn: str = Query("All", alias="func"), jf: str = "All", sf: str = "All", cl: str = "All"):
+    model_id = store.resolve_model_id(model_id)
     if model_id not in store.datasets:
         return {"jobs": []}
     data = store.get_filtered_data(model_id, _f(fn, jf, sf, cl))
@@ -176,6 +178,7 @@ def _build_upload_insights(wf, wd, jc, org, fc, ai, avg_span, high_ai, readiness
 
 @router.get("/overview")
 def get_overview(model_id: str, fn: str = Query("All", alias="func"), jf: str = "All", sf: str = "All", cl: str = "All"):
+    model_id = store.resolve_model_id(model_id)
     if model_id not in store.datasets:
         raise HTTPException(404, "Model not found")
     data = store.get_filtered_data(model_id, _f(fn, jf, sf, cl))

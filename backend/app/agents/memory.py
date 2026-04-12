@@ -14,8 +14,13 @@ MEMORY_DIR = Path(__file__).parent.parent.parent / "data" / "agent_memory"
 MEMORY_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def _memory_path(project_id: str) -> Path:
+def _memory_path(project_id: str, user_id: str = "") -> Path:
     safe_id = project_id.replace("/", "_").replace("..", "_")
+    if user_id:
+        safe_uid = user_id.replace("/", "_").replace("..", "_")
+        user_dir = MEMORY_DIR / safe_uid
+        user_dir.mkdir(parents=True, exist_ok=True)
+        return user_dir / f"{safe_id}.json"
     return MEMORY_DIR / f"{safe_id}.json"
 
 

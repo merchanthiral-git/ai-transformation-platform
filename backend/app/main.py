@@ -66,6 +66,38 @@ app.add_middleware(
 from starlette.middleware.gzip import GZipMiddleware
 app.add_middleware(GZipMiddleware, minimum_size=500)
 
+# ── Auth middleware — protect all /api/* except public endpoints ──
+from starlette.middleware.base import BaseHTTPMiddleware
+from app.auth import decode_token
+
+PUBLIC_PATHS = {
+    "/api/auth/register", "/api/auth/login", "/api/auth/forgot-password",
+    "/api/auth/reset-password", "/api/auth/check-username", "/api/auth/check-email",
+    "/api/health",
+}
+PUBLIC_PREFIXES = ("/docs", "/openapi.json", "/redoc")
+
+class AuthMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        path = request.url.path
+        # Skip non-API and public paths
+        if not path.startswith("/api/") or path in PUBLIC_PATHS or path.startswith(PUBLIC_PREFIXES):
+            return await call_next(request)
+        # Check Authorization header
+        auth_header = request.headers.get("authorization", "")
+        if not auth_header.startswith("Bearer "):
+            return JSONResponse(status_code=401, content={"detail": "Not authenticated"})
+        token = auth_header[7:]
+        try:
+            payload = decode_token(token)
+            request.state.user_id = payload.get("sub", "")
+            request.state.username = payload.get("username", "")
+        except Exception:
+            return JSONResponse(status_code=401, content={"detail": "Invalid or expired token"})
+        return await call_next(request)
+
+app.add_middleware(AuthMiddleware)
+
 # ── Mount all routers ──
 app.include_router(auth_router)
 app.include_router(project_router)
@@ -84,6 +116,14 @@ app.include_router(export_ext_router)
 # Agent system
 from app.routes_agents import router as agents_router
 app.include_router(agents_router)
+
+# Natural Language Query
+from app.routes_nlq import router as nlq_router
+app.include_router(nlq_router)
+
+# Flight Recorder
+from app.routes_flight_recorder import router as flight_recorder_router
+app.include_router(flight_recorder_router)
 
 # AI Provider abstraction
 from app.ai_providers import call_ai_sync, get_ai_status
@@ -134,11 +174,31 @@ def health_check():
 # ═══════════════════════════════════════════════════════════════════════
 
 
+def _user_id(request: Request) -> str:
+    """Extract authenticated user_id from middleware-set state."""
+    return getattr(request.state, "user_id", "")
+
+
+def _user_models(request: Request) -> list[str]:
+    """Return model IDs belonging to the current user."""
+    uid = _user_id(request)
+    if not uid:
+        return store.get_model_ids()
+    return [m for m in store.get_model_ids() if m.startswith(f"{uid}:") or not ":" in m]
+
+
 @app.get("/api/models")
-def list_models():
+def list_models(request: Request):
     try:
-        models = store.get_model_ids()
-        return _safe({"models": models, "last_loaded": store.last_loaded_model_id})
+        uid = _user_id(request)
+        all_models = store.get_model_ids()
+        # Return user-scoped models (prefixed with user_id:) + legacy unprefixed
+        user_models = [m for m in all_models if m.startswith(f"{uid}:") or ":" not in m]
+        # Strip user prefix for display
+        display_models = [m.split(":", 1)[1] if m.startswith(f"{uid}:") else m for m in user_models]
+        last = store.last_loaded_model_id or ""
+        display_last = last.split(":", 1)[1] if last.startswith(f"{uid}:") else last
+        return _safe({"models": display_models, "last_loaded": display_last})
     except Exception as e:
         import traceback
         traceback.print_exc()
@@ -146,7 +206,8 @@ def list_models():
 
 
 @app.post("/api/upload")
-async def upload_files(files: list[UploadFile] = File(...)):
+async def upload_files(request: Request, files: list[UploadFile] = File(...)):
+    uid = _user_id(request)
     # Validate files
     for f in files:
         ext = Path(f.filename).suffix.lower() if f.filename else ""
@@ -158,20 +219,39 @@ async def upload_files(files: list[UploadFile] = File(...)):
         if len(content) > MAX_FILE_SIZE_BYTES:
             raise HTTPException(400, f"File '{f.filename}' exceeds {MAX_FILE_SIZE_MB}MB limit")
         file_data.append((f.filename, content))
-    s = store.process_uploads(file_data)
+    s = store.process_uploads(file_data, user_id=uid)
     active_model = store.last_loaded_model_id or ""
+    display_model = active_model.split(":", 1)[1] if active_model.startswith(f"{uid}:") else active_model
+    user_models = [m for m in store.get_model_ids() if m.startswith(f"{uid}:") or ":" not in m]
+    display_models = [m.split(":", 1)[1] if m.startswith(f"{uid}:") else m for m in user_models]
+
+    # Flight recorder
+    from app.flight_recorder import recorder
+    filenames = [fd[0] for fd in file_data]
+    recorder.record(display_model or "unknown", uid, getattr(request.state, "username", ""),
+        "data.uploaded", "overview",
+        f"Data uploaded: {', '.join(filenames)}",
+        f"{len(s)} sheets loaded into model {display_model}",
+        data_snapshot={"after": {"sheets": len(s), "model": display_model, "files": filenames}},
+        significance="major", tags=["upload"])
+
     return _safe({
         "sheets_loaded": len(s),
         "summary": _j(s),
-        "active_model": active_model,
+        "active_model": display_model,
         "jobs": _job_list_for_model(store, active_model),
-        "models": store.get_model_ids(),
+        "models": display_models,
     })
 
 
 @app.post("/api/reset")
-def reset_data():
-    store.reset()
+def reset_data(request: Request):
+    uid = _user_id(request)
+    # Only reset this user's data
+    to_remove = [m for m in store.get_model_ids() if m.startswith(f"{uid}:")]
+    for m in to_remove:
+        if m in store.datasets:
+            del store.datasets[m]
     return {"ok": True}
 
 
