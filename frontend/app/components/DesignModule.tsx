@@ -16,7 +16,7 @@ import {
 } from "./shared";
 import { EmployeeOrgChart } from "./OverviewModule";
 
-export function BBBAFramework({ model, f, onBack, onNavigate }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void }) {
+export function BBBAFramework({ model, f, onBack, onNavigate, jobStates, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; jobStates?: Record<string, import("./shared").JobDesignState>; viewCtx?: import("./shared").ViewContext }) {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
   const [overrides, setOverrides] = usePersisted<Record<string, string>>(`${model}_bbba_overrides`, {});
@@ -158,7 +158,7 @@ export function BBBAFramework({ model, f, onBack, onNavigate }: { model: string;
    MODULE: HEADCOUNT PLANNING
    ═══════════════════════════════════════════════════════════════ */
 
-export function HeadcountPlanning({ model, f, onBack, onNavigate }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void }) {
+export function HeadcountPlanning({ model, f, onBack, onNavigate, jobStates, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; jobStates?: Record<string, import("./shared").JobDesignState>; viewCtx?: import("./shared").ViewContext }) {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
 

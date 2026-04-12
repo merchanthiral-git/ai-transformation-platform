@@ -133,14 +133,17 @@ export function useWorkspaceController(): WorkspaceState {
       .then((data) => {
         const nextJobs = data.jobs || [];
         setJobs(nextJobs);
+        // Preserve active job if it still exists in filtered list
         setJobState((current) => {
           if (current && nextJobs.includes(current)) return current;
-          return ""; // Keep "All Jobs" default
+          // If the exact job isn't in the list, keep the selection as context
+          // (the user explicitly chose this job — don't silently discard it)
+          return current;
         });
       })
       .catch(() => {
         setJobs([]);
-        setJobState("");
+        // Don't reset job on network error — preserve user selection
       });
   }, [model, filters.func, filters.jf, filters.sf, filters.cl]);
 

@@ -758,6 +758,31 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
 
 /* ═══════════════════════════════════════════════════════════════
    HOME — Main workspace
+   ═══════════════════════════════════════════════════════════════
+
+   CROSS-MODULE DATA FLOW:
+   ┌─────────┐  filters (f)   ┌──────────┐  jobStates  ┌──────────┐  simState  ┌──────────┐
+   │ Sidebar  │──────────────→ │ ALL      │────────────→│ Simulate │──────────→ │ Mobilize │
+   │ Filters  │  model, job    │ MODULES  │             │          │            │ Roadmap  │
+   └─────────┘                 └──────────┘             └──────────┘            └──────────┘
+       │                            ↑                        ↑                       ↑
+       │  viewCtx                   │ API data               │ redeployRows          │ jobStates
+       └────────────────────────────┘ (filtered)             │ (design decisions)    │ simState
+                                                             │                       │
+   ┌─────────┐  jobStates (R/W)  ┌──────────┐               │                       │
+   │ Design   │─────────────────→│ jobStates│───────────────┘                       │
+   │ WDL      │  decon/redeploy  │ (central)│───────────────────────────────────────┘
+   └─────────┘                   └──────────┘
+       │                              │
+       │  logDec() (global)           │ decisionLog, riskRegister
+       └──────────────────────────────┼──────────→ ┌──────────┐
+                                      └──────────→ │ Export   │
+                                                   │ Dashboard│
+                                                   └──────────┘
+   State lives in Home component, flows via props.
+   Filters cascade: func → jf → sf → cl (workspace.ts).
+   All API calls include filters for server-side filtering.
+   logDec() is globally available for cross-module decision tracking.
    ═══════════════════════════════════════════════════════════════ */
 function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowProfile, onShowPlatformHub }: { projectId: string; projectName: string; projectMeta: string; onBackToHub: () => void; user?: authApi.AuthUser; onShowProfile?: () => void; onShowPlatformHub?: () => void }) {
   const { theme, toggle: toggleTheme } = useTheme();
@@ -1578,29 +1603,29 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       {page === "snapshot" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><WorkforceSnapshot model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {(page === "jobs" || page === "jobarch") && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><JobArchitectureModule model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "scan" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><AiOpportunityScan model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
-      {page === "mgrcap" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ManagerCapability model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
-      {page === "changeready" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ChangeReadiness model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
-      {page === "mgrdev" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ManagerDevelopment model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
+      {page === "mgrcap" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ManagerCapability model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
+      {page === "changeready" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ChangeReadiness model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
+      {page === "mgrdev" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ManagerDevelopment model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "recommendations" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><AiRecommendationsEngine model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "orghealth" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><OrgHealthScorecard model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "heatmap" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><AIImpactHeatmap model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "clusters" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><RoleClustering model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
-      {page === "skillshift" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><SkillShiftIndex model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
-      {page === "story" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><TransformationStoryBuilder model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
-      {page === "archetypes" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ReadinessArchetypes model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
-      {page === "export" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ExportReport model={model} f={f} onBack={goHome} /></ErrorBoundary>}
+      {page === "skillshift" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><SkillShiftIndex model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
+      {page === "story" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><TransformationStoryBuilder model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
+      {page === "archetypes" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ReadinessArchetypes model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
+      {page === "export" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ExportReport model={model} f={f} onBack={goHome} onNavigate={navigate} jobStates={jobStates} simState={simState} decisionLog={decisionLog} riskRegister={riskRegister} /></ErrorBoundary>}
       {page === "dashboard" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><TransformationExecDashboard model={model} f={f} onBack={goHome} onNavigate={navigate} decisionLog={decisionLog} riskRegister={riskRegister} addRisk={addRisk} updateRisk={updateRisk} /></ErrorBoundary>}
       {page === "readiness" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><AIReadiness model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
-      {page === "bbba" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><BBBAFramework model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
-      {page === "headcount" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><HeadcountPlanning model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
+      {page === "bbba" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><BBBAFramework model={model} f={f} onBack={goHome} onNavigate={navigate} jobStates={jobStates} viewCtx={viewCtx} /></ErrorBoundary>}
+      {page === "headcount" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><HeadcountPlanning model={model} f={f} onBack={goHome} onNavigate={navigate} jobStates={jobStates} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "reskill" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ReskillingPathways model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
-      {page === "marketplace" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><TalentMarketplace model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
-      {page === "skillnet" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><SkillsNetwork model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
+      {page === "marketplace" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><TalentMarketplace model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
+      {page === "skillnet" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><SkillsNetwork model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "skills" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><SkillsTalent model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "design" && model && viewCtx.mode !== "employee" && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><WorkDesignLab model={model} f={f} job={viewCtx.mode === "job" ? viewCtx.job || job : job} jobs={jobs} onBack={goHome} jobStates={jobStates} setJobState={setJobState} onSelectJob={setJob} /></ErrorBoundary>}
       {page === "simulate" && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ImpactSimulator onBack={goHome} onNavigate={navigate} model={model} viewCtx={viewCtx} f={f} jobStates={jobStates} simState={simState} setSimState={setSimState} /></ErrorBoundary>}
       {page === "build" && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><OrgDesignStudio onBack={goHome} viewCtx={viewCtx} model={model} f={f} odsState={odsState} setOdsState={setOdsState} /></ErrorBoundary>}
-      {page === "plan" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ChangePlanner model={model} f={f} onBack={goHome} onNavigate={navigate} jobStates={jobStates} viewCtx={viewCtx} /></ErrorBoundary>}
+      {page === "plan" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ChangePlanner model={model} f={f} onBack={goHome} onNavigate={navigate} jobStates={jobStates} simState={simState} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "opmodel" && viewCtx.mode === "job" && <div className="px-7 py-6"><div className="text-center py-20"><div className="text-4xl mb-3 opacity-30">🔒</div><h3 className="text-lg font-semibold mb-1">Not available in Job View</h3><p className="text-[15px] text-[var(--text-secondary)] mb-2">Operating Model Lab is available in:</p><div className="flex gap-2 justify-center mb-4"><Badge color="indigo">🏢 Organization</Badge><Badge color="amber">⚙️ Custom</Badge></div><button onClick={() => setViewMode("")} className="text-[var(--accent-primary)] text-[15px] font-semibold">Change View ↻</button></div></div>}
       {page === "opmodel" && viewCtx.mode !== "employee" && viewCtx.mode !== "job" && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><OperatingModelLab onBack={goHome} model={model} f={f} projectId={projectId} onNavigateCanvas={() => navigate("om_canvas")} onModelChange={setModel} /></ErrorBoundary>}
       {(page === "design" && viewCtx.mode === "employee") && <div className="text-center py-20"><div className="text-4xl mb-3 opacity-30">🔒</div><h3 className="text-lg font-semibold mb-1">Not available in Employee View</h3><p className="text-[15px] text-[var(--text-secondary)] mb-2">Work Design Lab is available in these views:</p><div className="flex gap-2 justify-center mb-4"><Badge color="indigo">🏢 Organization</Badge><Badge color="green">💼 Job</Badge><Badge color="amber">⚙️ Custom</Badge></div><button onClick={() => setViewMode("")} className="text-[var(--accent-primary)] text-[15px] font-semibold">Change View ↻</button></div>}
@@ -1729,16 +1754,29 @@ function seedTutorialData(projectId: string, industry: string = "technology") {
     snapshot: true, jobs: true, scan: true, readiness: true, skills: true, design: true, simulate: true, build: true
   }));
 
-  // Work Design: Data Analyst with 8 realistic tasks
+  // Industry-specific primary analyst role and skills
+  const INDUSTRY_ROLES: Record<string, { analyst: string; analyst2: string; skills: string[]; omFn: string }> = {
+    technology: { analyst: "Data Analyst", analyst2: "Financial Analyst", skills: ["Data Analysis", "Python/SQL", "Cloud Platforms", "AI/ML Tools", "Process Automation", "Communication", "Leadership"], omFn: "engineering" },
+    financial_services: { analyst: "Risk Analyst", analyst2: "Fund Accountant", skills: ["Financial Modeling", "Risk Assessment", "Regulatory Knowledge", "Data Analysis", "Process Automation", "Communication", "Leadership"], omFn: "finance" },
+    healthcare: { analyst: "Clinical Data Analyst", analyst2: "Revenue Cycle Specialist", skills: ["Clinical Data Analysis", "EHR Systems", "Medical Coding", "Regulatory Knowledge", "Process Automation", "Communication", "Leadership"], omFn: "clinical" },
+    retail: { analyst: "Demand Planner", analyst2: "Financial Analyst", skills: ["Demand Forecasting", "Inventory Mgmt", "Customer Experience", "Data Analysis", "Process Automation", "Communication", "Leadership"], omFn: "merchandising" },
+    manufacturing: { analyst: "Quality Analyst", analyst2: "Financial Analyst", skills: ["Process Engineering", "Quality Control", "Lean/Six Sigma", "Data Analysis", "Process Automation", "Communication", "Leadership"], omFn: "operations" },
+    consulting: { analyst: "Data Consultant", analyst2: "Senior Analyst", skills: ["Strategy Frameworks", "Client Management", "Data Analysis", "Process Design", "Process Automation", "Communication", "Leadership"], omFn: "strategy" },
+    energy: { analyst: "Reservoir Analyst", analyst2: "Financial Analyst", skills: ["Process Engineering", "Asset Mgmt", "HSE Knowledge", "Data Analysis", "Process Automation", "Communication", "Leadership"], omFn: "operations" },
+    aerospace: { analyst: "Test Engineer", analyst2: "Program Analyst", skills: ["Systems Engineering", "Requirements Analysis", "Program Management", "Data Analysis", "Process Automation", "Communication", "Leadership"], omFn: "engineering" },
+  };
+  const ind = INDUSTRY_ROLES[industry] || INDUSTRY_ROLES.technology;
+
+  // Work Design: Industry-specific analyst with 8 tasks
   const tasks = [
-    { "Task Name": "Data extraction & cleaning", "Current Time Spent %": 25, "Task Type": "Repetitive", "Logic": "Deterministic", "Interaction": "Independent", "AI Impact": "High", "Primary Skill": "Data Analysis", "Secondary Skill": "Python/SQL" },
-    { "Task Name": "Report generation & formatting", "Current Time Spent %": 20, "Task Type": "Repetitive", "Logic": "Deterministic", "Interaction": "Independent", "AI Impact": "High", "Primary Skill": "Data Analysis", "Secondary Skill": "Communication" },
-    { "Task Name": "Ad-hoc analysis for stakeholders", "Current Time Spent %": 15, "Task Type": "Variable", "Logic": "Probabilistic", "Interaction": "Interactive", "AI Impact": "Moderate", "Primary Skill": "Critical Thinking", "Secondary Skill": "Data Analysis" },
-    { "Task Name": "Dashboard creation & maintenance", "Current Time Spent %": 10, "Task Type": "Repetitive", "Logic": "Deterministic", "Interaction": "Independent", "AI Impact": "High", "Primary Skill": "Cloud Platforms", "Secondary Skill": "Data Analysis" },
-    { "Task Name": "Stakeholder presentations", "Current Time Spent %": 10, "Task Type": "Variable", "Logic": "Judgment-heavy", "Interaction": "Collaborative", "AI Impact": "Low", "Primary Skill": "Communication", "Secondary Skill": "Stakeholder Mgmt" },
-    { "Task Name": "Data quality monitoring", "Current Time Spent %": 8, "Task Type": "Repetitive", "Logic": "Deterministic", "Interaction": "Independent", "AI Impact": "High", "Primary Skill": "Data Analysis", "Secondary Skill": "Process Automation" },
-    { "Task Name": "Cross-team consulting", "Current Time Spent %": 7, "Task Type": "Variable", "Logic": "Judgment-heavy", "Interaction": "Collaborative", "AI Impact": "Low", "Primary Skill": "Leadership", "Secondary Skill": "Communication" },
-    { "Task Name": "Tool evaluation", "Current Time Spent %": 5, "Task Type": "Variable", "Logic": "Probabilistic", "Interaction": "Interactive", "AI Impact": "Moderate", "Primary Skill": "AI/ML Tools", "Secondary Skill": "Critical Thinking" },
+    { "Task Name": "Data extraction & pipeline maintenance", "Current Time Spent %": 25, "Task Type": "Repetitive", "Logic": "Deterministic", "Interaction": "Independent", "AI Impact": "High", "Primary Skill": ind.skills[0], "Secondary Skill": ind.skills[3] },
+    { "Task Name": "Report generation & formatting", "Current Time Spent %": 20, "Task Type": "Repetitive", "Logic": "Deterministic", "Interaction": "Independent", "AI Impact": "High", "Primary Skill": ind.skills[0], "Secondary Skill": ind.skills[5] },
+    { "Task Name": "Ad-hoc stakeholder analysis", "Current Time Spent %": 15, "Task Type": "Variable", "Logic": "Probabilistic", "Interaction": "Interactive", "AI Impact": "Moderate", "Primary Skill": ind.skills[2], "Secondary Skill": ind.skills[0] },
+    { "Task Name": "Dashboard creation & maintenance", "Current Time Spent %": 10, "Task Type": "Repetitive", "Logic": "Deterministic", "Interaction": "Independent", "AI Impact": "High", "Primary Skill": ind.skills[1], "Secondary Skill": ind.skills[0] },
+    { "Task Name": "Executive presentations", "Current Time Spent %": 10, "Task Type": "Variable", "Logic": "Judgment-heavy", "Interaction": "Collaborative", "AI Impact": "Low", "Primary Skill": ind.skills[5], "Secondary Skill": ind.skills[6] },
+    { "Task Name": "Data quality monitoring", "Current Time Spent %": 8, "Task Type": "Repetitive", "Logic": "Deterministic", "Interaction": "Independent", "AI Impact": "High", "Primary Skill": ind.skills[0], "Secondary Skill": ind.skills[4] },
+    { "Task Name": "Cross-team consulting", "Current Time Spent %": 7, "Task Type": "Variable", "Logic": "Judgment-heavy", "Interaction": "Collaborative", "AI Impact": "Low", "Primary Skill": ind.skills[6], "Secondary Skill": ind.skills[5] },
+    { "Task Name": "Tool evaluation", "Current Time Spent %": 5, "Task Type": "Variable", "Logic": "Probabilistic", "Interaction": "Interactive", "AI Impact": "Moderate", "Primary Skill": ind.skills[3], "Secondary Skill": ind.skills[2] },
   ];
 
   const redeploy = tasks.map(t => ({
@@ -1749,86 +1787,65 @@ function seedTutorialData(projectId: string, industry: string = "technology") {
     "Destination": t["Logic"] === "Deterministic" && t["AI Impact"] === "High" ? "AI / automation layer" : "Continue in role",
   }));
 
-  // Seed multiple roles for realistic job catalog
+  // Seed industry-specific job states
+  const emptyJob = { deconRows: [], redeployRows: [], scenario: "Balanced", deconSubmitted: false, redeploySubmitted: false, finalized: false, recon: null, initialized: false };
   localStorage.setItem(`${projectId}_jobStates`, JSON.stringify({
-    "Financial Analyst": { deconRows: [
-      { "Task Name": "Monthly close reconciliation", "Current Time Spent %": 30, "Task Type": "Repetitive", "Logic": "Deterministic", "Interaction": "Independent", "AI Impact": "High", "Primary Skill": "Data Analysis", "Secondary Skill": "Process Automation" },
-      { "Task Name": "Budget variance analysis", "Current Time Spent %": 20, "Task Type": "Variable", "Logic": "Probabilistic", "Interaction": "Interactive", "AI Impact": "Moderate", "Primary Skill": "Critical Thinking", "Secondary Skill": "Data Analysis" },
-      { "Task Name": "Financial modeling", "Current Time Spent %": 15, "Task Type": "Variable", "Logic": "Probabilistic", "Interaction": "Interactive", "AI Impact": "Moderate", "Primary Skill": "Data Analysis", "Secondary Skill": "Critical Thinking" },
-      { "Task Name": "Board reporting", "Current Time Spent %": 10, "Task Type": "Variable", "Logic": "Judgment-heavy", "Interaction": "Collaborative", "AI Impact": "Low", "Primary Skill": "Communication", "Secondary Skill": "Leadership" },
-      { "Task Name": "Invoice processing oversight", "Current Time Spent %": 10, "Task Type": "Repetitive", "Logic": "Deterministic", "Interaction": "Independent", "AI Impact": "High", "Primary Skill": "Process Automation", "Secondary Skill": "Data Analysis" },
-      { "Task Name": "Stakeholder data requests", "Current Time Spent %": 15, "Task Type": "Variable", "Logic": "Judgment-heavy", "Interaction": "Collaborative", "AI Impact": "Low", "Primary Skill": "Stakeholder Mgmt", "Secondary Skill": "Communication" },
-    ], redeployRows: [], scenario: "Balanced", deconSubmitted: true, redeploySubmitted: false, finalized: false, recon: null, initialized: true },
-    "Operations Coordinator": { deconRows: [], redeployRows: [], scenario: "Balanced", deconSubmitted: false, redeploySubmitted: false, finalized: false, recon: null, initialized: false },
-    "HR Business Partner": { deconRows: [], redeployRows: [], scenario: "Balanced", deconSubmitted: false, redeploySubmitted: false, finalized: false, recon: null, initialized: false },
-    "Data Analyst": { deconRows: tasks, redeployRows: redeploy, scenario: "Balanced", deconSubmitted: true, redeploySubmitted: true, finalized: false, recon: null, initialized: true }
+    [ind.analyst]: { deconRows: tasks, redeployRows: redeploy, scenario: "Balanced", deconSubmitted: true, redeploySubmitted: true, finalized: false, recon: null, initialized: true },
+    [ind.analyst2]: { ...emptyJob, initialized: true },
+    "Financial Analyst": { ...emptyJob, initialized: true },
+    "HRBP": { ...emptyJob },
   }));
 
   localStorage.setItem(`${projectId}_simState`, JSON.stringify({ scenario: "balanced", custom: false, custAdopt: 55, custTimeline: 10, investment: 45000 }));
-  // Pre-configure Operating Model for tutorial
-  localStorage.setItem(`${projectId}_omFn`, JSON.stringify("finance"));
+  localStorage.setItem(`${projectId}_omFn`, JSON.stringify(ind.omFn));
   localStorage.setItem(`${projectId}_omArch`, JSON.stringify("platform"));
   localStorage.setItem(`${projectId}_odsState`, JSON.stringify({ activeScenario: 0, view: "overview" }));
   localStorage.setItem(`${projectId}_skillsConfirmed`, JSON.stringify(true));
-  // Pre-seed gap dispositions
-  localStorage.setItem(`${projectId}_gapDispositions`, JSON.stringify({
-    "AI/ML Tools": "Close Internally",
-    "AI Literacy": "Close Internally", 
-    "Process Automation": "Close Internally",
-    "Digital Fluency": "Close Internally",
-    "Data Analysis": "Accept Risk",
-    "Python/SQL": "Close Internally",
-    "Cloud Platforms": "Hire Externally",
+  // Pre-seed gap dispositions with industry-specific skills
+  const gapDisp: Record<string, string> = {};
+  ind.skills.slice(0, 3).forEach(s => { gapDisp[s] = "Close Internally"; });
+  ind.skills.slice(3, 5).forEach(s => { gapDisp[s] = "Accept Risk"; });
+  if (ind.skills[5]) gapDisp[ind.skills[5]] = "Close Internally";
+  if (ind.skills[6]) gapDisp[ind.skills[6]] = "Hire Externally";
+  localStorage.setItem(`${projectId}_gapDispositions`, JSON.stringify(gapDisp));
+
+  localStorage.setItem(`${projectId}_shortlisted`, JSON.stringify({}));
+  localStorage.setItem(`${projectId}_bbba_overrides`, JSON.stringify({}));
+  localStorage.setItem(`${projectId}_mp_shortlist`, JSON.stringify({}));
+
+  // Pre-seed maturity scores
+  localStorage.setItem(`${ind.omFn}_platform_maturity`, JSON.stringify({
+    "Strategy & Planning": 3, "Service Delivery": 2, "Analytics": 2, "Governance": 1,
+    "Innovation": 2, "Talent": 2, "Process Excellence": 3, "Technology": 2, "Customer Experience": 3
+  }));
+  localStorage.setItem(`${ind.omFn}_platform_target`, JSON.stringify({
+    "Strategy & Planning": 4, "Service Delivery": 4, "Analytics": 4, "Governance": 3,
+    "Innovation": 4, "Talent": 3, "Process Excellence": 4, "Technology": 4, "Customer Experience": 4
   }));
 
-  // Pre-seed shortlisted candidates
-  localStorage.setItem(`${projectId}_shortlisted`, JSON.stringify({
-    "AI Operations Analyst": ["Sarah Chen", "James Rodriguez"],
-    "AI Change Manager": ["Lisa Patel"],
-  }));
-
-  // Pre-seed BBBA overrides
-  localStorage.setItem(`${projectId}_bbba_overrides`, JSON.stringify({
-    "AI Operations Analyst": "Build",
-    "Data Governance Lead": "Buy",
-  }));
-
-  // Pre-seed marketplace shortlist
-  localStorage.setItem(`${projectId}_mp_shortlist`, JSON.stringify({
-    "AI Operations Analyst": ["Sarah Chen"],
-  }));
-
-  // Pre-seed maturity scores (Finance + Platform)
-  localStorage.setItem(`finance_platform_maturity`, JSON.stringify({
-    "Accounting & Close": 3, "FP&A": 2, "Treasury": 2, "Tax": 1, "Audit": 2,
-    "Procurement": 2, "AP/AR": 3, "Revenue": 2, "Reporting": 3, "Analytics": 1
-  }));
-  localStorage.setItem(`finance_platform_target`, JSON.stringify({
-    "Accounting & Close": 4, "FP&A": 4, "Treasury": 3, "Tax": 3, "Audit": 3,
-    "Procurement": 4, "AP/AR": 4, "Revenue": 3, "Reporting": 4, "Analytics": 4
-  }));
-
-  // Seed decision log with tutorial entries
+  // Seed decision log with industry-relevant entries
   const co = getTutorialCompany(projectId);
-  const empLabel = `${Math.min(co.employees, 500)} employees`;
+  const empLabel = `${co.employees.toLocaleString()} employees`;
   localStorage.setItem(`${projectId}_decisionLog`, JSON.stringify([
     { ts: new Date(Date.now() - 86400000).toISOString(), module: "Skills", action: "Inventory Confirmed", detail: `${empLabel} × 15 skills confirmed` },
-    { ts: new Date(Date.now() - 72000000).toISOString(), module: "Work Design", action: "Deconstruction Submitted", detail: "Data Analyst: 8 tasks analyzed" },
-    { ts: new Date(Date.now() - 50000000).toISOString(), module: "Work Design", action: "Redeployment Saved", detail: "Data Analyst: 45% time released through automation" },
-    { ts: new Date(Date.now() - 36000000).toISOString(), module: "BBBA", action: "Disposition Override", detail: "AI Ops Analyst: Changed from Buy to Build" },
-    { ts: new Date(Date.now() - 20000000).toISOString(), module: "Skills", action: "Gap Disposition Set", detail: "AI/ML Tools: Close Internally" },
+    { ts: new Date(Date.now() - 72000000).toISOString(), module: "Work Design", action: "Deconstruction Submitted", detail: `${ind.analyst}: 8 tasks analyzed` },
+    { ts: new Date(Date.now() - 50000000).toISOString(), module: "Work Design", action: "Redeployment Saved", detail: `${ind.analyst}: 45% time released through automation` },
+    { ts: new Date(Date.now() - 36000000).toISOString(), module: "Simulate", action: "Scenario Selected", detail: "Balanced scenario — 45% adoption, 10-month timeline" },
+    { ts: new Date(Date.now() - 20000000).toISOString(), module: "Skills", action: "Gap Disposition Set", detail: `${ind.skills[0]}: Close Internally` },
   ]));
 
-  // Seed risk register
+  // Seed industry-specific risk register
   localStorage.setItem(`${projectId}_riskRegister`, JSON.stringify([
-    { id: "R1", source: "Skills Gap", risk: "AI/ML Tools gap (delta -1.7) may be too large to close internally within 6 months", probability: "High", impact: "High", mitigation: "Consider hybrid Build + Borrow strategy", status: "Open" },
-    { id: "R2", source: "Manager Capability", risk: "VP Operations scored 2.3 — flight risk during transformation", probability: "Medium", impact: "High", mitigation: "Immediate engagement with executive coach", status: "Open" },
+    { id: "R1", source: "Skills Gap", risk: `${ind.skills[3]} gap may be too large to close internally within 6 months`, probability: "High", impact: "High", mitigation: "Consider hybrid Build + Borrow strategy", status: "Open" },
+    { id: "R2", source: "Manager Capability", risk: "15% of managers scored below 2.5 — flight risk during transformation", probability: "Medium", impact: "High", mitigation: "Immediate engagement with executive coach", status: "Open" },
     { id: "R3", source: "Change Readiness", risk: "28% of workforce in High Risk quadrant — could slow adoption", probability: "High", impact: "Medium", mitigation: "Deploy change champions at 1:5 ratio", status: "Open" },
     { id: "R4", source: "Headcount", risk: "Natural attrition may not absorb all role eliminations", probability: "Medium", impact: "Medium", mitigation: "Phase transitions over 18 months to allow attrition absorption", status: "Open" },
+    { id: "R5", source: "Technology", risk: "Legacy system integration may delay AI deployment by 3-6 months", probability: "Medium", impact: "High", mitigation: "Run parallel systems with phased migration", status: "Open" },
+    { id: "R6", source: "Regulatory", risk: `${industry === "healthcare" ? "HIPAA" : industry === "financial_services" ? "SEC/FINRA" : industry === "aerospace" ? "ITAR/DoD" : "Industry"} compliance requirements may restrict AI use cases`, probability: "Medium", impact: "High", mitigation: "Engage legal team early; build compliance into AI governance framework", status: "Open" },
+    { id: "R7", source: "Data Quality", risk: "Incomplete or inconsistent data across departments could undermine AI model accuracy", probability: "High", impact: "Medium", mitigation: "Implement data quality framework in Wave 1", status: "Open" },
   ]));
 
-  localStorage.setItem(`${projectId}_isTutorial`, JSON.stringify(true));
-  localStorage.setItem(`${projectId}_tutorialStep`, JSON.stringify(0));
+  localStorage.setItem(`${projectId}_isTutorial`, JSON.stringify(false));
   localStorage.setItem(`${projectId}_page`, JSON.stringify("home"));
 
   // Model ID must match backend format: Tutorial_{Size}_{Industry}
@@ -1845,14 +1862,14 @@ function seedTutorialData(projectId: string, industry: string = "technology") {
 
 // Company data mirrors backend COMPANY_DB for dynamic tutorial text
 const TUTORIAL_COMPANIES: Record<string, Record<string, { name: string; employees: number; ticker?: string }>> = {
-  technology: { small: { name: "Palantir Technologies", employees: 3800, ticker: "PLTR" }, mid: { name: "ServiceNow", employees: 8000, ticker: "NOW" }, large: { name: "Adobe", employees: 25000, ticker: "ADBE" } },
-  financial_services: { small: { name: "Evercore", employees: 2200, ticker: "EVR" }, mid: { name: "Raymond James", employees: 8000, ticker: "RJF" }, large: { name: "Goldman Sachs", employees: 25000, ticker: "GS" } },
-  healthcare: { small: { name: "Hims & Hers Health", employees: 1500, ticker: "HIMS" }, mid: { name: "Molina Healthcare", employees: 8000, ticker: "MOH" }, large: { name: "Elevance Health", employees: 25000, ticker: "ELV" } },
-  retail: { small: { name: "Five Below", employees: 3000, ticker: "FIVE" }, mid: { name: "Williams-Sonoma", employees: 8000, ticker: "WSM" }, large: { name: "Target", employees: 25000, ticker: "TGT" } },
-  manufacturing: { small: { name: "Axon Enterprise", employees: 4000, ticker: "AXON" }, mid: { name: "Parker Hannifin", employees: 8000, ticker: "PH" }, large: { name: "Honeywell", employees: 25000, ticker: "HON" } },
-  consulting: { small: { name: "Huron Consulting", employees: 2500, ticker: "HURN" }, mid: { name: "Booz Allen Hamilton", employees: 8000, ticker: "BAH" }, large: { name: "Accenture", employees: 25000, ticker: "ACN" } },
-  energy: { small: { name: "Shoals Technologies", employees: 1800, ticker: "SHLS" }, mid: { name: "Chesapeake Energy", employees: 3000, ticker: "CHK" }, large: { name: "Baker Hughes", employees: 25000, ticker: "BKR" } },
-  aerospace: { small: { name: "Kratos Defense", employees: 4000, ticker: "KTOS" }, mid: { name: "L3Harris Technologies", employees: 8000, ticker: "LHX" }, large: { name: "Northrop Grumman", employees: 25000, ticker: "NOC" } },
+  technology: { small: { name: "Palantir Technologies", employees: 3800, ticker: "PLTR" }, mid: { name: "ServiceNow", employees: 12000, ticker: "NOW" }, large: { name: "Adobe", employees: 30000, ticker: "ADBE" } },
+  financial_services: { small: { name: "Evercore", employees: 2200, ticker: "EVR" }, mid: { name: "Raymond James", employees: 16000, ticker: "RJF" }, large: { name: "Goldman Sachs", employees: 35000, ticker: "GS" } },
+  healthcare: { small: { name: "Hims & Hers Health", employees: 1500, ticker: "HIMS" }, mid: { name: "Molina Healthcare", employees: 14000, ticker: "MOH" }, large: { name: "Elevance Health", employees: 32000, ticker: "ELV" } },
+  retail: { small: { name: "Five Below", employees: 4500, ticker: "FIVE" }, mid: { name: "Williams-Sonoma", employees: 10000, ticker: "WSM" }, large: { name: "Target", employees: 35000, ticker: "TGT" } },
+  manufacturing: { small: { name: "Axon Enterprise", employees: 4000, ticker: "AXON" }, mid: { name: "Parker Hannifin", employees: 13000, ticker: "PH" }, large: { name: "Honeywell", employees: 28000, ticker: "HON" } },
+  consulting: { small: { name: "Huron Consulting", employees: 2500, ticker: "HURN" }, mid: { name: "Booz Allen Hamilton", employees: 15000, ticker: "BAH" }, large: { name: "Accenture", employees: 35000, ticker: "ACN" } },
+  energy: { small: { name: "Shoals Technologies", employees: 1800, ticker: "SHLS" }, mid: { name: "Chesapeake Energy", employees: 8000, ticker: "CHK" }, large: { name: "Baker Hughes", employees: 25000, ticker: "BKR" } },
+  aerospace: { small: { name: "Kratos Defense", employees: 4000, ticker: "KTOS" }, mid: { name: "L3Harris Technologies", employees: 17000, ticker: "LHX" }, large: { name: "Northrop Grumman", employees: 33000, ticker: "NOC" } },
 };
 
 function getTutorialCompany(projectId: string): { name: string; employees: number; industry: string; size: string } {
@@ -2198,10 +2215,11 @@ function ProjectHub({ onOpenProject, onStartTutorial, onOpenSandbox, showSandbox
   const [sandboxError, setSandboxError] = useState<string | null>(null);
 
   // Sync parent's showSandboxPicker prop → local sandboxOpen state
+  // Show fullscreen background first; user clicks to reveal the grid panel
   useEffect(() => {
     if (showSandboxPicker) {
       setSandboxOpen(true);
-      setSandboxPanelOpen(true);
+      setSandboxPanelOpen(false);
     }
   }, [showSandboxPicker]);
 
@@ -2284,11 +2302,12 @@ function ProjectHub({ onOpenProject, onStartTutorial, onOpenSandbox, showSandbox
       <button onClick={() => { setSandboxOpen(false); setSandboxPanelOpen(false); onCloseSandbox?.(); }} style={{ position: "absolute", top: 24, left: 24, zIndex: 30, padding: "8px 16px", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: "pointer", background: "rgba(0,0,0,0.4)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,200,150,0.12)", color: "rgba(255,230,200,0.8)", transition: "all 0.2s" }}>← Back</button>
 
       {/* Click-to-open area */}
-      {!sandboxPanelOpen && <div style={{ position: "absolute", inset: 0, zIndex: 10, cursor: "pointer" }} onClick={() => setSandboxPanelOpen(true)}>
+      {!sandboxPanelOpen && <div style={{ position: "absolute", inset: 0, zIndex: 10, cursor: "pointer", animation: "sandboxFadeIn 1.2s ease forwards", opacity: 0 }} onClick={() => setSandboxPanelOpen(true)}>
+        <style>{`@keyframes sandboxFadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } } @keyframes sandboxGlow { 0%, 100% { border-color: rgba(139,92,246,0.2); } 50% { border-color: rgba(139,92,246,0.45); } }`}</style>
         <div style={{ position: "absolute", bottom: 48, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
           <div style={{ fontSize: 32 }}>🎓</div>
           <div style={{ fontSize: 22, fontWeight: 800, color: "rgba(255,245,235,0.95)", textShadow: "0 2px 20px rgba(0,0,0,0.5)" }}>Industry Sandbox</div>
-          <div className="animate-pulse" style={{ padding: "10px 24px", borderRadius: 16, background: "rgba(0,0,0,0.35)", backdropFilter: "blur(12px)", border: "1px solid rgba(139,92,246,0.2)", color: "rgba(200,180,255,0.8)", fontSize: 14, fontWeight: 600 }}>Click anywhere to explore →</div>
+          <div style={{ padding: "10px 24px", borderRadius: 16, background: "rgba(0,0,0,0.35)", backdropFilter: "blur(12px)", border: "1px solid rgba(139,92,246,0.2)", color: "rgba(200,180,255,0.8)", fontSize: 14, fontWeight: 600, animation: "sandboxGlow 3s ease-in-out infinite" }}>Click anywhere to explore →</div>
         </div>
       </div>}
 
@@ -2299,7 +2318,7 @@ function ProjectHub({ onOpenProject, onStartTutorial, onOpenSandbox, showSandbox
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
             <div>
               <div style={{ fontSize: 20, fontWeight: 800, color: "rgba(255,245,235,0.95)" }}>🎓 Industry Sandbox</div>
-              <div style={{ fontSize: 15, color: "rgba(200,180,255,0.4)", marginTop: 4 }}>24 real companies · 8 industries × 3 market caps</div>
+              <div style={{ fontSize: 15, color: "rgba(200,180,255,0.4)", marginTop: 4 }}>24 real companies · 8 industries × 3 market caps · 1,500–35,000 employees</div>
             </div>
             <button onClick={() => setSandboxPanelOpen(false)} style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,200,150,0.08)", cursor: "pointer", color: "rgba(255,200,150,0.4)", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
           </div>
@@ -2314,14 +2333,14 @@ function ProjectHub({ onOpenProject, onStartTutorial, onOpenSandbox, showSandbox
                 <th style={{ fontSize: 15, color: "rgba(239,68,68,0.6)", textAlign: "center", padding: "6px", fontWeight: 700 }}>LARGE-CAP</th>
               </tr></thead>
               <tbody>{[
-                { id: "technology", icon: "💻", label: "Technology", s: "Palantir · 3,800", m: "ServiceNow · 8,000", l: "Adobe · 25,000" },
-                { id: "financial_services", icon: "🏦", label: "Financial Svc", s: "Evercore · 2,200", m: "Raymond James · 8,000", l: "Goldman Sachs · 25,000" },
-                { id: "healthcare", icon: "🏥", label: "Healthcare", s: "Hims & Hers · 1,500", m: "Molina · 8,000", l: "Elevance · 25,000" },
-                { id: "retail", icon: "🛍️", label: "Retail", s: "Five Below · 3,000", m: "Williams-Sonoma · 8,000", l: "Target · 25,000" },
-                { id: "manufacturing", icon: "🏭", label: "Manufacturing", s: "Axon · 4,000", m: "Parker Hannifin · 8,000", l: "Honeywell · 25,000" },
-                { id: "consulting", icon: "💼", label: "Consulting", s: "Huron · 2,500", m: "Booz Allen · 8,000", l: "Accenture · 25,000" },
-                { id: "energy", icon: "⚡", label: "Energy", s: "Shoals Tech · 1,800", m: "Chesapeake · 3,000", l: "Baker Hughes · 25,000" },
-                { id: "aerospace", icon: "🚀", label: "Aerospace", s: "Kratos · 4,000", m: "L3Harris · 8,000", l: "Northrop Grumman · 25,000" },
+                { id: "technology", icon: "💻", label: "Technology", s: "Palantir · 3,800", m: "ServiceNow · 12,000", l: "Adobe · 30,000" },
+                { id: "financial_services", icon: "🏦", label: "Financial Svc", s: "Evercore · 2,200", m: "Raymond James · 16,000", l: "Goldman Sachs · 35,000" },
+                { id: "healthcare", icon: "🏥", label: "Healthcare", s: "Hims & Hers · 1,500", m: "Molina · 14,000", l: "Elevance · 32,000" },
+                { id: "retail", icon: "🛍️", label: "Retail", s: "Five Below · 4,500", m: "Williams-Sonoma · 10,000", l: "Target · 35,000" },
+                { id: "manufacturing", icon: "🏭", label: "Manufacturing", s: "Axon · 4,000", m: "Parker Hannifin · 13,000", l: "Honeywell · 28,000" },
+                { id: "consulting", icon: "💼", label: "Consulting", s: "Huron · 2,500", m: "Booz Allen · 15,000", l: "Accenture · 35,000" },
+                { id: "energy", icon: "⚡", label: "Energy", s: "Shoals Tech · 1,800", m: "Chesapeake · 8,000", l: "Baker Hughes · 25,000" },
+                { id: "aerospace", icon: "🚀", label: "Aerospace", s: "Kratos · 4,000", m: "L3Harris · 17,000", l: "Northrop Grumman · 33,000" },
               ].map(ind => <tr key={ind.id}>
                 <td style={{ fontSize: 15, color: "rgba(200,180,255,0.7)", padding: "3px 10px", fontWeight: 600 }}><span style={{ marginRight: 6 }}>{ind.icon}</span>{ind.label}</td>
                 {[{size: "small", info: ind.s, color: "rgba(16,185,129,0.12)", border: "rgba(16,185,129,0.25)", text: "#6EE7B7"}, {size: "mid", info: ind.m, color: "rgba(212,134,10,0.12)", border: "rgba(212,134,10,0.25)", text: "#E8C547"}, {size: "large", info: ind.l, color: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.18)", text: "#FCA5A5"}].map(t => <td key={t.size} style={{ padding: 2 }}><button disabled={!!seedingId} onClick={async (e) => {
@@ -2352,7 +2371,7 @@ function ProjectHub({ onOpenProject, onStartTutorial, onOpenSandbox, showSandbox
           {/* Guided tour note */}
           <div style={{ marginTop: 20, padding: "12px 16px", borderRadius: 12, background: "rgba(139,92,246,0.06)", border: "1px solid rgba(139,92,246,0.12)" }}>
             <div style={{ fontSize: 15, fontWeight: 700, color: "rgba(139,92,246,0.7)", marginBottom: 4 }}>✨ Each sandbox includes:</div>
-            <div style={{ fontSize: 15, color: "rgba(200,180,255,0.4)", lineHeight: 1.6 }}>Full employee roster · Task-level work design · Skills inventory · AI readiness scores · Manager capability · Change readiness · 27-step guided tutorial</div>
+            <div style={{ fontSize: 15, color: "rgba(200,180,255,0.4)", lineHeight: 1.6 }}>Full employee roster · Task-level work design · Skills inventory · AI readiness scores · Manager capability · Change readiness</div>
           </div>
         </div>
       </div>
@@ -2389,7 +2408,7 @@ function ProjectHub({ onOpenProject, onStartTutorial, onOpenSandbox, showSandbox
           </div>; })()}
 
           {/* Sandbox card */}
-          <div onClick={() => { setSandboxOpen(true); setSandboxPanelOpen(true); onOpenSandbox?.(); }} style={{ borderRadius: 18, cursor: "pointer", padding: "24px 28px", transition: "all 0.3s", background: "linear-gradient(135deg, rgba(249,115,22,0.1), rgba(234,88,12,0.06))", backdropFilter: "blur(20px)", border: "1px solid rgba(249,115,22,0.2)" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.borderColor = "rgba(249,115,22,0.4)"; e.currentTarget.style.boxShadow = "0 12px 40px rgba(249,115,22,0.12)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "rgba(249,115,22,0.2)"; e.currentTarget.style.boxShadow = "none"; }}>
+          <div onClick={() => { setSandboxOpen(true); setSandboxPanelOpen(false); onOpenSandbox?.(); }} style={{ borderRadius: 18, cursor: "pointer", padding: "24px 28px", transition: "all 0.3s", background: "linear-gradient(135deg, rgba(249,115,22,0.1), rgba(234,88,12,0.06))", backdropFilter: "blur(20px)", border: "1px solid rgba(249,115,22,0.2)" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.borderColor = "rgba(249,115,22,0.4)"; e.currentTarget.style.boxShadow = "0 12px 40px rgba(249,115,22,0.12)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "rgba(249,115,22,0.2)"; e.currentTarget.style.boxShadow = "none"; }}>
             <div className="flex items-center gap-3 mb-2">
               <span className="text-2xl">🧪</span>
               <div>

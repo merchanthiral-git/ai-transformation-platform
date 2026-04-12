@@ -745,7 +745,7 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx }: { model: 
 /* ═══════════════════════════════════════════════════════════════
    MODULE: MANAGER CAPABILITY
    ═══════════════════════════════════════════════════════════════ */
-export function ManagerCapability({ model, f, onBack, onNavigate }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void }) {
+export function ManagerCapability({ model, f, onBack, onNavigate, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext }) {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"scorecard"|"correlation">("scorecard");
@@ -873,7 +873,7 @@ export function ManagerCapability({ model, f, onBack, onNavigate }: { model: str
 /* ═══════════════════════════════════════════════════════════════
    MODULE: CHANGE READINESS & ADOPTION
    ═══════════════════════════════════════════════════════════════ */
-export function ChangeReadiness({ model, f, onBack, onNavigate }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void }) {
+export function ChangeReadiness({ model, f, onBack, onNavigate, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext }) {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
   const [crTab, setCrTab] = useState<"campaigns" | "activities" | "raci" | "messages" | "tracking">("campaigns");
@@ -1077,7 +1077,7 @@ export function ChangeReadiness({ model, f, onBack, onNavigate }: { model: strin
 /* ═══════════════════════════════════════════════════════════════
    MODULE: MANAGER DEVELOPMENT TRACK
    ═══════════════════════════════════════════════════════════════ */
-export function ManagerDevelopment({ model, f, onBack, onNavigate }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void }) {
+export function ManagerDevelopment({ model, f, onBack, onNavigate, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext }) {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
 

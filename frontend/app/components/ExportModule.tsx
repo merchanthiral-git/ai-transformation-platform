@@ -11,7 +11,7 @@ import {
   exportToCSV, EmptyWithAction, fmtNum, HelpBookAccordion
 } from "./shared";
 
-export function ExportReport({ model, f, onBack }: { model: string; f: Filters; onBack: () => void }) {
+export function ExportReport({ model, f, onBack, onNavigate, jobStates, simState, decisionLog, riskRegister }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; jobStates?: Record<string, { deconRows: Record<string, unknown>[]; redeployRows: Record<string, unknown>[]; scenario: string; deconSubmitted: boolean; redeploySubmitted: boolean; finalized: boolean }>; simState?: { scenario: string; custom: boolean; custAdopt: number; custTimeline: number; investment: number }; decisionLog?: { ts: string; module: string; action: string; detail: string }[]; riskRegister?: { id: string; source: string; risk: string; probability: string; impact: string; mitigation: string; status: string }[] }) {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
@@ -32,7 +32,11 @@ export function ExportReport({ model, f, onBack }: { model: string; f: Filters; 
   const generateAiNarrative = async () => {
     setGenerating(true);
     const ctx = JSON.stringify(data).slice(0, 3000);
-    const report = await callAI("Write a board-ready AI Transformation Report.", `Generate from: ${ctx}. 12 sections: Exec Summary, Discovery, Skills, BBBA, Headcount, Readiness, Managers, Change, Reskilling, Investment, Risks, Next Steps.`);
+    const designCtx = jobStates ? Object.entries(jobStates).filter(([,s]) => s.deconSubmitted).map(([role, s]) => `${role}: ${s.redeployRows?.length || 0} tasks redesigned`).join(", ") : "";
+    const scenarioCtx = simState ? `Active scenario: ${simState.scenario}${simState.custom ? ` (${simState.custAdopt}% adoption)` : ""}` : "";
+    const riskCtx = riskRegister ? `${riskRegister.filter(r => r.status === "Open").length} open risks` : "";
+    const extraCtx = [designCtx, scenarioCtx, riskCtx].filter(Boolean).join(". ");
+    const report = await callAI("Write a board-ready AI Transformation Report.", `Generate from: ${ctx}. Additional context: ${extraCtx}. 12 sections: Exec Summary, Discovery, Skills, BBBA, Headcount, Readiness, Managers, Change, Reskilling, Investment, Risks, Next Steps.`);
     if (report) { const blob = new Blob([report], { type: "text/plain" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "AI_Narrative_Report.txt"; a.click(); URL.revokeObjectURL(url); showToast("☕ AI narrative downloaded"); }
     setGenerating(false);
   };
@@ -75,6 +79,32 @@ export function ExportReport({ model, f, onBack }: { model: string; f: Filters; 
         </div>)}
       </div>
     </Card>
+
+    {/* Cross-module decisions summary */}
+    {(jobStates || simState || decisionLog || riskRegister) && <Card title="Transformation Decisions Captured">
+      <div className="grid grid-cols-4 gap-3 mb-2">
+        <div className="bg-[var(--surface-2)] rounded-xl p-3 border border-[var(--border)] text-center">
+          <div className="text-lg mb-1">✏️</div>
+          <div className="text-[16px] font-extrabold text-[var(--text-primary)]">{jobStates ? Object.values(jobStates).filter(s => s.deconSubmitted).length : 0}</div>
+          <div className="text-[14px] text-[var(--text-muted)] uppercase">Jobs Designed</div>
+        </div>
+        <div className="bg-[var(--surface-2)] rounded-xl p-3 border border-[var(--border)] text-center">
+          <div className="text-lg mb-1">⚡</div>
+          <div className="text-[16px] font-extrabold text-[var(--text-primary)]">{simState?.scenario || "—"}</div>
+          <div className="text-[14px] text-[var(--text-muted)] uppercase">Active Scenario</div>
+        </div>
+        <div className="bg-[var(--surface-2)] rounded-xl p-3 border border-[var(--border)] text-center">
+          <div className="text-lg mb-1">📝</div>
+          <div className="text-[16px] font-extrabold text-[var(--text-primary)]">{decisionLog?.length || 0}</div>
+          <div className="text-[14px] text-[var(--text-muted)] uppercase">Decisions Logged</div>
+        </div>
+        <div className="bg-[var(--surface-2)] rounded-xl p-3 border border-[var(--border)] text-center">
+          <div className="text-lg mb-1">⚠️</div>
+          <div className="text-[16px] font-extrabold text-[var(--text-primary)]">{riskRegister?.filter(r => r.status === "Open").length || 0}</div>
+          <div className="text-[14px] text-[var(--text-muted)] uppercase">Open Risks</div>
+        </div>
+      </div>
+    </Card>}
 
     {/* Export formats */}
     <Card title="Export Deliverables">

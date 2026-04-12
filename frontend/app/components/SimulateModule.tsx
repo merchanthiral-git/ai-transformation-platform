@@ -259,16 +259,23 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
   const investment = simState.investment;
   const update = (partial: Partial<typeof simState>) => setSimState({ ...simState, ...partial });
 
-  // Build job list from real work design data if available, else fall back to demo
+  // Build job list from real work design data — prefer redeployRows (actual design decisions) over deconRows
   const realJobs = useMemo(() => {
     const entries = Object.entries(jobStates || {}).filter(([_, s]) => s.deconRows.length > 0);
     if (entries.length === 0) return null;
     return entries.map(([role, s]) => {
-      const totalHrs = s.deconRows.reduce((sum, r) => sum + Math.round(Number(r["Est Hours/Week"] || 0)), 0) * 4; // monthly
-      const highAiRows = s.deconRows.filter(r => String(r["AI Impact"]) === "High");
-      const aiEligibleHrs = Math.round(s.deconRows.filter(r => String(r["AI Impact"]) !== "Low").reduce((sum, r) => sum + Number(r["Est Hours/Week"] || 0), 0) * 4);
-      const func = String(s.deconRows[0]?.Workstream || "General");
-      return { role, dept: func, currentHrs: totalHrs || 160, aiEligibleHrs: aiEligibleHrs || Math.round(totalHrs * 0.5), highAiTasks: highAiRows.length, rate: 75 };
+      // Use redeployRows (post-design decisions) when available, otherwise deconRows (pre-design)
+      const hasRedeploy = s.redeployRows && s.redeployRows.length > 0;
+      const rows = hasRedeploy ? s.redeployRows : s.deconRows;
+      const totalHrs = s.deconRows.reduce((sum, r) => sum + Math.round(Number(r["Est Hours/Week"] || 0)), 0) * 4; // monthly — always from original
+      const highAiRows = rows.filter(r => String(r["AI Impact"]) === "High");
+      // If redeployRows exist, use actual Time Saved % decisions; otherwise estimate from AI Impact
+      const aiEligibleHrs = hasRedeploy
+        ? Math.round(rows.reduce((sum, r) => sum + Number(r["Time Saved %"] || 0) * Number(r["Est Hours/Week"] || 0) / 100, 0) * 4)
+        : Math.round(s.deconRows.filter(r => String(r["AI Impact"]) !== "Low").reduce((sum, r) => sum + Number(r["Est Hours/Week"] || 0), 0) * 4);
+      const func = String(rows[0]?.Workstream || s.deconRows[0]?.Workstream || "General");
+      const automatedTasks = hasRedeploy ? rows.filter(r => String(r["Decision"] || r["Action"]) === "Automate").length : highAiRows.length;
+      return { role, dept: func, currentHrs: totalHrs || 160, aiEligibleHrs: aiEligibleHrs || Math.round(totalHrs * 0.5), highAiTasks: automatedTasks, rate: 75, hasDesignDecisions: hasRedeploy };
     });
   }, [jobStates]);
   // Filter jobs by function if filter is active

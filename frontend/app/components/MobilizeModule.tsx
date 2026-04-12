@@ -298,7 +298,7 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx }: { 
    MODULE: TALENT MARKETPLACE
    ═══════════════════════════════════════════════════════════════ */
 
-export function TalentMarketplace({ model, f, onBack, onNavigate }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void }) {
+export function TalentMarketplace({ model, f, onBack, onNavigate, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext }) {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
   const [shortlisted, setShortlisted] = usePersisted<Record<string, string[]>>(`${model}_mp_shortlist`, {});
@@ -418,7 +418,7 @@ const CHANGE_PLAYBOOKS = [
     ]},
 ];
 
-export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; jobStates?: Record<string, JobDesignState>; viewCtx?: ViewContext }) {
+export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simState, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; jobStates?: Record<string, JobDesignState>; simState?: { scenario: string; custom: boolean; custAdopt: number; custTimeline: number; investment: number }; viewCtx?: ViewContext }) {
   const [sub, setSub] = useState("road");
   const [aiChangePlan, setAiChangePlan] = useState<Record<string, unknown>[]>([]);
   // Gantt chart state
@@ -583,7 +583,8 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, viewCtx
             readinessContext += ` Avg readiness: ${summary.avg_readiness || "—"}/5. High-impact segment: ${summary.high_impact_pct || "—"}%.`;
           }
         } catch {}
-        const raw = await callAI("Return ONLY valid JSON array.", `Based on these work design decisions, generate 6-8 change management initiatives.${readinessContext} Context: ${context}. Return JSON array: [{"initiative":"name","description":"what","owner":"role title","priority":"High/Medium/Low","wave":"Wave 1/Wave 2/Wave 3","start":"2026-Q1","end":"2026-Q2","risk":"main risk","dependency":"what it depends on"}]`);
+        const scenarioCtx = simState ? ` Active scenario: ${simState.scenario}${simState.custom ? ` (custom: ${simState.custAdopt}% adoption, ${simState.custTimeline}mo timeline, $${simState.investment} investment)` : ""}.` : "";
+        const raw = await callAI("Return ONLY valid JSON array.", `Based on these work design decisions, generate 6-8 change management initiatives.${readinessContext}${scenarioCtx} Context: ${context}. Return JSON array: [{"initiative":"name","description":"what","owner":"role title","priority":"High/Medium/Low","wave":"Wave 1/Wave 2/Wave 3","start":"2026-Q1","end":"2026-Q2","risk":"main risk","dependency":"what it depends on"}]`);
         try {
           const initiatives = JSON.parse(raw.replace(/\`\`\`json\n?/g,"").replace(/\`\`\`\n?/g,"").trim());
           if (Array.isArray(initiatives)) setAiChangePlan(initiatives);

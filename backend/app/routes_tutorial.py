@@ -392,43 +392,43 @@ def _seed_tutorial_store(industry="technology", size_tier="mid"):
     COMPANY_DB = {
         "technology": {
             "small":  {"name": "Palantir Technologies", "employees": 3800, "revenue": "$2.2B", "hq": "Denver", "ticker": "PLTR"},
-            "mid":    {"name": "ServiceNow", "employees": 8000, "revenue": "$8.9B", "hq": "Santa Clara", "ticker": "NOW"},
-            "large":  {"name": "Adobe", "employees": 25000, "revenue": "$19.4B", "hq": "San Jose", "ticker": "ADBE"},
+            "mid":    {"name": "ServiceNow", "employees": 12000, "revenue": "$8.9B", "hq": "Santa Clara", "ticker": "NOW"},
+            "large":  {"name": "Adobe", "employees": 30000, "revenue": "$19.4B", "hq": "San Jose", "ticker": "ADBE"},
         },
         "financial_services": {
             "small":  {"name": "Evercore", "employees": 2200, "revenue": "$2.4B", "hq": "New York", "ticker": "EVR"},
-            "mid":    {"name": "Raymond James", "employees": 8000, "revenue": "$12.8B", "hq": "St. Petersburg", "ticker": "RJF"},
-            "large":  {"name": "Goldman Sachs", "employees": 25000, "revenue": "$46.3B", "hq": "New York", "ticker": "GS"},
+            "mid":    {"name": "Raymond James", "employees": 16000, "revenue": "$12.8B", "hq": "St. Petersburg", "ticker": "RJF"},
+            "large":  {"name": "Goldman Sachs", "employees": 35000, "revenue": "$46.3B", "hq": "New York", "ticker": "GS"},
         },
         "healthcare": {
             "small":  {"name": "Hims & Hers Health", "employees": 1500, "revenue": "$1.2B", "hq": "San Francisco", "ticker": "HIMS"},
-            "mid":    {"name": "Molina Healthcare", "employees": 8000, "revenue": "$33.7B", "hq": "Long Beach", "ticker": "MOH"},
-            "large":  {"name": "Elevance Health", "employees": 25000, "revenue": "$171B", "hq": "Indianapolis", "ticker": "ELV"},
+            "mid":    {"name": "Molina Healthcare", "employees": 14000, "revenue": "$33.7B", "hq": "Long Beach", "ticker": "MOH"},
+            "large":  {"name": "Elevance Health", "employees": 32000, "revenue": "$171B", "hq": "Indianapolis", "ticker": "ELV"},
         },
         "retail": {
-            "small":  {"name": "Five Below", "employees": 3000, "revenue": "$3.1B", "hq": "Philadelphia", "ticker": "FIVE"},
-            "mid":    {"name": "Williams-Sonoma", "employees": 8000, "revenue": "$7.7B", "hq": "San Francisco", "ticker": "WSM"},
-            "large":  {"name": "Target", "employees": 25000, "revenue": "$107B", "hq": "Minneapolis", "ticker": "TGT"},
+            "small":  {"name": "Five Below", "employees": 4500, "revenue": "$3.1B", "hq": "Philadelphia", "ticker": "FIVE"},
+            "mid":    {"name": "Williams-Sonoma", "employees": 10000, "revenue": "$7.7B", "hq": "San Francisco", "ticker": "WSM"},
+            "large":  {"name": "Target", "employees": 35000, "revenue": "$107B", "hq": "Minneapolis", "ticker": "TGT"},
         },
         "manufacturing": {
             "small":  {"name": "Axon Enterprise", "employees": 4000, "revenue": "$1.9B", "hq": "Scottsdale", "ticker": "AXON"},
-            "mid":    {"name": "Parker Hannifin", "employees": 8000, "revenue": "$19.1B", "hq": "Cleveland", "ticker": "PH"},
-            "large":  {"name": "Honeywell", "employees": 25000, "revenue": "$36.7B", "hq": "Charlotte", "ticker": "HON"},
+            "mid":    {"name": "Parker Hannifin", "employees": 13000, "revenue": "$19.1B", "hq": "Cleveland", "ticker": "PH"},
+            "large":  {"name": "Honeywell", "employees": 28000, "revenue": "$36.7B", "hq": "Charlotte", "ticker": "HON"},
         },
         "consulting": {
             "small":  {"name": "Huron Consulting", "employees": 2500, "revenue": "$1.4B", "hq": "Chicago", "ticker": "HURN"},
-            "mid":    {"name": "Booz Allen Hamilton", "employees": 8000, "revenue": "$9.1B", "hq": "McLean", "ticker": "BAH"},
-            "large":  {"name": "Accenture", "employees": 25000, "revenue": "$64.1B", "hq": "Dublin", "ticker": "ACN"},
+            "mid":    {"name": "Booz Allen Hamilton", "employees": 15000, "revenue": "$9.1B", "hq": "McLean", "ticker": "BAH"},
+            "large":  {"name": "Accenture", "employees": 35000, "revenue": "$64.1B", "hq": "Dublin", "ticker": "ACN"},
         },
         "energy": {
             "small":  {"name": "Shoals Technologies", "employees": 1800, "revenue": "$0.5B", "hq": "Portland TN", "ticker": "SHLS"},
-            "mid":    {"name": "Chesapeake Energy", "employees": 3000, "revenue": "$4.8B", "hq": "Oklahoma City", "ticker": "CHK"},
+            "mid":    {"name": "Chesapeake Energy", "employees": 8000, "revenue": "$4.8B", "hq": "Oklahoma City", "ticker": "CHK"},
             "large":  {"name": "Baker Hughes", "employees": 25000, "revenue": "$25.5B", "hq": "Houston", "ticker": "BKR"},
         },
         "aerospace": {
             "small":  {"name": "Kratos Defense", "employees": 4000, "revenue": "$1.1B", "hq": "San Diego", "ticker": "KTOS"},
-            "mid":    {"name": "L3Harris Technologies", "employees": 8000, "revenue": "$19.4B", "hq": "Melbourne FL", "ticker": "LHX"},
-            "large":  {"name": "Northrop Grumman", "employees": 25000, "revenue": "$39.3B", "hq": "Falls Church", "ticker": "NOC"},
+            "mid":    {"name": "L3Harris Technologies", "employees": 17000, "revenue": "$19.4B", "hq": "Melbourne FL", "ticker": "LHX"},
+            "large":  {"name": "Northrop Grumman", "employees": 33000, "revenue": "$39.3B", "hq": "Falls Church", "ticker": "NOC"},
         },
     }
 
@@ -1214,13 +1214,26 @@ def _seed_tutorial_store(industry="technology", size_tier="mid"):
                 actual_level = random.choice(allowed) if allowed else level
                 # Apply career track system
                 ct, cl, cl_name = assign_career_track(real_title, actual_level, track, industry)
+                tenure = random.randint(0, 20)
+                hire_year = 2026 - tenure
+                hire_month = random.randint(1, 12)
+                hire_date = f"{hire_year}-{str(hire_month).zfill(2)}-{str(random.randint(1,28)).zfill(2)}"
+                perf = random.choices([1,2,3,4,5], weights=[3,10,50,30,7])[0]
+                total_cash = int(comp * random.uniform(1.05, 1.35))
+                is_mgr = ct in ("M", "E")
                 employees.append({
                     "Employee ID": eid, "Name": name, "Job Title": real_title,
                     "Function": real_func, "Job Family Group": jfg, "Job Family": jf, "Sub-Function": sf,
                     "Career Level": cl, "Career Track": ct,
                     "Manager ID": "", "Compensation": comp,
-                    "Tenure": random.randint(0, 20),
+                    "Tenure": tenure, "Hire Date": hire_date,
                     "Location": random.choice(LOCATIONS),
+                    "Department": real_func,
+                    "Org Unit": jfg if jfg != real_func else jf,
+                    "FTE": 1.0 if random.random() > 0.05 else round(random.choice([0.5, 0.6, 0.8]), 1),
+                    "Total Cash": total_cash,
+                    "Performance Rating": perf,
+                    "Critical Role": "Yes" if cl in ["L5", "L6"] or (is_mgr and random.random() > 0.6) else "No",
                 })
                 if ct in ("M", "E"): func_mgrs.append(eid)
                 emp_id += 1
@@ -1232,6 +1245,29 @@ def _seed_tutorial_store(industry="technology", size_tier="mid"):
         if emp["Career Level"] in ["L5","L6"]: continue
         mgrs = mgr_map.get(emp["Function"], [])
         if mgrs: emp["Manager ID"] = random.choice(mgrs)
+
+    # Resolve Manager Names and compute span of control
+    emp_lookup = {e["Employee ID"]: e["Name"] for e in employees}
+    for emp in employees:
+        emp["Manager Name"] = emp_lookup.get(emp["Manager ID"], "")
+
+    # Generate Job Descriptions for unique roles
+    JOB_DESC_TEMPLATES = {
+        "IC": "Responsible for executing {func}-related deliverables including {sf} activities. Collaborates with cross-functional teams to drive {jf} outcomes. Requires strong {skill1} and {skill2} skills.",
+        "M": "Leads a team of {func} professionals focused on {sf}. Drives strategy for {jf} initiatives, manages stakeholder relationships, and ensures delivery against organizational objectives.",
+        "E": "Provides executive leadership for the {func} organization. Sets strategic direction for {jf}, manages senior leaders, and represents the function in C-suite and board-level discussions.",
+    }
+    role_desc_cache = {}
+    for emp in employees:
+        rt = emp["Job Title"]
+        if rt not in role_desc_cache:
+            track = emp["Career Track"]
+            tmpl = JOB_DESC_TEMPLATES.get(track, JOB_DESC_TEMPLATES["IC"])
+            role_desc_cache[rt] = tmpl.format(
+                func=emp["Function"], sf=emp["Sub-Function"], jf=emp["Job Family"],
+                skill1=skills[0] if skills else "technical", skill2=skills[1] if len(skills) > 1 else "analytical"
+            )
+        emp["Job Description"] = role_desc_cache[rt]
 
     # TASK LIBRARY — comprehensive per-industry
     tasks = []
@@ -1299,99 +1335,307 @@ def _seed_tutorial_store(industry="technology", size_tier="mid"):
         ]),
     ]
 
+    # Build role→employee metadata lookup for enriching tasks
+    role_meta = {}
+    for emp in employees:
+        rt = emp["Job Title"]
+        if rt not in role_meta:
+            role_meta[rt] = {
+                "Function": emp["Function"], "Job Family": emp["Job Family"],
+                "Sub-Function": emp["Sub-Function"], "Career Track": emp["Career Track"],
+                "Career Level": emp["Career Level"], "Location": emp["Location"],
+                "Job Description": emp.get("Job Description", ""),
+            }
+
+    # Workstream mapping — derive from function
+    WORKSTREAM_MAP = {
+        "Engineering": "Technology & Digital", "Technology": "Technology & Digital",
+        "Health Informatics": "Technology & Digital", "E-Commerce Tech": "Technology & Digital",
+        "Engineering Systems": "Technology & Digital",
+        "Product": "Product & Innovation", "Merchandising": "Product & Innovation",
+        "Clinical Operations": "Operations & Service Delivery", "Production": "Operations & Service Delivery",
+        "Mission Systems": "Operations & Service Delivery",
+        "Data & Analytics": "Data & Intelligence", "Revenue Cycle": "Data & Intelligence",
+        "Quality Control": "Data & Intelligence", "Analytics": "Data & Intelligence",
+        "Risk Management": "Risk & Compliance", "Compliance": "Risk & Compliance",
+        "Quality & Safety": "Risk & Compliance", "EHS": "Risk & Compliance",
+        "Regulatory": "Risk & Compliance", "Risk & Compliance": "Risk & Compliance",
+        "Security": "Risk & Compliance", "Security & Classification": "Risk & Compliance",
+        "Sales & Marketing": "Revenue & Growth", "Marketing": "Revenue & Growth",
+        "Wealth Management": "Revenue & Growth", "Patient Services": "Revenue & Growth",
+        "Supply Chain": "Operations & Service Delivery", "Land & Commercial": "Revenue & Growth",
+        "Business Development": "Revenue & Growth", "Strategy & Consulting": "Revenue & Growth",
+        "IT & Infrastructure": "Technology & Digital", "IT Services": "Technology & Digital",
+        "Maintenance": "Operations & Service Delivery", "SCADA/OT": "Technology & Digital",
+        "IT & Cyber": "Technology & Digital", "Store Operations": "Operations & Service Delivery",
+        "Finance": "Finance & Administration", "Treasury": "Finance & Administration",
+        "Program Finance": "Finance & Administration",
+        "HR & People": "People & Culture", "HR": "People & Culture",
+        "Legal": "Governance & Legal", "Legal & Regulatory": "Governance & Legal",
+        "Legal & Contracts": "Governance & Legal", "Contracts": "Governance & Legal",
+        "Loss Prevention": "Risk & Compliance", "Operations": "Operations & Service Delivery",
+        "Reservoir Engineering": "Operations & Service Delivery",
+        "Systems Integration": "Technology & Digital",
+    }
+
     import re
     matched_roles = set()
+    task_id_counter = 1
     for pattern, task_list in task_templates:
         for emp in employees:
             if re.search(pattern, emp["Job Title"], re.IGNORECASE):
                 if emp["Job Title"] not in matched_roles:
                     matched_roles.add(emp["Job Title"])
+                    meta = role_meta.get(emp["Job Title"], {})
+                    ws = WORKSTREAM_MAP.get(meta.get("Function", ""), "General Operations")
+                    # Assign appropriate primary/secondary skills based on role position in skill list
+                    role_skill_idx = hash(emp["Job Title"]) % max(1, len(skills) - 4)
                     for t_name, t_pct, t_type, t_logic, t_inter, t_impact in task_list:
+                        time_saved = {"High": random.randint(35, 55), "Moderate": random.randint(15, 30), "Low": random.randint(3, 12)}.get(t_impact, 5)
+                        time_saved = min(time_saved, t_pct)
                         tasks.append({
                             "Job Title": emp["Job Title"], "Task Name": t_name,
+                            "Task ID": f"T{str(task_id_counter).zfill(4)}",
+                            "Description": f"{t_name} for {emp['Job Title']} within {meta.get('Function', '')}",
+                            "Workstream": ws,
+                            "Function": meta.get("Function", ""),
+                            "Job Family": meta.get("Job Family", ""),
+                            "Sub-Function": meta.get("Sub-Function", ""),
+                            "Career Track": meta.get("Career Track", ""),
+                            "Career Level": meta.get("Career Level", ""),
+                            "Location": meta.get("Location", ""),
+                            "Job Description": meta.get("Job Description", ""),
                             "Est Hours/Week": round(40 * t_pct / 100, 1),
                             "Current Time Spent %": t_pct,
+                            "Time Saved %": time_saved,
                             "Task Type": t_type, "Logic": t_logic,
                             "Interaction": t_inter, "AI Impact": t_impact,
-                            "Primary Skill": skills[0], "Secondary Skill": skills[4],
+                            "Primary Skill": skills[role_skill_idx % len(skills)],
+                            "Secondary Skill": skills[(role_skill_idx + 3) % len(skills)],
                         })
+                        task_id_counter += 1
 
-    # Generate generic tasks for unmatched roles — ensures larger orgs have broader WDL coverage
+    # Generate generic tasks for unmatched roles — cover ALL roles to eliminate empty WDL states
     all_titles = set(e["Job Title"] for e in employees)
     unmatched = all_titles - matched_roles
-    generic_tasks = [
-        ("Administrative coordination & scheduling", 15, "Repetitive", "Deterministic", "Interactive", "High"),
-        ("Email & communication management", 15, "Repetitive", "Deterministic", "Independent", "High"),
-        ("Data entry & record keeping", 15, "Repetitive", "Deterministic", "Independent", "High"),
-        ("Reporting & presentation prep", 15, "Variable", "Probabilistic", "Interactive", "Moderate"),
-        ("Cross-functional meetings & collaboration", 15, "Variable", "Judgment-heavy", "Collaborative", "Low"),
-        ("Strategic planning & analysis", 15, "Variable", "Judgment-heavy", "Collaborative", "Low"),
-        ("Process improvement & documentation", 10, "Variable", "Probabilistic", "Interactive", "Moderate"),
+
+    # Manager/leadership-specific tasks
+    mgr_tasks = [
+        ("Team performance management & 1:1s", 20, "Variable", "Judgment-heavy", "Collaborative", "Low"),
+        ("Strategic planning & OKR setting", 15, "Variable", "Judgment-heavy", "Collaborative", "Low"),
+        ("Hiring, onboarding & talent development", 15, "Variable", "Judgment-heavy", "Collaborative", "Low"),
+        ("Budget management & resource allocation", 15, "Variable", "Probabilistic", "Interactive", "Moderate"),
+        ("Cross-functional stakeholder alignment", 15, "Variable", "Judgment-heavy", "Collaborative", "Low"),
+        ("Reporting & executive updates", 10, "Repetitive", "Deterministic", "Independent", "High"),
+        ("Process improvement & change management", 10, "Variable", "Probabilistic", "Interactive", "Moderate"),
     ]
-    # For larger orgs, cover more unmatched roles
-    unmatched_limit = min(len(unmatched), 10 if gen_size < 500 else 25 if gen_size < 3000 else 50)
-    for title in list(unmatched)[:unmatched_limit]:
-        for t_name, t_pct, t_type, t_logic, t_inter, t_impact in generic_tasks:
+    # IC-specific generic tasks
+    ic_tasks = [
+        ("Core deliverable execution", 25, "Variable", "Probabilistic", "Independent", "Moderate"),
+        ("Documentation & knowledge management", 15, "Repetitive", "Deterministic", "Independent", "High"),
+        ("Data analysis & reporting", 15, "Repetitive", "Deterministic", "Independent", "High"),
+        ("Cross-functional collaboration", 15, "Variable", "Judgment-heavy", "Collaborative", "Low"),
+        ("Process improvement & optimization", 10, "Variable", "Probabilistic", "Interactive", "Moderate"),
+        ("Communication & stakeholder updates", 10, "Variable", "Judgment-heavy", "Collaborative", "Low"),
+        ("Tool & system administration", 10, "Repetitive", "Deterministic", "Independent", "High"),
+    ]
+
+    # Cover ALL unmatched roles — no limit
+    for title in list(unmatched):
+        meta = role_meta.get(title, {})
+        ws = WORKSTREAM_MAP.get(meta.get("Function", ""), "General Operations")
+        track = meta.get("Career Track", "P")
+        task_set = mgr_tasks if track in ("M", "E") else ic_tasks
+        role_skill_idx = hash(title) % max(1, len(skills) - 4)
+        for t_name, t_pct, t_type, t_logic, t_inter, t_impact in task_set:
+            time_saved = {"High": random.randint(35, 55), "Moderate": random.randint(15, 30), "Low": random.randint(3, 12)}.get(t_impact, 5)
+            time_saved = min(time_saved, t_pct)
             tasks.append({
                 "Job Title": title, "Task Name": t_name,
+                "Task ID": f"T{str(task_id_counter).zfill(4)}",
+                "Description": f"{t_name} for {title} within {meta.get('Function', '')}",
+                "Workstream": ws,
+                "Function": meta.get("Function", ""),
+                "Job Family": meta.get("Job Family", ""),
+                "Sub-Function": meta.get("Sub-Function", ""),
+                "Career Track": meta.get("Career Track", ""),
+                "Career Level": meta.get("Career Level", ""),
+                "Location": meta.get("Location", ""),
+                "Job Description": meta.get("Job Description", ""),
                 "Est Hours/Week": round(40 * t_pct / 100, 1),
                 "Current Time Spent %": t_pct,
+                "Time Saved %": time_saved,
                 "Task Type": t_type, "Logic": t_logic,
                 "Interaction": t_inter, "AI Impact": t_impact,
-                "Primary Skill": random.choice(skills[:5]), "Secondary Skill": random.choice(skills[5:10]),
+                "Primary Skill": skills[role_skill_idx % len(skills)],
+                "Secondary Skill": skills[(role_skill_idx + 3) % len(skills)],
             })
+            task_id_counter += 1
 
-    # Generate skills — scale cap with company size
-    # Small: all employees, Mid: up to 1000, Large: up to 2000
-    skill_cap = min(len(employees), max(500, gen_size // 4))
+    # Generate skills — scale cap with company size for performance
+    skill_cap = min(len(employees), max(800, gen_size // 3))
     skill_emps = employees[:skill_cap]
     skills_records = []
-    for emp in skill_emps:
-        for skill in skills:
-            if random.random() > 0.12:
-                base_prof = 2
-                if emp["Career Level"] in ["L4","L5","L6"]: base_prof = 3
-                prof = max(1, min(4, base_prof + random.choices([-1,0,0,1], weights=[10,30,40,20])[0]))
-                skills_records.append({"Employee ID": emp["Employee ID"], "Name": emp["Name"], "Skill": skill, "Proficiency": prof})
+    # Skill metadata for categorization
+    SKILL_CATEGORIES = {}
+    for s in skills[:5]: SKILL_CATEGORIES[s] = "technical"
+    for s in skills[5:8]: SKILL_CATEGORIES[s] = "leadership"
+    for s in skills[8:12]: SKILL_CATEGORIES[s] = "functional"
+    for s in skills[12:]: SKILL_CATEGORIES[s] = "digital"
+    SKILL_CRITICALITY = {}
+    for s in skills[:3]: SKILL_CRITICALITY[s] = "core"
+    for s in skills[3:6]: SKILL_CRITICALITY[s] = "emerging"
+    for s in skills[6:10]: SKILL_CRITICALITY[s] = "core"
+    for s in skills[10:]: SKILL_CRITICALITY[s] = "emerging"
 
-    # Operating model — more capabilities for larger orgs
+    for emp in skill_emps:
+        # Each employee gets 5-10 skills (not all 15)
+        emp_skill_count = random.randint(5, min(10, len(skills)))
+        emp_skills = random.sample(skills, emp_skill_count)
+        for skill in emp_skills:
+            # Proficiency 1-5 based on career level
+            cl = emp.get("Career Level", "P2")
+            level_num = int(cl[1]) if len(cl) > 1 and cl[1].isdigit() else 2
+            base_prof = min(5, max(1, level_num))
+            prof = max(1, min(5, base_prof + random.choices([-1, 0, 0, 1], weights=[10, 30, 40, 20])[0]))
+            skills_records.append({
+                "Employee ID": emp["Employee ID"], "Name": emp["Name"],
+                "Skill": skill, "Proficiency": prof,
+                "Skill Category": SKILL_CATEGORIES.get(skill, "functional"),
+                "Skill Criticality": SKILL_CRITICALITY.get(skill, "core"),
+                "Certified": "Yes" if prof >= 4 and random.random() > 0.6 else "No",
+            })
+
+    # Operating model — proper schema: Scope, Layer, Level 1-4, Description, Owner
     op_data = []
     funcs_used = list(set(e["Function"] for e in employees))
+    OM_LAYERS = ["Strategic", "Tactical", "Operational"]
+    OM_SCOPES = ["Enterprise", "Function", "Team"]
+    base_caps = ["Strategy & Planning", "Service Delivery", "Analytics & Reporting",
+                 "Governance & Risk", "Innovation & Transformation", "Talent Development",
+                 "Process Excellence", "Technology Enablement", "Customer Experience"]
     op_caps_per_func = 5 if gen_size < 500 else 7 if gen_size < 3000 else 9
-    base_caps = ["Strategy & Planning","Service Delivery","Analytics & Reporting","Governance & Risk","Innovation & Transformation","Talent Development","Process Excellence","Technology Enablement","Customer Experience"]
+    svc_models = ["Shared", "Embedded", "CoE", "Platform"]
     for func in funcs_used[:min(len(funcs_used), 9)]:
-        for cap in base_caps[:op_caps_per_func]:
-            op_data.append({"Function": func, "Capability": f"{func} {cap}", "Maturity": random.randint(1,4), "Service Model": random.choice(["Shared","Embedded","CoE","Platform"])})
+        for i, cap in enumerate(base_caps[:op_caps_per_func]):
+            layer = OM_LAYERS[i % 3]
+            scope = OM_SCOPES[i % 3]
+            maturity = random.randint(1, 4)
+            op_data.append({
+                "Function": func, "Scope": scope, "Layer": layer,
+                "Level 1": func, "Level 2": cap, "Level 3": f"{func} {cap}",
+                "Level 4": f"{cap} — {layer}",
+                "Description": f"{cap} capability for {func} at the {layer.lower()} level",
+                "Owner": f"VP {func}" if layer == "Strategic" else f"Director {func}" if layer == "Tactical" else f"Manager {func}",
+                "Capability": f"{func} {cap}", "Maturity": maturity,
+                "Service Model": svc_models[i % 4],
+            })
 
-    # Change management — scale with org size
-    change_cap = min(len(employees), max(100, gen_size // 3))
+    # Change management — generate proper roadmap/initiative data matching schema
+    change_data = []
+    INITIATIVES = [
+        ("AI Literacy Training Program", "People & Culture", "High", "Wave 1", "Build foundational AI understanding across all functions"),
+        ("Process Automation Pilot", "Technology & Digital", "High", "Wave 1", "Deploy RPA for high-volume repetitive processes"),
+        ("Data Governance Framework", "Data & Intelligence", "High", "Wave 1", "Establish data quality standards and ownership"),
+        ("Change Champion Network", "People & Culture", "High", "Wave 1", "Recruit and train change champions at 1:5 ratio"),
+        ("Manager Capability Building", "People & Culture", "Medium", "Wave 2", "Upskill managers on leading through AI transformation"),
+        ("Skills Assessment & Gap Analysis", "People & Culture", "High", "Wave 1", "Comprehensive skills inventory and gap identification"),
+        ("AI-Augmented Workflow Design", "Technology & Digital", "High", "Wave 2", "Redesign core workflows with AI augmentation"),
+        ("Talent Marketplace Launch", "People & Culture", "Medium", "Wave 2", "Enable internal mobility through skills-based matching"),
+        ("Operating Model Redesign", "Governance & Legal", "High", "Wave 2", "Restructure service delivery models for AI era"),
+        ("Communication & Engagement Plan", "People & Culture", "Medium", "Wave 1", "Multi-channel change communication strategy"),
+        ("Technology Infrastructure Upgrade", "Technology & Digital", "Medium", "Wave 1", "Cloud migration and API readiness"),
+        ("Reskilling Pathways Rollout", "People & Culture", "High", "Wave 2", "Structured reskilling for impacted roles"),
+        ("AI Ethics & Governance Policy", "Governance & Legal", "Medium", "Wave 1", "Establish AI usage policies and oversight"),
+        ("Performance Metric Redesign", "Data & Intelligence", "Medium", "Wave 3", "Update KPIs for AI-augmented roles"),
+        ("Org Structure Optimization", "People & Culture", "Medium", "Wave 3", "Flatten layers and optimize span of control"),
+        ("Vendor Selection & Procurement", "Technology & Digital", "Medium", "Wave 2", "Select and onboard AI/ML vendors"),
+        ("Pilot Evaluation & Scale Decision", "Data & Intelligence", "High", "Wave 2", "Assess pilot outcomes and decide scaling"),
+        ("Full-Scale Deployment", "Technology & Digital", "High", "Wave 3", "Enterprise-wide rollout of validated solutions"),
+        ("Change Sustainability Assessment", "People & Culture", "Low", "Wave 3", "Measure adoption and embed new ways of working"),
+        ("Executive Alignment Workshop", "Governance & Legal", "High", "Wave 1", "Ensure C-suite alignment on transformation vision"),
+    ]
+    wave_starts = {"Wave 1": "2026-Q1", "Wave 2": "2026-Q3", "Wave 3": "2027-Q1"}
+    wave_ends = {"Wave 1": "2026-Q2", "Wave 2": "2026-Q4", "Wave 3": "2027-Q2"}
+    risk_levels = ["Low", "Medium", "Medium", "High"]
+    statuses = ["Not Started", "In Progress", "Planned"]
+    for i, (init_name, ws, priority, wave, desc) in enumerate(INITIATIVES):
+        # Map initiative to a function that exists in this company
+        target_func = random.choice(funcs_used)
+        change_data.append({
+            "Function": target_func, "Initiative": init_name,
+            "Owner": f"VP {target_func}" if priority == "High" else f"Director {target_func}",
+            "Priority": priority, "Status": random.choice(statuses),
+            "Wave": wave, "Start": wave_starts.get(wave, "2026-Q1"), "End": wave_ends.get(wave, "2026-Q2"),
+            "Milestone": f"M{i+1}: {init_name.split(' ')[0]} complete",
+            "Date": wave_ends.get(wave, "2026-Q2"),
+            "Risk": random.choice(risk_levels),
+            "Dependency": INITIATIVES[max(0, i-2)][0] if i > 1 else "",
+            "Notes": desc,
+            "Workstream": ws,
+            "Task Name": init_name,
+        })
+
+    # Also generate per-employee change readiness for the readiness endpoints
+    change_cap = min(len(employees), max(200, gen_size // 3))
     change_emps = random.sample(employees, change_cap)
-    change_data = [{"Employee ID": e["Employee ID"], "Name": e["Name"], "Function": e["Function"],
-        "Change Readiness": round(random.uniform(1.5,4.5),1), "Impact Level": random.choice(["High","Moderate","Low"]),
-        "Support Needed": random.choice(["Intensive","Moderate","Light"])} for e in change_emps]
+    readiness_data = []
+    for e in change_emps:
+        readiness_data.append({
+            "Employee ID": e["Employee ID"], "Name": e["Name"], "Function": e["Function"],
+            "Job Title": e["Job Title"], "Career Level": e.get("Career Level", ""),
+            "Change Readiness": round(random.uniform(1.5, 4.5), 1),
+            "Impact Level": random.choice(["High", "Moderate", "Low"]),
+            "Support Needed": random.choice(["Intensive", "Moderate", "Light"]),
+            "Digital Fluency": round(random.uniform(1.5, 4.5), 1),
+            "Manager Support": round(random.uniform(2.0, 5.0), 1),
+        })
 
     wf_df = pd.DataFrame(employees)
     wd_df = pd.DataFrame(tasks)
     sk_df = pd.DataFrame(skills_records)
     op_df = pd.DataFrame(op_data)
     ch_df = pd.DataFrame(change_data)
+    rd_df = pd.DataFrame(readiness_data) if readiness_data else pd.DataFrame()
 
     # Add Model ID to all DataFrames (required by schemas)
-    for df in [wf_df, wd_df, sk_df, op_df, ch_df]:
-        if not df.empty:
+    for df in [wf_df, wd_df, sk_df, op_df, ch_df, rd_df]:
+        if df is not None and not df.empty:
             df["Model ID"] = model_id
 
     # Standardize all DataFrames through the schema pipeline so column names
-    # match what API endpoints expect (e.g. "Name" → "Employee Name", 
+    # match what API endpoints expect (e.g. "Name" → "Employee Name",
     # "Function" → "Function ID", "Compensation" → "Base Pay")
     from app.store import standardize_to_schema
     wf_std = standardize_to_schema(wf_df, "workforce") if not wf_df.empty else pd.DataFrame()
     wd_std = standardize_to_schema(wd_df, "work_design") if not wd_df.empty else pd.DataFrame()
-    
-    # org_design uses workforce schema columns
+
+    # org_design uses org_design schema (subset of workforce columns)
     org_src = wf_df.copy()
     org_src["Model ID"] = model_id
-    org_std = standardize_to_schema(org_src, "workforce") if not org_src.empty else pd.DataFrame()
+    org_std = standardize_to_schema(org_src, "org_design") if not org_src.empty else pd.DataFrame()
+
+    # Build internal job catalog from workforce for job architecture views
+    jc_rows = []
+    for rt, meta in role_meta.items():
+        matching_emps = [e for e in employees if e["Job Title"] == rt]
+        hc = len(matching_emps)
+        track = meta.get("Career Track", "P")
+        jc_rows.append({
+            "Model ID": model_id, "Job Title": rt,
+            "Standard Title": rt, "Job Code": f"JC-{hash(rt) % 9000 + 1000}",
+            "Function": meta.get("Function", ""),
+            "Job Family": meta.get("Job Family", ""),
+            "Sub-Function": meta.get("Sub-Function", ""),
+            "Career Track": meta.get("Career Track", ""),
+            "Career Level": meta.get("Career Level", ""),
+            "Location": meta.get("Location", ""),
+            "Manager or IC": "Manager" if track in ("M", "E") else "IC",
+            "Job Description": meta.get("Job Description", ""),
+            "Skills": ", ".join(skills[:5]),
+            "Role Purpose": f"Drives {meta.get('Job Family', '')} outcomes within {meta.get('Function', '')}",
+        })
+    jc_df = standardize_to_schema(pd.DataFrame(jc_rows), "job_catalog") if jc_rows else pd.DataFrame()
 
     store.datasets[model_id] = {
         **empty_bundle(),
@@ -1401,10 +1645,13 @@ def _seed_tutorial_store(industry="technology", size_tier="mid"):
         "org_design": org_std,
         "operating_model": op_df,
         "change_management": ch_df,
+        "job_catalog": jc_df,
     }
+    # Store readiness data separately for the change-readiness endpoint
+    store.datasets[model_id]["_readiness_raw"] = rd_df
     store.last_loaded_model_id = model_id
-    
-    print(f"Seeded: {model_id} — {company['name']} ({company['employees']:,} employees) → {len(employees)} generated, {len(tasks)} tasks, {len(skills_records)} skill records")
+
+    print(f"Seeded: {model_id} — {company['name']} ({company['employees']:,} employees) → {len(employees)} generated, {len(tasks)} tasks, {len(skills_records)} skill records, {len(jc_rows)} job catalog entries")
     return model_id
 
 # Tutorial auto-seeds on /api/tutorial/seed call from frontend

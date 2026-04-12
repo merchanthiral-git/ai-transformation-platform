@@ -77,7 +77,10 @@ export function VideoBackground({
     const video = videoRef.current;
     if (!video) return;
 
-    const onSourceError = () => setVideoFailed(true);
+    const onSourceError = (e: Event) => {
+      console.error(`[VideoBackground] ${name} source failed:`, (e.target as HTMLSourceElement)?.src || "unknown", e);
+      setVideoFailed(true);
+    };
 
     // Listen for error on the last <source> — fires when all sources fail
     const sources = video.querySelectorAll("source");
@@ -92,6 +95,7 @@ export function VideoBackground({
     // Safety net: if after 8s the video has no data and isn't playing, treat as failed
     const timeout = setTimeout(() => {
       if (video.readyState === 0 && video.networkState === 3) {
+        console.error(`[VideoBackground] ${name} timed out — readyState=${video.readyState}, networkState=${video.networkState}`);
         setVideoFailed(true);
       }
     }, 8000);
@@ -112,7 +116,7 @@ export function VideoBackground({
     <div
       ref={containerRef}
       className={`overflow-hidden ${className}`}
-      style={{ isolation: "isolate", position: "absolute" }}
+      style={{ isolation: "isolate", position: "absolute", inset: 0, width: "100%", height: "100%" }}
     >
       {/* Layer 0: Gradient base — always present, never blank */}
       <div
@@ -148,13 +152,21 @@ export function VideoBackground({
           playsInline
           preload="auto"
           poster={posterUrl}
+          onError={(e) => {
+            console.error(`[VideoBackground] ${name} video element error:`, e);
+            setVideoFailed(true);
+          }}
+          onCanPlay={() => {
+            const v = videoRef.current;
+            if (v && v.paused) v.play().catch(() => {});
+          }}
           style={{
             position: "absolute",
             inset: 0,
             width: "100%",
             height: "100%",
             objectFit: "cover",
-            zIndex: 0,
+            zIndex: 1,
             willChange: "transform",
             filter: filterStyle,
           }}
