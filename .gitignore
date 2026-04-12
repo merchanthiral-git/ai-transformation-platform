@@ -8,3 +8,6 @@ venv/
 *.egg-info/
 dist/
 build/
+
+# Agent memory (persistent per-project, not committed)
+backend/data/agent_memory/*.json

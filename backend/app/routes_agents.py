@@ -226,7 +226,7 @@ PREVIOUS FINDINGS (from project memory):
 
 Be specific with numbers. Reference the actual data provided."""
 
-    # Mark as complete (frontend will call Gemini with this prompt)
+    # Mark as complete (frontend will call Claude with this prompt)
     _agent_state["status"][agent_id]["state"] = "idle"
     _agent_state["status"][agent_id]["last_action"] = f"Analysis run {run_id}"
     _agent_state["status"][agent_id]["actions_today"] += 1
@@ -250,7 +250,7 @@ def run_all_agents(model_id: str = Query(""), context: str = Query(""), project_
 
 @router.post("/api/agents/result")
 def submit_agent_result(run_id: str = Query(""), agent_id: str = Query(""), result: str = Query(""), project_id: str = Query("")):
-    """Submit the result of an agent's Gemini call"""
+    """Submit the result of an agent's Claude call"""
     if run_id in _agent_state["runs"]:
         _agent_state["runs"][run_id]["status"] = "completed"
         _agent_state["runs"][run_id]["result"] = result[:2000]

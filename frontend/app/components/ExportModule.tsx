@@ -91,7 +91,7 @@ export function ExportReport({ model, f, onBack }: { model: string; f: Filters; 
         <div className="bg-[var(--surface-2)] rounded-xl p-5 border border-[var(--border)] text-center card-hover">
           <div className="text-3xl mb-2">☕</div>
           <div className="text-[15px] font-bold text-[var(--text-primary)] font-heading mb-1">AI Narrative</div>
-          <div className="text-[15px] text-[var(--text-muted)] mb-3">Gemini-generated board-ready narrative</div>
+          <div className="text-[15px] text-[var(--text-muted)] mb-3">Claude-generated board-ready narrative</div>
           <button onClick={generateAiNarrative} disabled={generating} className="px-5 py-2 rounded-xl text-[15px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 hover:bg-[var(--accent-primary)]/5">{generating ? "..." : "Generate .txt"}</button>
         </div>
 

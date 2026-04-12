@@ -471,8 +471,8 @@ export function fmtNum(value: number | string | null | undefined, type: "currenc
 
 export const COLORS = ["#D4860A","#C07030","#E8C547","#B8602A","#D97706","#F59E0B","#A0522D","#E09040"];
 
-/* ── AI Helper — routes all AI calls through backend Gemini proxy ── */
-let _aiRemaining = 20;
+/* ── AI Helper — routes all AI calls through backend Claude API proxy ── */
+let _aiRemaining = 200;
 export function getAiRemaining() { return _aiRemaining; }
 
 export async function callAI(system: string, message: string, retries = 1): Promise<string> {
@@ -495,8 +495,8 @@ export async function callAI(system: string, message: string, retries = 1): Prom
       // Track remaining requests
       if (typeof data.remaining === "number") _aiRemaining = data.remaining;
       if (data.error) {
-        // Don't retry on rate limit or key errors — they won't resolve
-        if (data.text?.includes("Rate limit") || data.text?.includes("API key") || data.text?.includes("revoked")) {
+        // Don't retry on key/rate errors — they won't resolve
+        if (data.text?.includes("ANTHROPIC_API_KEY") || data.text?.includes("Rate limit") || data.text?.includes("API key")) {
           return data.text;
         }
         if (attempt < retries) { await new Promise(r => setTimeout(r, 1500)); continue; }
@@ -511,7 +511,7 @@ export async function callAI(system: string, message: string, retries = 1): Prom
   }
   return "";
 }
-// ── AI Insight Card — reusable collapsible card for Gemini-powered insights ──
+// ── AI Insight Card — reusable collapsible card for Claude-powered insights ──
 export function AiInsightCard({ title, contextData, systemPrompt, moduleId }: { title: string; contextData: string; systemPrompt?: string; moduleId?: string }) {
   const [insight, setInsight] = useState("");
   const [loading, setLoading] = useState(false);
@@ -2016,7 +2016,7 @@ export const SKILLS_TAXONOMY: { domain: string; color: string; icon: string; ski
 // Type for per-job work design state
 
 /* ═══════════════════════════════════════════════════════════════
-   AI JOB AUTO-SUGGEST — Gemini-powered skill/task inference
+   AI JOB AUTO-SUGGEST — Claude-powered skill/task inference
    Reusable component: cache, review panel, accept/edit/dismiss
    ═══════════════════════════════════════════════════════════════ */
 

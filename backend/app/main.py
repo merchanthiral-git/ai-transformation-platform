@@ -86,11 +86,11 @@ from app.routes_agents import router as agents_router
 app.include_router(agents_router)
 
 # AI Provider abstraction
-from app.ai_providers import call_ai_sync, get_ai_status, anthropic_client
+from app.ai_providers import call_ai_sync, get_ai_status
 
 @app.post("/api/ai/ask")
 def ask_ai_endpoint(request: dict):
-    """Unified AI endpoint — routes to Claude or Gemini based on task type"""
+    """Unified AI endpoint — routes all requests through Claude"""
     prompt = request.get("prompt", "")
     task_type = request.get("task_type", "general")
     system = request.get("system", None)

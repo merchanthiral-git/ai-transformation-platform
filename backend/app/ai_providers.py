@@ -1,56 +1,73 @@
-"""AI Provider Abstraction — Claude (Anthropic) + Gemini (Google)
+"""AI Provider — Claude (Anthropic) via direct HTTP calls.
 
-Routes AI calls to the best provider based on task type:
-- Claude Sonnet: agent reasoning, structured analysis, narrative writing
-- Gemini Flash: bulk generation, JD creation, simple tasks
-- Falls back to Gemini if Claude is unavailable
+All AI calls route through Claude Sonnet for:
+- Agent reasoning and structured analysis
+- Narrative writing and insights
+- Bulk generation and JD creation
 """
 
 import os
 import json
-import traceback
+import httpx
 from dotenv import load_dotenv
 
 # Load .env from backend/ directory explicitly
 load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 
-# ── Claude (Anthropic) ──
-anthropic_client = None
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
-if ANTHROPIC_API_KEY and ANTHROPIC_API_KEY != "REPLACE_WITH_YOUR_KEY":
-    try:
-        from anthropic import Anthropic
-        anthropic_client = Anthropic(api_key=ANTHROPIC_API_KEY)
-        print("[AI] Claude client initialized (claude-sonnet-4-20250514)")
-    except Exception as e:
-        print(f"[AI] Claude init failed: {e}")
+CLAUDE_MODEL = "claude-sonnet-4-20250514"
+CLAUDE_BASE = "https://api.anthropic.com/v1/messages"
+ANTHROPIC_VERSION = "2023-06-01"
 
-# ── Gemini (Google) ──
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-gemini_available = bool(GEMINI_API_KEY)
-if gemini_available:
-    print("[AI] Gemini API key configured")
+NO_KEY_MSG = "Add your ANTHROPIC_API_KEY to backend/.env to enable AI features"
+
+claude_available = bool(ANTHROPIC_API_KEY and ANTHROPIC_API_KEY != "your_key_here")
+if claude_available:
+    print(f"[AI] Claude API key configured ({CLAUDE_MODEL})")
+else:
+    print(f"[AI] No ANTHROPIC_API_KEY — {NO_KEY_MSG}")
 
 
-def call_claude_sync(prompt: str, system: str = None, model: str = "claude-sonnet-4-20250514", max_tokens: int = 4096, json_mode: bool = False) -> str:
+def call_claude_sync(prompt: str, system: str = None, model: str = None, max_tokens: int = 4096, json_mode: bool = False) -> str:
     """Call Claude API synchronously for complex reasoning and structured analysis."""
-    if not anthropic_client:
-        raise Exception("ANTHROPIC_API_KEY not configured")
+    if not claude_available:
+        raise Exception(NO_KEY_MSG)
 
-    messages = [{"role": "user", "content": prompt}]
+    model = model or CLAUDE_MODEL
     system_prompt = system or "You are an expert workforce transformation consultant and organizational design specialist."
 
     if json_mode:
         system_prompt += "\n\nRespond ONLY with valid JSON. No markdown, no backticks, no explanation — just the JSON object."
 
-    message = anthropic_client.messages.create(
-        model=model,
-        max_tokens=max_tokens,
-        system=system_prompt,
-        messages=messages,
-    )
+    headers = {
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": ANTHROPIC_VERSION,
+        "content-type": "application/json",
+    }
 
-    response_text = message.content[0].text
+    body = {
+        "model": model,
+        "max_tokens": max_tokens,
+        "system": system_prompt,
+        "messages": [{"role": "user", "content": prompt}],
+    }
+
+    resp = httpx.post(CLAUDE_BASE, json=body, headers=headers, timeout=60.0)
+
+    if resp.status_code == 401:
+        raise Exception("Invalid ANTHROPIC_API_KEY. Check your key in backend/.env")
+    if resp.status_code == 429:
+        raise Exception("Claude API rate limited — try again in a moment")
+    if resp.status_code != 200:
+        err = resp.json().get("error", {}).get("message", f"HTTP {resp.status_code}")
+        raise Exception(f"Claude API error: {err}")
+
+    data = resp.json()
+    content = data.get("content", [])
+    if not content:
+        raise Exception("Empty response from Claude")
+
+    response_text = content[0].get("text", "")
 
     if json_mode:
         response_text = response_text.strip()
@@ -64,79 +81,32 @@ def call_claude_sync(prompt: str, system: str = None, model: str = "claude-sonne
     return response_text
 
 
-def call_claude_structured_sync(prompt: str, system: str = None, model: str = "claude-sonnet-4-20250514") -> dict:
+def call_claude_structured_sync(prompt: str, system: str = None, model: str = None) -> dict:
     """Call Claude and parse the response as JSON."""
-    response = call_claude_sync(prompt, system, model, json_mode=True)
+    response = call_claude_sync(prompt, system, model or CLAUDE_MODEL, json_mode=True)
     return json.loads(response)
-
-
-def call_gemini_sync(prompt: str, system: str = None) -> str:
-    """Call Gemini API for bulk/simple tasks."""
-    try:
-        import google.generativeai as genai
-        genai.configure(api_key=GEMINI_API_KEY)
-        gen_model = genai.GenerativeModel("gemini-2.0-flash")
-        full_prompt = f"{system}\n\n{prompt}" if system else prompt
-        response = gen_model.generate_content(full_prompt)
-        return response.text
-    except Exception as e:
-        raise Exception(f"Gemini call failed: {e}")
 
 
 def call_ai_sync(prompt: str, task_type: str = "general", system: str = None) -> tuple[str, str]:
     """
-    Smart router — picks the right model for the task.
+    Unified AI call — all tasks route through Claude.
     Returns: (response_text, provider_name)
-
-    Task types:
-    - 'agent': Claude (best reasoning, tool use)
-    - 'analysis': Claude (structured analysis)
-    - 'narrative': Claude (writing quality)
-    - 'structured': Claude (JSON output)
-    - 'bulk': Gemini (fast, cheap)
-    - 'jd_generation': Gemini (bulk JDs)
-    - 'general': Claude if available, else Gemini
     """
-    claude_tasks = {"agent", "analysis", "narrative", "structured"}
-    gemini_tasks = {"bulk", "jd_generation", "simple"}
+    if not claude_available:
+        raise Exception(NO_KEY_MSG)
 
-    use_claude = task_type in claude_tasks and anthropic_client
-    use_gemini = task_type in gemini_tasks
-
-    if use_claude:
-        try:
-            return call_claude_sync(prompt, system, json_mode=(task_type == "structured")), "claude"
-        except Exception as e:
-            print(f"[AI] Claude failed, falling back to Gemini: {e}")
-            if gemini_available:
-                return call_gemini_sync(prompt, system), "gemini"
-            raise
-    elif use_gemini:
-        if gemini_available:
-            return call_gemini_sync(prompt, system), "gemini"
-        elif anthropic_client:
-            return call_claude_sync(prompt, system), "claude"
-        raise Exception("No AI provider available")
-    else:
-        # General — prefer Claude, fallback to Gemini
-        if anthropic_client:
-            try:
-                return call_claude_sync(prompt, system), "claude"
-            except Exception:
-                if gemini_available:
-                    return call_gemini_sync(prompt, system), "gemini"
-                raise
-        elif gemini_available:
-            return call_gemini_sync(prompt, system), "gemini"
-        raise Exception("No AI provider available")
+    json_mode = task_type == "structured"
+    return call_claude_sync(prompt, system, json_mode=json_mode), "claude"
 
 
 def get_ai_status() -> dict:
-    """Return status of all AI providers."""
+    """Return status of AI provider."""
     return {
-        "claude": anthropic_client is not None,
-        "gemini": gemini_available,
-        "claude_model": "claude-sonnet-4-20250514" if anthropic_client else None,
-        "gemini_model": "gemini-2.0-flash" if gemini_available else None,
-        "providers_active": sum([anthropic_client is not None, gemini_available]),
+        "claude": claude_available,
+        "gemini": False,
+        "claude_model": CLAUDE_MODEL if claude_available else None,
+        "gemini_model": None,
+        "providers_active": 1 if claude_available else 0,
+        "provider": "anthropic",
+        "no_key_message": None if claude_available else NO_KEY_MSG,
     }

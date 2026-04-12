@@ -778,7 +778,7 @@ export const KNOWLEDGE_BASE: Record<string, KBEntry> = {
       { heading: "Who is this for?", body: "Transformation leads who need prioritized action plans, consultants building client recommendations, and executives making investment decisions." },
     ],
     what: [
-      { heading: "What it does", body: "Analyzes your workforce data, AI readiness scores, and task-level impact analysis through the Gemini AI engine to generate 8 ranked recommendations. Each recommendation includes: impact score (0-100), effort level (Low/Medium/High), category (Automation/Augmentation/Upskilling/Process/Governance/Data), affected roles, timeframe, and KPIs to track." },
+      { heading: "What it does", body: "Analyzes your workforce data, AI readiness scores, and task-level impact analysis through the Claude AI engine to generate 8 ranked recommendations. Each recommendation includes: impact score (0-100), effort level (Low/Medium/High), category (Automation/Augmentation/Upskilling/Process/Governance/Data), affected roles, timeframe, and KPIs to track." },
     ],
     where: [
       { heading: "Position", body: "Diagnose phase — synthesizes findings from Workforce Snapshot, AI Opportunity Scan, and Readiness Assessment into actionable recommendations." },

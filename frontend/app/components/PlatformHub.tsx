@@ -369,7 +369,7 @@ const TUTORIALS = [
   { id: "t9", cat: "Module Deep Dives", title: "Building a Change Roadmap", duration: "12 min", level: "Intermediate", desc: "Creating a sequenced transformation plan." },
   { id: "t10", cat: "Module Deep Dives", title: "Configuring Operating Models", duration: "10 min", level: "Intermediate", desc: "Industry-specific taxonomies and blueprints." },
   { id: "t11", cat: "Module Deep Dives", title: "Exporting Deliverables", duration: "8 min", level: "Beginner", desc: "Generate professional reports for stakeholders." },
-  { id: "t12", cat: "Advanced", title: "AI Insights & Recommendations", duration: "10 min", level: "Advanced", desc: "Leveraging Gemini AI for cross-cutting analysis." },
+  { id: "t12", cat: "Advanced", title: "AI Insights & Recommendations", duration: "10 min", level: "Advanced", desc: "Leveraging Claude AI for cross-cutting analysis." },
 ];
 
 function TutorialsTab() {

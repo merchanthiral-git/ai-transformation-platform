@@ -80,6 +80,14 @@ function OrgChartBuilder({ employees, jobs }: { employees: Employee[]; jobs: Job
     return roots;
   }, [employees]);
 
+  // Flat node lookup by ID
+  const nodeById = useMemo(() => {
+    const map: Record<string, OrgNode> = {};
+    const walk = (n: OrgNode) => { map[n.id] = n; n.children.forEach(walk); };
+    orgTree.forEach(walk);
+    return map;
+  }, [orgTree]);
+
   // Collapsed state — auto-collapse below depth 2 on initial load
   const [collapsedIds, setCollapsedIds] = useState<Set<string>>(() => {
     const ids = new Set<string>();
@@ -202,8 +210,8 @@ function OrgChartBuilder({ employees, jobs }: { employees: Employee[]; jobs: Job
     return funcColor;
   };
 
-  const renderNode = (node: OrgNode, depth: number): React.ReactNode => {
-    const isCollapsed = collapsedIds.has(node.id);
+  // ── Render a single node card (no children layout — just the card itself) ──
+  const renderNodeCard = (node: OrgNode) => {
     const isSelected = selectedId === node.id;
     const funcColor = ORG_FUNC_COLORS[node.function] || "#888";
     const heatColor = getNodeColor(node);
@@ -211,85 +219,119 @@ function OrgChartBuilder({ employees, jobs }: { employees: Employee[]; jobs: Job
     const isDragOver = dropTarget === node.id && dragNode !== node.id;
     const isSearchMatch = searchMatch?.id === node.id;
     const isHovered = hoveredId === node.id;
-    const lineColor = "rgba(255,255,255,0.12)";
+    const isCollapsed = collapsedIds.has(node.id);
     const isSearchDimmed = search && !isSearchMatch && searchMatch !== null;
     const initials = node.name.split(" ").map(w => w[0]).join("").slice(0, 2);
-    // AI impact bar height (for the micro-visualization on the right edge)
     const job = jobs.find(j => j.title === node.title);
     const aiPct = job ? Math.min((job.ai_score || 0) / 10, 1) : 0.3;
 
-    return <div key={node.id} className="flex flex-col items-center" style={{ minWidth: 210, opacity: isSearchDimmed ? 0.15 : 1, transition: "opacity 0.3s" }}>
-      {/* Node card — glassmorphism with data layers */}
-      <div
-        className="relative cursor-pointer"
-        style={{ transition: "transform 0.2s, box-shadow 0.2s" }}
-        draggable={stateMode === "future"}
-        onDragStart={e => { e.dataTransfer.effectAllowed = "move"; setDragNode(node.id); }}
-        onDragOver={e => { e.preventDefault(); setDropTarget(node.id); }}
-        onDragLeave={() => setDropTarget(null)}
-        onDrop={e => { e.preventDefault(); handleDrop(node.id); }}
-        onClick={e => { e.stopPropagation(); setSelectedId(node.id); }}
-        onDoubleClick={e => { e.stopPropagation(); if (hasChildren) toggleCollapse(node.id); }}
-        onMouseEnter={() => setHoveredId(node.id)}
-        onMouseLeave={() => setHoveredId(null)}
-      >
-        <div className="rounded-2xl border transition-all" style={{
-          width: isHovered ? 220 : 200, minHeight: isHovered ? 120 : 84, padding: "10px 12px",
-          background: "rgba(26,35,64,0.75)",
-          backdropFilter: "blur(16px)",
-          borderColor: isSelected ? "#e09040" : isDragOver ? "var(--success)" : isSearchMatch ? "#e09040" : `${heatColor}30`,
-          borderWidth: isSelected || isSearchMatch ? 2 : 1,
-          boxShadow: isSelected ? `0 0 24px rgba(224,144,64,0.3)` : isHovered ? `0 4px 20px rgba(0,0,0,0.3)` : "0 2px 10px rgba(0,0,0,0.2)",
-          transform: isHovered ? "translateY(-3px)" : "none",
-        }}>
-          {/* Bottom function color bar */}
-          <div className="absolute bottom-0 left-3 right-3 h-[2px] rounded-t" style={{ background: funcColor }} />
-          {/* AI impact micro-bar on right edge */}
-          <div className="absolute top-2 right-1 bottom-2 w-[3px] rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
-            <div className="absolute bottom-0 left-0 right-0 rounded-full transition-all" style={{ height: `${aiPct * 100}%`, background: aiPct > 0.6 ? "#EF4444" : aiPct > 0.3 ? "#F59E0B" : "#10B981" }} />
-          </div>
-
-          <div className="flex items-center gap-2.5">
-            {/* Avatar circle */}
-            <div className="w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0" style={{ background: `linear-gradient(135deg, ${heatColor}, ${heatColor}90)`, boxShadow: `0 2px 8px ${heatColor}30` }}>{initials}</div>
-            {/* Info */}
-            <div className="flex-1 min-w-0 mr-2">
-              <div className="text-[13px] font-bold text-[var(--text-primary)] truncate leading-tight">{node.name}</div>
-              <div className="text-[11px] text-[var(--text-muted)] truncate">{node.title}</div>
-              <div className="flex items-center gap-1.5 mt-1">
-                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: `${funcColor}15`, color: funcColor }}>{node.function.slice(0, 10)}</span>
-                {node.level && <span className="text-[9px] font-bold px-1 py-0.5 rounded bg-[rgba(255,255,255,0.06)] text-[var(--text-muted)]">{node.level}</span>}
-                {showHeadcount && hasChildren && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: `${heatColor}15`, color: heatColor }}>{node.children.length}</span>}
-              </div>
-            </div>
-          </div>
-
-          {/* Hover expansion — additional data */}
-          {isHovered && <div className="mt-2 pt-2 border-t border-[rgba(255,255,255,0.06)] space-y-0.5" style={{ animation: "fadeIn 0.2s ease" }}>
-            <div className="text-[11px] text-[var(--text-muted)]">{node.children.length} direct reports · {node.headcount - 1} total</div>
-            <div className="flex items-center gap-2">
-              <span className="text-[11px]" style={{ color: spanColor(node) }}>Span: {node.children.length}{node.children.length > 10 ? " ⚠" : ""}</span>
-              <span className="text-[11px] text-[var(--text-muted)]">AI: {Math.round(aiPct * 100)}%</span>
-            </div>
-            {node.flightRisk === "High" && <div className="text-[10px] text-[var(--risk)] font-semibold">⚠ Flight Risk</div>}
-          </div>}
+    return <div
+      className="relative cursor-pointer"
+      style={{ transition: "transform 0.2s, box-shadow 0.2s", opacity: isSearchDimmed ? 0.15 : 1 }}
+      draggable={stateMode === "future"}
+      onDragStart={e => { e.dataTransfer.effectAllowed = "move"; setDragNode(node.id); }}
+      onDragOver={e => { e.preventDefault(); setDropTarget(node.id); }}
+      onDragLeave={() => setDropTarget(null)}
+      onDrop={e => { e.preventDefault(); handleDrop(node.id); }}
+      onClick={e => { e.stopPropagation(); setSelectedId(node.id); }}
+      onDoubleClick={e => { e.stopPropagation(); if (hasChildren) toggleCollapse(node.id); }}
+      onMouseEnter={() => setHoveredId(node.id)}
+      onMouseLeave={() => setHoveredId(null)}
+    >
+      <div className="rounded-2xl border transition-all" style={{
+        width: 200, minHeight: 80, padding: "10px 12px",
+        background: "rgba(26,35,64,0.75)",
+        backdropFilter: "blur(16px)",
+        borderColor: isSelected ? "#e09040" : isDragOver ? "var(--success)" : isSearchMatch ? "#e09040" : `${heatColor}30`,
+        borderWidth: isSelected || isSearchMatch ? 2 : 1,
+        boxShadow: isSelected ? "0 0 24px rgba(224,144,64,0.3)" : isHovered ? "0 4px 20px rgba(0,0,0,0.3)" : "0 2px 10px rgba(0,0,0,0.2)",
+        transform: isHovered ? "translateY(-3px)" : "none",
+      }}>
+        <div className="absolute bottom-0 left-3 right-3 h-[2px] rounded-t" style={{ background: funcColor }} />
+        <div className="absolute top-2 right-1 bottom-2 w-[3px] rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
+          <div className="absolute bottom-0 left-0 right-0 rounded-full transition-all" style={{ height: `${aiPct * 100}%`, background: aiPct > 0.6 ? "#EF4444" : aiPct > 0.3 ? "#F59E0B" : "#10B981" }} />
         </div>
-        {/* Collapse/expand button */}
-        {hasChildren && <button className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full border text-[10px] font-bold flex items-center justify-center z-10 transition-all" style={{ background: "var(--surface-1)", borderColor: isCollapsed ? heatColor : "var(--border)", color: isCollapsed ? heatColor : "var(--text-muted)" }} onClick={e => { e.stopPropagation(); toggleCollapse(node.id); }}>{isCollapsed ? `+${node.headcount - 1}` : "−"}</button>}
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0" style={{ background: `linear-gradient(135deg, ${heatColor}, ${heatColor}90)`, boxShadow: `0 2px 8px ${heatColor}30` }}>{initials}</div>
+          <div className="flex-1 min-w-0 mr-2">
+            <div className="text-[13px] font-bold text-[var(--text-primary)] truncate leading-tight">{node.name}</div>
+            <div className="text-[11px] text-[var(--text-muted)] truncate">{node.title}</div>
+            <div className="flex items-center gap-1.5 mt-1">
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: `${funcColor}15`, color: funcColor }}>{node.function.slice(0, 10)}</span>
+              {node.level && <span className="text-[9px] font-bold px-1 py-0.5 rounded bg-[rgba(255,255,255,0.06)] text-[var(--text-muted)]">{node.level}</span>}
+              {showHeadcount && hasChildren && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: `${heatColor}15`, color: heatColor }}>{node.children.length}</span>}
+            </div>
+          </div>
+        </div>
+        {isHovered && <div className="mt-2 pt-2 border-t border-[rgba(255,255,255,0.06)] space-y-0.5" style={{ animation: "fadeIn 0.2s ease" }}>
+          <div className="text-[11px] text-[var(--text-muted)]">{node.children.length} direct reports · {node.headcount - 1} total</div>
+          <div className="flex items-center gap-2">
+            <span className="text-[11px]" style={{ color: spanColor(node) }}>Span: {node.children.length}{node.children.length > 10 ? " ⚠" : ""}</span>
+            <span className="text-[11px] text-[var(--text-muted)]">AI: {Math.round(aiPct * 100)}%</span>
+          </div>
+          {node.flightRisk === "High" && <div className="text-[10px] text-[var(--risk)] font-semibold">⚠ Flight Risk</div>}
+        </div>}
       </div>
-      {/* Children with tree connectors */}
-      {hasChildren && !isCollapsed && <div style={{ marginTop: 40, position: "relative" }}>
-        <div style={{ position: "absolute", top: -30, left: "50%", width: 1.5, height: 30, background: lineColor, transform: "translateX(-50%)" }} />
-        {node.children.length > 1 && <div style={{ position: "absolute", top: 0, height: 1.5, background: lineColor, left: `calc(${100 / (node.children.length * 2)}%)`, right: `calc(${100 / (node.children.length * 2)}%)` }} />}
-        <div style={{ display: "flex", gap: 20, justifyContent: "center" }}>
-          {node.children.map(child => <div key={child.id} style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <div style={{ width: 1.5, height: 30, background: lineColor }} />
-            {renderNode(child, depth + 1)}
-          </div>)}
-        </div>
-      </div>}
+      {hasChildren && <button className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full border text-[10px] font-bold flex items-center justify-center z-10 transition-all" style={{ background: "var(--surface-1)", borderColor: isCollapsed ? heatColor : "var(--border)", color: isCollapsed ? heatColor : "var(--text-muted)" }} onClick={e => { e.stopPropagation(); toggleCollapse(node.id); }}>{isCollapsed ? `+${node.headcount - 1}` : "−"}</button>}
     </div>;
   };
+
+  // ── Recursive tree layout: children grouped under parents ──
+  const NODE_W = 200;
+  const NODE_H = 100;
+  const H_GAP = 24;
+  const V_GAP = 60;
+
+  const layoutData = useMemo(() => {
+    const positions: Record<string, { x: number; y: number }> = {};
+    const edges: { parentId: string; childId: string }[] = [];
+
+    // Calculate subtree width recursively
+    const subtreeWidth = (node: OrgNode): number => {
+      if (collapsedIds.has(node.id) || node.children.length === 0) return NODE_W;
+      const childrenWidth = node.children.reduce((sum, c) => sum + subtreeWidth(c), 0) + (node.children.length - 1) * H_GAP;
+      return Math.max(NODE_W, childrenWidth);
+    };
+
+    // Position nodes recursively — parent centered above children
+    const positionNode = (node: OrgNode, x: number, y: number) => {
+      const width = subtreeWidth(node);
+      // This node is centered in its subtree's width
+      positions[node.id] = { x: x + width / 2, y };
+
+      if (!collapsedIds.has(node.id) && node.children.length > 0) {
+        let childX = x;
+        for (const child of node.children) {
+          const cw = subtreeWidth(child);
+          edges.push({ parentId: node.id, childId: child.id });
+          positionNode(child, childX, y + NODE_H + V_GAP);
+          childX += cw + H_GAP;
+        }
+      }
+    };
+
+    // Position all roots side by side
+    let rootX = 0;
+    for (const root of displayTree) {
+      positionNode(root, rootX, 0);
+      rootX += subtreeWidth(root) + H_GAP * 2;
+    }
+
+    // Calculate bounds
+    let minX = Infinity, maxX = -Infinity, maxY = 0;
+    Object.values(positions).forEach(p => {
+      minX = Math.min(minX, p.x - NODE_W / 2);
+      maxX = Math.max(maxX, p.x + NODE_W / 2);
+      maxY = Math.max(maxY, p.y);
+    });
+    if (!isFinite(minX)) { minX = 0; maxX = 400; }
+
+    const totalWidth = maxX - minX + 80;
+    const totalHeight = maxY + NODE_H + 40;
+    const offsetX = -minX + 40;
+
+    return { positions, edges, totalWidth, totalHeight, offsetX };
+  }, [displayTree, collapsedIds]);
 
   if (!employees.length) return <div className="text-center py-20"><div className="text-[40px] mb-3">🏢</div><div className="text-[15px] font-semibold text-[var(--text-primary)] mb-1">No Employee Data</div><div className="text-[14px] text-[var(--text-muted)]">Upload workforce data with Manager ID fields to generate the org chart.</div></div>;
 
@@ -324,18 +366,40 @@ function OrgChartBuilder({ employees, jobs }: { employees: Employee[]; jobs: Job
       {/* Canvas */}
       <div ref={canvasRef} className="flex-1 rounded-xl border border-[var(--border)] overflow-auto relative" style={{ background: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0)", backgroundSize: "24px 24px" }}
         onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} onWheel={handleWheel}>
-        <div className="org-canvas-bg absolute inset-0" style={{ cursor: dragging ? "grabbing" : "grab" }}>
-          <div style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: "top center", paddingTop: 40, display: "flex", justifyContent: "center", minWidth: "100%", transition: dragging ? "none" : "transform 0.15s ease" }}>
-            {displayTree.length > 0 ? displayTree.map(root => renderNode(root, 0)) : <div className="text-[var(--text-muted)] text-center py-20">No employees match the current filters</div>}
+        <div className="org-canvas-bg" style={{ cursor: dragging ? "grabbing" : "grab", minWidth: "100%", minHeight: "100%" }}>
+          <div style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: "top center", transition: dragging ? "none" : "transform 0.15s ease", position: "relative", width: layoutData.totalWidth, height: layoutData.totalHeight, margin: "0 auto", paddingTop: 20 }}>
+            {/* SVG connector lines */}
+            <svg style={{ position: "absolute", top: 0, left: 0, width: layoutData.totalWidth, height: layoutData.totalHeight, pointerEvents: "none" }}>
+              {layoutData.edges.map(({ parentId, childId }) => {
+                const parentPos = layoutData.positions[parentId];
+                const childPos = layoutData.positions[childId];
+                if (!parentPos || !childPos) return null;
+                const x1 = parentPos.x + layoutData.offsetX;
+                const y1 = parentPos.y + NODE_H;
+                const x2 = childPos.x + layoutData.offsetX;
+                const y2 = childPos.y;
+                const midY = y1 + (y2 - y1) / 2;
+                return <path key={`${parentId}-${childId}`} d={`M${x1},${y1} L${x1},${midY} L${x2},${midY} L${x2},${y2}`} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" />;
+              })}
+            </svg>
+            {/* Node cards positioned absolutely */}
+            {Object.entries(layoutData.positions).map(([id, pos]) => {
+              const node = nodeById[id];
+              if (!node) return null;
+              return <div key={id} style={{ position: "absolute", left: pos.x + layoutData.offsetX - NODE_W / 2, top: pos.y, width: NODE_W }}>
+                {renderNodeCard(node)}
+              </div>;
+            })}
+            {displayTree.length === 0 && <div className="text-[var(--text-muted)] text-center py-20 w-full">No employees match the current filters</div>}
           </div>
         </div>
         {/* Zoom indicator */}
-        <div className="absolute bottom-3 left-3 flex items-center gap-2 bg-[rgba(0,0,0,0.5)] rounded-lg px-3 py-1.5 backdrop-blur">
+        <div className="absolute bottom-3 left-3 flex items-center gap-2 bg-[rgba(0,0,0,0.5)] rounded-lg px-3 py-1.5 backdrop-blur z-10">
           <button onClick={() => setZoom(z => Math.min(2, z + 0.1))} className="text-[14px] text-white/60 hover:text-white">+</button>
           <span className="text-[12px] text-white/60">{Math.round(zoom * 100)}%</span>
           <button onClick={() => setZoom(z => Math.max(0.2, z - 0.1))} className="text-[14px] text-white/60 hover:text-white">−</button>
         </div>
-        {stateMode === "future" && <div className="absolute top-3 left-3 px-3 py-1.5 rounded-lg text-[13px] font-semibold bg-[rgba(139,92,246,0.15)] text-[var(--purple)] border border-[var(--purple)]/20">Editing Future State — drag nodes to change reporting lines</div>}
+        {stateMode === "future" && <div className="absolute top-3 left-3 px-3 py-1.5 rounded-lg text-[13px] font-semibold bg-[rgba(139,92,246,0.15)] text-[var(--purple)] border border-[var(--purple)]/20 z-10">Editing Future State — drag nodes to change reporting lines</div>}
       </div>
 
       {/* Detail panel */}

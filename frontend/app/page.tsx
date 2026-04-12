@@ -59,6 +59,7 @@ import { ExportReport } from "./components/ExportModule";
 
 import { JobArchitectureModule } from "./components/JobArchModule";
 import { PlatformHub } from "./components/PlatformHub";
+import { AgentOrchestrator } from "./components/AgentPanel";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
@@ -772,7 +773,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
     narrator: { enabled: true, autonomy: "suggest" }, quality: { enabled: true, autonomy: "observe" },
   });
   const [agentRunning, setAgentRunning] = useState<string | null>(null);
-  const [aiProviders, setAiProviders] = useState<{ claude: boolean; gemini: boolean } | null>(null);
+  const [aiProviders, setAiProviders] = useState<{ claude: boolean; gemini: boolean; no_key_message?: string | null } | null>(null);
   useEffect(() => { fetch("/api/ai/providers").then(r => r.json()).then(d => setAiProviders(d)).catch(() => {}); }, []);
   const [agentResults, setAgentResults] = usePersisted<{ id: string; agent: string; agentName: string; result: string; time: string; reviewed: boolean }[]>(`${projectId}_agent_results`, []);
   const [presentStartTime, setPresentStartTime] = useState(0);
@@ -1539,7 +1540,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
           <span className="text-[14px] text-[var(--text-muted)]">{accountMenuOpen ? "▾" : "▸"}</span>
         </button>}
         <div className="text-center text-[14px] text-[var(--text-muted)] mt-1 opacity-50">v4.0</div>
-        {aiProviders && <div className="text-center text-[12px] mt-0.5 opacity-40" style={{ color: aiProviders.claude && aiProviders.gemini ? "var(--success)" : aiProviders.gemini ? "var(--warning)" : "var(--risk)" }}>{aiProviders.claude && aiProviders.gemini ? "🟢 AI: Claude + Gemini" : aiProviders.gemini ? "🟡 AI: Gemini" : aiProviders.claude ? "🟡 AI: Claude" : "🔴 AI: Offline"}</div>}
+        {aiProviders && <div className="text-center text-[12px] mt-0.5 opacity-40" style={{ color: aiProviders.claude ? "var(--success)" : "var(--risk)" }}>{aiProviders.claude ? "🟢 AI: Claude" : "🔴 AI: Offline"}</div>}
         <button onClick={() => setShowShortcuts(true)} className="text-[12px] text-[var(--text-muted)] opacity-40 hover:opacity-80 transition-opacity mt-1 flex items-center justify-center gap-1"><span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: 18, height: 16, padding: "0 4px", borderRadius: 4, background: "var(--surface-2)", border: "1px solid var(--border)", fontSize: 10, fontFamily: "'IBM Plex Mono', monospace" }}>⌘/</span> shortcuts</button>
       </div>
     </aside>
@@ -1594,6 +1595,9 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
     {/* AI Co-Pilot sidebar */}
     <AnimatePresence>{showCoPilot && <AiCoPilot moduleId={page} contextData={buildAiContext()} open={showCoPilot} onClose={() => setShowCoPilot(false)} onNavigate={navigate} />}</AnimatePresence>
     <AnimatePresence>{showAnnoPanel && <AnnotationPanel annotations={annotations} onUpdate={a => setAnnotations(prev => prev.map(x => x.id === a.id ? a : x))} onDelete={id => setAnnotations(prev => prev.filter(x => x.id !== id))} onClose={() => setShowAnnoPanel(false)} />}</AnimatePresence>
+
+    {/* ═══ AGENT ORCHESTRATOR ═══ */}
+    <AgentOrchestrator projectId={projectId} sessionData={{ jobs: jobs.slice(0, 20), headcount: jobs.length, tasks: [], skills: [], functions: Array.from(new Set(jobs)), model_id: model || "", current_module: page }} />
 
     {/* ═══ AGENT HUB PANEL ═══ */}
     <AnimatePresence>{showAgentHub && <motion.div className="fixed top-0 right-0 bottom-0 w-[380px] z-[9997] flex flex-col" style={{ background: "var(--surface-1)", borderLeft: "1px solid var(--border)", boxShadow: "-4px 0 24px rgba(0,0,0,0.15)" }} initial={{ x: 380 }} animate={{ x: 0 }} exit={{ x: 380 }} transition={{ duration: 0.25, ease: "easeOut" }}>
@@ -1941,7 +1945,7 @@ function buildTutorialSteps(projectId: string): TutorialStep[] {
     tip: "Export early and often. A weekly 'data pack' keeps stakeholders engaged and prevents end-of-project surprises." },
 
   { page: "home", icon: "🤖", title: "AI Features — Your AI Co-Pilot", subtitle: "Platform Features",
-    body: `AI is embedded throughout the platform. The AI Co-Pilot sidebar proactively suggests insights as you work. The Command Palette (⌘K) searches everything instantly. Auto-suggest generates job profiles, task lists, and skills. The Story Engine creates executive narratives. All AI features use the Gemini API with your actual project data — not generic responses.`,
+    body: `AI is embedded throughout the platform. The AI Co-Pilot sidebar proactively suggests insights as you work. The Command Palette (⌘K) searches everything instantly. Auto-suggest generates job profiles, task lists, and skills. The Story Engine creates executive narratives. All AI features use the Claude API with your actual project data — not generic responses.`,
     tip: "Ask the AI Co-Pilot 'what should I do next?' — it knows which modules you've completed and recommends the logical next step." },
 
   { page: "home", icon: "🏛️", title: "Platform Hub — Your Command Center", subtitle: "Platform Features",
