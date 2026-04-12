@@ -249,62 +249,62 @@ const GENRES: Genre[] = [
 
 const ALL_TRACKS: Track[] = [
   // Chill Lo-Fi (1-6)
-  { id: 1, name: "Late Night Study", file: "/track1.mp3", genre: "chill" },
-  { id: 2, name: "Rainy Window", file: "/track2.mp3", genre: "chill" },
-  { id: 3, name: "Morning Garden", file: "/track3.mp3", genre: "chill" },
-  { id: 4, name: "Warm Coffee", file: "/track4.mp3", genre: "chill" },
-  { id: 5, name: "Cozy Blanket", file: "/track5.mp3", genre: "chill" },
-  { id: 6, name: "Sunset Porch", file: "/track6.mp3", genre: "chill" },
+  { id: 1, name: "Late Night Study", file: "/audio/optimized/track1.mp3", genre: "chill" },
+  { id: 2, name: "Rainy Window", file: "/audio/optimized/track2.mp3", genre: "chill" },
+  { id: 3, name: "Morning Garden", file: "/audio/optimized/track3.mp3", genre: "chill" },
+  { id: 4, name: "Warm Coffee", file: "/audio/optimized/track4.mp3", genre: "chill" },
+  { id: 5, name: "Cozy Blanket", file: "/audio/optimized/track5.mp3", genre: "chill" },
+  { id: 6, name: "Sunset Porch", file: "/audio/optimized/track6.mp3", genre: "chill" },
   // Deep Focus (7-12)
-  { id: 7, name: "Flow State", file: "/track7.mp3", genre: "focus" },
-  { id: 8, name: "The Mountain", file: "/track8.mp3", genre: "focus" },
-  { id: 9, name: "Deep Work", file: "/track9.mp3", genre: "focus" },
-  { id: 10, name: "Clear Mind", file: "/track10.mp3", genre: "focus" },
-  { id: 11, name: "Concentration", file: "/track11.mp3", genre: "focus" },
-  { id: 12, name: "Productive Hours", file: "/track12.mp3", genre: "focus" },
+  { id: 7, name: "Flow State", file: "/audio/optimized/track7.mp3", genre: "focus" },
+  { id: 8, name: "The Mountain", file: "/audio/optimized/track8.mp3", genre: "focus" },
+  { id: 9, name: "Deep Work", file: "/audio/optimized/track9.mp3", genre: "focus" },
+  { id: 10, name: "Clear Mind", file: "/audio/optimized/track10.mp3", genre: "focus" },
+  { id: 11, name: "Concentration", file: "/audio/optimized/track11.mp3", genre: "focus" },
+  { id: 12, name: "Productive Hours", file: "/audio/optimized/track12.mp3", genre: "focus" },
   // Ambient (13-18)
-  { id: 13, name: "Morning Fog", file: "/track13.mp3", genre: "ambient" },
-  { id: 14, name: "Dreamscape", file: "/track14.mp3", genre: "ambient" },
-  { id: 15, name: "Floating", file: "/track15.mp3", genre: "ambient" },
-  { id: 16, name: "Summer Breeze", file: "/track16.mp3", genre: "ambient" },
-  { id: 17, name: "Cloud Drift", file: "/track17.mp3", genre: "ambient" },
-  { id: 18, name: "Still Water", file: "/track18.mp3", genre: "ambient" },
+  { id: 13, name: "Morning Fog", file: "/audio/optimized/track13.mp3", genre: "ambient" },
+  { id: 14, name: "Dreamscape", file: "/audio/optimized/track14.mp3", genre: "ambient" },
+  { id: 15, name: "Floating", file: "/audio/optimized/track15.mp3", genre: "ambient" },
+  { id: 16, name: "Summer Breeze", file: "/audio/optimized/track16.mp3", genre: "ambient" },
+  { id: 17, name: "Cloud Drift", file: "/audio/optimized/track17.mp3", genre: "ambient" },
+  { id: 18, name: "Still Water", file: "/audio/optimized/track18.mp3", genre: "ambient" },
   // Jazz (19-23)
-  { id: 19, name: "Urban Jazz Cafe", file: "/track19.mp3", genre: "jazz" },
-  { id: 20, name: "Coffee Shop Piano", file: "/track20.mp3", genre: "jazz" },
-  { id: 21, name: "Smoky Lounge", file: "/track21.mp3", genre: "jazz" },
-  { id: 22, name: "Midnight Sax", file: "/track22.mp3", genre: "jazz" },
-  { id: 23, name: "Blue Note", file: "/track23.mp3", genre: "jazz" },
+  { id: 19, name: "Urban Jazz Cafe", file: "/audio/optimized/track19.mp3", genre: "jazz" },
+  { id: 20, name: "Coffee Shop Piano", file: "/audio/optimized/track20.mp3", genre: "jazz" },
+  { id: 21, name: "Smoky Lounge", file: "/audio/optimized/track21.mp3", genre: "jazz" },
+  { id: 22, name: "Midnight Sax", file: "/audio/optimized/track22.mp3", genre: "jazz" },
+  { id: 23, name: "Blue Note", file: "/audio/optimized/track23.mp3", genre: "jazz" },
   // Electronic (24-28)
-  { id: 24, name: "Digital Pulse", file: "/track24.mp3", genre: "electronic" },
-  { id: 25, name: "Neon Lights", file: "/track25.mp3", genre: "electronic" },
-  { id: 26, name: "Synthwave Drive", file: "/track26.mp3", genre: "electronic" },
-  { id: 27, name: "Tropical Beats", file: "/track27.mp3", genre: "electronic" },
-  { id: 28, name: "Dream Cloud", file: "/track28.mp3", genre: "electronic" },
+  { id: 24, name: "Digital Pulse", file: "/audio/optimized/track24.mp3", genre: "electronic" },
+  { id: 25, name: "Neon Lights", file: "/audio/optimized/track25.mp3", genre: "electronic" },
+  { id: 26, name: "Synthwave Drive", file: "/audio/optimized/track26.mp3", genre: "electronic" },
+  { id: 27, name: "Tropical Beats", file: "/audio/optimized/track27.mp3", genre: "electronic" },
+  { id: 28, name: "Dream Cloud", file: "/audio/optimized/track28.mp3", genre: "electronic" },
   // ── New tracks (29-47) ──
   // Jazz Instrumentals (29-35)
-  { id: 29, name: "Le Cirque de Jazz", file: "/track29.mp3", genre: "jazz" },
-  { id: 30, name: "Lo-Fi Daydream", file: "/track30.mp3", genre: "chill" },
-  { id: 31, name: "Cuban Fusion", file: "/track31.mp3", genre: "jazz" },
-  { id: 32, name: "Smooth Swing", file: "/track32.mp3", genre: "jazz" },
-  { id: 33, name: "April Morning", file: "/track33.mp3", genre: "chill" },
-  { id: 34, name: "Walk Together", file: "/track34.mp3", genre: "chill" },
-  { id: 35, name: "Jazz Café", file: "/track35.mp3", genre: "jazz" },
+  { id: 29, name: "Le Cirque de Jazz", file: "/audio/optimized/track29.mp3", genre: "jazz" },
+  { id: 30, name: "Lo-Fi Daydream", file: "/audio/optimized/track30.mp3", genre: "chill" },
+  { id: 31, name: "Cuban Fusion", file: "/audio/optimized/track31.mp3", genre: "jazz" },
+  { id: 32, name: "Smooth Swing", file: "/audio/optimized/track32.mp3", genre: "jazz" },
+  { id: 33, name: "April Morning", file: "/audio/optimized/track33.mp3", genre: "chill" },
+  { id: 34, name: "Walk Together", file: "/audio/optimized/track34.mp3", genre: "chill" },
+  { id: 35, name: "Jazz Café", file: "/audio/optimized/track35.mp3", genre: "jazz" },
   // Ambient & Focus (36-40)
-  { id: 36, name: "Heavenly Raindrops", file: "/track36.mp3", genre: "ambient" },
-  { id: 37, name: "Melody of Nature", file: "/track37.mp3", genre: "ambient" },
-  { id: 38, name: "Acid Jazz I", file: "/track38.mp3", genre: "jazz" },
-  { id: 39, name: "Acid Jazz II", file: "/track39.mp3", genre: "jazz" },
-  { id: 40, name: "We Jazz", file: "/track40.mp3", genre: "jazz" },
+  { id: 36, name: "Heavenly Raindrops", file: "/audio/optimized/track36.mp3", genre: "ambient" },
+  { id: 37, name: "Melody of Nature", file: "/audio/optimized/track37.mp3", genre: "ambient" },
+  { id: 38, name: "Acid Jazz I", file: "/audio/optimized/track38.mp3", genre: "jazz" },
+  { id: 39, name: "Acid Jazz II", file: "/audio/optimized/track39.mp3", genre: "jazz" },
+  { id: 40, name: "We Jazz", file: "/audio/optimized/track40.mp3", genre: "jazz" },
   // Deep Focus & Piano (41-44)
-  { id: 41, name: "Leva Eternity", file: "/track41.mp3", genre: "focus" },
-  { id: 42, name: "Sedative", file: "/track42.mp3", genre: "ambient" },
-  { id: 43, name: "Field Grass", file: "/track43.mp3", genre: "ambient" },
-  { id: 44, name: "Soulful Hip-Hop", file: "/track44.mp3", genre: "chill" },
+  { id: 41, name: "Leva Eternity", file: "/audio/optimized/track41.mp3", genre: "focus" },
+  { id: 42, name: "Sedative", file: "/audio/optimized/track42.mp3", genre: "ambient" },
+  { id: 43, name: "Field Grass", file: "/audio/optimized/track43.mp3", genre: "ambient" },
+  { id: 44, name: "Soulful Hip-Hop", file: "/audio/optimized/track44.mp3", genre: "chill" },
   // Piano (45-47)
-  { id: 45, name: "A Quiet Joy", file: "/track45.mp3", genre: "focus" },
-  { id: 46, name: "Plea for Forgiveness", file: "/track46.mp3", genre: "focus" },
-  { id: 47, name: "Snow Piano", file: "/track47.mp3", genre: "focus" },
+  { id: 45, name: "A Quiet Joy", file: "/audio/optimized/track45.mp3", genre: "focus" },
+  { id: 46, name: "Plea for Forgiveness", file: "/audio/optimized/track46.mp3", genre: "focus" },
+  { id: 47, name: "Snow Piano", file: "/audio/optimized/track47.mp3", genre: "focus" },
 ];
 
 // Mood definitions
@@ -2012,8 +2012,9 @@ function SandboxViewSelector({ companyName, onSelect }: { companyName: string; o
     { id: "custom", icon: "⚙️", label: "Custom Slice", desc: "Create a custom view with your own filters. Narrow by function, job family, career level, or sub-family. Best for function leads who own a specific part of the org." },
   ];
   return <div style={{ position: "fixed", inset: 0, zIndex: 60, background: "#0B1120", display: "flex", alignItems: "center", justifyContent: "center", opacity: visible ? 1 : 0, transition: "opacity 0.5s ease" }}>
-    <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 30%, rgba(212,134,10,0.1) 0%, transparent 60%), radial-gradient(ellipse at 80% 70%, rgba(192,112,48,0.05) 0%, transparent 50%)" }} />
-    <div style={{ position: "relative", zIndex: 1, maxWidth: 720, width: "100%", padding: "0 24px", textAlign: "center", transform: visible ? "translateY(0)" : "translateY(12px)", transition: "transform 0.5s ease" }}>
+    <VideoBackground name="view_bg" overlay={0.5} poster="/videos/optimized/view_bg-poster.jpg" fallbackGradient="linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 100%)" className="absolute inset-0" />
+    <div style={{ position: "absolute", inset: 0, zIndex: 1, background: "radial-gradient(ellipse at 50% 30%, rgba(212,134,10,0.1) 0%, transparent 60%), radial-gradient(ellipse at 80% 70%, rgba(192,112,48,0.05) 0%, transparent 50%)" }} />
+    <div style={{ position: "relative", zIndex: 2, maxWidth: 720, width: "100%", padding: "0 24px", textAlign: "center", transform: visible ? "translateY(0)" : "translateY(12px)", transition: "transform 0.5s ease" }}>
       <div style={{ fontSize: 15, fontWeight: 700, color: "rgba(224,144,64,0.5)", letterSpacing: 2, marginBottom: 12, textTransform: "uppercase" }}>Welcome to</div>
       <h2 style={{ fontSize: 32, fontWeight: 800, color: "#f5e6d0", fontFamily: "'Outfit', sans-serif", marginBottom: 8, textShadow: "0 2px 20px rgba(0,0,0,0.3)" }}>{companyName}</h2>
       <p style={{ fontSize: 15, color: "rgba(255,230,200,0.45)", marginBottom: 36 }}>How would you like to explore this organization?</p>
@@ -2301,9 +2302,11 @@ function ProjectHub({ onOpenProject, onStartTutorial, onOpenSandbox, showSandbox
       {/* Back button */}
       <button onClick={() => { setSandboxOpen(false); setSandboxPanelOpen(false); onCloseSandbox?.(); }} style={{ position: "absolute", top: 24, left: 24, zIndex: 30, padding: "8px 16px", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: "pointer", background: "rgba(0,0,0,0.4)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,200,150,0.12)", color: "rgba(255,230,200,0.8)", transition: "all 0.2s" }}>← Back</button>
 
+      {/* Keyframes — outside conditional to avoid re-inject on every render */}
+      <style>{`@keyframes sandboxFadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } } @keyframes sandboxGlow { 0%, 100% { border-color: rgba(139,92,246,0.2); } 50% { border-color: rgba(139,92,246,0.45); } }`}</style>
+
       {/* Click-to-open area */}
-      {!sandboxPanelOpen && <div style={{ position: "absolute", inset: 0, zIndex: 10, cursor: "pointer", animation: "sandboxFadeIn 1.2s ease forwards", opacity: 0 }} onClick={() => setSandboxPanelOpen(true)}>
-        <style>{`@keyframes sandboxFadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } } @keyframes sandboxGlow { 0%, 100% { border-color: rgba(139,92,246,0.2); } 50% { border-color: rgba(139,92,246,0.45); } }`}</style>
+      {!sandboxPanelOpen && <div key="sandbox-cta" style={{ position: "absolute", inset: 0, zIndex: 10, cursor: "pointer", animation: "sandboxFadeIn 1.2s ease forwards", opacity: 0 }} onClick={() => setSandboxPanelOpen(true)}>
         <div style={{ position: "absolute", bottom: 48, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
           <div style={{ fontSize: 32 }}>🎓</div>
           <div style={{ fontSize: 22, fontWeight: 800, color: "rgba(255,245,235,0.95)", textShadow: "0 2px 20px rgba(0,0,0,0.5)" }}>Industry Sandbox</div>
