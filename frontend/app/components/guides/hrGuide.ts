@@ -732,8 +732,6 @@ export const hrGuide: GuideData = {
         { id: "presenting-to-chro", title: "Presenting Findings to Your CHRO", content: `<h4>The 30-Minute CHRO Briefing</h4><ol class="step-list"><li><strong>State of the workforce (5 min):</strong> Key metrics from Workforce Snapshot. 3-4 data points.</li><li><strong>Org health (5 min):</strong> Spider chart. Strongest and weakest dimensions.</li><li><strong>AI opportunity (5 min):</strong> Which functions most affected. Total FTE impact range.</li><li><strong>Readiness (5 min):</strong> % Champions vs High Risk. Implementation feasibility.</li><li><strong>Recommendation (5 min):</strong> Where to start, what to invest, timeline.</li><li><strong>Ask (5 min):</strong> Budget, sponsorship, stakeholder access.</li></ol><div class="callout callout-tip"><div class="callout-title">Pro Tip</div><p>Rehearse once before delivering. A tight, data-driven 30-minute briefing with a clear ask earns resources. A rambling overview that ends with "we need more time" does not.</p></div><a class="try-it" data-navigate="export">Try it now \u2192</a>` },
       ]
     },
-  ],
-};
     {
       id: "case-studies",
       number: 9,
