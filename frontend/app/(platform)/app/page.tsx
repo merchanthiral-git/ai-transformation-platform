@@ -276,10 +276,12 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     if (!audio || webAudioInitRef.current) return;
     webAudioInitRef.current = true;
     try {
-      // createMediaElementSource requires CORS on the audio element.
-      // Set it here (not at creation) so basic playback works without CORS.
-      // If CORS fails, the visualizer won't work but audio still plays.
-      audio.crossOrigin = "anonymous";
+      // DO NOT set crossOrigin on the audio element.
+      // The R2 CDN does not send Access-Control-Allow-Origin headers,
+      // so setting crossOrigin="anonymous" kills audio playback entirely.
+      // Without crossOrigin, createMediaElementSource will throw a
+      // SecurityError for cross-origin audio — we catch it and skip
+      // the visualizer. Audio playback continues to work fine.
       const ctx = new AudioContext();
       const analyser = ctx.createAnalyser();
       analyser.fftSize = 128;
@@ -291,9 +293,14 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
       analyserRef.current = analyser;
       freqDataRef.current = new Uint8Array(analyser.frequencyBinCount);
     } catch (e) {
-      console.warn("[MusicPlayer] Web Audio API failed (visualizer disabled):", e);
-      // Remove crossOrigin if it caused issues — audio will still play
-      audio.crossOrigin = "";
+      // Expected: SecurityError because CDN audio is cross-origin.
+      // Visualizer won't work, but audio plays fine without it.
+      console.log("[MusicPlayer] Visualizer disabled (cross-origin audio).");
+      // Still create AudioContext for resume capability
+      try {
+        const ctx = new AudioContext();
+        audioCtxRef.current = ctx;
+      } catch {}
     }
   }, []);
 
@@ -515,11 +522,13 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     userInitiatedRef.current = true;
     setAudioError(null);
     errorCountRef.current = 0;
-    resumeAudioCtx();
+    // Set src and prepare BEFORE touching AudioContext
     a.src = file;
     a.muted = false;
     a.volume = volumeRef.current > 0 ? volumeRef.current : 0.5;
     a.load();
+    // Resume AudioContext (required for browsers that suspend it)
+    resumeAudioCtx();
     a.play().then(() => { setPlaying(true); setHasPlayedFirst(true); }).catch(e => { console.warn("[MusicPlayer] Play blocked:", e.message); setPlaying(false); });
   }, [resumeAudioCtx]);
 
@@ -528,7 +537,6 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     userInitiatedRef.current = true;
     setAudioError(null);
     errorCountRef.current = 0;
-    resumeAudioCtx();
     if (playing) { a.pause(); setPlaying(false); }
     else {
       a.muted = false;
@@ -536,6 +544,7 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
       if (!a.src || a.readyState === 0 || !a.src.includes("/track")) { playTrack(track?.file || ALL_TRACKS[0].file); }
       else {
         console.log(`[MusicPlayer] Resuming: ${a.src}`);
+        resumeAudioCtx();
         a.play().then(() => setPlaying(true)).catch(e => { console.warn("Resume failed:", e.message); playTrack(track?.file || ALL_TRACKS[0].file); });
       }
     }
