@@ -40,42 +40,45 @@ import {
   SkillShiftIndex,
 } from "../../components/OverviewModule";
 
+// Module loading skeleton — prevents blank flash during code-split chunk load
+const ModuleLoadingSkeleton = () => <div style={{ minHeight: "calc(100vh - 120px)", padding: "var(--space-6) var(--space-8)" }}><LoadingSkeleton /></div>;
+
 // Diagnose — loaded on demand
-const AiOpportunityScan = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.AiOpportunityScan })), { ssr: false });
-const AIReadiness = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.AIReadiness })), { ssr: false });
-const ManagerCapability = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.ManagerCapability })), { ssr: false });
-const SkillsTalent = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.SkillsTalent })), { ssr: false });
-const ChangeReadiness = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.ChangeReadiness })), { ssr: false });
-const ManagerDevelopment = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.ManagerDevelopment })), { ssr: false });
-const AiRecommendationsEngine = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.AiRecommendationsEngine })), { ssr: false });
-const OrgHealthScorecard = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.OrgHealthScorecard })), { ssr: false });
-const AIImpactHeatmap = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.AIImpactHeatmap })), { ssr: false });
-const RoleClustering = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.RoleClustering })), { ssr: false });
+const AiOpportunityScan = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.AiOpportunityScan })), { ssr: false, loading: ModuleLoadingSkeleton });
+const AIReadiness = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.AIReadiness })), { ssr: false, loading: ModuleLoadingSkeleton });
+const ManagerCapability = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.ManagerCapability })), { ssr: false, loading: ModuleLoadingSkeleton });
+const SkillsTalent = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.SkillsTalent })), { ssr: false, loading: ModuleLoadingSkeleton });
+const ChangeReadiness = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.ChangeReadiness })), { ssr: false, loading: ModuleLoadingSkeleton });
+const ManagerDevelopment = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.ManagerDevelopment })), { ssr: false, loading: ModuleLoadingSkeleton });
+const AiRecommendationsEngine = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.AiRecommendationsEngine })), { ssr: false, loading: ModuleLoadingSkeleton });
+const OrgHealthScorecard = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.OrgHealthScorecard })), { ssr: false, loading: ModuleLoadingSkeleton });
+const AIImpactHeatmap = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.AIImpactHeatmap })), { ssr: false, loading: ModuleLoadingSkeleton });
+const RoleClustering = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.RoleClustering })), { ssr: false, loading: ModuleLoadingSkeleton });
 
 // Design — heaviest module (~5500 lines), loaded on demand
-const WorkDesignLab = dynamic(() => import("../../components/DesignModule").then(m => ({ default: m.WorkDesignLab })), { ssr: false });
-const OrgDesignStudio = dynamic(() => import("../../components/DesignModule").then(m => ({ default: m.OrgDesignStudio })), { ssr: false });
-const OperatingModelLab = dynamic(() => import("../../components/DesignModule").then(m => ({ default: m.OperatingModelLab })), { ssr: false });
-const OMDesignCanvas = dynamic(() => import("../../components/DesignModule").then(m => ({ default: m.OMDesignCanvas })), { ssr: false });
-const RoleComparison = dynamic(() => import("../../components/DesignModule").then(m => ({ default: m.RoleComparison })), { ssr: false });
-const QuickWinIdentifier = dynamic(() => import("../../components/DesignModule").then(m => ({ default: m.QuickWinIdentifier })), { ssr: false });
-const BBBAFramework = dynamic(() => import("../../components/DesignModule").then(m => ({ default: m.BBBAFramework })), { ssr: false });
-const HeadcountPlanning = dynamic(() => import("../../components/DesignModule").then(m => ({ default: m.HeadcountPlanning })), { ssr: false });
-const KPIAlignmentModule = dynamic(() => import("../../components/DesignModule").then(m => ({ default: m.KPIAlignmentModule })), { ssr: false });
+const WorkDesignLab = dynamic(() => import("../../components/DesignModule").then(m => ({ default: m.WorkDesignLab })), { ssr: false, loading: ModuleLoadingSkeleton });
+const OrgDesignStudio = dynamic(() => import("../../components/DesignModule").then(m => ({ default: m.OrgDesignStudio })), { ssr: false, loading: ModuleLoadingSkeleton });
+const OperatingModelLab = dynamic(() => import("../../components/DesignModule").then(m => ({ default: m.OperatingModelLab })), { ssr: false, loading: ModuleLoadingSkeleton });
+const OMDesignCanvas = dynamic(() => import("../../components/DesignModule").then(m => ({ default: m.OMDesignCanvas })), { ssr: false, loading: ModuleLoadingSkeleton });
+const RoleComparison = dynamic(() => import("../../components/DesignModule").then(m => ({ default: m.RoleComparison })), { ssr: false, loading: ModuleLoadingSkeleton });
+const QuickWinIdentifier = dynamic(() => import("../../components/DesignModule").then(m => ({ default: m.QuickWinIdentifier })), { ssr: false, loading: ModuleLoadingSkeleton });
+const BBBAFramework = dynamic(() => import("../../components/DesignModule").then(m => ({ default: m.BBBAFramework })), { ssr: false, loading: ModuleLoadingSkeleton });
+const HeadcountPlanning = dynamic(() => import("../../components/DesignModule").then(m => ({ default: m.HeadcountPlanning })), { ssr: false, loading: ModuleLoadingSkeleton });
+const KPIAlignmentModule = dynamic(() => import("../../components/DesignModule").then(m => ({ default: m.KPIAlignmentModule })), { ssr: false, loading: ModuleLoadingSkeleton });
 
 // Simulate — loaded on demand
-const ImpactSimulator = dynamic(() => import("../../components/SimulateModule").then(m => ({ default: m.ImpactSimulator })), { ssr: false });
+const ImpactSimulator = dynamic(() => import("../../components/SimulateModule").then(m => ({ default: m.ImpactSimulator })), { ssr: false, loading: ModuleLoadingSkeleton });
 
 // Mobilize — loaded on demand
-const ChangePlanner = dynamic(() => import("../../components/MobilizeModule").then(m => ({ default: m.ChangePlanner })), { ssr: false });
-const ReskillingPathways = dynamic(() => import("../../components/MobilizeModule").then(m => ({ default: m.ReskillingPathways })), { ssr: false });
-const TalentMarketplace = dynamic(() => import("../../components/MobilizeModule").then(m => ({ default: m.TalentMarketplace })), { ssr: false });
-const TransformationStoryBuilder = dynamic(() => import("../../components/MobilizeModule").then(m => ({ default: m.TransformationStoryBuilder })), { ssr: false });
-const ReadinessArchetypes = dynamic(() => import("../../components/MobilizeModule").then(m => ({ default: m.ReadinessArchetypes })), { ssr: false });
-const SkillsNetwork = dynamic(() => import("../../components/MobilizeModule").then(m => ({ default: m.SkillsNetwork })), { ssr: false });
+const ChangePlanner = dynamic(() => import("../../components/MobilizeModule").then(m => ({ default: m.ChangePlanner })), { ssr: false, loading: ModuleLoadingSkeleton });
+const ReskillingPathways = dynamic(() => import("../../components/MobilizeModule").then(m => ({ default: m.ReskillingPathways })), { ssr: false, loading: ModuleLoadingSkeleton });
+const TalentMarketplace = dynamic(() => import("../../components/MobilizeModule").then(m => ({ default: m.TalentMarketplace })), { ssr: false, loading: ModuleLoadingSkeleton });
+const TransformationStoryBuilder = dynamic(() => import("../../components/MobilizeModule").then(m => ({ default: m.TransformationStoryBuilder })), { ssr: false, loading: ModuleLoadingSkeleton });
+const ReadinessArchetypes = dynamic(() => import("../../components/MobilizeModule").then(m => ({ default: m.ReadinessArchetypes })), { ssr: false, loading: ModuleLoadingSkeleton });
+const SkillsNetwork = dynamic(() => import("../../components/MobilizeModule").then(m => ({ default: m.SkillsNetwork })), { ssr: false, loading: ModuleLoadingSkeleton });
 
 // Export — loaded on demand
-const ExportReport = dynamic(() => import("../../components/ExportModule").then(m => ({ default: m.ExportReport })), { ssr: false });
+const ExportReport = dynamic(() => import("../../components/ExportModule").then(m => ({ default: m.ExportReport })), { ssr: false, loading: ModuleLoadingSkeleton });
 
 // Guides — loaded on demand (large content files)
 const GuideViewer = dynamic(() => import("../../components/guides/GuideViewer"), { ssr: false });
@@ -83,7 +86,7 @@ import { consultantGuide } from "../../components/guides/consultantGuide";
 import { hrGuide } from "../../components/guides/hrGuide";
 
 // Job Architecture, PlatformHub, supporting modules — loaded on demand
-const JobArchitectureModule = dynamic(() => import("../../components/JobArchModule").then(m => ({ default: m.JobArchitectureModule })), { ssr: false });
+const JobArchitectureModule = dynamic(() => import("../../components/JobArchModule").then(m => ({ default: m.JobArchitectureModule })), { ssr: false, loading: ModuleLoadingSkeleton });
 const PlatformHub = dynamic(() => import("../../components/PlatformHub").then(m => ({ default: m.PlatformHub })), { ssr: false });
 const AgentOrchestrator = dynamic(() => import("../../components/AgentPanel").then(m => ({ default: m.AgentOrchestrator })), { ssr: false });
 const NLQBar = dynamic(() => import("../../components/NLQBar").then(m => ({ default: m.NLQBar })), { ssr: false });
@@ -1442,7 +1445,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       {!viewMode && <ViewSelector
         onBack={onBackToHub}
         onSelect={(mode, detail) => {
-          if (mode === "org") { setViewMode("org"); }
+          if (mode === "org") { setViewMode("org"); setShowSplash(true); }
           else if (mode === "job_select") { setViewMode("job_select"); }
           else if (mode === "employee_select") { setViewMode("employee_select"); }
           else if (mode === "custom" && detail) { setViewMode("custom"); setViewCustom(detail); Object.entries(detail).forEach(([k, v]) => { if (k !== "ct") setFilter(k as keyof Filters, v); }); }
@@ -1796,8 +1799,8 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
         </div>
       )}
       <AnnotationLayer annotations={annotations} moduleId={page} annotateMode={annotateMode} onAdd={a => setAnnotations(prev => [...prev, a])} onUpdate={a => setAnnotations(prev => prev.map(x => x.id === a.id ? a : x))} onDelete={id => setAnnotations(prev => prev.filter(x => x.id !== id))}>
-      <AnimatePresence mode="wait">
-      <motion.div key={page} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2, ease: "easeOut" }}>
+      <AnimatePresence mode="popLayout">
+      <motion.div key={page} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15, ease: "easeOut" }} style={{ minHeight: "calc(100vh - 48px)" }}>
       {page === "home" && <LandingPage onNavigate={navigate} moduleStatus={moduleStatus} hasData={hasData} viewMode={viewMode} projectName={projectName} onBackToHub={onBackToHub} onBackToSplash={() => { setShowSplash(true); try { sessionStorage.removeItem(`${projectId}_splashSeen`); } catch {} }} cardBackgrounds={cardBgs} phaseBackgrounds={phaseBgs} />}
       {page !== "home" && <div className="module-enter" style={{ padding: "var(--space-6) var(--space-8)", paddingBottom: 80 }}>
       {model && <NLQBar projectId={projectId} modelId={model} currentModule={page} />}

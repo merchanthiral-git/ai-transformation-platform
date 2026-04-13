@@ -457,10 +457,10 @@ export function AgentOrchestrator({ projectId, sessionData }: OrchestratorProps)
           </div>}
 
           {result.findings.actions && <div className="p-4 rounded-lg bg-[var(--surface-2)]">
-            <div className="text-[13px] text-[var(--text-secondary)] leading-relaxed mb-3">{(result.findings.actions as Record<string, unknown>).narrative as string}</div>
+            <div className="text-[13px] text-[var(--text-secondary)] leading-relaxed mb-3">{String((result.findings.actions as Record<string, unknown>).narrative || "")}</div>
             {Array.isArray((result.findings.actions as Record<string, unknown>).priority_actions) && ((result.findings.actions as Record<string, unknown>).priority_actions as Record<string, unknown>[]).map((a, i) => <div key={i} className="flex items-start gap-2 text-[12px] py-1.5 border-t border-[var(--border)]">
               <span className="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold bg-[rgba(212,134,10,0.1)] text-[var(--accent-primary)] shrink-0">{i + 1}</span>
-              <div><div className="font-semibold text-[var(--text-primary)]">{a.action as string}</div>{a.rationale && <div className="text-[var(--text-muted)] mt-0.5">{a.rationale as string}</div>}</div>
+              <div><div className="font-semibold text-[var(--text-primary)]">{String(a.action || "")}</div>{a.rationale && <div className="text-[var(--text-muted)] mt-0.5">{String(a.rationale)}</div>}</div>
             </div>)}
           </div>}
 

@@ -75,14 +75,14 @@ export function TransformationDashboard({ data, jobStates, simState, viewCtx }: 
     { label: "Change Wave", value: "Wave 1", icon: "🚀", color: "var(--accent-primary)" },
     { label: "Readiness", value: `${k.readiness_score || "—"}/100`, icon: "◎", color: "var(--warning)" },
   ] : viewCtx?.mode === "job" ? [
-    { label: "Incumbents", value: k.employees as number || 0, icon: "👥", color: "var(--accent-primary)" },
+    { label: "Incumbents", value: Number(k.employees) || 0, icon: "👥", color: "var(--accent-primary)" },
     { label: "Tasks Mapped", value: totalTasks || "—", icon: "📋", color: "var(--success)" },
     { label: "High AI Tasks", value: highAiTasks || "—", icon: "🤖", color: "var(--warning)" },
     { label: "AI Impact", value: `${Math.round(cfg.adoption * 100)}%`, icon: "⚡", color: "var(--accent-primary)" },
     { label: "Status", value: finalized > 0 ? "Finalized" : totalJobs > 0 ? "In Progress" : "Not Started", icon: "✓", color: finalized > 0 ? "var(--success)" : "var(--warning)" },
     { label: "Readiness", value: `${k.readiness_score || "—"}/100`, icon: "◎", color: "var(--warning)" },
   ] : [
-    { label: "Employees", value: k.employees as number || 0, icon: "👥", color: "var(--accent-primary)" },
+    { label: "Employees", value: Number(k.employees) || 0, icon: "👥", color: "var(--accent-primary)" },
     { label: "Roles Analyzed", value: totalJobs, icon: "💼", color: "var(--purple)" },
     { label: "Tasks Mapped", value: totalTasks, icon: "📋", color: "var(--success)" },
     { label: "High AI Tasks", value: highAiTasks, icon: "🤖", color: "var(--warning)" },
@@ -105,7 +105,7 @@ export function TransformationDashboard({ data, jobStates, simState, viewCtx }: 
     <div className="grid grid-cols-6 gap-2">
       {kpis.map(k => <div key={k.label} className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl px-3 py-3 text-center">
         <div className="text-[16px] mb-1">{k.icon}</div>
-        <div className="text-[18px] font-extrabold" style={{ color: k.color }}>{k.value}</div>
+        <div className="text-[18px] font-extrabold" style={{ color: k.color }}>{typeof k.value === "object" && k.value !== null ? String(k.value) : k.value}</div>
         <div className="text-[15px] text-[var(--text-muted)] font-semibold uppercase tracking-wider">{k.label}</div>
       </div>)}
     </div>
@@ -487,20 +487,20 @@ export function TransformationExecDashboard({ model, f, onBack, onNavigate, deci
         { phase: "Discover", icon: "🔍", color: "#D4860A", ready: true, items: [
           { label: "Employees", value: data?.total_employees ? Number(data.total_employees).toLocaleString() : "—" },
           { label: "AI Readiness", value: data?.org_readiness ? `${data.org_readiness}/5` : "—" },
-          { label: "Champions", value: mgr.champions || "—" },
-          { label: "At Risk", value: bands.at_risk || "—" },
+          { label: "Champions", value: typeof mgr.champions === "object" ? "—" : (mgr.champions || "—") },
+          { label: "At Risk", value: typeof bands.at_risk === "object" ? "—" : (bands.at_risk || "—") },
         ]},
         { phase: "Design", icon: "✏️", color: "#10B981", ready: !!(bbba.build || bbba.buy || data?.skills_coverage), items: [
           { label: "Skills Coverage", value: data?.skills_coverage ? `${data.skills_coverage}%` : "—" },
-          { label: "Critical Gaps", value: data?.critical_gaps || "—" },
-          { label: "Build Roles", value: bbba.build || "—" },
-          { label: "Buy Roles", value: bbba.buy || "—" },
+          { label: "Critical Gaps", value: typeof data?.critical_gaps === "object" ? "—" : (data?.critical_gaps || "—") },
+          { label: "Build Roles", value: typeof bbba.build === "object" ? "—" : (bbba.build || "—") },
+          { label: "Buy Roles", value: typeof bbba.buy === "object" ? "—" : (bbba.buy || "—") },
         ]},
         { phase: "Deliver", icon: "🚀", color: "#F59E0B", ready: !!(Number(reskill.total_investment) || Number(wf.net_change)), items: [
           { label: "High Risk %", value: data?.high_risk_pct ? `${data.high_risk_pct}%` : "—" },
-          { label: "Internal Fill", value: mp.internal_fill || "—" },
+          { label: "Internal Fill", value: typeof mp.internal_fill === "object" ? "—" : (mp.internal_fill || "—") },
           { label: "Reskill Cost", value: Number(reskill.total_investment) ? fmtNum(reskill.total_investment) : "—" },
-          { label: "Net HC Change", value: wf.net_change != null && wf.net_change !== 0 ? wf.net_change : "—" },
+          { label: "Net HC Change", value: wf.net_change != null && wf.net_change !== 0 && typeof wf.net_change !== "object" ? wf.net_change : "—" },
         ]},
       ].map(p => <div key={p.phase} className="rounded-2xl p-5 border transition-all hover:translate-y-[-2px]" style={{ background: `${p.color}08`, borderColor: `${p.color}20`, opacity: p.ready ? 1 : 0.6 }}>
         <div className="flex items-center gap-2 mb-4"><span className="text-xl">{p.icon}</span><span className="text-[15px] font-bold" style={{ color: p.color }}>{p.phase}</span>{!p.ready && <span className="text-[13px] text-[var(--text-muted)]">Not started</span>}</div>
@@ -526,10 +526,10 @@ export function TransformationExecDashboard({ model, f, onBack, onNavigate, deci
     {/* Investment overview */}
     <Card title="Investment & ROI Summary">
       <div className="grid grid-cols-4 gap-4">
-        <div className="rounded-xl p-4 text-center border border-[var(--border)] bg-[var(--surface-2)]"><div className="text-[15px] text-[var(--text-muted)] uppercase mb-1">Total Investment</div><div className="text-[24px] font-extrabold text-[var(--text-primary)]">{fmtNum(bbba.total_investment || 0)}</div></div>
-        <div className="rounded-xl p-4 text-center border border-[var(--border)] bg-[var(--surface-2)]"><div className="text-[15px] text-[var(--text-muted)] uppercase mb-1">Reskilling</div><div className="text-[24px] font-extrabold text-[var(--success)]">{fmtNum(bbba.reskilling_investment || reskill.total_investment || 0)}</div></div>
-        <div className="rounded-xl p-4 text-center border border-[var(--border)] bg-[var(--surface-2)]"><div className="text-[15px] text-[var(--text-muted)] uppercase mb-1">Hiring</div><div className="text-[24px] font-extrabold text-[var(--accent-primary)]">{fmtNum(bbba.hiring_cost || 0)}</div></div>
-        <div className="rounded-xl p-4 text-center border border-[var(--border)] bg-[var(--surface-2)]"><div className="text-[15px] text-[var(--text-muted)] uppercase mb-1">Manager Dev</div><div className="text-[24px] font-extrabold text-[var(--purple)]">{fmtNum((data?.manager_summary as Record<string,unknown>)?.total_investment || 0)}</div></div>
+        <div className="rounded-xl p-4 text-center border border-[var(--border)] bg-[var(--surface-2)]"><div className="text-[15px] text-[var(--text-muted)] uppercase mb-1">Total Investment</div><div className="text-[24px] font-extrabold text-[var(--text-primary)]">{fmtNum(Number(bbba.total_investment) || 0)}</div></div>
+        <div className="rounded-xl p-4 text-center border border-[var(--border)] bg-[var(--surface-2)]"><div className="text-[15px] text-[var(--text-muted)] uppercase mb-1">Reskilling</div><div className="text-[24px] font-extrabold text-[var(--success)]">{fmtNum(Number(bbba.reskilling_investment || reskill.total_investment) || 0)}</div></div>
+        <div className="rounded-xl p-4 text-center border border-[var(--border)] bg-[var(--surface-2)]"><div className="text-[15px] text-[var(--text-muted)] uppercase mb-1">Hiring</div><div className="text-[24px] font-extrabold text-[var(--accent-primary)]">{fmtNum(Number(bbba.hiring_cost) || 0)}</div></div>
+        <div className="rounded-xl p-4 text-center border border-[var(--border)] bg-[var(--surface-2)]"><div className="text-[15px] text-[var(--text-muted)] uppercase mb-1">Manager Dev</div><div className="text-[24px] font-extrabold text-[var(--purple)]">{fmtNum(Number((data?.manager_summary as Record<string,unknown>)?.total_investment) || 0)}</div></div>
       </div>
     </Card>
 
@@ -918,7 +918,7 @@ export function WorkforceSnapshot({ model, f, onBack, onNavigate, viewCtx }: { m
       </div>
     </div>}
     <div className="grid grid-cols-6 gap-3 mb-5">
-      <KpiCard label="Employees" value={k.employees as number ?? 0} accent /><KpiCard label="Roles" value={k.roles as number ?? 0} /><KpiCard label="Tasks" value={k.tasks_mapped as number ?? k.tasks as number ?? 0} /><KpiCard label="Avg Span" value={k.avg_span as number ?? 0} /><KpiCard label="High AI %" value={`${k.high_ai_pct ?? 0}%`} accent /><KpiCard label="Readiness" value={`${k.readiness_score ?? 0}/100`} delta={k.readiness_tier as string ?? ""} />
+      <KpiCard label="Employees" value={Number(k.employees) || 0} accent /><KpiCard label="Roles" value={Number(k.roles) || 0} /><KpiCard label="Tasks" value={Number(k.tasks_mapped ?? k.tasks) || 0} /><KpiCard label="Avg Span" value={Number(k.avg_span) || 0} /><KpiCard label="High AI %" value={`${k.high_ai_pct ?? 0}%`} accent /><KpiCard label="Readiness" value={`${k.readiness_score ?? 0}/100`} delta={String(k.readiness_tier ?? "")} />
     </div>
     {/* Upload Intelligence Panel — auto-generated insights */}
     {data?.upload_insights && <UploadIntelligencePanel

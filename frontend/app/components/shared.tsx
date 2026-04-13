@@ -640,7 +640,7 @@ export function KpiCard({ label, value, accent, delta }: { label: string; value:
   const isNum = !isNaN(numVal) && typeof value === "number";
   return <motion.div className={`bg-[var(--surface-1)] border rounded-2xl px-5 py-4 ${accent ? "border-l-[3px] border-l-[var(--accent-primary)] border-[var(--border)]" : "border-[var(--border)]"}`} style={{ boxShadow: "var(--shadow-1)" }} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }} whileHover={{ y: -2, boxShadow: "var(--shadow-3)" }}>
     <div className="text-[14px] font-semibold text-[var(--text-muted)] uppercase tracking-[0.5px] mb-1.5 font-heading">{label}</div>
-    <div className="text-[24px] font-extrabold text-[var(--text-primary)] tracking-tight font-data">{isNum ? <AnimatedNumber value={numVal} /> : value}</div>
+    <div className="text-[24px] font-extrabold text-[var(--text-primary)] tracking-tight font-data">{isNum ? <AnimatedNumber value={numVal} /> : (typeof value === "string" || typeof value === "number" ? value : String(value ?? "—"))}</div>
     {delta && <div className="text-[14px] font-semibold text-[var(--success)] mt-1.5">{delta}</div>}
   </motion.div>;
 }

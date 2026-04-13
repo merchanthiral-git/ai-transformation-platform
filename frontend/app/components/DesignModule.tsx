@@ -5504,7 +5504,7 @@ export function RoleComparison({ model, f, onBack, jobs, jobStates }: { model: s
               {tasks.slice(0, 5).map((t, i) => <div key={i} className="flex items-center gap-2 text-[15px]">
                 <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: String(t["AI Impact"]).toLowerCase() === "high" ? "var(--risk)" : String(t["AI Impact"]).toLowerCase() === "moderate" ? "var(--warning)" : "var(--success)" }} />
                 <span className="text-[var(--text-secondary)] truncate flex-1">{String(t["Task Name"] || "—")}</span>
-                <span className="text-[var(--text-muted)] shrink-0">{t["Current Time Spent %"]}%</span>
+                <span className="text-[var(--text-muted)] shrink-0">{String(t["Current Time Spent %"] ?? "—")}%</span>
               </div>)}
             </div>
 

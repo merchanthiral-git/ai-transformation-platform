@@ -48,15 +48,15 @@ def _generate_sandbox_dataset(industry: str, size: str):
             "company": "Atlas Capital Group",
             "functions": {
                 "Trading & Markets": {"roles": ["Quantitative Analyst", "Trader", "Risk Analyst", "Market Data Specialist", "Derivatives Analyst"], "comp_base": 140000},
-                "Investment Banking": {"roles": ["Investment Analyst", "Associate", "VP Banking", "Deal Originator", "Pitch Book Specialist"], "comp_base": 130000},
-                "Risk & Compliance": {"roles": ["Compliance Officer", "Regulatory Analyst", "AML Analyst", "Audit Manager", "Risk Modeler"], "comp_base": 110000},
-                "Wealth Management": {"roles": ["Financial Advisor", "Portfolio Manager", "Client Associate", "Wealth Planner", "Trust Officer"], "comp_base": 120000},
+                "Investment Banking": {"roles": ["Investment Analyst", "Associate", "Deal Originator", "Pitch Book Specialist", "Syndicate Analyst"], "comp_base": 130000},
+                "Risk & Compliance": {"roles": ["Compliance Analyst", "Regulatory Analyst", "AML Analyst", "Risk Modeler", "Audit Analyst"], "comp_base": 110000},
+                "Wealth Management": {"roles": ["Financial Advisor", "Portfolio Analyst", "Client Associate", "Wealth Planner", "Trust Analyst"], "comp_base": 120000},
                 "Technology": {"roles": ["Software Engineer", "Data Engineer", "Cloud Architect", "InfoSec Analyst", "Platform Engineer"], "comp_base": 135000},
                 "Operations": {"roles": ["Operations Analyst", "Settlement Specialist", "Reconciliation Analyst", "Trade Support", "Middle Office Analyst"], "comp_base": 85000},
-                "Finance": {"roles": ["Financial Controller", "FP&A Analyst", "Treasury Analyst", "Tax Specialist", "Accountant"], "comp_base": 100000},
-                "HR": {"roles": ["HR Business Partner", "Talent Acquisition", "Compensation Analyst", "L&D Specialist", "HRIS Analyst"], "comp_base": 90000},
-                "Legal": {"roles": ["General Counsel", "Regulatory Attorney", "Contracts Manager", "Legal Analyst", "Paralegal"], "comp_base": 115000},
-                "Marketing": {"roles": ["Brand Manager", "Digital Marketing Lead", "Content Strategist", "Product Marketing", "Events Manager"], "comp_base": 95000},
+                "Finance": {"roles": ["FP&A Analyst", "Treasury Analyst", "Tax Specialist", "Staff Accountant", "Billing Analyst"], "comp_base": 100000},
+                "HR": {"roles": ["HR Business Partner", "Recruiter", "Compensation Analyst", "L&D Specialist", "HRIS Analyst"], "comp_base": 90000},
+                "Legal": {"roles": ["Regulatory Attorney", "Contracts Analyst", "Legal Analyst", "Paralegal", "Compliance Specialist"], "comp_base": 115000},
+                "Marketing": {"roles": ["Brand Specialist", "Digital Marketing Lead", "Content Strategist", "Product Marketing Analyst", "Events Coordinator"], "comp_base": 95000},
             },
             "tasks_by_role": {
                 "Quantitative Analyst": [("Model development & backtesting", 30, "Variable", "Probabilistic", "Interactive", "Moderate", "Quantitative Analysis", "Python/R"),
@@ -64,7 +64,7 @@ def _generate_sandbox_dataset(industry: str, size: str):
                     ("Research & signal generation", 20, "Variable", "Judgment-heavy", "Independent", "Low", "Financial Markets", "Critical Thinking"),
                     ("Strategy performance reporting", 15, "Repetitive", "Deterministic", "Independent", "High", "Data Analysis", "Communication"),
                     ("Stakeholder presentation", 15, "Variable", "Judgment-heavy", "Collaborative", "Low", "Communication", "Stakeholder Mgmt")],
-                "Compliance Officer": [("Regulatory monitoring & updates", 25, "Variable", "Probabilistic", "Interactive", "Moderate", "Regulatory Knowledge", "Research"),
+                "Compliance Analyst": [("Regulatory monitoring & updates", 25, "Variable", "Probabilistic", "Interactive", "Moderate", "Regulatory Knowledge", "Research"),
                     ("Policy documentation", 20, "Repetitive", "Deterministic", "Independent", "High", "Technical Writing", "Compliance"),
                     ("Surveillance & monitoring", 20, "Repetitive", "Deterministic", "Independent", "High", "Data Analysis", "Risk Assessment"),
                     ("Training & advisory", 20, "Variable", "Judgment-heavy", "Collaborative", "Low", "Communication", "Leadership"),
@@ -76,16 +76,16 @@ def _generate_sandbox_dataset(industry: str, size: str):
             "label": "Technology",
             "company": "Nexus Technologies Inc",
             "functions": {
-                "Engineering": {"roles": ["Software Engineer", "Senior Engineer", "Staff Engineer", "Frontend Developer", "Backend Developer"], "comp_base": 145000},
-                "Product": {"roles": ["Product Manager", "Senior PM", "Product Analyst", "UX Researcher", "Technical Writer"], "comp_base": 130000},
-                "Design": {"roles": ["UX Designer", "UI Designer", "Design Lead", "Design Systems Engineer", "UX Writer"], "comp_base": 120000},
+                "Engineering": {"roles": ["Software Engineer", "Senior Engineer", "Frontend Developer", "Backend Developer", "QA Engineer"], "comp_base": 145000},
+                "Product": {"roles": ["Product Manager", "Product Analyst", "UX Researcher", "Technical Writer", "Program Coordinator"], "comp_base": 130000},
+                "Design": {"roles": ["UX Designer", "UI Designer", "Design Systems Engineer", "UX Writer", "Visual Designer"], "comp_base": 120000},
                 "Data Science": {"roles": ["Data Scientist", "ML Engineer", "Data Analyst", "Analytics Engineer", "AI Researcher"], "comp_base": 150000},
-                "DevOps / SRE": {"roles": ["SRE Engineer", "DevOps Engineer", "Platform Engineer", "Cloud Architect", "Security Engineer"], "comp_base": 155000},
-                "Sales": {"roles": ["Account Executive", "Sales Engineer", "SDR", "Enterprise Sales", "Solutions Architect"], "comp_base": 120000},
-                "Marketing": {"roles": ["Growth Manager", "Content Marketer", "Product Marketing", "Demand Gen", "Brand Manager"], "comp_base": 110000},
-                "People Ops": {"roles": ["People Partner", "Recruiter", "People Analyst", "DEI Lead", "Total Rewards"], "comp_base": 100000},
-                "Finance": {"roles": ["FP&A Analyst", "Controller", "Revenue Operations", "Billing Specialist", "Tax Analyst"], "comp_base": 105000},
-                "Legal": {"roles": ["Legal Counsel", "Privacy Counsel", "IP Attorney", "Contracts Manager", "Legal Ops"], "comp_base": 130000},
+                "DevOps / SRE": {"roles": ["SRE Engineer", "DevOps Engineer", "Platform Engineer", "Cloud Engineer", "Security Engineer"], "comp_base": 155000},
+                "Sales": {"roles": ["Account Executive", "Sales Engineer", "SDR", "Solutions Consultant", "Sales Operations Analyst"], "comp_base": 120000},
+                "Marketing": {"roles": ["Growth Specialist", "Content Marketer", "Product Marketing Analyst", "Demand Gen Specialist", "Brand Specialist"], "comp_base": 110000},
+                "People Ops": {"roles": ["People Partner", "Recruiter", "People Analyst", "DEI Specialist", "Total Rewards Analyst"], "comp_base": 100000},
+                "Finance": {"roles": ["FP&A Analyst", "Revenue Operations Analyst", "Billing Specialist", "Tax Analyst", "Staff Accountant"], "comp_base": 105000},
+                "Legal": {"roles": ["Legal Counsel", "Privacy Analyst", "IP Specialist", "Contracts Analyst", "Legal Operations Specialist"], "comp_base": 130000},
             },
             "tasks_by_role": {
                 "Software Engineer": [("Feature development & coding", 35, "Variable", "Probabilistic", "Interactive", "Moderate", "Software Engineering", "Programming"),
@@ -106,16 +106,16 @@ def _generate_sandbox_dataset(industry: str, size: str):
             "label": "Healthcare",
             "company": "Meridian Health Systems",
             "functions": {
-                "Clinical Operations": {"roles": ["Nurse Manager", "Clinical Coordinator", "Patient Care Specialist", "Medical Technologist", "Pharmacy Tech"], "comp_base": 80000},
+                "Clinical Operations": {"roles": ["Clinical Coordinator", "Patient Care Specialist", "Medical Technologist", "Pharmacy Tech", "Charge Nurse"], "comp_base": 80000},
                 "Medical Staff": {"roles": ["Physician", "Specialist", "Resident", "Physician Assistant", "Nurse Practitioner"], "comp_base": 200000},
-                "Administration": {"roles": ["Hospital Administrator", "Department Director", "Operations Manager", "Quality Manager", "Credentialing Specialist"], "comp_base": 95000},
+                "Administration": {"roles": ["Operations Analyst", "Quality Coordinator", "Credentialing Specialist", "Administrative Coordinator", "Scheduling Analyst"], "comp_base": 95000},
                 "Health IT": {"roles": ["EHR Analyst", "Clinical Informaticist", "Health Data Analyst", "Integration Engineer", "Cybersecurity Analyst"], "comp_base": 100000},
                 "Revenue Cycle": {"roles": ["Medical Coder", "Billing Specialist", "Claims Analyst", "Authorization Coordinator", "Revenue Integrity Analyst"], "comp_base": 65000},
-                "Quality & Compliance": {"roles": ["Compliance Officer", "Quality Improvement Specialist", "Risk Manager", "Accreditation Coordinator", "Patient Safety Officer"], "comp_base": 90000},
-                "Finance": {"roles": ["Controller", "Financial Analyst", "Budget Manager", "Reimbursement Analyst", "Payroll Manager"], "comp_base": 85000},
-                "HR": {"roles": ["HR Director", "Recruiter", "Benefits Coordinator", "Workforce Planner", "Employee Relations"], "comp_base": 80000},
-                "Supply Chain": {"roles": ["Supply Chain Manager", "Procurement Specialist", "Inventory Analyst", "Logistics Coordinator", "Vendor Manager"], "comp_base": 75000},
-                "Facilities": {"roles": ["Facilities Director", "Maintenance Supervisor", "Biomedical Engineer", "Safety Officer", "Environmental Services"], "comp_base": 70000},
+                "Quality & Compliance": {"roles": ["Compliance Analyst", "Quality Improvement Specialist", "Risk Analyst", "Accreditation Coordinator", "Patient Safety Analyst"], "comp_base": 90000},
+                "Finance": {"roles": ["Financial Analyst", "Budget Analyst", "Reimbursement Analyst", "Staff Accountant", "Payroll Specialist"], "comp_base": 85000},
+                "HR": {"roles": ["HR Business Partner", "Recruiter", "Benefits Coordinator", "Workforce Planner", "Employee Relations Specialist"], "comp_base": 80000},
+                "Supply Chain": {"roles": ["Procurement Specialist", "Inventory Analyst", "Logistics Coordinator", "Vendor Analyst", "Supply Chain Analyst"], "comp_base": 75000},
+                "Facilities": {"roles": ["Maintenance Technician", "Biomedical Engineer", "Safety Specialist", "Environmental Services Coordinator", "Facilities Coordinator"], "comp_base": 70000},
             },
             "tasks_by_role": {},
             "skills": ["Clinical Knowledge", "EHR Systems", "Patient Care", "Regulatory Compliance", "Data Analysis", "Quality Improvement", "Communication", "Leadership", "Process Automation", "AI/ML Tools", "Change Management", "Critical Thinking", "Project Management", "Stakeholder Mgmt", "Digital Health"],
@@ -124,16 +124,16 @@ def _generate_sandbox_dataset(industry: str, size: str):
             "label": "Manufacturing",
             "company": "Pinnacle Industrial Corp",
             "functions": {
-                "Production": {"roles": ["Production Manager", "Line Supervisor", "Quality Inspector", "Process Engineer", "Production Planner"], "comp_base": 75000},
+                "Production": {"roles": ["Line Supervisor", "Quality Inspector", "Process Engineer", "Production Planner", "Production Coordinator"], "comp_base": 75000},
                 "Engineering": {"roles": ["Design Engineer", "Manufacturing Engineer", "Industrial Engineer", "Automation Engineer", "R&D Engineer"], "comp_base": 95000},
-                "Supply Chain": {"roles": ["Supply Chain Manager", "Procurement Specialist", "Logistics Coordinator", "Inventory Analyst", "Demand Planner"], "comp_base": 80000},
-                "Quality": {"roles": ["Quality Manager", "QA Engineer", "Six Sigma Lead", "Metrology Technician", "Compliance Specialist"], "comp_base": 85000},
-                "Maintenance": {"roles": ["Maintenance Manager", "Reliability Engineer", "Maintenance Technician", "Predictive Maintenance Analyst", "Facilities Coordinator"], "comp_base": 70000},
-                "EHS": {"roles": ["EHS Manager", "Safety Engineer", "Environmental Specialist", "Industrial Hygienist", "Sustainability Lead"], "comp_base": 80000},
-                "IT / OT": {"roles": ["IT Manager", "OT Engineer", "SCADA Specialist", "MES Administrator", "Data Analyst"], "comp_base": 90000},
-                "Finance": {"roles": ["Plant Controller", "Cost Accountant", "FP&A Analyst", "Payroll Specialist", "AP/AR Clerk"], "comp_base": 75000},
-                "HR": {"roles": ["HR Manager", "Recruiter", "Training Coordinator", "Labor Relations", "Benefits Administrator"], "comp_base": 72000},
-                "Sales": {"roles": ["Sales Manager", "Account Manager", "Technical Sales", "Customer Service Rep", "Pricing Analyst"], "comp_base": 85000},
+                "Supply Chain": {"roles": ["Procurement Specialist", "Logistics Coordinator", "Inventory Analyst", "Demand Planner", "Supply Chain Analyst"], "comp_base": 80000},
+                "Quality": {"roles": ["QA Engineer", "Six Sigma Analyst", "Metrology Technician", "Compliance Specialist", "Quality Analyst"], "comp_base": 85000},
+                "Maintenance": {"roles": ["Reliability Engineer", "Maintenance Technician", "Predictive Maintenance Analyst", "Facilities Coordinator", "Equipment Specialist"], "comp_base": 70000},
+                "EHS": {"roles": ["Safety Engineer", "Environmental Specialist", "Industrial Hygienist", "Sustainability Analyst", "EHS Coordinator"], "comp_base": 80000},
+                "IT / OT": {"roles": ["OT Engineer", "SCADA Specialist", "MES Administrator", "Data Analyst", "IT Support Specialist"], "comp_base": 90000},
+                "Finance": {"roles": ["Cost Accountant", "FP&A Analyst", "Payroll Specialist", "AP/AR Clerk", "Staff Accountant"], "comp_base": 75000},
+                "HR": {"roles": ["Recruiter", "Training Coordinator", "Labor Relations Specialist", "Benefits Administrator", "HR Coordinator"], "comp_base": 72000},
+                "Sales": {"roles": ["Account Representative", "Technical Sales Specialist", "Customer Service Rep", "Pricing Analyst", "Sales Coordinator"], "comp_base": 85000},
             },
             "tasks_by_role": {},
             "skills": ["Lean Manufacturing", "Six Sigma", "Process Optimization", "Quality Systems", "ERP/MES", "Data Analysis", "Automation", "PLC Programming", "Supply Chain Mgmt", "Communication", "Leadership", "Project Management", "Safety Compliance", "CAD/CAM", "AI/ML Tools"],
@@ -142,16 +142,16 @@ def _generate_sandbox_dataset(industry: str, size: str):
             "label": "Retail & Consumer",
             "company": "Crest Commerce Group",
             "functions": {
-                "Merchandising": {"roles": ["Buyer", "Merchandiser", "Category Manager", "Assortment Planner", "Pricing Analyst"], "comp_base": 85000},
-                "Store Operations": {"roles": ["District Manager", "Store Manager", "Assistant Manager", "Department Lead", "Visual Merchandiser"], "comp_base": 65000},
-                "E-Commerce": {"roles": ["E-Commerce Manager", "Digital Product Manager", "UX Designer", "Web Developer", "SEO Specialist"], "comp_base": 100000},
-                "Supply Chain": {"roles": ["Supply Chain Director", "Distribution Manager", "Inventory Planner", "Logistics Analyst", "Warehouse Manager"], "comp_base": 80000},
-                "Marketing": {"roles": ["CMO", "Brand Manager", "Social Media Manager", "CRM Manager", "Content Creator"], "comp_base": 90000},
-                "Customer Experience": {"roles": ["CX Director", "Customer Service Manager", "Contact Center Lead", "Voice of Customer Analyst", "CX Designer"], "comp_base": 75000},
-                "Finance": {"roles": ["Controller", "Financial Analyst", "Revenue Analyst", "Lease Accountant", "Treasury Analyst"], "comp_base": 85000},
-                "HR": {"roles": ["CHRO", "HR Business Partner", "Talent Acquisition", "L&D Manager", "Compensation Analyst"], "comp_base": 80000},
-                "Technology": {"roles": ["CTO", "Software Engineer", "Data Engineer", "POS Systems Admin", "IT Support Lead"], "comp_base": 110000},
-                "Real Estate": {"roles": ["Real Estate Director", "Site Selector", "Lease Manager", "Construction Manager", "Facilities Coordinator"], "comp_base": 90000},
+                "Merchandising": {"roles": ["Buyer", "Merchandiser", "Assortment Planner", "Pricing Analyst", "Merchandise Coordinator"], "comp_base": 85000},
+                "Store Operations": {"roles": ["Store Associate", "Assistant Store Lead", "Department Lead", "Visual Merchandiser", "Inventory Specialist"], "comp_base": 65000},
+                "E-Commerce": {"roles": ["Digital Product Analyst", "UX Designer", "Web Developer", "SEO Specialist", "E-Commerce Coordinator"], "comp_base": 100000},
+                "Supply Chain": {"roles": ["Distribution Analyst", "Inventory Planner", "Logistics Analyst", "Warehouse Coordinator", "Demand Planner"], "comp_base": 80000},
+                "Marketing": {"roles": ["Brand Specialist", "Social Media Specialist", "CRM Analyst", "Content Creator", "Campaign Coordinator"], "comp_base": 90000},
+                "Customer Experience": {"roles": ["Customer Service Specialist", "Contact Center Lead", "Voice of Customer Analyst", "CX Designer", "Support Coordinator"], "comp_base": 75000},
+                "Finance": {"roles": ["Financial Analyst", "Revenue Analyst", "Lease Accountant", "Treasury Analyst", "Staff Accountant"], "comp_base": 85000},
+                "HR": {"roles": ["HR Business Partner", "Recruiter", "L&D Specialist", "Compensation Analyst", "HR Coordinator"], "comp_base": 80000},
+                "Technology": {"roles": ["Software Engineer", "Data Engineer", "POS Systems Admin", "IT Support Specialist", "QA Analyst"], "comp_base": 110000},
+                "Real Estate": {"roles": ["Site Analyst", "Lease Analyst", "Construction Coordinator", "Facilities Coordinator", "Real Estate Analyst"], "comp_base": 90000},
             },
             "tasks_by_role": {},
             "skills": ["Merchandising", "Demand Planning", "Customer Analytics", "E-Commerce", "Supply Chain", "POS Systems", "Data Analysis", "Communication", "Leadership", "Negotiation", "Digital Marketing", "AI/ML Tools", "Process Automation", "Visual Merchandising", "CRM"],
@@ -160,16 +160,16 @@ def _generate_sandbox_dataset(industry: str, size: str):
             "label": "Professional Services",
             "company": "Apex Advisory Partners",
             "functions": {
-                "Consulting": {"roles": ["Managing Director", "Principal", "Senior Consultant", "Consultant", "Analyst"], "comp_base": 130000},
-                "Advisory": {"roles": ["Partner", "Director", "Manager", "Senior Associate", "Associate"], "comp_base": 125000},
-                "Delivery": {"roles": ["Engagement Manager", "Project Lead", "Delivery Lead", "Technical Architect", "Solutions Designer"], "comp_base": 120000},
-                "Research": {"roles": ["Research Director", "Senior Researcher", "Industry Analyst", "Knowledge Manager", "Insights Lead"], "comp_base": 110000},
-                "Business Development": {"roles": ["BD Director", "Proposal Manager", "Client Partner", "Account Director", "Pursuit Lead"], "comp_base": 115000},
-                "People & Talent": {"roles": ["HR Director", "Recruiter", "L&D Lead", "Performance Manager", "Alumni Relations"], "comp_base": 95000},
-                "Finance": {"roles": ["CFO", "Controller", "Billing Manager", "Revenue Analyst", "FP&A Analyst"], "comp_base": 100000},
-                "Marketing": {"roles": ["CMO", "Content Director", "Events Manager", "Digital Marketing", "Brand Strategist"], "comp_base": 100000},
-                "Technology": {"roles": ["CTO", "Solutions Architect", "Data Engineer", "Platform Lead", "Innovation Lead"], "comp_base": 130000},
-                "Operations": {"roles": ["COO", "Office Manager", "Procurement Lead", "Facilities Manager", "Travel Coordinator"], "comp_base": 80000},
+                "Consulting": {"roles": ["Senior Consultant", "Consultant", "Analyst", "Strategy Associate", "Research Analyst"], "comp_base": 130000},
+                "Advisory": {"roles": ["Senior Associate", "Associate", "Advisory Analyst", "Risk Consultant", "Valuation Analyst"], "comp_base": 125000},
+                "Delivery": {"roles": ["Project Lead", "Delivery Analyst", "Technical Architect", "Solutions Designer", "Implementation Specialist"], "comp_base": 120000},
+                "Research": {"roles": ["Senior Researcher", "Industry Analyst", "Knowledge Specialist", "Insights Analyst", "Research Associate"], "comp_base": 110000},
+                "Business Development": {"roles": ["Proposal Specialist", "Pursuit Coordinator", "Client Relations Analyst", "BD Analyst", "Marketing Coordinator"], "comp_base": 115000},
+                "People & Talent": {"roles": ["Recruiter", "L&D Specialist", "Performance Analyst", "Alumni Relations Coordinator", "HR Coordinator"], "comp_base": 95000},
+                "Finance": {"roles": ["Billing Analyst", "Revenue Analyst", "FP&A Analyst", "Staff Accountant", "Accounts Payable Specialist"], "comp_base": 100000},
+                "Marketing": {"roles": ["Content Specialist", "Events Coordinator", "Digital Marketing Analyst", "Brand Specialist", "Communications Analyst"], "comp_base": 100000},
+                "Technology": {"roles": ["Solutions Architect", "Data Engineer", "Platform Engineer", "Innovation Analyst", "IT Specialist"], "comp_base": 130000},
+                "Operations": {"roles": ["Office Coordinator", "Procurement Analyst", "Facilities Coordinator", "Travel Coordinator", "Operations Analyst"], "comp_base": 80000},
             },
             "tasks_by_role": {},
             "skills": ["Strategy", "Client Management", "Data Analysis", "Financial Modeling", "Project Management", "Communication", "Leadership", "Problem Solving", "Industry Expertise", "AI/ML Tools", "Presentation", "Research", "Change Management", "Stakeholder Mgmt", "Digital Transformation"],
@@ -1240,11 +1240,31 @@ def _seed_tutorial_store(industry="technology", size_tier="mid"):
         
         mgr_map[real_func] = func_mgrs
 
-    # Assign managers
+    # Assign managers — respect seniority hierarchy:
+    #   E (Executives) → report to CEO or no one
+    #   M4/M5 (Directors/VPs) → report to executives in their function
+    #   M1-M3 (Managers) → report to directors (M4+) in their function
+    #   IC/Support → report to managers (M1+) in their function
+    LEVEL_RANK = {"E4":90,"E3":80,"E2":70,"E1":60,"M5":55,"M4":50,"M3":40,"M2":30,"M1":20,
+                  "P6":16,"P5":15,"P4":14,"P3":13,"P2":12,"P1":11,
+                  "T6":16,"T5":15,"T4":14,"T3":13,"T2":12,"T1":11,
+                  "S4":8,"S3":7,"S2":6,"S1":5}
+    # Build per-function lookup for potential managers (M and E tracks)
+    func_mgr_emps = {}
     for emp in employees:
-        if emp["Career Level"] in ["L5","L6"]: continue
-        mgrs = mgr_map.get(emp["Function"], [])
-        if mgrs: emp["Manager ID"] = random.choice(mgrs)
+        if emp["Career Track"] in ("M", "E"):
+            func_mgr_emps.setdefault(emp["Function"], []).append(emp)
+
+    for emp in employees:
+        rank = LEVEL_RANK.get(emp["Career Level"], 10)
+        # Executives report to CEO (no manager assigned here) or skip
+        if emp["Career Track"] == "E":
+            continue
+        # Find potential bosses: same function, strictly higher rank
+        candidates = [m for m in func_mgr_emps.get(emp["Function"], [])
+                      if LEVEL_RANK.get(m["Career Level"], 10) > rank and m["Employee ID"] != emp["Employee ID"]]
+        if candidates:
+            emp["Manager ID"] = random.choice(candidates)["Employee ID"]
 
     # Resolve Manager Names and compute span of control
     emp_lookup = {e["Employee ID"]: e["Name"] for e in employees}
