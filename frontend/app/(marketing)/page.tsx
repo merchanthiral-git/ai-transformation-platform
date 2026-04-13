@@ -126,13 +126,18 @@ body::after { content: ''; position: fixed; inset: 0; z-index: 9990; pointer-eve
 nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 28px 56px; display: flex; align-items: center; justify-content: space-between; background: transparent; transition: all 0.5s ease; }
 nav.scrolled { padding: 16px 56px; background: rgba(244,241,235,0.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--rule); }
 .nav-logo { font-family: var(--serif); font-size: 22px; font-weight: 500; letter-spacing: -0.3px; display: flex; align-items: center; gap: 10px; }
-.nav-logo-anim { width: 48px; height: 40px; position: relative; flex-shrink: 0; overflow: hidden; }
+.nav-logo-anim { width: 48px; height: 40px; position: relative; flex-shrink: 0; overflow: hidden; border-radius: 4px; }
 .nav-logo-anim svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-.nav-scene { opacity: 0; animation: sceneLoop 12s linear infinite; }
-.nav-scene:nth-child(1) { animation-delay: 0s; }
-.nav-scene:nth-child(2) { animation-delay: 4s; }
-.nav-scene:nth-child(3) { animation-delay: 8s; }
+.nav-scene { opacity: 0; animation: sceneLoop 12s linear infinite; animation-duration: 12s !important; }
+.nav-scene:nth-child(1) { animation-delay: 0s !important; }
+.nav-scene:nth-child(2) { animation-delay: 4s !important; }
+.nav-scene:nth-child(3) { animation-delay: 8s !important; }
 @keyframes sceneLoop { 0% { opacity: 0; } 4% { opacity: 1; } 29% { opacity: 1; } 33% { opacity: 0; } 100% { opacity: 0; } }
+.nav-logo-anim .slide-person { animation: slideDown 3.5s ease-in-out infinite; animation-duration: 3.5s !important; }
+.nav-logo-anim .swing-group { animation: swingArc 1.6s ease-in-out infinite; animation-duration: 1.6s !important; transform-origin: 24px 4px; }
+.nav-logo-anim .monkey-person { animation: monkeyTraverse 3s ease-in-out infinite; animation-duration: 3s !important; }
+.nav-logo-anim .arm-l { animation: armSwap 0.6s step-end infinite; animation-duration: 0.6s !important; }
+.nav-logo-anim .arm-r { animation: armSwap 0.6s step-end infinite 0.3s; animation-duration: 0.6s !important; animation-delay: 0.3s !important; }
 @keyframes slideDown { 0% { transform: translate(8px, 4px); } 30% { transform: translate(8px, 4px); } 80% { transform: translate(28px, 24px); } 100% { transform: translate(28px, 24px); } }
 @keyframes swingArc { 0% { transform: rotate(-20deg); } 25% { transform: rotate(20deg); } 50% { transform: rotate(-18deg); } 75% { transform: rotate(16deg); } 100% { transform: rotate(-14deg); } }
 @keyframes monkeyTraverse { 0% { transform: translateX(0); } 100% { transform: translateX(22px); } }
@@ -336,7 +341,7 @@ footer { padding: 48px 56px; border-top: 1px solid var(--rule); display: flex; j
               {/* Ladder rungs */}
               <line x1="7" y1="12" x2="13" y2="12" stroke="#D4A843" strokeWidth="1.2"/><line x1="7" y1="18" x2="13" y2="18" stroke="#D4A843" strokeWidth="1.2"/><line x1="7" y1="24" x2="13" y2="24" stroke="#D4A843" strokeWidth="1.2"/>
               {/* Person sliding */}
-              <g style={{ animation: "slideDown 3.5s ease-in-out infinite" }}>
+              <g className="slide-person">
                 <circle cx="4" cy="0" r="3" fill="#E8D5C4"/>
                 <rect x="1" y="3" width="6" height="8" rx="1.5" fill="#1C2B3A"/>
                 <rect x="0.5" y="3" width="3" height="5" rx="1" fill="#1C2B3A"/>
@@ -350,7 +355,7 @@ footer { padding: 48px 56px; border-top: 1px solid var(--rule); display: flex; j
               <line x1="10" y1="4" x2="6" y2="36" stroke="#2A6B6B" strokeWidth="1.8" strokeLinecap="round"/>
               <line x1="38" y1="4" x2="42" y2="36" stroke="#2A6B6B" strokeWidth="1.8" strokeLinecap="round"/>
               {/* Swing + person */}
-              <g style={{ transformOrigin: "24px 4px", animation: "swingArc 1.6s ease-in-out infinite" }}>
+              <g className="swing-group">
                 <line x1="20" y1="4" x2="18" y2="24" stroke="#2A6B6B" strokeWidth="1.2"/>
                 <line x1="28" y1="4" x2="30" y2="24" stroke="#2A6B6B" strokeWidth="1.2"/>
                 <rect x="16" y="24" width="16" height="3" rx="1" fill="#2A6B6B"/>
@@ -369,12 +374,12 @@ footer { padding: 48px 56px; border-top: 1px solid var(--rule); display: flex; j
               {/* Rungs */}
               {[12,20,28,36].map(x => <line key={x} x1={x} y1="6" x2={x} y2="10" stroke="#D4A843" strokeWidth="1.2"/>)}
               {/* Person traversing */}
-              <g style={{ animation: "monkeyTraverse 3s ease-in-out infinite" }}>
+              <g className="monkey-person">
                 <circle cx="10" cy="14" r="3" fill="#E8D5C4"/>
                 <rect x="7" y="17" width="6" height="8" rx="1.5" fill="#1C2B3A"/>
                 {/* Arms reaching up alternating */}
-                <line x1="9" y1="17" x2="8" y2="10" stroke="#1C2B3A" strokeWidth="1.2" strokeLinecap="round" style={{ animation: "armSwap 0.6s step-end infinite" }}/>
-                <line x1="11" y1="17" x2="16" y2="10" stroke="#1C2B3A" strokeWidth="1.2" strokeLinecap="round" style={{ animation: "armSwap 0.6s step-end infinite 0.3s" }}/>
+                <line x1="9" y1="17" x2="8" y2="10" stroke="#1C2B3A" strokeWidth="1.2" strokeLinecap="round" className="arm-l"/>
+                <line x1="11" y1="17" x2="16" y2="10" stroke="#1C2B3A" strokeWidth="1.2" strokeLinecap="round" className="arm-r"/>
                 {/* Legs dangling */}
                 <line x1="8" y1="25" x2="7" y2="30" stroke="#1C2B3A" strokeWidth="1.2" strokeLinecap="round"/>
                 <line x1="12" y1="25" x2="13" y2="30" stroke="#1C2B3A" strokeWidth="1.2" strokeLinecap="round"/>
