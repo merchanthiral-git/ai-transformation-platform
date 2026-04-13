@@ -270,47 +270,26 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
   const track = genreTracks[trackIdx % genreTracks.length] || genreTracks[0];
   const fmt = (s: number) => { const m = Math.floor(s / 60); const sec = Math.floor(s % 60); return `${m}:${sec < 10 ? "0" : ""}${sec}`; };
 
-  // Lazily init Web Audio API on first user gesture (play click).
-  // Browsers suspend AudioContext created outside user gestures, causing
-  // audio to appear "playing" with no sound.  Deferring creation fixes this.
+  // DO NOT use createMediaElementSource() — it hijacks the audio element's
+  // output routing through the Web Audio API graph.  On cross-origin CDN audio
+  // (R2 without CORS), Chrome silently captures the routing without throwing,
+  // causing the UI to report "playing" while producing zero sound.
+  // The visualizer uses simulated energy data from timeupdate instead.
   const webAudioInitRef = useRef(false);
   const ensureWebAudio = useCallback(() => {
-    const audio = audioRef.current;
-    if (!audio || webAudioInitRef.current) return;
+    if (webAudioInitRef.current) return;
     webAudioInitRef.current = true;
     try {
-      // DO NOT set crossOrigin on the audio element.
-      // The R2 CDN does not send Access-Control-Allow-Origin headers,
-      // so setting crossOrigin="anonymous" kills audio playback entirely.
-      // Without crossOrigin, createMediaElementSource will throw a
-      // SecurityError for cross-origin audio — we catch it and skip
-      // the visualizer. Audio playback continues to work fine.
       const ctx = new AudioContext();
-      const analyser = ctx.createAnalyser();
-      analyser.fftSize = 128;
-      analyser.smoothingTimeConstant = 0.8;
-      const source = ctx.createMediaElementSource(audio);
-      source.connect(analyser);
-      analyser.connect(ctx.destination);
       audioCtxRef.current = ctx;
-      analyserRef.current = analyser;
-      freqDataRef.current = new Uint8Array(analyser.frequencyBinCount);
-    } catch (e) {
-      // Expected: SecurityError because CDN audio is cross-origin.
-      // Visualizer won't work, but audio plays fine without it.
-      console.log("[MusicPlayer] Visualizer disabled (cross-origin audio).");
-      // Still create AudioContext for resume capability
-      try {
-        const ctx = new AudioContext();
-        audioCtxRef.current = ctx;
-      } catch {}
-    }
+    } catch {}
   }, []);
 
-  // CDN reachability check on mount
+  // CDN reachability check on mount — use no-cors to avoid CORS blocking the check.
+  // An opaque response (status 0) still means the server is reachable.
   useEffect(() => {
-    fetch(`${CDN_BASE}/audio/optimized/track1.mp3`, { method: "HEAD" })
-      .then(r => { if (!r.ok) { console.error("[MusicPlayer] CDN unreachable:", r.status); setCdnReachable(false); } })
+    fetch(`${CDN_BASE}/audio/optimized/track1.mp3`, { method: "HEAD", mode: "no-cors" })
+      .then(() => { console.log("[MusicPlayer] CDN reachable"); })
       .catch(() => { console.error("[MusicPlayer] CDN unreachable"); setCdnReachable(false); });
   }, []);
 
@@ -400,61 +379,77 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     });
     audio.addEventListener("loadedmetadata", () => setDuration(audio.duration || 0));
 
-    // Combined progress + visualizer animation loop
+    // Combined progress + visualizer animation loop.
+    // Since we don't use createMediaElementSource (it hijacks audio routing),
+    // the visualizer uses simulated frequency data driven by playback state.
     const tick = () => {
       if (audio.duration > 0) { setProgress(audio.currentTime / audio.duration); setCurTime(audio.currentTime); }
-      // Extract frequency data and band energies
-      if (analyserRef.current) {
-        analyserRef.current.getByteFrequencyData(freqDataRef.current);
-        // Band energies for 3D orb
-        const fd = freqDataRef.current;
-        let bass = 0, mid = 0, high = 0, total = 0;
-        for (let i = 0; i < 4; i++) bass += fd[i] || 0;
-        for (let i = 4; i < 32; i++) mid += fd[i] || 0;
-        for (let i = 32; i < 64; i++) high += fd[i] || 0;
-        for (let i = 0; i < 64; i++) total += fd[i] || 0;
-        setBassEnergy(bass / (4 * 255));
-        setMidEnergy(mid / (28 * 255));
-        setHighEnergy(high / (32 * 255));
-        setAmplitude(total / (64 * 255));
-        // Main canvas
-        const canvas = canvasRef.current;
-        if (canvas) {
-          const ctx2d = canvas.getContext("2d");
-          if (ctx2d) {
-            const w = canvas.width; const h = canvas.height;
-            ctx2d.clearRect(0, 0, w, h);
-            const bars = 32; const barW = w / bars - 2;
-            for (let i = 0; i < bars; i++) {
-              const val = freqDataRef.current[i] || 0;
-              const barH = (val / 255) * h * 0.9;
-              const x = i * (barW + 2) + 1;
-              const gradient = ctx2d.createLinearGradient(0, h - barH, 0, h);
-              gradient.addColorStop(0, `rgba(232,197,71,${0.4 + val / 500})`);
-              gradient.addColorStop(1, `rgba(212,134,10,${0.6 + val / 400})`);
-              ctx2d.fillStyle = gradient;
-              ctx2d.beginPath();
-              ctx2d.roundRect(x, h - barH, barW, barH, [3, 3, 0, 0]);
-              ctx2d.fill();
-            }
+
+      // Simulate frequency data when audio is playing
+      const isPlaying = !audio.paused && !audio.ended && audio.readyState > 2;
+      const fd = freqDataRef.current;
+      const t = performance.now() / 1000;
+      for (let i = 0; i < 64; i++) {
+        if (isPlaying) {
+          // Generate organic-looking bars using layered sine waves
+          const base = 100 + 60 * Math.sin(t * 1.7 + i * 0.4) + 40 * Math.sin(t * 3.1 + i * 0.7);
+          const variation = 30 * Math.sin(t * 5.3 + i * 1.2) + 20 * Math.random();
+          // Bass frequencies (low i) are stronger
+          const falloff = i < 8 ? 1.0 : i < 24 ? 0.7 : 0.4;
+          fd[i] = Math.max(0, Math.min(255, (base + variation) * falloff * (audio.volume || 0.5)));
+        } else {
+          fd[i] = fd[i] * 0.9; // Fade out when paused
+        }
+      }
+
+      // Band energies for orb
+      let bass = 0, mid = 0, high = 0, total = 0;
+      for (let i = 0; i < 4; i++) bass += fd[i] || 0;
+      for (let i = 4; i < 32; i++) mid += fd[i] || 0;
+      for (let i = 32; i < 64; i++) high += fd[i] || 0;
+      for (let i = 0; i < 64; i++) total += fd[i] || 0;
+      setBassEnergy(bass / (4 * 255));
+      setMidEnergy(mid / (28 * 255));
+      setHighEnergy(high / (32 * 255));
+      setAmplitude(total / (64 * 255));
+
+      // Main canvas
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const ctx2d = canvas.getContext("2d");
+        if (ctx2d) {
+          const w = canvas.width; const h = canvas.height;
+          ctx2d.clearRect(0, 0, w, h);
+          const bars = 32; const barW = w / bars - 2;
+          for (let i = 0; i < bars; i++) {
+            const val = fd[i] || 0;
+            const barH = (val / 255) * h * 0.9;
+            const x = i * (barW + 2) + 1;
+            const gradient = ctx2d.createLinearGradient(0, h - barH, 0, h);
+            gradient.addColorStop(0, `rgba(232,197,71,${0.4 + val / 500})`);
+            gradient.addColorStop(1, `rgba(212,134,10,${0.6 + val / 400})`);
+            ctx2d.fillStyle = gradient;
+            ctx2d.beginPath();
+            ctx2d.roundRect(x, h - barH, barW, barH, [3, 3, 0, 0]);
+            ctx2d.fill();
           }
         }
-        // Mini canvas
-        const mini = miniCanvasRef.current;
-        if (mini) {
-          const ctx2d = mini.getContext("2d");
-          if (ctx2d) {
-            const w = mini.width; const h = mini.height;
-            ctx2d.clearRect(0, 0, w, h);
-            const bars = 10; const barW = w / bars - 1;
-            for (let i = 0; i < bars; i++) {
-              const val = freqDataRef.current[i * 3] || 0;
-              const barH = (val / 255) * h * 0.85;
-              ctx2d.fillStyle = `rgba(212,134,10,${0.4 + val / 400})`;
-              ctx2d.beginPath();
-              ctx2d.roundRect(i * (barW + 1), h - barH, barW, barH, [2, 2, 0, 0]);
-              ctx2d.fill();
-            }
+      }
+      // Mini canvas
+      const mini = miniCanvasRef.current;
+      if (mini) {
+        const ctx2d = mini.getContext("2d");
+        if (ctx2d) {
+          const w = mini.width; const h = mini.height;
+          ctx2d.clearRect(0, 0, w, h);
+          const bars = 10; const barW = w / bars - 1;
+          for (let i = 0; i < bars; i++) {
+            const val = fd[i * 3] || 0;
+            const barH = (val / 255) * h * 0.85;
+            ctx2d.fillStyle = `rgba(212,134,10,${0.4 + val / 400})`;
+            ctx2d.beginPath();
+            ctx2d.roundRect(i * (barW + 1), h - barH, barW, barH, [2, 2, 0, 0]);
+            ctx2d.fill();
           }
         }
       }
@@ -566,23 +561,26 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
         }
       }
     }, 5000);
-    a.play().then(() => { setPlaying(true); setHasPlayedFirst(true); }).catch(e => { console.warn("[MusicPlayer] Play blocked:", e.message); setPlaying(false); setBuffering(false); });
+    a.play().then(() => {
+      setPlaying(true); setHasPlayedFirst(true);
+      console.log("[MusicPlayer] Playing:", { src: a.src, volume: a.volume, muted: a.muted, paused: a.paused, readyState: a.readyState });
+    }).catch(e => { console.warn("[MusicPlayer] Play blocked:", e.message); setPlaying(false); setBuffering(false); });
   }, [resumeAudioCtx]);
 
   const toggle = useCallback(() => {
-    const a = audioRef.current; if (!a) return;
+    const a = audioRef.current; if (!a) { console.error("[MusicPlayer] No audio element"); return; }
     userInitiatedRef.current = true;
     setAudioError(null);
     errorCountRef.current = 0;
-    if (playing) { a.pause(); setPlaying(false); }
+    if (playing) { a.pause(); setPlaying(false); console.log("[MusicPlayer] Paused"); }
     else {
       a.muted = false;
       a.volume = volumeRef.current > 0 ? volumeRef.current : 0.5;
-      if (!a.src || a.readyState === 0 || !a.src.includes("/track")) { playTrack(track?.file || ALL_TRACKS[0].file); }
+      if (!a.src || a.readyState === 0 || !a.src.includes("/track")) { console.log("[MusicPlayer] No src loaded, starting fresh"); playTrack(track?.file || ALL_TRACKS[0].file); }
       else {
-        console.log(`[MusicPlayer] Resuming: ${a.src}`);
+        console.log("[MusicPlayer] Resuming:", { src: a.src, volume: a.volume, muted: a.muted, readyState: a.readyState });
         resumeAudioCtx();
-        a.play().then(() => setPlaying(true)).catch(e => { console.warn("Resume failed:", e.message); playTrack(track?.file || ALL_TRACKS[0].file); });
+        a.play().then(() => setPlaying(true)).catch(e => { console.warn("[MusicPlayer] Resume failed:", e.message); playTrack(track?.file || ALL_TRACKS[0].file); });
       }
     }
   }, [playing, track, playTrack, resumeAudioCtx]);
