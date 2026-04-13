@@ -198,6 +198,7 @@ export async function resetPassword(token: string, newPassword: string, confirmP
 
 export function logout() {
   clearToken();
+  localStorage.removeItem("hub_active");
   window.location.reload();
 }
 

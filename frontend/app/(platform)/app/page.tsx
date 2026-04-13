@@ -817,20 +817,14 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const [viewCustom, setViewCustom] = usePersisted<Record<string, string>>(`${projectId}_viewCustom`, { func: "All", jf: "All", sf: "All", cl: "All", ct: "All" });
   const [employees, setEmployees] = useState<string[]>([]);
-  const [page, setPage] = usePersisted(`${projectId}_page`, "home");
+  const [page, setPage] = useState("home");
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Tutorial mode — must be declared before the useEffect that references it
   const [isTutorial] = useState(() => { try { return JSON.parse(localStorage.getItem(`${projectId}_isTutorial`) || "false"); } catch { return false; } });
 
-  // Always start on home (Overview) when entering a project — avoids landing on an error screen
-  // from a previously broken module. Tutorial projects are exempt since they navigate to specific pages.
-  const hasResetRef = useRef(false);
-  useEffect(() => {
-    if (hasResetRef.current) return;
-    hasResetRef.current = true;
-    if (!isTutorial) setPage("home");
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // Page state is intentionally useState (not usePersisted) — on project entry,
+  // users always start at "home" (Overview). Navigation state is session-only.
   const workspace = useWorkspaceController();
   const { models, model, jobs, job, filters: f, filterOptions: fo, message: msg, backendOk, loadingModels, uploadFiles, resetWorkspace, setModel, setJob, setFilter, clearFilters } = workspace;
   const { toast, ToastContainer } = useToast();
@@ -1946,7 +1940,6 @@ function seedTutorialData(projectId: string, industry: string = "technology") {
   ]));
 
   localStorage.setItem(`${projectId}_isTutorial`, JSON.stringify(false));
-  localStorage.setItem(`${projectId}_page`, JSON.stringify("home"));
 
   // Model ID must match backend format: Tutorial_{Size}_{Industry}
   // _seed_tutorial_store generates: Tutorial_{size_tier.title()}_{industry.title().replace(' ', '_')}
@@ -3177,7 +3170,7 @@ export default function Page() {
   }, [activeProject, loaded, user]);
 
   if (!authChecked) return null;
-  if (!user) return <AuthGate onAuth={(u) => { sessionStorage.setItem("fresh_login", "1"); setUser(u); }} />;
+  if (!user) return <AuthGate onAuth={(u) => { sessionStorage.setItem("fresh_login", "1"); localStorage.removeItem("hub_active"); setActiveProject(null); setUser(u); }} />;
   if (!loaded) return null;
 
   // On ProjectHub (no sidebar), show account controls top-right with Platform Hub link

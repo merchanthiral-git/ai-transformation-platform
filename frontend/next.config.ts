@@ -31,24 +31,26 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        // Cache static media assets for 1 year (immutable)
+        // Static assets (JS/CSS bundles, images, fonts) — cache forever, content-hashed
+        source: "/_next/static/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+      {
+        // Static media assets (images, fonts, videos) — cache forever
         source: "/:path*\\.(mp4|webm|mp3|jpg|jpeg|png|webp|avif|ico|svg|woff|woff2)",
         headers: [
           { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
         ],
       },
       {
-        // Cache video poster images
-        source: "/videos/optimized/:path*",
+        // HTML pages and API routes — never cache, always revalidate
+        source: "/:path*",
         headers: [
-          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
-        ],
-      },
-      {
-        // Cache audio files
-        source: "/audio/optimized/:path*",
-        headers: [
-          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+          { key: "Cache-Control", value: "no-cache, no-store, must-revalidate" },
+          { key: "Pragma", value: "no-cache" },
+          { key: "Expires", value: "0" },
         ],
       },
     ];
