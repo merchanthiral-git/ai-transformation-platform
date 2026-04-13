@@ -18,7 +18,7 @@ import { EmployeeOrgChart } from "./OverviewModule";
 
 export function BBBAFramework({ model, f, onBack, onNavigate, jobStates, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; jobStates?: Record<string, import("./shared").JobDesignState>; viewCtx?: import("./shared").ViewContext }) {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [overrides, setOverrides] = usePersisted<Record<string, string>>(`${model}_bbba_overrides`, {});
 
   useEffect(() => { if (!model) return; setLoading(true); api.getBBBA(model, f).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false)); }, [model, f.func, f.jf, f.sf, f.cl]);
@@ -160,7 +160,7 @@ export function BBBAFramework({ model, f, onBack, onNavigate, jobStates, viewCtx
 
 export function HeadcountPlanning({ model, f, onBack, onNavigate, jobStates, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; jobStates?: Record<string, import("./shared").JobDesignState>; viewCtx?: import("./shared").ViewContext }) {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   // Read BBBA overrides from localStorage to inform headcount
   const bbbaOverrides = usePersisted<Record<string, string>>(`${model}_bbba_overrides`, {})[0];

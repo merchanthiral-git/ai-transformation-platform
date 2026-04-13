@@ -328,6 +328,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   @keyframes loading { 0% { transform: translateX(-100%); } 100% { transform: translateX(350%); } }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
 
+  /* Module page entrance — smooth fade+slide on navigation */
+  @keyframes moduleEnter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .module-enter { animation: moduleEnter 0.25s ease-out forwards; }
+
   /* Tab content entrance */
   .animate-tab-enter { animation: fadeIn 0.25s ease-out; }
   /* Card entrance stagger */

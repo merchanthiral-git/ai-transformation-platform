@@ -13,7 +13,7 @@ import {
 
 export function ExportReport({ model, f, onBack, onNavigate, jobStates, simState, decisionLog, riskRegister }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; jobStates?: Record<string, { deconRows: Record<string, unknown>[]; redeployRows: Record<string, unknown>[]; scenario: string; deconSubmitted: boolean; redeploySubmitted: boolean; finalized: boolean }>; simState?: { scenario: string; custom: boolean; custAdopt: number; custTimeline: number; investment: number }; decisionLog?: { ts: string; module: string; action: string; detail: string }[]; riskRegister?: { id: string; source: string; risk: string; probability: string; impact: string; mitigation: string; status: string }[] }) {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [generated, setGenerated] = useState(false);
 

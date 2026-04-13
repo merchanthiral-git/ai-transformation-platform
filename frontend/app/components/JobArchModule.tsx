@@ -1484,7 +1484,8 @@ function RoleNetworkTab({ jobs, model }: { jobs: Job[]; model: string }) {
 
 export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext }) {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [showLoader, setShowLoader] = useState(false);
   const [tab, setTab] = useState("catalogue");
   const [selectedPath, setSelectedPath] = useState<string[]>([]);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
@@ -1501,7 +1502,9 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
   useEffect(() => {
     if (!model) return;
     setLoading(true);
-    api.getJobArchitecture(model, f).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false));
+    const timer = setTimeout(() => setShowLoader(true), 300);
+    api.getJobArchitecture(model, f).then(d => { setData(d); setLoading(false); setShowLoader(false); clearTimeout(timer); }).catch(() => { setLoading(false); setShowLoader(false); clearTimeout(timer); });
+    return () => clearTimeout(timer);
   }, [model, f.func, f.jf, f.sf, f.cl]);
 
   const tree = (data?.tree || []) as TreeNode[];
@@ -1554,7 +1557,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
     return parts;
   }, [selectedPath]);
 
-  if (loading) return <div><PageHeader icon="🏗️" title="Job Architecture" subtitle="Enterprise job catalogue, hierarchy, and career framework" onBack={onBack} /><LoadingBar /><div className="grid grid-cols-3 gap-4"><LoadingSkeleton rows={8} /><LoadingSkeleton rows={8} /><LoadingSkeleton rows={8} /></div></div>;
+  if (loading && !data) return <div className="module-enter"><PageHeader icon="🏗️" title="Job Architecture" subtitle={showLoader ? "Loading job architecture..." : "Enterprise job catalogue, hierarchy, and career framework"} onBack={onBack} />{showLoader && <><LoadingBar /><div className="grid grid-cols-3 gap-4"><LoadingSkeleton rows={8} /><LoadingSkeleton rows={8} /><LoadingSkeleton rows={8} /></div></>}</div>;
 
   return <div>
     <ContextStrip items={[`${Number(stats.total_headcount || 0).toLocaleString()} employees · ${stats.total_functions || 0} functions · ${stats.total_family_groups || 0} family groups · ${stats.total_families || 0} families · ${stats.total_jobs || 0} roles`]} />

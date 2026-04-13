@@ -486,7 +486,7 @@ function AdminTab() {
   const [users, setUsers] = useState<Record<string, unknown>[]>([]);
   const [stats, setStats] = useState<Record<string, number>>({});
   const [aiUsage, setAiUsage] = useState<Record<string, unknown>>({});
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   React.useEffect(() => {
     Promise.all([

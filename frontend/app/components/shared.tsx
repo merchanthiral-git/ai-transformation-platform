@@ -942,8 +942,16 @@ export function useDebounce<T>(value: T, delay: number): T {
 
 export function useApiData(fetcher: () => Promise<Record<string, unknown> | null>, deps: unknown[]): [Record<string, unknown> | null, boolean] {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => { let cancelled = false; setLoading(true); fetcher().then((d: unknown) => { if (!cancelled) { setData(d as Record<string, unknown> | null); setLoading(false); } }).catch((err) => { console.error("[useApiData]", err); if (!cancelled) setLoading(false); }); return () => { cancelled = true; };
+  const [loading, setLoading] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    // Only show loading after 300ms — prevents flash for fast loads
+    timerRef.current = setTimeout(() => { if (!cancelled) setLoading(true); }, 300);
+    fetcher().then((d: unknown) => {
+      if (!cancelled) { setData(d as Record<string, unknown> | null); setLoading(false); if (timerRef.current) clearTimeout(timerRef.current); }
+    }).catch((err) => { console.error("[useApiData]", err); if (!cancelled) { setLoading(false); if (timerRef.current) clearTimeout(timerRef.current); } });
+    return () => { cancelled = true; if (timerRef.current) clearTimeout(timerRef.current); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
   return [data, loading];
@@ -1048,11 +1056,18 @@ export function useToast() {
    LOADING SKELETON
    ═══════════════════════════════════════════════════════════════ */
 export function LoadingBar() {
-  return <div className="w-full h-1 bg-[var(--surface-2)] rounded-full overflow-hidden mb-4"><div className="h-full bg-[var(--accent-primary)] rounded-full animate-[loading_1.5s_ease-in-out_infinite]" style={{ width: "40%" }} /></div>;
+  // Only render after 300ms to prevent flash for fast loads
+  const [show, setShow] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setShow(true), 300); return () => clearTimeout(t); }, []);
+  if (!show) return null;
+  return <div className="w-full h-1 bg-[var(--surface-2)] rounded-full overflow-hidden mb-4" style={{ animation: "fadeIn 0.2s ease" }}><div className="h-full bg-[var(--accent-primary)] rounded-full animate-[loading_1.5s_ease-in-out_infinite]" style={{ width: "40%" }} /></div>;
 }
 
 export function LoadingSkeleton({ rows = 3 }: { rows?: number }) {
-  return <div className="space-y-3">{Array.from({ length: rows }, (_, i) => <div key={i} className="flex gap-3"><div className="h-4 skeleton w-1/4" /><div className="h-4 skeleton w-1/2" /><div className="h-4 skeleton w-1/4" /></div>)}</div>;
+  const [show, setShow] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setShow(true), 300); return () => clearTimeout(t); }, []);
+  if (!show) return null;
+  return <div className="space-y-3" style={{ animation: "fadeIn 0.2s ease" }}>{Array.from({ length: rows }, (_, i) => <div key={i} className="flex gap-3"><div className="h-4 skeleton w-1/4" /><div className="h-4 skeleton w-1/2" /><div className="h-4 skeleton w-1/4" /></div>)}</div>;
 }
 
 export function EmptyWithAction({ text, icon = "📭", actionLabel, onAction }: { text: string; icon?: string; actionLabel?: string; onAction?: () => void }) {

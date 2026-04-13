@@ -26,7 +26,7 @@ type Pathway = {
 
 export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobStates, simState }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext; jobStates?: Record<string, JobDesignState>; simState?: { scenario: string; custom: boolean; custAdopt: number; custTimeline: number; investment: number } }) {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
 
   // Filters
@@ -300,7 +300,7 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
 
 export function TalentMarketplace({ model, f, onBack, onNavigate, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext }) {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [shortlisted, setShortlisted] = usePersisted<Record<string, string[]>>(`${model}_mp_shortlist`, {});
 
   // Read adjacency shortlists to pre-populate
@@ -1432,7 +1432,7 @@ const CATEGORY_COLORS: Record<string, string> = { Technology: "#0891B2", Finance
 
 export function SkillsNetwork({ model, f, onBack, onNavigate }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void }) {
   const [graph, setGraph] = useState<{ nodes: GraphNode[]; edges: GraphEdge[]; stats?: Record<string, unknown> } | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [colorBy, setColorBy] = useState<"category" | "ai" | "employees">("category");
   const [minWeight, setMinWeight] = useState(0.15);
   const [selectedNode, setSelectedNode] = useState<string | null>(null);

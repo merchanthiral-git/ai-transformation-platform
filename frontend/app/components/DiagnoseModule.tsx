@@ -90,7 +90,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
   const [invData, setInvData] = useState<Record<string, unknown> | null>(null);
   const [gapData, setGapData] = useState<Record<string, unknown> | null>(null);
   const [adjData, setAdjData] = useState<Record<string, unknown> | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [editedScores, setEditedScores] = usePersisted<Record<string, number>>(`${model}_skillEdits`, {});
   const [confirmed, setConfirmed] = usePersisted<boolean>(`${model}_skillsConfirmed`, false);
   const [adjThreshold, setAdjThreshold] = useState(50);
@@ -568,7 +568,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
    ═══════════════════════════════════════════════════════════════ */
 export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext; jobStates?: Record<string, JobDesignState> }) {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [viewLevel, setViewLevel] = useState<"org"|"individual">("org");
   const [rdPage, setRdPage] = useState(0);
   const RD_PAGE = 50;
@@ -748,7 +748,7 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
    ═══════════════════════════════════════════════════════════════ */
 export function ManagerCapability({ model, f, onBack, onNavigate, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext }) {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [tab, setTab] = useState<"scorecard"|"correlation">("scorecard");
 
   useEffect(() => { if (!model) return; setLoading(true); api.getManagerCapability(model, f).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false)); }, [model, f.func, f.jf, f.sf, f.cl]);
@@ -876,7 +876,7 @@ export function ManagerCapability({ model, f, onBack, onNavigate, viewCtx }: { m
    ═══════════════════════════════════════════════════════════════ */
 export function ChangeReadiness({ model, f, onBack, onNavigate, viewCtx, simState }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext; simState?: { scenario: string; custom: boolean; custAdopt: number; custTimeline: number; investment: number } }) {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [crTab, setCrTab] = useState<"campaigns" | "activities" | "raci" | "messages" | "tracking">("campaigns");
 
   useEffect(() => { if (!model) return; setLoading(true); api.getChangeReadiness(model, f).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false)); }, [model, f.func, f.jf, f.sf, f.cl]);
@@ -1080,7 +1080,7 @@ export function ChangeReadiness({ model, f, onBack, onNavigate, viewCtx, simStat
    ═══════════════════════════════════════════════════════════════ */
 export function ManagerDevelopment({ model, f, onBack, onNavigate, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext }) {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => { if (!model) return; setLoading(true); api.getManagerDevelopment(model, f).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false)); }, [model, f.func, f.jf, f.sf, f.cl]);
 
@@ -1517,7 +1517,7 @@ export function OrgHealthScorecard({ model, f, onBack, onNavigate, viewCtx }: { 
 
 export function AIImpactHeatmap({ model, f, onBack, onNavigate, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext }) {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [selectedCell, setSelectedCell] = useState<{function: string; family: string; score: number; impact: string; tasks: number; roles: string[]} | null>(null);
 
   useEffect(() => {
@@ -1592,7 +1592,7 @@ export function AIImpactHeatmap({ model, f, onBack, onNavigate, viewCtx }: { mod
 
 export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext }) {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [expandedCluster, setExpandedCluster] = useState<number | null>(null);
 
   useEffect(() => {

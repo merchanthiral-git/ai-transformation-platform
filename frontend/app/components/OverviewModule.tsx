@@ -460,7 +460,7 @@ export function PersonalImpactCard({ employee, jobStates, simState }: { employee
 
 export function TransformationExecDashboard({ model, f, onBack, onNavigate, decisionLog = [], riskRegister = [], addRisk, updateRisk, jobStates, simState, transformationSummary }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; decisionLog?: {ts:string;module:string;action:string;detail:string}[]; riskRegister?: {id:string;source:string;risk:string;probability:string;impact:string;mitigation:string;status:string}[]; addRisk?: (s:string,r:string,p:string,i:string,m:string) => void; updateRisk?: (id:string,u:Partial<{status:string;mitigation:string}>) => void; jobStates?: Record<string, unknown>; simState?: { scenario: string; custom: boolean; custAdopt: number; custTimeline: number; investment: number }; transformationSummary?: { designedJobCount: number; inProgressJobCount: number; totalJobCount: number; totalTasks: number; tasksAutomate: number; tasksAugment: number; tasksEliminate: number; tasksRetain: number; capacityFreedPct: number; scenario: string; adoptionRate: number; timeline: number; investment: number; decisionCount: number; riskCount: number; openRiskCount: number } }) {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!model) return;
