@@ -1352,7 +1352,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
     </div>;
   }
 
-  return <div className="flex min-h-screen w-full">
+  return <div className="flex min-h-screen w-full overflow-x-hidden">
     {/* ── COMMAND PALETTE ── */}
     <AnimatePresence>{showCmdPalette && <CommandPalette actions={cmdActions} recentIds={cmdRecentIds} onClose={() => setShowCmdPalette(false)} />}</AnimatePresence>
 
@@ -1666,7 +1666,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
     </aside>
 
     {/* ── MAIN ── */}
-    <main className={`flex-1 min-h-screen bg-[var(--bg)] ${presentMode ? "present-scale" : ""}`} style={presentMode ? { paddingTop: 60, paddingBottom: 56 } : undefined}>
+    <main className={`flex-1 min-w-0 min-h-screen bg-[var(--bg)] overflow-x-hidden ${presentMode ? "present-scale" : ""}`} style={presentMode ? { paddingTop: 60, paddingBottom: 56 } : undefined}>
       {/* Collaboration: presence bar + editing indicator */}
       {collab.presence.length > 0 && !presentMode && (
         <div style={{ position: "sticky", top: 0, zIndex: 90, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 20px", background: "rgba(var(--bg-rgb, 15,12,8),0.85)", backdropFilter: "blur(12px)", borderBottom: "1px solid var(--border)" }}>
@@ -2540,9 +2540,9 @@ function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox, showS
     `}</style>
 
     {/* Video background */}
-    <VideoBackground name="hero_bg" overlay={0.35} poster={`${CDN_BASE}/hero_bg.png`} fallbackGradient="linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 65%, #0a0f1a 100%)" className="absolute inset-0 w-screen h-screen" />
+    <VideoBackground name="hero_bg" overlay={0.35} poster={`${CDN_BASE}/hero_bg.png`} fallbackGradient="linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 65%, #0a0f1a 100%)" className="absolute inset-0 w-full h-full" />
     {/* Strong bottom gradient for text readability */}
-    <div style={{ position: "absolute", inset: 0, zIndex: 1, background: "linear-gradient(to bottom, rgba(11,17,32,0.2) 0%, rgba(11,17,32,0.35) 25%, rgba(11,17,32,0.6) 55%, rgba(11,17,32,0.88) 80%, rgba(11,17,32,0.97) 100%)", width: "100vw", minHeight: "100vh" }} />
+    <div style={{ position: "absolute", inset: 0, zIndex: 1, background: "linear-gradient(to bottom, rgba(11,17,32,0.2) 0%, rgba(11,17,32,0.35) 25%, rgba(11,17,32,0.6) 55%, rgba(11,17,32,0.88) 80%, rgba(11,17,32,0.97) 100%)", width: "100%", minHeight: "100%" }} />
 
     {/* Content */}
     <div style={{ position: "relative", zIndex: 2, minHeight: "100vh", display: "flex", flexDirection: "column", padding: "80px 60px 40px", maxWidth: 1200, margin: "0 auto" }}>

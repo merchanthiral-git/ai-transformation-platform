@@ -22,15 +22,11 @@
   --space-12: clamp(2.4rem,  2rem + 1.5vw,     3rem);
   --space-16: clamp(3rem,    2.5rem + 2vw,     4rem);
 
-  /* Fluid sidebar width — scales with viewport, tighter on small screens */
-  --sidebar-width: clamp(190px, 14vw, 260px);
+  /* Fluid sidebar width */
+  --sidebar-width: clamp(200px, 15vw, 260px);
 
   /* Fluid card padding */
-  --card-padding: clamp(10px, 1.2vw, 20px);
-
-  /* Fluid main content padding */
-  --main-padding-x: clamp(16px, 2.5vw, 40px);
-  --main-padding-y: clamp(12px, 2vw, 28px);
+  --card-padding: clamp(12px, 1.5vw, 20px);
 }
 
 /* Screen size overrides */
@@ -76,7 +72,9 @@
 html {
   scroll-behavior: smooth;
   scrollbar-gutter: stable;
+  overflow-x: hidden;
 }
+body { overflow-x: hidden; }
 
 /* Focus rings */
 :focus-visible {
@@ -158,41 +156,6 @@ select { cursor: pointer; }
   background-size: 200% 100%;
 }
 
-/* ═══ VIEWPORT-ADAPTIVE SCALING ═══
-   Uses CSS zoom to proportionally scale the entire UI based on viewport width.
-   This makes the platform feel native on every screen size:
-   - 13" laptop (1280-1440px): slightly scaled down for density
-   - 15" laptop (1680-1920px): baseline scale (100%)
-   - 27" monitor (2560px+): slightly scaled up for readability
-   Zoom is the correct tool here because it scales everything uniformly
-   (fonts, padding, borders, SVGs) without breaking layout math. */
-
-/* 13" laptops — tighter density.
-   Use both zoom (Chrome/Safari) and scale (Firefox fallback).
-   Scale requires width adjustment to prevent horizontal scroll. */
-@media (max-width: 1440px) and (min-width: 1281px) {
-  html { zoom: 0.9; }
-  @supports not (zoom: 1) { html { transform: scale(0.9); transform-origin: 0 0; width: 111.11%; } }
-}
-
-/* Small / low-res laptops */
-@media (max-width: 1280px) {
-  html { zoom: 0.85; }
-  @supports not (zoom: 1) { html { transform: scale(0.85); transform-origin: 0 0; width: 117.65%; } }
-}
-
-/* 27"+ monitors — slightly larger for readability at distance */
-@media (min-width: 2200px) {
-  html { zoom: 1.05; }
-  @supports not (zoom: 1) { html { transform: scale(1.05); transform-origin: 0 0; width: 95.24%; } }
-}
-
-/* Ultra-wide / 4K */
-@media (min-width: 3000px) {
-  html { zoom: 1.15; }
-  @supports not (zoom: 1) { html { transform: scale(1.15); transform-origin: 0 0; width: 86.96%; } }
-}
-
 /* ═══ TABLET RESPONSIVE (1024px-1279px) ═══ */
 @media (max-width: 1279px) {
   :root { --sidebar-width: 56px !important; }
@@ -212,19 +175,6 @@ select { cursor: pointer; }
   .grid-cols-3 { grid-template-columns: 1fr !important; }
 }
 
-/* ═══ CONTENT MAX-WIDTH — prevents sprawl on ultra-wide ═══ */
-main > div, main > section { max-width: 1800px; }
-main > .annotation-layer > div { max-width: 1800px; }
-
-/* ═══ CHART CONTAINERS — ensure Recharts scales with parent ═══ */
-.recharts-responsive-container { width: 100% !important; }
-.recharts-wrapper { max-width: 100%; }
-
-/* ═══ CARD GRIDS — fluid gap and sizing ═══ */
-.grid { gap: var(--card-padding, 16px); }
-
-/* ═══ KPI CARDS — fluid padding ═══ */
-.kpi-glass, .glass-card { padding: var(--card-padding, 16px); }
 
 /* ═══ FOCUS VISIBLE — keyboard navigation indicator ═══ */
 :focus-visible {
