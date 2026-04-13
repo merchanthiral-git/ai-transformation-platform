@@ -151,6 +151,13 @@ function _lsSet(key: string, val: unknown) {
   } catch {}
 }
 
+function _recordLocalEvent(event: string, properties?: Record<string, unknown>) {
+  // Lightweight local event log — just bump a per-event counter
+  const counts = (_lsGet("event_counts") as Record<string, number>) || {};
+  counts[event] = (counts[event] || 0) + 1;
+  _lsSet("event_counts", counts);
+}
+
 function _bumpLocalCounter(key: string) {
   const current = (_lsGet(`counter_${key}`) as number) || 0;
   _lsSet(`counter_${key}`, current + 1);

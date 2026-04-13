@@ -1,5 +1,4 @@
 import type { NextConfig } from "next";
-import { withSentryConfig } from "@sentry/nextjs";
 
 const backendUrl = process.env.BACKEND_URL || "http://localhost:8000";
 
@@ -56,15 +55,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withSentryConfig(nextConfig, {
-  // Only upload source maps when SENTRY_AUTH_TOKEN is set (CI/production)
-  sourcemaps: {
-    disable: !process.env.SENTRY_AUTH_TOKEN,
-  },
-  // Silently skip if no auth token — don't fail the build
-  silent: !process.env.CI,
-  // Org and project are read from env: SENTRY_ORG, SENTRY_PROJECT
-  org: process.env.SENTRY_ORG,
-  project: process.env.SENTRY_PROJECT,
-  authToken: process.env.SENTRY_AUTH_TOKEN,
-});
+export default nextConfig;

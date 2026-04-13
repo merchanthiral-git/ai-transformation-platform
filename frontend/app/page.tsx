@@ -2246,7 +2246,7 @@ function TutorialBadge({ onClick, step, total }: { onClick: () => void; step: nu
 /* ═══════════════════════════════════════════════════════════════
    PROJECT HUB
    ═══════════════════════════════════════════════════════════════ */
-function ProjectHub({ onOpenProject, onStartTutorial, onOpenSandbox, showSandboxPicker, onCloseSandbox }: { onOpenProject: (p: { id: string; name: string; meta: string }) => void; onStartTutorial?: () => void; onOpenSandbox?: () => void; showSandboxPicker?: boolean; onCloseSandbox?: () => void }) {
+function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox, showSandboxPicker, onCloseSandbox }: { user?: authApi.AuthUser; onOpenProject: (p: { id: string; name: string; meta: string }) => void; onStartTutorial?: () => void; onOpenSandbox?: () => void; showSandboxPicker?: boolean; onCloseSandbox?: () => void }) {
   const [projects, setProjects] = useState<{ id: string; name: string; meta: string; client?: string; industry?: string; size?: string; lead?: string; created: string; status: string }[]>(() => {
     if (typeof window === "undefined") return [];
     try { const saved = localStorage.getItem("hub_projects"); if (saved) return JSON.parse(saved); } catch {}
@@ -2441,147 +2441,178 @@ function ProjectHub({ onOpenProject, onStartTutorial, onOpenSandbox, showSandbox
     </div>;
   }
 
+  const tutorialCompleted = typeof window !== "undefined" && localStorage.getItem("tutorial_completed") === "true";
+  const displayName = user?.display_name || user?.username || "there";
+  const INDUSTRIES_PREVIEW = ["💻", "🏦", "🏥", "🛍️", "🏭", "💼", "⚡", "🚀"];
+
   return <div style={{ position: "fixed", inset: 0, overflow: "auto", background: "#0B1120" }}>
-    {/* Full-bleed background — video-ready */}
+    {/* Keyframes */}
+    <style>{`
+      @keyframes hubFadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes hubShimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+      @keyframes hubPulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+      @keyframes hubFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+      .hub-card { transition: all 0.4s cubic-bezier(0.16,1,0.3,1); }
+      .hub-card:hover { transform: perspective(1000px) rotateY(1.5deg) translateY(-6px) !important; }
+      .hub-cta { position: relative; overflow: hidden; }
+      .hub-cta::after { content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent); transition: left 0.5s ease; }
+      .hub-cta:hover::after { left: 120%; }
+    `}</style>
+
+    {/* Video background */}
     <VideoBackground name="hero_bg" overlay={0.35} poster={`${CDN_BASE}/hero_bg.png`} fallbackGradient="linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 65%, #0a0f1a 100%)" className="absolute inset-0 w-screen h-screen" />
-    <div style={{ position: "absolute", inset: 0, zIndex: 1, background: "linear-gradient(to bottom, rgba(11,17,32,0.25) 0%, rgba(11,17,32,0.45) 40%, rgba(11,17,32,0.7) 100%)", width: "100vw", height: "100vh" }} />
+    {/* Strong bottom gradient for text readability */}
+    <div style={{ position: "absolute", inset: 0, zIndex: 1, background: "linear-gradient(to bottom, rgba(11,17,32,0.2) 0%, rgba(11,17,32,0.35) 25%, rgba(11,17,32,0.6) 55%, rgba(11,17,32,0.88) 80%, rgba(11,17,32,0.97) 100%)", width: "100vw", minHeight: "100vh" }} />
 
     {/* Content */}
-    <div style={{ position: "relative", zIndex: 2, minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 32px" }}>
-      <div className="text-center mb-10">
-        <h1 className="text-4xl font-extrabold text-white tracking-tight mb-3" style={{ fontFamily: "Outfit, sans-serif", textShadow: "0 2px 24px rgba(0,0,0,0.3)" }}>Your Projects</h1>
-        <p className="text-[15px]" style={{ color: "rgba(255,220,180,0.5)" }}>Select a project or create a new one</p>
+    <div style={{ position: "relative", zIndex: 2, minHeight: "100vh", display: "flex", flexDirection: "column", padding: "80px 60px 40px", maxWidth: 1200, margin: "0 auto" }}>
+
+      {/* ── HEADER ── */}
+      <div style={{ marginBottom: 48, animation: "hubFadeUp 0.6s ease forwards" }}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: "#E09040", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 8, fontFamily: "'IBM Plex Mono', monospace" }}>Welcome back, {displayName}</div>
+        <h1 style={{ fontSize: 48, fontWeight: 700, color: "#fff", margin: 0, lineHeight: 1.15, fontFamily: "'Outfit', sans-serif", textShadow: "0 2px 32px rgba(0,0,0,0.4)" }}>Your Projects</h1>
+        <p style={{ fontSize: 17, color: "rgba(255,220,180,0.45)", marginTop: 8, fontFamily: "'Outfit', sans-serif", fontWeight: 400 }}>Select a project or create a new one</p>
       </div>
 
-      {/* Three-section layout */}
-      <div style={{ maxWidth: 900, width: "100%" }}>
-        {/* Top row: Tutorial + Sandbox */}
-        <div className="grid grid-cols-2 gap-4 mb-4" style={{ maxWidth: 780 }}>
-          {/* Tutorial card */}
-          {(() => { const completed = typeof window !== "undefined" && localStorage.getItem("tutorial_completed") === "true"; return <div onClick={() => onStartTutorial?.()} style={{ borderRadius: 18, cursor: "pointer", padding: "24px 28px", transition: "all 0.3s", background: "linear-gradient(135deg, rgba(59,130,246,0.1), rgba(99,102,241,0.06))", backdropFilter: "blur(20px)", border: "1px solid rgba(59,130,246,0.2)" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.borderColor = "rgba(59,130,246,0.4)"; e.currentTarget.style.boxShadow = "0 12px 40px rgba(59,130,246,0.12)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "rgba(59,130,246,0.2)"; e.currentTarget.style.boxShadow = "none"; }}>
-            <div className="flex items-center gap-3 mb-2">
-              <span className="text-2xl">🎓</span>
-              <div>
-                <div className="text-[16px] font-bold text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>Platform Tutorial</div>
-                <div className="text-[13px]" style={{ color: "rgba(147,197,253,0.6)" }}>Learn how the platform works — no data needed</div>
-              </div>
-              <span className="ml-auto px-2 py-0.5 rounded-full text-[11px] font-bold" style={{ background: "rgba(59,130,246,0.15)", color: "#60a5fa" }}>~8 min</span>
-            </div>
-            <div className="text-[13px] font-semibold" style={{ color: "#60a5fa" }}>{completed ? "✓ Completed · Retake Tutorial →" : "Start Tutorial →"}</div>
-          </div>; })()}
+      {/* ── THREE MAIN CARDS ── */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, marginBottom: 48 }}>
 
-          {/* Sandbox card */}
-          <div onClick={() => { setSandboxOpen(true); setSandboxPanelOpen(false); onOpenSandbox?.(); }} style={{ borderRadius: 18, cursor: "pointer", padding: "24px 28px", transition: "all 0.3s", background: "linear-gradient(135deg, rgba(249,115,22,0.1), rgba(234,88,12,0.06))", backdropFilter: "blur(20px)", border: "1px solid rgba(249,115,22,0.2)" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.borderColor = "rgba(249,115,22,0.4)"; e.currentTarget.style.boxShadow = "0 12px 40px rgba(249,115,22,0.12)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "rgba(249,115,22,0.2)"; e.currentTarget.style.boxShadow = "none"; }}>
-            <div className="flex items-center gap-3 mb-2">
-              <span className="text-2xl">🧪</span>
-              <div>
-                <div className="text-[16px] font-bold text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>Data Sandbox</div>
-                <div className="text-[13px]" style={{ color: "rgba(251,191,36,0.6)" }}>Explore with pre-built company datasets</div>
-              </div>
-              <span className="ml-auto px-2 py-0.5 rounded-full text-[11px] font-bold" style={{ background: "rgba(249,115,22,0.15)", color: "#f97316" }}>24 companies</span>
-            </div>
-            <div className="text-[13px] font-semibold" style={{ color: "#f97316" }}>Open Sandbox →</div>
-          </div>
+        {/* TUTORIAL CARD */}
+        <div className="hub-card" onClick={() => onStartTutorial?.()} style={{ borderRadius: 24, cursor: "pointer", padding: "32px 28px", background: "rgba(255,255,255,0.06)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(99,102,241,0.2)", position: "relative", overflow: "hidden", animation: "hubFadeUp 0.6s ease forwards", animationDelay: "0.1s", opacity: 0 }} onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(99,102,241,0.45)"; e.currentTarget.style.boxShadow = "0 20px 60px rgba(99,102,241,0.15), inset 0 1px 0 rgba(255,255,255,0.08)"; }} onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(99,102,241,0.2)"; e.currentTarget.style.boxShadow = "none"; }}>
+          {/* Animated icon */}
+          <div style={{ width: 56, height: 56, borderRadius: 16, background: "linear-gradient(135deg, rgba(99,102,241,0.2), rgba(59,130,246,0.15))", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20, animation: "hubFloat 4s ease-in-out infinite", fontSize: 26 }}>🧭</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: "#fff", fontFamily: "'Outfit', sans-serif", marginBottom: 8 }}>Platform Tutorial</div>
+          <div style={{ fontSize: 14, color: "rgba(165,180,252,0.6)", lineHeight: 1.6, marginBottom: 20 }}>Learn the platform in ~8 minutes — no data needed</div>
+          {tutorialCompleted && <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 16 }}>
+            <div style={{ flex: 1, height: 4, borderRadius: 2, background: "rgba(99,102,241,0.15)", overflow: "hidden" }}><div style={{ width: "100%", height: "100%", borderRadius: 2, background: "#6366F1" }} /></div>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "#6366F1", fontFamily: "'IBM Plex Mono', monospace" }}>Complete</span>
+          </div>}
+          <div className="hub-cta" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 24px", borderRadius: 100, background: "linear-gradient(135deg, rgba(99,102,241,0.25), rgba(59,130,246,0.2))", border: "1px solid rgba(99,102,241,0.3)", color: "#a5b4fc", fontSize: 14, fontWeight: 700, fontFamily: "'Outfit', sans-serif" }}>{tutorialCompleted ? "Retake Tutorial" : "Start Tutorial"} <span style={{ fontSize: 16 }}>→</span></div>
         </div>
 
-        {/* Second row: New Project */}
-        <div className="flex gap-4 mb-6" style={{ maxWidth: 780 }}>
-          <div onClick={() => setModalOpen(true)} style={{ flex: 1, borderRadius: 14, cursor: "pointer", padding: "16px 24px", transition: "all 0.3s", background: "rgba(255,230,200,0.06)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,200,150,0.12)", display: "flex", alignItems: "center", gap: 12 }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = "rgba(224,144,64,0.3)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "rgba(255,200,150,0.12)"; }}>
-            <span className="text-xl">✨</span>
-            <div>
-              <div className="text-[15px] font-bold text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>New Project</div>
-              <div className="text-[12px]" style={{ color: "rgba(255,220,180,0.4)" }}>Start from scratch with your own data</div>
-            </div>
-            <span className="ml-auto text-[13px] font-semibold" style={{ color: "#e09040" }}>Create →</span>
+        {/* SANDBOX CARD — visually dominant */}
+        <div className="hub-card" onClick={() => { setSandboxOpen(true); setSandboxPanelOpen(false); onOpenSandbox?.(); }} style={{ borderRadius: 24, cursor: "pointer", padding: "32px 28px", background: "rgba(255,255,255,0.08)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(224,144,64,0.25)", position: "relative", overflow: "hidden", animation: "hubFadeUp 0.6s ease forwards", animationDelay: "0.2s", opacity: 0, boxShadow: "0 0 40px rgba(224,144,64,0.06)" }} onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(224,144,64,0.5)"; e.currentTarget.style.boxShadow = "0 20px 60px rgba(224,144,64,0.18), inset 0 1px 0 rgba(255,255,255,0.1)"; }} onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(224,144,64,0.25)"; e.currentTarget.style.boxShadow = "0 0 40px rgba(224,144,64,0.06)"; }}>
+          {/* Ambient glow */}
+          <div style={{ position: "absolute", top: -40, right: -40, width: 120, height: 120, borderRadius: "50%", background: "radial-gradient(circle, rgba(224,144,64,0.12), transparent 70%)", pointerEvents: "none" }} />
+          {/* Animated icon */}
+          <div style={{ width: 56, height: 56, borderRadius: 16, background: "linear-gradient(135deg, rgba(224,144,64,0.25), rgba(249,115,22,0.2))", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20, animation: "hubFloat 4s ease-in-out infinite 0.5s", fontSize: 26 }}>🏢</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: "#fff", fontFamily: "'Outfit', sans-serif", marginBottom: 8 }}>Industry Sandbox</div>
+          <div style={{ fontSize: 14, color: "rgba(255,200,150,0.55)", lineHeight: 1.6, marginBottom: 16 }}>Explore 24 real companies across 8 industries with full workforce data</div>
+          {/* Industry icons preview */}
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 20 }}>
+            {INDUSTRIES_PREVIEW.map((icon, i) => <div key={i} style={{ width: 30, height: 30, borderRadius: 10, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>{icon}</div>)}
+            <span style={{ fontSize: 12, color: "rgba(255,200,150,0.35)", fontWeight: 600, marginLeft: 4 }}>8 industries</span>
           </div>
+          <div className="hub-cta" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 24px", borderRadius: 100, background: "linear-gradient(135deg, #E09040, #C07030)", border: "none", color: "#fff", fontSize: 14, fontWeight: 700, fontFamily: "'Outfit', sans-serif", boxShadow: "0 4px 20px rgba(224,144,64,0.3)" }}>Explore Companies <span style={{ fontSize: 16 }}>→</span></div>
         </div>
 
-        {/* My Projects section */}
-        {projects.length > 0 && <div style={{ borderRadius: 22, background: "rgba(255,255,255,0.03)", backdropFilter: "blur(16px)", border: "1px solid rgba(255,255,255,0.06)", padding: "20px 24px", marginTop: 4 }}>
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <span className="text-lg">📂</span>
-              <span className="text-[15px] font-bold text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>My Projects</span>
-              <span className="text-[15px] px-2 py-0.5 rounded-full" style={{ background: "rgba(212,134,10,0.12)", color: "rgba(232,197,71,0.7)" }}>{projects.length}</span>
-            </div>
-          </div>
-          <div className="grid gap-3" style={{ gridTemplateColumns: projects.length === 1 ? "1fr" : "1fr 1fr" }}>
-            {projects.map(p => {
-              let pStatus = p.status;
-              try { const v = localStorage.getItem(`${p.id}_visited`); if (v && Object.keys(JSON.parse(v)).length > 0) pStatus = "In Progress"; } catch {}
-              try { const vm = localStorage.getItem(`${p.id}_viewMode`); if (vm) pStatus = "In Progress"; } catch {}
-              const statusColor = pStatus === "In Progress" ? "#E09040" : pStatus === "Complete" ? "#10B981" : "rgba(255,200,150,0.3)";
-              let modulesVisited = 0;
-              try { const v = localStorage.getItem(`${p.id}_visited`); if (v) modulesVisited = Object.keys(JSON.parse(v)).length; } catch {}
+        {/* NEW PROJECT CARD */}
+        <div className="hub-card" onClick={() => setModalOpen(true)} style={{ borderRadius: 24, cursor: "pointer", padding: "32px 28px", background: "rgba(255,255,255,0.06)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(20,184,166,0.2)", position: "relative", overflow: "hidden", animation: "hubFadeUp 0.6s ease forwards", animationDelay: "0.3s", opacity: 0 }} onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(20,184,166,0.45)"; e.currentTarget.style.boxShadow = "0 20px 60px rgba(20,184,166,0.12), inset 0 1px 0 rgba(255,255,255,0.08)"; }} onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(20,184,166,0.2)"; e.currentTarget.style.boxShadow = "none"; }}>
+          {/* Animated icon */}
+          <div style={{ width: 56, height: 56, borderRadius: 16, background: "linear-gradient(135deg, rgba(20,184,166,0.2), rgba(16,185,129,0.15))", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20, animation: "hubFloat 4s ease-in-out infinite 1s", fontSize: 26 }}>✦</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: "#fff", fontFamily: "'Outfit', sans-serif", marginBottom: 8 }}>New Project</div>
+          <div style={{ fontSize: 14, color: "rgba(153,246,228,0.5)", lineHeight: 1.6, marginBottom: 20 }}>Upload your organization's data and build a custom transformation strategy</div>
+          <div className="hub-cta" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 24px", borderRadius: 100, background: "linear-gradient(135deg, rgba(20,184,166,0.25), rgba(16,185,129,0.2))", border: "1px solid rgba(20,184,166,0.3)", color: "#5eead4", fontSize: 14, fontWeight: 700, fontFamily: "'Outfit', sans-serif" }}>Create Project <span style={{ fontSize: 16 }}>→</span></div>
+        </div>
+      </div>
 
-              return <div key={p.id} onClick={() => onOpenProject(p)} style={{ borderRadius: 16, cursor: "pointer", padding: "16px 20px", transition: "all 0.3s", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", position: "relative" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,200,150,0.05)"; e.currentTarget.style.borderColor = "rgba(255,200,150,0.15)"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.03)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; }}>
-                <div className="flex items-start justify-between mb-1">
-                  <div>
-                    <div className="text-[15px] font-bold text-white mb-0.5">{p.name}</div>
-                    <div className="flex items-center gap-2">
-                      {p.industry && <span className="text-[14px] px-1.5 py-0.5 rounded-full" style={{ background: "rgba(212,134,10,0.12)", color: "rgba(232,197,71,0.7)" }}>{p.industry}</span>}
-                      <div className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full" style={{ background: statusColor }} /><span className="text-[14px] font-bold uppercase" style={{ color: statusColor }}>{pStatus}</span></div>
-                      {modulesVisited > 0 && <span className="text-[14px]" style={{ color: "rgba(255,255,255,0.2)" }}>{modulesVisited}/8 modules</span>}
-                    </div>
-                  </div>
-                  {/* Delete + Clone buttons */}
-                  <div className="flex gap-1 shrink-0" style={{ opacity: 0, transition: "opacity 0.15s" }} onMouseEnter={e => e.currentTarget.style.opacity = "1"} onMouseLeave={e => e.currentTarget.style.opacity = "0"}>
-                    <button onClick={e => { e.stopPropagation(); cloneProject(p); }} style={{ color: "rgba(255,255,255,0.25)", fontSize: 15, background: "none", border: "none", cursor: "pointer", padding: "2px 4px" }} onMouseEnter={e => e.currentTarget.style.color = "#D4860A"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.25)"} title="Clone">⧉</button>
-                    <button onClick={e => { e.stopPropagation(); setConfirmDelete(p.id); }} style={{ color: "rgba(255,255,255,0.25)", fontSize: 15, background: "none", border: "none", cursor: "pointer", padding: "2px 4px" }} onMouseEnter={e => e.currentTarget.style.color = "#ef4444"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.25)"} title="Delete">✕</button>
-                  </div>
+      {/* ── RECENT PROJECTS (horizontal scroll) ── */}
+      {projects.length > 0 && <div style={{ marginBottom: 48, animation: "hubFadeUp 0.6s ease forwards", animationDelay: "0.4s", opacity: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+          <div style={{ fontSize: 18, fontWeight: 700, color: "rgba(255,255,255,0.85)", fontFamily: "'Outfit', sans-serif" }}>Recent Projects</div>
+          <span style={{ fontSize: 12, fontWeight: 700, padding: "2px 10px", borderRadius: 100, background: "rgba(224,144,64,0.12)", color: "#E09040" }}>{projects.length}</span>
+        </div>
+        <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 8, scrollSnapType: "x mandatory" }}>
+          {projects.map(p => {
+            let pStatus = p.status;
+            try { const v = localStorage.getItem(`${p.id}_visited`); if (v && Object.keys(JSON.parse(v)).length > 0) pStatus = "In Progress"; } catch {}
+            try { const vm = localStorage.getItem(`${p.id}_viewMode`); if (vm) pStatus = "In Progress"; } catch {}
+            const statusColor = pStatus === "In Progress" ? "#E09040" : pStatus === "Complete" ? "#10B981" : "rgba(255,200,150,0.25)";
+            let modulesVisited = 0;
+            try { const v = localStorage.getItem(`${p.id}_visited`); if (v) modulesVisited = Object.keys(JSON.parse(v)).length; } catch {}
+            const progressPct = Math.min(100, Math.round((modulesVisited / 8) * 100));
+
+            return <div key={p.id} onClick={() => onOpenProject(p)} style={{ minWidth: 260, maxWidth: 300, flex: "0 0 auto", scrollSnapAlign: "start", borderRadius: 20, cursor: "pointer", padding: "20px 24px", background: "rgba(255,255,255,0.04)", backdropFilter: "blur(16px)", border: "1px solid rgba(255,255,255,0.08)", transition: "all 0.3s cubic-bezier(0.16,1,0.3,1)", position: "relative" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,200,150,0.06)"; e.currentTarget.style.borderColor = "rgba(224,144,64,0.25)"; e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 12px 40px rgba(0,0,0,0.2)"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}>
+              {/* Delete/clone - top right */}
+              <div style={{ position: "absolute", top: 12, right: 12, display: "flex", gap: 4, opacity: 0, transition: "opacity 0.15s" }} onMouseEnter={e => e.currentTarget.style.opacity = "1"} onMouseLeave={e => e.currentTarget.style.opacity = "0"}>
+                <button onClick={e => { e.stopPropagation(); cloneProject(p); }} style={{ width: 24, height: 24, borderRadius: 6, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.3)", fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} title="Clone">⧉</button>
+                <button onClick={e => { e.stopPropagation(); setConfirmDelete(p.id); }} style={{ width: 24, height: 24, borderRadius: 6, background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)", color: "rgba(239,68,68,0.5)", fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} title="Delete">✕</button>
+              </div>
+
+              <div style={{ fontSize: 16, fontWeight: 700, color: "#fff", fontFamily: "'Outfit', sans-serif", marginBottom: 6, paddingRight: 50 }}>{p.name}</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
+                {p.industry && <span style={{ fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 6, background: "rgba(224,144,64,0.12)", color: "rgba(232,197,71,0.7)" }}>{p.industry}</span>}
+                <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                  <div style={{ width: 6, height: 6, borderRadius: 3, background: statusColor }} />
+                  <span style={{ fontSize: 11, fontWeight: 700, color: statusColor, textTransform: "uppercase", letterSpacing: 0.5 }}>{pStatus}</span>
                 </div>
-              </div>;
-            })}
-          </div>
-        </div>}
+              </div>
+              {/* Progress bar */}
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <div style={{ flex: 1, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
+                  <div style={{ width: `${progressPct}%`, height: "100%", borderRadius: 2, background: statusColor, transition: "width 0.5s ease" }} />
+                </div>
+                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.25)", fontFamily: "'IBM Plex Mono', monospace", flexShrink: 0 }}>{modulesVisited}/8</span>
+              </div>
+              {p.created && <div style={{ fontSize: 11, color: "rgba(255,255,255,0.15)", marginTop: 10, fontFamily: "'IBM Plex Mono', monospace" }}>{p.created}</div>}
+            </div>;
+          })}
+        </div>
+      </div>}
+
+      {/* ── BOTTOM STATS BAR ── */}
+      <div style={{ marginTop: "auto", paddingTop: 32, textAlign: "center", animation: "hubFadeUp 0.6s ease forwards", animationDelay: "0.5s", opacity: 0 }}>
+        <div style={{ fontSize: 12, color: "rgba(255,200,150,0.18)", fontFamily: "'IBM Plex Mono', monospace", letterSpacing: 0.5 }}>
+          24 sandbox companies · 8 industries · 47 music tracks · Built by Hiral Merchant
+        </div>
       </div>
     </div>
 
     {/* Create modal */}
     {modalOpen && <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)" }}>
-      <div className="rounded-2xl p-8 w-full max-w-md" style={{ background: "var(--surface-1)", border: "1px solid var(--border)" }}>
-        <h2 className="text-lg font-bold text-[var(--text-primary)] mb-1">New Transformation Project</h2>
-        <p className="text-[15px] text-[var(--text-muted)] mb-5">Fill in the details below to set up your workspace</p>
+      <div className="rounded-2xl p-8 w-full max-w-md" style={{ background: "rgba(15,12,8,0.97)", backdropFilter: "blur(32px)", border: "1px solid rgba(255,200,150,0.1)" }}>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color: "#fff", fontFamily: "'Outfit', sans-serif", marginBottom: 4 }}>New Transformation Project</h2>
+        <p style={{ fontSize: 14, color: "rgba(255,220,180,0.4)", marginBottom: 24 }}>Fill in the details below to set up your workspace</p>
         <div className="space-y-3">
-          <div><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Project Name *</div>
-          <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="e.g. Acme Corp AI Transformation" className={`w-full bg-[var(--surface-2)] border rounded-xl px-4 py-3 text-[14px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] ${nameTaken ? "border-[var(--risk)]" : "border-[var(--border)]"}`} autoFocus />
-          {nameTaken && <div className="text-[15px] text-[var(--risk)] mt-1">A project with this name already exists. Please choose a different name.</div>}</div>
-          <div><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Client / Organization</div>
-          <input value={newClient} onChange={e => setNewClient(e.target.value)} placeholder="e.g. Acme Corporation" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-3 text-[15px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]" /></div>
+          <div><div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,200,150,0.35)", textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 6 }}>Project Name *</div>
+          <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="e.g. Acme Corp AI Transformation" style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: nameTaken ? "1px solid rgba(239,68,68,0.4)" : "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 16px", fontSize: 14, color: "#fff", outline: "none", fontFamily: "'Outfit', sans-serif" }} autoFocus />
+          {nameTaken && <div style={{ fontSize: 12, color: "#f87171", marginTop: 6 }}>A project with this name already exists.</div>}</div>
+          <div><div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,200,150,0.35)", textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 6 }}>Client / Organization</div>
+          <input value={newClient} onChange={e => setNewClient(e.target.value)} placeholder="e.g. Acme Corporation" style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 16px", fontSize: 14, color: "#fff", outline: "none", fontFamily: "'Outfit', sans-serif" }} /></div>
           <div className="grid grid-cols-2 gap-3">
-            <div><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Industry</div>
-            <select value={newIndustry} onChange={e => setNewIndustry(e.target.value)} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-3 text-[15px] text-[var(--text-primary)] outline-none">
+            <div><div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,200,150,0.35)", textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 6 }}>Industry</div>
+            <select value={newIndustry} onChange={e => setNewIndustry(e.target.value)} style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 16px", fontSize: 14, color: "#fff", outline: "none" }}>
               <option value="">Select industry...</option>
               {["Financial Services","Technology","Healthcare","Manufacturing","Retail","Energy","Media","Professional Services","Public Sector","Other"].map(i => <option key={i} value={i}>{i}</option>)}
             </select></div>
-            <div><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Org Size</div>
-            <select value={newSize} onChange={e => setNewSize(e.target.value)} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-3 text-[15px] text-[var(--text-primary)] outline-none">
+            <div><div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,200,150,0.35)", textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 6 }}>Org Size</div>
+            <select value={newSize} onChange={e => setNewSize(e.target.value)} style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 16px", fontSize: 14, color: "#fff", outline: "none" }}>
               <option value="">Select size...</option>
               {["< 500 employees","500 - 2,000","2,000 - 10,000","10,000 - 50,000","50,000+"].map(s => <option key={s} value={s}>{s}</option>)}
             </select></div>
           </div>
-          <div><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Project Lead</div>
-          <input value={newLead} onChange={e => setNewLead(e.target.value)} placeholder="e.g. Jane Smith, VP Transformation" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-3 text-[15px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]" /></div>
-          <div><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Description / Objectives</div>
-          <textarea value={newDesc} onChange={e => setNewDesc(e.target.value)} placeholder="What are the goals of this transformation? What functions are in scope?" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-3 text-[15px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] resize-none" rows={3} /></div>
+          <div><div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,200,150,0.35)", textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 6 }}>Project Lead</div>
+          <input value={newLead} onChange={e => setNewLead(e.target.value)} placeholder="e.g. Jane Smith, VP Transformation" style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 16px", fontSize: 14, color: "#fff", outline: "none", fontFamily: "'Outfit', sans-serif" }} /></div>
+          <div><div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,200,150,0.35)", textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 6 }}>Description / Objectives</div>
+          <textarea value={newDesc} onChange={e => setNewDesc(e.target.value)} placeholder="What are the goals of this transformation?" style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 16px", fontSize: 14, color: "#fff", outline: "none", fontFamily: "'Outfit', sans-serif", resize: "none" }} rows={3} /></div>
         </div>
-        <div className="flex gap-3 justify-end mt-5">
-          <button onClick={() => { setModalOpen(false); setNewName(""); setNewDesc(""); setNewClient(""); setNewIndustry(""); setNewSize(""); setNewLead(""); }} className="px-4 py-2.5 text-[15px] text-[var(--text-muted)] rounded-xl border border-[var(--border)]">Cancel</button>
-          <button onClick={createProject} disabled={!newName.trim() || nameTaken} className="px-6 py-2.5 rounded-xl text-[15px] font-semibold text-white disabled:opacity-40" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>Create Project</button>
+        <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 24 }}>
+          <button onClick={() => { setModalOpen(false); setNewName(""); setNewDesc(""); setNewClient(""); setNewIndustry(""); setNewSize(""); setNewLead(""); }} style={{ padding: "10px 20px", borderRadius: 12, fontSize: 14, fontWeight: 600, color: "rgba(255,200,150,0.5)", border: "1px solid rgba(255,255,255,0.08)", background: "none", cursor: "pointer" }}>Cancel</button>
+          <button onClick={createProject} disabled={!newName.trim() || nameTaken} style={{ padding: "10px 28px", borderRadius: 12, fontSize: 14, fontWeight: 700, color: "#fff", border: "none", background: "linear-gradient(135deg, #E09040, #C07030)", cursor: !newName.trim() || nameTaken ? "not-allowed" : "pointer", opacity: !newName.trim() || nameTaken ? 0.4 : 1, boxShadow: "0 4px 16px rgba(224,144,64,0.25)" }}>Create Project</button>
         </div>
       </div>
     </div>}
 
     {/* Delete confirmation */}
     {confirmDelete && <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }} onClick={() => setConfirmDelete(null)}>
-      <div className="rounded-2xl p-6 w-full max-w-sm text-center" style={{ background: "var(--surface-1)", border: "1px solid var(--border)" }} onClick={e => e.stopPropagation()}>
-        <div className="text-3xl mb-2">⚠️</div>
-        <h3 className="text-[16px] font-bold text-[var(--text-primary)] mb-1">Delete Project?</h3>
-        <p className="text-[15px] text-[var(--text-secondary)] mb-1">Are you sure you want to delete <strong className="text-[var(--text-primary)]">{projects.find(p => p.id === confirmDelete)?.name || "this project"}</strong>?</p>
-        <p className="text-[15px] text-[var(--risk)] mb-4">This cannot be undone. All project data will be permanently removed.</p>
-        <div className="flex gap-3 justify-center">
-          <button onClick={() => setConfirmDelete(null)} className="px-5 py-2 rounded-xl text-[15px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">Cancel</button>
-          <button onClick={() => deleteProject(confirmDelete)} className="px-5 py-2 rounded-xl text-[15px] font-semibold bg-[var(--risk)] text-white">Delete</button>
+      <div style={{ borderRadius: 20, padding: 32, width: "100%", maxWidth: 380, textAlign: "center", background: "rgba(15,12,8,0.97)", backdropFilter: "blur(32px)", border: "1px solid rgba(239,68,68,0.15)" }} onClick={e => e.stopPropagation()}>
+        <div style={{ fontSize: 36, marginBottom: 12 }}>⚠️</div>
+        <h3 style={{ fontSize: 18, fontWeight: 700, color: "#fff", fontFamily: "'Outfit', sans-serif", marginBottom: 6 }}>Delete Project?</h3>
+        <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginBottom: 4 }}>Are you sure you want to delete <strong style={{ color: "#fff" }}>{projects.find(p => p.id === confirmDelete)?.name || "this project"}</strong>?</p>
+        <p style={{ fontSize: 13, color: "#f87171", marginBottom: 24 }}>This cannot be undone.</p>
+        <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+          <button onClick={() => setConfirmDelete(null)} style={{ padding: "10px 24px", borderRadius: 12, fontSize: 14, fontWeight: 600, color: "rgba(255,200,150,0.5)", border: "1px solid rgba(255,255,255,0.08)", background: "none", cursor: "pointer" }}>Cancel</button>
+          <button onClick={() => deleteProject(confirmDelete)} style={{ padding: "10px 24px", borderRadius: 12, fontSize: 14, fontWeight: 700, color: "#fff", border: "none", background: "linear-gradient(135deg, #ef4444, #dc2626)", cursor: "pointer" }}>Delete</button>
         </div>
       </div>
     </div>}
@@ -3086,7 +3117,7 @@ export default function Page() {
   // Tutorial overlay (standalone, no data needed)
   if (showTutorial) return <Tutorial onClose={() => { setShowTutorial(false); setShowSandboxPicker(false); }} onGoToSandbox={() => { setShowTutorial(false); setShowSandboxPicker(true); }} onGoToNewProject={() => { setShowTutorial(false); setShowSandboxPicker(false); }} />;
 
-  if (!activeProject) return <>{hubAccountBar}{profileModal}<ProjectHub onOpenProject={setActiveProject} onStartTutorial={() => setShowTutorial(true)} onOpenSandbox={() => setShowSandboxPicker(true)} showSandboxPicker={showSandboxPicker} onCloseSandbox={() => setShowSandboxPicker(false)} /><MusicPlayer projectActive={false} /></>;
+  if (!activeProject) return <>{hubAccountBar}{profileModal}<ProjectHub user={user} onOpenProject={setActiveProject} onStartTutorial={() => setShowTutorial(true)} onOpenSandbox={() => setShowSandboxPicker(true)} showSandboxPicker={showSandboxPicker} onCloseSandbox={() => setShowSandboxPicker(false)} /><MusicPlayer projectActive={false} /></>;
   return <>{profileModal}<Home key={activeProject.id} projectId={activeProject.id} projectName={activeProject.name} projectMeta={activeProject.meta} onBackToHub={() => setActiveProject(null)} user={user} onShowProfile={() => setShowProfile(true)} onShowPlatformHub={() => setShowPlatformHub(true)} /><MusicPlayer projectActive={true} /></>;
 }
 
