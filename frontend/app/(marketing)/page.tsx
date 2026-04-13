@@ -158,7 +158,7 @@ nav.scrolled { padding: 16px 56px; background: rgba(244,241,235,0.92); backdrop-
 .hero-illo { width: 100%; aspect-ratio: 4/3; background: var(--surface); border: 1px solid var(--rule); border-radius: 24px; position: relative; overflow: hidden; padding: 0; }
 .hero-illo svg, .hero-illo img { width: 100%; height: 100%; object-fit: cover; }
 .marquee-band { padding: 24px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); overflow: hidden; white-space: nowrap; }
-.marquee-track { display: inline-flex; animation: marquee 300s linear infinite; }
+.marquee-track { display: inline-flex; animation: marquee 120s linear infinite; }
 .marquee-track span { font-family: var(--serif); font-size: 16px; font-weight: 400; font-style: italic; color: var(--text-light); padding: 0 32px; }
 .marquee-track span::before { content: '\\2726'; margin-right: 32px; color: var(--accent); font-style: normal; font-size: 10px; vertical-align: middle; }
 @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
@@ -345,6 +345,12 @@ footer { padding: 48px 56px; border-top: 1px solid var(--rule); display: flex; j
       {/* Marquee */}
       <div className="marquee-band">
         <div className="marquee-track">
+          <span>Work Design</span><span>Org Architecture</span><span>Skills Intelligence</span><span>AI Readiness</span><span>Role Reconstruction</span><span>Financial Modeling</span><span>Change Management</span><span>Talent Strategy</span>
+          <span>Work Design</span><span>Org Architecture</span><span>Skills Intelligence</span><span>AI Readiness</span><span>Role Reconstruction</span><span>Financial Modeling</span><span>Change Management</span><span>Talent Strategy</span>
+          <span>Work Design</span><span>Org Architecture</span><span>Skills Intelligence</span><span>AI Readiness</span><span>Role Reconstruction</span><span>Financial Modeling</span><span>Change Management</span><span>Talent Strategy</span>
+          <span>Work Design</span><span>Org Architecture</span><span>Skills Intelligence</span><span>AI Readiness</span><span>Role Reconstruction</span><span>Financial Modeling</span><span>Change Management</span><span>Talent Strategy</span>
+          <span>Work Design</span><span>Org Architecture</span><span>Skills Intelligence</span><span>AI Readiness</span><span>Role Reconstruction</span><span>Financial Modeling</span><span>Change Management</span><span>Talent Strategy</span>
+          <span>Work Design</span><span>Org Architecture</span><span>Skills Intelligence</span><span>AI Readiness</span><span>Role Reconstruction</span><span>Financial Modeling</span><span>Change Management</span><span>Talent Strategy</span>
           <span>Work Design</span><span>Org Architecture</span><span>Skills Intelligence</span><span>AI Readiness</span><span>Role Reconstruction</span><span>Financial Modeling</span><span>Change Management</span><span>Talent Strategy</span>
           <span>Work Design</span><span>Org Architecture</span><span>Skills Intelligence</span><span>AI Readiness</span><span>Role Reconstruction</span><span>Financial Modeling</span><span>Change Management</span><span>Talent Strategy</span>
         </div>
