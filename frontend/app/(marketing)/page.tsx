@@ -125,7 +125,18 @@ body::after { content: ''; position: fixed; inset: 0; z-index: 9990; pointer-eve
 @keyframes lineReveal { to { opacity: 0.6; width: 80px; } }
 nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 28px 56px; display: flex; align-items: center; justify-content: space-between; background: transparent; transition: all 0.5s ease; }
 nav.scrolled { padding: 16px 56px; background: rgba(244,241,235,0.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--rule); }
-.nav-logo { font-family: var(--serif); font-size: 22px; font-weight: 500; letter-spacing: -0.3px; }
+.nav-logo { font-family: var(--serif); font-size: 22px; font-weight: 500; letter-spacing: -0.3px; display: flex; align-items: center; gap: 10px; }
+.nav-logo-anim { width: 48px; height: 40px; position: relative; flex-shrink: 0; overflow: hidden; }
+.nav-logo-anim svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.nav-scene { opacity: 0; animation: sceneLoop 12s linear infinite; }
+.nav-scene:nth-child(1) { animation-delay: 0s; }
+.nav-scene:nth-child(2) { animation-delay: 4s; }
+.nav-scene:nth-child(3) { animation-delay: 8s; }
+@keyframes sceneLoop { 0% { opacity: 0; } 4% { opacity: 1; } 29% { opacity: 1; } 33% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes slideDown { 0% { transform: translate(8px, 4px); } 30% { transform: translate(8px, 4px); } 80% { transform: translate(28px, 24px); } 100% { transform: translate(28px, 24px); } }
+@keyframes swingArc { 0% { transform: rotate(-20deg); } 25% { transform: rotate(20deg); } 50% { transform: rotate(-18deg); } 75% { transform: rotate(16deg); } 100% { transform: rotate(-14deg); } }
+@keyframes monkeyTraverse { 0% { transform: translateX(0); } 100% { transform: translateX(22px); } }
+@keyframes armSwap { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
 .nav-right { display: flex; align-items: center; gap: 40px; }
 .nav-links { display: flex; gap: 32px; }
 .nav-links a { color: var(--text-mid); text-decoration: none; font-size: 12px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; transition: color 0.3s; position: relative; }
@@ -144,10 +155,11 @@ nav.scrolled { padding: 16px 56px; background: rgba(244,241,235,0.92); backdrop-
 @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
 .hero { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; align-items: center; padding: 140px 56px 100px; position: relative; overflow: hidden; gap: 60px; }
 .hero-left { position: relative; z-index: 2; }
-.hero-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: var(--accent); margin-bottom: 40px; }
+.hero-eyebrow { font-size: 16px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: var(--accent); margin-bottom: 40px; }
 .hero-eyebrow .line { display: inline-block; width: 32px; height: 1px; background: var(--accent); vertical-align: middle; margin: 0 12px; }
 .hero h1 { font-family: var(--serif); font-size: clamp(32px,3.8vw,56px); font-weight: 300; line-height: 1.15; letter-spacing: -1px; margin-bottom: 36px; }
 .hero h1 em { font-style: italic; font-weight: 400; color: var(--accent); }
+.hero h1 .teal { color: #2A6B6B; }
 .hero-line2 { display: block; margin-top: 14px; font-style: italic; font-weight: 400; }
 .split-line { display: block; overflow: hidden; }
 .split-line-inner { display: block; transform: translateY(110%); animation: splitReveal 1s cubic-bezier(0.16,1,0.3,1) forwards; }
@@ -164,6 +176,12 @@ nav.scrolled { padding: 16px 56px; background: rgba(244,241,235,0.92); backdrop-
 .marquee-track span { font-family: var(--serif); font-size: 21px; font-weight: 400; font-style: italic; color: var(--text-light); padding: 0 36px; }
 .marquee-track span::before { content: '\\2726'; margin-right: 36px; color: var(--accent); font-style: normal; font-size: 12px; vertical-align: middle; }
 @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+@keyframes marqueeReverse { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } }
+.method-band { padding: 20px 0; background: rgba(42,107,107,0.04); border-top: 1px solid rgba(42,107,107,0.1); border-bottom: 1px solid rgba(42,107,107,0.1); overflow: hidden; white-space: nowrap; }
+.method-track { display: inline-flex; width: max-content; animation: marqueeReverse 45s linear infinite; animation-duration: 45s !important; }
+.method-track:hover { animation-play-state: paused !important; }
+.method-track span { font-family: var(--sans); font-size: 18px; font-weight: 500; color: #2A6B6B; padding: 0 28px; letter-spacing: 0.3px; }
+.method-track span::before { content: '\\25C6'; margin-right: 28px; color: rgba(42,107,107,0.35); font-size: 8px; vertical-align: middle; }
 .manifesto { padding: 180px 48px; position: relative; }
 .manifesto-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
 .manifesto h2 { font-family: var(--serif); font-size: clamp(30px,4vw,52px); font-weight: 300; line-height: 1.2; letter-spacing: -1px; }
@@ -205,25 +223,30 @@ nav.scrolled { padding: 16px 56px; background: rgba(244,241,235,0.92); backdrop-
 .mod-card-num { font-family: var(--serif); font-size: 14px; color: var(--accent-light); margin-bottom: 24px; font-style: italic; }
 .mod-card h3 { font-family: var(--serif); font-size: 26px; font-weight: 400; margin-bottom: 14px; letter-spacing: -0.3px; }
 .mod-card p { font-size: 14px; line-height: 1.7; color: rgba(244,241,235,0.35); }
-.timeline-section { padding: 200px 48px; }
-.timeline-header { text-align: center; margin-bottom: 100px; }
-.timeline-header h2 { font-family: var(--serif); font-size: clamp(32px,4.5vw,56px); font-weight: 300; letter-spacing: -1px; margin-bottom: 16px; }
-.timeline-header h2 em { font-style: italic; color: var(--accent); }
-.timeline-header p { font-size: 16px; color: var(--text-mid); max-width: 500px; margin: 0 auto; line-height: 1.7; }
-.timeline-track { max-width: 1800px; margin: 0 auto; display: grid; grid-template-columns: repeat(6, 1fr); gap: 20px; position: relative; }
-.timeline-track::before { content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: 3px; transform: translateX(-50%); display: none; }
-.timeline-line { position: absolute; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--rule) 0%, var(--accent) 50%, var(--rule) 100%); z-index: 1; }
-.tl-panel { padding: 0; text-align: center; position: relative; opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.16,1,0.3,1); }
-.tl-panel.visible { opacity: 1; transform: translateY(0); }
-.tl-illo { width: 100%; min-width: 240px; aspect-ratio: 3/4; border: 1px solid var(--rule); border-radius: 20px; margin-bottom: 28px; overflow: hidden; position: relative; transition: transform 0.4s ease, box-shadow 0.4s ease; }
-.tl-panel:hover .tl-illo { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.08); }
-.tl-illo svg { width: 100%; height: 100%; }
-.tl-dot { width: 16px; height: 16px; border-radius: 50%; background: var(--bg); border: 3px solid var(--accent); margin: 0 auto 20px; position: relative; z-index: 2; transition: transform 0.3s ease; }
-.tl-panel:hover .tl-dot { transform: scale(1.3); }
-.tl-panel:last-child .tl-dot { background: var(--accent); box-shadow: 0 0 0 6px rgba(192,75,45,0.15), 0 0 0 12px rgba(192,75,45,0.06); }
-.tl-year { font-family: var(--serif); font-size: 22px; font-weight: 700; color: var(--accent); margin-bottom: 6px; letter-spacing: -0.3px; }
-.tl-title { font-family: var(--serif); font-size: 18px; font-weight: 500; margin-bottom: 10px; letter-spacing: -0.3px; }
-.tl-desc { font-size: 14px; color: var(--text-mid); line-height: 1.7; max-width: 280px; margin: 0 auto; }
+.pain-section { padding: 160px 0 120px; overflow: hidden; }
+.pain-header { text-align: center; margin-bottom: 60px; padding: 0 48px; }
+.pain-header h2 { font-family: var(--serif); font-size: clamp(32px,4.5vw,56px); font-weight: 300; letter-spacing: -1px; margin-bottom: 16px; }
+.pain-header h2 em { font-style: italic; color: var(--accent); }
+.pain-header p { font-size: 17px; color: var(--text-mid); max-width: 520px; margin: 0 auto; line-height: 1.7; font-style: italic; }
+.pain-scroll { position: relative; padding: 0 48px; }
+.pain-track { display: flex; gap: 28px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; padding: 20px 0 40px; scrollbar-width: none; }
+.pain-track::-webkit-scrollbar { display: none; }
+.pain-card { flex: 0 0 340px; min-height: 520px; border-radius: 24px; padding: 36px 32px; position: relative; overflow: hidden; scroll-snap-align: start; transition: transform 0.4s ease, box-shadow 0.4s ease; display: flex; flex-direction: column; }
+.pain-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(0,0,0,0.1); }
+.pain-card-num { font-family: var(--sans); font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 16px; }
+.pain-card h3 { font-family: var(--serif); font-size: 26px; font-weight: 400; letter-spacing: -0.5px; margin-bottom: 20px; }
+.pain-card p { font-size: 15px; line-height: 1.75; flex: 1; }
+.pain-card-illo { height: 160px; margin-bottom: 24px; display: flex; align-items: center; justify-content: center; }
+.pain-card-illo svg { width: 100%; height: 100%; }
+.pain-dot-row { display: flex; justify-content: center; gap: 12px; padding: 0 48px; margin-top: 8px; }
+.pain-dot { width: 10px; height: 10px; border-radius: 50%; background: #D6D1C8; border: 2px solid #D6D1C8; transition: all 0.3s; }
+.pain-dot.active { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 4px rgba(192,75,45,0.15); }
+.pain-card.playground { flex: 0 0 400px; min-height: 560px; }
+@keyframes playgroundPulse { 0%, 100% { box-shadow: 0 8px 32px rgba(212,134,10,0.15); } 50% { box-shadow: 0 12px 48px rgba(212,134,10,0.25); } }
+.pain-scroll-hint { position: absolute; top: 50%; right: 16px; transform: translateY(-50%); width: 40px; height: 40px; border-radius: 20px; background: rgba(0,0,0,0.04); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--text-light); pointer-events: none; animation: hintPulse 2s ease-in-out infinite; }
+@keyframes hintPulse { 0%, 100% { opacity: 0.4; transform: translateY(-50%) translateX(0); } 50% { opacity: 0.8; transform: translateY(-50%) translateX(4px); } }
+@media (max-width: 1000px) { .pain-card { flex: 0 0 300px; min-height: 480px; } .pain-card.playground { flex: 0 0 340px; } }
+@media (max-width: 600px) { .pain-track { flex-direction: column; overflow-x: visible; scroll-snap-type: none; padding: 0 24px 20px; gap: 20px; } .pain-card, .pain-card.playground { flex: none; width: 100%; min-height: auto; } .pain-scroll { padding: 0; } .pain-scroll-hint { display: none; } .pain-dot-row { display: none; } }
 .pull-quote { padding: 180px 48px; text-align: center; }
 .pull-quote .big-quote { font-family: var(--serif); font-size: 140px; color: var(--rule); line-height: 0.5; margin-bottom: 36px; user-select: none; }
 .pull-quote blockquote { font-family: var(--serif); font-size: clamp(28px,4vw,52px); font-weight: 300; font-style: italic; line-height: 1.25; letter-spacing: -0.5px; max-width: 780px; margin: 0 auto 36px; }
@@ -249,8 +272,6 @@ footer { padding: 48px 56px; border-top: 1px solid var(--rule); display: flex; j
   .move-section.reverse { direction: ltr; }
   .modules-header { grid-template-columns: 1fr; }
   .modules-grid { grid-template-columns: 1fr; }
-  .timeline-track { grid-template-columns: repeat(3, 1fr); gap: 24px 16px; }
-  .timeline-line { display: none; }
 }
 /* ── Hamburger + Mobile Nav Drawer ── */
 .hamburger { display: none; width: 48px; height: 48px; border: none; background: none; cursor: pointer; position: relative; z-index: 102; flex-shrink: 0; }
@@ -277,8 +298,6 @@ footer { padding: 48px 56px; border-top: 1px solid var(--rule); display: flex; j
 @media (max-width: 600px) {
   .hero-actions, .cta-actions { flex-direction: column; width: 100%; align-items: center; }
   .btn-primary, .btn-ghost { width: 100%; text-align: center; }
-  .timeline-track { grid-template-columns: repeat(2, 1fr); gap: 20px 12px; }
-  .timeline-line { display: none; }
   footer { flex-direction: column; align-items: center; gap: 20px; text-align: center; padding: 32px 24px; }
   .footer-center { flex-wrap: wrap; justify-content: center; gap: 16px; }
 }
@@ -306,7 +325,64 @@ footer { padding: 48px 56px; border-top: 1px solid var(--rule); display: flex; j
 
       {/* Nav */}
       <nav id="nav">
-        <div className="nav-logo">HR Digital Playground</div>
+        <div className="nav-logo">
+          <div className="nav-logo-anim">
+            {/* Scene 1 — The Slide */}
+            <svg className="nav-scene" viewBox="0 0 48 40" xmlns="http://www.w3.org/2000/svg">
+              {/* Slide structure */}
+              <line x1="10" y1="6" x2="10" y2="32" stroke="#D4A843" strokeWidth="1.8" strokeLinecap="round"/>
+              <line x1="10" y1="6" x2="36" y2="28" stroke="#D4A843" strokeWidth="1.8" strokeLinecap="round"/>
+              <line x1="36" y1="28" x2="42" y2="28" stroke="#D4A843" strokeWidth="1.8" strokeLinecap="round"/>
+              {/* Ladder rungs */}
+              <line x1="7" y1="12" x2="13" y2="12" stroke="#D4A843" strokeWidth="1.2"/><line x1="7" y1="18" x2="13" y2="18" stroke="#D4A843" strokeWidth="1.2"/><line x1="7" y1="24" x2="13" y2="24" stroke="#D4A843" strokeWidth="1.2"/>
+              {/* Person sliding */}
+              <g style={{ animation: "slideDown 3.5s ease-in-out infinite" }}>
+                <circle cx="4" cy="0" r="3" fill="#E8D5C4"/>
+                <rect x="1" y="3" width="6" height="8" rx="1.5" fill="#1C2B3A"/>
+                <rect x="0.5" y="3" width="3" height="5" rx="1" fill="#1C2B3A"/>
+                <rect x="4" y="3" width="3" height="5" rx="1" fill="#1C2B3A"/>
+              </g>
+            </svg>
+            {/* Scene 2 — The Swing */}
+            <svg className="nav-scene" viewBox="0 0 48 40" xmlns="http://www.w3.org/2000/svg">
+              {/* Swing frame */}
+              <line x1="8" y1="4" x2="40" y2="4" stroke="#2A6B6B" strokeWidth="2" strokeLinecap="round"/>
+              <line x1="10" y1="4" x2="6" y2="36" stroke="#2A6B6B" strokeWidth="1.8" strokeLinecap="round"/>
+              <line x1="38" y1="4" x2="42" y2="36" stroke="#2A6B6B" strokeWidth="1.8" strokeLinecap="round"/>
+              {/* Swing + person */}
+              <g style={{ transformOrigin: "24px 4px", animation: "swingArc 1.6s ease-in-out infinite" }}>
+                <line x1="20" y1="4" x2="18" y2="24" stroke="#2A6B6B" strokeWidth="1.2"/>
+                <line x1="28" y1="4" x2="30" y2="24" stroke="#2A6B6B" strokeWidth="1.2"/>
+                <rect x="16" y="24" width="16" height="3" rx="1" fill="#2A6B6B"/>
+                {/* Person in skirt */}
+                <circle cx="24" cy="17" r="3" fill="#E8D5C4"/>
+                <rect x="21" y="20" width="6" height="4" rx="1" fill="#1C2B3A"/>
+                <path d="M21 24 L19 28 L29 28 L27 24" fill="#1C2B3A"/>
+              </g>
+            </svg>
+            {/* Scene 3 — The Monkey Bars */}
+            <svg className="nav-scene" viewBox="0 0 48 40" xmlns="http://www.w3.org/2000/svg">
+              {/* Frame */}
+              <line x1="4" y1="8" x2="4" y2="36" stroke="#D4A843" strokeWidth="1.8" strokeLinecap="round"/>
+              <line x1="44" y1="8" x2="44" y2="36" stroke="#D4A843" strokeWidth="1.8" strokeLinecap="round"/>
+              <line x1="4" y1="8" x2="44" y2="8" stroke="#D4A843" strokeWidth="2" strokeLinecap="round"/>
+              {/* Rungs */}
+              {[12,20,28,36].map(x => <line key={x} x1={x} y1="6" x2={x} y2="10" stroke="#D4A843" strokeWidth="1.2"/>)}
+              {/* Person traversing */}
+              <g style={{ animation: "monkeyTraverse 3s ease-in-out infinite" }}>
+                <circle cx="10" cy="14" r="3" fill="#E8D5C4"/>
+                <rect x="7" y="17" width="6" height="8" rx="1.5" fill="#1C2B3A"/>
+                {/* Arms reaching up alternating */}
+                <line x1="9" y1="17" x2="8" y2="10" stroke="#1C2B3A" strokeWidth="1.2" strokeLinecap="round" style={{ animation: "armSwap 0.6s step-end infinite" }}/>
+                <line x1="11" y1="17" x2="16" y2="10" stroke="#1C2B3A" strokeWidth="1.2" strokeLinecap="round" style={{ animation: "armSwap 0.6s step-end infinite 0.3s" }}/>
+                {/* Legs dangling */}
+                <line x1="8" y1="25" x2="7" y2="30" stroke="#1C2B3A" strokeWidth="1.2" strokeLinecap="round"/>
+                <line x1="12" y1="25" x2="13" y2="30" stroke="#1C2B3A" strokeWidth="1.2" strokeLinecap="round"/>
+              </g>
+            </svg>
+          </div>
+          HR Digital Playground
+        </div>
         <div className="nav-right">
           <div className="nav-links">
             <a href="#the-shift">The Shift</a>
@@ -335,7 +411,7 @@ footer { padding: 48px 56px; border-top: 1px solid var(--rule); display: flex; j
         <div className="hero-left">
           <div className="hero-eyebrow"><span className="line" /> AI &times; Workforce Transformation <span className="line" /></div>
           <h1>
-            <span className="split-line"><span className="split-line-inner">Shareholders push for performance. Boards demand oversight. CEOs drive change. HR absorbs the pressure.</span></span>
+            <span className="split-line"><span className="split-line-inner">Shareholders push for <span className="teal">performance</span>. Boards demand <span className="teal">oversight</span>. CEOs drive <span className="teal">change</span>. HR absorbs the <span className="teal">pressure</span>.</span></span>
             <span className="split-line hero-line2"><span className="split-line-inner">And no one designed how it <em>actually</em> works.</span></span>
           </h1>
           <p className="hero-sub">The platform that tells you exactly what to do about it — from task-level automation to boardroom-ready decisions.</p>
@@ -372,6 +448,16 @@ footer { padding: 48px 56px; border-top: 1px solid var(--rule); display: flex; j
             </div>
         </div>
       </section>
+
+      {/* Methodology Marquee */}
+      <div className="method-band">
+        <div className="method-track">
+          {/* Copy 1 */}
+          <span>Task Decomposition</span><span>Role Redesign</span><span>Impact Scoring</span><span>Scenario Modeling</span><span>Skills Gap Mapping</span><span>Redeployment Planning</span><span>ROI Forecasting</span><span>Readiness Assessment</span><span>Transition Roadmapping</span><span>Workforce Simulation</span>
+          {/* Copy 2 */}
+          <span>Task Decomposition</span><span>Role Redesign</span><span>Impact Scoring</span><span>Scenario Modeling</span><span>Skills Gap Mapping</span><span>Redeployment Planning</span><span>ROI Forecasting</span><span>Readiness Assessment</span><span>Transition Roadmapping</span><span>Workforce Simulation</span>
+        </div>
+      </div>
 
       {/* ═══ THREE MOVES ═══ */}
       <section className="three-moves" id="see-inside">
@@ -499,226 +585,206 @@ footer { padding: 48px 56px; border-top: 1px solid var(--rule); display: flex; j
         </div>
       </section>
 
-      {/* ═══ TIMELINE ═══ */}
-      <section className="timeline-section" id="our-story">
-        <div className="timeline-header">
-          <h2>Transformation has <em>always</em> been the job.</h2>
-          <p>The tools change. The problems are the same. Every generation of professionals has faced the question: how do we redesign work?</p>
+      {/* ═══ WHY WE GET YOUR PAIN ═══ */}
+      <section className="pain-section" id="our-story">
+        <div className="pain-header">
+          <h2>Why We Get Your <em>Pain</em></h2>
+          <p>Because we&apos;ve lived in the same broken system you have.</p>
         </div>
-        <div className="timeline-track" style={{ position: "relative" }}>
-          {/* Connecting gradient line */}
-          <div className="timeline-line" style={{ position: "absolute", top: "calc(37.5% + 42px)", left: "8%", right: "8%", height: 3, background: "linear-gradient(90deg, #D6D1C8 0%, #C07840 25%, #C04B2D 50%, #C04B2D 75%, rgba(192,75,45,0.3) 100%)", borderRadius: 2, zIndex: 1 }} />
+        <div className="pain-scroll">
+          <div className="pain-track">
 
-          {/* 1920s — Scientific Management */}
-          <div className="tl-panel">
-            <div className="tl-illo" style={{ background: "#FAF8F4" }}>
-              <svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg">
-                <rect width="200" height="280" fill="#FAF8F4"/>
-                <rect x="20" y="190" width="160" height="70" fill="#E6E0D4" rx="2"/>
-                <rect x="30" y="160" width="30" height="30" fill="#D6D1C8" rx="1"/>
-                <rect x="65" y="140" width="30" height="50" fill="#C9C1B2" rx="1"/>
-                <rect x="100" y="155" width="30" height="35" fill="#D6D1C8" rx="1"/>
-                <rect x="135" y="130" width="30" height="60" fill="#B8A99A" rx="1"/>
-                {/* Stopwatch */}
-                <circle cx="100" cy="70" r="28" fill="none" stroke="#9E8B73" strokeWidth="2.5"/>
-                <circle cx="100" cy="70" r="23" fill="white" stroke="#D6D1C8"/>
-                <line x1="100" y1="70" x2="100" y2="52" stroke="#C04B2D" strokeWidth="2" strokeLinecap="round"/>
-                <line x1="100" y1="70" x2="112" y2="70" stroke="#9E8B73" strokeWidth="1.5" strokeLinecap="round"/>
-                <rect x="96" y="38" width="8" height="6" rx="2" fill="#9E8B73"/>
-                {/* Worker figures */}
-                <circle cx="50" cy="225" r="6" fill="#D4B896"/><rect x="44" y="231" width="12" height="16" rx="2" fill="#8B7355"/>
-                <circle cx="100" cy="220" r="6" fill="#D4B896"/><rect x="94" y="226" width="12" height="16" rx="2" fill="#8B7355"/>
-                <circle cx="150" cy="225" r="6" fill="#D4B896"/><rect x="144" y="231" width="12" height="16" rx="2" fill="#8B7355"/>
-                <text x="100" y="270" fontFamily="'Instrument Sans',sans-serif" fontSize="8" fill="#9E8B73" textAnchor="middle" fontWeight="600" letterSpacing="1.5">EFFICIENCY</text>
-              </svg>
+            {/* Card 1 — The Silos */}
+            <div className="pain-card" style={{ background: "#F0EDE7", border: "1px solid #DDD8CE", color: "#3A3832" }}>
+              <div className="pain-card-illo">
+                <svg viewBox="0 0 280 140" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="10" y="50" width="60" height="80" rx="4" fill="#D6D1C8" stroke="#B8B0A3"/>
+                  <rect x="20" y="60" width="40" height="10" rx="2" fill="#C9C1B2"/>
+                  <rect x="20" y="75" width="40" height="10" rx="2" fill="#C9C1B2"/>
+                  <rect x="110" y="30" width="60" height="100" rx="4" fill="#C9C1B2" stroke="#B8B0A3"/>
+                  <rect x="120" y="40" width="40" height="10" rx="2" fill="#B8B0A3"/>
+                  <rect x="120" y="55" width="40" height="10" rx="2" fill="#B8B0A3"/>
+                  <rect x="120" y="70" width="40" height="10" rx="2" fill="#B8B0A3"/>
+                  <rect x="210" y="45" width="60" height="85" rx="4" fill="#D6D1C8" stroke="#B8B0A3"/>
+                  <rect x="220" y="55" width="40" height="10" rx="2" fill="#C9C1B2"/>
+                  <rect x="220" y="70" width="40" height="10" rx="2" fill="#C9C1B2"/>
+                  {/* No connections — that's the point */}
+                  <line x1="75" y1="90" x2="105" y2="90" stroke="#B8B0A3" strokeWidth="1.5" strokeDasharray="3,5" opacity="0.4"/>
+                  <line x1="175" y1="90" x2="205" y2="90" stroke="#B8B0A3" strokeWidth="1.5" strokeDasharray="3,5" opacity="0.4"/>
+                  <text x="40" y="25" fontSize="8" fill="#9E9B93" textAnchor="middle" fontWeight="600">COMP</text>
+                  <text x="140" y="18" fontSize="8" fill="#9E9B93" textAnchor="middle" fontWeight="600">WF PLAN</text>
+                  <text x="240" y="32" fontSize="8" fill="#9E9B93" textAnchor="middle" fontWeight="600">L&amp;D</text>
+                </svg>
+              </div>
+              <div className="pain-card-num" style={{ color: "#9E9B93" }}>01</div>
+              <h3>The Silos</h3>
+              <p style={{ color: "#5C5A54" }}>Compensation doesn&apos;t talk to workforce planning. Workforce planning doesn&apos;t talk to L&amp;D. L&amp;D doesn&apos;t talk to recruiting. Everyone has their own spreadsheet, their own vendor, their own version of the truth. The org chart says you&apos;re one company. The reality says you&apos;re twelve.</p>
             </div>
-            <div className="tl-dot" />
-            <div className="tl-year">1920s</div>
-            <div className="tl-title">Scientific Management</div>
-            <div className="tl-desc">Frederick Taylor timed workers with a stopwatch and called it progress. The assembly line turned people into processes. Efficiency was the only metric that mattered.</div>
-          </div>
 
-          {/* 1960s — Org Design Era */}
-          <div className="tl-panel">
-            <div className="tl-illo" style={{ background: "#F5F3EE" }}>
-              <svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg">
-                <rect width="200" height="280" fill="#F5F3EE"/>
-                {/* Org chart */}
-                <rect x="72" y="40" width="56" height="28" rx="6" fill="white" stroke="#4A6FA5" strokeWidth="1.5"/>
-                <text x="100" y="58" fontSize="7" fill="#4A6FA5" textAnchor="middle" fontWeight="600">CEO</text>
-                <line x1="100" y1="68" x2="55" y2="95" stroke="#B8C4D6" strokeWidth="1.5"/>
-                <line x1="100" y1="68" x2="145" y2="95" stroke="#B8C4D6" strokeWidth="1.5"/>
-                <rect x="27" y="95" width="56" height="24" rx="5" fill="white" stroke="#6B8BB5" strokeWidth="1"/>
-                <text x="55" y="111" fontSize="6" fill="#6B8BB5" textAnchor="middle" fontWeight="600">Operations</text>
-                <rect x="117" y="95" width="56" height="24" rx="5" fill="white" stroke="#6B8BB5" strokeWidth="1"/>
-                <text x="145" y="111" fontSize="6" fill="#6B8BB5" textAnchor="middle" fontWeight="600">Personnel</text>
-                <line x1="55" y1="119" x2="35" y2="140" stroke="#D6D1C8"/><line x1="55" y1="119" x2="75" y2="140" stroke="#D6D1C8"/>
-                <line x1="145" y1="119" x2="125" y2="140" stroke="#D6D1C8"/><line x1="145" y1="119" x2="165" y2="140" stroke="#D6D1C8"/>
-                {[35,75,125,165].map(x => <rect key={x} x={x-14} y={140} width="28" height="18" rx="3" fill="#EBE7DF" stroke="#D6D1C8" strokeWidth="0.5"/>)}
-                {/* Building */}
-                <rect x="55" y="180" width="90" height="80" fill="white" stroke="#D6D1C8" rx="3"/>
-                {[190,210,230].map(y => [65,85,105,125].map(x => <rect key={`${x}-${y}`} x={x} y={y} width="10" height="8" rx="1" fill="#E6E0D4"/>))}
-                <rect x="90" y="240" width="20" height="20" rx="1" fill="#4A6FA5" opacity="0.3"/>
-                <text x="100" y="270" fontFamily="'Instrument Sans',sans-serif" fontSize="8" fill="#4A6FA5" textAnchor="middle" fontWeight="600" letterSpacing="1.5">STRUCTURE</text>
-              </svg>
+            {/* Card 2 — The Fiefdoms */}
+            <div className="pain-card" style={{ background: "#EDEAE4", border: "1px solid #D8D3C9", color: "#3A3832" }}>
+              <div className="pain-card-illo">
+                <svg viewBox="0 0 280 140" xmlns="http://www.w3.org/2000/svg">
+                  {/* Multiple figures building separate things */}
+                  <circle cx="50" cy="35" r="10" fill="#D4B896"/><rect x="42" y="45" width="16" height="22" rx="3" fill="#7A7568"/>
+                  <rect x="30" y="75" width="40" height="55" rx="3" fill="#C9C1B2" stroke="#B8B0A3"/>
+                  <rect x="35" y="80" width="12" height="8" rx="1" fill="#B8B0A3"/>
+                  <circle cx="140" cy="30" r="10" fill="#D4B896"/><rect x="132" y="40" width="16" height="22" rx="3" fill="#8B7568"/>
+                  <rect x="115" y="70" width="50" height="60" rx="3" fill="#B8B0A3" stroke="#A8A095"/>
+                  <circle cx="140" cy="95" r="8" fill="#C9C1B2"/>
+                  <circle cx="230" cy="38" r="10" fill="#D4B896"/><rect x="222" y="48" width="16" height="22" rx="3" fill="#6B7568"/>
+                  <rect x="210" y="78" width="40" height="52" rx="3" fill="#D6D1C8" stroke="#B8B0A3"/>
+                  <line x1="215" y1="88" x2="245" y2="88" stroke="#B8B0A3"/><line x1="215" y1="98" x2="245" y2="98" stroke="#B8B0A3"/>
+                  {/* No connections between any of them */}
+                  <text x="140" y="138" fontSize="7" fill="#9E9B93" textAnchor="middle" fontStyle="italic">none of this connects</text>
+                </svg>
+              </div>
+              <div className="pain-card-num" style={{ color: "#9E9B93" }}>02</div>
+              <h3>The Fiefdoms</h3>
+              <p style={{ color: "#5C5A54" }}>Every VP protects their headcount. Every HRBP has a different process. Every business unit swears their situation is unique. And the CHRO is supposed to make sense of all of it with a PowerPoint and a prayer.</p>
             </div>
-            <div className="tl-dot" />
-            <div className="tl-year">1960s</div>
-            <div className="tl-title">Org Design Era</div>
-            <div className="tl-desc">Companies got big enough to need structure. Hierarchies, spans of control, job grades, HR departments &mdash; all invented to manage complexity that didn&apos;t exist a generation earlier.</div>
-          </div>
 
-          {/* 1990s — Business Reengineering */}
-          <div className="tl-panel">
-            <div className="tl-illo" style={{ background: "#F7F5F0" }}>
-              <svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg">
-                <rect width="200" height="280" fill="#F7F5F0"/>
-                {/* Computer/monitor */}
-                <rect x="50" y="45" width="100" height="75" rx="8" fill="#1A1A17"/>
-                <rect x="56" y="51" width="88" height="60" rx="4" fill="#2A2A27"/>
-                {/* Screen content — flowchart */}
-                <rect x="68" y="60" width="24" height="12" rx="2" fill="#C07840" opacity="0.8"/>
-                <line x1="92" y1="66" x2="105" y2="66" stroke="#C07840" strokeWidth="1"/>
-                <rect x="105" y="60" width="24" height="12" rx="2" fill="#C07840" opacity="0.6"/>
-                <line x1="80" y1="72" x2="80" y2="82" stroke="#C07840" strokeWidth="1"/>
-                <rect x="68" y="82" width="24" height="12" rx="2" fill="#C07840" opacity="0.4"/>
-                <line x1="92" y1="88" x2="105" y2="88" stroke="#C07840" strokeWidth="1"/>
-                <rect x="105" y="82" width="24" height="12" rx="2" fill="#C07840" opacity="0.4"/>
-                <rect x="85" y="120" width="30" height="8" rx="2" fill="#1A1A17"/>
-                <rect x="70" y="128" width="60" height="4" rx="1" fill="#D6D1C8"/>
-                {/* Book */}
-                <rect x="30" y="165" width="60" height="80" rx="4" fill="#C04B2D" opacity="0.85"/>
-                <rect x="34" y="169" width="52" height="72" rx="2" fill="#C04B2D"/>
-                <text x="60" y="195" fontSize="7" fill="white" fontWeight="700" textAnchor="middle">REENGI-</text>
-                <text x="60" y="205" fontSize="7" fill="white" fontWeight="700" textAnchor="middle">NEERING</text>
-                <text x="60" y="218" fontSize="5" fill="rgba(255,255,255,0.6)" textAnchor="middle">THE CORP.</text>
-                <line x1="40" y1="225" x2="80" y2="225" stroke="rgba(255,255,255,0.2)"/>
-                {/* Consulting figure */}
-                <circle cx="140" cy="175" r="10" fill="#E8D5C4"/>
-                <rect x="130" y="185" width="20" height="28" rx="3" fill="#1A1A17"/>
-                <rect x="125" y="215" width="30" height="3" rx="1" fill="#D6D1C8"/>
-                <rect x="128" y="220" width="24" height="20" rx="2" fill="white" stroke="#D6D1C8"/>
-                <rect x="132" y="224" width="16" height="2" rx="1" fill="#C07840" opacity="0.4"/>
-                <rect x="132" y="228" width="12" height="2" rx="1" fill="#C07840" opacity="0.3"/>
-                <rect x="132" y="232" width="14" height="2" rx="1" fill="#C07840" opacity="0.2"/>
-                <text x="100" y="270" fontFamily="'Instrument Sans',sans-serif" fontSize="8" fill="#C07840" textAnchor="middle" fontWeight="600" letterSpacing="1.5">PROCESS</text>
-              </svg>
+            {/* Card 3 — The Capacity Problem */}
+            <div className="pain-card" style={{ background: "#EAE7E0", border: "1px solid #D4CFC5", color: "#3A3832" }}>
+              <div className="pain-card-illo">
+                <svg viewBox="0 0 280 140" xmlns="http://www.w3.org/2000/svg">
+                  {/* Person buried under layers */}
+                  <circle cx="140" cy="40" r="12" fill="#D4B896"/>
+                  <rect x="130" y="52" width="20" height="26" rx="3" fill="#7A7568"/>
+                  {/* Stack of papers/tabs */}
+                  <rect x="60" y="55" width="50" height="35" rx="3" fill="#D6D1C8" stroke="#C9C1B2" transform="rotate(-8 85 72)"/>
+                  <rect x="65" y="50" width="50" height="35" rx="3" fill="#E0DBD2" stroke="#D6D1C8" transform="rotate(-4 90 67)"/>
+                  <rect x="70" y="45" width="50" height="35" rx="3" fill="#EBE7DF" stroke="#D6D1C8"/>
+                  <rect x="170" y="50" width="50" height="35" rx="3" fill="#D6D1C8" stroke="#C9C1B2" transform="rotate(6 195 67)"/>
+                  <rect x="165" y="47" width="50" height="35" rx="3" fill="#EBE7DF" stroke="#D6D1C8" transform="rotate(3 190 64)"/>
+                  {/* 120% bar */}
+                  <rect x="60" y="105" width="160" height="16" rx="4" fill="#EBE7DF" stroke="#D6D1C8"/>
+                  <rect x="60" y="105" width="192" height="16" rx="4" fill="#C04B2D" opacity="0.2"/>
+                  <text x="245" y="117" fontSize="9" fill="#C04B2D" fontWeight="700">120%</text>
+                </svg>
+              </div>
+              <div className="pain-card-num" style={{ color: "#9E9B93" }}>03</div>
+              <h3>The Capacity Problem</h3>
+              <p style={{ color: "#5C5A54" }}>Your team is already running at 120%. Now layer on an AI strategy, a skills taxonomy, a workforce plan, and a reorg. There are no extra people. There is no extra time. And the consultants want six months and a seven-figure check just to tell you what you already know.</p>
             </div>
-            <div className="tl-dot" />
-            <div className="tl-year">1990s</div>
-            <div className="tl-title">Business Reengineering</div>
-            <div className="tl-desc">Hammer and Champy told every CEO to blow up their processes and start over. ERP systems, Six Sigma, the consulting boom. Half of it worked. The other half created the bureaucracy it was supposed to eliminate.</div>
-          </div>
 
-          {/* 2010s — Digital Transformation */}
-          <div className="tl-panel">
-            <div className="tl-illo" style={{ background: "#F4F2ED" }}>
-              <svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg">
-                <rect width="200" height="280" fill="#F4F2ED"/>
-                {/* Cloud */}
-                <ellipse cx="100" cy="55" rx="55" ry="28" fill="white" stroke="#D4725A" strokeWidth="1.5"/>
-                <ellipse cx="100" cy="55" rx="40" ry="18" fill="none" stroke="#D4725A" strokeWidth="0.5" opacity="0.3"/>
-                <text x="100" y="52" fontSize="7" fill="#D4725A" textAnchor="middle" fontWeight="700" letterSpacing="1">CLOUD</text>
-                <text x="100" y="63" fontSize="5" fill="#9E9B93" textAnchor="middle">SaaS &bull; PaaS &bull; IaaS</text>
-                {/* Connected nodes */}
-                <circle cx="50" cy="130" r="18" fill="white" stroke="#D4725A" strokeWidth="1.5" style={{ animation: "nodeFloat 3s ease-in-out infinite" }}/>
-                <text x="50" y="128" fontSize="7" fill="#5C5A54" textAnchor="middle" fontWeight="600">HCM</text>
-                <text x="50" y="137" fontSize="5" fill="#9E9B93" textAnchor="middle">Workday</text>
-                <circle cx="150" cy="120" r="18" fill="white" stroke="#4A6FA5" strokeWidth="1.5" style={{ animation: "nodeFloat 3s ease-in-out infinite 0.5s" }}/>
-                <text x="150" y="118" fontSize="7" fill="#5C5A54" textAnchor="middle" fontWeight="600">ATS</text>
-                <text x="150" y="127" fontSize="5" fill="#9E9B93" textAnchor="middle">Lever</text>
-                <circle cx="100" cy="170" r="18" fill="white" stroke="#C07840" strokeWidth="1.5" style={{ animation: "nodeFloat 3s ease-in-out infinite 1s" }}/>
-                <text x="100" y="168" fontSize="7" fill="#5C5A54" textAnchor="middle" fontWeight="600">L&amp;D</text>
-                <text x="100" y="177" fontSize="5" fill="#9E9B93" textAnchor="middle">Degreed</text>
-                {/* Connection lines */}
-                <line x1="65" y1="118" x2="85" y2="83" stroke="#D6D1C8" strokeDasharray="3,3"/>
-                <line x1="135" y1="108" x2="115" y2="83" stroke="#D6D1C8" strokeDasharray="3,3"/>
-                <line x1="68" y1="135" x2="82" y2="158" stroke="#D6D1C8" strokeDasharray="3,3"/>
-                <line x1="132" y1="132" x2="118" y2="158" stroke="#D6D1C8" strokeDasharray="3,3"/>
-                {/* People analytics hint */}
-                <rect x="40" y="210" width="120" height="36" rx="8" fill="white" stroke="#D6D1C8"/>
-                <rect x="50" y="220" width="40" height="4" rx="1" fill="#D4725A" opacity="0.6"/>
-                <rect x="50" y="228" width="28" height="4" rx="1" fill="#4A6FA5" opacity="0.4"/>
-                <rect x="50" y="236" width="48" height="4" rx="1" fill="#C07840" opacity="0.3"/>
-                <text x="118" y="230" fontSize="6" fill="#9E9B93" fontStyle="italic">analytics</text>
-                <text x="100" y="270" fontFamily="'Instrument Sans',sans-serif" fontSize="8" fill="#D4725A" textAnchor="middle" fontWeight="600" letterSpacing="1.5">DIGITAL</text>
-              </svg>
+            {/* Card 4 — The Moving Target */}
+            <div className="pain-card" style={{ background: "#E7E3DC", border: "1px solid #D0CBC1", color: "#3A3832" }}>
+              <div className="pain-card-illo">
+                <svg viewBox="0 0 280 140" xmlns="http://www.w3.org/2000/svg">
+                  {/* Target that keeps shifting */}
+                  <circle cx="160" cy="70" r="40" fill="none" stroke="#D6D1C8" strokeWidth="2" strokeDasharray="6,4"/>
+                  <circle cx="160" cy="70" r="25" fill="none" stroke="#D6D1C8" strokeWidth="1.5" strokeDasharray="4,4"/>
+                  <circle cx="160" cy="70" r="10" fill="none" stroke="#C9C1B2" strokeWidth="1"/>
+                  {/* Arrows missing the target */}
+                  <line x1="30" y1="120" x2="115" y2="50" stroke="#B8B0A3" strokeWidth="1.5"/>
+                  <polygon points="115,50 108,52 112,58" fill="#B8B0A3"/>
+                  <line x1="40" y1="30" x2="125" y2="85" stroke="#B8B0A3" strokeWidth="1.5"/>
+                  <polygon points="125,85 118,80 120,88" fill="#B8B0A3"/>
+                  <line x1="55" y1="110" x2="130" y2="35" stroke="#C04B2D" strokeWidth="1.5" opacity="0.5"/>
+                  <polygon points="130,35 123,37 127,43" fill="#C04B2D" opacity="0.5"/>
+                  {/* Motion lines showing target moved */}
+                  <path d="M200 70 Q210 60 220 70 Q230 80 240 70" fill="none" stroke="#D6D1C8" strokeWidth="1" strokeDasharray="2,3"/>
+                  <text x="230" y="55" fontSize="7" fill="#9E9B93" fontStyle="italic">moved again</text>
+                </svg>
+              </div>
+              <div className="pain-card-num" style={{ color: "#9E9B93" }}>04</div>
+              <h3>The Moving Target</h3>
+              <p style={{ color: "#5C5A54" }}>By the time you finish the workforce plan, the business has pivoted. By the time you roll out the skills framework, three roles have changed. Every workstream has moving pieces, and the pieces don&apos;t stop moving just because you have a deadline.</p>
             </div>
-            <div className="tl-dot" />
-            <div className="tl-year">2010s</div>
-            <div className="tl-title">Digital Transformation</div>
-            <div className="tl-desc">Move to the cloud. Go agile. Hire a Chief Digital Officer. Most companies spent millions digitizing broken processes instead of fixing them first. People analytics emerged but rarely reached the boardroom.</div>
-          </div>
 
-          {/* 2024 — AI Workforce Transformation */}
-          <div className="tl-panel">
-            <div className="tl-illo" style={{ background: "#FBF9F5" }}>
-              <svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg">
-                <rect width="200" height="280" fill="#FBF9F5"/>
-                {/* AI brain/network */}
-                <circle cx="100" cy="80" r="40" fill="none" stroke="#C04B2D" strokeWidth="2"/>
-                <circle cx="100" cy="80" r="28" fill="none" stroke="#C04B2D" strokeWidth="1" opacity="0.3"/>
-                <circle cx="100" cy="62" r="5" fill="#C04B2D"/>
-                <circle cx="82" cy="90" r="5" fill="#C04B2D" opacity="0.7"/>
-                <circle cx="118" cy="90" r="5" fill="#C04B2D" opacity="0.7"/>
-                <circle cx="90" cy="72" r="3" fill="#D4725A" opacity="0.5"/>
-                <circle cx="110" cy="72" r="3" fill="#D4725A" opacity="0.5"/>
-                <circle cx="100" cy="98" r="3" fill="#D4725A" opacity="0.5"/>
-                <line x1="100" y1="67" x2="90" y2="72" stroke="#C04B2D" strokeWidth="0.8" opacity="0.4"/>
-                <line x1="100" y1="67" x2="110" y2="72" stroke="#C04B2D" strokeWidth="0.8" opacity="0.4"/>
-                <line x1="82" y1="85" x2="90" y2="72" stroke="#C04B2D" strokeWidth="0.8" opacity="0.4"/>
-                <line x1="118" y1="85" x2="110" y2="72" stroke="#C04B2D" strokeWidth="0.8" opacity="0.4"/>
-                <line x1="82" y1="90" x2="100" y2="98" stroke="#C04B2D" strokeWidth="0.8" opacity="0.3"/>
-                <line x1="118" y1="90" x2="100" y2="98" stroke="#C04B2D" strokeWidth="0.8" opacity="0.3"/>
-                {/* People being transformed */}
-                <circle cx="55" cy="160" r="10" fill="#E8D5C4"/><rect x="47" y="170" width="16" height="22" rx="3" fill="#4A6FA5"/>
-                <circle cx="100" cy="155" r="10" fill="#D4B896"/><rect x="92" y="165" width="16" height="22" rx="3" fill="#7A8B6A"/>
-                <circle cx="145" cy="160" r="10" fill="#E8D5C4"/><rect x="137" y="170" width="16" height="22" rx="3" fill="#5C4A6F"/>
-                {/* Connection arrows from AI to people */}
-                <line x1="80" y1="115" x2="60" y2="148" stroke="#C04B2D" strokeWidth="1" strokeDasharray="4,3"/>
-                <line x1="100" y1="120" x2="100" y2="143" stroke="#C04B2D" strokeWidth="1" strokeDasharray="4,3"/>
-                <line x1="120" y1="115" x2="140" y2="148" stroke="#C04B2D" strokeWidth="1" strokeDasharray="4,3"/>
-                {/* Platform badge */}
-                <rect x="30" y="210" width="140" height="30" rx="15" fill="#C04B2D"/>
-                <text x="100" y="229" fontSize="8" fill="white" fontWeight="700" letterSpacing="1.5" textAnchor="middle">HR DIGITAL PLAYGROUND</text>
-                <text x="100" y="268" fontFamily="'Instrument Sans',sans-serif" fontSize="8" fill="#C04B2D" textAnchor="middle" fontWeight="600" letterSpacing="1.5">AI + PEOPLE</text>
-              </svg>
+            {/* Card 5 — The Restart */}
+            <div className="pain-card" style={{ background: "#E3E0D9", border: "1px solid #CCC7BD", color: "#3A3832" }}>
+              <div className="pain-card-illo">
+                <svg viewBox="0 0 280 140" xmlns="http://www.w3.org/2000/svg">
+                  {/* Progress bar that resets */}
+                  <rect x="30" y="30" width="220" height="20" rx="6" fill="#EBE7DF" stroke="#D6D1C8"/>
+                  <rect x="30" y="30" width="200" height="20" rx="6" fill="#7A9B6A" opacity="0.5"/>
+                  <text x="240" y="44" fontSize="8" fill="#7A9B6A" fontWeight="700">92%</text>
+                  {/* Reset arrow */}
+                  <path d="M140 58 L140 72 L60 72" fill="none" stroke="#C04B2D" strokeWidth="2"/>
+                  <polygon points="60,72 67,67 67,77" fill="#C04B2D"/>
+                  <text x="155" y="68" fontSize="7" fill="#C04B2D" fontWeight="600">REORG</text>
+                  {/* Bar reset to zero */}
+                  <rect x="30" y="85" width="220" height="20" rx="6" fill="#EBE7DF" stroke="#D6D1C8"/>
+                  <rect x="30" y="85" width="12" height="20" rx="6" fill="#C04B2D" opacity="0.3"/>
+                  <text x="52" y="99" fontSize="8" fill="#C04B2D" fontWeight="700" opacity="0.6">3%</text>
+                  <text x="140" y="130" fontSize="7" fill="#9E9B93" textAnchor="middle" fontStyle="italic">back to square one</text>
+                </svg>
+              </div>
+              <div className="pain-card-num" style={{ color: "#9E9B93" }}>05</div>
+              <h3>The Restart</h3>
+              <p style={{ color: "#5C5A54" }}>You finally get alignment. You finally get the data clean. You finally get the exec sign-off. Then there&apos;s a reorg. Or an acquisition. Or a new CEO. And you&apos;re back to square one, except now you also have to integrate two companies that can&apos;t even agree on job titles.</p>
             </div>
-            <div className="tl-dot" />
-            <div className="tl-year">2024</div>
-            <div className="tl-title">AI Workforce Transformation</div>
-            <div className="tl-desc">For the first time, the technology doesn&apos;t just change the process &mdash; it changes the work itself. Task-level automation, role redesign, skills architecture. The companies that get this right will be unrecognizable in five years.</div>
-          </div>
 
-          {/* 20?? — The AGI Question */}
-          <div className="tl-panel">
-            <div className="tl-illo" style={{ background: "#141311", borderColor: "rgba(192,75,45,0.3)" }}>
-              <svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg">
-                <rect width="200" height="280" fill="#141311"/>
-                {/* Pulsing rings */}
-                <circle cx="100" cy="110" r="70" fill="#C04B2D" opacity="0.04"/>
-                <circle cx="100" cy="110" r="55" fill="#C04B2D" opacity="0.06"/>
-                <circle cx="100" cy="110" r="40" fill="#C04B2D" opacity="0.08"/>
-                {/* Abstract question shape */}
-                <path d="M70 100 Q70 65 100 65 Q130 65 130 95 Q130 110 110 115 Q105 117 105 130" fill="none" stroke="#C04B2D" strokeWidth="2.5" strokeLinecap="round"/>
-                <circle cx="105" cy="142" r="3" fill="#D4725A"/>
-                {/* Scattered dots — uncertainty */}
-                <circle cx="45" cy="60" r="1.5" fill="#D4725A" opacity="0.3"/>
-                <circle cx="160" cy="75" r="1.5" fill="#D4725A" opacity="0.2"/>
-                <circle cx="35" cy="150" r="1.5" fill="#D4725A" opacity="0.15"/>
-                <circle cx="165" cy="140" r="1" fill="#D4725A" opacity="0.25"/>
-                <circle cx="55" cy="190" r="1" fill="#D4725A" opacity="0.1"/>
-                <circle cx="150" cy="195" r="1.5" fill="#D4725A" opacity="0.15"/>
-                <text x="100" y="200" fontFamily="'Cormorant Garamond',serif" fontSize="16" fill="#D4725A" textAnchor="middle" fontStyle="italic">What comes</text>
-                <text x="100" y="220" fontFamily="'Cormorant Garamond',serif" fontSize="16" fill="#D4725A" textAnchor="middle" fontStyle="italic">after jobs?</text>
-                <text x="100" y="265" fontFamily="'Instrument Sans',sans-serif" fontSize="8" fill="#5C5A54" textAnchor="middle" fontWeight="600" letterSpacing="1.5">AGI ERA</text>
-              </svg>
+            {/* Card 6 — The Acquisition */}
+            <div className="pain-card" style={{ background: "#E0DDD6", border: "1px solid #C8C3B9", color: "#3A3832" }}>
+              <div className="pain-card-illo">
+                <svg viewBox="0 0 280 140" xmlns="http://www.w3.org/2000/svg">
+                  {/* Two puzzle pieces that don't fit */}
+                  <path d="M40 40 L100 40 L100 55 Q90 55 90 65 Q90 75 100 75 L100 100 L40 100 Z" fill="#D6D1C8" stroke="#B8B0A3" strokeWidth="1.5"/>
+                  <text x="70" y="75" fontSize="8" fill="#7A7568" textAnchor="middle" fontWeight="600">CO. A</text>
+                  <path d="M130 40 L130 55 Q140 55 140 65 Q140 75 130 75 L130 100 L240 100 L240 40 Z" fill="#C9C1B2" stroke="#B8B0A3" strokeWidth="1.5"/>
+                  <text x="185" y="75" fontSize="8" fill="#7A7568" textAnchor="middle" fontWeight="600">CO. B</text>
+                  {/* Gap between them — they don't fit */}
+                  <text x="115" y="68" fontSize="16" fill="#C04B2D" textAnchor="middle" opacity="0.5">?</text>
+                  {/* Papers everywhere */}
+                  <rect x="80" y="108" width="30" height="20" rx="2" fill="#EBE7DF" stroke="#D6D1C8" transform="rotate(-12 95 118)"/>
+                  <rect x="140" y="105" width="30" height="20" rx="2" fill="#EBE7DF" stroke="#D6D1C8" transform="rotate(8 155 115)"/>
+                  <rect x="110" y="110" width="30" height="20" rx="2" fill="#EBE7DF" stroke="#D6D1C8" transform="rotate(3 125 120)"/>
+                </svg>
+              </div>
+              <div className="pain-card-num" style={{ color: "#9E9B93" }}>06</div>
+              <h3>The Acquisition</h3>
+              <p style={{ color: "#5C5A54" }}>Good luck. You just inherited a company with a completely different HRIS, a completely different comp philosophy, and 4,000 employees who were told nothing would change. Everything needs to be mapped, merged, and rationalized. It&apos;s going to feel like the final exam for a class nobody signed up for.</p>
             </div>
-            <div className="tl-dot" />
-            <div className="tl-year">20??</div>
-            <div className="tl-title">The AGI Question</div>
-            <div className="tl-desc">When machines can think, what does &ldquo;work&rdquo; even mean? Nobody knows yet. But the organizations that built the muscle to continuously redesign work will be the ones that survive the answer.</div>
+
+            {/* Card 7 — Recess (THE FLIP) */}
+            <div className="pain-card playground" style={{ background: "linear-gradient(135deg, #FFF8EE 0%, #FFF3E0 50%, #FFF0D6 100%)", border: "2px solid rgba(212,134,10,0.25)", color: "#1A1A17", animation: "playgroundPulse 4s ease-in-out infinite" }}>
+              <div className="pain-card-illo">
+                <svg viewBox="0 0 320 140" xmlns="http://www.w3.org/2000/svg">
+                  {/* Sun */}
+                  <circle cx="260" cy="30" r="20" fill="#E8C547" opacity="0.3"/>
+                  <circle cx="260" cy="30" r="12" fill="#E8C547" opacity="0.5"/>
+                  {/* Swing set */}
+                  <line x1="80" y1="20" x2="60" y2="120" stroke="#C07840" strokeWidth="3"/>
+                  <line x1="160" y1="20" x2="180" y2="120" stroke="#C07840" strokeWidth="3"/>
+                  <line x1="60" y1="20" x2="180" y2="20" stroke="#C07840" strokeWidth="3"/>
+                  {/* Swing chains + seat */}
+                  <line x1="100" y1="20" x2="95" y2="85" stroke="#D4860A" strokeWidth="1.5"/>
+                  <line x1="115" y1="20" x2="120" y2="85" stroke="#D4860A" strokeWidth="1.5"/>
+                  <rect x="90" y="85" width="35" height="6" rx="2" fill="#C07840"/>
+                  {/* Happy figure on swing */}
+                  <circle cx="108" cy="72" r="8" fill="#E8D5C4"/>
+                  <rect x="101" y="80" width="14" height="6" rx="2" fill="#2A6B6B"/>
+                  {/* Ground */}
+                  <ellipse cx="160" cy="125" rx="140" ry="8" fill="#E8C547" opacity="0.15"/>
+                  {/* Running figure */}
+                  <circle cx="220" cy="95" r="7" fill="#D4B896"/>
+                  <rect x="214" y="102" width="12" height="15" rx="2" fill="#C04B2D" opacity="0.7"/>
+                  {/* Open field feeling — small flowers/dots */}
+                  <circle cx="40" cy="115" r="2" fill="#2A6B6B" opacity="0.3"/>
+                  <circle cx="200" cy="118" r="2" fill="#D4860A" opacity="0.3"/>
+                  <circle cx="140" cy="120" r="2" fill="#2A6B6B" opacity="0.2"/>
+                  <circle cx="280" cy="112" r="2" fill="#E8C547" opacity="0.4"/>
+                </svg>
+              </div>
+              <div className="pain-card-num" style={{ color: "#D4860A", letterSpacing: "4px" }}>RECESS</div>
+              <h3 style={{ fontSize: 30, color: "#1A1A17" }}>What if it felt like <em style={{ color: "#C04B2D", fontStyle: "italic" }}>play?</em></h3>
+              <p style={{ color: "#5C5A54", fontSize: 16 }}>What if diagnosing your org, redesigning roles, and simulating outcomes felt less like a compliance exercise and more like recess? That&apos;s what we built. A place where the hard work of transformation actually feels like play.</p>
+              <div style={{ marginTop: 24, textAlign: "center" }}>
+                <div style={{ fontFamily: "var(--serif)", fontSize: 16, fontStyle: "italic", color: "#C07840", marginBottom: 16 }}>HR Digital Playground</div>
+                <Link href="/app" className="btn-primary" data-hover style={{ display: "inline-block" }}><span>Step onto the Playground &rarr;</span></Link>
+              </div>
+            </div>
+
           </div>
+          <div className="pain-scroll-hint">&rarr;</div>
+        </div>
+        {/* Dot indicators */}
+        <div className="pain-dot-row">
+          {[0,1,2,3,4,5].map(i => <div key={i} className="pain-dot" />)}
+          <div className="pain-dot active" />
         </div>
       </section>
 
