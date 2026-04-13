@@ -154,6 +154,39 @@ select { cursor: pointer; }
   background-size: 200% 100%;
 }
 
+/* ═══ TABLET RESPONSIVE (1024px-1279px) ═══ */
+@media (max-width: 1279px) {
+  :root { --sidebar-width: 56px !important; }
+  /* Collapse sidebar to icon-only */
+  aside > *:not(:first-child):not(nav) { display: none; }
+  aside nav span:not([class*="text-["]) { display: none; }
+  /* Tables scroll horizontally */
+  table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  /* Grid columns stack */
+  .grid-cols-3 { grid-template-columns: 1fr 1fr !important; }
+  .grid-cols-4 { grid-template-columns: 1fr 1fr !important; }
+  .grid-cols-5 { grid-template-columns: 1fr 1fr 1fr !important; }
+  .grid-cols-6 { grid-template-columns: 1fr 1fr 1fr !important; }
+}
+
+@media (max-width: 1023px) {
+  :root { --sidebar-width: 0px !important; }
+  aside { display: none !important; }
+  .grid-cols-2 { grid-template-columns: 1fr !important; }
+  .grid-cols-3 { grid-template-columns: 1fr !important; }
+}
+
+/* ═══ FOCUS VISIBLE — keyboard navigation indicator ═══ */
+:focus-visible {
+  outline: 2px solid rgba(212, 134, 10, 0.6);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
+  outline: 2px solid rgba(212, 134, 10, 0.6);
+  outline-offset: 2px;
+}
+
 /* ═══ REDUCED MOTION ═══ */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

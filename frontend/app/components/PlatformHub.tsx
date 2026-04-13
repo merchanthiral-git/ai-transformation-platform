@@ -66,7 +66,11 @@ export function PlatformHub({ user, onBack, onUpdateUser }: { user: authApi.Auth
       </div>
       {/* Footer */}
       <div className="px-10 py-6 text-center border-t" style={{ borderColor: "rgba(212,134,10,0.06)" }}>
-        <div className="text-[15px]" style={{ color: "rgba(255,230,200,0.15)" }}>Built with purpose in New York {"\u00B7"} {"\u00A9"} 2026 Hiral Merchant</div>
+        <div className="text-[15px]" style={{ color: "rgba(255,230,200,0.15)" }}>Built with purpose in New York {"\u00B7"} {"\u00A9"} 2026 HR Digital Playground</div>
+        <div style={{ display: "flex", justifyContent: "center", gap: 16, marginTop: 8 }}>
+          <a href="/privacy" style={{ fontSize: 13, color: "rgba(212,134,10,0.25)", textDecoration: "none" }}>Privacy Policy</a>
+          <a href="/terms" style={{ fontSize: 13, color: "rgba(212,134,10,0.25)", textDecoration: "none" }}>Terms of Service</a>
+        </div>
       </div>
       <style>{`@keyframes hubFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }`}</style>
     </main>

@@ -29,6 +29,7 @@ from app.store import (
 from app.helpers import get_series, safe_value_counts, dataframe_to_excel_bytes, empty_bundle
 from app.shared import _safe, _j, _f, _job_list_for_model
 from app.models import ALLOWED_EXTENSIONS, MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_MB
+from app.storage import storage as file_storage, make_unique_filename
 
 # ── Router imports ──
 from app.routes_auth import auth_router, project_router
@@ -214,11 +215,21 @@ async def upload_files(request: Request, files: list[UploadFile] = File(...)):
         if ext not in ALLOWED_EXTENSIONS:
             raise HTTPException(400, f"Invalid file type '{ext}'. Allowed: {', '.join(ALLOWED_EXTENSIONS)}")
     file_data = []
+    stored_urls = []
     for f in files:
         content = await f.read()
         if len(content) > MAX_FILE_SIZE_BYTES:
             raise HTTPException(400, f"File '{f.filename}' exceeds {MAX_FILE_SIZE_MB}MB limit")
         file_data.append((f.filename, content))
+        # Persist raw file to R2 or local storage for durability
+        try:
+            unique_name = make_unique_filename(f.filename or "upload", user_id=uid)
+            url = file_storage.upload_file(content, unique_name)
+            stored_urls.append(url)
+        except Exception as e:
+            print(f"[Storage] Failed to persist {f.filename}: {e}")
+            stored_urls.append(None)
+
     s = store.process_uploads(file_data, user_id=uid)
     active_model = store.last_loaded_model_id or ""
     display_model = active_model.split(":", 1)[1] if active_model.startswith(f"{uid}:") else active_model
@@ -232,7 +243,7 @@ async def upload_files(request: Request, files: list[UploadFile] = File(...)):
         "data.uploaded", "overview",
         f"Data uploaded: {', '.join(filenames)}",
         f"{len(s)} sheets loaded into model {display_model}",
-        data_snapshot={"after": {"sheets": len(s), "model": display_model, "files": filenames}},
+        data_snapshot={"after": {"sheets": len(s), "model": display_model, "files": filenames, "storage_urls": [u for u in stored_urls if u]}},
         significance="major", tags=["upload"])
 
     return _safe({

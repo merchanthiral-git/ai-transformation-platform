@@ -4,7 +4,24 @@ import { AnimatedBgProvider } from "../lib/animated-bg-context";
 
 export const metadata: Metadata = {
   title: "AI Transformation Platform",
-  description: "Enterprise-grade workforce transformation and AI readiness platform",
+  description: "Enterprise-grade workforce transformation, organizational design, and AI readiness platform. Diagnose, design, simulate, and mobilize your workforce for the AI era.",
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
+  },
+  openGraph: {
+    title: "AI Transformation Platform",
+    description: "Enterprise-grade workforce transformation, organizational design, and AI readiness platform. Built by HR Digital Playground.",
+    type: "website",
+    siteName: "AI Transformation Platform",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AI Transformation Platform",
+    description: "Diagnose, design, simulate, and mobilize your workforce for the AI era.",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
