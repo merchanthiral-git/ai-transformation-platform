@@ -24,7 +24,7 @@ type Pathway = {
   wave: string;
 };
 
-export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext }) {
+export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobStates, simState }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext; jobStates?: Record<string, JobDesignState>; simState?: { scenario: string; custom: boolean; custAdopt: number; custTimeline: number; investment: number } }) {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
@@ -1227,7 +1227,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
    TRANSFORMATION STORY BUILDER — auto-generated executive narrative
    ═══════════════════════════════════════════════════════════════ */
 
-export function TransformationStoryBuilder({ model, f, onBack, onNavigate }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void }) {
+export function TransformationStoryBuilder({ model, f, onBack, onNavigate, viewCtx, jobStates, simState, decisionLog, riskRegister }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext; jobStates?: Record<string, JobDesignState>; simState?: { scenario: string; custom: boolean; custAdopt: number; custTimeline: number; investment: number }; decisionLog?: { ts: string; module: string; action: string; detail: string }[]; riskRegister?: { id: string; source: string; risk: string; probability: string; impact: string; mitigation: string; status: string }[] }) {
   const [story, setStory] = useState("");
   const [loading, setLoading] = useState(false);
   const [tone, setTone] = useState("board");

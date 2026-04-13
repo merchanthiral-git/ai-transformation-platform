@@ -56,6 +56,9 @@ import {
 } from "./components/MobilizeModule";
 
 import { ExportReport } from "./components/ExportModule";
+import GuideViewer from "./components/guides/GuideViewer";
+import { consultantGuide } from "./components/guides/consultantGuide";
+import { hrGuide } from "./components/guides/hrGuide";
 
 import { JobArchitectureModule } from "./components/JobArchModule";
 import { PlatformHub } from "./components/PlatformHub";
@@ -229,17 +232,14 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
   const track = genreTracks[trackIdx % genreTracks.length] || genreTracks[0];
   const fmt = (s: number) => { const m = Math.floor(s / 60); const sec = Math.floor(s % 60); return `${m}:${sec < 10 ? "0" : ""}${sec}`; };
 
-  // Create Audio + Web Audio API analyser once on mount
-  useEffect(() => {
-    if (audioRef.current) return;
-    const audio = new Audio();
-    audio.preload = "none";
-    audio.crossOrigin = "anonymous";
-    audio.volume = 0.5; // ensure audible default — never start muted
-    audio.muted = false;
-    audioRef.current = audio;
-
-    // Web Audio API — analyser for visualizer
+  // Lazily init Web Audio API on first user gesture (play click).
+  // Browsers suspend AudioContext created outside user gestures, causing
+  // audio to appear "playing" with no sound.  Deferring creation fixes this.
+  const webAudioInitRef = useRef(false);
+  const ensureWebAudio = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio || webAudioInitRef.current) return;
+    webAudioInitRef.current = true;
     try {
       const ctx = new AudioContext();
       const analyser = ctx.createAnalyser();
@@ -252,6 +252,17 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
       analyserRef.current = analyser;
       freqDataRef.current = new Uint8Array(analyser.frequencyBinCount);
     } catch (e) { console.warn("Web Audio API unavailable:", e); }
+  }, []);
+
+  // Create Audio element on mount — NO Web Audio yet (deferred to first play)
+  useEffect(() => {
+    if (audioRef.current) return;
+    const audio = new Audio();
+    audio.preload = "none";
+    audio.crossOrigin = "anonymous";
+    audio.volume = 0.5; // ensure audible default
+    audio.muted = false;
+    audioRef.current = audio;
 
     audio.addEventListener("ended", () => {
       if (repeat) { audio.currentTime = 0; audio.play().catch(e => console.warn("Repeat failed:", e)); return; }
@@ -340,8 +351,12 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     return () => { cancelAnimationFrame(animRef.current); audio.pause(); audio.src = ""; };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Resume AudioContext on user gesture (required by browsers)
-  const resumeAudioCtx = useCallback(() => { if (audioCtxRef.current?.state === "suspended") audioCtxRef.current.resume(); }, []);
+  // Resume AudioContext on user gesture (required by browsers).
+  // Also lazily creates the Web Audio graph if it hasn't been created yet.
+  const resumeAudioCtx = useCallback(() => {
+    ensureWebAudio();
+    if (audioCtxRef.current?.state === "suspended") audioCtxRef.current.resume();
+  }, [ensureWebAudio]);
 
   // Focus timer
   useEffect(() => {
@@ -408,7 +423,8 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     if (!a) return;
     resumeAudioCtx();
     a.src = file;
-    a.volume = volume;
+    a.muted = false;
+    a.volume = volume || 0.5;
     a.load();
     a.play().then(() => setPlaying(true)).catch(e => { console.warn("[MusicPlayer] Play failed:", e.message); setPlaying(false); });
   }, [volume, resumeAudioCtx]);
@@ -418,10 +434,12 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     resumeAudioCtx();
     if (playing) { a.pause(); setPlaying(false); }
     else {
+      a.muted = false;
+      a.volume = volume || 0.5;
       if (!a.src || a.readyState === 0 || !a.src.includes("/track")) { playTrack(track?.file || ALL_TRACKS[0].file); }
       else { a.play().then(() => setPlaying(true)).catch(e => { console.warn("Resume failed:", e.message); playTrack(track?.file || ALL_TRACKS[0].file); }); }
     }
-  }, [playing, track, playTrack, resumeAudioCtx]);
+  }, [playing, track, volume, playTrack, resumeAudioCtx]);
 
   const changeTrack = useCallback((idx: number) => {
     setTrackIdx(idx);
@@ -711,7 +729,11 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
   const [showDecLog, setShowDecLog] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const accountMenuRef = useRef<HTMLDivElement>(null);
-  const [sidebarGuide, setSidebarGuide] = useState<"consultant" | "hr" | null>(null);
+  const [sidebarGuide, setSidebarGuide] = useState<"consultant" | "hr" | null>(() => {
+    if (typeof window === "undefined") return null;
+    try { const g = sessionStorage.getItem(`${projectId}_openGuide`); if (g === "consultant" || g === "hr") { sessionStorage.removeItem(`${projectId}_openGuide`); return g; } } catch {}
+    return null;
+  });
   const [showSplash, setShowSplash] = useState(() => {
     if (typeof window === "undefined") return false;
     try { return !sessionStorage.getItem(`${projectId}_splashSeen`); } catch { return true; }
@@ -945,8 +967,10 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       const cfg = simState.custom ? `Custom (${simState.custAdopt}% adoption, ${simState.custTimeline}mo)` : simState.scenario;
       parts.push(`Scenario: ${cfg}, Investment: $${simState.investment}/role`);
     }
+    if (decisionLog.length > 0) parts.push(`${decisionLog.length} decisions logged`);
+    if (riskRegister.length > 0) parts.push(`${riskRegister.length} risks tracked (${riskRegister.filter(r => r.status === "Open").length} open)`);
     return parts.join(". ");
-  }, [model, job, jobs, jobStates, f, page, simState]);
+  }, [model, job, jobs, jobStates, f, page, simState, decisionLog, riskRegister]);
 
   // Agent system
   const AGENT_DEFS = [
@@ -990,6 +1014,43 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
   }, [agentSettings, runAgent]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const viewCtx: ViewContext = { mode: viewMode || "org", employee: viewEmployee, job: viewJob, custom: viewCustom };
+
+  // ── Computed transformation summary — derived from all cross-module state ──
+  // Provides a unified view of transformation progress that any module can read.
+  const transformationSummary = useMemo(() => {
+    const designedJobs = Object.entries(jobStates).filter(([, s]) => s.finalized);
+    const inProgressJobs = Object.entries(jobStates).filter(([, s]) => s.deconSubmitted && !s.finalized);
+    // Aggregate task dispositions from all finalized job designs
+    let tasksAutomate = 0, tasksAugment = 0, tasksEliminate = 0, tasksRetain = 0, totalTasks = 0;
+    let totalCapacityFreed = 0;
+    for (const [, state] of designedJobs) {
+      for (const row of (state.deconRows || [])) {
+        totalTasks++;
+        const disp = (row as Record<string, unknown>).disposition as string || "";
+        const pct = Number((row as Record<string, unknown>).ai_impact || (row as Record<string, unknown>).aiImpact || 0);
+        const timePct = Number((row as Record<string, unknown>).time_pct || (row as Record<string, unknown>).timePct || 0);
+        if (disp === "automate" || disp === "Automate") { tasksAutomate++; totalCapacityFreed += timePct * (pct / 100); }
+        else if (disp === "augment" || disp === "Augment") { tasksAugment++; totalCapacityFreed += timePct * (pct / 100) * 0.5; }
+        else if (disp === "eliminate" || disp === "Eliminate") { tasksEliminate++; totalCapacityFreed += timePct; }
+        else tasksRetain++;
+      }
+    }
+    return {
+      designedJobCount: designedJobs.length,
+      inProgressJobCount: inProgressJobs.length,
+      totalJobCount: jobs.length,
+      totalTasks,
+      tasksAutomate, tasksAugment, tasksEliminate, tasksRetain,
+      capacityFreedPct: totalTasks > 0 ? Math.round(totalCapacityFreed / Math.max(1, designedJobs.length)) : 0,
+      scenario: simState.scenario,
+      adoptionRate: simState.custom ? simState.custAdopt : (simState.scenario === "conservative" ? 35 : simState.scenario === "aggressive" ? 80 : 55),
+      timeline: simState.custom ? simState.custTimeline : (simState.scenario === "conservative" ? 30 : simState.scenario === "aggressive" ? 14 : 20),
+      investment: simState.investment,
+      decisionCount: decisionLog.length,
+      riskCount: riskRegister.length,
+      openRiskCount: riskRegister.filter(r => r.status === "Open").length,
+    };
+  }, [jobStates, jobs, simState, decisionLog, riskRegister]);
 
   // Tutorial mode state and handlers
   const [tutorialStep, setTutorialStep] = useState(() => { try { return JSON.parse(localStorage.getItem(`${projectId}_tutorialStep`) || "0"); } catch { return 0; } });
@@ -1124,14 +1185,16 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
 
   // View selector pages — full screen, no sidebar
   if (!viewMode || viewMode === "job_select" || viewMode === "employee_select") {
-    return <div style={{ minHeight: "100vh", background: "#0B1120" }}>
-      {!viewMode && <ViewSelector 
+    return <div style={{ minHeight: "100vh", background: "#0B1120", animation: "pageCrossfade 0.2s ease-out" }}>
+      {!viewMode && <ViewSelector
         onBack={onBackToHub}
         onSelect={(mode, detail) => {
           if (mode === "org") { setViewMode("org"); }
           else if (mode === "job_select") { setViewMode("job_select"); }
           else if (mode === "employee_select") { setViewMode("employee_select"); }
           else if (mode === "custom" && detail) { setViewMode("custom"); setViewCustom(detail); Object.entries(detail).forEach(([k, v]) => { if (k !== "ct") setFilter(k as keyof Filters, v); }); }
+          // Guide modes: set org view and auto-open the guide
+          if (mode === "consultant" || mode === "hr") { setViewMode("org"); setSidebarGuide(mode as "consultant" | "hr"); }
         }} 
         employees={employees} 
         jobs={jobs}
@@ -1147,9 +1210,8 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
 
   // ── Landing splash screen — pure full-screen background image, click to enter ──
   if (showSplash && page === "home") {
-    return <div onClick={() => { setShowSplash(false); try { sessionStorage.setItem(`${projectId}_splashSeen`, "1"); } catch {} }} style={{ position: "fixed", inset: 0, cursor: "pointer", zIndex: 30 }}>
+    return <div onClick={() => { setShowSplash(false); try { sessionStorage.setItem(`${projectId}_splashSeen`, "1"); } catch {} }} style={{ position: "fixed", inset: 0, cursor: "pointer", zIndex: 30, animation: "pageCrossfade 0.2s ease-out", willChange: "opacity" }}>
       <VideoBackground name="landing_bg" overlay={0.15} poster={`${CDN_BASE}/landing_bg.png`} fallbackGradient="linear-gradient(135deg, #0B1120 0%, #0c1e3a 100%)" className="absolute inset-0" />
-      <style>{`@keyframes splashIn { from { opacity: 0; } to { opacity: 1; } }`}</style>
     </div>;
   }
 
@@ -1405,7 +1467,10 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
           <span className="text-[15px]">📝</span> Decision Log {decisionLog.length > 0 && <span className="text-[14px] px-1.5 py-0.5 rounded-full bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] font-bold">{decisionLog.length}</span>}
         </button>
         <button onClick={() => setSidebarGuide("consultant")} className="w-full text-left px-2 py-1.5 rounded-lg text-[15px] mb-1 flex items-center gap-2 text-[var(--text-muted)] hover:bg-[var(--hover)] transition-all">
-          <span className="text-[15px]">📘</span> Guide
+          <span className="text-[15px]">📋</span> Consultant Guide
+        </button>
+        <button onClick={() => setSidebarGuide("hr")} className="w-full text-left px-2 py-1.5 rounded-lg text-[15px] mb-1 flex items-center gap-2 text-[var(--text-muted)] hover:bg-[var(--hover)] transition-all">
+          <span className="text-[15px]">👥</span> HR Guide
         </button>
         <button onClick={() => { if (onShowPlatformHub) onShowPlatformHub(); }} className="w-full rounded-xl p-2.5 text-left transition-all group" style={{ background: "rgba(212,134,10,0.03)", border: "1px solid rgba(212,134,10,0.08)" }} onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(212,134,10,0.2)"; e.currentTarget.style.boxShadow = "0 0 12px rgba(212,134,10,0.06)"; }} onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(212,134,10,0.08)"; e.currentTarget.style.boxShadow = "none"; }}>
           <div className="text-[15px] font-bold font-heading group-hover:text-[var(--accent-primary)] transition-colors" style={{ color: "rgba(212,134,10,0.6)" }}>AI Transformation</div>
@@ -1461,7 +1526,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
     <main className={`flex-1 min-h-screen bg-[var(--bg)] ${presentMode ? "present-scale" : ""}`} style={presentMode ? { paddingTop: 60, paddingBottom: 56 } : undefined}>
       <AnnotationLayer annotations={annotations} moduleId={page} annotateMode={annotateMode} onAdd={a => setAnnotations(prev => [...prev, a])} onUpdate={a => setAnnotations(prev => prev.map(x => x.id === a.id ? a : x))} onDelete={id => setAnnotations(prev => prev.filter(x => x.id !== id))}>
       <AnimatePresence mode="wait">
-      <motion.div key={page} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.25, ease: "easeOut" }}>
+      <motion.div key={page} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2, ease: "easeOut" }} style={{ willChange: "opacity" }}>
       {page === "home" && <div>
         <LandingPage onNavigate={navigate} moduleStatus={moduleStatus} hasData={hasData} viewMode={viewMode} projectName={projectName} onBackToHub={onBackToHub} onBackToSplash={() => { setShowSplash(true); try { sessionStorage.removeItem(`${projectId}_splashSeen`); } catch {} }} cardBackgrounds={cardBgs} phaseBackgrounds={phaseBgs} />
       </div>}
@@ -1471,27 +1536,27 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       {(page === "jobs" || page === "jobarch") && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><JobArchitectureModule model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "scan" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><AiOpportunityScan model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "mgrcap" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ManagerCapability model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
-      {page === "changeready" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ChangeReadiness model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
+      {page === "changeready" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ChangeReadiness model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} simState={simState} /></ErrorBoundary>}
       {page === "mgrdev" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ManagerDevelopment model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "recommendations" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><AiRecommendationsEngine model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "orghealth" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><OrgHealthScorecard model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "heatmap" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><AIImpactHeatmap model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "clusters" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><RoleClustering model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "skillshift" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><SkillShiftIndex model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
-      {page === "story" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><TransformationStoryBuilder model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
+      {page === "story" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><TransformationStoryBuilder model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} jobStates={jobStates} simState={simState} decisionLog={decisionLog} riskRegister={riskRegister} /></ErrorBoundary>}
       {page === "archetypes" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ReadinessArchetypes model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "export" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ExportReport model={model} f={f} onBack={goHome} onNavigate={navigate} jobStates={jobStates} simState={simState} decisionLog={decisionLog} riskRegister={riskRegister} /></ErrorBoundary>}
-      {page === "dashboard" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><TransformationExecDashboard model={model} f={f} onBack={goHome} onNavigate={navigate} decisionLog={decisionLog} riskRegister={riskRegister} addRisk={addRisk} updateRisk={updateRisk} /></ErrorBoundary>}
-      {page === "readiness" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><AIReadiness model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
+      {page === "dashboard" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><TransformationExecDashboard model={model} f={f} onBack={goHome} onNavigate={navigate} decisionLog={decisionLog} riskRegister={riskRegister} addRisk={addRisk} updateRisk={updateRisk} jobStates={jobStates} simState={simState} transformationSummary={transformationSummary} /></ErrorBoundary>}
+      {page === "readiness" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><AIReadiness model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} jobStates={jobStates} /></ErrorBoundary>}
       {page === "bbba" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><BBBAFramework model={model} f={f} onBack={goHome} onNavigate={navigate} jobStates={jobStates} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "headcount" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><HeadcountPlanning model={model} f={f} onBack={goHome} onNavigate={navigate} jobStates={jobStates} viewCtx={viewCtx} /></ErrorBoundary>}
-      {page === "reskill" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ReskillingPathways model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
+      {page === "reskill" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ReskillingPathways model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} jobStates={jobStates} simState={simState} /></ErrorBoundary>}
       {page === "marketplace" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><TalentMarketplace model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "skillnet" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><SkillsNetwork model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
-      {page === "skills" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><SkillsTalent model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
+      {page === "skills" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><SkillsTalent model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} jobStates={jobStates} /></ErrorBoundary>}
       {page === "design" && model && viewCtx.mode !== "employee" && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><WorkDesignLab model={model} f={f} job={viewCtx.mode === "job" ? viewCtx.job || job : job} jobs={jobs} onBack={goHome} jobStates={jobStates} setJobState={setJobState} onSelectJob={setJob} /></ErrorBoundary>}
       {page === "simulate" && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ImpactSimulator onBack={goHome} onNavigate={navigate} model={model} viewCtx={viewCtx} f={f} jobStates={jobStates} simState={simState} setSimState={setSimState} /></ErrorBoundary>}
-      {page === "build" && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><OrgDesignStudio onBack={goHome} viewCtx={viewCtx} model={model} f={f} odsState={odsState} setOdsState={setOdsState} /></ErrorBoundary>}
+      {page === "build" && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><OrgDesignStudio onBack={goHome} viewCtx={viewCtx} model={model} f={f} odsState={odsState} setOdsState={setOdsState} jobStates={jobStates} /></ErrorBoundary>}
       {page === "plan" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ChangePlanner model={model} f={f} onBack={goHome} onNavigate={navigate} jobStates={jobStates} simState={simState} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "opmodel" && viewCtx.mode === "job" && <div className="px-7 py-6"><div className="text-center py-20"><div className="text-4xl mb-3 opacity-30">🔒</div><h3 className="text-lg font-semibold mb-1">Not available in Job View</h3><p className="text-[15px] text-[var(--text-secondary)] mb-2">Operating Model Lab is available in:</p><div className="flex gap-2 justify-center mb-4"><Badge color="indigo">🏢 Organization</Badge><Badge color="amber">⚙️ Custom</Badge></div><button onClick={() => setViewMode("")} className="text-[var(--accent-primary)] text-[15px] font-semibold">Change View ↻</button></div></div>}
       {page === "opmodel" && viewCtx.mode !== "employee" && viewCtx.mode !== "job" && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><OperatingModelLab onBack={goHome} model={model} f={f} projectId={projectId} onNavigateCanvas={() => navigate("om_canvas")} onModelChange={setModel} /></ErrorBoundary>}
@@ -1499,9 +1564,9 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       {(page === "opmodel" && viewCtx.mode === "employee") && <div className="text-center py-20"><div className="text-4xl mb-3 opacity-30">🔒</div><h3 className="text-lg font-semibold mb-1">Not available in Employee View</h3><p className="text-[15px] text-[var(--text-secondary)] mb-2">Operating Model Lab is available in these views:</p><div className="flex gap-2 justify-center mb-4"><Badge color="indigo">🏢 Organization</Badge><Badge color="amber">⚙️ Custom</Badge></div><button onClick={() => setViewMode("")} className="text-[var(--accent-primary)] text-[15px] font-semibold">Change View ↻</button></div>}
       {page === "om_canvas" && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><OMDesignCanvas projectId={projectId} onBack={goHome} onNavigateLab={() => navigate("opmodel")} /></ErrorBoundary>}
       {page === "rolecompare" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><RoleComparison model={model} f={f} onBack={goHome} jobs={jobs} jobStates={jobStates} /></ErrorBoundary>}
-      {page === "quickwins" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><QuickWinIdentifier model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
+      {page === "quickwins" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><QuickWinIdentifier model={model} f={f} onBack={goHome} onNavigate={navigate} jobStates={jobStates} /></ErrorBoundary>}
       {page === "flightrecorder" && <FlightRecorder projectId={projectId} projectName={projectName} onBack={goHome} />}
-      {!model && page !== "home" && page !== "flightrecorder" && <div className="text-center py-20"><div className="text-4xl mb-3 opacity-30">📂</div><h3 className="text-lg font-semibold mb-1">Select a model first</h3><p className="text-[15px] text-[var(--text-secondary)]">Upload data or select Demo_Model in the sidebar.</p><button onClick={goHome} className="mt-4 text-[var(--accent-primary)] text-[15px] font-semibold">← Back to Home</button></div>}
+      {!model && page !== "home" && page !== "flightrecorder" && <div className="text-center py-20"><div className="text-4xl mb-3 opacity-30">📂</div><h3 className="text-lg font-semibold mb-1">No workforce data loaded</h3><p className="text-[15px] text-[var(--text-secondary)] max-w-md mx-auto mb-4">This module needs workforce data to function. Upload your data using the Smart Import wizard or select a demo model from the sidebar to explore.</p><div className="flex gap-3 justify-center"><button onClick={goHome} className="px-4 py-2 rounded-xl text-[15px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/20 hover:bg-[var(--accent-primary)]/5 transition-all">← Back to Overview</button><button onClick={() => setShowImportWizard(true)} className="px-4 py-2 rounded-xl text-[15px] font-semibold text-white bg-[var(--accent-primary)] hover:brightness-110 transition-all">Import Data</button></div></div>}
       </div>}
       </motion.div>
       </AnimatePresence>
@@ -1594,7 +1659,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       </div>
     </div>}
 
-    {sidebarGuide && <GuideModal type={sidebarGuide} onClose={() => setSidebarGuide(null)} />}
+    {sidebarGuide && <GuideViewer guide={sidebarGuide === "consultant" ? consultantGuide : hrGuide} onBack={() => setSidebarGuide(null)} onNavigate={(moduleId) => { setSidebarGuide(null); navigate(moduleId); }} />}
     <ToastContainer />
   </div>;
 }
@@ -1882,7 +1947,7 @@ function SandboxViewSelector({ companyName, onSelect }: { companyName: string; o
 
   // STEP 1: Splash — video bg + company name + static "Click anywhere"
   if (phase === "splash") {
-    return <div onClick={() => setPhase("select")} style={{ position: "fixed", inset: 0, zIndex: 60, cursor: "pointer" }}>
+    return <div onClick={() => setPhase("select")} style={{ position: "fixed", inset: 0, zIndex: 60, cursor: "pointer", animation: "pageCrossfade 0.2s ease-out", willChange: "opacity" }}>
       <VideoBackground name="view_bg" overlay={0.4} poster={`${CDN_BASE}/videos/optimized/view_bg-poster.jpg`} fallbackGradient="linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 100%)" className="absolute inset-0" />
       <div style={{ position: "absolute", inset: 0, zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
         <div style={{ fontSize: 15, fontWeight: 700, color: "rgba(224,144,64,0.5)", letterSpacing: 2, marginBottom: 12, textTransform: "uppercase" }}>Welcome to</div>
@@ -1893,7 +1958,7 @@ function SandboxViewSelector({ companyName, onSelect }: { companyName: string; o
   }
 
   // STEP 2: View selector overlay — same video bg, 6 options
-  return <div style={{ position: "fixed", inset: 0, zIndex: 60, background: "#0B1120" }}>
+  return <div style={{ position: "fixed", inset: 0, zIndex: 60, background: "#0B1120", animation: "pageCrossfade 0.2s ease-out", willChange: "opacity" }}>
     <VideoBackground name="view_bg" overlay={0.5} poster={`${CDN_BASE}/videos/optimized/view_bg-poster.jpg`} fallbackGradient="linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 100%)" className="absolute inset-0" />
     <div style={{ position: "absolute", inset: 0, zIndex: 1, background: "rgba(8,12,24,0.6)" }} />
     <div style={{ position: "absolute", inset: 0, zIndex: 2, display: "flex", alignItems: "center", justifyContent: "center", overflow: "auto" }}>
@@ -2168,10 +2233,13 @@ function ProjectHub({ onOpenProject, onStartTutorial, onOpenSandbox, showSandbox
   if (pendingSandbox) {
     return <SandboxViewSelector companyName={pendingSandbox.name} onSelect={(mode) => {
       // Map guide modes to org view (they use the same data, just different framing)
-      const viewMode = mode === "consultant" || mode === "hr" ? "org" : mode;
-      localStorage.setItem(`${pendingSandbox.id}_viewMode`, JSON.stringify(viewMode === "custom" ? "custom" : viewMode));
+      const isGuide = mode === "consultant" || mode === "hr";
+      const resolvedViewMode = isGuide ? "org" : mode;
+      localStorage.setItem(`${pendingSandbox.id}_viewMode`, JSON.stringify(resolvedViewMode === "custom" ? "custom" : resolvedViewMode));
       // Skip the Home splash screen — user already saw the sandbox splash
       try { sessionStorage.setItem(`${pendingSandbox.id}_splashSeen`, "1"); } catch {}
+      // If a guide was selected, flag it so Home auto-opens the guide viewer
+      if (isGuide) { try { sessionStorage.setItem(`${pendingSandbox.id}_openGuide`, mode); } catch {} }
       setPendingSandbox(null);
       setSandboxOpen(false);
       setSandboxPanelOpen(false);

@@ -32,6 +32,7 @@ import {
   fmtNum,
   ExpandableChart,
   type ViewContext,
+  type JobDesignState,
 } from "./shared";
 
 
@@ -84,7 +85,7 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
    Full spec: editable grid, dedup, dispositions, WDL connection,
    role/individual toggle, adjacency with shortlisting
    ═══════════════════════════════════════════════════════════════ */
-export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext }) {
+export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext; jobStates?: Record<string, JobDesignState> }) {
   const [tab, setTab] = useState("inventory");
   const [invData, setInvData] = useState<Record<string, unknown> | null>(null);
   const [gapData, setGapData] = useState<Record<string, unknown> | null>(null);
@@ -565,7 +566,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx }: { model:
 /* ═══════════════════════════════════════════════════════════════
    MODULE: AI READINESS ASSESSMENT
    ═══════════════════════════════════════════════════════════════ */
-export function AIReadiness({ model, f, onBack, onNavigate, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext }) {
+export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext; jobStates?: Record<string, JobDesignState> }) {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
   const [viewLevel, setViewLevel] = useState<"org"|"individual">("org");
@@ -873,7 +874,7 @@ export function ManagerCapability({ model, f, onBack, onNavigate, viewCtx }: { m
 /* ═══════════════════════════════════════════════════════════════
    MODULE: CHANGE READINESS & ADOPTION
    ═══════════════════════════════════════════════════════════════ */
-export function ChangeReadiness({ model, f, onBack, onNavigate, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext }) {
+export function ChangeReadiness({ model, f, onBack, onNavigate, viewCtx, simState }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext; simState?: { scenario: string; custom: boolean; custAdopt: number; custTimeline: number; investment: number } }) {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
   const [crTab, setCrTab] = useState<"campaigns" | "activities" | "raci" | "messages" | "tracking">("campaigns");

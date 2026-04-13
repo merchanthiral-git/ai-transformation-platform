@@ -1675,7 +1675,7 @@ export function ViewSelector({ onSelect, employees, jobs, filterOptions, onBack 
     { id: "hr", icon: "👥", title: "HR Professional Guide", desc: "Tailored for HR and People Analytics — workforce planning and talent strategy", color: "#EC4899", ready: true },
   ];
 
-  return <div style={{ position: "fixed", inset: 0, overflow: "auto", background: "#0B1120" }}>
+  return <div style={{ position: "fixed", inset: 0, overflow: "auto", background: "#0B1120", animation: "pageCrossfade 0.2s ease-out", willChange: "opacity" }}>
     {/* Full bleed background */}
     <VideoBackground name="view_bg" overlay={0.2} poster={`${CDN_BASE}/view_bg.png`} fallbackGradient="linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 65%, #0a0f1a 100%)" className="absolute inset-0 w-screen h-screen" />
     <div style={{ position: "absolute", inset: 0, zIndex: 1, background: revealed ? "rgba(8,12,24,0.75)" : "radial-gradient(ellipse at center, rgba(8,12,24,0.2) 0%, rgba(8,12,24,0.5) 60%, rgba(8,12,24,0.7) 100%)", transition: "background 0.6s ease", width: "100vw", height: "100vh" }} />
@@ -1711,7 +1711,7 @@ export function ViewSelector({ onSelect, employees, jobs, filterOptions, onBack 
             else if (v.id === "custom") setCustomExpanded(!customExpanded);
             else if (v.id === "job" && jobs.length) onSelect("job_select");
             else if (v.id === "employee" && employees.length) onSelect("employee_select");
-            else if (v.id === "consultant" || v.id === "hr") onSelect("org");
+            else if (v.id === "consultant" || v.id === "hr") onSelect(v.id);
           }} disabled={!v.ready} className="text-left rounded-xl p-5 transition-all duration-300 hover:-translate-y-1 group relative overflow-hidden disabled:opacity-30" style={{ background: "rgba(15,20,35,0.7)", backdropFilter: "blur(20px)", border: v.id === "custom" && customExpanded ? `1px solid ${v.color}50` : "1px solid rgba(255,200,150,0.08)" }} onMouseEnter={e => { if (v.ready) e.currentTarget.style.borderColor = `${v.color}40`; }} onMouseLeave={e => { if (!customExpanded || v.id !== "custom") e.currentTarget.style.borderColor = "rgba(255,200,150,0.08)"; }}>
             <div className="flex items-center gap-3 mb-2">
               <span className="text-2xl">{v.icon}</span>

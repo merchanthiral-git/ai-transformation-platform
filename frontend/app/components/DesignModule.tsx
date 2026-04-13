@@ -982,7 +982,7 @@ function odsAgg(data: ReturnType<typeof odsGenDept>) {
   return { hc, mgr, ic, avgS: mgr > 0 ? ic / mgr : 0, avgL: data.reduce((s, d) => s + d.layers, 0) / data.length, cost };
 }
 
-export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewCtx }: { onBack: () => void; model: string; f: Filters; odsState: { activeScenario: number; view: string }; setOdsState: (s: { activeScenario: number; view: string }) => void; viewCtx?: ViewContext }) {
+export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewCtx, jobStates }: { onBack: () => void; model: string; f: Filters; odsState: { activeScenario: number; view: string }; setOdsState: (s: { activeScenario: number; view: string }) => void; viewCtx?: ViewContext; jobStates?: Record<string, JobDesignState> }) {
   // Try to build from real org data
   const [orgData] = useApiData(() => model ? api.getOrgDiagnostics(model, f) : Promise.resolve(null), [model, f.func, f.jf, f.sf, f.cl]);
   const [overviewData] = useApiData(() => model ? api.getOverview(model, f) : Promise.resolve(null), [model, f.func, f.jf, f.sf, f.cl]);
@@ -5531,7 +5531,7 @@ export function RoleComparison({ model, f, onBack, jobs, jobStates }: { model: s
    ═══════════════════════════════════════════════════════════════ */
 
 
-export function QuickWinIdentifier({ model, f, onBack, onNavigate }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void }) {
+export function QuickWinIdentifier({ model, f, onBack, onNavigate, jobStates }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; jobStates?: Record<string, JobDesignState> }) {
   const [data, loading] = useApiData(() => api.getAIPriority(model, f), [model, f.func, f.jf, f.sf, f.cl]);
   const [sortBy, setSortBy] = useState<"roi"|"effort"|"combined">("combined");
 

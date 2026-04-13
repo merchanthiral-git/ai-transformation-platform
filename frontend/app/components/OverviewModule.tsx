@@ -458,7 +458,7 @@ export function PersonalImpactCard({ employee, jobStates, simState }: { employee
   </Card>;
 }
 
-export function TransformationExecDashboard({ model, f, onBack, onNavigate, decisionLog = [], riskRegister = [], addRisk, updateRisk }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; decisionLog?: {ts:string;module:string;action:string;detail:string}[]; riskRegister?: {id:string;source:string;risk:string;probability:string;impact:string;mitigation:string;status:string}[]; addRisk?: (s:string,r:string,p:string,i:string,m:string) => void; updateRisk?: (id:string,u:Partial<{status:string;mitigation:string}>) => void }) {
+export function TransformationExecDashboard({ model, f, onBack, onNavigate, decisionLog = [], riskRegister = [], addRisk, updateRisk, jobStates, simState, transformationSummary }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; decisionLog?: {ts:string;module:string;action:string;detail:string}[]; riskRegister?: {id:string;source:string;risk:string;probability:string;impact:string;mitigation:string;status:string}[]; addRisk?: (s:string,r:string,p:string,i:string,m:string) => void; updateRisk?: (id:string,u:Partial<{status:string;mitigation:string}>) => void; jobStates?: Record<string, unknown>; simState?: { scenario: string; custom: boolean; custAdopt: number; custTimeline: number; investment: number }; transformationSummary?: { designedJobCount: number; inProgressJobCount: number; totalJobCount: number; totalTasks: number; tasksAutomate: number; tasksAugment: number; tasksEliminate: number; tasksRetain: number; capacityFreedPct: number; scenario: string; adoptionRate: number; timeline: number; investment: number; decisionCount: number; riskCount: number; openRiskCount: number } }) {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -507,6 +507,21 @@ export function TransformationExecDashboard({ model, f, onBack, onNavigate, deci
         <div className="grid grid-cols-2 gap-3">{p.items.map(it => <div key={it.label} className="text-center"><div className="text-[20px] font-extrabold text-[var(--text-primary)]">{String(it.value)}</div><div className="text-[14px] text-[var(--text-muted)] uppercase">{it.label}</div></div>)}</div>
       </div>)}
     </div>
+
+    {/* Cross-module transformation progress — computed from live state */}
+    {transformationSummary && (transformationSummary.designedJobCount > 0 || transformationSummary.decisionCount > 0) && <div className="grid grid-cols-6 gap-3 mb-6">
+      {[
+        { label: "Jobs Designed", value: `${transformationSummary.designedJobCount}/${transformationSummary.totalJobCount}`, color: "#10B981" },
+        { label: "Tasks Analyzed", value: String(transformationSummary.totalTasks), color: "#D4860A" },
+        { label: "Capacity Freed", value: `${transformationSummary.capacityFreedPct}%`, color: "#8B5CF6" },
+        { label: "Active Scenario", value: transformationSummary.scenario.charAt(0).toUpperCase() + transformationSummary.scenario.slice(1), color: "#E8C547" },
+        { label: "Decisions Made", value: String(transformationSummary.decisionCount), color: "#0891B2" },
+        { label: "Open Risks", value: String(transformationSummary.openRiskCount), color: transformationSummary.openRiskCount > 3 ? "#EF4444" : "#10B981" },
+      ].map(m => <div key={m.label} className="rounded-xl p-3 text-center border" style={{ borderColor: `${m.color}20`, background: `${m.color}06` }}>
+        <div className="text-[20px] font-extrabold" style={{ color: m.color }}>{m.value}</div>
+        <div className="text-[13px] text-[var(--text-muted)] uppercase">{m.label}</div>
+      </div>)}
+    </div>}
 
     {/* Investment overview */}
     <Card title="Investment & ROI Summary">

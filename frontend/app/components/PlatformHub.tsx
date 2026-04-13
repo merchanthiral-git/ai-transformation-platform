@@ -139,133 +139,134 @@ function AboutTab() {
   const [quoteIdx, setQuoteIdx] = useState(0);
   useEffect(() => { const t = setInterval(() => setQuoteIdx(p => (p + 1) % 3), 12000); return () => clearInterval(t); }, []);
 
-  return <div>
-    {/* Intro framing */}
-    <div style={{ padding: "20px 40px 0", fontSize: 15, fontStyle: "italic", color: "rgba(255,230,200,0.35)" }}>Every tool has a story. Here is the person and philosophy behind the AI Transformation Platform.</div>
+  const quotes = [
+    { q: "What factors do you attribute to your success and advancement in your career?", text: "This might seem clich\u00E9, but I\u2019ve found that the most successful people are those who find opportunity even in challenging situations, and when they encounter adversity, they\u2019re able to have resilience coupled with a positive mindset. That not only allows you to figure out how to solve for something, but you also inspire others to work through change. That outlook really helped me over the course of my career. Change is a constant in today\u2019s world, so having a muscle for it that I\u2019ve built over time has helped me accept change as part of the everyday equation.", author: "Stephanie Penner", accent: "#D4860A" },
+    { q: "What are the most important qualities you look for in people and leaders?", text: "I look for a whole bunch of things. They have to be smart, they have to have good judgment, they have to work hard\u2026 they have to be capable. But character is a sine qua non \u2014 an absolute necessity. They tell the truth, and nothing but the truth. They don\u2019t shave the truth. They don\u2019t twist it depending on who they\u2019re talking to. They have courage \u2014 they\u2019re not afraid to speak up. They care about the company, not just themselves.", author: "Jamie Dimon, Chairman & CEO, JPMorgan Chase", accent: "#3B82F6" },
+    { q: "On preparation and excellence", text: "You have to take responsibility for your job. You have to do the work ahead of time. You can\u2019t just show up and expect things to work out. Always be prepared. Because you never know when you\u2019re going to be tested. It could be in a meeting, it could be when someone asks you a question, it could be when you least expect it. And if you\u2019re not prepared, it\u2019s going to show. People will know.", author: "Jim Donovan, Vice Chairman, Goldman Sachs", accent: "#C07030" },
+  ];
+  const cur = quotes[quoteIdx];
 
-    {/* Hero Banner — full-width warm gradient */}
-    <div className="relative overflow-hidden" style={{ height: 280, background: "linear-gradient(135deg, #3d2000 0%, #C07030 40%, #D4860A 70%, #E8C547 100%)" }}>
-      <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 30% 60%, rgba(0,0,0,0.2) 0%, transparent 70%)" }} />
-      <div className="relative z-10 flex items-center gap-8 h-full px-12">
-        <img src={`${CDN_BASE}/hiral_photo.jpg`} alt="Hiral Merchant" style={{ width: 120, height: 120, borderRadius: "50%", border: "3px solid rgba(212,134,10,0.6)", boxShadow: "var(--shadow-4)", objectFit: "cover", flexShrink: 0 }} />
-        <div>
-          <h1 style={{ fontSize: 36, fontWeight: 800, color: "#fff", fontFamily: "'Outfit', sans-serif", textShadow: "0 2px 16px rgba(0,0,0,0.3)", marginBottom: 4 }}>Hiral Merchant</h1>
-          <div style={{ fontSize: 18, color: "rgba(255,230,200,0.85)", fontWeight: 500 }}>Consultant at Mercer &middot; New York</div>
-          <div className="flex gap-2 mt-4">
-            <a href="https://www.linkedin.com/in/hiral-merchant-6a0416b1/" target="_blank" rel="noopener noreferrer" style={{ padding: "6px 16px", borderRadius: 10, fontSize: 15, fontWeight: 600, background: "rgba(0,0,0,0.2)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6 }}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-              LinkedIn
-            </a>
-          </div>
-        </div>
+  const LI_SVG = <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>;
+
+  return <div style={{ fontFamily: "'DM Sans', 'Outfit', sans-serif" }}>
+
+    {/* ═══ SECTION 1: HERO — Full-width, video bg, centred typography ═══ */}
+    <div className="relative overflow-hidden flex items-center justify-center" style={{ minHeight: 420, background: "linear-gradient(160deg, #1a0c00 0%, #3d2000 30%, #C07030 60%, #D4860A 85%, #E8C547 100%)" }}>
+      {/* Subtle radial overlay */}
+      <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 80%, rgba(0,0,0,0.35) 0%, transparent 60%)" }} />
+      <div className="relative z-10 text-center px-8 py-16">
+        <img src={`${CDN_BASE}/hiral_photo.jpg`} alt="Hiral Merchant" style={{ width: 130, height: 130, borderRadius: "50%", border: "4px solid rgba(255,255,255,0.2)", boxShadow: "0 8px 40px rgba(0,0,0,0.4)", objectFit: "cover", margin: "0 auto 28px" }} />
+        <h1 style={{ fontSize: 48, fontWeight: 800, color: "#fff", fontFamily: "'Outfit', sans-serif", textShadow: "0 3px 24px rgba(0,0,0,0.35)", letterSpacing: "-1px", marginBottom: 8 }}>Hiral Merchant</h1>
+        <p style={{ fontSize: 20, color: "rgba(255,240,220,0.85)", fontWeight: 500, fontFamily: "'DM Sans', sans-serif", marginBottom: 24 }}>Consultant at Mercer &middot; Workforce Transformation &middot; New York</p>
+        <a href="https://www.linkedin.com/in/hiral-merchant-6a0416b1/" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 24px", borderRadius: 12, fontSize: 15, fontWeight: 600, background: "rgba(0,0,0,0.25)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.18)", color: "#fff", textDecoration: "none", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(0,0,0,0.4)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(0,0,0,0.25)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.18)"; }}>
+          {LI_SVG} Connect on LinkedIn
+        </a>
       </div>
     </div>
 
-    {/* Bio Section — two-column layout */}
-    <div className="px-10 py-10" style={{ maxWidth: 960 }}>
-      <div className="flex gap-8">
-        {/* Left: Bio text (60%) */}
-        <div className="flex-1">
-          <p style={{ fontSize: 17, lineHeight: 1.85, color: "var(--text-secondary)" }}>Born in Montreal and raised in the mountains of Western North Carolina, Hiral is now based in <strong style={{ color: "var(--accent-primary)" }}>New York</strong> as a Consultant at <strong style={{ color: "var(--accent-primary)" }}>Mercer</strong>. He holds a Bachelor of Science from the University of North Carolina at Charlotte.</p>
-          <p style={{ fontSize: 17, lineHeight: 1.85, color: "var(--text-secondary)", marginTop: 16 }}>Passionate about the intersection of <strong style={{ color: "var(--accent-primary)" }}>AI and people</strong>, and the democratization of knowledge that enables a more confident workforce — this platform is a reflection of that mission. The AI Transformation Platform provides the analytical rigor of a top-tier consulting engagement in a self-service tool that any organization can use.</p>
+    {/* ═══ SECTION 2: BIO + AT A GLANCE — Two-column, 60/40 ═══ */}
+    <div style={{ padding: "100px 48px", maxWidth: 1100, margin: "0 auto" }}>
+      <div style={{ display: "flex", gap: 48, alignItems: "flex-start" }}>
+        {/* Left: Bio (60%) */}
+        <div style={{ flex: "0 0 58%", minWidth: 0 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "rgba(212,134,10,0.5)", textTransform: "uppercase", letterSpacing: 2.5, marginBottom: 12, fontFamily: "'IBM Plex Mono', monospace" }}>About</div>
+          <p style={{ fontSize: 18, lineHeight: 1.9, color: "rgba(255,230,200,0.55)", fontFamily: "'DM Sans', sans-serif" }}>Born in Montreal and raised in the mountains of Western North Carolina, Hiral is now based in <strong style={{ color: "#e09040" }}>New York</strong> as a Consultant at <strong style={{ color: "#e09040" }}>Mercer</strong>. He holds a Bachelor of Science from the University of North Carolina at Charlotte.</p>
+          <p style={{ fontSize: 18, lineHeight: 1.9, color: "rgba(255,230,200,0.55)", fontFamily: "'DM Sans', sans-serif", marginTop: 20 }}>Passionate about the intersection of <strong style={{ color: "#e09040" }}>AI and people</strong>, and the democratization of knowledge that enables a more confident workforce &mdash; this platform is a reflection of that mission. The AI Transformation Platform provides the analytical rigor of a top-tier consulting engagement in a self-service tool that any organization can use.</p>
         </div>
-        {/* Right: At a Glance card (40%) */}
-        <div style={{ width: 280, flexShrink: 0, borderRadius: 18, padding: 24, background: "rgba(255,255,255,0.02)", backdropFilter: "blur(12px)", border: "1px solid rgba(212,134,10,0.1)" }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: "rgba(212,134,10,0.5)", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 16 }}>At a Glance</div>
+        {/* Right: At a Glance (40%) */}
+        <div style={{ flex: "0 0 38%", minWidth: 0, borderRadius: 20, padding: "32px 28px", background: "rgba(255,255,255,0.02)", backdropFilter: "blur(16px)", border: "1px solid rgba(212,134,10,0.1)", boxShadow: "0 4px 32px rgba(0,0,0,0.1)" }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(212,134,10,0.5)", textTransform: "uppercase", letterSpacing: 2, marginBottom: 20, fontFamily: "'IBM Plex Mono', monospace" }}>At a Glance</div>
           {[
-            { icon: "🎓", label: "UNC Charlotte — BS" },
-            { icon: "📍", label: "New York, NY" },
-            { icon: "🏢", label: "Mercer — Workforce Transformation" },
-            { icon: "🌐", label: "LinkedIn", link: "https://www.linkedin.com/in/hiral-merchant-6a0416b1/" },
-            { icon: "📧", label: "merchanthiral@gmail.com" },
-          ].map(item => <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, fontSize: 15, color: "var(--text-secondary)" }}>
-            <span style={{ fontSize: 15 }}>{item.icon}</span>
-            {item.link ? <a href={item.link} target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent-primary)", textDecoration: "none" }}>{item.label}</a> : <span>{item.label}</span>}
+            { icon: "\u{1F393}", label: "UNC Charlotte \u2014 BS" },
+            { icon: "\u{1F4CD}", label: "New York, NY" },
+            { icon: "\u{1F3E2}", label: "Mercer \u2014 Workforce Transformation" },
+            { icon: "\u{1F310}", label: "LinkedIn", link: "https://www.linkedin.com/in/hiral-merchant-6a0416b1/" },
+            { icon: "\u{1F4E7}", label: "merchanthiral@gmail.com" },
+          ].map(item => <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16, fontSize: 16, color: "rgba(255,230,200,0.55)", fontFamily: "'DM Sans', sans-serif" }}>
+            <span style={{ fontSize: 18, width: 24, textAlign: "center", flexShrink: 0 }}>{item.icon}</span>
+            {item.link ? <a href={item.link} target="_blank" rel="noopener noreferrer" style={{ color: "#e09040", textDecoration: "none" }}>{item.label}</a> : <span>{item.label}</span>}
           </div>)}
         </div>
       </div>
     </div>
 
-    {/* ═══ QUOTES SECTION — Interactive Carousel ═══ */}
-    <div className="px-10 py-10">
-      <div className="text-center mb-8">
-        <h2 style={{ fontSize: 28, fontWeight: 700, fontFamily: "'Outfit', sans-serif", color: "var(--text-primary)", marginBottom: 4 }}>Words That Shape the Work</h2>
-        <div style={{ width: 60, height: 3, borderRadius: 2, background: "#D4860A", margin: "8px auto 0" }} />
-        <p className="text-[14px] mt-3" style={{ color: "rgba(232,197,71,0.4)" }}>Three voices, one philosophy</p>
+    {/* ═══ SECTION 3: QUOTES CAROUSEL — Full-width, glassmorphism ═══ */}
+    <div style={{ padding: "80px 48px 100px", background: "linear-gradient(180deg, transparent 0%, rgba(212,134,10,0.02) 50%, transparent 100%)" }}>
+      <div className="text-center" style={{ marginBottom: 48 }}>
+        <h2 style={{ fontSize: 34, fontWeight: 800, fontFamily: "'Outfit', sans-serif", color: "rgba(255,245,235,0.9)", letterSpacing: "-0.5px", marginBottom: 8 }}>Words That Shape the Work</h2>
+        <div style={{ width: 64, height: 3, borderRadius: 2, background: "#D4860A", margin: "0 auto 12px" }} />
+        <p style={{ fontSize: 16, color: "rgba(232,197,71,0.35)", fontFamily: "'DM Sans', sans-serif" }}>Three voices, one philosophy</p>
       </div>
 
-      {/* Quote 1 — Stephanie Penner */}
-      {/* Quote Carousel */}
-      {(() => {
-        const quotes = [
-          { q: "What factors do you attribute to your success and advancement in your career?", text: "This might seem cliché, but I've found that the most successful people are those who find opportunity even in challenging situations, and when they encounter adversity, they're able to have resilience coupled with a positive mindset. That not only allows you to figure out how to solve for something, but you also inspire others to work through change. That outlook really helped me over the course of my career. Change is a constant in today's world, so having a muscle for it that I've built over time has helped me accept change as part of the everyday equation.", author: "Stephanie Penner", bg: "linear-gradient(135deg, rgba(212,134,10,0.06), rgba(232,197,71,0.03))", accent: "#D4860A", border: "rgba(212,134,10,0.15)" },
-          { q: "What are the most important qualities you look for in people and leaders?", text: "I look for a whole bunch of things. They have to be smart, they have to have good judgment, they have to work hard… they have to be capable. But character is a sine qua non — an absolute necessity. They tell the truth, and nothing but the truth. They don't shave the truth. They don't twist it depending on who they're talking to. They have courage — they're not afraid to speak up. They care about the company, not just themselves.", author: "Jamie Dimon, Chairman & CEO, JPMorgan Chase", bg: "linear-gradient(135deg, rgba(11,17,32,0.6), rgba(26,35,64,0.4))", accent: "#3B82F6", border: "rgba(59,130,246,0.12)" },
-          { q: "On preparation and excellence", text: "You have to take responsibility for your job. You have to do the work ahead of time. You can't just show up and expect things to work out. Always be prepared. Because you never know when you're going to be tested. It could be in a meeting, it could be when someone asks you a question, it could be when you least expect it. And if you're not prepared, it's going to show. People will know.", author: "Jim Donovan, Vice Chairman, Goldman Sachs", bg: "linear-gradient(135deg, rgba(192,112,48,0.06), rgba(184,96,42,0.03))", accent: "#C07030", border: "rgba(192,112,48,0.12)" },
-        ];
-        const cur = quotes[quoteIdx];
-        return <div className="relative" style={{ maxWidth: 800, margin: "0 auto" }}>
-          {/* Arrows */}
-          <button onClick={() => setQuoteIdx((quoteIdx + 2) % 3)} style={{ position: "absolute", left: -48, top: "50%", transform: "translateY(-50%)", width: 40, height: 40, borderRadius: 12, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", color: "var(--text-muted)", fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} onMouseEnter={e => e.currentTarget.style.color = "#D4860A"} onMouseLeave={e => e.currentTarget.style.color = "var(--text-muted)"}>←</button>
-          <button onClick={() => setQuoteIdx((quoteIdx + 1) % 3)} style={{ position: "absolute", right: -48, top: "50%", transform: "translateY(-50%)", width: 40, height: 40, borderRadius: 12, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", color: "var(--text-muted)", fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} onMouseEnter={e => e.currentTarget.style.color = "#D4860A"} onMouseLeave={e => e.currentTarget.style.color = "var(--text-muted)"}>→</button>
-          {/* Quote card */}
-          <div key={quoteIdx} className="rounded-2xl relative overflow-hidden" style={{ padding: "40px 48px", background: cur.bg, border: `1px solid ${cur.border}`, borderLeft: `4px solid ${cur.accent}`, animation: "quoteFade 0.5s ease" }}>
-            <div className="absolute top-4 left-10 font-serif leading-none select-none" style={{ fontSize: 80, color: `${cur.accent}12` }}>&ldquo;</div>
-            <div className="relative z-10">
-              <div style={{ fontSize: 15, textTransform: "uppercase", letterSpacing: 2, fontStyle: "italic", color: `${cur.accent}80`, marginBottom: 16 }}>{cur.q}</div>
-              <blockquote style={{ fontSize: 20, fontFamily: "'Outfit', sans-serif", lineHeight: 1.8, color: "rgba(232,236,244,0.75)", fontStyle: "italic", marginBottom: 20 }}>{cur.text}</blockquote>
-              <div style={{ textAlign: "right", fontFamily: "'IBM Plex Mono', monospace", fontSize: 14, fontWeight: 700, color: cur.accent }}>— {cur.author}</div>
-            </div>
+      <div className="relative" style={{ maxWidth: 900, margin: "0 auto" }}>
+        {/* Navigation arrows — large, visible */}
+        <button onClick={() => setQuoteIdx((quoteIdx + 2) % 3)} style={{ position: "absolute", left: -64, top: "50%", transform: "translateY(-50%)", width: 48, height: 48, borderRadius: 14, background: "rgba(255,255,255,0.04)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,200,150,0.1)", color: "rgba(255,230,200,0.4)", fontSize: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s", zIndex: 2 }} onMouseEnter={e => { e.currentTarget.style.color = "#D4860A"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.3)"; e.currentTarget.style.background = "rgba(212,134,10,0.08)"; }} onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,230,200,0.4)"; e.currentTarget.style.borderColor = "rgba(255,200,150,0.1)"; e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}>{"\u2190"}</button>
+        <button onClick={() => setQuoteIdx((quoteIdx + 1) % 3)} style={{ position: "absolute", right: -64, top: "50%", transform: "translateY(-50%)", width: 48, height: 48, borderRadius: 14, background: "rgba(255,255,255,0.04)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,200,150,0.1)", color: "rgba(255,230,200,0.4)", fontSize: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s", zIndex: 2 }} onMouseEnter={e => { e.currentTarget.style.color = "#D4860A"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.3)"; e.currentTarget.style.background = "rgba(212,134,10,0.08)"; }} onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,230,200,0.4)"; e.currentTarget.style.borderColor = "rgba(255,200,150,0.1)"; e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}>{"\u2192"}</button>
+
+        {/* Glassmorphism quote card */}
+        <div key={quoteIdx} className="relative overflow-hidden" style={{ padding: "48px 56px", borderRadius: 24, background: "rgba(255,255,255,0.03)", backdropFilter: "blur(20px)", border: `1px solid rgba(255,200,150,0.08)`, borderLeft: `4px solid ${cur.accent}`, boxShadow: "0 8px 48px rgba(0,0,0,0.15)", animation: "quoteFade 0.5s ease" }}>
+          <div className="absolute top-2 left-12 font-serif leading-none select-none" style={{ fontSize: 100, color: `${cur.accent}10` }}>{"\u201C"}</div>
+          <div className="relative z-10">
+            <div style={{ fontSize: 13, textTransform: "uppercase", letterSpacing: 2.5, color: `${cur.accent}90`, marginBottom: 20, fontFamily: "'IBM Plex Mono', monospace", fontWeight: 600 }}>{cur.q}</div>
+            <blockquote style={{ fontSize: 22, fontFamily: "'Outfit', sans-serif", lineHeight: 1.85, color: "rgba(255,245,235,0.7)", fontStyle: "italic", marginBottom: 28 }}>{cur.text}</blockquote>
+            <div style={{ textAlign: "right", fontFamily: "'IBM Plex Mono', monospace", fontSize: 14, fontWeight: 700, color: cur.accent }}>{"\u2014"} {cur.author}</div>
           </div>
-          {/* Dots */}
-          <div className="flex justify-center gap-2 mt-4">{[0,1,2].map(i => <button key={i} onClick={() => setQuoteIdx(i)} style={{ width: i === quoteIdx ? 20 : 8, height: 8, borderRadius: 4, background: i === quoteIdx ? "#D4860A" : "rgba(255,255,255,0.06)", border: "none", cursor: "pointer", transition: "all 0.25s", padding: 0 }} />)}</div>
-          <style>{`@keyframes quoteFade { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: translateX(0); } }`}</style>
-        </div>;
-      })()}
+        </div>
+
+        {/* Dots */}
+        <div className="flex justify-center gap-2.5" style={{ marginTop: 20 }}>{[0,1,2].map(i => <button key={i} onClick={() => setQuoteIdx(i)} style={{ width: i === quoteIdx ? 24 : 8, height: 8, borderRadius: 4, background: i === quoteIdx ? "#D4860A" : "rgba(255,255,255,0.06)", border: "none", cursor: "pointer", transition: "all 0.3s", padding: 0 }} />)}</div>
+        <style>{`@keyframes quoteFade { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }`}</style>
+      </div>
     </div>
 
-    {/* ═══ PHILOSOPHY BOX ═══ */}
-    <div className="mx-10 rounded-2xl mb-10" style={{ padding: 48, background: "linear-gradient(135deg, rgba(255,248,235,0.04), rgba(212,134,10,0.02))", border: "1px solid rgba(212,134,10,0.12)" }}>
-      <h2 className="text-[20px] font-bold font-heading text-[var(--text-primary)] mb-2" style={{ letterSpacing: "-0.3px" }}>This Is About You</h2>
-      <p className="text-[15px] mb-10" style={{ color: "rgba(232,197,71,0.4)" }}>Why these principles define the transformation journey</p>
-
-      {/* Paragraph 1 — Courage */}
-      <p className="text-[14px] leading-[1.85] text-[var(--text-secondary)] mb-8">At some point in your transformation journey, you&apos;re going to sit in a room with data that tells an uncomfortable truth. Maybe it shows that 40% of tasks in your largest function are automatable. Maybe it reveals that your most tenured leaders are in the roles most exposed to AI disruption. Maybe it surfaces a pay equity gap that restructuring will either fix or amplify. In that moment, you have a choice — soften the message or <strong style={{ color: "var(--accent-primary)" }}>tell the truth</strong>. Jamie Dimon&apos;s words aren&apos;t about banking. They&apos;re about you, in that room, deciding whether to present the data as it is or shade it to make people comfortable. The organizations that transform successfully are led by people who choose truth. Not because it&apos;s easy, but because every decision built on incomplete truth compounds into a plan that doesn&apos;t work. When you use this platform and the AI impact scores tell you something hard — <strong style={{ color: "var(--accent-primary)" }}>sit with it. Don&apos;t shave it.</strong> That&apos;s where the real work begins.</p>
-
-      {/* Paragraph 2 — Resilience */}
-      <p className="text-[14px] leading-[1.85] text-[var(--text-secondary)] mb-8">Transformation is not a single moment — it&apos;s an eighteen-month, sometimes three-year grind. There will be a point where your stakeholders lose patience. Where the pilot program doesn&apos;t show results fast enough. Where employees push back harder than expected. Where a leader you were counting on as a champion suddenly becomes a skeptic. Stephanie&apos;s insight isn&apos;t motivational poster wisdom — it&apos;s operational reality. The consultants and HR leaders who deliver real transformation are the ones who <strong style={{ color: "var(--accent-primary)" }}>find opportunity in those setbacks</strong>. When 60% of your workforce scores as &ldquo;resistant to change&rdquo; in the readiness assessment, that&apos;s not a failure — that&apos;s a segmentation strategy. Those are the people who need a different engagement approach, not a louder memo. When a redesigned role gets rejected by the business, that&apos;s feedback, not defeat. You&apos;ll use this platform to run scenarios, score readiness, model impacts — and some of those outputs will be discouraging. The resilience isn&apos;t in ignoring the data. It&apos;s in asking <strong style={{ color: "var(--accent-primary)" }}>&ldquo;what does this tell me about what to do differently?&rdquo;</strong> and iterating.</p>
-
-      {/* Paragraph 3 — Preparation */}
-      <p className="text-[14px] leading-[1.85] text-[var(--text-secondary)] mb-8">Jim Donovan&apos;s advice sounds simple. Be prepared. But in transformation, preparation is everything that separates a plan that gets funded from one that gets shelved. When your CEO asks &ldquo;what&apos;s the ROI on this transformation?&rdquo; and you&apos;ve run the cost model with realistic assumptions, pressure-tested it across three scenarios, and can speak to the skill gaps, reskilling costs, and timeline — you earn credibility. When you can&apos;t, you lose the room. This platform exists so that <strong style={{ color: "var(--accent-primary)" }}>you&apos;re never caught unprepared</strong>. Every module — from the org health scorecard to the capacity waterfall to the stakeholder map — is a layer of preparation. When a board member challenges your headcount projections, you can drill into the FTE impact model and show exactly which roles are being reduced, redeployed, and created. When an employee asks &ldquo;what happens to me?&rdquo;, you can pull up the reskilling pathway and show them their transition plan. You don&apos;t get those answers from intuition. You get them from doing the work ahead of time.</p>
-
-      {/* Callout 1 */}
-      <div className="rounded-xl my-10 py-6 px-8 text-center" style={{ background: "rgba(212,134,10,0.04)", borderTop: "2px solid rgba(212,134,10,0.15)", borderBottom: "2px solid rgba(212,134,10,0.15)" }}>
-        <p className="text-[16px] italic leading-[1.8]" style={{ color: "rgba(232,197,71,0.6)", fontFamily: "'Outfit', sans-serif" }}>&ldquo;A playground is where you test assumptions without consequences. Where you model a restructuring before announcing it. Where you simulate the impact before committing budget.&rdquo;</p>
+    {/* ═══ SECTION 4: THIS IS ABOUT YOU — Shorter paragraphs + callout cards ═══ */}
+    <div style={{ padding: "80px 48px 100px", maxWidth: 860, margin: "0 auto" }}>
+      <div style={{ textAlign: "center", marginBottom: 48 }}>
+        <h2 style={{ fontSize: 34, fontWeight: 800, fontFamily: "'Outfit', sans-serif", color: "rgba(255,245,235,0.9)", letterSpacing: "-0.5px", marginBottom: 8 }}>This Is About You</h2>
+        <div style={{ width: 64, height: 3, borderRadius: 2, background: "#D4860A", margin: "0 auto 12px" }} />
+        <p style={{ fontSize: 16, color: "rgba(232,197,71,0.35)", fontFamily: "'DM Sans', sans-serif" }}>Why these principles define the transformation journey</p>
       </div>
 
-      {/* Paragraph 4 — The Digital Playground */}
-      <p className="text-[14px] leading-[1.85] text-[var(--text-secondary)] mb-8">This is why this platform is called a Digital Playground. Not because transformation is a game — but because every athlete, every performer, every leader who excels at the real thing practices first. A playground is where you test assumptions without consequences. Where you model a restructuring before announcing it. Where you simulate the financial impact before committing budget. Where you draft the change narrative before standing in front of 5,000 employees. The leaders and practitioners who use this tool the way it&apos;s intended — <strong style={{ color: "var(--accent-primary)" }}>experimenting with scenarios, stress-testing their designs, building and rebuilding until the plan is bulletproof</strong> — they walk into the real transformation with confidence. They&apos;ve already seen every version of the future. They&apos;ve already answered the hard questions. They&apos;ve prepared, they&apos;ve built resilience through iteration, and they&apos;ve faced the data with honesty. They swing, they slide, they climb — and when the real moment comes, they&apos;re ready.</p>
+      {/* Courage */}
+      <p style={{ fontSize: 17, lineHeight: 1.9, color: "rgba(255,230,200,0.5)", fontFamily: "'DM Sans', sans-serif", marginBottom: 24 }}>At some point in your transformation journey, you{"\u2019"}re going to sit in a room with data that tells an uncomfortable truth. Maybe 40% of tasks in your largest function are automatable. Maybe your most tenured leaders hold the roles most exposed to AI disruption. In that moment, you have a choice &mdash; soften the message or tell the truth.</p>
 
-      {/* Callout 2 */}
-      <div className="rounded-xl my-10 py-6 px-8 text-center" style={{ background: "rgba(212,134,10,0.04)", borderTop: "2px solid rgba(212,134,10,0.15)", borderBottom: "2px solid rgba(212,134,10,0.15)" }}>
-        <p className="text-[16px] italic leading-[1.8]" style={{ color: "rgba(232,197,71,0.6)", fontFamily: "'Outfit', sans-serif" }}>&ldquo;The principles behind great leadership and great transformation are the same.&rdquo;</p>
+      <div style={{ padding: "24px 32px", borderRadius: 16, background: "rgba(212,134,10,0.04)", border: "1px solid rgba(212,134,10,0.1)", borderLeft: "4px solid #D4860A", marginBottom: 40 }}>
+        <p style={{ fontSize: 18, fontWeight: 600, color: "#e09040", fontFamily: "'Outfit', sans-serif", lineHeight: 1.7, margin: 0 }}>The organizations that transform successfully are led by people who choose truth. Not because it{"\u2019"}s easy, but because every decision built on incomplete truth compounds into a plan that doesn{"\u2019"}t work.</p>
       </div>
 
-      {/* Paragraph 5 — Why This Matters */}
-      <p className="text-[14px] leading-[1.85] text-[var(--text-secondary)] mb-8">The reason I built this platform — and the reason these quotes live here — is because I believe the principles behind great leadership and great transformation are the same. And those principles shouldn&apos;t be locked behind expensive consulting engagements that only Fortune 500 companies can access. A 200-person healthcare system deserves the same rigor in their workforce planning as a 50,000-person bank. A first-time HR leader navigating their company&apos;s first AI initiative deserves the same strategic toolkit as a McKinsey partner. That&apos;s what <strong style={{ color: "var(--accent-primary)" }}>democratizing knowledge</strong> means. Not dumbing it down — opening it up. If Stephanie&apos;s resilience, Jamie&apos;s character, and Jim&apos;s preparation resonate with you the way they resonate with me, then you&apos;re exactly who this platform was built for. Welcome to the Digital Playground. Let&apos;s build something.</p>
+      {/* Resilience */}
+      <p style={{ fontSize: 17, lineHeight: 1.9, color: "rgba(255,230,200,0.5)", fontFamily: "'DM Sans', sans-serif", marginBottom: 24 }}>Transformation is not a single moment &mdash; it{"\u2019"}s an eighteen-month, sometimes three-year grind. Stakeholders will lose patience. Pilots won{"\u2019"}t show results fast enough. Employees will push back harder than expected. A champion will become a skeptic.</p>
+
+      <p style={{ fontSize: 17, lineHeight: 1.9, color: "rgba(255,230,200,0.5)", fontFamily: "'DM Sans', sans-serif", marginBottom: 24 }}>When 60% of your workforce scores as {"\u201C"}resistant to change{"\u201D"} in the readiness assessment, that{"\u2019"}s not a failure &mdash; that{"\u2019"}s a segmentation strategy. The resilience isn{"\u2019"}t in ignoring the data. It{"\u2019"}s in asking <strong style={{ color: "#e09040" }}>{"\u201C"}what does this tell me about what to do differently?{"\u201D"}</strong></p>
+
+      <div style={{ padding: "24px 32px", borderRadius: 16, background: "rgba(59,130,246,0.04)", border: "1px solid rgba(59,130,246,0.1)", borderLeft: "4px solid #3B82F6", marginBottom: 40 }}>
+        <p style={{ fontSize: 18, fontWeight: 600, color: "rgba(147,197,253,0.8)", fontFamily: "'Outfit', sans-serif", lineHeight: 1.7, margin: 0 }}>The consultants and HR leaders who deliver real transformation find opportunity in setbacks. A redesigned role rejected by the business is feedback, not defeat.</p>
+      </div>
+
+      {/* Preparation */}
+      <p style={{ fontSize: 17, lineHeight: 1.9, color: "rgba(255,230,200,0.5)", fontFamily: "'DM Sans', sans-serif", marginBottom: 24 }}>Preparation is everything that separates a plan that gets funded from one that gets shelved. When your CEO asks {"\u201C"}what{"\u2019"}s the ROI?{"\u201D"} and you{"\u2019"}ve run the cost model with realistic assumptions, pressure-tested it across three scenarios, and can speak to skill gaps, reskilling costs, and timeline &mdash; you earn credibility. When you can{"\u2019"}t, you lose the room.</p>
+
+      <div style={{ padding: "24px 32px", borderRadius: 16, background: "rgba(192,112,48,0.04)", border: "1px solid rgba(192,112,48,0.1)", borderLeft: "4px solid #C07030", marginBottom: 40 }}>
+        <p style={{ fontSize: 18, fontWeight: 600, color: "rgba(220,160,90,0.8)", fontFamily: "'Outfit', sans-serif", lineHeight: 1.7, margin: 0 }}>This platform exists so you{"\u2019"}re never caught unprepared. Every module is a layer of preparation &mdash; from the org health scorecard to the capacity waterfall to the stakeholder map.</p>
+      </div>
+
+      {/* The Playground */}
+      <p style={{ fontSize: 17, lineHeight: 1.9, color: "rgba(255,230,200,0.5)", fontFamily: "'DM Sans', sans-serif", marginBottom: 24 }}>This is why this platform is called a Digital Playground. Not because transformation is a game &mdash; but because every leader who excels at the real thing practices first. The leaders who use this tool the way it{"\u2019"}s intended walk into the real transformation with confidence. They{"\u2019"}ve already seen every version of the future.</p>
+
+      {/* Closing & Why */}
+      <div style={{ padding: "32px 36px", borderRadius: 20, background: "linear-gradient(135deg, rgba(212,134,10,0.04), rgba(232,197,71,0.02))", border: "1px solid rgba(212,134,10,0.12)", marginBottom: 40, textAlign: "center" }}>
+        <p style={{ fontSize: 19, fontStyle: "italic", lineHeight: 1.8, color: "rgba(232,197,71,0.6)", fontFamily: "'Outfit', sans-serif", margin: "0 0 16px 0" }}>{"\u201C"}The principles behind great leadership and great transformation are the same. And those principles shouldn{"\u2019"}t be locked behind expensive consulting engagements that only Fortune 500 companies can access.{"\u201D"}</p>
+        <p style={{ fontSize: 16, color: "rgba(255,230,200,0.4)", fontFamily: "'DM Sans', sans-serif", margin: 0 }}>A 200-person healthcare system deserves the same rigor as a 50,000-person bank. That{"\u2019"}s what <strong style={{ color: "#e09040" }}>democratizing knowledge</strong> means.</p>
+      </div>
 
       {/* Signature */}
-      <div className="flex items-center gap-3 mt-10 pt-6" style={{ borderTop: "1px solid rgba(212,134,10,0.08)" }}>
-        <img src={`${CDN_BASE}/hiral_photo.jpg`} alt="HM" style={{ width: 40, height: 40, borderRadius: 10, objectFit: "cover", border: "2px solid rgba(212,134,10,0.3)" }} />
+      <div className="flex items-center gap-4" style={{ paddingTop: 32, borderTop: "1px solid rgba(212,134,10,0.08)" }}>
+        <img src={`${CDN_BASE}/hiral_photo.jpg`} alt="HM" style={{ width: 48, height: 48, borderRadius: 12, objectFit: "cover", border: "2px solid rgba(212,134,10,0.3)" }} />
         <div>
-          <div className="text-[15px] font-semibold text-[var(--text-primary)] font-heading">Hiral Merchant</div>
-          <div className="text-[15px]" style={{ color: "rgba(212,134,10,0.4)" }}>New York</div>
+          <div style={{ fontSize: 16, fontWeight: 700, color: "rgba(255,245,235,0.9)", fontFamily: "'Outfit', sans-serif" }}>Hiral Merchant</div>
+          <div style={{ fontSize: 14, color: "rgba(212,134,10,0.4)" }}>New York &middot; 2026</div>
         </div>
       </div>
-    </div>
-
-    {/* Footer */}
-    <div className="text-center pb-8">
-      <p className="text-[15px]" style={{ color: "rgba(255,230,200,0.15)" }}>Built with purpose in New York. {"\u00A9"} 2026</p>
     </div>
   </div>;
 }
