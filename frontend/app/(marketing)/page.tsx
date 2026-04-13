@@ -156,7 +156,7 @@ nav.scrolled { padding: 16px 56px; background: rgba(244,241,235,0.92); backdrop-
 .hero-actions { display: flex; gap: 16px; opacity: 0; transform: translateY(20px); animation: fadeUp 1s 0.7s forwards; }
 .hero-right { position: relative; z-index: 2; opacity: 0; animation: fadeUp 1.2s 0.4s forwards; transform: translateY(30px); }
 .hero-illo { width: 100%; aspect-ratio: 4/3; background: var(--surface); border: 1px solid var(--rule); border-radius: 24px; position: relative; overflow: hidden; padding: 0; }
-.hero-illo svg { width: 100%; height: 100%; }
+.hero-illo svg, .hero-illo img { width: 100%; height: 100%; object-fit: cover; }
 .marquee-band { padding: 24px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); overflow: hidden; white-space: nowrap; }
 .marquee-track { display: inline-flex; animation: marquee 90s linear infinite; }
 .marquee-track span { font-family: var(--serif); font-size: 16px; font-weight: 400; font-style: italic; color: var(--text-light); padding: 0 32px; }
@@ -170,7 +170,7 @@ nav.scrolled { padding: 16px 56px; background: rgba(244,241,235,0.92); backdrop-
 .word-reveal .word { display: inline-block; opacity: 0.1; transition: opacity 0.5s ease, transform 0.5s ease; transform: translateY(4px); }
 .word-reveal .word.visible { opacity: 1; transform: translateY(0); }
 .manifesto-illo { width: 100%; aspect-ratio: 4/3; background: var(--surface); border: 1px solid var(--rule); border-radius: 20px; overflow: hidden; }
-.manifesto-illo svg { width: 100%; height: 100%; }
+.manifesto-illo svg, .manifesto-illo img { width: 100%; height: 100%; object-fit: cover; }
 .three-moves { padding: 160px 48px; }
 .three-moves-header { text-align: center; margin-bottom: 80px; }
 .three-moves-header h2 { font-family: var(--serif); font-size: clamp(36px,5vw,60px); font-weight: 300; letter-spacing: -1px; }
