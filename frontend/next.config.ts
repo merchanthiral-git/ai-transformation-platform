@@ -3,6 +3,9 @@ import type { NextConfig } from "next";
 const backendUrl = process.env.BACKEND_URL || "http://localhost:8000";
 
 const nextConfig: NextConfig = {
+  env: {
+    NEXT_PUBLIC_CACHE_BUST: Date.now().toString(),
+  },
   devIndicators: false,
   typescript: {
     ignoreBuildErrors: true,
@@ -38,10 +41,17 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // Static media assets (images, fonts, videos) — cache forever
-        source: "/:path*\\.(mp4|webm|mp3|jpg|jpeg|png|webp|avif|ico|svg|woff|woff2)",
+        // Fonts — truly immutable, cache forever
+        source: "/:path*\\.(woff|woff2)",
         headers: [
           { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+      {
+        // Media assets (images, videos, audio) — cache with revalidation
+        source: "/:path*\\.(mp4|webm|mp3|jpg|jpeg|png|webp|avif|ico|svg)",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=86400, must-revalidate" },
         ],
       },
       {

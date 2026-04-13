@@ -92,7 +92,7 @@ const Tutorial = dynamic(() => import("../../components/Tutorial").then(m => ({ 
 const BotWorkspace = dynamic(() => import("../../components/bot/BotWorkspace"), { ssr: false });
 import { VideoBackground } from "../../components/VideoBackground";
 import { useAnimatedBg } from "../../../lib/animated-bg-context";
-import { CDN_BASE } from "../../../lib/cdn";
+import { CDN_BASE, cb } from "../../../lib/cdn";
 import { useCollaboration } from "../../../lib/collaboration";
 import type { RemoteChange } from "../../../lib/collaboration";
 import { PresenceAvatars, EditingIndicator, RemoteChangeToast, ActivityFeedPanel } from "../../components/CollaborationPanel";

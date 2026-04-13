@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import * as authApi from "../../lib/auth-api";
-import { CDN_BASE } from "../../lib/cdn";
+import { CDN_BASE, cb } from "../../lib/cdn";
 import { KNOWLEDGE_BASE, KnowledgeModal } from "./KnowledgeBase";
 
 /* ═══════════════════════════════════════════════════════════════
@@ -159,7 +159,7 @@ function AboutTab() {
       {/* Subtle radial overlay */}
       <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 80%, rgba(0,0,0,0.35) 0%, transparent 60%)" }} />
       <div className="relative z-10 text-center px-8 py-16">
-        <img src={`${CDN_BASE}/hiral_photo.jpg`} alt="Hiral Merchant" style={{ width: 130, height: 130, borderRadius: "50%", border: "4px solid rgba(255,255,255,0.2)", boxShadow: "0 8px 40px rgba(0,0,0,0.4)", objectFit: "cover", margin: "0 auto 28px" }} />
+        <img src={cb(`${CDN_BASE}/hiral_photo.jpg`)} alt="Hiral Merchant" style={{ width: 130, height: 130, borderRadius: "50%", border: "4px solid rgba(255,255,255,0.2)", boxShadow: "0 8px 40px rgba(0,0,0,0.4)", objectFit: "cover", margin: "0 auto 28px" }} />
         <h1 style={{ fontSize: 48, fontWeight: 800, color: "#fff", fontFamily: "'Outfit', sans-serif", textShadow: "0 3px 24px rgba(0,0,0,0.35)", letterSpacing: "-1px", marginBottom: 8 }}>Hiral Merchant</h1>
         <p style={{ fontSize: 20, color: "rgba(255,240,220,0.85)", fontWeight: 500, fontFamily: "'DM Sans', sans-serif", marginBottom: 24 }}>Consultant at Mercer &middot; Workforce Transformation &middot; New York</p>
         <a href="https://www.linkedin.com/in/hiral-merchant-6a0416b1/" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 24px", borderRadius: 12, fontSize: 15, fontWeight: 600, background: "rgba(0,0,0,0.25)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.18)", color: "#fff", textDecoration: "none", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(0,0,0,0.4)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(0,0,0,0.25)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.18)"; }}>
@@ -265,7 +265,7 @@ function AboutTab() {
 
       {/* Signature */}
       <div className="flex items-center gap-4" style={{ paddingTop: 32, borderTop: "1px solid rgba(212,134,10,0.08)" }}>
-        <img src={`${CDN_BASE}/hiral_photo.jpg`} alt="HM" style={{ width: 48, height: 48, borderRadius: 12, objectFit: "cover", border: "2px solid rgba(212,134,10,0.3)" }} />
+        <img src={cb(`${CDN_BASE}/hiral_photo.jpg`)} alt="HM" style={{ width: 48, height: 48, borderRadius: 12, objectFit: "cover", border: "2px solid rgba(212,134,10,0.3)" }} />
         <div>
           <div style={{ fontSize: 16, fontWeight: 700, color: "rgba(255,245,235,0.9)", fontFamily: "'Outfit', sans-serif" }}>Hiral Merchant</div>
           <div style={{ fontSize: 14, color: "rgba(212,134,10,0.4)" }}>New York &middot; 2026</div>

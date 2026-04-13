@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { CACHE_V } from "../../lib/cdn";
 
 export default function LandingPage() {
   const cursorRef = useRef<HTMLDivElement>(null);
@@ -158,7 +159,7 @@ nav.scrolled { padding: 16px 56px; background: rgba(244,241,235,0.92); backdrop-
 .hero-illo { width: 100%; aspect-ratio: 4/3; background: var(--surface); border: 1px solid var(--rule); border-radius: 24px; position: relative; overflow: hidden; padding: 0; }
 .hero-illo svg, .hero-illo img { width: 100%; height: 100%; object-fit: cover; }
 .marquee-band { padding: 24px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); overflow: hidden; white-space: nowrap; }
-.marquee-track { display: inline-flex; animation: marquee 120s linear infinite; }
+.marquee-track { display: inline-flex; width: max-content; animation: marquee 30s linear infinite; }
 .marquee-track span { font-family: var(--serif); font-size: 16px; font-weight: 400; font-style: italic; color: var(--text-light); padding: 0 32px; }
 .marquee-track span::before { content: '\\2726'; margin-right: 32px; color: var(--accent); font-style: normal; font-size: 10px; vertical-align: middle; }
 @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
@@ -337,7 +338,7 @@ footer { padding: 48px 56px; border-top: 1px solid var(--rule); display: flex; j
         </div>
         <div className="hero-right">
           <div className="hero-illo">
-              <img src="/web1.png" alt="Transformation team scrambling" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "24px" }} />
+              <img src={`/web1.png?v=${CACHE_V}`} alt="Transformation team scrambling" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "24px" }} />
             </div>
         </div>
       </section>
@@ -363,7 +364,7 @@ footer { padding: 48px 56px; border-top: 1px solid var(--rule); display: flex; j
             <h2 className="word-reveal">Every company has an AI strategy. Almost none of them know what happens to their <em>people</em> on Monday morning.</h2>
           </div>
           <div className="manifesto-illo">
-              <img src="/web2.png" alt="AI strategy meeting chaos" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "20px" }} />
+              <img src={`/web2.png?v=${CACHE_V}`} alt="AI strategy meeting chaos" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "20px" }} />
             </div>
         </div>
       </section>

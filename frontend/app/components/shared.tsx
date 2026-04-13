@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from "react"
 import * as api from "../../lib/api";
 import type { Filters } from "../../lib/api";
 import { VideoBackground } from "./VideoBackground";
-import { CDN_BASE } from "../../lib/cdn";
+import { CDN_BASE, cb } from "../../lib/cdn";
 import { trackExportGenerated, trackAIFeatureUsed } from "../../lib/analytics";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, CartesianGrid, Legend } from "recharts";
 import { motion, AnimatePresence } from "framer-motion";
@@ -1852,14 +1852,14 @@ export const MODULES = [
 ];
 
 export const PHASE_BACKGROUNDS: Record<string, string> = {
-  discover: `${CDN_BASE}/cards/backgrounds/discover.png`,
-  diagnose: `${CDN_BASE}/cards/backgrounds/diagnose.png`,
-  design: `${CDN_BASE}/cards/backgrounds/design.png`,
-  simulate: `${CDN_BASE}/cards/backgrounds/simulate.png`,
-  mobilize: `${CDN_BASE}/cards/backgrounds/mobilize.png`,
+  discover: cb(`${CDN_BASE}/cards/backgrounds/discover.png`),
+  diagnose: cb(`${CDN_BASE}/cards/backgrounds/diagnose.png`),
+  design: cb(`${CDN_BASE}/cards/backgrounds/design.png`),
+  simulate: cb(`${CDN_BASE}/cards/backgrounds/simulate.png`),
+  mobilize: cb(`${CDN_BASE}/cards/backgrounds/mobilize.png`),
 };
 
-const TILE_IMAGES = Array.from({ length: 16 }, (_, i) => `${CDN_BASE}/cards/tiles/tile_${String(i + 1).padStart(2, "0")}.png`);
+const TILE_IMAGES = Array.from({ length: 16 }, (_, i) => cb(`${CDN_BASE}/cards/tiles/tile_${String(i + 1).padStart(2, "0")}.png`));
 
 /** Generate a mapping of card IDs → tile images, unique within each phase group */
 export function generateCardBackgrounds(): Record<string, string> {
