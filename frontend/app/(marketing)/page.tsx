@@ -100,9 +100,9 @@ export default function LandingPage() {
       <style>{`
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 :root {
-  --bg: #F4F1EB; --bg-warm: #EBE7DF; --bg-dark: #141311; --surface: #FFFFFF;
+  --bg: #F0EBE1; --bg-warm: #E6E0D4; --bg-dark: #141311; --surface: #FAF8F4;
   --text: #1A1A17; --text-inv: #F4F1EB; --text-mid: #5C5A54; --text-light: #9E9B93;
-  --accent: #C04B2D; --accent-light: #D4725A; --rule: #D6D1C8;
+  --accent: #C04B2D; --accent-light: #D4725A; --rule: #D4CCBF;
   --serif: 'Cormorant Garamond', Georgia, serif;
   --sans: 'Instrument Sans', -apple-system, sans-serif;
 }
