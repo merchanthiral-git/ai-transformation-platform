@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useMemo } from "react";
-import { getLocalMetrics, type LocalMetrics } from "../../lib/analytics";
-import * as authApi from "../../lib/auth-api";
+import { getLocalMetrics, type LocalMetrics } from "../../../lib/analytics";
+import * as authApi from "../../../lib/auth-api";
 
 const MODULE_LABELS: Record<string, string> = {
   home: "Overview", snapshot: "Workforce Snapshot", jobarch: "Job Architecture",

@@ -1,10 +1,10 @@
 "use client";
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import * as api from "../lib/api";
-import * as authApi from "../lib/auth-api";
-import type { Filters } from "../lib/api";
-import { useWorkspaceController } from "../lib/workspace";
-import * as analytics from "../lib/analytics";
+import * as api from "../../../lib/api";
+import * as authApi from "../../../lib/auth-api";
+import type { Filters } from "../../../lib/api";
+import { useWorkspaceController } from "../../../lib/workspace";
+import * as analytics from "../../../lib/analytics";
 
 // ── Shared components & hooks ──
 import {
@@ -26,7 +26,7 @@ import {
   CommandPalette, CmdAction,
   AnnotationLayer, AnnotationPanel, Annotation,
   AiCoPilot, StoryEngine,
-} from "./components/shared";
+} from "../../components/shared";
 import { motion, AnimatePresence } from "framer-motion";
 
 // ── Tab Module Components — dynamic imports for code-splitting ──
@@ -38,65 +38,65 @@ import {
   TransformationDashboard, TransformationExecDashboard,
   EmployeeProfileCard, EmployeeOrgChart, PersonalImpactCard,
   SkillShiftIndex,
-} from "./components/OverviewModule";
+} from "../../components/OverviewModule";
 
 // Diagnose — loaded on demand
-const AiOpportunityScan = dynamic(() => import("./components/DiagnoseModule").then(m => ({ default: m.AiOpportunityScan })), { ssr: false });
-const AIReadiness = dynamic(() => import("./components/DiagnoseModule").then(m => ({ default: m.AIReadiness })), { ssr: false });
-const ManagerCapability = dynamic(() => import("./components/DiagnoseModule").then(m => ({ default: m.ManagerCapability })), { ssr: false });
-const SkillsTalent = dynamic(() => import("./components/DiagnoseModule").then(m => ({ default: m.SkillsTalent })), { ssr: false });
-const ChangeReadiness = dynamic(() => import("./components/DiagnoseModule").then(m => ({ default: m.ChangeReadiness })), { ssr: false });
-const ManagerDevelopment = dynamic(() => import("./components/DiagnoseModule").then(m => ({ default: m.ManagerDevelopment })), { ssr: false });
-const AiRecommendationsEngine = dynamic(() => import("./components/DiagnoseModule").then(m => ({ default: m.AiRecommendationsEngine })), { ssr: false });
-const OrgHealthScorecard = dynamic(() => import("./components/DiagnoseModule").then(m => ({ default: m.OrgHealthScorecard })), { ssr: false });
-const AIImpactHeatmap = dynamic(() => import("./components/DiagnoseModule").then(m => ({ default: m.AIImpactHeatmap })), { ssr: false });
-const RoleClustering = dynamic(() => import("./components/DiagnoseModule").then(m => ({ default: m.RoleClustering })), { ssr: false });
+const AiOpportunityScan = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.AiOpportunityScan })), { ssr: false });
+const AIReadiness = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.AIReadiness })), { ssr: false });
+const ManagerCapability = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.ManagerCapability })), { ssr: false });
+const SkillsTalent = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.SkillsTalent })), { ssr: false });
+const ChangeReadiness = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.ChangeReadiness })), { ssr: false });
+const ManagerDevelopment = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.ManagerDevelopment })), { ssr: false });
+const AiRecommendationsEngine = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.AiRecommendationsEngine })), { ssr: false });
+const OrgHealthScorecard = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.OrgHealthScorecard })), { ssr: false });
+const AIImpactHeatmap = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.AIImpactHeatmap })), { ssr: false });
+const RoleClustering = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.RoleClustering })), { ssr: false });
 
 // Design — heaviest module (~5500 lines), loaded on demand
-const WorkDesignLab = dynamic(() => import("./components/DesignModule").then(m => ({ default: m.WorkDesignLab })), { ssr: false });
-const OrgDesignStudio = dynamic(() => import("./components/DesignModule").then(m => ({ default: m.OrgDesignStudio })), { ssr: false });
-const OperatingModelLab = dynamic(() => import("./components/DesignModule").then(m => ({ default: m.OperatingModelLab })), { ssr: false });
-const OMDesignCanvas = dynamic(() => import("./components/DesignModule").then(m => ({ default: m.OMDesignCanvas })), { ssr: false });
-const RoleComparison = dynamic(() => import("./components/DesignModule").then(m => ({ default: m.RoleComparison })), { ssr: false });
-const QuickWinIdentifier = dynamic(() => import("./components/DesignModule").then(m => ({ default: m.QuickWinIdentifier })), { ssr: false });
-const BBBAFramework = dynamic(() => import("./components/DesignModule").then(m => ({ default: m.BBBAFramework })), { ssr: false });
-const HeadcountPlanning = dynamic(() => import("./components/DesignModule").then(m => ({ default: m.HeadcountPlanning })), { ssr: false });
-const KPIAlignmentModule = dynamic(() => import("./components/DesignModule").then(m => ({ default: m.KPIAlignmentModule })), { ssr: false });
+const WorkDesignLab = dynamic(() => import("../../components/DesignModule").then(m => ({ default: m.WorkDesignLab })), { ssr: false });
+const OrgDesignStudio = dynamic(() => import("../../components/DesignModule").then(m => ({ default: m.OrgDesignStudio })), { ssr: false });
+const OperatingModelLab = dynamic(() => import("../../components/DesignModule").then(m => ({ default: m.OperatingModelLab })), { ssr: false });
+const OMDesignCanvas = dynamic(() => import("../../components/DesignModule").then(m => ({ default: m.OMDesignCanvas })), { ssr: false });
+const RoleComparison = dynamic(() => import("../../components/DesignModule").then(m => ({ default: m.RoleComparison })), { ssr: false });
+const QuickWinIdentifier = dynamic(() => import("../../components/DesignModule").then(m => ({ default: m.QuickWinIdentifier })), { ssr: false });
+const BBBAFramework = dynamic(() => import("../../components/DesignModule").then(m => ({ default: m.BBBAFramework })), { ssr: false });
+const HeadcountPlanning = dynamic(() => import("../../components/DesignModule").then(m => ({ default: m.HeadcountPlanning })), { ssr: false });
+const KPIAlignmentModule = dynamic(() => import("../../components/DesignModule").then(m => ({ default: m.KPIAlignmentModule })), { ssr: false });
 
 // Simulate — loaded on demand
-const ImpactSimulator = dynamic(() => import("./components/SimulateModule").then(m => ({ default: m.ImpactSimulator })), { ssr: false });
+const ImpactSimulator = dynamic(() => import("../../components/SimulateModule").then(m => ({ default: m.ImpactSimulator })), { ssr: false });
 
 // Mobilize — loaded on demand
-const ChangePlanner = dynamic(() => import("./components/MobilizeModule").then(m => ({ default: m.ChangePlanner })), { ssr: false });
-const ReskillingPathways = dynamic(() => import("./components/MobilizeModule").then(m => ({ default: m.ReskillingPathways })), { ssr: false });
-const TalentMarketplace = dynamic(() => import("./components/MobilizeModule").then(m => ({ default: m.TalentMarketplace })), { ssr: false });
-const TransformationStoryBuilder = dynamic(() => import("./components/MobilizeModule").then(m => ({ default: m.TransformationStoryBuilder })), { ssr: false });
-const ReadinessArchetypes = dynamic(() => import("./components/MobilizeModule").then(m => ({ default: m.ReadinessArchetypes })), { ssr: false });
-const SkillsNetwork = dynamic(() => import("./components/MobilizeModule").then(m => ({ default: m.SkillsNetwork })), { ssr: false });
+const ChangePlanner = dynamic(() => import("../../components/MobilizeModule").then(m => ({ default: m.ChangePlanner })), { ssr: false });
+const ReskillingPathways = dynamic(() => import("../../components/MobilizeModule").then(m => ({ default: m.ReskillingPathways })), { ssr: false });
+const TalentMarketplace = dynamic(() => import("../../components/MobilizeModule").then(m => ({ default: m.TalentMarketplace })), { ssr: false });
+const TransformationStoryBuilder = dynamic(() => import("../../components/MobilizeModule").then(m => ({ default: m.TransformationStoryBuilder })), { ssr: false });
+const ReadinessArchetypes = dynamic(() => import("../../components/MobilizeModule").then(m => ({ default: m.ReadinessArchetypes })), { ssr: false });
+const SkillsNetwork = dynamic(() => import("../../components/MobilizeModule").then(m => ({ default: m.SkillsNetwork })), { ssr: false });
 
 // Export — loaded on demand
-const ExportReport = dynamic(() => import("./components/ExportModule").then(m => ({ default: m.ExportReport })), { ssr: false });
+const ExportReport = dynamic(() => import("../../components/ExportModule").then(m => ({ default: m.ExportReport })), { ssr: false });
 
 // Guides — loaded on demand (large content files)
-const GuideViewer = dynamic(() => import("./components/guides/GuideViewer"), { ssr: false });
-import { consultantGuide } from "./components/guides/consultantGuide";
-import { hrGuide } from "./components/guides/hrGuide";
+const GuideViewer = dynamic(() => import("../../components/guides/GuideViewer"), { ssr: false });
+import { consultantGuide } from "../../components/guides/consultantGuide";
+import { hrGuide } from "../../components/guides/hrGuide";
 
 // Job Architecture, PlatformHub, supporting modules — loaded on demand
-const JobArchitectureModule = dynamic(() => import("./components/JobArchModule").then(m => ({ default: m.JobArchitectureModule })), { ssr: false });
-const PlatformHub = dynamic(() => import("./components/PlatformHub").then(m => ({ default: m.PlatformHub })), { ssr: false });
-const AgentOrchestrator = dynamic(() => import("./components/AgentPanel").then(m => ({ default: m.AgentOrchestrator })), { ssr: false });
-const NLQBar = dynamic(() => import("./components/NLQBar").then(m => ({ default: m.NLQBar })), { ssr: false });
-const FlightRecorder = dynamic(() => import("./components/FlightRecorder").then(m => ({ default: m.FlightRecorder })), { ssr: false });
-const Tutorial = dynamic(() => import("./components/Tutorial").then(m => ({ default: m.Tutorial })), { ssr: false });
-const BotWorkspace = dynamic(() => import("./components/bot/BotWorkspace"), { ssr: false });
-import { VideoBackground } from "./components/VideoBackground";
-import { useAnimatedBg } from "../lib/animated-bg-context";
-import { CDN_BASE } from "../lib/cdn";
-import { useCollaboration } from "../lib/collaboration";
-import type { RemoteChange } from "../lib/collaboration";
-import { PresenceAvatars, EditingIndicator, RemoteChangeToast, ActivityFeedPanel } from "./components/CollaborationPanel";
-import { AiObservationsPanel, SmartRecommendations, WorkflowSuggestions } from "./components/AiIntelligence";
+const JobArchitectureModule = dynamic(() => import("../../components/JobArchModule").then(m => ({ default: m.JobArchitectureModule })), { ssr: false });
+const PlatformHub = dynamic(() => import("../../components/PlatformHub").then(m => ({ default: m.PlatformHub })), { ssr: false });
+const AgentOrchestrator = dynamic(() => import("../../components/AgentPanel").then(m => ({ default: m.AgentOrchestrator })), { ssr: false });
+const NLQBar = dynamic(() => import("../../components/NLQBar").then(m => ({ default: m.NLQBar })), { ssr: false });
+const FlightRecorder = dynamic(() => import("../../components/FlightRecorder").then(m => ({ default: m.FlightRecorder })), { ssr: false });
+const Tutorial = dynamic(() => import("../../components/Tutorial").then(m => ({ default: m.Tutorial })), { ssr: false });
+const BotWorkspace = dynamic(() => import("../../components/bot/BotWorkspace"), { ssr: false });
+import { VideoBackground } from "../../components/VideoBackground";
+import { useAnimatedBg } from "../../../lib/animated-bg-context";
+import { CDN_BASE } from "../../../lib/cdn";
+import { useCollaboration } from "../../../lib/collaboration";
+import type { RemoteChange } from "../../../lib/collaboration";
+import { PresenceAvatars, EditingIndicator, RemoteChangeToast, ActivityFeedPanel } from "../../components/CollaborationPanel";
+import { AiObservationsPanel, SmartRecommendations, WorkflowSuggestions } from "../../components/AiIntelligence";
 // Three.js removed — was causing "Context Lost" and deprecated Clock warnings.
 // Audio orb visualizer now uses pure CSS (see CSSAudioOrb below).
 
