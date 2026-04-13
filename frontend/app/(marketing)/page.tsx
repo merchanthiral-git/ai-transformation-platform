@@ -44,22 +44,18 @@ export default function LandingPage() {
 
     // ── Word reveal ──
     document.querySelectorAll(".word-reveal").forEach(container => {
-      const html = container.innerHTML;
-      let idx = 0;
-      const emStore: { placeholder: string; words: string }[] = [];
-      let processed = html.replace(/<em>(.*?)<\/em>/g, (_m, inner) => {
-        const words = inner.split(/\s+/).map((w: string) => `<span class="word"><em>${w}</em></span>`).join(" ");
-        const placeholder = `__EM${idx}__`;
-        emStore.push({ placeholder, words });
-        idx++;
-        return placeholder;
-      });
-      processed = processed.replace(/([A-Za-z'\u2019\u00C0-\u024F]+)/g, (m) => {
-        if (m.startsWith("__EM") && m.endsWith("__")) return m;
-        return `<span class="word">${m}</span>`;
-      });
-      emStore.forEach(({ placeholder, words }) => { processed = processed.replace(placeholder, words); });
-      container.innerHTML = processed;
+      function processNode(node: ChildNode): string {
+        if (node.nodeType === 3) {
+          return (node.textContent || "").replace(/(\S+)/g, '<span class="word">$1</span>');
+        } else if (node.nodeType === 1) {
+          const el = node as HTMLElement;
+          const tag = el.tagName.toLowerCase();
+          const inner = Array.from(el.childNodes).map(processNode).join("");
+          return "<" + tag + ">" + inner + "</" + tag + ">";
+        }
+        return "";
+      }
+      container.innerHTML = Array.from(container.childNodes).map(processNode).join("");
     });
     const wordObs = new IntersectionObserver(entries => {
       entries.forEach(entry => {
@@ -162,7 +158,7 @@ nav.scrolled { padding: 16px 56px; background: rgba(244,241,235,0.92); backdrop-
 .hero-illo { width: 100%; aspect-ratio: 4/3; background: var(--surface); border: 1px solid var(--rule); border-radius: 24px; position: relative; overflow: hidden; padding: 0; }
 .hero-illo svg { width: 100%; height: 100%; }
 .marquee-band { padding: 24px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); overflow: hidden; white-space: nowrap; }
-.marquee-track { display: inline-flex; animation: marquee 35s linear infinite; }
+.marquee-track { display: inline-flex; animation: marquee 90s linear infinite; }
 .marquee-track span { font-family: var(--serif); font-size: 16px; font-weight: 400; font-style: italic; color: var(--text-light); padding: 0 32px; }
 .marquee-track span::before { content: '\\2726'; margin-right: 32px; color: var(--accent); font-style: normal; font-size: 10px; vertical-align: middle; }
 @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
@@ -282,7 +278,6 @@ footer { padding: 48px 56px; border-top: 1px solid var(--rule); display: flex; j
 }
 @keyframes floatPaper { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-8px) rotate(3deg); } }
 @keyframes pulseRing { 0% { r: 8; opacity: 0.5; } 100% { r: 20; opacity: 0; } }
-@keyframes scanLine { 0% { transform: translateY(0); } 100% { transform: translateY(160px); } }
 @keyframes barGrow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
 @keyframes nodeFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 @keyframes dashMove { to { stroke-dashoffset: -20; } }
@@ -438,7 +433,6 @@ footer { padding: 48px 56px; border-top: 1px solid var(--rule); display: flex; j
               <rect x="150" y="120" width="40" height="18" rx="3" fill="#C04B2D" opacity="0.4" stroke="#C04B2D" strokeWidth="0.5"/><text x="156" y="132" fontSize="6" fill="#C04B2D">67% AI</text>
               <rect x="210" y="120" width="40" height="18" rx="3" fill="#C04B2D" opacity="0.25" stroke="#C04B2D" strokeWidth="0.5"/><text x="216" y="132" fontSize="6" fill="#C04B2D">45% AI</text>
               <rect x="270" y="120" width="40" height="18" rx="3" fill="#C04B2D" opacity="0.1" stroke="#C04B2D" strokeWidth="0.5"/><text x="276" y="132" fontSize="6" fill="#C04B2D">12% AI</text>
-              <line x1="60" y1="0" x2="340" y2="0" stroke="#C04B2D" strokeWidth="1.5" opacity="0.6" style={{ animation: "scanLine 3s linear infinite" }}/>
               <rect x="40" y="160" width="320" height="120" rx="10" fill="white" stroke="#D6D1C8"/>
               <text x="56" y="182" fontFamily="'Instrument Sans',sans-serif" fontSize="8" fill="#9E9B93" fontWeight="600" letterSpacing="1.5">TASK DECOMPOSITION</text>
               <g transform="translate(56, 195)"><text x="0" y="10" fontSize="7" fill="#5C5A54">Data Entry</text><rect x="80" y="2" width="200" height="12" rx="2" fill="#EBE7DF"/><rect x="80" y="2" width="170" height="12" rx="2" fill="#C04B2D" opacity="0.7" style={{ animation: "barGrow 1.5s ease-out forwards", transformOrigin: "left" }}/><text x="258" y="11" fontSize="6" fill="#C04B2D" fontWeight="600">85%</text></g>
