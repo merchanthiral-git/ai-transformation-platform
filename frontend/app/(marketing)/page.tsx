@@ -337,32 +337,8 @@ footer { padding: 48px 56px; border-top: 1px solid var(--rule); display: flex; j
         </div>
         <div className="hero-right">
           <div className="hero-illo">
-            {/* Hero SVG illustration — transformation team scrambling */}
-            <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
-              <rect width="400" height="300" fill="#FAFAF7"/>
-              <rect x="50" y="40" width="300" height="180" rx="12" fill="white" stroke="#D6D1C8"/>
-              <text x="80" y="70" fontFamily="'Instrument Sans',sans-serif" fontSize="10" fill="#9E9B93" fontWeight="600" letterSpacing="1.5">TRANSFORMATION COMMAND CENTER</text>
-              <rect x="70" y="85" width="120" height="60" rx="8" fill="#EBE7DF" stroke="#D6D1C8"/>
-              <text x="85" y="105" fontSize="8" fill="#5C5A54" fontWeight="600">Workforce Impact</text>
-              <rect x="85" y="112" width="80" height="8" rx="2" fill="#C04B2D" opacity="0.6"/>
-              <rect x="85" y="124" width="55" height="8" rx="2" fill="#C04B2D" opacity="0.3"/>
-              <rect x="85" y="136" width="95" height="4" rx="2" fill="#D6D1C8"/>
-              <rect x="210" y="85" width="120" height="60" rx="8" fill="#EBE7DF" stroke="#D6D1C8"/>
-              <text x="225" y="105" fontSize="8" fill="#5C5A54" fontWeight="600">AI Readiness</text>
-              <circle cx="270" cy="128" r="18" fill="none" stroke="#C04B2D" strokeWidth="3" strokeDasharray="80 33" strokeLinecap="round"/>
-              <text x="260" y="132" fontSize="10" fill="#C04B2D" fontWeight="700">72%</text>
-              <rect x="70" y="160" width="260" height="45" rx="8" fill="#1A1A17"/>
-              <text x="90" y="178" fontSize="7" fill="#9E9B93">ROI Projection</text>
-              <text x="90" y="195" fontFamily="'Cormorant Garamond',serif" fontSize="18" fill="#F4F1EB" fontWeight="500">3.2x over 18 months</text>
-              <text x="270" y="195" fontSize="8" fill="#D4725A" fontWeight="600">$4.1M saved</text>
-              <circle cx="100" cy="260" r="12" fill="#E8D5C4"/>
-              <rect x="88" y="272" width="24" height="18" rx="4" fill="#4A6FA5"/>
-              <circle cx="200" cy="255" r="14" fill="#D4B896"/>
-              <rect x="186" y="269" width="28" height="20" rx="4" fill="#C04B2D" opacity="0.8"/>
-              <circle cx="300" cy="260" r="12" fill="#E8D5C4"/>
-              <rect x="288" y="272" width="24" height="18" rx="4" fill="#5C5A54"/>
-            </svg>
-          </div>
+              <img src="/web1.png" alt="Transformation team scrambling" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "24px" }} />
+            </div>
         </div>
       </section>
 
@@ -381,27 +357,8 @@ footer { padding: 48px 56px; border-top: 1px solid var(--rule); display: flex; j
             <h2 className="word-reveal">Every company has an AI strategy. Almost none of them know what happens to their <em>people</em> on Monday morning.</h2>
           </div>
           <div className="manifesto-illo">
-            <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
-              <rect width="400" height="300" fill="#FAFAF7"/>
-              <rect x="40" y="30" width="320" height="200" rx="12" fill="white" stroke="#D6D1C8"/>
-              <text x="60" y="55" fontFamily="'Instrument Sans',sans-serif" fontSize="9" fill="#9E9B93" fontWeight="600" letterSpacing="1.5">AI STRATEGY MEETING — WEEK 47</text>
-              <rect x="60" y="70" width="80" height="40" rx="6" fill="#EBE7DF" stroke="#D6D1C8"/>
-              <text x="70" y="92" fontSize="7" fill="#C04B2D" fontWeight="600">Deadline: NOW</text>
-              <rect x="160" y="70" width="80" height="40" rx="6" fill="#EBE7DF" stroke="#D6D1C8"/>
-              <text x="170" y="88" fontSize="7" fill="#5C5A54">Budget: ???</text>
-              <text x="170" y="100" fontSize="7" fill="#5C5A54">Roles: ???</text>
-              <rect x="260" y="70" width="80" height="40" rx="6" fill="#C04B2D" opacity="0.1" stroke="#C04B2D" strokeWidth="0.5"/>
-              <text x="270" y="92" fontSize="7" fill="#C04B2D" fontWeight="600">People Plan: 0</text>
-              {[80, 120, 160, 200, 240].map((x, i) => <rect key={i} x={x} y="130" width="30" height={[50, 35, 60, 25, 45][i]} rx="3" fill="#C04B2D" opacity={0.1 + i * 0.1} style={{ transformOrigin: "bottom", animation: "barGrow 1.5s ease-out forwards", animationDelay: `${i * 0.2}s` }}/>)}
-              <text x="60" y="210" fontFamily="'Cormorant Garamond',serif" fontSize="14" fill="#5C5A54" fontStyle="italic">&quot;We have an AI strategy. We just don&apos;t have a people plan.&quot;</text>
-              <circle cx="100" cy="268" r="10" fill="#E8D5C4"/>
-              <rect x="90" y="278" width="20" height="15" rx="3" fill="#4A6FA5"/>
-              <circle cx="200" cy="262" r="12" fill="#D4B896"/>
-              <rect x="188" y="274" width="24" height="18" rx="3" fill="#1A1A17"/>
-              <circle cx="300" cy="268" r="10" fill="#E8D5C4"/>
-              <rect x="290" y="278" width="20" height="15" rx="3" fill="#5C4A6F"/>
-            </svg>
-          </div>
+              <img src="/web2.png" alt="AI strategy meeting chaos" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "20px" }} />
+            </div>
         </div>
       </section>
 
