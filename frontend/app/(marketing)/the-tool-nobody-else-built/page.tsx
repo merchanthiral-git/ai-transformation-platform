@@ -1,3 +1,4 @@
+import MarketingLayout from "../../components/marketing/MarketingLayout";
 import Link from "next/link";
 import HeroSection from "../../components/marketing/HeroSection";
 
@@ -12,7 +13,7 @@ const MODULES = [
 
 export default function TheToolNobodyElseBuilt() {
   return (
-    <>
+    <MarketingLayout>
       <HeroSection
         eyebrow="We looked. It does not exist anywhere else."
         headline="Six modules. One connected system. Zero gaps between strategy and action."
@@ -39,6 +40,6 @@ export default function TheToolNobodyElseBuilt() {
           <Link href="/start" style={{ display: "inline-block", padding: "16px 36px", borderRadius: 8, background: "#F97316", color: "#fff", fontSize: 16, fontWeight: 700, textDecoration: "none" }}>Start Here →</Link>
         </div>
       </section>
-    </>
+    </MarketingLayout>
   );
 }

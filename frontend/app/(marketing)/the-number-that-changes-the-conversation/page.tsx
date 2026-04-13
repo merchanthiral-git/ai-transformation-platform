@@ -1,4 +1,5 @@
 "use client";
+import MarketingLayout from "../../components/marketing/MarketingLayout";
 import { useState } from "react";
 import HeroSection from "../../components/marketing/HeroSection";
 import InsightCard from "../../components/marketing/InsightCard";
@@ -49,7 +50,7 @@ export default function TheNumberPage() {
   const filtered = filter === "All" ? INSIGHTS : INSIGHTS.filter(i => i.category === filter);
 
   return (
-    <>
+    <MarketingLayout>
       <HeroSection
         headline="One number. Then the conversation changes."
         subheadline="Everything below is what we have learned building at the intersection of AI and workforce transformation."
@@ -80,6 +81,6 @@ export default function TheNumberPage() {
           </div>
         </div>
       </section>
-    </>
+    </MarketingLayout>
   );
 }

@@ -1,4 +1,5 @@
 "use client";
+import MarketingLayout from "../../components/marketing/MarketingLayout";
 import Link from "next/link";
 
 const MODULES = [
@@ -12,7 +13,7 @@ const MODULES = [
 
 export default function StartPage() {
   return (
-    <>
+    <MarketingLayout>
       <section style={{ background: "#0F1C2A", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "120px 32px 80px", position: "relative" }}>
         {/* Dot grid */}
         <div style={{ position: "absolute", inset: 0, opacity: 0.08, backgroundImage: "radial-gradient(rgba(247,245,240,0.3) 1px, transparent 1px)", backgroundSize: "32px 32px" }} />
@@ -41,6 +42,6 @@ export default function StartPage() {
           </div>
         </div>
       </section>
-    </>
+    </MarketingLayout>
   );
 }

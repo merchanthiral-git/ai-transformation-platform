@@ -1,9 +1,10 @@
+import MarketingLayout from "../../components/marketing/MarketingLayout";
 import Link from "next/link";
 import HeroSection from "../../components/marketing/HeroSection";
 
 export default function WhatISawPage() {
   return (
-    <>
+    <MarketingLayout>
       <HeroSection headline="I built this because I kept watching organizations get it wrong from the inside." />
 
       {/* Long form content */}
@@ -41,6 +42,6 @@ export default function WhatISawPage() {
           &ldquo;Every organization deserves the clarity to get this right. Not just the ones who can afford it.&rdquo;
         </p>
       </section>
-    </>
+    </MarketingLayout>
   );
 }

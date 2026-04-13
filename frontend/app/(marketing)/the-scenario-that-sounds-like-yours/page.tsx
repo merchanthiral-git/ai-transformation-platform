@@ -1,3 +1,4 @@
+import MarketingLayout from "../../components/marketing/MarketingLayout";
 import Link from "next/link";
 import HeroSection from "../../components/marketing/HeroSection";
 
@@ -50,7 +51,7 @@ const PERSONAS = [
 
 export default function TheScenarioPage() {
   return (
-    <>
+    <MarketingLayout>
       <HeroSection headline="Find your situation. Then see what the platform does about it." />
       {PERSONAS.map((p) => {
         const dark = p.bg === "#0F1C2A";
@@ -77,6 +78,6 @@ export default function TheScenarioPage() {
           </section>
         );
       })}
-    </>
+    </MarketingLayout>
   );
 }

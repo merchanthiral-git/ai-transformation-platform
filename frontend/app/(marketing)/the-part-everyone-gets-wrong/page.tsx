@@ -1,9 +1,10 @@
+import MarketingLayout from "../../components/marketing/MarketingLayout";
 import Link from "next/link";
 import HeroSection from "../../components/marketing/HeroSection";
 
 export default function ThePartEveryoneGetsWrong() {
   return (
-    <>
+    <MarketingLayout>
       <HeroSection
         headline="Everyone agrees AI will change work. Almost nobody agrees on what to do about it."
         subheadline="That gap is where transformations die."
@@ -55,6 +56,6 @@ export default function ThePartEveryoneGetsWrong() {
           </Link>
         </div>
       </section>
-    </>
+    </MarketingLayout>
   );
 }
