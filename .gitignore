@@ -35,3 +35,4 @@ backend/data/arch_versions/*.json
 # Source media — only optimized versions are needed in production
 frontend/public/audio/source/
 frontend/public/videos/source/
+.wrangler/
