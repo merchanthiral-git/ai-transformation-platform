@@ -1870,31 +1870,49 @@ const TUTORIAL_STEPS = buildTutorialSteps("tutorial_mid_technology");
 
 /* ═══ VIEW SELECTOR SCREEN — shown after sandbox company selection, before tutorial ═══ */
 function SandboxViewSelector({ companyName, onSelect }: { companyName: string; onSelect: (mode: string) => void }) {
-  const [visible, setVisible] = useState(false);
-  useEffect(() => { const t = setTimeout(() => setVisible(true), 30); return () => clearTimeout(t); }, []);
+  const [phase, setPhase] = useState<"splash" | "select">("splash");
   const views = [
-    { id: "org", icon: "🏢", label: "Organization View", desc: "Explore by organizational structure — functions, departments, teams. See aggregate KPIs, cross-cutting analytics, and the full workforce picture. Best for executive-level analysis." },
-    { id: "employee_select", icon: "👤", label: "Employee View", desc: "Explore by individual employees — skills, roles, career paths. Track a single person through every module: readiness, reskilling pathway, and impact assessment." },
-    { id: "job_select", icon: "💼", label: "Job View", desc: "Explore by job architecture — families, levels, career tracks. Focus on a single role's task portfolio, AI impact, deconstruction, and redesign." },
-    { id: "custom", icon: "⚙️", label: "Custom Slice", desc: "Create a custom view with your own filters. Narrow by function, job family, career level, or sub-family. Best for function leads who own a specific part of the org." },
+    { id: "org", icon: "🏢", label: "Organization View", desc: "Explore by organizational structure — functions, departments, teams. See aggregate KPIs, cross-cutting analytics, and the full workforce picture." },
+    { id: "job_select", icon: "💼", label: "Job Focus", desc: "Explore by job architecture — families, levels, career tracks. Focus on a single role's task portfolio, AI impact, and redesign." },
+    { id: "employee_select", icon: "👤", label: "Employee", desc: "Explore by individual employees — skills, roles, career paths. Track a single person through every module." },
+    { id: "custom", icon: "⚙️", label: "Custom Slice", desc: "Create a custom view with your own filters. Narrow by function, job family, career level, or sub-family." },
+    { id: "consultant", icon: "📋", label: "Consultant Guide", desc: "Guided pathway for external consultants — structured frameworks, deliverable templates, and client-ready analysis." },
+    { id: "hr", icon: "👥", label: "HR Professional Guide", desc: "Tailored for HR and People Analytics teams — workforce planning, skills gaps, change readiness, and talent strategy." },
   ];
-  return <div style={{ position: "fixed", inset: 0, zIndex: 60, background: "#0B1120", display: "flex", alignItems: "center", justifyContent: "center", opacity: visible ? 1 : 0, transition: "opacity 0.5s ease" }}>
-    <VideoBackground name="view_bg" overlay={0.5} poster={`${CDN_BASE}/videos/optimized/view_bg-poster.jpg`} fallbackGradient="linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 100%)" className="absolute inset-0" />
-    <div style={{ position: "absolute", inset: 0, zIndex: 1, background: "radial-gradient(ellipse at 50% 30%, rgba(212,134,10,0.1) 0%, transparent 60%), radial-gradient(ellipse at 80% 70%, rgba(192,112,48,0.05) 0%, transparent 50%)" }} />
-    <div style={{ position: "relative", zIndex: 2, maxWidth: 720, width: "100%", padding: "0 24px", textAlign: "center", transform: visible ? "translateY(0)" : "translateY(12px)", transition: "transform 0.5s ease" }}>
-      <div style={{ fontSize: 15, fontWeight: 700, color: "rgba(224,144,64,0.5)", letterSpacing: 2, marginBottom: 12, textTransform: "uppercase" }}>Welcome to</div>
-      <h2 style={{ fontSize: 32, fontWeight: 800, color: "#f5e6d0", fontFamily: "'Outfit', sans-serif", marginBottom: 8, textShadow: "0 2px 20px rgba(0,0,0,0.3)" }}>{companyName}</h2>
-      <p style={{ fontSize: 15, color: "rgba(255,230,200,0.45)", marginBottom: 36 }}>How would you like to explore this organization?</p>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-        {views.map((v, i) => <button key={v.id} onClick={() => onSelect(v.id)} style={{ padding: "24px", borderRadius: 18, background: "rgba(255,255,255,0.03)", backdropFilter: "blur(12px)", border: "1px solid rgba(212,134,10,0.1)", cursor: "pointer", textAlign: "left", transition: "all 0.3s cubic-bezier(0.16,1,0.3,1)", display: "flex", flexDirection: "column", gap: 10, opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(8px)", transitionDelay: `${0.15 + i * 0.06}s` }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(212,134,10,0.08)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.3)"; e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = "0 8px 32px rgba(212,134,10,0.1)"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.03)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.1)"; e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span style={{ fontSize: 28, filter: "drop-shadow(0 2px 6px rgba(212,134,10,0.2))" }}>{v.icon}</span>
-            <span style={{ fontSize: 17, fontWeight: 700, color: "#f5e6d0", fontFamily: "'Outfit', sans-serif" }}>{v.label}</span>
-          </div>
-          <p style={{ fontSize: 15, color: "rgba(255,230,200,0.35)", lineHeight: 1.7, margin: 0 }}>{v.desc}</p>
-        </button>)}
+
+  // STEP 1: Splash — video bg + company name + static "Click anywhere"
+  if (phase === "splash") {
+    return <div onClick={() => setPhase("select")} style={{ position: "fixed", inset: 0, zIndex: 60, cursor: "pointer" }}>
+      <VideoBackground name="view_bg" overlay={0.4} poster={`${CDN_BASE}/videos/optimized/view_bg-poster.jpg`} fallbackGradient="linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 100%)" className="absolute inset-0" />
+      <div style={{ position: "absolute", inset: 0, zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: "rgba(224,144,64,0.5)", letterSpacing: 2, marginBottom: 12, textTransform: "uppercase" }}>Welcome to</div>
+        <h2 style={{ fontSize: 36, fontWeight: 800, color: "#ffffff", fontFamily: "'Outfit', sans-serif", marginBottom: 32, textShadow: "0 2px 20px rgba(0,0,0,0.5)" }}>{companyName}</h2>
+        <div style={{ fontSize: 16, color: "rgba(255,255,255,0.7)", fontFamily: "'Outfit', sans-serif" }}>Click anywhere to continue</div>
       </div>
-      <p style={{ fontSize: 15, color: "rgba(255,230,200,0.2)", marginTop: 24 }}>You can change your view anytime from the sidebar</p>
+    </div>;
+  }
+
+  // STEP 2: View selector overlay — same video bg, 6 options
+  return <div style={{ position: "fixed", inset: 0, zIndex: 60, background: "#0B1120" }}>
+    <VideoBackground name="view_bg" overlay={0.5} poster={`${CDN_BASE}/videos/optimized/view_bg-poster.jpg`} fallbackGradient="linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 100%)" className="absolute inset-0" />
+    <div style={{ position: "absolute", inset: 0, zIndex: 1, background: "rgba(8,12,24,0.6)" }} />
+    <div style={{ position: "absolute", inset: 0, zIndex: 2, display: "flex", alignItems: "center", justifyContent: "center", overflow: "auto" }}>
+      <div style={{ maxWidth: 800, width: "100%", padding: "24px" }}>
+        <div style={{ textAlign: "center", marginBottom: 28 }}>
+          <div style={{ fontSize: 22, fontWeight: 800, color: "#ffffff", fontFamily: "'Outfit', sans-serif", textShadow: "0 2px 16px rgba(0,0,0,0.3)" }}>Select Your View</div>
+          <p style={{ fontSize: 15, color: "rgba(255,220,180,0.4)", marginTop: 6 }}>Every module adapts to your chosen perspective</p>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
+          {views.map(v => <button key={v.id} onClick={() => onSelect(v.id)} style={{ padding: "22px", borderRadius: 16, background: "rgba(15,20,35,0.7)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,200,150,0.08)", cursor: "pointer", textAlign: "left", transition: "all 0.3s cubic-bezier(0.16,1,0.3,1)", display: "flex", flexDirection: "column", gap: 10 }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(212,134,10,0.08)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.3)"; e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = "0 8px 32px rgba(212,134,10,0.1)"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(15,20,35,0.7)"; e.currentTarget.style.borderColor = "rgba(255,200,150,0.08)"; e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <span style={{ fontSize: 26 }}>{v.icon}</span>
+              <span style={{ fontSize: 16, fontWeight: 700, color: "rgba(255,245,235,0.92)", fontFamily: "'Outfit', sans-serif" }}>{v.label}</span>
+            </div>
+            <p style={{ fontSize: 14, color: "rgba(255,220,190,0.4)", lineHeight: 1.6, margin: 0 }}>{v.desc}</p>
+          </button>)}
+        </div>
+        <p style={{ fontSize: 14, color: "rgba(255,230,200,0.2)", marginTop: 20, textAlign: "center" }}>You can change your view anytime from the sidebar</p>
+      </div>
     </div>
   </div>;
 }
@@ -2149,8 +2167,11 @@ function ProjectHub({ onOpenProject, onStartTutorial, onOpenSandbox, showSandbox
   // ── View selector screen — shown after sandbox company selection ──
   if (pendingSandbox) {
     return <SandboxViewSelector companyName={pendingSandbox.name} onSelect={(mode) => {
-      // Store the chosen view mode so Home picks it up
-      localStorage.setItem(`${pendingSandbox.id}_viewMode`, JSON.stringify(mode === "custom" ? "custom" : mode));
+      // Map guide modes to org view (they use the same data, just different framing)
+      const viewMode = mode === "consultant" || mode === "hr" ? "org" : mode;
+      localStorage.setItem(`${pendingSandbox.id}_viewMode`, JSON.stringify(viewMode === "custom" ? "custom" : viewMode));
+      // Skip the Home splash screen — user already saw the sandbox splash
+      try { sessionStorage.setItem(`${pendingSandbox.id}_splashSeen`, "1"); } catch {}
       setPendingSandbox(null);
       setSandboxOpen(false);
       setSandboxPanelOpen(false);

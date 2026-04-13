@@ -1671,6 +1671,8 @@ export function ViewSelector({ onSelect, employees, jobs, filterOptions, onBack 
     { id: "job", icon: "💼", title: "Job Focus", desc: "Deep dive into a single role", color: "#10B981", ready: jobs.length > 0 },
     { id: "employee", icon: "👤", title: "Employee", desc: "One person's world — profile, org chart, impact", color: "#8B5CF6", ready: employees.length > 0 },
     { id: "custom", icon: "⚙️", title: "Custom Slice", desc: "Filter by function, family, level, or track", color: "#F97316", ready: true },
+    { id: "consultant", icon: "📋", title: "Consultant Guide", desc: "Guided pathway for external consultants — frameworks and deliverables", color: "#0891B2", ready: true },
+    { id: "hr", icon: "👥", title: "HR Professional Guide", desc: "Tailored for HR and People Analytics — workforce planning and talent strategy", color: "#EC4899", ready: true },
   ];
 
   return <div style={{ position: "fixed", inset: 0, overflow: "auto", background: "#0B1120" }}>
@@ -1703,12 +1705,13 @@ export function ViewSelector({ onSelect, employees, jobs, filterOptions, onBack 
           <p className="text-[15px]" style={{ color: "rgba(255,220,180,0.4)" }}>Every module adapts to your chosen perspective</p>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="grid grid-cols-3 gap-3 mb-4">
           {views.map(v => <button key={v.id} onClick={() => {
             if (v.id === "org") onSelect("org");
             else if (v.id === "custom") setCustomExpanded(!customExpanded);
             else if (v.id === "job" && jobs.length) onSelect("job_select");
             else if (v.id === "employee" && employees.length) onSelect("employee_select");
+            else if (v.id === "consultant" || v.id === "hr") onSelect("org");
           }} disabled={!v.ready} className="text-left rounded-xl p-5 transition-all duration-300 hover:-translate-y-1 group relative overflow-hidden disabled:opacity-30" style={{ background: "rgba(15,20,35,0.7)", backdropFilter: "blur(20px)", border: v.id === "custom" && customExpanded ? `1px solid ${v.color}50` : "1px solid rgba(255,200,150,0.08)" }} onMouseEnter={e => { if (v.ready) e.currentTarget.style.borderColor = `${v.color}40`; }} onMouseLeave={e => { if (!customExpanded || v.id !== "custom") e.currentTarget.style.borderColor = "rgba(255,200,150,0.08)"; }}>
             <div className="flex items-center gap-3 mb-2">
               <span className="text-2xl">{v.icon}</span>
@@ -1740,7 +1743,7 @@ export function ViewSelector({ onSelect, employees, jobs, filterOptions, onBack 
           </div>
         </div>}
 
-        {/* Guide cards removed — not yet implemented */}
+        {/* Guide options are included in the main view cards grid */}
       </div>
     </div>}
 
