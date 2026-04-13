@@ -219,7 +219,9 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
   const [playing, setPlaying] = useState(false);
   const [trackIdx, setTrackIdx] = useState(() => { try { const saved = localStorage.getItem("music_track"); return saved ? Number(saved) : ACID_JAZZ_II_IDX; } catch { return ACID_JAZZ_II_IDX; } });
   const [volume, setVolume] = useState(() => { try { return Number(localStorage.getItem("music_vol") || "0.5"); } catch { return 0.5; } });
-  const [viewState, setViewState] = useState<"mini" | "collapsed" | "expanded">("mini");
+  const [viewState, setViewState] = useState<"prompt" | "mini" | "collapsed" | "expanded">(() => { try { return localStorage.getItem("music_prompted") ? "mini" : "prompt"; } catch { return "prompt"; } });
+  const [promptHovered, setPromptHovered] = useState(false);
+  const [promptDismissing, setPromptDismissing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurTime] = useState(0);
@@ -653,10 +655,79 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
   // ── Hide player entirely if CDN is unreachable ──
   if (!cdnReachable) return null;
 
-  // ── Mini state: small floating icon ──
-  if (viewState === "mini") return <>{debugOverlay}<button onClick={() => { setViewState("collapsed"); }}
-    style={{ position: "fixed", bottom: 20, left: 240, zIndex: 40, width: 36, height: 36, borderRadius: 18, background: "linear-gradient(135deg, rgba(224,144,64,0.9), rgba(192,112,48,0.9))", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff", fontSize: 16, cursor: "pointer", boxShadow: "0 4px 20px rgba(224,144,64,0.3)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s" }}
-    onMouseEnter={e => e.currentTarget.style.transform = "scale(1.15)"} onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}>♪</button></>;
+  // ── Prompt state: "This site has a soundtrack" pill ──
+  if (viewState === "prompt") return <>{debugOverlay}
+    <style>{`
+      @keyframes soundtrackGlow { 0%, 100% { box-shadow: 0 4px 20px rgba(224,144,64,0.15), 0 0 0 0 rgba(224,144,64,0.08); } 50% { box-shadow: 0 4px 24px rgba(224,144,64,0.3), 0 0 0 8px rgba(224,144,64,0.04); } }
+      @keyframes soundtrackFadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes soundtrackShrink { from { width: auto; padding: 10px 20px 10px 16px; border-radius: 24px; } to { width: 40px; padding: 10px; border-radius: 20px; } }
+      @keyframes barPulse1 { 0%, 100% { height: 8px; } 50% { height: 14px; } }
+      @keyframes barPulse2 { 0%, 100% { height: 12px; } 50% { height: 6px; } }
+      @keyframes barPulse3 { 0%, 100% { height: 6px; } 50% { height: 16px; } }
+    `}</style>
+    <button
+      onClick={() => {
+        setPromptDismissing(true);
+        try { localStorage.setItem("music_prompted", "1"); } catch {}
+        toggle();
+        setTimeout(() => { setViewState("mini"); setPromptDismissing(false); }, 600);
+      }}
+      onMouseEnter={() => setPromptHovered(true)}
+      onMouseLeave={() => setPromptHovered(false)}
+      style={{
+        position: "fixed", bottom: 24, right: 24, zIndex: 40,
+        display: "flex", alignItems: "center", gap: 10,
+        padding: promptDismissing ? "10px" : "10px 20px 10px 16px",
+        borderRadius: promptDismissing ? 20 : 24,
+        background: "rgba(15,12,8,0.85)", backdropFilter: "blur(20px)",
+        border: "1px solid rgba(224,144,64,0.2)",
+        color: "#f5e6d0", cursor: "pointer",
+        animation: promptDismissing ? "none" : "soundtrackGlow 3s ease-in-out infinite, soundtrackFadeIn 0.8s ease-out",
+        transition: "all 0.4s cubic-bezier(0.16,1,0.3,1)",
+        opacity: promptDismissing ? 0 : 1,
+        transform: promptDismissing ? "scale(0.8)" : (promptHovered ? "scale(1.03)" : "scale(1)"),
+        fontFamily: "'Outfit', sans-serif",
+        overflow: "hidden", whiteSpace: "nowrap",
+      }}
+    >
+      <span style={{ fontSize: 16 }}>♪</span>
+      {!promptDismissing && <span style={{ fontSize: 13, fontWeight: 600, letterSpacing: 0.3, transition: "opacity 0.2s" }}>
+        {promptHovered ? "Press play" : "This site has a soundtrack"}
+      </span>}
+    </button>
+  </>;
+
+  // ── Mini state: small floating icon with sound bars ──
+  if (viewState === "mini") return <>{debugOverlay}
+    <div style={{ position: "fixed", bottom: 20, right: 24, zIndex: 40, display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
+      <button onClick={() => {
+        if (!playing && volume === 0) changeVolume(0.5);
+        if (!playing) toggle();
+        else { changeVolume(0); setPlaying(false); }
+      }}
+        onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.12)"; e.currentTarget.querySelector<HTMLElement>("[data-tooltip]")?.style.setProperty("opacity", "1"); }}
+        onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.querySelector<HTMLElement>("[data-tooltip]")?.style.setProperty("opacity", "0"); }}
+        style={{ position: "relative", width: 40, height: 40, borderRadius: 20, background: "rgba(15,12,8,0.85)", backdropFilter: "blur(16px)", border: `1px solid ${playing ? "rgba(224,144,64,0.25)" : "rgba(255,255,255,0.08)"}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 2, transition: "all 0.3s", boxShadow: playing ? "0 2px 12px rgba(224,144,64,0.15)" : "none" }}
+      >
+        {playing ? (
+          /* Animated sound bars */
+          <>
+            <span style={{ display: "inline-block", width: 3, height: 8, borderRadius: 1.5, background: "#e09040", animation: "barPulse1 0.8s ease-in-out infinite" }} />
+            <span style={{ display: "inline-block", width: 3, height: 12, borderRadius: 1.5, background: "#e09040", animation: "barPulse2 0.7s ease-in-out infinite 0.15s" }} />
+            <span style={{ display: "inline-block", width: 3, height: 6, borderRadius: 1.5, background: "#e09040", animation: "barPulse3 0.9s ease-in-out infinite 0.3s" }} />
+          </>
+        ) : (
+          /* Muted icon */
+          <span style={{ fontSize: 16, color: "rgba(255,255,255,0.35)", lineHeight: 1 }}>♪</span>
+        )}
+        {/* Tooltip */}
+        {!playing && <span data-tooltip style={{ position: "absolute", bottom: "calc(100% + 8px)", right: 0, fontSize: 11, fontWeight: 600, color: "#f5e6d0", background: "rgba(15,12,8,0.9)", backdropFilter: "blur(12px)", border: "1px solid rgba(224,144,64,0.15)", padding: "4px 10px", borderRadius: 8, whiteSpace: "nowrap", opacity: 0, transition: "opacity 0.2s", pointerEvents: "none", fontFamily: "'Outfit', sans-serif" }}>Bring it back</span>}
+      </button>
+      {/* Expand to full player */}
+      <button onClick={() => setViewState("collapsed")} style={{ marginTop: 4, width: 20, height: 20, borderRadius: 10, background: "transparent", border: "none", color: "rgba(255,255,255,0.2)", fontSize: 10, cursor: "pointer", transition: "color 0.2s", display: "flex", alignItems: "center", justifyContent: "center" }} onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.5)"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.2)"} title="Expand player">▲</button>
+    </div>
+  </>;
+
 
   // ── Collapsed state: slim bar with mini visualizer ──
   if (viewState === "collapsed") return <div onClick={() => setViewState("expanded")} style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 40, height: 44, background: "rgba(15,12,8,0.85)", backdropFilter: "blur(20px)", borderTop: "1px solid rgba(212,134,10,0.1)", display: "flex", alignItems: "center", paddingLeft: 12, paddingRight: 12, gap: 10, cursor: "pointer" }}>
