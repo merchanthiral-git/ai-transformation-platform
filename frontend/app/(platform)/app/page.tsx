@@ -96,7 +96,7 @@ import { CDN_BASE } from "../../../lib/cdn";
 import { useCollaboration } from "../../../lib/collaboration";
 import type { RemoteChange } from "../../../lib/collaboration";
 import { PresenceAvatars, EditingIndicator, RemoteChangeToast, ActivityFeedPanel } from "../../components/CollaborationPanel";
-import { AiObservationsPanel, SmartRecommendations, WorkflowSuggestions } from "../../components/AiIntelligence";
+import { AiObservationsPanel } from "../../components/AiIntelligence";
 // Three.js removed — was causing "Context Lost" and deprecated Clock warnings.
 // Audio orb visualizer now uses pure CSS (see CSSAudioOrb below).
 
@@ -293,18 +293,15 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
       .catch(() => { console.error("[MusicPlayer] CDN unreachable"); setCdnReachable(false); });
   }, []);
 
-  // Create Audio element on mount — NO Web Audio yet (deferred to first play)
+  // Create Audio element on mount.  Always creates fresh — cleanup nulls the ref,
+  // so remounts (Platform Hub round-trip, React strict-mode) get a working Audio.
   useEffect(() => {
-    if (audioRef.current) return;
     const audio = new Audio();
     audio.preload = "none";
-    // No crossOrigin — CDN audio doesn't require CORS for playback.
-    // Setting crossOrigin="anonymous" causes failures if the CDN doesn't send
-    // Access-Control-Allow-Origin headers. Only the Web Audio API's
-    // createMediaElementSource needs CORS, and we handle that separately.
-    audio.volume = 0.5;
+    audio.volume = volumeRef.current > 0 ? volumeRef.current : 0.5;
     audio.muted = false;
     audioRef.current = audio;
+    console.log("[MusicPlayer] Audio element created, volume:", audio.volume);
 
     // Buffering indicator
     audio.addEventListener("waiting", () => setBuffering(true));
@@ -348,6 +345,7 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
       errorCountRef.current = 0;
       setAudioError(null);
       setBuffering(false);
+      console.log("[MusicPlayer] Audio playing — src:", audio.src, "vol:", audio.volume, "muted:", audio.muted);
     });
 
     audio.addEventListener("ended", () => {
@@ -380,8 +378,7 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     audio.addEventListener("loadedmetadata", () => setDuration(audio.duration || 0));
 
     // Combined progress + visualizer animation loop.
-    // Since we don't use createMediaElementSource (it hijacks audio routing),
-    // the visualizer uses simulated frequency data driven by playback state.
+    // Visualizer uses simulated frequency data driven by playback state.
     const tick = () => {
       if (audio.duration > 0) { setProgress(audio.currentTime / audio.duration); setCurTime(audio.currentTime); }
 
@@ -391,18 +388,15 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
       const t = performance.now() / 1000;
       for (let i = 0; i < 64; i++) {
         if (isPlaying) {
-          // Generate organic-looking bars using layered sine waves
           const base = 100 + 60 * Math.sin(t * 1.7 + i * 0.4) + 40 * Math.sin(t * 3.1 + i * 0.7);
           const variation = 30 * Math.sin(t * 5.3 + i * 1.2) + 20 * Math.random();
-          // Bass frequencies (low i) are stronger
           const falloff = i < 8 ? 1.0 : i < 24 ? 0.7 : 0.4;
           fd[i] = Math.max(0, Math.min(255, (base + variation) * falloff * (audio.volume || 0.5)));
         } else {
-          fd[i] = fd[i] * 0.9; // Fade out when paused
+          fd[i] = fd[i] * 0.9;
         }
       }
 
-      // Band energies for orb
       let bass = 0, mid = 0, high = 0, total = 0;
       for (let i = 0; i < 4; i++) bass += fd[i] || 0;
       for (let i = 4; i < 32; i++) mid += fd[i] || 0;
@@ -413,7 +407,6 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
       setHighEnergy(high / (32 * 255));
       setAmplitude(total / (64 * 255));
 
-      // Main canvas
       const canvas = canvasRef.current;
       if (canvas) {
         const ctx2d = canvas.getContext("2d");
@@ -435,7 +428,6 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
           }
         }
       }
-      // Mini canvas
       const mini = miniCanvasRef.current;
       if (mini) {
         const ctx2d = mini.getContext("2d");
@@ -457,7 +449,14 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     };
     animRef.current = requestAnimationFrame(tick);
 
-    return () => { cancelAnimationFrame(animRef.current); if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current); audio.pause(); audio.src = ""; };
+    return () => {
+      cancelAnimationFrame(animRef.current);
+      if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
+      audio.pause();
+      audio.src = "";
+      audioRef.current = null; // Clear ref so next mount creates fresh Audio
+      webAudioInitRef.current = false;
+    };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Resume AudioContext on user gesture (required by browsers).
@@ -619,6 +618,19 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
   const btnBase: React.CSSProperties = { background: "none", border: "none", cursor: "pointer", transition: "all 0.2s", display: "flex", alignItems: "center", justifyContent: "center" };
   const expandedRef = useRef<HTMLDivElement>(null);
 
+  // Debug overlay — shows audio state for diagnosing playback issues.
+  // TODO: Remove once playback is confirmed working.
+  const [debugInfo, setDebugInfo] = useState("");
+  useEffect(() => {
+    const id = setInterval(() => {
+      const a = audioRef.current;
+      if (!a) { setDebugInfo("Audio: null"); return; }
+      setDebugInfo(`src: ${a.src ? a.src.split("/").pop() : "none"} | vol: ${a.volume.toFixed(2)} | muted: ${a.muted} | paused: ${a.paused} | ready: ${a.readyState} | err: ${a.error?.message || "none"}`);
+    }, 500);
+    return () => clearInterval(id);
+  }, []);
+  const debugOverlay = <div style={{ position: "fixed", bottom: viewState === "collapsed" ? 48 : viewState === "expanded" ? "auto" : 60, top: viewState === "expanded" ? 4 : "auto", right: 8, zIndex: 9999, background: "rgba(0,0,0,0.85)", color: "#0f0", padding: "4px 8px", borderRadius: 6, fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", maxWidth: 420, wordBreak: "break-all", pointerEvents: "none" }}>{debugInfo}</div>;
+
   // Escape key collapses expanded player or exits immersive
   useEffect(() => {
     if (viewState !== "expanded" && !immersive) return;
@@ -642,9 +654,9 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
   if (!cdnReachable) return null;
 
   // ── Mini state: small floating icon ──
-  if (viewState === "mini") return <button onClick={() => { setViewState("collapsed"); }}
+  if (viewState === "mini") return <>{debugOverlay}<button onClick={() => { setViewState("collapsed"); }}
     style={{ position: "fixed", bottom: 20, left: 240, zIndex: 40, width: 36, height: 36, borderRadius: 18, background: "linear-gradient(135deg, rgba(224,144,64,0.9), rgba(192,112,48,0.9))", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff", fontSize: 16, cursor: "pointer", boxShadow: "0 4px 20px rgba(224,144,64,0.3)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s" }}
-    onMouseEnter={e => e.currentTarget.style.transform = "scale(1.15)"} onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}>♪</button>;
+    onMouseEnter={e => e.currentTarget.style.transform = "scale(1.15)"} onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}>♪</button></>;
 
   // ── Collapsed state: slim bar with mini visualizer ──
   if (viewState === "collapsed") return <div onClick={() => setViewState("expanded")} style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 40, height: 44, background: "rgba(15,12,8,0.85)", backdropFilter: "blur(20px)", borderTop: "1px solid rgba(212,134,10,0.1)", display: "flex", alignItems: "center", paddingLeft: 12, paddingRight: 12, gap: 10, cursor: "pointer" }}>
@@ -662,10 +674,11 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     <button onClick={e => { e.stopPropagation(); changeVolume(volume > 0 ? 0 : 0.5); }} style={{ ...btnBase, fontSize: 13, color: "rgba(255,255,255,0.3)" }}>{volume === 0 ? "🔇" : "🔊"}</button>
     <input type="range" min={0} max={1} step={0.02} value={volume} onClick={e => e.stopPropagation()} onChange={e => { e.stopPropagation(); changeVolume(Number(e.target.value)); }} style={{ width: 50, accentColor: "#e09040", height: 3, flexShrink: 0 }} />
     <button onClick={e => { e.stopPropagation(); setViewState("mini"); }} style={{ ...btnBase, color: "rgba(255,255,255,0.25)", fontSize: 14 }} title="Hide player">✕</button>
+    {debugOverlay}
   </div>;
 
   // ── Expanded state: full player panel ──
-  return <div ref={expandedRef} style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 40, background: "rgba(10,8,6,0.92)", backdropFilter: "blur(24px)", borderTop: "1px solid rgba(212,134,10,0.12)", transition: "all 0.4s cubic-bezier(0.16,1,0.3,1)" }}>
+  return <>{debugOverlay}<div ref={expandedRef} style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 40, background: "rgba(10,8,6,0.92)", backdropFilter: "blur(24px)", borderTop: "1px solid rgba(212,134,10,0.12)", transition: "all 0.4s cubic-bezier(0.16,1,0.3,1)" }}>
     {/* Visible collapse/close buttons at top-right of panel */}
     <div style={{ position: "absolute", top: 10, right: 16, display: "flex", gap: 6, zIndex: 1 }}>
       <button onClick={() => setViewState("collapsed")} title="Minimize to bar" style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)", fontSize: 15, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.12)"; e.currentTarget.style.color = "#f5e6d0"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; e.currentTarget.style.color = "rgba(255,255,255,0.5)"; }}>▾</button>
@@ -776,7 +789,7 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
       {/* Exit */}
       <button onClick={() => setImmersive(false)} style={{ position: "absolute", top: 20, right: 20, padding: "8px 16px", borderRadius: 10, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)", fontSize: 14, fontWeight: 600, cursor: "pointer", zIndex: 1 }}>Exit Immersive</button>
     </div>}
-  </div>;
+  </div></>;
 }
 
 
@@ -1714,14 +1727,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       <AnnotationLayer annotations={annotations} moduleId={page} annotateMode={annotateMode} onAdd={a => setAnnotations(prev => [...prev, a])} onUpdate={a => setAnnotations(prev => prev.map(x => x.id === a.id ? a : x))} onDelete={id => setAnnotations(prev => prev.filter(x => x.id !== id))}>
       <AnimatePresence mode="wait">
       <motion.div key={page} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2, ease: "easeOut" }}>
-      {page === "home" && <div>
-        <LandingPage onNavigate={navigate} moduleStatus={moduleStatus} hasData={hasData} viewMode={viewMode} projectName={projectName} onBackToHub={onBackToHub} onBackToSplash={() => { setShowSplash(true); try { sessionStorage.removeItem(`${projectId}_splashSeen`); } catch {} }} cardBackgrounds={cardBgs} phaseBackgrounds={phaseBgs} />
-        {/* AI Intelligence: Recommendations + Workflows on home page */}
-        {hasData && <div style={{ padding: "0 var(--space-8) var(--space-4)" }}>
-          <SmartRecommendations completedModules={Object.keys(visited).filter(k => visited[k])} hasWorkforce={hasData} hasWorkDesign={!!model} currentModule="home" context={buildAiContext()} onNavigate={navigate} />
-          <WorkflowSuggestions onNavigate={navigate} />
-        </div>}
-      </div>}
+      {page === "home" && <LandingPage onNavigate={navigate} moduleStatus={moduleStatus} hasData={hasData} viewMode={viewMode} projectName={projectName} onBackToHub={onBackToHub} onBackToSplash={() => { setShowSplash(true); try { sessionStorage.removeItem(`${projectId}_splashSeen`); } catch {} }} cardBackgrounds={cardBgs} phaseBackgrounds={phaseBgs} />}
       {page !== "home" && <div className="module-enter" style={{ padding: "var(--space-6) var(--space-8)", paddingBottom: 80 }}>
       {model && <NLQBar projectId={projectId} modelId={model} currentModule={page} />}
       {model && page !== "flightrecorder" && <AiObservationsPanel module={page} dataSummary={buildAiContext()} context={`Project: ${projectName}. Model: ${model}. Job: ${job || "All"}.`} filters={f} projectId={projectId} onNavigate={navigate} />}
