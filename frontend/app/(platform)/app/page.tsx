@@ -228,9 +228,12 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
   const [showList, setShowList] = useState(false);
   const [hasPlayedFirst, setHasPlayedFirst] = useState(false);
   const [audioError, setAudioError] = useState<string | null>(null);
+  const [buffering, setBuffering] = useState(false);
+  const [cdnReachable, setCdnReachable] = useState(true);
   const autoPlayTriggeredRef = useRef(false);
   const errorCountRef = useRef(0);
   const userInitiatedRef = useRef(false);
+  const loadTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Audio + Visualizer
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const animRef = useRef<number>(0);
@@ -304,6 +307,13 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     }
   }, []);
 
+  // CDN reachability check on mount
+  useEffect(() => {
+    fetch(`${CDN_BASE}/audio/optimized/track1.mp3`, { method: "HEAD" })
+      .then(r => { if (!r.ok) { console.error("[MusicPlayer] CDN unreachable:", r.status); setCdnReachable(false); } })
+      .catch(() => { console.error("[MusicPlayer] CDN unreachable"); setCdnReachable(false); });
+  }, []);
+
   // Create Audio element on mount — NO Web Audio yet (deferred to first play)
   useEffect(() => {
     if (audioRef.current) return;
@@ -317,8 +327,14 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     audio.muted = false;
     audioRef.current = audio;
 
+    // Buffering indicator
+    audio.addEventListener("waiting", () => setBuffering(true));
+    audio.addEventListener("canplay", () => setBuffering(false));
+
     // Error handler — skip to next track, but STOP after 3 consecutive failures
     audio.addEventListener("error", () => {
+      if (loadTimeoutRef.current) { clearTimeout(loadTimeoutRef.current); loadTimeoutRef.current = null; }
+      setBuffering(false);
       const errCode = audio.error?.code;
       const errMsg = audio.error?.message || "unknown";
       console.error(`[MusicPlayer] Track error (code=${errCode}): ${errMsg} — src: ${audio.src}`);
@@ -347,10 +363,12 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
       }
     });
 
-    // On successful play, reset error counter
+    // On successful play, reset error counter and clear load timeout
     audio.addEventListener("playing", () => {
+      if (loadTimeoutRef.current) { clearTimeout(loadTimeoutRef.current); loadTimeoutRef.current = null; }
       errorCountRef.current = 0;
       setAudioError(null);
+      setBuffering(false);
     });
 
     audio.addEventListener("ended", () => {
@@ -444,7 +462,7 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     };
     animRef.current = requestAnimationFrame(tick);
 
-    return () => { cancelAnimationFrame(animRef.current); audio.pause(); audio.src = ""; };
+    return () => { cancelAnimationFrame(animRef.current); if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current); audio.pause(); audio.src = ""; };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Resume AudioContext on user gesture (required by browsers).
@@ -521,7 +539,10 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     console.log(`[MusicPlayer] Playing: ${file}`);
     userInitiatedRef.current = true;
     setAudioError(null);
+    setBuffering(true);
     errorCountRef.current = 0;
+    // Clear any existing load timeout
+    if (loadTimeoutRef.current) { clearTimeout(loadTimeoutRef.current); loadTimeoutRef.current = null; }
     // Set src and prepare BEFORE touching AudioContext
     a.src = file;
     a.muted = false;
@@ -529,7 +550,23 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     a.load();
     // Resume AudioContext (required for browsers that suspend it)
     resumeAudioCtx();
-    a.play().then(() => { setPlaying(true); setHasPlayedFirst(true); }).catch(e => { console.warn("[MusicPlayer] Play blocked:", e.message); setPlaying(false); });
+    // 5-second timeout — if track hasn't started, skip it
+    loadTimeoutRef.current = setTimeout(() => {
+      if (a.readyState < 3) {
+        console.warn("[MusicPlayer] Track load timeout (5s), skipping:", file);
+        setBuffering(false);
+        const gt = ALL_TRACKS.filter(t => t.genre === genreRef.current);
+        if (gt.length > 1) {
+          setTrackIdx(prev => {
+            const nextIdx = (prev + 1) % gt.length;
+            const nextTrack = gt[nextIdx];
+            if (nextTrack) { a.src = nextTrack.file; a.load(); a.play().catch(() => {}); }
+            return nextIdx;
+          });
+        }
+      }
+    }, 5000);
+    a.play().then(() => { setPlaying(true); setHasPlayedFirst(true); }).catch(e => { console.warn("[MusicPlayer] Play blocked:", e.message); setPlaying(false); setBuffering(false); });
   }, [resumeAudioCtx]);
 
   const toggle = useCallback(() => {
@@ -603,6 +640,9 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     return () => { clearTimeout(timer); window.removeEventListener("click", onClick); };
   }, [viewState]);
 
+  // ── Hide player entirely if CDN is unreachable ──
+  if (!cdnReachable) return null;
+
   // ── Mini state: small floating icon ──
   if (viewState === "mini") return <button onClick={() => { setViewState("collapsed"); }}
     style={{ position: "fixed", bottom: 20, left: 240, zIndex: 40, width: 36, height: 36, borderRadius: 18, background: "linear-gradient(135deg, rgba(224,144,64,0.9), rgba(192,112,48,0.9))", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff", fontSize: 16, cursor: "pointer", boxShadow: "0 4px 20px rgba(224,144,64,0.3)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s" }}
@@ -613,7 +653,7 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     {/* Mini visualizer */}
     <canvas ref={miniCanvasRef} width={60} height={24} style={{ width: 60, height: 24, flexShrink: 0, borderRadius: 4 }} />
     <div style={{ flex: 1, minWidth: 0 }}>
-      <div style={{ fontSize: 15, fontWeight: 600, color: audioError ? "#f87171" : "#f5e6d0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{audioError || track?.name || "—"}</div>
+      <div style={{ fontSize: 15, fontWeight: 600, color: audioError ? "#f87171" : "#f5e6d0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{audioError || (buffering ? `Loading ${track?.name || ""}...` : track?.name || "—")}</div>
       <div style={{ fontSize: 14, color: "rgba(255,255,255,0.35)" }}>{audioError ? "Click play to retry" : activeMood ? `${MOODS.find(m => m.id === activeMood)?.icon} ${MOODS.find(m => m.id === activeMood)?.label}` : GENRES.find(g => g.id === genre)?.label}{!audioError && focusActive ? ` · ${Math.floor(focusRemaining / 60)}:${String(focusRemaining % 60).padStart(2, "0")}` : ""}</div>
     </div>
     <div onClick={e => { e.stopPropagation(); seek(e); }} style={{ width: 80, height: 3, background: "rgba(255,255,255,0.08)", borderRadius: 2, cursor: "pointer", flexShrink: 0, overflow: "hidden" }}>
@@ -648,7 +688,7 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
 
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <div style={{ fontSize: 16, fontWeight: 700, color: audioError ? "#f87171" : "#f5e6d0", fontFamily: "'Outfit', sans-serif", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{audioError || track?.name || "—"}</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: audioError ? "#f87171" : "#f5e6d0", fontFamily: "'Outfit', sans-serif", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{audioError || (buffering ? `Loading ${track?.name || ""}...` : track?.name || "—")}</div>
             {!audioError && <button onClick={() => track && toggleFav(track.id)} style={{ ...btnBase, fontSize: 14, color: track && favorites.has(track.id) ? "#EF4444" : "rgba(255,255,255,0.2)" }}>{track && favorites.has(track.id) ? "♥" : "♡"}</button>}
           </div>
           <div style={{ fontSize: 14, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>
@@ -3190,8 +3230,10 @@ export default function Page() {
   // Tutorial overlay (standalone, no data needed)
   if (showTutorial) return <Tutorial onClose={() => { setShowTutorial(false); setShowSandboxPicker(false); }} onGoToSandbox={() => { setShowTutorial(false); setShowSandboxPicker(true); }} onGoToNewProject={() => { setShowTutorial(false); setShowSandboxPicker(false); }} />;
 
-  if (!activeProject) return <>{hubAccountBar}{profileModal}<ProjectHub user={user} onOpenProject={setActiveProject} onStartTutorial={() => setShowTutorial(true)} onOpenSandbox={() => setShowSandboxPicker(true)} showSandboxPicker={showSandboxPicker} onCloseSandbox={() => setShowSandboxPicker(false)} /><MusicPlayer projectActive={false} /></>;
-  return <>{profileModal}<Home key={activeProject.id} projectId={activeProject.id} projectName={activeProject.name} projectMeta={activeProject.meta} onBackToHub={() => setActiveProject(null)} user={user} onShowProfile={() => setShowProfile(true)} onShowPlatformHub={() => setShowPlatformHub(true)} /><MusicPlayer projectActive={true} /></>;
+  const appContent = !activeProject
+    ? <>{hubAccountBar}{profileModal}<ProjectHub user={user} onOpenProject={setActiveProject} onStartTutorial={() => setShowTutorial(true)} onOpenSandbox={() => setShowSandboxPicker(true)} showSandboxPicker={showSandboxPicker} onCloseSandbox={() => setShowSandboxPicker(false)} /></>
+    : <>{profileModal}<Home key={activeProject.id} projectId={activeProject.id} projectName={activeProject.name} projectMeta={activeProject.meta} onBackToHub={() => setActiveProject(null)} user={user} onShowProfile={() => setShowProfile(true)} onShowPlatformHub={() => setShowPlatformHub(true)} /></>;
+  return <>{appContent}<MusicPlayer projectActive={!!activeProject} /></>;
 }
 
 
