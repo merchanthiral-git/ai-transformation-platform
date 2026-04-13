@@ -4,6 +4,7 @@ import * as api from "../lib/api";
 import * as authApi from "../lib/auth-api";
 import type { Filters } from "../lib/api";
 import { useWorkspaceController } from "../lib/workspace";
+import * as analytics from "../lib/analytics";
 
 // ── Shared components & hooks ──
 import {
@@ -91,6 +92,9 @@ const Tutorial = dynamic(() => import("./components/Tutorial").then(m => ({ defa
 import { VideoBackground } from "./components/VideoBackground";
 import { useAnimatedBg } from "../lib/animated-bg-context";
 import { CDN_BASE } from "../lib/cdn";
+import { useCollaboration } from "../lib/collaboration";
+import type { RemoteChange } from "../lib/collaboration";
+import { PresenceAvatars, EditingIndicator, RemoteChangeToast, ActivityFeedPanel } from "./components/CollaborationPanel";
 // Three.js removed — was causing "Context Lost" and deprecated Clock warnings.
 // Audio orb visualizer now uses pure CSS (see CSSAudioOrb below).
 
@@ -249,6 +253,10 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
   shuffleRef.current = shuffle;
   const genreRef = useRef(genre);
   genreRef.current = genre;
+  const repeatRef = useRef(repeat);
+  repeatRef.current = repeat;
+  const volumeRef = useRef(volume);
+  volumeRef.current = volume;
 
   const genreTracks = useMemo(() => ALL_TRACKS.filter(t => t.genre === genre), [genre]);
   const track = genreTracks[trackIdx % genreTracks.length] || genreTracks[0];
@@ -282,12 +290,30 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     const audio = new Audio();
     audio.preload = "none";
     audio.crossOrigin = "anonymous";
-    audio.volume = 0.5; // ensure audible default
+    audio.volume = volumeRef.current > 0 ? volumeRef.current : 0.5;
     audio.muted = false;
     audioRef.current = audio;
 
+    // Error handler — skip to next track on load failure (404, network error, etc.)
+    audio.addEventListener("error", () => {
+      console.warn("[MusicPlayer] Track failed to load, skipping:", audio.src);
+      const gt = ALL_TRACKS.filter(t => t.genre === genreRef.current);
+      if (gt.length > 1) {
+        setTrackIdx(prev => {
+          const nextIdx = (prev + 1) % gt.length;
+          const nextTrack = gt[nextIdx];
+          if (nextTrack) {
+            audio.src = nextTrack.file;
+            audio.load();
+            audio.play().catch(() => {});
+          }
+          return nextIdx;
+        });
+      }
+    });
+
     audio.addEventListener("ended", () => {
-      if (repeat) { audio.currentTime = 0; audio.play().catch(e => console.warn("Repeat failed:", e)); return; }
+      if (repeatRef.current) { audio.currentTime = 0; audio.play().catch(e => console.warn("Repeat failed:", e)); return; }
       setHasPlayedFirst(true);
       if (shuffleRef.current) {
         const idx = Math.floor(Math.random() * ALL_TRACKS.length);
@@ -302,7 +328,14 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
       } else {
         setTrackIdx(prev => {
           const gt = ALL_TRACKS.filter(t => t.genre === genreRef.current);
-          return (prev + 1) % gt.length;
+          const nextIdx = (prev + 1) % gt.length;
+          const nextTrack = gt[nextIdx];
+          if (nextTrack) {
+            audio.src = nextTrack.file;
+            audio.load();
+            audio.play().catch(e => console.warn("Next track play failed:", e));
+          }
+          return nextIdx;
         });
       }
     });
@@ -432,7 +465,8 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
         const t = genreTracks[trackIdx % genreTracks.length] || genreTracks[0];
         if (t) {
           a.src = t.file;
-          a.volume = volume;
+          a.volume = volume > 0 ? volume : 0.5;
+          a.muted = false;
           a.load(); // preload only — no play()
         }
       }
@@ -446,10 +480,10 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     resumeAudioCtx();
     a.src = file;
     a.muted = false;
-    a.volume = volume || 0.5;
+    a.volume = volumeRef.current > 0 ? volumeRef.current : 0.5;
     a.load();
-    a.play().then(() => setPlaying(true)).catch(e => { console.warn("[MusicPlayer] Play failed:", e.message); setPlaying(false); });
-  }, [volume, resumeAudioCtx]);
+    a.play().then(() => { setPlaying(true); setHasPlayedFirst(true); }).catch(e => { console.warn("[MusicPlayer] Play failed:", e.message); setPlaying(false); });
+  }, [resumeAudioCtx]);
 
   const toggle = useCallback(() => {
     const a = audioRef.current; if (!a) return;
@@ -457,11 +491,11 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     if (playing) { a.pause(); setPlaying(false); }
     else {
       a.muted = false;
-      a.volume = volume || 0.5;
+      a.volume = volumeRef.current > 0 ? volumeRef.current : 0.5;
       if (!a.src || a.readyState === 0 || !a.src.includes("/track")) { playTrack(track?.file || ALL_TRACKS[0].file); }
       else { a.play().then(() => setPlaying(true)).catch(e => { console.warn("Resume failed:", e.message); playTrack(track?.file || ALL_TRACKS[0].file); }); }
     }
-  }, [playing, track, volume, playTrack, resumeAudioCtx]);
+  }, [playing, track, playTrack, resumeAudioCtx]);
 
   const changeTrack = useCallback((idx: number) => {
     setTrackIdx(idx);
@@ -491,7 +525,7 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
 
   const nextTrack = () => { if (shuffle) { shuffleAny(); return; } const gt = genreTracks; changeTrack((trackIdx + 1) % gt.length); };
   const prevTrack = () => { if (shuffle) { shuffleAny(); return; } const gt = genreTracks; changeTrack((trackIdx - 1 + gt.length) % gt.length); };
-  const changeVolume = (v: number) => { setVolume(v); if (audioRef.current) audioRef.current.volume = v; try { localStorage.setItem("music_vol", String(v)); } catch {} };
+  const changeVolume = (v: number) => { setVolume(v); volumeRef.current = v; if (audioRef.current) { audioRef.current.volume = v; audioRef.current.muted = false; } try { localStorage.setItem("music_vol", String(v)); } catch {} };
   const seek = (e: React.MouseEvent<HTMLDivElement>) => { const rect = e.currentTarget.getBoundingClientRect(); const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width)); if (audioRef.current?.duration) audioRef.current.currentTime = pct * audioRef.current.duration; };
 
   const btnBase: React.CSSProperties = { background: "none", border: "none", cursor: "pointer", transition: "all 0.2s", display: "flex", alignItems: "center", justifyContent: "center" };
@@ -761,6 +795,16 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
     try { return !sessionStorage.getItem(`${projectId}_splashSeen`); } catch { return true; }
   });
   const [decLogFilter, setDecLogFilter] = useState("All");
+  const [showActivityFeed, setShowActivityFeed] = useState(false);
+  const [remoteChange, setRemoteChange] = useState<RemoteChange | null>(null);
+  const collab = useCollaboration({
+    projectId,
+    userId: user?.id || "",
+    username: user?.username || "",
+    displayName: user?.display_name || user?.username || "",
+    currentTab: page,
+    onRemoteChange: (change) => setRemoteChange(change),
+  });
   setGlobalToast(toast);
   setGlobalLogDecision(logDecision);
   // Wire up API-level toast notifications
@@ -822,7 +866,13 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
 
   // ── Track visited modules — scoped to project ──
   const [visited, setVisited] = usePersisted<Record<string, boolean>>(`${projectId}_visited`, {});
-  const navigate = useCallback((id: string) => { setPage(id); setVisited(prev => ({ ...prev, [id]: true })); }, [setPage, setVisited]);
+  const navigate = useCallback((id: string) => { setPage(id); setVisited(prev => ({ ...prev, [id]: true })); analytics.trackModuleVisited(id); analytics.startModuleSession(id); }, [setPage, setVisited]);
+  const funnelFiredRef = useRef(false);
+  useEffect(() => {
+    if (funnelFiredRef.current) return;
+    const distinct = Object.keys(visited).filter(k => visited[k] && k !== "home").length;
+    if (distinct >= 3) { analytics.trackFunnelStep("used_3_modules"); funnelFiredRef.current = true; }
+  }, [visited]);
 
   // ── Smart Import Wizard ──
   const [showImportWizard, setShowImportWizard] = useState(false);
@@ -916,6 +966,11 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       const dt = new DataTransfer();
       wizFiles.forEach(f => dt.items.add(f));
       await uploadFiles(dt.files);
+      for (const wf of wizFiles) {
+        const ext = wf.name.split(".").pop() || "unknown";
+        analytics.trackDataUploaded(ext, wf.size, wizPreview?.rows);
+      }
+      analytics.trackFunnelStep("uploaded_data");
       const quality = Math.round((wizValidation.filter(v => v.type === "pass").length / Math.max(wizValidation.length, 1)) * 100);
       setWizImportHistory(prev => [...prev, { date: new Date().toISOString().split("T")[0], file: wizFiles[0]?.name || "", rows: wizPreview?.rows || 0, quality }]);
       toast("Data imported successfully", "success");
@@ -928,6 +983,12 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
   const upload = async (files: FileList) => {
     try {
       await uploadFiles(files);
+      for (let i = 0; i < files.length; i++) {
+        const f = files[i];
+        const ext = f.name.split(".").pop() || "unknown";
+        analytics.trackDataUploaded(ext, f.size);
+      }
+      analytics.trackFunnelStep("uploaded_data");
       toast("Data uploaded successfully", "success");
       if (model) {
         try {
@@ -1485,6 +1546,9 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
         <button onClick={() => navigate("flightrecorder")} className={`w-full text-left px-2 py-1.5 rounded-lg text-[15px] mb-1 flex items-center gap-2 transition-all ${page === "flightrecorder" ? "bg-[rgba(212,134,10,0.08)] text-[var(--accent-primary)] font-semibold" : "text-[var(--text-muted)] hover:bg-[var(--hover)]"}`}>
           <span className="text-[15px]">🛫</span> Flight Recorder
         </button>
+        <button onClick={() => setShowActivityFeed(!showActivityFeed)} className={`w-full text-left px-2 py-1.5 rounded-lg text-[15px] mb-1 flex items-center gap-2 transition-all ${showActivityFeed ? "bg-[rgba(16,185,129,0.1)] text-[#10B981] font-semibold" : "text-[var(--text-muted)] hover:bg-[var(--hover)]"}`}>
+          <span className="text-[15px]">📡</span> Activity Feed {collab.presence.length > 0 && <span className="text-[12px] px-1.5 py-0.5 rounded-full bg-[rgba(16,185,129,0.2)] text-[#10B981] font-bold">{collab.presence.length}</span>}
+        </button>
         <button onClick={() => setShowDecLog(!showDecLog)} className={`w-full text-left px-2 py-1.5 rounded-lg text-[15px] mb-1 flex items-center gap-2 transition-all ${showDecLog ? "bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] font-semibold" : "text-[var(--text-muted)] hover:bg-[var(--hover)]"}`}>
           <span className="text-[15px]">📝</span> Decision Log {decisionLog.length > 0 && <span className="text-[14px] px-1.5 py-0.5 rounded-full bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] font-bold">{decisionLog.length}</span>}
         </button>
@@ -1546,6 +1610,18 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
 
     {/* ── MAIN ── */}
     <main className={`flex-1 min-h-screen bg-[var(--bg)] ${presentMode ? "present-scale" : ""}`} style={presentMode ? { paddingTop: 60, paddingBottom: 56 } : undefined}>
+      {/* Collaboration: presence bar + editing indicator */}
+      {collab.presence.length > 0 && !presentMode && (
+        <div style={{ position: "sticky", top: 0, zIndex: 90, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 20px", background: "rgba(var(--bg-rgb, 15,12,8),0.85)", backdropFilter: "blur(12px)", borderBottom: "1px solid var(--border)" }}>
+          <EditingIndicator users={collab.presence} />
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginLeft: "auto" }}>
+            <PresenceAvatars users={collab.presence} />
+            <button onClick={() => setShowActivityFeed(!showActivityFeed)} style={{ padding: "4px 10px", borderRadius: 8, border: "1px solid var(--border)", background: "var(--surface-2)", color: "var(--text-muted)", fontSize: 12, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4, fontFamily: "'Outfit', sans-serif" }}>
+              <span style={{ fontSize: 13 }}>📡</span> Activity
+            </button>
+          </div>
+        </div>
+      )}
       <AnnotationLayer annotations={annotations} moduleId={page} annotateMode={annotateMode} onAdd={a => setAnnotations(prev => [...prev, a])} onUpdate={a => setAnnotations(prev => prev.map(x => x.id === a.id ? a : x))} onDelete={id => setAnnotations(prev => prev.filter(x => x.id !== id))}>
       <AnimatePresence mode="wait">
       <motion.div key={page} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2, ease: "easeOut" }} style={{ willChange: "opacity" }}>
@@ -1597,6 +1673,10 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
     {/* AI Co-Pilot sidebar */}
     <AnimatePresence>{showCoPilot && <AiCoPilot moduleId={page} contextData={buildAiContext()} open={showCoPilot} onClose={() => setShowCoPilot(false)} onNavigate={navigate} />}</AnimatePresence>
     <AnimatePresence>{showAnnoPanel && <AnnotationPanel annotations={annotations} onUpdate={a => setAnnotations(prev => prev.map(x => x.id === a.id ? a : x))} onDelete={id => setAnnotations(prev => prev.filter(x => x.id !== id))} onClose={() => setShowAnnoPanel(false)} />}</AnimatePresence>
+
+    {/* ═══ COLLABORATION: Activity Feed + Remote Change Toast ═══ */}
+    <AnimatePresence>{showActivityFeed && <ActivityFeedPanel activity={collab.activity} onClose={() => setShowActivityFeed(false)} />}</AnimatePresence>
+    <RemoteChangeToast change={remoteChange} onDismiss={() => setRemoteChange(null)} />
 
     {/* ═══ AGENT ORCHESTRATOR ═══ */}
     <AgentOrchestrator projectId={projectId} sessionData={{ jobs: jobs.slice(0, 20), headcount: jobs.length, tasks: [], skills: [], functions: Array.from(new Set(jobs)), model_id: model || "", current_module: page }} />
@@ -2220,6 +2300,7 @@ function ProjectHub({ onOpenProject, onStartTutorial, onOpenSandbox, showSandbox
     setProjects(updated);
     localStorage.setItem("hub_projects", JSON.stringify(updated));
     setNewName(""); setNewDesc(""); setNewClient(""); setNewIndustry(""); setNewSize(""); setNewLead(""); setModalOpen(false);
+    analytics.trackProjectCreated(p.id, newIndustry);
     onOpenProject(p);
   };
 
@@ -2338,6 +2419,7 @@ function ProjectHub({ onOpenProject, onStartTutorial, onOpenSandbox, showSandbox
                   seedTutorialData(tid, ind.id);
                   setSeedingId(null);
                   const companyName = t.info.split(" · ")[0] || ind.label;
+                  analytics.trackSandboxSelected(companyName);
                   setPendingSandbox({ id: tid, name: companyName, meta: `${ind.label} · ${t.size === "small" ? "Small-Cap" : t.size === "mid" ? "Mid-Cap" : "Large-Cap"} · ${t.info.split(" · ")[1] || ""} employees` });
                 }} style={{ width: "100%", padding: "7px 8px", borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: seedingId ? "wait" : "pointer", background: seedingId === `tutorial_${t.size}_${ind.id}` ? "rgba(139,92,246,0.25)" : t.color, border: `1px solid ${seedingId === `tutorial_${t.size}_${ind.id}` ? "rgba(139,92,246,0.5)" : t.border}`, color: t.text, transition: "all 0.2s", textAlign: "center", lineHeight: 1.4, opacity: seedingId && seedingId !== `tutorial_${t.size}_${ind.id}` ? 0.4 : 1 }} onMouseEnter={e => { if (!seedingId) { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.borderColor = t.text; }}} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = t.border; }}>{seedingId === `tutorial_${t.size}_${ind.id}` ? "⏳ Loading..." : t.info}</button></td>)}
               </tr>)}</tbody>
@@ -2612,7 +2694,10 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
       const d = await authApi.login(username, password);
       if (rememberMe) authApi.saveRememberedCredentials(username, password);
       else authApi.clearRememberedCredentials();
-      onAuth(d.user as authApi.AuthUser);
+      const u = d.user as authApi.AuthUser;
+      analytics.identifyUser(u.id, { username: u.username, display_name: u.display_name });
+      analytics.trackLogin(u.id);
+      onAuth(u);
     }
     catch (e: unknown) { setError(e instanceof Error ? e.message : "Login failed"); setShakeError(true); setTimeout(() => setShakeError(false), 600); }
     setLoading(false);
@@ -2628,7 +2713,11 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
     setLoading(true);
     try {
       const d = await authApi.register(username, password, passwordConfirm, cleanEmail, displayName || username);
-      setSuccessUser(d.user as authApi.AuthUser);
+      const regUser = d.user as authApi.AuthUser;
+      analytics.identifyUser(regUser.id, { username: regUser.username, display_name: regUser.display_name, email: cleanEmail });
+      analytics.trackSignup(regUser.id, "email");
+      analytics.trackFunnelStep("signed_up");
+      setSuccessUser(regUser);
     }
     catch (e: unknown) { setError(e instanceof Error ? e.message : "Registration failed"); setShakeError(true); setTimeout(() => setShakeError(false), 600); }
     setLoading(false);
@@ -2955,7 +3044,7 @@ export default function Page() {
         return;
       }
       authApi.getMe().then(u => {
-        if (u) { setUser(u); } else { authApi.clearToken(); }
+        if (u) { setUser(u); analytics.identifyUser(u.id, { username: u.username, display_name: u.display_name }); } else { authApi.clearToken(); }
         setAuthChecked(true);
       });
     } else {

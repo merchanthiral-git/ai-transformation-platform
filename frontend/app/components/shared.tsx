@@ -4,6 +4,7 @@ import * as api from "../../lib/api";
 import type { Filters } from "../../lib/api";
 import { VideoBackground } from "./VideoBackground";
 import { CDN_BASE } from "../../lib/cdn";
+import { trackExportGenerated, trackAIFeatureUsed } from "../../lib/analytics";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, CartesianGrid, Legend } from "recharts";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -498,6 +499,7 @@ export async function callAI(system: string, message: string, retries = 1): Prom
       const data = await resp.json();
       // Track remaining requests
       if (typeof data.remaining === "number") _aiRemaining = data.remaining;
+      if (!data.error) trackAIFeatureUsed("ai_generate");
       if (data.error) {
         // Don't retry on key/rate errors — they won't resolve
         if (data.text?.includes("ANTHROPIC_API_KEY") || data.text?.includes("Rate limit") || data.text?.includes("API key")) {
@@ -562,7 +564,7 @@ export function ModuleExportButton({ model, module, label }: { model: string; mo
     setExporting(true);
     try {
       const resp = await api.apiFetch(`/api/export/module/${model}/${module}`);
-      if (resp.ok) { const blob = await resp.blob(); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `${module}_export.xlsx`; a.click(); URL.revokeObjectURL(url); showToast(`📥 ${label || module} exported`); }
+      if (resp.ok) { const blob = await resp.blob(); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `${module}_export.xlsx`; a.click(); URL.revokeObjectURL(url); showToast(`📥 ${label || module} exported`); trackExportGenerated("xlsx"); }
       else showToast("Couldn't export — try again in a moment");
     } catch { showToast("Couldn't export — check that the backend is running"); }
     setExporting(false);
@@ -967,6 +969,7 @@ export function exportToCSV(data: Record<string, unknown>[], filename: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a"); a.href = url; a.download = `${filename}.csv`; a.click();
   URL.revokeObjectURL(url);
+  trackExportGenerated("csv");
 }
 
 
