@@ -1,240 +1,606 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
 export default function LandingPage() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const cursorRef = useRef<HTMLDivElement>(null);
+  const ringRef = useRef<HTMLDivElement>(null);
+  const heroBgRef = useRef<HTMLDivElement>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    // ── Loader ──
+    const loader = document.getElementById("loader");
+    const loaderTimer = setTimeout(() => loader?.classList.add("done"), 2200);
 
-    const particles: { x: number; y: number; size: number; speedX: number; speedY: number; opacity: number }[] = [];
-    const mouse = { x: null as number | null, y: null as number | null };
-    let raf = 0;
-
-    const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
-    resize();
-    window.addEventListener("resize", resize);
-    const onMouse = (e: MouseEvent) => { mouse.x = e.clientX; mouse.y = e.clientY; };
-    document.addEventListener("mousemove", onMouse);
-
-    function makeParticle() {
-      return {
-        x: Math.random() * canvas!.width, y: Math.random() * canvas!.height,
-        size: Math.random() * 1.5 + 0.5, speedX: (Math.random() - 0.5) * 0.3,
-        speedY: (Math.random() - 0.5) * 0.3, opacity: Math.random() * 0.4 + 0.1,
-      };
-    }
-    for (let i = 0; i < 80; i++) particles.push(makeParticle());
-
-    const animate = () => {
-      ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
-      for (const p of particles) {
-        p.x += p.speedX; p.y += p.speedY;
-        if (mouse.x !== null && mouse.y !== null) {
-          const dx = mouse.x - p.x, dy = mouse.y - p.y;
-          if (Math.sqrt(dx * dx + dy * dy) < 150) { p.x -= dx * 0.005; p.y -= dy * 0.005; }
-        }
-        if (p.x < 0 || p.x > canvas!.width || p.y < 0 || p.y > canvas!.height) Object.assign(p, makeParticle());
-        ctx!.fillStyle = `rgba(200,210,255,${p.opacity})`;
-        ctx!.beginPath(); ctx!.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx!.fill();
-      }
-      for (let a = 0; a < particles.length; a++) {
-        for (let b = a + 1; b < particles.length; b++) {
-          const dx = particles[a].x - particles[b].x, dy = particles[a].y - particles[b].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 120) {
-            ctx!.strokeStyle = `rgba(100,140,255,${0.06 * (1 - dist / 120)})`;
-            ctx!.lineWidth = 0.5; ctx!.beginPath();
-            ctx!.moveTo(particles[a].x, particles[a].y);
-            ctx!.lineTo(particles[b].x, particles[b].y); ctx!.stroke();
-          }
-        }
-      }
-      raf = requestAnimationFrame(animate);
+    // ── Cursor ──
+    const cursor = cursorRef.current;
+    const ring = ringRef.current;
+    let cx = 0, cy = 0, rx = 0, ry = 0;
+    const onMouseMove = (e: MouseEvent) => {
+      cx = e.clientX; cy = e.clientY;
+      if (cursor) { cursor.style.left = cx + "px"; cursor.style.top = cy + "px"; }
     };
-    animate();
+    document.addEventListener("mousemove", onMouseMove);
+    let ringRaf = 0;
+    const ringLoop = () => {
+      rx += (cx - rx) * 0.12; ry += (cy - ry) * 0.12;
+      if (ring) { ring.style.left = rx + "px"; ring.style.top = ry + "px"; }
+      ringRaf = requestAnimationFrame(ringLoop);
+    };
+    ringLoop();
 
-    const onScroll = () => document.getElementById("lp-nav")?.classList.toggle("scrolled", window.scrollY > 60);
+    const hoverEls = document.querySelectorAll("[data-hover],a,button");
+    const enterFn = () => { cursor?.classList.add("hover"); ring?.classList.add("hover"); };
+    const leaveFn = () => { cursor?.classList.remove("hover"); ring?.classList.remove("hover"); };
+    hoverEls.forEach(el => { el.addEventListener("mouseenter", enterFn); el.addEventListener("mouseleave", leaveFn); });
+
+    // ── Nav scroll ──
+    const onScroll = () => {
+      document.getElementById("nav")?.classList.toggle("scrolled", window.scrollY > 80);
+      if (heroBgRef.current) heroBgRef.current.style.transform = `translate(-50%,-50%) translateY(${window.scrollY * -0.15}px)`;
+    };
     window.addEventListener("scroll", onScroll);
 
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add("visible"); });
-    }, { threshold: 0.15, rootMargin: "0px 0px -60px 0px" });
-    document.querySelectorAll(".reveal-text, .glass-card, .feature-card, .stat-item").forEach(el => observer.observe(el));
-    document.querySelectorAll(".feature-card").forEach((c, i) => ((c as HTMLElement).style.transitionDelay = `${i * 0.1}s`));
-    document.querySelectorAll(".stat-item").forEach((c, i) => ((c as HTMLElement).style.transitionDelay = `${i * 0.15}s`));
+    // ── Word reveal ──
+    document.querySelectorAll(".word-reveal").forEach(container => {
+      const html = container.innerHTML;
+      let idx = 0;
+      const emStore: { placeholder: string; words: string }[] = [];
+      let processed = html.replace(/<em>(.*?)<\/em>/g, (_m, inner) => {
+        const words = inner.split(/\s+/).map((w: string) => `<span class="word"><em>${w}</em></span>`).join(" ");
+        const placeholder = `__EM${idx}__`;
+        emStore.push({ placeholder, words });
+        idx++;
+        return placeholder;
+      });
+      processed = processed.replace(/([A-Za-z'\u2019\u00C0-\u024F]+)/g, (m) => {
+        if (m.startsWith("__EM") && m.endsWith("__")) return m;
+        return `<span class="word">${m}</span>`;
+      });
+      emStore.forEach(({ placeholder, words }) => { processed = processed.replace(placeholder, words); });
+      container.innerHTML = processed;
+    });
+    const wordObs = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.querySelectorAll(".word").forEach((w, i) => setTimeout(() => w.classList.add("visible"), i * 60));
+          wordObs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.3 });
+    document.querySelectorAll(".word-reveal").forEach(el => wordObs.observe(el));
 
-    return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", resize); window.removeEventListener("scroll", onScroll); document.removeEventListener("mousemove", onMouse); observer.disconnect(); };
+    // ── Section reveals ──
+    const revealObs = new IntersectionObserver(entries => {
+      entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add("visible"); });
+    }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
+    document.querySelectorAll(".move-section, .tl-panel").forEach(el => revealObs.observe(el));
+    document.querySelectorAll(".tl-panel").forEach((p, i) => { (p as HTMLElement).style.transitionDelay = `${i * 0.12}s`; });
+
+    // ── Smooth anchor scroll ──
+    const anchors = document.querySelectorAll('a[href^="#"]');
+    const anchorFn = function (this: HTMLAnchorElement, e: Event) {
+      e.preventDefault();
+      const t = document.querySelector(this.getAttribute("href")!);
+      if (t) { const y = t.getBoundingClientRect().top + window.scrollY - 80; window.scrollTo({ top: y, behavior: "smooth" }); }
+    };
+    anchors.forEach(a => a.addEventListener("click", anchorFn as EventListener));
+
+    return () => {
+      clearTimeout(loaderTimer);
+      cancelAnimationFrame(ringRaf);
+      document.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("scroll", onScroll);
+      hoverEls.forEach(el => { el.removeEventListener("mouseenter", enterFn); el.removeEventListener("mouseleave", leaveFn); });
+      wordObs.disconnect();
+      revealObs.disconnect();
+      anchors.forEach(a => a.removeEventListener("click", anchorFn as EventListener));
+    };
   }, []);
 
   return (
     <>
       <style>{`
-:root{--bg-deep:#05080F;--glass-bg:rgba(255,255,255,0.04);--glass-border:rgba(255,255,255,0.08);--glass-hover:rgba(255,255,255,0.08);--text-primary:#F0F0F5;--text-secondary:rgba(240,240,245,0.55);--text-tertiary:rgba(240,240,245,0.3);--accent-blue:#3B82F6;--accent-cyan:#06B6D4;--accent-orange:#F97316;--accent-violet:#8B5CF6;--gradient-hero:linear-gradient(135deg,#3B82F6 0%,#8B5CF6 40%,#F97316 100%);--font-display:'Syne',sans-serif;--font-body:'Outfit',sans-serif}
-.lp{font-family:var(--font-body);color:var(--text-primary);background:var(--bg-deep);-webkit-font-smoothing:antialiased;overflow-x:hidden}
-#lp-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
-#lp-nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:20px 48px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(24px) saturate(1.4);background:rgba(5,8,15,0.6);border-bottom:1px solid var(--glass-border);transition:all 0.4s cubic-bezier(0.16,1,0.3,1)}
-#lp-nav.scrolled{padding:14px 48px;background:rgba(5,8,15,0.85)}
-.lp-logo{font-family:var(--font-display);font-weight:800;font-size:20px;letter-spacing:-0.5px;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.lp-links{display:flex;gap:36px;align-items:center}.lp-links a{color:var(--text-secondary);text-decoration:none;font-size:14px;font-weight:500;transition:color 0.3s}.lp-links a:hover{color:var(--text-primary)}
-.lp-cta-nav{padding:10px 24px;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:100px;color:var(--text-primary);font-weight:600;transition:all 0.3s;text-decoration:none}.lp-cta-nav:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2)}
-.lp-s{position:relative;z-index:1}
-.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:140px 48px 100px;overflow:hidden}
-.hero-orb{position:absolute;border-radius:50%;filter:blur(120px);opacity:0.35;animation:orbF 12s ease-in-out infinite}
-.ho1{width:600px;height:600px;background:var(--accent-blue);top:-10%;left:-10%}.ho2{width:500px;height:500px;background:var(--accent-violet);bottom:-15%;right:-5%;animation-delay:-4s}.ho3{width:300px;height:300px;background:var(--accent-orange);top:30%;right:15%;animation-delay:-8s}
-@keyframes orbF{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-40px) scale(1.05)}66%{transform:translate(-20px,20px) scale(0.95)}}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 20px;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:100px;font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:40px;opacity:0;transform:translateY(20px);animation:fU 0.8s 0.2s forwards}
-.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:#22C55E;animation:pls 2s infinite;display:inline-block}
-@keyframes pls{0%,100%{opacity:1}50%{opacity:0.4}}
-.hero h1{font-family:var(--font-display);font-size:clamp(52px,8vw,110px);font-weight:900;line-height:0.95;letter-spacing:-3px;margin:0 0 32px;opacity:0;transform:translateY(40px);animation:fU 1s 0.4s forwards}
-.gt{background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero-sub{font-size:clamp(17px,2vw,22px);font-weight:300;color:var(--text-secondary);max-width:600px;line-height:1.6;margin-bottom:56px;opacity:0;transform:translateY(30px);animation:fU 1s 0.6s forwards}
-.hero-acts{display:flex;gap:16px;align-items:center;opacity:0;transform:translateY(30px);animation:fU 1s 0.8s forwards}
-.bp{padding:16px 40px;background:var(--accent-blue);color:#fff;border:none;border-radius:100px;font-family:var(--font-body);font-size:16px;font-weight:600;cursor:pointer;transition:all 0.3s;text-decoration:none;display:inline-block}.bp:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(59,130,246,0.4)}
-.bg{padding:16px 40px;background:transparent;color:var(--text-secondary);border:1px solid var(--glass-border);border-radius:100px;font-family:var(--font-body);font-size:16px;font-weight:500;cursor:pointer;transition:all 0.3s;text-decoration:none;display:inline-block}.bg:hover{color:var(--text-primary);border-color:rgba(255,255,255,0.2);background:var(--glass-bg)}
-@keyframes fU{to{opacity:1;transform:translateY(0)}}
-.scroll-ind{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0;animation:fU 1s 1.2s forwards}.scroll-ind span{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--text-tertiary)}
-.scroll-line{width:1px;height:40px;background:linear-gradient(to bottom,var(--text-tertiary),transparent);animation:sP 2s ease-in-out infinite}@keyframes sP{0%,100%{opacity:0.3;transform:scaleY(1)}50%{opacity:1;transform:scaleY(1.2)}}
-.rs{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:120px 48px}
-.rc{max-width:1200px;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}.rc.rev{direction:rtl}.rc.rev>*{direction:ltr}
-.rt{opacity:0;transform:translateY(60px);transition:all 1s cubic-bezier(0.16,1,0.3,1)}.rt.visible{opacity:1;transform:translateY(0)}
-.rl{font-size:12px;text-transform:uppercase;letter-spacing:3px;font-weight:600;margin-bottom:16px;display:inline-block}
-.lb{color:var(--accent-blue)}.lv{color:var(--accent-violet)}.lo{color:var(--accent-orange)}
-.rt h2{font-family:var(--font-display);font-size:clamp(36px,4vw,56px);font-weight:800;line-height:1.05;letter-spacing:-2px;margin:0 0 24px}.rt p{font-size:17px;line-height:1.7;color:var(--text-secondary);font-weight:300;margin:0}
-.gc{background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:24px;padding:48px;backdrop-filter:blur(20px);position:relative;overflow:hidden;opacity:0;transform:translateY(60px) scale(0.96);transition:all 1s cubic-bezier(0.16,1,0.3,1)}.gc.visible{opacity:1;transform:translateY(0) scale(1)}.gc::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent)}.gc:hover{border-color:rgba(255,255,255,0.12);background:var(--glass-hover)}
-.md{width:100%;aspect-ratio:16/10;background:rgba(0,0,0,0.3);border-radius:16px;border:1px solid var(--glass-border);position:relative;overflow:hidden}
-.ms{position:absolute;left:0;top:0;bottom:0;width:50px;background:rgba(28,43,58,0.6);border-right:1px solid var(--glass-border);display:flex;flex-direction:column;align-items:center;padding-top:16px;gap:14px}
-.msd{width:8px;height:8px;border-radius:3px;background:rgba(255,255,255,0.15)}.msd.a{background:var(--accent-blue)}
-.mm{position:absolute;left:50px;top:0;right:0;bottom:0;padding:16px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto 1fr;gap:10px}
-.mst{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:4px}
-.mstl{font-size:8px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:1px}
-.mstv{font-family:var(--font-display);font-size:20px;font-weight:700}
-.mc{grid-column:1/-1;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;position:relative;overflow:hidden}.mc svg{width:100%;height:100%}
-.fs{padding:160px 48px;position:relative;z-index:1}
-.sh{text-align:center;max-width:700px;margin:0 auto 80px}.sh h2{font-family:var(--font-display);font-size:clamp(36px,4vw,56px);font-weight:800;letter-spacing:-2px;line-height:1.05;margin:0 0 20px}.sh p{font-size:18px;color:var(--text-secondary);font-weight:300;line-height:1.6;margin:0}
-.fg{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-.feature-card{background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:20px;padding:40px 32px;transition:all 0.5s cubic-bezier(0.16,1,0.3,1);position:relative;overflow:hidden;opacity:0;transform:translateY(40px)}.feature-card.visible{opacity:1;transform:translateY(0)}.feature-card:hover{transform:translateY(-4px);background:var(--glass-hover)}
-.fi{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:24px;font-size:22px}
-.fib{background:rgba(59,130,246,0.12);color:var(--accent-blue)}.fiv{background:rgba(139,92,246,0.12);color:var(--accent-violet)}.fio{background:rgba(249,115,22,0.12);color:var(--accent-orange)}.fic{background:rgba(6,182,212,0.12);color:var(--accent-cyan)}.fig{background:rgba(34,197,94,0.12);color:#22C55E}.fir{background:rgba(244,63,94,0.12);color:#F43F5E}
-.feature-card h3{font-family:var(--font-display);font-size:20px;font-weight:700;margin:0 0 12px;letter-spacing:-0.5px}.feature-card p{font-size:15px;color:var(--text-secondary);line-height:1.65;font-weight:300;margin:0}
-.sb{padding:80px 48px;position:relative;z-index:1}.si{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:24px;text-align:center}
-.stat-item{opacity:0;transform:translateY(30px);transition:all 0.8s cubic-bezier(0.16,1,0.3,1)}.stat-item.visible{opacity:1;transform:translateY(0)}
-.sn{font-family:var(--font-display);font-size:clamp(40px,5vw,64px);font-weight:900;letter-spacing:-2px;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.sl{font-size:14px;color:var(--text-tertiary);margin-top:8px;text-transform:uppercase;letter-spacing:1.5px;font-weight:500}
-.cs{padding:160px 48px;text-align:center;position:relative;z-index:1}.cs h2{font-family:var(--font-display);font-size:clamp(40px,5vw,72px);font-weight:900;letter-spacing:-2px;line-height:1;margin:0 0 24px}.cs p{font-size:19px;color:var(--text-secondary);font-weight:300;max-width:500px;margin:0 auto 48px;line-height:1.6}
-.lf{padding:60px 48px 40px;border-top:1px solid var(--glass-border);position:relative;z-index:1}.lfi{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
-.lfl{font-family:var(--font-display);font-weight:800;font-size:18px;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}.lfr{font-size:13px;color:var(--text-tertiary)}
-@media(max-width:900px){#lp-nav{padding:16px 24px}.lp-links{display:none}.hero{padding:120px 24px 80px}.rc{grid-template-columns:1fr;gap:40px}.rc.rev{direction:ltr}.fg{grid-template-columns:1fr}.si{grid-template-columns:repeat(2,1fr)}.lfi{flex-direction:column;gap:16px}.rs,.fs,.sb,.cs{padding-left:24px!important;padding-right:24px!important}}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #F4F1EB; --bg-warm: #EBE7DF; --bg-dark: #141311; --surface: #FFFFFF;
+  --text: #1A1A17; --text-inv: #F4F1EB; --text-mid: #5C5A54; --text-light: #9E9B93;
+  --accent: #C04B2D; --accent-light: #D4725A; --rule: #D6D1C8;
+  --serif: 'Cormorant Garamond', Georgia, serif;
+  --sans: 'Instrument Sans', -apple-system, sans-serif;
+}
+html { background: var(--bg); overflow-x: hidden; }
+body { font-family: var(--sans); color: var(--text); background: var(--bg); -webkit-font-smoothing: antialiased; cursor: none; }
+::selection { background: var(--accent); color: white; }
+.cursor { position: fixed; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); pointer-events: none; z-index: 9999; mix-blend-mode: difference; transition: transform 0.15s ease, width 0.3s, height 0.3s; transform: translate(-50%, -50%); }
+.cursor.hover { width: 48px; height: 48px; background: var(--accent-light); mix-blend-mode: normal; opacity: 0.4; }
+.cursor-ring { position: fixed; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--accent); pointer-events: none; z-index: 9998; opacity: 0.3; transition: transform 0.08s ease, width 0.3s, height 0.3s, opacity 0.3s; transform: translate(-50%, -50%); }
+.cursor-ring.hover { width: 64px; height: 64px; opacity: 0.15; }
+body::after { content: ''; position: fixed; inset: 0; z-index: 9990; pointer-events: none; opacity: 0.03; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); background-repeat: repeat; background-size: 180px; }
+.loader { position: fixed; inset: 0; background: var(--bg); z-index: 10000; display: flex; align-items: center; justify-content: center; flex-direction: column; transition: opacity 0.8s ease, visibility 0.8s; }
+.loader.done { opacity: 0; visibility: hidden; pointer-events: none; }
+.loader-text { font-family: var(--serif); font-size: 24px; font-weight: 400; font-style: italic; overflow: hidden; }
+.loader-text span { display: inline-block; transform: translateY(100%); animation: loaderReveal 0.6s 0.2s forwards; }
+@keyframes loaderReveal { to { transform: translateY(0); } }
+.loader-bar { width: 120px; height: 1px; background: var(--rule); margin-top: 24px; position: relative; overflow: hidden; }
+.loader-bar::after { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 0%; background: var(--accent); animation: loaderFill 1.8s 0.4s cubic-bezier(0.65,0,0.35,1) forwards; }
+@keyframes loaderFill { to { width: 100%; } }
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 28px 56px; display: flex; align-items: center; justify-content: space-between; background: transparent; transition: all 0.5s ease; }
+nav.scrolled { padding: 16px 56px; background: rgba(244,241,235,0.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--rule); }
+.nav-logo { font-family: var(--serif); font-size: 22px; font-weight: 500; letter-spacing: -0.3px; }
+.nav-right { display: flex; align-items: center; gap: 40px; }
+.nav-links { display: flex; gap: 32px; }
+.nav-links a { color: var(--text-mid); text-decoration: none; font-size: 12px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; transition: color 0.3s; position: relative; }
+.nav-links a::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0%; height: 1px; background: var(--accent); transition: width 0.4s cubic-bezier(0.65,0,0.35,1); }
+.nav-links a:hover { color: var(--text); }
+.nav-links a:hover::after { width: 100%; }
+.nav-cta { padding: 12px 32px; background: var(--text); color: var(--bg); border-radius: 100px; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; text-decoration: none; transition: all 0.4s cubic-bezier(0.16,1,0.3,1); display: inline-block; }
+.nav-cta:hover { background: var(--accent); color: white; transform: scale(1.05); }
+.btn-primary { padding: 18px 48px; background: var(--text); color: var(--bg); border: none; border-radius: 100px; font-family: var(--sans); font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; cursor: none; transition: all 0.4s cubic-bezier(0.16,1,0.3,1); position: relative; overflow: hidden; }
+.btn-primary::after { content: ''; position: absolute; inset: 0; background: var(--accent); transform: translateY(101%); transition: transform 0.4s cubic-bezier(0.16,1,0.3,1); }
+.btn-primary span { position: relative; z-index: 1; }
+.btn-primary:hover { color: white; transform: translateY(-2px); }
+.btn-primary:hover::after { transform: translateY(0); }
+.btn-ghost { padding: 18px 48px; background: transparent; color: var(--text-mid); border: 1px solid var(--rule); border-radius: 100px; font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; cursor: none; transition: all 0.3s; text-decoration: none; display: inline-block; }
+.btn-ghost:hover { color: var(--text); border-color: var(--text); }
+@keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+.hero { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; align-items: center; padding: 140px 56px 100px; position: relative; overflow: hidden; gap: 60px; }
+.hero-bg-text { position: absolute; font-family: var(--serif); font-size: clamp(140px,18vw,260px); font-weight: 300; color: transparent; -webkit-text-stroke: 1px var(--rule); white-space: nowrap; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; opacity: 0.3; user-select: none; letter-spacing: -6px; }
+.hero-left { position: relative; z-index: 2; }
+.hero-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: var(--accent); margin-bottom: 40px; }
+.hero-eyebrow .line { display: inline-block; width: 32px; height: 1px; background: var(--accent); vertical-align: middle; margin: 0 12px; }
+.hero h1 { font-family: var(--serif); font-size: clamp(48px,6vw,96px); font-weight: 300; line-height: 0.98; letter-spacing: -2px; margin-bottom: 36px; }
+.hero h1 em { font-style: italic; font-weight: 400; color: var(--accent); }
+.split-line { display: block; overflow: hidden; }
+.split-line-inner { display: block; transform: translateY(110%); animation: splitReveal 1s cubic-bezier(0.16,1,0.3,1) forwards; }
+.split-line:nth-child(2) .split-line-inner { animation-delay: 0.12s; }
+@keyframes splitReveal { to { transform: translateY(0); } }
+.hero-sub { font-size: 17px; color: var(--text-mid); max-width: 420px; line-height: 1.7; margin-bottom: 44px; opacity: 0; transform: translateY(16px); animation: fadeUp 1s 0.5s forwards; }
+.hero-actions { display: flex; gap: 16px; opacity: 0; transform: translateY(20px); animation: fadeUp 1s 0.7s forwards; }
+.hero-right { position: relative; z-index: 2; opacity: 0; animation: fadeUp 1.2s 0.4s forwards; transform: translateY(30px); }
+.hero-illo { width: 100%; aspect-ratio: 4/3; background: var(--surface); border: 1px solid var(--rule); border-radius: 24px; position: relative; overflow: hidden; padding: 0; }
+.hero-illo svg { width: 100%; height: 100%; }
+.marquee-band { padding: 24px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); overflow: hidden; white-space: nowrap; }
+.marquee-track { display: inline-flex; animation: marquee 35s linear infinite; }
+.marquee-track span { font-family: var(--serif); font-size: 16px; font-weight: 400; font-style: italic; color: var(--text-light); padding: 0 32px; }
+.marquee-track span::before { content: '\\2726'; margin-right: 32px; color: var(--accent); font-style: normal; font-size: 10px; vertical-align: middle; }
+@keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+.manifesto { padding: 180px 48px; position: relative; }
+.manifesto-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+.manifesto h2 { font-family: var(--serif); font-size: clamp(30px,4vw,52px); font-weight: 300; line-height: 1.2; letter-spacing: -1px; }
+.manifesto h2 em { font-style: italic; color: var(--accent); font-weight: 400; }
+.word-reveal { display: inline; }
+.word-reveal .word { display: inline-block; opacity: 0.1; transition: opacity 0.5s ease, transform 0.5s ease; transform: translateY(4px); }
+.word-reveal .word.visible { opacity: 1; transform: translateY(0); }
+.manifesto-illo { width: 100%; aspect-ratio: 4/3; background: var(--surface); border: 1px solid var(--rule); border-radius: 20px; overflow: hidden; }
+.manifesto-illo svg { width: 100%; height: 100%; }
+.three-moves { padding: 160px 48px; }
+.three-moves-header { text-align: center; margin-bottom: 80px; }
+.three-moves-header h2 { font-family: var(--serif); font-size: clamp(36px,5vw,60px); font-weight: 300; letter-spacing: -1px; }
+.three-moves-header h2 em { font-style: italic; color: var(--accent); }
+.move-section { max-width: 1200px; margin: 0 auto 100px; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; opacity: 0; transform: translateY(50px); transition: all 0.9s cubic-bezier(0.16,1,0.3,1); }
+.move-section.visible { opacity: 1; transform: translateY(0); }
+.move-section.reverse { direction: rtl; }
+.move-section.reverse > * { direction: ltr; }
+.move-section:last-child { margin-bottom: 0; }
+.move-num { font-family: var(--serif); font-size: 72px; font-weight: 300; color: var(--rule); line-height: 1; margin-bottom: 16px; }
+.move-label { font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; }
+.move-text h3 { font-family: var(--serif); font-size: clamp(28px,3vw,44px); font-weight: 400; line-height: 1.15; letter-spacing: -0.5px; margin-bottom: 20px; }
+.move-text h3 em { font-style: italic; }
+.move-text p { font-size: 16px; color: var(--text-mid); line-height: 1.75; max-width: 440px; }
+.move-visual { background: var(--surface); border: 1px solid var(--rule); border-radius: 20px; overflow: hidden; aspect-ratio: 4/3; position: relative; }
+.move-visual svg { width: 100%; height: 100%; }
+.modules-pitch { background: var(--bg-dark); color: var(--text-inv); padding: 200px 48px; position: relative; overflow: hidden; }
+.modules-pitch::before { content: '20+'; position: absolute; font-family: var(--serif); font-size: clamp(200px,30vw,500px); font-weight: 300; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.03); top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none; letter-spacing: -10px; }
+.modules-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 2; }
+.modules-header { margin-bottom: 100px; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: end; }
+.modules-header h2 { font-family: var(--serif); font-size: clamp(40px,5vw,64px); font-weight: 300; line-height: 1.08; letter-spacing: -2px; }
+.modules-header h2 em { font-style: italic; color: var(--accent-light); }
+.modules-header h2 .big-num { font-size: 1.3em; color: var(--accent-light); }
+.modules-header p { font-size: 16px; color: rgba(244,241,235,0.4); line-height: 1.8; }
+.modules-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: rgba(255,255,255,0.06); }
+.mod-card { padding: 56px 40px; background: var(--bg-dark); transition: all 0.5s ease; position: relative; overflow: hidden; }
+.mod-card::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 0.6s cubic-bezier(0.16,1,0.3,1); }
+.mod-card:hover { background: rgba(255,255,255,0.02); }
+.mod-card:hover::after { transform: scaleX(1); }
+.mod-card-num { font-family: var(--serif); font-size: 14px; color: var(--accent-light); margin-bottom: 24px; font-style: italic; }
+.mod-card h3 { font-family: var(--serif); font-size: 26px; font-weight: 400; margin-bottom: 14px; letter-spacing: -0.3px; }
+.mod-card p { font-size: 14px; line-height: 1.7; color: rgba(244,241,235,0.35); }
+.timeline-section { padding: 200px 48px; }
+.timeline-header { text-align: center; margin-bottom: 80px; }
+.timeline-header h2 { font-family: var(--serif); font-size: clamp(32px,4.5vw,56px); font-weight: 300; letter-spacing: -1px; margin-bottom: 16px; }
+.timeline-header h2 em { font-style: italic; color: var(--accent); }
+.timeline-header p { font-size: 16px; color: var(--text-mid); max-width: 500px; margin: 0 auto; line-height: 1.7; }
+.timeline-track { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; position: relative; }
+.timeline-track::before { content: ''; position: absolute; top: 220px; left: 0; right: 0; height: 2px; background: var(--rule); }
+.tl-panel { padding: 0 16px; text-align: center; position: relative; opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.16,1,0.3,1); }
+.tl-panel.visible { opacity: 1; transform: translateY(0); }
+.tl-illo { width: 100%; aspect-ratio: 3/4; background: var(--surface); border: 1px solid var(--rule); border-radius: 16px; margin-bottom: 24px; overflow: hidden; position: relative; }
+.tl-illo svg { width: 100%; height: 100%; }
+.tl-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--bg); border: 2px solid var(--accent); margin: 0 auto 16px; position: relative; z-index: 2; }
+.tl-panel:last-child .tl-dot { background: var(--accent); box-shadow: 0 0 0 4px rgba(192,75,45,0.2); }
+.tl-year { font-family: var(--serif); font-size: 18px; font-weight: 600; color: var(--accent); margin-bottom: 8px; }
+.tl-title { font-family: var(--serif); font-size: 16px; font-weight: 500; margin-bottom: 6px; letter-spacing: -0.3px; }
+.tl-desc { font-size: 12px; color: var(--text-mid); line-height: 1.6; }
+.pull-quote { padding: 180px 48px; text-align: center; }
+.pull-quote .big-quote { font-family: var(--serif); font-size: 140px; color: var(--rule); line-height: 0.5; margin-bottom: 36px; user-select: none; }
+.pull-quote blockquote { font-family: var(--serif); font-size: clamp(28px,4vw,52px); font-weight: 300; font-style: italic; line-height: 1.25; letter-spacing: -0.5px; max-width: 780px; margin: 0 auto 36px; }
+.pull-quote cite { font-family: var(--sans); font-size: 12px; font-style: normal; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--text-light); }
+.cta-section { padding: 120px 48px 200px; text-align: center; }
+.cta-section h2 { font-family: var(--serif); font-size: clamp(42px,6vw,88px); font-weight: 300; line-height: 1.0; letter-spacing: -2px; margin-bottom: 28px; }
+.cta-section h2 em { font-style: italic; color: var(--accent); font-weight: 400; }
+.cta-section p { font-size: 16px; color: var(--text-mid); max-width: 400px; margin: 0 auto 56px; line-height: 1.7; }
+.cta-actions { display: flex; gap: 20px; justify-content: center; }
+footer { padding: 48px 56px; border-top: 1px solid var(--rule); display: flex; justify-content: space-between; align-items: center; }
+.footer-left { font-family: var(--serif); font-size: 18px; font-weight: 400; }
+.footer-center { display: flex; gap: 32px; }
+.footer-center a { font-size: 11px; color: var(--text-light); text-decoration: none; letter-spacing: 1.2px; text-transform: uppercase; font-weight: 600; transition: color 0.3s; }
+.footer-center a:hover { color: var(--text); }
+.footer-right { font-size: 12px; color: var(--text-light); }
+@media (max-width: 1000px) {
+  .hero { grid-template-columns: 1fr; text-align: center; padding: 140px 24px 80px; }
+  .hero-sub { margin-left: auto; margin-right: auto; }
+  .hero-actions { justify-content: center; }
+  .hero-right { max-width: 400px; margin: 0 auto; }
+  .manifesto-inner { grid-template-columns: 1fr; }
+  .move-section { grid-template-columns: 1fr; gap: 40px; }
+  .move-section.reverse { direction: ltr; }
+  .modules-header { grid-template-columns: 1fr; }
+  .modules-grid { grid-template-columns: 1fr; }
+  .timeline-track { grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .timeline-track::before { display: none; }
+}
+/* ── Hamburger + Mobile Nav Drawer ── */
+.hamburger { display: none; width: 48px; height: 48px; border: none; background: none; cursor: pointer; position: relative; z-index: 102; flex-shrink: 0; }
+.hamburger span { display: block; width: 22px; height: 2px; background: var(--text); margin: 0 auto; transition: all 0.3s cubic-bezier(0.16,1,0.3,1); border-radius: 1px; }
+.hamburger span:nth-child(1) { margin-bottom: 6px; }
+.hamburger span:nth-child(3) { margin-top: 6px; }
+.hamburger.open span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.hamburger.open span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+.mobile-nav { position: fixed; inset: 0; z-index: 101; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 32px; opacity: 0; visibility: hidden; transition: all 0.4s cubic-bezier(0.16,1,0.3,1); }
+.mobile-nav.open { opacity: 1; visibility: visible; }
+.mobile-nav a { font-family: var(--serif); font-size: 32px; font-weight: 400; color: var(--text); text-decoration: none; transition: color 0.3s; letter-spacing: -0.5px; }
+.mobile-nav a:hover { color: var(--accent); }
+.mobile-nav .nav-cta { font-family: var(--sans); font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-top: 16px; }
+@media (max-width: 900px) {
+  body { cursor: auto; }
+  .cursor, .cursor-ring { display: none; }
+  nav { padding: 20px 24px; }
+  nav.scrolled { padding: 14px 24px; }
+  .nav-links { display: none; }
+  .nav-cta.desktop-only { display: none; }
+  .hamburger { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+}
+@media (max-width: 600px) {
+  .hero-actions, .cta-actions { flex-direction: column; width: 100%; align-items: center; }
+  .btn-primary, .btn-ghost { width: 100%; text-align: center; }
+  .timeline-track { grid-template-columns: repeat(2, 1fr); }
+  footer { flex-direction: column; align-items: center; gap: 20px; text-align: center; padding: 32px 24px; }
+  .footer-center { flex-wrap: wrap; justify-content: center; gap: 16px; }
+}
+@keyframes floatPaper { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-8px) rotate(3deg); } }
+@keyframes pulseRing { 0% { r: 8; opacity: 0.5; } 100% { r: 20; opacity: 0; } }
+@keyframes scanLine { 0% { transform: translateY(0); } 100% { transform: translateY(160px); } }
+@keyframes barGrow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes nodeFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes dashMove { to { stroke-dashoffset: -20; } }
       `}</style>
-      <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-      <div className="lp">
-        <canvas id="lp-canvas" ref={canvasRef} />
-
-        <nav id="lp-nav">
-          <div className="lp-logo">HR Digital Playground</div>
-          <div className="lp-links">
-            <a href="#features">Platform</a>
-            <a href="#diagnose">Diagnose</a>
-            <a href="#design">Design</a>
-            <a href="#simulate">Simulate</a>
-            <Link href="/app" className="lp-cta-nav">Launch Platform</Link>
-          </div>
-        </nav>
-
-        <section className="hero lp-s">
-          <div className="hero-orb ho1" /><div className="hero-orb ho2" /><div className="hero-orb ho3" />
-          <div className="hero-badge"><span className="dot" />&nbsp;AI-Powered Workforce Transformation</div>
-          <h1>Redesign Work.<br /><span className="gt">Not Just Jobs.</span></h1>
-          <p className="hero-sub">The enterprise platform that connects task-level AI automation to KPI outcomes and org-level decisions — in one cinematic workflow.</p>
-          <div className="hero-acts">
-            <Link href="/app" className="bp">Start Transforming</Link>
-            <Link href="/the-tool-nobody-else-built" className="bg">See the Platform</Link>
-          </div>
-          <div className="scroll-ind"><span>Explore</span><div className="scroll-line" /></div>
-        </section>
-
-        <section className="rs lp-s" id="diagnose">
-          <div className="rc">
-            <div className="reveal-text rt">
-              <div className="rl lb">Diagnose</div>
-              <h2>See what AI<br />actually changes.</h2>
-              <p>Decompose every role into its atomic tasks. Map automation potential, time allocation, and AI readiness — not with guesswork, but with structured intelligence your leadership team can act on.</p>
-            </div>
-            <div className="glass-card gc">
-              <div className="md"><div className="ms"><div className="msd a" /><div className="msd" /><div className="msd" /><div className="msd" /><div className="msd" /></div>
-              <div className="mm"><div className="mst"><div className="mstl">Tasks Mapped</div><div className="mstv" style={{color:"var(--accent-blue)"}}>2,847</div></div><div className="mst"><div className="mstl">AI Automatable</div><div className="mstv" style={{color:"var(--accent-orange)"}}>38%</div></div>
-              <div className="mc"><svg viewBox="0 0 400 140" preserveAspectRatio="none"><defs><linearGradient id="cg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#3B82F6" stopOpacity={0.3}/><stop offset="100%" stopColor="#3B82F6" stopOpacity={0}/></linearGradient></defs><path d="M0,120 C40,110 80,90 120,85 C160,80 200,95 240,60 C280,25 320,35 360,20 L400,15 L400,140 L0,140Z" fill="url(#cg1)"/><path d="M0,120 C40,110 80,90 120,85 C160,80 200,95 240,60 C280,25 320,35 360,20 L400,15" fill="none" stroke="#3B82F6" strokeWidth={2}/></svg></div></div></div>
-            </div>
-          </div>
-        </section>
-
-        <section className="rs lp-s" id="design">
-          <div className="rc rev">
-            <div className="reveal-text rt">
-              <div className="rl lv">Design</div>
-              <h2>Reconstruct roles<br />for an AI world.</h2>
-              <p>Do not just cut headcount. Reconstruct jobs — bundling augmented tasks, redeploying human effort, and creating entirely new roles that did not exist last quarter.</p>
-            </div>
-            <div className="glass-card gc">
-              <div className="md"><div className="ms"><div className="msd" /><div className="msd a" /><div className="msd" /><div className="msd" /><div className="msd" /></div>
-              <div className="mm"><div className="mst"><div className="mstl">Roles Redesigned</div><div className="mstv" style={{color:"var(--accent-violet)"}}>142</div></div><div className="mst"><div className="mstl">New Roles Created</div><div className="mstv" style={{color:"#22C55E"}}>23</div></div>
-              <div className="mc"><svg viewBox="0 0 400 140" preserveAspectRatio="none"><defs><linearGradient id="cg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#8B5CF6" stopOpacity={0.3}/><stop offset="100%" stopColor="#8B5CF6" stopOpacity={0}/></linearGradient></defs>{[20,80,140,200,260,320].map((x,i)=><rect key={i} x={x} y={[60,40,70,30,50,20][i]} width={40} height={[80,100,70,110,90,120][i]} rx={4} fill="url(#cg2)" stroke="#8B5CF6" strokeWidth={1}/>)}</svg></div></div></div>
-            </div>
-          </div>
-        </section>
-
-        <section className="rs lp-s" id="simulate">
-          <div className="rc">
-            <div className="reveal-text rt">
-              <div className="rl lo">Simulate</div>
-              <h2>Model the future<br />before you commit.</h2>
-              <p>Run multi-scenario simulations across headcount, cost, readiness, and ROI. Compare conservative vs. aggressive transformation paths with real financial projections your CFO can trust.</p>
-            </div>
-            <div className="glass-card gc">
-              <div className="md"><div className="ms"><div className="msd" /><div className="msd" /><div className="msd a" /><div className="msd" /><div className="msd" /></div>
-              <div className="mm"><div className="mst"><div className="mstl">Projected ROI</div><div className="mstv" style={{color:"var(--accent-orange)"}}>3.2x</div></div><div className="mst"><div className="mstl">Cost Savings</div><div className="mstv" style={{color:"var(--accent-cyan)"}}>$4.1M</div></div>
-              <div className="mc"><svg viewBox="0 0 400 140" preserveAspectRatio="none"><defs><linearGradient id="cg3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#F97316" stopOpacity={0.25}/><stop offset="100%" stopColor="#F97316" stopOpacity={0}/></linearGradient></defs><path d="M0,130 C60,125 100,100 160,80 C220,60 260,70 300,40 L400,10 L400,140 L0,140Z" fill="url(#cg3)"/><path d="M0,130 C60,125 100,100 160,80 C220,60 260,70 300,40 L400,10" fill="none" stroke="#F97316" strokeWidth={2}/><path d="M0,130 C70,128 120,120 180,110 C240,100 300,90 400,70" fill="none" stroke="#06B6D4" strokeWidth={1.5} strokeDasharray="4,4" opacity={0.5}/></svg></div></div></div>
-            </div>
-          </div>
-        </section>
-
-        <section className="fs lp-s" id="features">
-          <div className="sh">
-            <h2>Built for the<br /><span className="gt">enterprise CHRO.</span></h2>
-            <p>Every module connects task-level automation to org-level decisions — no disconnected point solutions.</p>
-          </div>
-          <div className="fg">
-            {[{i:"◆",c:"fib",t:"Work Design Lab",d:"Six-tab gated workflow from job context through deconstruction, reconstruction, redeployment, impact, and org link."},{i:"◉",c:"fiv",t:"Org Design Studio",d:"Ten named views with inline editing. Span of control, cost models, and multi-scenario comparison in real time."},{i:"△",c:"fio",t:"AI Readiness Scoring",d:"Template-out, data-in pattern. Upload your assessments, get maturity descriptors, gap analysis, and transition roadmaps."},{i:"◎",c:"fic",t:"ROI & Financial Models",d:"Year 1 through Year 5 projections with recurring costs, reskilling investment, and scenario-linked sensitivity analysis."},{i:"⬡",c:"fig",t:"Skills Architecture",d:"Skills inventory, gap analysis, adjacency mapping, and build-buy-borrow-automate decisioning across the entire workforce."},{i:"◈",c:"fir",t:"Change & Mobilization",d:"Action tracking, risk registers, stakeholder mapping, and communication planning to make transformation stick."}].map(f=><div key={f.t} className="feature-card"><div className={`fi ${f.c}`}>{f.i}</div><h3>{f.t}</h3><p>{f.d}</p></div>)}
-          </div>
-        </section>
-
-        <section className="sb lp-s">
-          <div className="si">
-            {[{n:"20+",l:"Modules"},{n:"10",l:"Org Views"},{n:"6",l:"Workflow Stages"},{n:"∞",l:"Scenarios"}].map(s=><div key={s.l} className="stat-item"><div className="sn">{s.n}</div><div className="sl">{s.l}</div></div>)}
-          </div>
-        </section>
-
-        <section className="cs lp-s">
-          <h2>Ready to redesign<br /><span className="gt">how work works?</span></h2>
-          <p>Join the next generation of enterprise workforce transformation.</p>
-          <div style={{display:"flex",gap:16,justifyContent:"center"}}>
-            <Link href="/app" className="bp">Get Early Access</Link>
-            <Link href="/what-i-saw-from-the-inside" className="bg">Learn More</Link>
-          </div>
-        </section>
-
-        <footer className="lf">
-          <div className="lfi">
-            <div className="lfl">HR Digital Playground</div>
-            <div className="lfr">&copy; 2026 Hiral Merchant. All rights reserved.</div>
-          </div>
-        </footer>
+      {/* Loader */}
+      <div className="loader" id="loader">
+        <div className="loader-text"><span>HR Digital Playground</span></div>
+        <div className="loader-bar" />
       </div>
+
+      {/* Cursor */}
+      <div className="cursor" ref={cursorRef} />
+      <div className="cursor-ring" ref={ringRef} />
+
+      {/* Nav */}
+      <nav id="nav">
+        <div className="nav-logo">HR Digital Playground</div>
+        <div className="nav-right">
+          <div className="nav-links">
+            <a href="#why-now">Why Now</a>
+            <a href="#platform">The Platform</a>
+            <a href="#modules">What&apos;s Inside</a>
+            <a href="#story">Our Story</a>
+          </div>
+          <Link href="/app" className="nav-cta desktop-only">Get In</Link>
+          <button className={`hamburger${menuOpen ? " open" : ""}`} onClick={() => setMenuOpen(o => !o)} aria-label="Menu">
+            <span /><span /><span />
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile Nav Drawer */}
+      <div className={`mobile-nav${menuOpen ? " open" : ""}`}>
+        <a href="#why-now" onClick={() => setMenuOpen(false)}>Why Now</a>
+        <a href="#platform" onClick={() => setMenuOpen(false)}>The Platform</a>
+        <a href="#modules" onClick={() => setMenuOpen(false)}>What&apos;s Inside</a>
+        <a href="#story" onClick={() => setMenuOpen(false)}>Our Story</a>
+        <Link href="/app" className="nav-cta" onClick={() => setMenuOpen(false)}>Get In</Link>
+      </div>
+
+      {/* ═══ HERO ═══ */}
+      <section className="hero">
+        <div className="hero-bg-text" ref={heroBgRef}>PLAYGROUND</div>
+        <div className="hero-left">
+          <div className="hero-eyebrow"><span className="line" /> AI &times; Workforce Transformation <span className="line" /></div>
+          <h1>
+            <span className="split-line"><span className="split-line-inner">Your org chart</span></span>
+            <span className="split-line"><span className="split-line-inner">is already <em>obsolete.</em></span></span>
+          </h1>
+          <p className="hero-sub">The platform that tells you exactly what to do about it — from task-level automation to boardroom-ready decisions.</p>
+          <div className="hero-actions">
+            <Link href="/app" className="btn-primary" data-hover><span>See What&apos;s Possible</span></Link>
+            <a href="#story" className="btn-ghost" data-hover>The 90s Story</a>
+          </div>
+        </div>
+        <div className="hero-right">
+          <div className="hero-illo">
+            {/* Hero SVG illustration — transformation team scrambling */}
+            <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+              <rect width="400" height="300" fill="#FAFAF7"/>
+              <rect x="50" y="40" width="300" height="180" rx="12" fill="white" stroke="#D6D1C8"/>
+              <text x="80" y="70" fontFamily="'Instrument Sans',sans-serif" fontSize="10" fill="#9E9B93" fontWeight="600" letterSpacing="1.5">TRANSFORMATION COMMAND CENTER</text>
+              <rect x="70" y="85" width="120" height="60" rx="8" fill="#EBE7DF" stroke="#D6D1C8"/>
+              <text x="85" y="105" fontSize="8" fill="#5C5A54" fontWeight="600">Workforce Impact</text>
+              <rect x="85" y="112" width="80" height="8" rx="2" fill="#C04B2D" opacity="0.6"/>
+              <rect x="85" y="124" width="55" height="8" rx="2" fill="#C04B2D" opacity="0.3"/>
+              <rect x="85" y="136" width="95" height="4" rx="2" fill="#D6D1C8"/>
+              <rect x="210" y="85" width="120" height="60" rx="8" fill="#EBE7DF" stroke="#D6D1C8"/>
+              <text x="225" y="105" fontSize="8" fill="#5C5A54" fontWeight="600">AI Readiness</text>
+              <circle cx="270" cy="128" r="18" fill="none" stroke="#C04B2D" strokeWidth="3" strokeDasharray="80 33" strokeLinecap="round"/>
+              <text x="260" y="132" fontSize="10" fill="#C04B2D" fontWeight="700">72%</text>
+              <rect x="70" y="160" width="260" height="45" rx="8" fill="#1A1A17"/>
+              <text x="90" y="178" fontSize="7" fill="#9E9B93">ROI Projection</text>
+              <text x="90" y="195" fontFamily="'Cormorant Garamond',serif" fontSize="18" fill="#F4F1EB" fontWeight="500">3.2x over 18 months</text>
+              <text x="270" y="195" fontSize="8" fill="#D4725A" fontWeight="600">$4.1M saved</text>
+              <circle cx="100" cy="260" r="12" fill="#E8D5C4"/>
+              <rect x="88" y="272" width="24" height="18" rx="4" fill="#4A6FA5"/>
+              <circle cx="200" cy="255" r="14" fill="#D4B896"/>
+              <rect x="186" y="269" width="28" height="20" rx="4" fill="#C04B2D" opacity="0.8"/>
+              <circle cx="300" cy="260" r="12" fill="#E8D5C4"/>
+              <rect x="288" y="272" width="24" height="18" rx="4" fill="#5C5A54"/>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      {/* Marquee */}
+      <div className="marquee-band">
+        <div className="marquee-track">
+          <span>Work Design</span><span>Org Architecture</span><span>Skills Intelligence</span><span>AI Readiness</span><span>Role Reconstruction</span><span>Financial Modeling</span><span>Change Management</span><span>Talent Strategy</span>
+          <span>Work Design</span><span>Org Architecture</span><span>Skills Intelligence</span><span>AI Readiness</span><span>Role Reconstruction</span><span>Financial Modeling</span><span>Change Management</span><span>Talent Strategy</span>
+        </div>
+      </div>
+
+      {/* ═══ MANIFESTO ═══ */}
+      <section className="manifesto" id="why-now">
+        <div className="manifesto-inner">
+          <div>
+            <h2 className="word-reveal">Every company has an AI strategy. Almost none of them know what happens to their <em>people</em> on Monday morning.</h2>
+          </div>
+          <div className="manifesto-illo">
+            <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+              <rect width="400" height="300" fill="#FAFAF7"/>
+              <rect x="40" y="30" width="320" height="200" rx="12" fill="white" stroke="#D6D1C8"/>
+              <text x="60" y="55" fontFamily="'Instrument Sans',sans-serif" fontSize="9" fill="#9E9B93" fontWeight="600" letterSpacing="1.5">AI STRATEGY MEETING — WEEK 47</text>
+              <rect x="60" y="70" width="80" height="40" rx="6" fill="#EBE7DF" stroke="#D6D1C8"/>
+              <text x="70" y="92" fontSize="7" fill="#C04B2D" fontWeight="600">Deadline: NOW</text>
+              <rect x="160" y="70" width="80" height="40" rx="6" fill="#EBE7DF" stroke="#D6D1C8"/>
+              <text x="170" y="88" fontSize="7" fill="#5C5A54">Budget: ???</text>
+              <text x="170" y="100" fontSize="7" fill="#5C5A54">Roles: ???</text>
+              <rect x="260" y="70" width="80" height="40" rx="6" fill="#C04B2D" opacity="0.1" stroke="#C04B2D" strokeWidth="0.5"/>
+              <text x="270" y="92" fontSize="7" fill="#C04B2D" fontWeight="600">People Plan: 0</text>
+              {[80, 120, 160, 200, 240].map((x, i) => <rect key={i} x={x} y="130" width="30" height={[50, 35, 60, 25, 45][i]} rx="3" fill="#C04B2D" opacity={0.1 + i * 0.1} style={{ transformOrigin: "bottom", animation: "barGrow 1.5s ease-out forwards", animationDelay: `${i * 0.2}s` }}/>)}
+              <text x="60" y="210" fontFamily="'Cormorant Garamond',serif" fontSize="14" fill="#5C5A54" fontStyle="italic">&quot;We have an AI strategy. We just don&apos;t have a people plan.&quot;</text>
+              <circle cx="100" cy="268" r="10" fill="#E8D5C4"/>
+              <rect x="90" y="278" width="20" height="15" rx="3" fill="#4A6FA5"/>
+              <circle cx="200" cy="262" r="12" fill="#D4B896"/>
+              <rect x="188" y="274" width="24" height="18" rx="3" fill="#1A1A17"/>
+              <circle cx="300" cy="268" r="10" fill="#E8D5C4"/>
+              <rect x="290" y="278" width="20" height="15" rx="3" fill="#5C4A6F"/>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ THREE MOVES ═══ */}
+      <section className="three-moves" id="platform">
+        <div className="three-moves-header">
+          <h2>Three moves. One <em>transformation.</em></h2>
+        </div>
+
+        {/* Diagnose */}
+        <div className="move-section">
+          <div className="move-text">
+            <div className="move-num">01</div>
+            <div className="move-label">Diagnose</div>
+            <h3>Find out what AI <em>actually</em> changes.</h3>
+            <p>Every role breaks into tasks. We map which ones AI touches, how much time shifts, and where the real exposure lives — with structured intelligence your leadership can act on.</p>
+          </div>
+          <div className="move-visual">
+            <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+              <rect width="400" height="300" fill="#FAFAF7"/>
+              <rect x="140" y="30" width="120" height="30" rx="6" fill="white" stroke="#D6D1C8"/>
+              <text x="165" y="49" fontFamily="'Instrument Sans',sans-serif" fontSize="8" fill="#1A1A17" fontWeight="600">WORKFORCE</text>
+              <line x1="200" y1="60" x2="140" y2="80" stroke="#D6D1C8"/><line x1="200" y1="60" x2="260" y2="80" stroke="#D6D1C8"/>
+              <rect x="100" y="80" width="80" height="24" rx="4" fill="white" stroke="#D6D1C8"/><text x="115" y="96" fontSize="7" fill="#5C5A54">Finance Ops</text>
+              <rect x="220" y="80" width="80" height="24" rx="4" fill="white" stroke="#D6D1C8"/><text x="230" y="96" fontSize="7" fill="#5C5A54">People Team</text>
+              <line x1="140" y1="104" x2="110" y2="120" stroke="#D6D1C8"/><line x1="140" y1="104" x2="170" y2="120" stroke="#D6D1C8"/>
+              <line x1="260" y1="104" x2="230" y2="120" stroke="#D6D1C8"/><line x1="260" y1="104" x2="290" y2="120" stroke="#D6D1C8"/>
+              <rect x="90" y="120" width="40" height="18" rx="3" fill="#C04B2D" opacity="0.15" stroke="#C04B2D" strokeWidth="0.5"/><text x="96" y="132" fontSize="6" fill="#C04B2D">38% AI</text>
+              <rect x="150" y="120" width="40" height="18" rx="3" fill="#C04B2D" opacity="0.4" stroke="#C04B2D" strokeWidth="0.5"/><text x="156" y="132" fontSize="6" fill="#C04B2D">67% AI</text>
+              <rect x="210" y="120" width="40" height="18" rx="3" fill="#C04B2D" opacity="0.25" stroke="#C04B2D" strokeWidth="0.5"/><text x="216" y="132" fontSize="6" fill="#C04B2D">45% AI</text>
+              <rect x="270" y="120" width="40" height="18" rx="3" fill="#C04B2D" opacity="0.1" stroke="#C04B2D" strokeWidth="0.5"/><text x="276" y="132" fontSize="6" fill="#C04B2D">12% AI</text>
+              <line x1="60" y1="0" x2="340" y2="0" stroke="#C04B2D" strokeWidth="1.5" opacity="0.6" style={{ animation: "scanLine 3s linear infinite" }}/>
+              <rect x="40" y="160" width="320" height="120" rx="10" fill="white" stroke="#D6D1C8"/>
+              <text x="56" y="182" fontFamily="'Instrument Sans',sans-serif" fontSize="8" fill="#9E9B93" fontWeight="600" letterSpacing="1.5">TASK DECOMPOSITION</text>
+              <g transform="translate(56, 195)"><text x="0" y="10" fontSize="7" fill="#5C5A54">Data Entry</text><rect x="80" y="2" width="200" height="12" rx="2" fill="#EBE7DF"/><rect x="80" y="2" width="170" height="12" rx="2" fill="#C04B2D" opacity="0.7" style={{ animation: "barGrow 1.5s ease-out forwards", transformOrigin: "left" }}/><text x="258" y="11" fontSize="6" fill="#C04B2D" fontWeight="600">85%</text></g>
+              <g transform="translate(56, 218)"><text x="0" y="10" fontSize="7" fill="#5C5A54">Reporting</text><rect x="80" y="2" width="200" height="12" rx="2" fill="#EBE7DF"/><rect x="80" y="2" width="140" height="12" rx="2" fill="#C04B2D" opacity="0.5" style={{ animation: "barGrow 1.8s ease-out forwards", transformOrigin: "left" }}/><text x="228" y="11" fontSize="6" fill="#C04B2D" fontWeight="600">70%</text></g>
+              <g transform="translate(56, 241)"><text x="0" y="10" fontSize="7" fill="#5C5A54">Judgment</text><rect x="80" y="2" width="200" height="12" rx="2" fill="#EBE7DF"/><rect x="80" y="2" width="30" height="12" rx="2" fill="#4A6FA5" opacity="0.5" style={{ animation: "barGrow 2s ease-out forwards", transformOrigin: "left" }}/><text x="118" y="11" fontSize="6" fill="#4A6FA5" fontWeight="600">15%</text></g>
+            </svg>
+          </div>
+        </div>
+
+        {/* Design */}
+        <div className="move-section reverse">
+          <div className="move-text">
+            <div className="move-num">02</div>
+            <div className="move-label">Redesign</div>
+            <h3>Redesign roles for a world that <em>moved.</em></h3>
+            <p>Don&apos;t just cut headcount. Reconstruct jobs — bundling augmented tasks, redeploying human effort, and creating roles that didn&apos;t exist six months ago.</p>
+          </div>
+          <div className="move-visual">
+            <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+              <rect width="400" height="300" fill="#FAFAF7"/>
+              <line x1="200" y1="20" x2="200" y2="280" stroke="#D6D1C8" strokeWidth="1" strokeDasharray="4,4"/>
+              <text x="60" y="38" fontFamily="'Instrument Sans',sans-serif" fontSize="9" fill="#9E9B93" fontWeight="600" letterSpacing="2">BEFORE</text>
+              <text x="260" y="38" fontFamily="'Instrument Sans',sans-serif" fontSize="9" fill="#C04B2D" fontWeight="600" letterSpacing="2">AFTER</text>
+              <rect x="30" y="55" width="150" height="28" rx="5" fill="#EBE7DF" stroke="#D6D1C8"/><text x="45" y="73" fontSize="8" fill="#5C5A54">Data Entry Clerk</text>
+              <rect x="30" y="90" width="150" height="28" rx="5" fill="#EBE7DF" stroke="#D6D1C8"/><text x="45" y="108" fontSize="8" fill="#5C5A54">Reporting Analyst</text>
+              <rect x="30" y="125" width="150" height="28" rx="5" fill="#EBE7DF" stroke="#D6D1C8"/><text x="45" y="143" fontSize="8" fill="#5C5A54">HR Coordinator</text>
+              <rect x="30" y="160" width="150" height="28" rx="5" fill="#EBE7DF" stroke="#D6D1C8"/><text x="45" y="178" fontSize="8" fill="#5C5A54">Benefits Admin</text>
+              <line x1="155" y1="60" x2="172" y2="78" stroke="#C04B2D" strokeWidth="2" opacity="0.4"/><line x1="172" y1="60" x2="155" y2="78" stroke="#C04B2D" strokeWidth="2" opacity="0.4"/>
+              <path d="M185 100 Q200 100 215 80" fill="none" stroke="#C04B2D" strokeWidth="1.5" strokeDasharray="4,2" style={{ animation: "dashMove 1s linear infinite" }}/>
+              <path d="M185 130 Q200 130 215 130" fill="none" stroke="#C04B2D" strokeWidth="1.5" strokeDasharray="4,2" style={{ animation: "dashMove 1s linear infinite" }}/>
+              <path d="M185 165 Q200 165 215 190" fill="none" stroke="#C04B2D" strokeWidth="1.5" strokeDasharray="4,2" style={{ animation: "dashMove 1s linear infinite" }}/>
+              <rect x="220" y="55" width="155" height="34" rx="6" fill="white" stroke="#C04B2D" strokeWidth="1.5"/><text x="235" y="70" fontSize="8" fill="#C04B2D" fontWeight="600">AI Operations Lead</text><text x="235" y="82" fontSize="6" fill="#9E9B93">New role — didn&apos;t exist</text>
+              <rect x="220" y="100" width="155" height="34" rx="6" fill="white" stroke="#1A1A17" strokeWidth="1"/><text x="235" y="115" fontSize="8" fill="#1A1A17" fontWeight="600">Insights Strategist</text><text x="235" y="127" fontSize="6" fill="#9E9B93">Redesigned from analyst</text>
+              <rect x="220" y="145" width="155" height="34" rx="6" fill="white" stroke="#1A1A17" strokeWidth="1"/><text x="235" y="160" fontSize="8" fill="#1A1A17" fontWeight="600">People Experience Mgr</text><text x="235" y="172" fontSize="6" fill="#9E9B93">Augmented + expanded</text>
+              <rect x="220" y="190" width="155" height="34" rx="6" fill="white" stroke="#4A6FA5" strokeWidth="1"/><text x="235" y="205" fontSize="8" fill="#4A6FA5" fontWeight="600">Workforce Architect</text><text x="235" y="217" fontSize="6" fill="#9E9B93">Net-new strategic role</text>
+              <rect x="30" y="245" width="340" height="35" rx="6" fill="#1A1A17"/><text x="55" y="265" fontFamily="'Cormorant Garamond',serif" fontSize="14" fill="#F4F1EB" fontWeight="400" fontStyle="italic">4 old roles &rarr; 4 redesigned roles. 0 people lost.</text>
+            </svg>
+          </div>
+        </div>
+
+        {/* Simulate */}
+        <div className="move-section">
+          <div className="move-text">
+            <div className="move-num">03</div>
+            <div className="move-label">Simulate</div>
+            <h3>Model the future <em>before</em> you bet on it.</h3>
+            <p>Run multi-scenario simulations across headcount, cost, readiness, and ROI. Compare paths with projections your CFO trusts and your CHRO can defend.</p>
+          </div>
+          <div className="move-visual">
+            <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+              <rect width="400" height="300" fill="#FAFAF7"/>
+              <text x="40" y="32" fontFamily="'Instrument Sans',sans-serif" fontSize="9" fill="#9E9B93" fontWeight="600" letterSpacing="1.5">SCENARIO ENGINE</text>
+              <rect x="40" y="42" width="80" height="24" rx="4" fill="#C04B2D"/><text x="52" y="58" fontSize="7" fill="white" fontWeight="600">Conservative</text>
+              <rect x="124" y="42" width="70" height="24" rx="4" fill="#EBE7DF" stroke="#D6D1C8"/><text x="138" y="58" fontSize="7" fill="#5C5A54" fontWeight="600">Moderate</text>
+              <rect x="198" y="42" width="72" height="24" rx="4" fill="#EBE7DF" stroke="#D6D1C8"/><text x="210" y="58" fontSize="7" fill="#5C5A54" fontWeight="600">Aggressive</text>
+              <rect x="40" y="80" width="320" height="160" rx="8" fill="white" stroke="#D6D1C8"/>
+              <line x1="60" y1="100" x2="340" y2="100" stroke="#EBE7DF"/><line x1="60" y1="130" x2="340" y2="130" stroke="#EBE7DF"/><line x1="60" y1="160" x2="340" y2="160" stroke="#EBE7DF"/><line x1="60" y1="190" x2="340" y2="190" stroke="#EBE7DF"/>
+              <text x="48" y="103" fontSize="6" fill="#9E9B93">$8M</text><text x="48" y="133" fontSize="6" fill="#9E9B93">$6M</text><text x="48" y="163" fontSize="6" fill="#9E9B93">$4M</text><text x="48" y="193" fontSize="6" fill="#9E9B93">$2M</text>
+              <text x="80" y="228" fontSize="6" fill="#9E9B93">Y1</text><text x="140" y="228" fontSize="6" fill="#9E9B93">Y2</text><text x="200" y="228" fontSize="6" fill="#9E9B93">Y3</text><text x="260" y="228" fontSize="6" fill="#9E9B93">Y4</text><text x="320" y="228" fontSize="6" fill="#9E9B93">Y5</text>
+              <path d="M80,210 C120,200 160,180 200,155 C240,130 280,110 330,95" fill="none" stroke="#C04B2D" strokeWidth="2.5"/>
+              <path d="M80,210 C120,205 160,195 200,180 C240,165 280,155 330,140" fill="none" stroke="#D6D1C8" strokeWidth="1.5" strokeDasharray="6,3"/>
+              <path d="M80,210 C120,208 160,200 200,190 C240,180 280,175 330,168" fill="none" stroke="#9E9B93" strokeWidth="1" strokeDasharray="4,4"/>
+              <circle cx="330" cy="95" r="5" fill="#C04B2D"/><rect x="290" y="76" width="48" height="18" rx="4" fill="#C04B2D"/><text x="297" y="88" fontSize="7" fill="white" fontWeight="700">3.2x ROI</text>
+              <rect x="40" y="250" width="320" height="40" rx="6" fill="#1A1A17"/>
+              <text x="60" y="270" fontSize="7" fill="#9E9B93">Savings</text><text x="60" y="282" fontFamily="'Cormorant Garamond',serif" fontSize="14" fill="#F4F1EB" fontWeight="500">$4.1M</text>
+              <text x="160" y="270" fontSize="7" fill="#9E9B93">Roles Impacted</text><text x="160" y="282" fontFamily="'Cormorant Garamond',serif" fontSize="14" fill="#F4F1EB" fontWeight="500">142</text>
+              <text x="270" y="270" fontSize="7" fill="#9E9B93">Timeline</text><text x="270" y="282" fontFamily="'Cormorant Garamond',serif" fontSize="14" fill="#D4725A" fontWeight="500">18 months</text>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ MODULES ═══ */}
+      <section className="modules-pitch" id="modules">
+        <div className="modules-inner">
+          <div className="modules-header">
+            <h2><span className="big-num">20+</span> modules.<br />Here are the ones that <em>change everything.</em></h2>
+            <p>Every module feeds the next. Task-level automation connects to org-level decisions — no disconnected point solutions, no dead&#8209;end dashboards. This is the full operating system for transformation.</p>
+          </div>
+          <div className="modules-grid">
+            {[
+              { num: "i.", title: "Work Design Lab", desc: "Six-stage gated workflow. Job context through deconstruction, reconstruction, redeployment, impact, and org link." },
+              { num: "ii.", title: "Org Design Studio", desc: "Ten named views. Span of control, cost models, department drilldowns, multi-scenario comparison — inline editing." },
+              { num: "iii.", title: "AI Readiness Scoring", desc: "Upload assessments. Get maturity descriptors, gap analysis with effort estimates, and transition roadmaps." },
+              { num: "iv.", title: "Skills Architecture", desc: "Inventory, gap analysis, adjacency mapping, build-buy-borrow-automate decisioning across the entire workforce." },
+              { num: "v.", title: "Financial Models", desc: "Year 1 through Year 5 projections. Recurring costs, reskilling investment, scenario-linked sensitivity analysis." },
+              { num: "vi.", title: "Change & Mobilization", desc: "Action tracking, risk registers, stakeholder mapping, communication planning. Make transformation actually stick." },
+            ].map(m => (
+              <div key={m.title} className="mod-card" data-hover>
+                <div className="mod-card-num">{m.num}</div>
+                <h3>{m.title}</h3>
+                <p>{m.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ TIMELINE ═══ */}
+      <section className="timeline-section" id="story">
+        <div className="timeline-header">
+          <h2>Transformation has <em>always</em> been the job.</h2>
+          <p>The tools change. The problems are the same. Every generation of professionals has faced the question: how do we redesign work?</p>
+        </div>
+        <div className="timeline-track">
+          {[
+            { year: "1920s", title: "Scientific Management", desc: "Time studies, assembly lines, the birth of \"efficiency.\"", label: "EFFICIENCY" },
+            { year: "1960s", title: "Org Design Era", desc: "Hierarchies, spans of control, the rise of HR departments.", label: "STRUCTURE" },
+            { year: "1990s", title: "Business Reengineering", desc: "Process redesign, ERP systems, the consulting boom.", label: "PROCESS" },
+            { year: "2010s", title: "Digital Transformation", desc: "Cloud, agile, design thinking, people analytics.", label: "DIGITAL" },
+            { year: "2024", title: "AI Workforce Transformation", desc: "Task-level automation, role redesign, skills architecture.", label: "AI + PEOPLE" },
+            { year: "20??", title: "The AGI Question", desc: "When machines think, what does \"work\" even mean?", label: "AGI ERA", dark: true },
+          ].map((t, i) => (
+            <div key={t.year} className="tl-panel">
+              <div className="tl-illo" style={t.dark ? { background: "var(--bg-dark)", borderColor: "rgba(192,75,45,0.3)" } : undefined}>
+                <svg viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="200" height="260" fill={t.dark ? "#141311" : "#FAFAF7"}/>
+                  {i === 0 && <><rect x="30" y="100" width="140" height="100" fill="#D6D1C8"/><rect x="50" y="70" width="20" height="30" fill="#D6D1C8"/><rect x="80" y="50" width="15" height="50" fill="#9E9B93"/><circle cx="88" cy="40" r="8" fill="#EBE7DF"/><circle cx="92" cy="28" r="6" fill="#EBE7DF" opacity="0.6"/><circle cx="100" cy="155" r="10" fill="#E8D5C4"/><rect x="90" y="165" width="20" height="30" rx="3" fill="#5C5A54"/><rect x="20" y="200" width="160" height="4" fill="#9E9B93"/></>}
+                  {i === 1 && <><rect x="50" y="60" width="100" height="140" fill="white" stroke="#D6D1C8"/>{[72,96,120].map(y => [60,84,108].map(x => <rect key={`${x}-${y}`} x={x} y={y} width="18" height="14" rx="1" fill="#EBE7DF" stroke="#D6D1C8" strokeWidth="0.5"/>))}<circle cx="100" cy="210" r="8" fill="#E8D5C4"/><rect x="92" y="218" width="16" height="22" rx="2" fill="#4A6FA5"/></>}
+                  {i === 2 && <><rect x="55" y="80" width="90" height="70" rx="6" fill="#1A1A17"/><rect x="61" y="86" width="78" height="54" rx="3" fill="#2A2A27"/><rect x="85" y="150" width="30" height="8" rx="2" fill="#1A1A17"/><rect x="40" y="175" width="50" height="65" rx="3" fill="#C04B2D" opacity="0.8"/><text x="48" y="198" fontSize="6" fill="white" fontWeight="700">REENGI-</text><text x="48" y="206" fontSize="6" fill="white" fontWeight="700">NEERING</text><circle cx="140" cy="185" r="8" fill="#E8D5C4"/><rect x="132" y="193" width="16" height="22" rx="2" fill="#1A1A17"/></>}
+                  {i === 3 && <><ellipse cx="100" cy="70" rx="50" ry="25" fill="#EBE7DF"/><text x="78" y="74" fontSize="8" fill="#5C5A54" fontWeight="600">CLOUD</text><circle cx="60" cy="140" r="14" fill="white" stroke="#C04B2D" strokeWidth="1.5" style={{ animation: "nodeFloat 3s ease-in-out infinite" }}/><text x="53" y="143" fontSize="6" fill="#5C5A54">HCM</text><circle cx="140" cy="130" r="14" fill="white" stroke="#4A6FA5" strokeWidth="1.5" style={{ animation: "nodeFloat 3s ease-in-out infinite 0.5s" }}/><text x="133" y="133" fontSize="6" fill="#5C5A54">ATS</text><circle cx="100" cy="170" r="14" fill="white" stroke="#D4725A" strokeWidth="1.5" style={{ animation: "nodeFloat 3s ease-in-out infinite 1s" }}/><text x="90" y="173" fontSize="6" fill="#5C5A54">L&amp;D</text></>}
+                  {i === 4 && <><circle cx="100" cy="90" r="35" fill="none" stroke="#C04B2D" strokeWidth="1.5"/><circle cx="100" cy="70" r="4" fill="#C04B2D"/><circle cx="85" cy="100" r="4" fill="#C04B2D" opacity="0.7"/><circle cx="115" cy="100" r="4" fill="#C04B2D" opacity="0.7"/><line x1="100" y1="74" x2="85" y2="96" stroke="#C04B2D" strokeWidth="0.8" opacity="0.4"/><line x1="100" y1="74" x2="115" y2="96" stroke="#C04B2D" strokeWidth="0.8" opacity="0.4"/><circle cx="65" cy="170" r="8" fill="#E8D5C4"/><rect x="57" y="178" width="16" height="18" rx="2" fill="#4A6FA5"/><circle cx="100" cy="160" r="8" fill="#D4B896"/><rect x="92" y="168" width="16" height="18" rx="2" fill="#7A8B6A"/><circle cx="135" cy="170" r="8" fill="#E8D5C4"/><rect x="127" y="178" width="16" height="18" rx="2" fill="#5C4A6F"/><rect x="40" y="210" width="120" height="24" rx="12" fill="#C04B2D"/><text x="55" y="226" fontSize="7" fill="white" fontWeight="700" letterSpacing="1">HR DIGITAL PG</text></>}
+                  {i === 5 && <><circle cx="100" cy="100" r="60" fill="#C04B2D" opacity="0.06"/><circle cx="100" cy="100" r="40" fill="#C04B2D" opacity="0.08"/><path d="M70 100 Q70 70 100 70 Q130 70 130 100 Q130 130 100 130 Q70 130 70 100Z" fill="none" stroke="#C04B2D" strokeWidth="2"/><circle cx="100" cy="100" r="3" fill="#D4725A"/><text x="100" y="185" fontFamily="'Cormorant Garamond',serif" fontSize="14" fill="#D4725A" textAnchor="middle" fontStyle="italic">What comes</text><text x="100" y="202" fontFamily="'Cormorant Garamond',serif" fontSize="14" fill="#D4725A" textAnchor="middle" fontStyle="italic">after jobs?</text></>}
+                  <text x="100" y="242" fontFamily="'Instrument Sans',sans-serif" fontSize="7" fill={t.dark ? "#5C5A54" : "#9E9B93"} textAnchor="middle" fontWeight="600" letterSpacing="1">{t.label}</text>
+                </svg>
+              </div>
+              <div className="tl-dot" />
+              <div className="tl-year">{t.year}</div>
+              <div className="tl-title">{t.title}</div>
+              <div className="tl-desc">{t.desc}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Pull Quote */}
+      <section className="pull-quote">
+        <div className="big-quote">&ldquo;</div>
+        <blockquote>The organizations that figure out AI and people in the next three years will define the next thirty.</blockquote>
+        <cite>The premise behind everything we build</cite>
+      </section>
+
+      {/* CTA */}
+      <section className="cta-section">
+        <h2>Curious yet?<br /><em>Good.</em></h2>
+        <p>We built this because the tools that existed weren&apos;t good enough for the moment we&apos;re in.</p>
+        <div className="cta-actions">
+          <Link href="/app" className="btn-primary" data-hover><span>Start Here</span></Link>
+          <a href="https://www.linkedin.com/in/hiral-merchant-6a0416b1/" target="_blank" rel="noopener noreferrer" className="btn-ghost" data-hover>Book a Conversation</a>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer>
+        <div className="footer-left">HR Digital Playground</div>
+        <div className="footer-center">
+          <a href="#why-now">Why Now</a>
+          <a href="#modules">What&apos;s Inside</a>
+          <a href="https://www.linkedin.com/in/hiral-merchant-6a0416b1/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        </div>
+        <div className="footer-right">&copy; 2026 Hiral Merchant</div>
+      </footer>
     </>
   );
 }
