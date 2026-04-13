@@ -95,6 +95,7 @@ import { CDN_BASE } from "../lib/cdn";
 import { useCollaboration } from "../lib/collaboration";
 import type { RemoteChange } from "../lib/collaboration";
 import { PresenceAvatars, EditingIndicator, RemoteChangeToast, ActivityFeedPanel } from "./components/CollaborationPanel";
+import { AiObservationsPanel, SmartRecommendations, WorkflowSuggestions } from "./components/AiIntelligence";
 // Three.js removed — was causing "Context Lost" and deprecated Clock warnings.
 // Audio orb visualizer now uses pure CSS (see CSSAudioOrb below).
 
@@ -1669,9 +1670,15 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       <motion.div key={page} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2, ease: "easeOut" }} style={{ willChange: "opacity" }}>
       {page === "home" && <div>
         <LandingPage onNavigate={navigate} moduleStatus={moduleStatus} hasData={hasData} viewMode={viewMode} projectName={projectName} onBackToHub={onBackToHub} onBackToSplash={() => { setShowSplash(true); try { sessionStorage.removeItem(`${projectId}_splashSeen`); } catch {} }} cardBackgrounds={cardBgs} phaseBackgrounds={phaseBgs} />
+        {/* AI Intelligence: Recommendations + Workflows on home page */}
+        {hasData && <div style={{ padding: "0 var(--space-8) var(--space-4)" }}>
+          <SmartRecommendations completedModules={Object.keys(visited).filter(k => visited[k])} hasWorkforce={hasData} hasWorkDesign={!!model} currentModule="home" context={buildAiContext()} onNavigate={navigate} />
+          <WorkflowSuggestions onNavigate={navigate} />
+        </div>}
       </div>}
       {page !== "home" && <div style={{ padding: "var(--space-6) var(--space-8)", paddingBottom: 80 }}>
       {model && <NLQBar projectId={projectId} modelId={model} currentModule={page} />}
+      {model && page !== "flightrecorder" && <AiObservationsPanel module={page} dataSummary={buildAiContext()} context={`Project: ${projectName}. Model: ${model}. Job: ${job || "All"}.`} filters={f} projectId={projectId} onNavigate={navigate} />}
       {page === "snapshot" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><WorkforceSnapshot model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {(page === "jobs" || page === "jobarch") && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><JobArchitectureModule model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "scan" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><AiOpportunityScan model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
@@ -2079,7 +2086,9 @@ const TUTORIAL_STEPS = buildTutorialSteps("tutorial_mid_technology");
 
 /* ═══ VIEW SELECTOR SCREEN — shown after sandbox company selection, before tutorial ═══ */
 function SandboxViewSelector({ companyName, onSelect }: { companyName: string; onSelect: (mode: string) => void }) {
-  const [phase, setPhase] = useState<"splash" | "select">("splash");
+  const [phase, setPhase] = useState<"splash" | "select" | "entering">("splash");
+  const selectedViewRef = useRef<string>("");
+  const selectedLabelRef = useRef<string>("");
   const views = [
     { id: "org", icon: "🏢", label: "Organization View", desc: "Explore by organizational structure — functions, departments, teams. See aggregate KPIs, cross-cutting analytics, and the full workforce picture." },
     { id: "job_select", icon: "💼", label: "Job Focus", desc: "Explore by job architecture — families, levels, career tracks. Focus on a single role's task portfolio, AI impact, and redesign." },
@@ -2091,9 +2100,9 @@ function SandboxViewSelector({ companyName, onSelect }: { companyName: string; o
 
   // STEP 1: Splash — video bg + company name + static "Click anywhere"
   if (phase === "splash") {
-    return <div onClick={() => setPhase("select")} style={{ position: "fixed", inset: 0, zIndex: 60, cursor: "pointer", animation: "pageCrossfade 0.2s ease-out", willChange: "opacity" }}>
+    return <div onClick={() => setPhase("select")} style={{ position: "fixed", inset: 0, zIndex: 60, cursor: "pointer" }}>
       <VideoBackground name="view_bg" overlay={0.4} poster={`${CDN_BASE}/videos/optimized/view_bg-poster.jpg`} fallbackGradient="linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 100%)" className="absolute inset-0" />
-      <div style={{ position: "absolute", inset: 0, zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ position: "absolute", inset: 0, zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", WebkitFontSmoothing: "antialiased" }}>
         <div style={{ fontSize: 15, fontWeight: 700, color: "rgba(224,144,64,0.5)", letterSpacing: 2, marginBottom: 12, textTransform: "uppercase" }}>Welcome to</div>
         <h2 style={{ fontSize: 36, fontWeight: 800, color: "#ffffff", fontFamily: "'Outfit', sans-serif", marginBottom: 32, textShadow: "0 2px 20px rgba(0,0,0,0.5)" }}>{companyName}</h2>
         <div style={{ fontSize: 16, color: "rgba(255,255,255,0.7)", fontFamily: "'Outfit', sans-serif" }}>Click anywhere to continue</div>
@@ -2102,17 +2111,30 @@ function SandboxViewSelector({ companyName, onSelect }: { companyName: string; o
   }
 
   // STEP 2: View selector overlay — same video bg, 6 options
-  return <div style={{ position: "fixed", inset: 0, zIndex: 60, background: "#0B1120", animation: "pageCrossfade 0.2s ease-out", willChange: "opacity" }}>
+  // STEP 3: Post-selection splash — show company + view name, click to continue
+  if (phase === "entering") {
+    return <div onClick={() => selectedViewRef.current && onSelect(selectedViewRef.current)} style={{ position: "fixed", inset: 0, zIndex: 60, cursor: "pointer" }}>
+      <VideoBackground name="hero_bg" overlay={0.45} poster={`${CDN_BASE}/hero_bg.png`} fallbackGradient="linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 100%)" className="absolute inset-0" />
+      <div style={{ position: "absolute", inset: 0, zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", WebkitFontSmoothing: "antialiased" }}>
+        <h2 style={{ fontSize: 42, fontWeight: 800, color: "#ffffff", fontFamily: "'Outfit', sans-serif", marginBottom: 12, textShadow: "0 2px 24px rgba(0,0,0,0.5)" }}>{companyName}</h2>
+        <div style={{ fontSize: 16, fontWeight: 600, color: "rgba(224,144,64,0.7)", marginBottom: 48, fontFamily: "'Outfit', sans-serif" }}>{selectedLabelRef.current}</div>
+        <div style={{ fontSize: 15, color: "rgba(255,255,255,0.5)", fontFamily: "'Outfit', sans-serif" }}>Click anywhere to continue →</div>
+      </div>
+    </div>;
+  }
+
+  // STEP 2: View selector overlay — same video bg, 6 options
+  return <div style={{ position: "fixed", inset: 0, zIndex: 60, background: "#0B1120" }}>
     <VideoBackground name="view_bg" overlay={0.5} poster={`${CDN_BASE}/videos/optimized/view_bg-poster.jpg`} fallbackGradient="linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 100%)" className="absolute inset-0" />
     <div style={{ position: "absolute", inset: 0, zIndex: 1, background: "rgba(8,12,24,0.6)" }} />
-    <div style={{ position: "absolute", inset: 0, zIndex: 2, display: "flex", alignItems: "center", justifyContent: "center", overflow: "auto" }}>
+    <div style={{ position: "absolute", inset: 0, zIndex: 2, display: "flex", alignItems: "center", justifyContent: "center", overflow: "auto", WebkitFontSmoothing: "antialiased" }}>
       <div style={{ maxWidth: 800, width: "100%", padding: "24px" }}>
         <div style={{ textAlign: "center", marginBottom: 28 }}>
           <div style={{ fontSize: 22, fontWeight: 800, color: "#ffffff", fontFamily: "'Outfit', sans-serif", textShadow: "0 2px 16px rgba(0,0,0,0.3)" }}>Select Your View</div>
           <p style={{ fontSize: 15, color: "rgba(255,220,180,0.4)", marginTop: 6 }}>Every module adapts to your chosen perspective</p>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
-          {views.map(v => <button key={v.id} onClick={() => onSelect(v.id)} style={{ padding: "22px", borderRadius: 16, background: "rgba(15,20,35,0.7)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,200,150,0.08)", cursor: "pointer", textAlign: "left", transition: "all 0.3s cubic-bezier(0.16,1,0.3,1)", display: "flex", flexDirection: "column", gap: 10 }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(212,134,10,0.08)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.3)"; e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = "0 8px 32px rgba(212,134,10,0.1)"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(15,20,35,0.7)"; e.currentTarget.style.borderColor = "rgba(255,200,150,0.08)"; e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}>
+          {views.map(v => <button key={v.id} onClick={() => { selectedViewRef.current = v.id; selectedLabelRef.current = v.label; setPhase("entering"); }} style={{ padding: "22px", borderRadius: 16, background: "rgba(15,20,35,0.85)", border: "1px solid rgba(255,200,150,0.08)", cursor: "pointer", textAlign: "left", transition: "all 0.3s cubic-bezier(0.16,1,0.3,1)", display: "flex", flexDirection: "column", gap: 10 }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(212,134,10,0.08)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.3)"; e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = "0 8px 32px rgba(212,134,10,0.1)"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(15,20,35,0.85)"; e.currentTarget.style.borderColor = "rgba(255,200,150,0.08)"; e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <span style={{ fontSize: 26 }}>{v.icon}</span>
               <span style={{ fontSize: 16, fontWeight: 700, color: "rgba(255,245,235,0.92)", fontFamily: "'Outfit', sans-serif" }}>{v.label}</span>
@@ -2417,7 +2439,7 @@ function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox, showS
 
       {/* Slide-in panel from right */}
       <div style={{ position: "absolute", zIndex: 20, top: 0, right: 0, bottom: 0, width: sandboxPanelOpen ? "55%" : "0%", overflow: "hidden", transition: "width 0.7s cubic-bezier(0.16,1,0.3,1)" }}>
-        <div style={{ width: "100%", height: "100%", background: "rgba(11,17,32,0.94)", backdropFilter: "blur(32px)", borderLeft: "1px solid rgba(139,92,246,0.1)", display: "flex", flexDirection: "column", padding: sandboxPanelOpen ? "32px" : "32px 0", opacity: sandboxPanelOpen ? 1 : 0, transition: "opacity 0.5s ease 0.2s, padding 0.7s ease", overflowY: "auto" }}>
+        <div style={{ width: "100%", height: "100%", background: "rgba(11,17,32,0.96)", backdropFilter: "blur(8px)", borderLeft: "1px solid rgba(139,92,246,0.1)", display: "flex", flexDirection: "column", padding: sandboxPanelOpen ? "32px" : "32px 0", opacity: sandboxPanelOpen ? 1 : 0, transition: "opacity 0.5s ease 0.2s, padding 0.7s ease", overflowY: "auto", WebkitFontSmoothing: "antialiased" as const }}>
           {/* Panel header */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
             <div>
@@ -2493,7 +2515,6 @@ function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox, showS
       @keyframes hubFadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
       @keyframes hubShimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
       @keyframes hubPulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
-      @keyframes hubFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
       .hub-card { transition: all 0.4s cubic-bezier(0.16,1,0.3,1); }
       .hub-card:hover { transform: perspective(1000px) rotateY(1.5deg) translateY(-6px) !important; }
       .hub-cta { position: relative; overflow: hidden; }
@@ -2520,9 +2541,9 @@ function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox, showS
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, marginBottom: 48 }}>
 
         {/* TUTORIAL CARD */}
-        <div className="hub-card" onClick={() => onStartTutorial?.()} style={{ borderRadius: 24, cursor: "pointer", padding: "32px 28px", background: "rgba(255,255,255,0.06)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(99,102,241,0.2)", position: "relative", overflow: "hidden", animation: "hubFadeUp 0.6s ease forwards", animationDelay: "0.1s", opacity: 0 }} onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(99,102,241,0.45)"; e.currentTarget.style.boxShadow = "0 20px 60px rgba(99,102,241,0.15), inset 0 1px 0 rgba(255,255,255,0.08)"; }} onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(99,102,241,0.2)"; e.currentTarget.style.boxShadow = "none"; }}>
+        <div className="hub-card" onClick={() => onStartTutorial?.()} style={{ borderRadius: 24, cursor: "pointer", padding: "32px 28px", background: "rgba(255,255,255,0.04)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: "1px solid rgba(99,102,241,0.2)", position: "relative", overflow: "hidden", animation: "hubFadeUp 0.6s ease forwards", animationDelay: "0.1s", opacity: 0 }} onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(99,102,241,0.45)"; e.currentTarget.style.boxShadow = "0 20px 60px rgba(99,102,241,0.15), inset 0 1px 0 rgba(255,255,255,0.08)"; }} onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(99,102,241,0.2)"; e.currentTarget.style.boxShadow = "none"; }}>
           {/* Animated icon */}
-          <div style={{ width: 56, height: 56, borderRadius: 16, background: "linear-gradient(135deg, rgba(99,102,241,0.2), rgba(59,130,246,0.15))", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20, animation: "hubFloat 4s ease-in-out infinite", fontSize: 26 }}>🧭</div>
+          <div style={{ width: 56, height: 56, borderRadius: 16, background: "linear-gradient(135deg, rgba(99,102,241,0.2), rgba(59,130,246,0.15))", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20, fontSize: 26 }}>🧭</div>
           <div style={{ fontSize: 24, fontWeight: 700, color: "#fff", fontFamily: "'Outfit', sans-serif", marginBottom: 8 }}>Platform Tutorial</div>
           <div style={{ fontSize: 14, color: "rgba(165,180,252,0.6)", lineHeight: 1.6, marginBottom: 20 }}>Learn the platform in ~8 minutes — no data needed</div>
           {tutorialCompleted && <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 16 }}>
@@ -2533,11 +2554,11 @@ function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox, showS
         </div>
 
         {/* SANDBOX CARD — visually dominant */}
-        <div className="hub-card" onClick={() => { setSandboxOpen(true); setSandboxPanelOpen(false); onOpenSandbox?.(); }} style={{ borderRadius: 24, cursor: "pointer", padding: "32px 28px", background: "rgba(255,255,255,0.08)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(224,144,64,0.25)", position: "relative", overflow: "hidden", animation: "hubFadeUp 0.6s ease forwards", animationDelay: "0.2s", opacity: 0, boxShadow: "0 0 40px rgba(224,144,64,0.06)" }} onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(224,144,64,0.5)"; e.currentTarget.style.boxShadow = "0 20px 60px rgba(224,144,64,0.18), inset 0 1px 0 rgba(255,255,255,0.1)"; }} onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(224,144,64,0.25)"; e.currentTarget.style.boxShadow = "0 0 40px rgba(224,144,64,0.06)"; }}>
+        <div className="hub-card" onClick={() => { setSandboxOpen(true); setSandboxPanelOpen(false); onOpenSandbox?.(); }} style={{ borderRadius: 24, cursor: "pointer", padding: "32px 28px", background: "rgba(255,255,255,0.05)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: "1px solid rgba(224,144,64,0.25)", position: "relative", overflow: "hidden", animation: "hubFadeUp 0.6s ease forwards", animationDelay: "0.2s", opacity: 0, boxShadow: "0 0 40px rgba(224,144,64,0.06)" }} onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(224,144,64,0.5)"; e.currentTarget.style.boxShadow = "0 20px 60px rgba(224,144,64,0.18), inset 0 1px 0 rgba(255,255,255,0.1)"; }} onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(224,144,64,0.25)"; e.currentTarget.style.boxShadow = "0 0 40px rgba(224,144,64,0.06)"; }}>
           {/* Ambient glow */}
           <div style={{ position: "absolute", top: -40, right: -40, width: 120, height: 120, borderRadius: "50%", background: "radial-gradient(circle, rgba(224,144,64,0.12), transparent 70%)", pointerEvents: "none" }} />
           {/* Animated icon */}
-          <div style={{ width: 56, height: 56, borderRadius: 16, background: "linear-gradient(135deg, rgba(224,144,64,0.25), rgba(249,115,22,0.2))", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20, animation: "hubFloat 4s ease-in-out infinite 0.5s", fontSize: 26 }}>🏢</div>
+          <div style={{ width: 56, height: 56, borderRadius: 16, background: "linear-gradient(135deg, rgba(224,144,64,0.25), rgba(249,115,22,0.2))", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20, fontSize: 26 }}>🏢</div>
           <div style={{ fontSize: 24, fontWeight: 700, color: "#fff", fontFamily: "'Outfit', sans-serif", marginBottom: 8 }}>Industry Sandbox</div>
           <div style={{ fontSize: 14, color: "rgba(255,200,150,0.55)", lineHeight: 1.6, marginBottom: 16 }}>Explore 24 real companies across 8 industries with full workforce data</div>
           {/* Industry icons preview */}
@@ -2549,9 +2570,9 @@ function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox, showS
         </div>
 
         {/* NEW PROJECT CARD */}
-        <div className="hub-card" onClick={() => setModalOpen(true)} style={{ borderRadius: 24, cursor: "pointer", padding: "32px 28px", background: "rgba(255,255,255,0.06)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(20,184,166,0.2)", position: "relative", overflow: "hidden", animation: "hubFadeUp 0.6s ease forwards", animationDelay: "0.3s", opacity: 0 }} onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(20,184,166,0.45)"; e.currentTarget.style.boxShadow = "0 20px 60px rgba(20,184,166,0.12), inset 0 1px 0 rgba(255,255,255,0.08)"; }} onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(20,184,166,0.2)"; e.currentTarget.style.boxShadow = "none"; }}>
+        <div className="hub-card" onClick={() => setModalOpen(true)} style={{ borderRadius: 24, cursor: "pointer", padding: "32px 28px", background: "rgba(255,255,255,0.04)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: "1px solid rgba(20,184,166,0.2)", position: "relative", overflow: "hidden", animation: "hubFadeUp 0.6s ease forwards", animationDelay: "0.3s", opacity: 0 }} onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(20,184,166,0.45)"; e.currentTarget.style.boxShadow = "0 20px 60px rgba(20,184,166,0.12), inset 0 1px 0 rgba(255,255,255,0.08)"; }} onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(20,184,166,0.2)"; e.currentTarget.style.boxShadow = "none"; }}>
           {/* Animated icon */}
-          <div style={{ width: 56, height: 56, borderRadius: 16, background: "linear-gradient(135deg, rgba(20,184,166,0.2), rgba(16,185,129,0.15))", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20, animation: "hubFloat 4s ease-in-out infinite 1s", fontSize: 26 }}>✦</div>
+          <div style={{ width: 56, height: 56, borderRadius: 16, background: "linear-gradient(135deg, rgba(20,184,166,0.2), rgba(16,185,129,0.15))", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20, fontSize: 26 }}>✦</div>
           <div style={{ fontSize: 24, fontWeight: 700, color: "#fff", fontFamily: "'Outfit', sans-serif", marginBottom: 8 }}>New Project</div>
           <div style={{ fontSize: 14, color: "rgba(153,246,228,0.5)", lineHeight: 1.6, marginBottom: 20 }}>Upload your organization's data and build a custom transformation strategy</div>
           <div className="hub-cta" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 24px", borderRadius: 100, background: "linear-gradient(135deg, rgba(20,184,166,0.25), rgba(16,185,129,0.2))", border: "1px solid rgba(20,184,166,0.3)", color: "#5eead4", fontSize: 14, fontWeight: 700, fontFamily: "'Outfit', sans-serif" }}>Create Project <span style={{ fontSize: 16 }}>→</span></div>

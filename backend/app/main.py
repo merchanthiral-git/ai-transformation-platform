@@ -149,6 +149,78 @@ def ai_providers_status():
     return get_ai_status()
 
 
+# ── AI Intelligence Layer endpoints ──
+from app.ai.insights import get_insights
+from app.ai.recommendations import get_recommendations
+from app.ai.query import parse_query
+
+@app.post("/api/ai/insights")
+def ai_insights_endpoint(request: Request, body: dict):
+    """Get AI observations for a specific module."""
+    module = body.get("module", "")
+    data_summary = body.get("data_summary", "")
+    context = body.get("context", "")
+    filters = body.get("filters", {})
+    project_id = body.get("project_id", "")
+    if not module:
+        return {"error": "module is required"}
+    return get_insights(module, data_summary, context, filters, project_id)
+
+@app.post("/api/ai/query")
+def ai_query_endpoint(request: Request, body: dict):
+    """Parse a natural language question and return answer + navigation."""
+    question = body.get("question", "")
+    data_summary = body.get("data_summary", "")
+    context = body.get("context", "")
+    if not question:
+        return {"error": "question is required"}
+    return parse_query(question, data_summary, context)
+
+@app.get("/api/ai/recommendations")
+def ai_recommendations_endpoint(request: Request):
+    """Get contextual next-step recommendations."""
+    # Query params
+    from urllib.parse import unquote
+    completed = request.query_params.get("completed", "")
+    completed_list = [m.strip() for m in completed.split(",") if m.strip()]
+    current = request.query_params.get("current", "")
+    context = unquote(request.query_params.get("context", ""))
+    has_workforce = request.query_params.get("has_workforce", "false") == "true"
+    has_work_design = request.query_params.get("has_work_design", "false") == "true"
+    has_skills = request.query_params.get("has_skills", "false") == "true"
+    data_status = {"has_workforce": has_workforce, "has_work_design": has_work_design, "has_skills": has_skills}
+    return get_recommendations(completed_list, data_status, current, context)
+
+@app.post("/api/ai/chat")
+def ai_chat_endpoint(request: Request, body: dict):
+    """Copilot chat message — contextual conversation."""
+    message = body.get("message", "")
+    module = body.get("module", "")
+    context = body.get("context", "")
+    history = body.get("history", [])
+    if not message:
+        return {"error": "message is required"}
+    # Format history for the prompt
+    history_text = ""
+    for h in history[-10:]:  # Last 10 messages
+        role = h.get("role", "user")
+        text = h.get("text", "")
+        history_text += f"{'User' if role == 'user' else 'Assistant'}: {text}\n"
+    from app.ai.prompts import CHAT_SYSTEM, CHAT_PROMPT
+    from app.ai_providers import claude_available as _ai_ok
+    if not _ai_ok:
+        return {
+            "response": "AI Copilot is available when ANTHROPIC_API_KEY is configured. Sandbox companies include pre-built insights — try exploring those modules directly.",
+            "source": "fallback",
+        }
+    prompt = CHAT_PROMPT.format(module=module, context=context, history=history_text, message=message)
+    try:
+        from app.ai_providers import call_claude_sync as _call
+        response = _call(prompt, system=CHAT_SYSTEM, model="claude-haiku-4-5-20251001", max_tokens=1024)
+        return {"response": response, "source": "ai"}
+    except Exception as e:
+        return {"response": f"I couldn't process that right now: {str(e)}", "source": "error"}
+
 
 @app.get("/api/health")
 def health_check():
