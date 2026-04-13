@@ -225,7 +225,10 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
   const [repeat, setRepeat] = useState(false);
   const [showList, setShowList] = useState(false);
   const [hasPlayedFirst, setHasPlayedFirst] = useState(false);
+  const [audioError, setAudioError] = useState<string | null>(null);
   const autoPlayTriggeredRef = useRef(false);
+  const errorCountRef = useRef(0);
+  const userInitiatedRef = useRef(false);
   // Audio + Visualizer
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const animRef = useRef<number>(0);
@@ -271,6 +274,10 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     if (!audio || webAudioInitRef.current) return;
     webAudioInitRef.current = true;
     try {
+      // createMediaElementSource requires CORS on the audio element.
+      // Set it here (not at creation) so basic playback works without CORS.
+      // If CORS fails, the visualizer won't work but audio still plays.
+      audio.crossOrigin = "anonymous";
       const ctx = new AudioContext();
       const analyser = ctx.createAnalyser();
       analyser.fftSize = 128;
@@ -281,7 +288,11 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
       audioCtxRef.current = ctx;
       analyserRef.current = analyser;
       freqDataRef.current = new Uint8Array(analyser.frequencyBinCount);
-    } catch (e) { console.warn("Web Audio API unavailable:", e); }
+    } catch (e) {
+      console.warn("[MusicPlayer] Web Audio API failed (visualizer disabled):", e);
+      // Remove crossOrigin if it caused issues — audio will still play
+      audio.crossOrigin = "";
+    }
   }, []);
 
   // Create Audio element on mount — NO Web Audio yet (deferred to first play)
@@ -289,20 +300,35 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     if (audioRef.current) return;
     const audio = new Audio();
     audio.preload = "none";
-    audio.crossOrigin = "anonymous";
-    audio.volume = volumeRef.current > 0 ? volumeRef.current : 0.5;
+    // No crossOrigin — CDN audio doesn't require CORS for playback.
+    // Setting crossOrigin="anonymous" causes failures if the CDN doesn't send
+    // Access-Control-Allow-Origin headers. Only the Web Audio API's
+    // createMediaElementSource needs CORS, and we handle that separately.
+    audio.volume = 0.5;
     audio.muted = false;
     audioRef.current = audio;
 
-    // Error handler — skip to next track on load failure (404, network error, etc.)
+    // Error handler — skip to next track, but STOP after 3 consecutive failures
     audio.addEventListener("error", () => {
-      console.warn("[MusicPlayer] Track failed to load, skipping:", audio.src);
+      const errCode = audio.error?.code;
+      const errMsg = audio.error?.message || "unknown";
+      console.error(`[MusicPlayer] Track error (code=${errCode}): ${errMsg} — src: ${audio.src}`);
+      errorCountRef.current += 1;
+      if (errorCountRef.current >= 3) {
+        console.error("[MusicPlayer] 3 consecutive failures — stopping.");
+        setPlaying(false);
+        setAudioError("Unable to play audio — check your connection and try again");
+        return;
+      }
+      // Only auto-skip if user has already initiated playback
+      if (!userInitiatedRef.current) return;
       const gt = ALL_TRACKS.filter(t => t.genre === genreRef.current);
       if (gt.length > 1) {
         setTrackIdx(prev => {
           const nextIdx = (prev + 1) % gt.length;
           const nextTrack = gt[nextIdx];
           if (nextTrack) {
+            console.log(`[MusicPlayer] Skipping to: ${nextTrack.name} — ${nextTrack.file}`);
             audio.src = nextTrack.file;
             audio.load();
             audio.play().catch(() => {});
@@ -310,6 +336,12 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
           return nextIdx;
         });
       }
+    });
+
+    // On successful play, reset error counter
+    audio.addEventListener("playing", () => {
+      errorCountRef.current = 0;
+      setAudioError(null);
     });
 
     audio.addEventListener("ended", () => {
@@ -477,23 +509,33 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
   const playTrack = useCallback((file: string) => {
     const a = audioRef.current;
     if (!a) return;
+    console.log(`[MusicPlayer] Playing: ${file}`);
+    userInitiatedRef.current = true;
+    setAudioError(null);
+    errorCountRef.current = 0;
     resumeAudioCtx();
     a.src = file;
     a.muted = false;
     a.volume = volumeRef.current > 0 ? volumeRef.current : 0.5;
     a.load();
-    a.play().then(() => { setPlaying(true); setHasPlayedFirst(true); }).catch(e => { console.warn("[MusicPlayer] Play failed:", e.message); setPlaying(false); });
+    a.play().then(() => { setPlaying(true); setHasPlayedFirst(true); }).catch(e => { console.warn("[MusicPlayer] Play blocked:", e.message); setPlaying(false); });
   }, [resumeAudioCtx]);
 
   const toggle = useCallback(() => {
     const a = audioRef.current; if (!a) return;
+    userInitiatedRef.current = true;
+    setAudioError(null);
+    errorCountRef.current = 0;
     resumeAudioCtx();
     if (playing) { a.pause(); setPlaying(false); }
     else {
       a.muted = false;
       a.volume = volumeRef.current > 0 ? volumeRef.current : 0.5;
       if (!a.src || a.readyState === 0 || !a.src.includes("/track")) { playTrack(track?.file || ALL_TRACKS[0].file); }
-      else { a.play().then(() => setPlaying(true)).catch(e => { console.warn("Resume failed:", e.message); playTrack(track?.file || ALL_TRACKS[0].file); }); }
+      else {
+        console.log(`[MusicPlayer] Resuming: ${a.src}`);
+        a.play().then(() => setPlaying(true)).catch(e => { console.warn("Resume failed:", e.message); playTrack(track?.file || ALL_TRACKS[0].file); });
+      }
     }
   }, [playing, track, playTrack, resumeAudioCtx]);
 
@@ -560,8 +602,8 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     {/* Mini visualizer */}
     <canvas ref={miniCanvasRef} width={60} height={24} style={{ width: 60, height: 24, flexShrink: 0, borderRadius: 4 }} />
     <div style={{ flex: 1, minWidth: 0 }}>
-      <div style={{ fontSize: 15, fontWeight: 600, color: "#f5e6d0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{track?.name || "—"}</div>
-      <div style={{ fontSize: 14, color: "rgba(255,255,255,0.35)" }}>{activeMood ? `${MOODS.find(m => m.id === activeMood)?.icon} ${MOODS.find(m => m.id === activeMood)?.label}` : GENRES.find(g => g.id === genre)?.label}{focusActive ? ` · ${Math.floor(focusRemaining / 60)}:${String(focusRemaining % 60).padStart(2, "0")}` : ""}</div>
+      <div style={{ fontSize: 15, fontWeight: 600, color: audioError ? "#f87171" : "#f5e6d0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{audioError || track?.name || "—"}</div>
+      <div style={{ fontSize: 14, color: "rgba(255,255,255,0.35)" }}>{audioError ? "Click play to retry" : activeMood ? `${MOODS.find(m => m.id === activeMood)?.icon} ${MOODS.find(m => m.id === activeMood)?.label}` : GENRES.find(g => g.id === genre)?.label}{!audioError && focusActive ? ` · ${Math.floor(focusRemaining / 60)}:${String(focusRemaining % 60).padStart(2, "0")}` : ""}</div>
     </div>
     <div onClick={e => { e.stopPropagation(); seek(e); }} style={{ width: 80, height: 3, background: "rgba(255,255,255,0.08)", borderRadius: 2, cursor: "pointer", flexShrink: 0, overflow: "hidden" }}>
       <div style={{ height: "100%", borderRadius: 2, background: "#D4860A", width: `${progress * 100}%` }} />
@@ -595,11 +637,11 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
 
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <div style={{ fontSize: 16, fontWeight: 700, color: "#f5e6d0", fontFamily: "'Outfit', sans-serif", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{track?.name || "—"}</div>
-            <button onClick={() => track && toggleFav(track.id)} style={{ ...btnBase, fontSize: 14, color: track && favorites.has(track.id) ? "#EF4444" : "rgba(255,255,255,0.2)" }}>{track && favorites.has(track.id) ? "♥" : "♡"}</button>
+            <div style={{ fontSize: 16, fontWeight: 700, color: audioError ? "#f87171" : "#f5e6d0", fontFamily: "'Outfit', sans-serif", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{audioError || track?.name || "—"}</div>
+            {!audioError && <button onClick={() => track && toggleFav(track.id)} style={{ ...btnBase, fontSize: 14, color: track && favorites.has(track.id) ? "#EF4444" : "rgba(255,255,255,0.2)" }}>{track && favorites.has(track.id) ? "♥" : "♡"}</button>}
           </div>
           <div style={{ fontSize: 14, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>
-            {activeMood ? <span style={{ color: "rgba(212,134,10,0.7)" }}>{MOODS.find(m => m.id === activeMood)?.icon} {MOODS.find(m => m.id === activeMood)?.label} · </span> : ""}{GENRES.find(g => g.id === genre)?.icon} {GENRES.find(g => g.id === genre)?.label} · {(trackIdx % genreTracks.length) + 1}/{genreTracks.length}
+            {audioError ? "Click play to retry" : <>{activeMood ? <span style={{ color: "rgba(212,134,10,0.7)" }}>{MOODS.find(m => m.id === activeMood)?.icon} {MOODS.find(m => m.id === activeMood)?.label} · </span> : ""}{GENRES.find(g => g.id === genre)?.icon} {GENRES.find(g => g.id === genre)?.label} · {(trackIdx % genreTracks.length) + 1}/{genreTracks.length}</>}
           </div>
         </div>
 
