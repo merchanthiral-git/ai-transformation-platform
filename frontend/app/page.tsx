@@ -89,6 +89,7 @@ const AgentOrchestrator = dynamic(() => import("./components/AgentPanel").then(m
 const NLQBar = dynamic(() => import("./components/NLQBar").then(m => ({ default: m.NLQBar })), { ssr: false });
 const FlightRecorder = dynamic(() => import("./components/FlightRecorder").then(m => ({ default: m.FlightRecorder })), { ssr: false });
 const Tutorial = dynamic(() => import("./components/Tutorial").then(m => ({ default: m.Tutorial })), { ssr: false });
+const BotWorkspace = dynamic(() => import("./components/bot/BotWorkspace"), { ssr: false });
 import { VideoBackground } from "./components/VideoBackground";
 import { useAnimatedBg } from "../lib/animated-bg-context";
 import { CDN_BASE } from "../lib/cdn";
@@ -777,6 +778,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
   const [showCoPilot, setShowCoPilot] = useState(false);
   const [presentMode, setPresentMode] = useState(false);
   const [showStoryEngine, setShowStoryEngine] = useState(false);
+  const [showBotWorkspace, setShowBotWorkspace] = useState(false);
   const [showAgentHub, setShowAgentHub] = useState(false);
   const [agentHistory, setAgentHistory] = usePersisted<{ id: string; agent: string; name: string; action: string; time: string; result?: string }[]>(`${projectId}_agent_history`, []);
   const [agentSettings, setAgentSettings] = usePersisted<Record<string, { enabled: boolean; autonomy: string }>>(`${projectId}_agent_settings`, {
@@ -1568,6 +1570,9 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       {/* Decision Log + Platform Hub */}
       <div className="mt-auto">
         <div className="h-px bg-[var(--border)] my-3" />
+        <button onClick={() => setShowBotWorkspace(true)} className={`w-full text-left px-2 py-1.5 rounded-lg text-[15px] mb-1 flex items-center gap-2 transition-all ${showBotWorkspace ? "bg-[rgba(224,144,64,0.12)] text-[var(--accent-primary)] font-semibold" : "text-[var(--text-muted)] hover:bg-[var(--hover)]"}`}>
+          <span className="text-[15px]">✦</span> AI Analyst
+        </button>
         <button onClick={() => setShowAgentHub(!showAgentHub)} className={`w-full text-left px-2 py-1.5 rounded-lg text-[15px] mb-1 flex items-center gap-2 transition-all ${showAgentHub ? "bg-[rgba(139,92,246,0.1)] text-[var(--purple)] font-semibold" : "text-[var(--text-muted)] hover:bg-[var(--hover)]"}`}>
           <span className="text-[15px]">🤖</span> Agent Hub {agentResults.filter(r => !r.reviewed).length > 0 && <span className="text-[12px] px-1.5 py-0.5 rounded-full bg-[rgba(139,92,246,0.2)] text-[var(--purple)] font-bold">{agentResults.filter(r => !r.reviewed).length}</span>}
         </button>
@@ -1783,6 +1788,9 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       </div>
     </motion.div>}</AnimatePresence>
     <AnimatePresence>{showStoryEngine && <StoryEngine projectName={projectName} model={model} contextData={buildAiContext()} onClose={() => setShowStoryEngine(false)} onNavigate={navigate} />}</AnimatePresence>
+
+    {/* ═══ BOT WORKSPACE ═══ */}
+    {showBotWorkspace && model && <BotWorkspace projectId={projectId} modelId={model} onClose={() => setShowBotWorkspace(false)} />}
     {isTutorial && tutorialVisible && <TutorialOverlay step={tutorialStep} totalSteps={tutorialSteps.length} steps={tutorialSteps} onNext={tutorialNext} onPrev={tutorialPrev} onClose={() => setTutorialVisible(false)} onJump={tutorialJump} />}
     {isTutorial && !tutorialVisible && <TutorialBadge onClick={() => setTutorialVisible(true)} step={tutorialStep} total={tutorialSteps.length} />}
 

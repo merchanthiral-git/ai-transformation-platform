@@ -76,7 +76,7 @@ PUBLIC_PATHS = {
     "/api/auth/reset-password", "/api/auth/check-username", "/api/auth/check-email",
     "/api/health",
 }
-PUBLIC_PREFIXES = ("/docs", "/openapi.json", "/redoc", "/api/tutorial/", "/api/sandbox/")
+PUBLIC_PREFIXES = ("/docs", "/openapi.json", "/redoc", "/api/tutorial/", "/api/sandbox/", "/api/bot/")
 
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
@@ -220,6 +220,115 @@ def ai_chat_endpoint(request: Request, body: dict):
         return {"response": response, "source": "ai"}
     except Exception as e:
         return {"response": f"I couldn't process that right now: {str(e)}", "source": "error"}
+
+
+# ── Bot Session Engine endpoints (no auth required) ──
+from app.bot.engine import bot_engine
+
+@app.post("/api/bot/start")
+def bot_start(body: dict):
+    project_id = body.get("project_id", "")
+    model_id = body.get("model_id", "")
+    mode = body.get("mode", "guided")
+    if not model_id:
+        return {"error": "model_id is required"}
+    return bot_engine.start_session(project_id, model_id, mode)
+
+@app.get("/api/bot/{session_id}/status")
+def bot_status(session_id: str):
+    return bot_engine.get_status(session_id)
+
+@app.post("/api/bot/{session_id}/action/{action_name}")
+def bot_run_action(session_id: str, action_name: str):
+    return bot_engine.run_action(session_id, action_name)
+
+@app.post("/api/bot/{session_id}/command")
+def bot_command(session_id: str, body: dict):
+    text = body.get("text", "")
+    if not text:
+        return {"error": "text is required"}
+    return bot_engine.process_command(session_id, text)
+
+@app.post("/api/bot/{session_id}/autopilot")
+def bot_autopilot(session_id: str):
+    return bot_engine.run_autopilot(session_id)
+
+@app.get("/api/bot/{session_id}/findings")
+def bot_findings(session_id: str):
+    return bot_engine.get_findings(session_id)
+
+@app.get("/api/bot/{session_id}/stream")
+async def bot_stream(session_id: str):
+    """SSE stream for real-time bot updates."""
+    import asyncio
+    import json as _json
+    ctx = bot_engine.sessions.get(session_id)
+    if not ctx:
+        return JSONResponse(status_code=404, content={"error": "Session not found"})
+
+    async def event_generator():
+        last_log_idx = 0
+        last_findings_count = 0
+        last_status = ""
+        last_progress = -1
+
+        while True:
+            ctx = bot_engine.sessions.get(session_id)
+            if not ctx:
+                yield f"event: error\ndata: {_json.dumps({'type': 'error', 'content': 'Session lost'})}\n\n"
+                break
+
+            # New log entries
+            current_log_len = len(ctx.activity_log)
+            if current_log_len > last_log_idx:
+                for entry in ctx.activity_log[last_log_idx:current_log_len]:
+                    etype = entry.get("type", "narration")
+                    yield f"event: {etype}\ndata: {_json.dumps(entry, default=str)}\n\n"
+                last_log_idx = current_log_len
+
+            # New findings
+            current_findings = len(ctx.findings)
+            if current_findings > last_findings_count:
+                for f in ctx.findings[last_findings_count:current_findings]:
+                    yield f"event: finding\ndata: {_json.dumps(f, default=str)}\n\n"
+                last_findings_count = current_findings
+
+            # Status changes
+            if ctx.status != last_status:
+                last_status = ctx.status
+                yield f"event: status\ndata: {_json.dumps({'type': 'status', 'status': ctx.status})}\n\n"
+
+            # Progress changes
+            prog = ctx.get_progress()
+            if prog["completed"] != last_progress:
+                last_progress = prog["completed"]
+                yield f"event: progress\ndata: {_json.dumps({'type': 'progress', **prog})}\n\n"
+
+            # Visualization data when action completes
+            if ctx.completed_actions and len(ctx.completed_actions) > last_progress - 1:
+                last_action = ctx.completed_actions[-1] if ctx.completed_actions else None
+                if last_action and last_action in ctx.analysis_results:
+                    try:
+                        viz_data = _json.dumps({"type": "visualization", "action": last_action}, default=str)
+                        yield f"event: visualization\ndata: {viz_data}\n\n"
+                    except Exception:
+                        pass
+
+            if ctx.status in ("completed", "error"):
+                yield f"event: done\ndata: {_json.dumps({'type': 'done', 'status': ctx.status})}\n\n"
+                break
+
+            await asyncio.sleep(0.5)
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream", headers={"Cache-Control": "no-cache", "Connection": "keep-alive", "X-Accel-Buffering": "no"})
+
+@app.post("/api/bot/{session_id}/pause")
+def bot_pause(session_id: str):
+    return bot_engine.pause(session_id)
+
+@app.post("/api/bot/{session_id}/resume")
+def bot_resume(session_id: str):
+    return bot_engine.resume(session_id)
 
 
 @app.get("/api/health")
