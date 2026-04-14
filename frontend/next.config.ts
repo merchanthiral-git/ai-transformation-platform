@@ -5,6 +5,7 @@ const backendUrl = process.env.BACKEND_URL || "http://localhost:8000";
 const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_CACHE_BUST: Date.now().toString(),
+    NEXT_PUBLIC_BUILD_ID: Date.now().toString(),
   },
   devIndicators: false,
   typescript: {
@@ -48,10 +49,17 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // Media assets (images, videos, audio) — cache with revalidation
-        source: "/:path*\\.(mp4|webm|mp3|jpg|jpeg|png|webp|avif|ico|svg)",
+        // Images and videos — cache for 1 day, revalidate
+        source: "/:path*\\.(jpg|jpeg|png|webp|avif|svg|mp4|webm)",
         headers: [
           { key: "Cache-Control", value: "public, max-age=86400, must-revalidate" },
+        ],
+      },
+      {
+        // Audio files — cache for a week
+        source: "/:path*\\.(mp3|wav|ogg)",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=604800, must-revalidate" },
         ],
       },
       {

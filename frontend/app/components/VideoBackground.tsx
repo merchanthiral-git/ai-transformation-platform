@@ -67,8 +67,10 @@ export function VideoBackground({
           // Upgrade preload and start playing when in viewport
           if (video.preload !== "auto") video.preload = "auto";
           video.play().catch(() => {});
+          video.dataset.shouldPlay = "true";
         } else {
           video.pause();
+          video.dataset.shouldPlay = "false";
         }
       },
       { threshold: 0.1 }
@@ -76,6 +78,23 @@ export function VideoBackground({
 
     observer.observe(containerRef.current);
     return () => observer.disconnect();
+  }, [animatedEnabled]);
+
+  // Visibility change — resume video when tab regains focus.
+  // Browsers throttle/pause media in background tabs; this restarts playback.
+  useEffect(() => {
+    if (!animatedEnabled) return;
+    const video = videoRef.current;
+    if (!video) return;
+
+    const onVisibilityChange = () => {
+      if (!document.hidden && video.dataset.shouldPlay === "true") {
+        video.play().catch(() => {});
+      }
+    };
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", onVisibilityChange);
   }, [animatedEnabled]);
 
   // Track when video has enough data to display a frame
@@ -119,6 +138,19 @@ export function VideoBackground({
       clearTimeout(grace);
     };
   }, [animatedEnabled, name]);
+
+  // GPU memory cleanup — free video resources when component unmounts.
+  // Prevents GPU memory pressure when navigating between pages with video backgrounds.
+  useEffect(() => {
+    const video = videoRef.current;
+    return () => {
+      if (video) {
+        video.pause();
+        video.removeAttribute("src");
+        video.load();
+      }
+    };
+  }, []);
 
   const gradient = fallbackGradient || DEFAULT_GRADIENT;
   const posterUrl = cb(poster || `${CDN_BASE}/videos/optimized/${name}-poster.jpg`);

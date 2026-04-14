@@ -83,11 +83,22 @@ export default function LandingPage() {
     };
     anchors.forEach(a => a.addEventListener("click", anchorFn as EventListener));
 
+    // ── Visibility change — restart CSS animations when tab regains focus ──
+    // Chrome throttles CSS animations in background tabs; they can freeze on return.
+    const onVisibility = () => {
+      if (!document.hidden) {
+        document.querySelectorAll('.marquee-track, .method-track, .nav-scene, [class*="animate"]')
+          .forEach(el => { (el as HTMLElement).style.animationPlayState = "running"; });
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
     return () => {
       clearTimeout(loaderTimer);
       cancelAnimationFrame(ringRaf);
       document.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("scroll", onScroll);
+      document.removeEventListener("visibilitychange", onVisibility);
       hoverEls.forEach(el => { el.removeEventListener("mouseenter", enterFn); el.removeEventListener("mouseleave", leaveFn); });
       wordObs.disconnect();
       revealObs.disconnect();
