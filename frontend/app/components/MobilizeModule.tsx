@@ -12,6 +12,7 @@ import {
   useApiData, usePersisted, callAI, showToast, logDec,
   exportToCSV, EmptyWithAction, JobDesignState, fmtNum
 } from "./shared";
+import { SkeletonKpiRow, SkeletonTable } from "./ui-primitives";
 
 type Pathway = {
   employee: string; employee_id: string;
@@ -93,7 +94,7 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
 
   return <div>
     <PageHeader icon="📚" title={viewCtx?.mode === "employee" ? "My Learning Path" : "Reskilling Pathways"} subtitle="Per-employee learning plans · All employees in scope" onBack={onBack} moduleId="reskill" />
-    {loading && <LoadingBar />}
+    {loading && <><LoadingBar /><div className="space-y-4 mt-4"><SkeletonKpiRow count={5} /><SkeletonTable rows={6} cols={5} /></div></>}
 
     {/* KPI Summary */}
     <div className="grid grid-cols-5 gap-3 mb-4">
@@ -328,7 +329,7 @@ export function TalentMarketplace({ model, f, onBack, onNavigate, viewCtx }: { m
   return <div>
     <PageHeader icon="🏪" title="Talent Marketplace" subtitle="Match internal candidates to redesigned roles" onBack={onBack} moduleId="marketplace" />
     {model && <div className="flex justify-end mb-2"><ModuleExportButton model={model} module="marketplace" label="Marketplace Data" /></div>}
-    {loading && <LoadingBar />}
+    {loading && <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={4} /><SkeletonTable rows={5} cols={4} /></div></>}
     <div className="grid grid-cols-4 gap-3 mb-5">
       <KpiCard label="Roles to Fill" value={Number(summary.total_roles || 0)} /><KpiCard label="Internal Fill" value={Number(summary.internal_fill || 0)} accent /><KpiCard label="External Fill" value={Number(summary.external_fill || 0)} /><KpiCard label="Match Rate" value={`${Number(summary.total_roles) ? Math.round(Number(summary.internal_fill || 0) / Number(summary.total_roles) * 100) : 0}%`} />
     </div>
@@ -1506,7 +1507,7 @@ export function SkillsNetwork({ model, f, onBack, onNavigate }: { model: string;
 
   return <div>
     <PageHeader icon="🕸️" title="Skills Adjacency Network" subtitle="Interactive skill graph with shortest reskilling paths" onBack={onBack} moduleId="skillnet" />
-    {loading && <LoadingBar />}
+    {loading && <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={4} /><SkeletonTable rows={5} cols={3} /></div></>}
 
     {graph?.error && <Card><Empty text={String((graph as Record<string, unknown>).message || "Add more skills data to unlock the network view")} icon="🕸️" /></Card>}
 

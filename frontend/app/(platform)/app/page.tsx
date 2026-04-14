@@ -1159,7 +1159,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
           const issues = Number(summary?.total_issues ?? 0);
           if (missing > 0) toast(`${missing} dataset(s) still missing — check Data Quality in AI Opportunity Scan`, "warning");
           else if (issues > 0) toast(`${issues} data issue(s) detected — review in AI Opportunity Scan > Data Quality`, "warning");
-        } catch {}
+        } catch (e) { console.error("[API]", e); }
       }
     } catch { toast("Upload failed — check file format and required columns", "error"); }
   };
@@ -1302,7 +1302,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
   const tutorialSteps = useMemo(() => buildTutorialSteps(projectId), [projectId]);
 
   useEffect(() => {
-    if (isTutorial) { try { localStorage.setItem(`${projectId}_tutorialStep`, JSON.stringify(tutorialStep)); } catch {} }
+    if (isTutorial) { try { localStorage.setItem(`${projectId}_tutorialStep`, JSON.stringify(tutorialStep)); } catch (e) { console.error("[Storage]", e); } }
   }, [tutorialStep, projectId, isTutorial]);
 
   const tutorialNext = () => {
@@ -1454,7 +1454,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
 
   // ── Landing splash screen — pure full-screen background image, click to enter ──
   if (showSplash && page === "home") {
-    return <div onClick={() => { setShowSplash(false); try { sessionStorage.setItem(`${projectId}_splashSeen`, "1"); } catch {} }} style={{ position: "fixed", inset: 0, cursor: "pointer", zIndex: 30, animation: "pageCrossfade 0.2s ease-out", willChange: "opacity" }}>
+    return <div onClick={() => { setShowSplash(false); try { sessionStorage.setItem(`${projectId}_splashSeen`, "1"); } catch (e) { console.error("[Storage]", e); } }} style={{ position: "fixed", inset: 0, cursor: "pointer", zIndex: 30, animation: "pageCrossfade 0.2s ease-out", willChange: "opacity" }}>
       <VideoBackground name="landing_bg" overlay={0.15} poster={`${CDN_BASE}/landing_bg.png`} fallbackGradient="linear-gradient(135deg, #0B1120 0%, #0c1e3a 100%)" className="absolute inset-0" />
     </div>;
   }
@@ -1789,7 +1789,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       <AnnotationLayer annotations={annotations} moduleId={page} annotateMode={annotateMode} onAdd={a => setAnnotations(prev => [...prev, a])} onUpdate={a => setAnnotations(prev => prev.map(x => x.id === a.id ? a : x))} onDelete={id => setAnnotations(prev => prev.filter(x => x.id !== id))}>
       <AnimatePresence mode="popLayout">
       <motion.div key={page} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15, ease: "easeOut" }} style={{ minHeight: "calc(100vh - 48px)" }}>
-      {page === "home" && <LandingPage onNavigate={navigate} moduleStatus={moduleStatus} hasData={hasData} viewMode={viewMode} projectName={projectName} onBackToHub={onBackToHub} onBackToSplash={() => { setShowSplash(true); try { sessionStorage.removeItem(`${projectId}_splashSeen`); } catch {} }} cardBackgrounds={cardBgs} phaseBackgrounds={phaseBgs} />}
+      {page === "home" && <LandingPage onNavigate={navigate} moduleStatus={moduleStatus} hasData={hasData} viewMode={viewMode} projectName={projectName} onBackToHub={onBackToHub} onBackToSplash={() => { setShowSplash(true); try { sessionStorage.removeItem(`${projectId}_splashSeen`); } catch (e) { console.error("[Storage]", e); } }} cardBackgrounds={cardBgs} phaseBackgrounds={phaseBgs} />}
       {page !== "home" && <div className="module-enter" style={{ padding: "var(--space-6) var(--space-8)", paddingBottom: 80 }}>
       {model && <NLQBar projectId={projectId} modelId={model} currentModule={page} />}
       {model && page !== "flightrecorder" && <AiObservationsPanel module={page} dataSummary={buildAiContext()} context={`Project: ${projectName}. Model: ${model}. Job: ${job || "All"}.`} filters={f} projectId={projectId} onNavigate={navigate} />}
@@ -2429,7 +2429,7 @@ function TutorialBadge({ onClick, step, total }: { onClick: () => void; step: nu
 function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox, showSandboxPicker, onCloseSandbox }: { user?: authApi.AuthUser; onOpenProject: (p: { id: string; name: string; meta: string }) => void; onStartTutorial?: () => void; onOpenSandbox?: () => void; showSandboxPicker?: boolean; onCloseSandbox?: () => void }) {
   const [projects, setProjects] = useState<{ id: string; name: string; meta: string; client?: string; industry?: string; size?: string; lead?: string; created: string; status: string }[]>(() => {
     if (typeof window === "undefined") return [];
-    try { const saved = localStorage.getItem("hub_projects"); if (saved) return JSON.parse(saved); } catch {}
+    try { const saved = localStorage.getItem("hub_projects"); if (saved) return JSON.parse(saved); } catch (e) { console.error("[Storage]", e); }
     return [];
   });
   const [loaded, setLoaded] = useState(false);
@@ -2458,7 +2458,7 @@ function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox, showS
 
   // Load projects from localStorage (deferred for SSR safety)
   useEffect(() => {
-    try { const saved = localStorage.getItem("hub_projects"); if (saved) setProjects(JSON.parse(saved)); } catch {}
+    try { const saved = localStorage.getItem("hub_projects"); if (saved) setProjects(JSON.parse(saved)); } catch (e) { console.error("[Storage]", e); }
     setLoaded(true);
   }, []);
 
@@ -2493,7 +2493,7 @@ function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox, showS
     // Copy all localStorage data from source project
     Object.keys(localStorage).filter(k => k.startsWith(src.id)).forEach(k => {
       const newKey = k.replace(src.id, cloneId);
-      try { localStorage.setItem(newKey, localStorage.getItem(k) || ""); } catch {}
+      try { localStorage.setItem(newKey, localStorage.getItem(k) || ""); } catch (e) { console.error("[Storage]", e); }
     });
     const updated = [...projects, clone];
     setProjects(updated);
@@ -2520,9 +2520,9 @@ function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox, showS
       const resolvedViewMode = isGuide ? "org" : mode;
       localStorage.setItem(`${pendingSandbox.id}_viewMode`, JSON.stringify(resolvedViewMode === "custom" ? "custom" : resolvedViewMode));
       // Skip the Home splash screen — user already saw the sandbox splash
-      try { sessionStorage.setItem(`${pendingSandbox.id}_splashSeen`, "1"); } catch {}
+      try { sessionStorage.setItem(`${pendingSandbox.id}_splashSeen`, "1"); } catch (e) { console.error("[Storage]", e); }
       // If a guide was selected, flag it so Home auto-opens the guide viewer
-      if (isGuide) { try { sessionStorage.setItem(`${pendingSandbox.id}_openGuide`, mode); } catch {} }
+      if (isGuide) { try { sessionStorage.setItem(`${pendingSandbox.id}_openGuide`, mode); } catch (e) { console.error("[Storage]", e); } }
       setPendingSandbox(null);
       setSandboxOpen(false);
       setSandboxPanelOpen(false);
@@ -2704,11 +2704,11 @@ function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox, showS
         <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 8, scrollSnapType: "x mandatory" }}>
           {projects.map(p => {
             let pStatus = p.status;
-            try { const v = localStorage.getItem(`${p.id}_visited`); if (v && Object.keys(JSON.parse(v)).length > 0) pStatus = "In Progress"; } catch {}
-            try { const vm = localStorage.getItem(`${p.id}_viewMode`); if (vm) pStatus = "In Progress"; } catch {}
+            try { const v = localStorage.getItem(`${p.id}_visited`); if (v && Object.keys(JSON.parse(v)).length > 0) pStatus = "In Progress"; } catch (e) { console.error("[Storage]", e); }
+            try { const vm = localStorage.getItem(`${p.id}_viewMode`); if (vm) pStatus = "In Progress"; } catch (e) { console.error("[Storage]", e); }
             const statusColor = pStatus === "In Progress" ? "#E09040" : pStatus === "Complete" ? "#10B981" : "rgba(255,200,150,0.25)";
             let modulesVisited = 0;
-            try { const v = localStorage.getItem(`${p.id}_visited`); if (v) modulesVisited = Object.keys(JSON.parse(v)).length; } catch {}
+            try { const v = localStorage.getItem(`${p.id}_visited`); if (v) modulesVisited = Object.keys(JSON.parse(v)).length; } catch (e) { console.error("[Storage]", e); }
             const progressPct = Math.min(100, Math.round((modulesVisited / 8) * 100));
 
             return <div key={p.id} onClick={() => onOpenProject(p)} style={{ minWidth: 260, maxWidth: 300, flex: "0 0 auto", scrollSnapAlign: "start", borderRadius: 20, cursor: "pointer", padding: "20px 24px", background: "rgba(255,255,255,0.04)", backdropFilter: "blur(16px)", border: "1px solid rgba(255,255,255,0.08)", transition: "all 0.3s cubic-bezier(0.16,1,0.3,1)", position: "relative" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,200,150,0.06)"; e.currentTarget.style.borderColor = "rgba(224,144,64,0.25)"; e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 12px 40px rgba(0,0,0,0.2)"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}>
@@ -3265,7 +3265,7 @@ export default function Page() {
   // Load active project from localStorage
   useEffect(() => {
     if (!user) return;
-    try { const saved = localStorage.getItem("hub_active"); if (saved) setActiveProject(JSON.parse(saved)); } catch {}
+    try { const saved = localStorage.getItem("hub_active"); if (saved) setActiveProject(JSON.parse(saved)); } catch (e) { console.error("[Storage]", e); }
     setLoaded(true);
   }, [user]);
 

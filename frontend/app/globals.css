@@ -410,6 +410,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     outline: none;
   }
 
+  /* Focus indicators for keyboard navigation */
+  button:focus-visible, [role="button"]:focus-visible, a:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid rgba(212,134,10,0.6);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
   /* Number inputs with monospace */
   input[type="number"], .font-data {
     font-family: 'IBM Plex Mono', ui-monospace, monospace;

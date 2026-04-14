@@ -34,6 +34,7 @@ import {
   type ViewContext,
   type JobDesignState,
 } from "./shared";
+import { SkeletonKpiRow, SkeletonTable } from "./ui-primitives";
 
 
 /* ═══════════════════════════════════════════════════════════════
@@ -49,6 +50,8 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
     <ContextStrip items={[viewCtx?.mode === "employee" ? "Showing AI impact on tasks in your role." : viewCtx?.mode === "job" ? `Filtered to ${viewCtx?.job} tasks only.` : "Phase 1: Discover — Find where AI creates the most value. This unlocks Phase 2: Design."]} />
     <PageHeader icon={viewCtx?.mode === "employee" ? "👤" : "🔬"} title={scanTitle} subtitle={scanSubtitle} onBack={onBack} moduleId="scan" />
     <TabBar tabs={[{ id: "ai", label: "AI Prioritization" }, { id: "skills", label: "Skill Gaps" }, { id: "org", label: "Org Diagnostics" }, { id: "dq", label: "Data Quality" }]} active={sub} onChange={setSub} />
+
+    {loading && !data && <div className="space-y-4 mt-4"><SkeletonKpiRow count={4} /><SkeletonChart height={200} /><SkeletonTable rows={5} cols={4} /></div>}
 
     {sub === "ai" && (() => { const s = (data?.summary ?? {}) as Record<string, unknown>; const top10 = (data?.top10 ?? []) as Record<string, unknown>[]; const quickWins = top10.filter(t => String(t["AI Impact"] || t.ai_impact || "").toLowerCase() === "high" && (Number(t["Current Time Spent %"] || t.time_pct || 0) >= 10) && String(t["Logic"] || t.logic || "").toLowerCase() === "deterministic"); return <div><div className="grid grid-cols-4 gap-3 mb-5"><KpiCard label="Tasks Scored" value={s.tasks_scored as number ?? 0} /><KpiCard label="Quick Wins" value={quickWins.length || (s.quick_wins as number ?? 0)} accent /><KpiCard label="Time Impact" value={`${s.total_time_impact ?? 0}h/wk`} /><KpiCard label="Avg Risk" value={s.avg_risk as number ?? 0} /></div>
       {/* Quick Wins Panel */}
@@ -150,7 +153,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
   return <div>
     <PageHeader icon="🧠" title="Skills & Talent" subtitle="Inventory, gap analysis, and adjacency mapping" onBack={onBack} moduleId="skills" />
     {model && <div className="flex justify-end mb-2"><ModuleExportButton model={model} module="skills_inventory" label="Skills Data" /></div>}
-    {loading && <LoadingBar />}
+    {loading && <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={5} /><SkeletonTable rows={6} cols={5} /></div></>}
     {!loading && employees.length === 0 && validationErrors.length === 0 && <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-2xl p-8 text-center"><div className="text-3xl mb-3 opacity-40">🧠</div><h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">No Skills Data Yet</h3><p className="text-[15px] text-[var(--text-secondary)]">Upload workforce data to see skills inventory, or select Demo_Model.</p></div>}
 
     {/* Validation errors */}
@@ -178,7 +181,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
           <div className="flex items-center gap-2">
             <input value={skillFilter} onChange={e => setSkillFilter(e.target.value)} placeholder="Filter skills..." className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-[15px] text-[var(--text-primary)] outline-none w-40 placeholder:text-[var(--text-muted)]" />
             {dedupSuggestions.length > 0 && <button onClick={() => setShowDedup(!showDedup)} className="text-[15px] text-[var(--warning)] font-semibold">⚠ {dedupSuggestions.length} potential duplicates</button>}
-            <button onClick={() => { const lv = prompt("Bulk-assign proficiency (1-4) to all empty cells:"); if (lv && [1,2,3,4].includes(Number(lv))) { const ne: Record<string,number> = {}; employees.forEach(e => { filteredSkills.forEach(s => { if (getProf(e,s)===0) ne[`${e}__${s}`]=Number(lv); }); }); setEditedScores(prev => ({...prev,...ne})); showToast(`Assigned ${Object.keys(ne).length} empty cells to level ${lv}`); } }} className="text-[15px] text-[var(--accent-primary)] font-semibold hover:underline cursor-pointer">Bulk-fill empties</button>
+            <button aria-label="Bulk fill proficiency level" onClick={() => { const lv = prompt("Bulk-assign proficiency (1-4) to all empty cells:"); if (lv && [1,2,3,4].includes(Number(lv))) { const ne: Record<string,number> = {}; employees.forEach(e => { filteredSkills.forEach(s => { if (getProf(e,s)===0) ne[`${e}__${s}`]=Number(lv); }); }); setEditedScores(prev => ({...prev,...ne})); showToast(`Assigned ${Object.keys(ne).length} empty cells to level ${lv}`); } }} className="text-[15px] text-[var(--accent-primary)] font-semibold hover:underline cursor-pointer">Bulk-fill empties</button>
           </div>
           <div className="flex items-center gap-2">
             {Object.keys(editedScores).length > 0 && <span className="text-[15px] text-[var(--success)]">✎ {Object.keys(editedScores).length} edits</span>}
@@ -682,7 +685,7 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
   return <div>
     <PageHeader icon="🎯" title={viewCtx?.mode === "employee" ? "My AI Readiness" : "AI Readiness Assessment"} subtitle="Individual and team readiness for transformation" onBack={onBack} moduleId="readiness" />
     {model && <div className="flex justify-end mb-2"><ModuleExportButton model={model} module="readiness" label="Readiness Scores" /></div>}
-    {loading && <LoadingBar />}
+    {loading && <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={4} /><SkeletonTable rows={5} cols={4} /></div></>}
 
     {/* ─── BEFORE ASSESSMENT — invitation card ─── */}
     {!loading && !hasData && !assessComplete && <div className="flex items-center justify-center py-12">
@@ -774,7 +777,7 @@ export function ManagerCapability({ model, f, onBack, onNavigate, viewCtx }: { m
   return <div>
     <ContextStrip items={["Assess managers who will lead teams through transformation. Every insight has an action path."]} />
     <PageHeader icon="👔" title="Manager Capability" subtitle="Assess, act, and align managers for transformation" onBack={onBack} moduleId="mgrcap" />
-    {loading && <LoadingBar />}
+    {loading && <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={6} /><SkeletonTable rows={5} cols={4} /></div></>}
 
     <div className="grid grid-cols-6 gap-3 mb-5">
       <KpiCard label="Managers" value={managers.length} /><KpiCard label="Champions" value={champCount} accent /><KpiCard label="Needs Dev" value={devCount} /><KpiCard label="Flight Risk" value={riskCount} /><KpiCard label="Weakest Dim" value={String(summary.weakest_dimension || dims.length ? dims[0] : "—")} /><KpiCard label="Multiplier" value={String(summary.correlation_multiplier || "2.1x")} accent />
@@ -919,7 +922,7 @@ export function ChangeReadiness({ model, f, onBack, onNavigate, viewCtx, simStat
   return <div>
     <ContextStrip items={["Plan, coordinate, and track change management campaigns across your transformation."]} />
     <PageHeader icon="📋" title="Change Campaign Planner" subtitle="Plan activities, assign responsibilities, and track sentiment" onBack={onBack} moduleId="changeready" />
-    {loading && <LoadingBar />}
+    {loading && <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={4} /><SkeletonTable rows={5} cols={5} /></div></>}
 
     <TabBar tabs={[
       { id: "campaigns", label: "📊 Campaigns" },
@@ -1098,7 +1101,7 @@ export function ManagerDevelopment({ model, f, onBack, onNavigate, viewCtx }: { 
   return <div>
     <ContextStrip items={["Phase 3: Deliver — Targeted development for managers. Champions lead change, Flight Risks need immediate engagement."]} />
     <PageHeader icon="🎓" title="Manager Development Track" subtitle="Development plans and transformation roles" onBack={onBack} moduleId="mgrdev" />
-    {loading && <LoadingBar />}
+    {loading && <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={5} /><SkeletonTable rows={5} cols={4} /></div></>}
 
     <div className="grid grid-cols-5 gap-3 mb-5">
       <KpiCard label="Managers" value={Number(summary.total_managers || 0)} /><KpiCard label="Change Agents" value={Number(summary.change_agents || 0)} accent /><KpiCard label="Need Dev" value={Number(summary.need_development || 0)} /><KpiCard label="Avg Duration" value={`${summary.avg_duration_weeks || 0}wk`} /><KpiCard label="Investment" value={fmtNum(summary.total_investment || 0)} />
@@ -1536,7 +1539,7 @@ export function AIImpactHeatmap({ model, f, onBack, onNavigate, viewCtx }: { mod
   return <div>
     <ContextStrip items={[`${cells.length} intersections analyzed · ${cells.filter(c => c.impact === "High").length} high-impact zones`]} />
     <PageHeader icon="🔥" title="AI Impact Heatmap" subtitle="Automation potential by function and job family" onBack={onBack} moduleId="heatmap" viewCtx={viewCtx} />
-    {loading && <LoadingBar />}
+    {loading && <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={4} /><SkeletonTable rows={6} cols={6} /></div></>}
 
     {cells.length === 0 && !loading && <Empty text="Upload work design data with Function and Job Family columns to generate the heatmap" icon="🔥" />}
 
@@ -1611,7 +1614,7 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
   return <div>
     <ContextStrip items={[clusters.length > 0 ? `${summary.total_clusters || clusters.length} clusters · ${summary.consolidation_opportunities || 0} consolidation opportunities · ${summary.roles_affected || 0} roles affected` : "Analyzing role similarity..."]} />
     <PageHeader icon="🔗" title="Role Clustering" subtitle="Identify similar roles, consolidation candidates, and redundancies" onBack={onBack} moduleId="clusters" viewCtx={viewCtx} />
-    {loading && <LoadingBar />}
+    {loading && <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={5} /><SkeletonTable rows={5} cols={4} /></div></>}
 
     {clusters.length === 0 && !loading && <Empty text="No clusters found. Upload work design data with task characteristics." icon="🔗" />}
 

@@ -13,6 +13,7 @@ import {
   exportToCSV, EmptyWithAction, JobDesignState, AiInsightCard, fmtNum, ExpandableChart
 } from "./shared";
 import { PersonalImpactCard } from "./OverviewModule";
+import { SkeletonKpiRow, SkeletonChart } from "./ui-primitives";
 
 /* ═══════════════════════════════════════════════════════════════
    SCENARIO NARRATIVE — AI-generated story from simulation data
@@ -1229,11 +1230,11 @@ function NegotiateTab({ projectId, model, savedScenarios, setSavedScenarios }: {
     </Card>
 
     {/* Loading */}
-    {loading && <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-1)] p-6">
+    {loading && <><div className="rounded-xl border border-[var(--border)] bg-[var(--surface-1)] p-6">
       <div className="text-[14px] text-[var(--text-muted)] mb-3 text-center">Negotiating your scenario...</div>
       <div className="h-1.5 bg-[var(--surface-3)] rounded-full overflow-hidden"><div className="h-full rounded-full transition-all duration-300" style={{ width: `${progress}%`, background: "linear-gradient(90deg, #D4860A, #E8C547)" }} /></div>
       <div className="text-[11px] text-[var(--text-muted)] text-center mt-2">Analyzing {constraints.length} constraints against your org data</div>
-    </div>}
+    </div><div className="mt-4 space-y-4"><SkeletonKpiRow count={4} /><SkeletonChart height={180} /></div></>}
 
     {/* Section 2: Results */}
     {result && !loading && !result.error && <>
@@ -1504,13 +1505,13 @@ function StressTestTab({ projectId, model }: { projectId: string; model: string 
     </Card>
 
     {/* Loading */}
-    {loading && <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-1)] p-6">
+    {loading && <><div className="rounded-xl border border-[var(--border)] bg-[var(--surface-1)] p-6">
       <div className="text-[14px] text-[var(--text-muted)] mb-3 text-center">Modeling shock impact...</div>
       <div className="h-1.5 bg-[var(--surface-3)] rounded-full overflow-hidden"><div className="h-full rounded-full transition-all duration-300" style={{ width: `${progress}%`, background: "linear-gradient(90deg, #EF4444, #F59E0B)" }} /></div>
       <div className="flex justify-center gap-3 mt-3">
         {["Headcount", "Costs", "Skills", "Delivery", "Culture"].map((d, i) => <span key={d} className="text-[11px] font-data animate-pulse" style={{ color: "var(--text-muted)", animationDelay: `${i * 0.3}s` }}>{d}</span>)}
       </div>
-    </div>}
+    </div><div className="mt-4 space-y-4"><SkeletonKpiRow count={4} /><SkeletonChart height={180} /></div></>}
 
     {/* Section 2: Results */}
     {result && !loading && !result.error && <>

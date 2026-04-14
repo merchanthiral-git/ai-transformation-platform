@@ -212,8 +212,36 @@ export function CommandPalette({ actions, recentIds, onClose }: { actions: CmdAc
   const [selectedIdx, setSelectedIdx] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
 
-  useEffect(() => { inputRef.current?.focus(); }, []);
+  // Store previously focused element and auto-focus input on open
+  useEffect(() => {
+    previousFocusRef.current = document.activeElement as HTMLElement | null;
+    inputRef.current?.focus();
+    return () => {
+      // Restore focus when palette unmounts
+      previousFocusRef.current?.focus();
+    };
+  }, []);
+
+  // Focus trap: cycle Tab within the palette
+  const handleTrapKey = useCallback((e: React.KeyboardEvent) => {
+    if (e.key !== "Tab") return;
+    const container = containerRef.current;
+    if (!container) return;
+    const focusable = container.querySelectorAll<HTMLElement>(
+      'input, button, [tabindex]:not([tabindex="-1"]), a[href], [role="option"]'
+    );
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey) {
+      if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+    } else {
+      if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  }, []);
 
   const results = useMemo(() => {
     if (!query.trim()) {
@@ -284,9 +312,9 @@ export function CommandPalette({ actions, recentIds, onClose }: { actions: CmdAc
 
   let actionIdx = -1;
 
-  return <motion.div className="fixed inset-0 z-[99999] flex items-start justify-center pt-[15vh]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} onClick={onClose}>
+  return <motion.div className="fixed inset-0 z-[99999] flex items-start justify-center pt-[15vh]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} onClick={onClose} onKeyDown={handleTrapKey}>
     <div className="absolute inset-0" style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(8px)" }} />
-    <motion.div className="relative w-[580px] max-h-[60vh] flex flex-col rounded-2xl border border-[var(--border)] overflow-hidden" style={{ background: "var(--surface-1)", boxShadow: "var(--shadow-4)" }} initial={{ opacity: 0, scale: 0.96, y: -10 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} onClick={e => e.stopPropagation()}>
+    <motion.div ref={containerRef} className="relative w-[580px] max-h-[60vh] flex flex-col rounded-2xl border border-[var(--border)] overflow-hidden" style={{ background: "var(--surface-1)", boxShadow: "var(--shadow-4)" }} initial={{ opacity: 0, scale: 0.96, y: -10 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} onClick={e => e.stopPropagation()}>
       {/* Search input */}
       <div className="flex items-center gap-3 px-5 py-4 border-b border-[var(--border)]">
         <span className="text-[18px] text-[var(--text-muted)]">🔍</span>

@@ -37,6 +37,7 @@ import {
   fmtNum,
 } from "./shared";
 import type { ViewContext, JobDesignState } from "./shared";
+import { SkeletonKpiRow, SkeletonChart } from "./ui-primitives";
 
 export function TransformationDashboard({ data, jobStates, simState, viewCtx }: { data: Record<string, unknown> | null; jobStates: Record<string, JobDesignState>; simState: { scenario: string; custom: boolean; custAdopt: number; custTimeline: number; investment: number }; viewCtx?: ViewContext }) {
   const k = (data?.kpis ?? {}) as Record<string, unknown>;
@@ -479,7 +480,7 @@ export function TransformationExecDashboard({ model, f, onBack, onNavigate, deci
 
   return <div>
     <PageHeader icon="🎯" title="Transformation Dashboard" subtitle="Executive summary across all 18 modules" onBack={onBack} moduleId="dashboard" />
-    {loading && <LoadingBar />}
+    {loading && <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={4} /><SkeletonChart height={200} /></div></>}
 
     {/* Phase summary cards */}
     <div className="grid grid-cols-3 gap-4 mb-6">
@@ -908,7 +909,7 @@ export function WorkforceSnapshot({ model, f, onBack, onNavigate, viewCtx }: { m
   return <div>
     <ContextStrip items={["Phase 1: Discover — This is your baseline. Upload workforce data to see your org shape, structure, and AI readiness."]} />
     <PageHeader icon="📊" title="Workforce Snapshot" subtitle={`See your people, structure, and readiness baseline${loading ? " · Loading..." : ""}`} onBack={onBack} moduleId="snapshot" />
-    {loading && <LoadingBar />}
+    {loading && <><LoadingBar /><div className="space-y-4 mt-4"><SkeletonKpiRow count={6} /><div className="grid grid-cols-12 gap-4"><div className="col-span-5"><SkeletonChart height={200} /></div><div className="col-span-7"><SkeletonChart height={200} /></div></div></div></>}
     {!loading && Number(k.employees || 0) === 0 && <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-2xl p-8 mb-5 text-center">
       <div className="text-3xl mb-3 opacity-40">📊</div>
       <h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">No Workforce Data Yet</h3>

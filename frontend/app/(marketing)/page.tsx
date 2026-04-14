@@ -108,6 +108,7 @@ export default function LandingPage() {
 
   return (
     <>
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[99999] focus:px-4 focus:py-2 focus:bg-[var(--accent)] focus:text-white focus:rounded-lg focus:text-sm focus:font-semibold">Skip to main content</a>
       <style>{`
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 :root {
@@ -423,7 +424,7 @@ footer { padding: 48px 56px; border-top: 1px solid var(--rule); display: flex; j
       </div>
 
       {/* ═══ HERO ═══ */}
-      <section className="hero">
+      <section id="main-content" className="hero">
         <div className="hero-left">
           <div className="hero-eyebrow"><span className="line" /> AI &times; Workforce Transformation <span className="line" /></div>
           <h1>
