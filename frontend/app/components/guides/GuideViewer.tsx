@@ -184,13 +184,13 @@ export default function GuideViewer({ guide, onBack, onNavigate }: GuideViewerPr
                       display: "flex", alignItems: "flex-start", gap: 10,
                     }}
                   >
-                    <span style={{ fontSize: 11, fontWeight: 700, color: activeChapter === ch.id ? "#D4860A" : "rgba(255,200,150,0.3)", fontFamily: "'IBM Plex Mono', monospace", minWidth: 20, paddingTop: 1 }}>{ch.number}</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: activeChapter === ch.id ? "var(--accent-primary)" : "rgba(255,200,150,0.3)", fontFamily: "'IBM Plex Mono', monospace", minWidth: 20, paddingTop: 1 }}>{ch.number}</span>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 13, fontWeight: 600, color: activeChapter === ch.id ? "rgba(255,245,235,0.9)" : "rgba(255,245,235,0.6)", lineHeight: 1.3 }}>{ch.icon} {ch.title}</div>
                       {expandedChapters.has(ch.id) && ch.sections.length > 0 && (
                         <div style={{ marginTop: 6, paddingLeft: 2 }}>
                           {ch.sections.map(sec => (
-                            <button key={sec.id} onClick={e => { e.stopPropagation(); scrollToSection(ch.id, sec.id); }} style={{ display: "block", width: "100%", textAlign: "left", padding: "4px 0", border: "none", background: "none", cursor: "pointer", fontSize: 12, color: activeSection === sec.id ? "#D4860A" : "rgba(255,200,150,0.35)", lineHeight: 1.4, transition: "color 0.15s" }}>
+                            <button key={sec.id} onClick={e => { e.stopPropagation(); scrollToSection(ch.id, sec.id); }} style={{ display: "block", width: "100%", textAlign: "left", padding: "4px 0", border: "none", background: "none", cursor: "pointer", fontSize: 12, color: activeSection === sec.id ? "var(--accent-primary)" : "rgba(255,200,150,0.35)", lineHeight: 1.4, transition: "color 0.15s" }}>
                               {sec.title}
                             </button>
                           ))}
@@ -207,7 +207,7 @@ export default function GuideViewer({ guide, onBack, onNavigate }: GuideViewerPr
             <div style={{ padding: "12px 20px", borderTop: "1px solid rgba(255,200,150,0.06)", flexShrink: 0 }}>
               <div style={{ fontSize: 11, color: "rgba(255,200,150,0.3)", marginBottom: 4 }}>Progress</div>
               <div style={{ height: 3, borderRadius: 2, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
-                <div style={{ height: "100%", borderRadius: 2, background: "#D4860A", width: `${Math.round((visitedChapters.size / guide.chapters.length) * 100)}%`, transition: "width 0.3s" }} />
+                <div style={{ height: "100%", borderRadius: 2, background: "var(--accent-primary)", width: `${Math.round((visitedChapters.size / guide.chapters.length) * 100)}%`, transition: "width 0.3s" }} />
               </div>
               <div style={{ fontSize: 11, color: "rgba(255,200,150,0.25)", marginTop: 4 }}>{visitedChapters.size} / {guide.chapters.length} chapters explored</div>
             </div>
@@ -465,7 +465,7 @@ const guideStyles = `
   .guide-content .framework-title {
     font-size: 14px;
     font-weight: 700;
-    color: #D4860A;
+    color: var(--accent-primary);
     margin-bottom: 10px;
     font-family: 'Outfit', sans-serif;
   }
@@ -477,7 +477,7 @@ const guideStyles = `
     border-radius: 8px;
     background: rgba(212,134,10,0.1);
     border: 1px solid rgba(212,134,10,0.25);
-    color: #E8C547;
+    color: var(--warning);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -508,7 +508,7 @@ const guideStyles = `
     height: 24px;
     border-radius: 50%;
     background: rgba(212,134,10,0.15);
-    color: #D4860A;
+    color: var(--accent-primary);
     font-size: 12px;
     font-weight: 700;
     display: flex;

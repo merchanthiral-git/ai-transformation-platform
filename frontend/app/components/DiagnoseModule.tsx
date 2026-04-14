@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import * as api from "../../lib/api";
 import type { Filters } from "../../lib/api";
+import type { AIPrioritySummary, DataQualitySummary, OrgDiagnosticsKpis, OverviewResponse, OrgDiagnosticsResponse, AIHeatmapResponse, RoleClustersResponse, SkillsInventoryResponse, SkillsGapResponse, SkillsAdjacencyResponse, AIPriorityResponse, ReadinessResponse } from "../../types/api";
 import {
   KpiCard,
   Card,
@@ -57,7 +58,7 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
 
     {loading && !data && <div className="space-y-4 mt-4"><SkeletonKpiRow count={4} /><SkeletonChart height={200} /><SkeletonTable rows={5} cols={4} /></div>}
 
-    {sub === "ai" && (() => { const s = (data?.summary ?? {}) as Record<string, unknown>; const top10 = (data?.top10 ?? []) as Record<string, unknown>[]; const quickWins = top10.filter(t => String(t["AI Impact"] || t.ai_impact || "").toLowerCase() === "high" && (Number(t["Current Time Spent %"] || t.time_pct || 0) >= 10) && String(t["Logic"] || t.logic || "").toLowerCase() === "deterministic"); return <div><div className="grid grid-cols-4 gap-3 mb-5"><KpiCard label="Tasks Scored" value={s.tasks_scored as number ?? 0} /><KpiCard label="Quick Wins" value={quickWins.length || (s.quick_wins as number ?? 0)} accent /><KpiCard label="Time Impact" value={`${s.total_time_impact ?? 0}h/wk`} /><KpiCard label="Avg Risk" value={s.avg_risk as number ?? 0} /></div>
+    {sub === "ai" && (() => { const s = (data?.summary ?? { tasks_scored: 0, quick_wins: 0, total_time_impact: 0, avg_risk: 0 }) as AIPrioritySummary; const top10 = (data?.top10 ?? []) as Record<string, unknown>[]; const quickWins = top10.filter(t => String(t["AI Impact"] || t.ai_impact || "").toLowerCase() === "high" && (Number(t["Current Time Spent %"] || t.time_pct || 0) >= 10) && String(t["Logic"] || t.logic || "").toLowerCase() === "deterministic"); return <div><div className="grid grid-cols-4 gap-3 mb-5"><KpiCard label="Tasks Scored" value={s.tasks_scored ?? 0} /><KpiCard label="Quick Wins" value={quickWins.length || (s.quick_wins ?? 0)} accent /><KpiCard label="Time Impact" value={`${s.total_time_impact ?? 0}h/wk`} /><KpiCard label="Avg Risk" value={s.avg_risk ?? 0} /></div>
       {/* Quick Wins Panel */}
       {quickWins.length > 0 && <div className="bg-gradient-to-r from-[rgba(16,185,129,0.06)] to-transparent border border-[rgba(16,185,129,0.15)] rounded-xl p-5 mb-4">
         <div className="flex items-center gap-2 mb-3"><span className="text-lg">⚡</span><span className="text-[14px] font-bold text-[var(--success)]">Quick Wins — Automate Now</span><Badge color="green">{quickWins.length} tasks</Badge></div>
@@ -78,8 +79,8 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
       </div>}
       <div className="grid grid-cols-12 gap-4"><div className="col-span-7"><Card title="Top AI Priority Tasks"><DataTable data={top10} /></Card></div><div className="col-span-5"><Card title="Impact by Workstream"><BarViz data={((data?.workstream_impact ?? []) as Record<string, unknown>[])} labelKey="Workstream" valueKey="Time Impact" color="var(--accent-scenario)" /></Card></div></div></div>; })()}
     {sub === "skills" && <div className="grid grid-cols-2 gap-4"><Card title="Current Skills"><BarViz data={((data?.current ?? []) as Record<string, unknown>[])} labelKey="Skill" valueKey="Weight" color="var(--success)" /></Card><Card title="Skill Gap"><DataTable data={((data?.gap ?? []) as Record<string, unknown>[])} cols={["Skill", "Current", "Future", "Delta"]} /></Card></div>}
-    {sub === "org" && (() => { if (data && (data as Record<string, unknown>).empty) return <Empty text="Upload org or workforce data" icon="🏢" />; const k = (data?.kpis ?? {}) as Record<string, unknown>; return <div><div className="grid grid-cols-6 gap-3 mb-5"><KpiCard label="Headcount" value={k.total as number ?? 0} /><KpiCard label="Managers" value={k.managers as number ?? 0} /><KpiCard label="ICs" value={k.ics as number ?? 0} /><KpiCard label="Avg Span" value={k.avg_span as number ?? 0} accent /><KpiCard label="Max Span" value={k.max_span as number ?? 0} /><KpiCard label="Layers" value={k.layers as number ?? 0} /></div><div className="grid grid-cols-2 gap-4"><Card title="Span of Control"><BarViz data={((data?.span_top15 ?? []) as Record<string, unknown>[])} labelKey="Label" valueKey="Direct Reports" color="var(--warning)" /></Card><Card title="Layer Distribution"><BarViz data={((data?.layer_distribution ?? []) as Record<string, unknown>[])} labelKey="name" valueKey="value" /></Card></div></div>; })()}
-    {sub === "dq" && (() => { const s = (data?.summary ?? {}) as Record<string, unknown>; return <div><div className="grid grid-cols-4 gap-3 mb-5"><KpiCard label="Ready" value={`${s.ready ?? 0}/7`} accent /><KpiCard label="Missing" value={s.missing as number ?? 0} /><KpiCard label="Issues" value={s.total_issues as number ?? 0} /><KpiCard label="Completeness" value={`${s.avg_completeness ?? 0}%`} /></div><div className="grid grid-cols-2 gap-4"><Card title="Readiness"><DataTable data={((data?.readiness ?? []) as Record<string, unknown>[])} cols={["Dataset", "Status", "Rows", "Issues", "Completeness"]} /></Card><Card title="Upload Log"><DataTable data={((data?.upload_log ?? []) as Record<string, unknown>[])} /></Card></div></div>; })()}
+    {sub === "org" && (() => { if (data && (data as Record<string, unknown>).empty) return <Empty text="Upload org or workforce data" icon="🏢" />; const k = (data?.kpis ?? { total: 0, managers: 0, ics: 0, avg_span: 0, max_span: 0, layers: 0 }) as OrgDiagnosticsKpis; return <div><div className="grid grid-cols-6 gap-3 mb-5"><KpiCard label="Headcount" value={k.total ?? 0} /><KpiCard label="Managers" value={k.managers ?? 0} /><KpiCard label="ICs" value={k.ics ?? 0} /><KpiCard label="Avg Span" value={k.avg_span ?? 0} accent /><KpiCard label="Max Span" value={k.max_span ?? 0} /><KpiCard label="Layers" value={k.layers ?? 0} /></div><div className="grid grid-cols-2 gap-4"><Card title="Span of Control"><BarViz data={((data?.span_top15 ?? []) as Record<string, unknown>[])} labelKey="Label" valueKey="Direct Reports" color="var(--warning)" /></Card><Card title="Layer Distribution"><BarViz data={((data?.layer_distribution ?? []) as Record<string, unknown>[])} labelKey="name" valueKey="value" /></Card></div></div>; })()}
+    {sub === "dq" && (() => { const s = (data?.summary ?? { ready: 0, missing: 0, total_issues: 0, avg_completeness: 0 }) as DataQualitySummary; return <div><div className="grid grid-cols-4 gap-3 mb-5"><KpiCard label="Ready" value={`${s.ready ?? 0}/7`} accent /><KpiCard label="Missing" value={s.missing ?? 0} /><KpiCard label="Issues" value={s.total_issues ?? 0} /><KpiCard label="Completeness" value={`${s.avg_completeness ?? 0}%`} /></div><div className="grid grid-cols-2 gap-4"><Card title="Readiness"><DataTable data={((data?.readiness ?? []) as Record<string, unknown>[])} cols={["Dataset", "Status", "Rows", "Issues", "Completeness"]} /></Card><Card title="Upload Log"><DataTable data={((data?.upload_log ?? []) as Record<string, unknown>[])} /></Card></div></div>; })()}
     <AiInsightCard title="✨ AI Diagnosis Summary" contextData={JSON.stringify({ summary: (data as Record<string,unknown>)?.summary, sub }).slice(0, 2000)} systemPrompt="You are an organizational diagnostics consultant. Provide 3 key findings and recommended focus areas. Use specific numbers. No markdown." />
     <NextStepBar currentModuleId="scan" onNavigate={onNavigate || onBack} />
   </div>;
@@ -94,9 +95,9 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
    ═══════════════════════════════════════════════════════════════ */
 export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext; jobStates?: Record<string, JobDesignState> }) {
   const [tab, setTab] = useState("inventory");
-  const [invData, setInvData] = useState<Record<string, unknown> | null>(null);
-  const [gapData, setGapData] = useState<Record<string, unknown> | null>(null);
-  const [adjData, setAdjData] = useState<Record<string, unknown> | null>(null);
+  const [invData, setInvData] = useState<SkillsInventoryResponse | null>(null);
+  const [gapData, setGapData] = useState<SkillsGapResponse | null>(null);
+  const [adjData, setAdjData] = useState<SkillsAdjacencyResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [editedScores, setEditedScores] = usePersisted<Record<string, number>>(`${model}_skillEdits`, {});
   const [confirmed, setConfirmed] = usePersisted<boolean>(`${model}_skillsConfirmed`, false);
@@ -135,11 +136,11 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
 
   const gap = gapData as Record<string, unknown> | null;
   const gaps = (gap?.gaps || []) as { skill: string; current_avg: number; target: number; target_source: string; delta: number; employees_assessed: number; severity: string; employee_gaps: { employee: string; current: number; target: number; delta: number; reskillable: boolean }[] }[];
-  const gapSummary = (gap?.summary || {}) as Record<string, unknown>;
+  const gapSummary = gapData?.summary ?? {};
 
   const adj = adjData as Record<string, unknown> | null;
   const adjacencies = (adj?.adjacencies || []) as { target_role: string; required_skills: Record<string, number>; top_candidates: { employee: string; adjacency_pct: number; matching_skills: string[]; gap_skills: string[]; reskill_months: number }[]; strong_matches: number; reskillable: number; weak_matches: number; wdl_derived: boolean }[];
-  const adjSummary = (adj?.summary || {}) as Record<string, unknown>;
+  const adjSummary = adjData?.summary ?? {};
 
   const getProf = (emp: string, skill: string) => {
     const key = `${emp}__${skill}`;
@@ -147,7 +148,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
     const rec = records.find(r => r.employee === emp && r.skill === skill);
     return rec ? rec.proficiency : 0;
   };
-  const profColor = (p: number) => p === 0 ? "transparent" : p === 1 ? "#EF4444" : p === 2 ? "#F59E0B" : p === 3 ? "#10B981" : "#065F46";
+  const profColor = (p: number) => p === 0 ? "transparent" : p === 1 ? "var(--risk)" : p === 2 ? "var(--warning)" : p === 3 ? "var(--success)" : "#065F46";
   const profLabel = (p: number) => p === 1 ? "Novice" : p === 2 ? "Developing" : p === 3 ? "Proficient" : p === 4 ? "Expert" : "Not assessed";
   const dispColors: Record<string, string> = { "Close Internally": "var(--success)", "Hire Externally": "var(--accent-primary)", "Accept Risk": "var(--warning)", "Automate": "var(--purple)" };
   const dispOptions = ["Close Internally", "Hire Externally", "Accept Risk", "Automate"];
@@ -189,7 +190,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
           </div>
           <div className="flex items-center gap-2">
             {Object.keys(editedScores).length > 0 && <span className="text-[15px] text-[var(--success)]">✎ {Object.keys(editedScores).length} edits</span>}
-            {!confirmed ? <button onClick={() => { setConfirmed(true); showToast("✓ Skills inventory confirmed — Gap Analysis unlocked"); logDec("Skills", "Inventory Confirmed", `${employees.length} employees × ${skills.length} skills confirmed`); }} className="px-4 py-1.5 rounded-lg text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #10B981, #059669)" }}>✓ Confirm Inventory</button> : <Badge color="green">✓ Confirmed</Badge>}
+            {!confirmed ? <button onClick={() => { setConfirmed(true); showToast("✓ Skills inventory confirmed — Gap Analysis unlocked"); logDec("Skills", "Inventory Confirmed", `${employees.length} employees × ${skills.length} skills confirmed`); }} className="px-4 py-1.5 rounded-lg text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--success), #059669)" }}>✓ Confirm Inventory</button> : <Badge color="green">✓ Confirmed</Badge>}
           </div>
         </div>
 
@@ -290,7 +291,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
 
       <div className="flex items-center gap-3 mb-4 flex-wrap">
         <span className="text-[15px] text-[var(--text-secondary)]">Threshold:</span>
-        <input type="range" min={30} max={90} step={5} value={adjThreshold} onChange={e => setAdjThreshold(Number(e.target.value))} className="w-36" style={{ accentColor: "#D97706" }} />
+        <input type="range" min={30} max={90} step={5} value={adjThreshold} onChange={e => setAdjThreshold(Number(e.target.value))} className="w-36" style={{ accentColor: "var(--amber)" }} />
         <span className="text-[15px] font-bold" style={{ color: adjThreshold >= 70 ? "var(--success)" : adjThreshold >= 50 ? "var(--warning)" : "var(--risk)" }}>{adjThreshold}%</span>
         <div className="flex gap-2 text-[14px]"><Badge color="green">≥70% Strong</Badge><Badge color="amber">50-69% Reskillable</Badge><Badge color="gray">&lt;50% Stretch</Badge></div>
         {Boolean(adjSummary.wdl_connected) && <Badge color="green">WDL Connected</Badge>}
@@ -574,7 +575,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
    MODULE: AI READINESS ASSESSMENT
    ═══════════════════════════════════════════════════════════════ */
 export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext; jobStates?: Record<string, JobDesignState> }) {
-  const [data, setData] = useState<Record<string, unknown> | null>(null);
+  const [data, setData] = useState<import("../../types/api").ReadinessAssessmentResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [viewLevel, setViewLevel] = useState<"org"|"individual">("org");
   const [rdPage, setRdPage] = useState(0);
@@ -680,7 +681,7 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
         <div className="flex justify-between mt-6">
           <button onClick={() => { if (assessQ > 0) setAssessQ(assessQ - 1); }} disabled={assessQ === 0} className="px-4 py-2 rounded-xl text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)] disabled:opacity-30">← Back</button>
           <button onClick={() => setAssessActive(false)} className="px-4 py-2 rounded-xl text-[14px] text-[var(--text-muted)]">Save & Exit</button>
-          {answered !== undefined && <button onClick={() => { if (assessQ < totalQuestions - 1) setAssessQ(assessQ + 1); else setAssessActive(false); }} className="px-6 py-2 rounded-xl text-[14px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>Next →</button>}
+          {answered !== undefined && <button onClick={() => { if (assessQ < totalQuestions - 1) setAssessQ(assessQ + 1); else setAssessActive(false); }} className="px-6 py-2 rounded-xl text-[14px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>Next →</button>}
         </div>
       </div>
     </div>;
@@ -697,7 +698,7 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
         <div className="text-[64px] mb-4">🎯</div>
         <h2 className="text-[28px] font-extrabold text-[var(--text-primary)] font-heading mb-3">What{"'"}s Your AI Readiness Score?</h2>
         <p className="text-[16px] text-[var(--text-muted)] mb-6">A 5-minute assessment across 5 dimensions to understand how prepared your organization is for AI transformation.</p>
-        <button onClick={() => { setAssessActive(true); setAssessQ(0); }} className="px-8 py-3.5 rounded-2xl text-[17px] font-bold text-white glow-pulse" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", boxShadow: "var(--shadow-2)" }}>Take the Assessment →</button>
+        <button onClick={() => { setAssessActive(true); setAssessQ(0); }} className="px-8 py-3.5 rounded-2xl text-[17px] font-bold text-white glow-pulse" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", boxShadow: "var(--shadow-2)" }}>Take the Assessment →</button>
         <p className="text-[14px] text-[var(--text-muted)] mt-4">Based on responses from your leadership team. Takes approximately 5 minutes.</p>
         <div className="flex justify-center gap-4 mt-6">{ASSESS_DIMS.map(d => <div key={d.id} className="text-center"><div className="text-[20px]">{d.icon}</div><div className="text-[12px] text-[var(--text-muted)]">{d.id}</div></div>)}</div>
       </div>
@@ -754,16 +755,16 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
    MODULE: MANAGER CAPABILITY
    ═══════════════════════════════════════════════════════════════ */
 export function ManagerCapability({ model, f, onBack, onNavigate, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext }) {
-  const [data, setData] = useState<Record<string, unknown> | null>(null);
+  const [data, setData] = useState<import("../../types/api").ManagerCapabilityResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [tab, setTab] = useState<"scorecard"|"correlation">("scorecard");
 
   useEffect(() => { if (!model) return; setLoading(true); api.getManagerCapability(model, f).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false)); }, [model, f.func, f.jf, f.sf, f.cl]);
 
-  const managers = (data?.managers || []) as { manager: string; scores: Record<string, number>; average: number; category: string; direct_reports: number; team_readiness_avg: number; correlation: number; team_members: { employee: string; readiness: number; band: string }[] }[];
-  const dims = (data?.dimensions || []) as string[];
-  const summary = (data?.summary || {}) as Record<string, unknown>;
-  const catColors: Record<string, string> = { "Transformation Champion": "#10B981", "Needs Development": "#F59E0B", "Flight Risk": "#EF4444", "Adequate": "#7B8BA2" };
+  const managers = data?.managers ?? [];
+  const dims = data?.dimensions ?? [];
+  const summary = data?.summary ?? {};
+  const catColors: Record<string, string> = { "Transformation Champion": "var(--success)", "Needs Development": "var(--warning)", "Flight Risk": "var(--risk)", "Adequate": "var(--text-muted)" };
   const catIcons: Record<string, string> = { "Transformation Champion": "🏆", "Needs Development": "📘", "Flight Risk": "⚠️", "Adequate": "✓" };
   const [expandedCat, setExpandedCat] = useState<string | null>(null);
   const [expandedMgr, setExpandedMgr] = useState<string | null>(null);
@@ -849,7 +850,7 @@ export function ManagerCapability({ model, f, onBack, onNavigate, viewCtx }: { m
         <tbody>{managers.slice(0, 30).map(m => <tr key={m.manager} className="border-b border-[var(--border)] hover:bg-[var(--hover)] cursor-pointer transition-colors" onClick={() => setExpandedMgr(expandedMgr === m.manager ? null : m.manager)}>
           <td className="px-3 py-2 font-semibold text-[var(--text-primary)]">{m.manager}</td>
           <td className="px-2 py-2 text-center text-[var(--text-muted)]">{m.direct_reports}</td>
-          {dims.map(d => { const v = m.scores[d] || 0; return <td key={d} className="px-2 py-2 text-center"><span className="inline-flex w-7 h-7 rounded-lg items-center justify-center text-[14px] font-bold" style={{ background: `${v >= 4 ? "#10B981" : v >= 3 ? "#D4860A" : v >= 2 ? "#F59E0B" : "#EF4444"}15`, color: v >= 4 ? "#10B981" : v >= 3 ? "#D4860A" : v >= 2 ? "#F59E0B" : "#EF4444" }}>{v || "—"}</span></td>; })}
+          {dims.map(d => { const v = m.scores[d] || 0; return <td key={d} className="px-2 py-2 text-center"><span className="inline-flex w-7 h-7 rounded-lg items-center justify-center text-[14px] font-bold" style={{ background: `${v >= 4 ? "var(--success)" : v >= 3 ? "var(--accent-primary)" : v >= 2 ? "var(--warning)" : "var(--risk)"}15`, color: v >= 4 ? "var(--success)" : v >= 3 ? "var(--accent-primary)" : v >= 2 ? "var(--warning)" : "var(--risk)" }}>{v || "—"}</span></td>; })}
           <td className="px-2 py-2 text-center font-extrabold text-[var(--text-primary)]">{m.average || "—"}</td>
           <td className="px-2 py-2 text-center"><Badge color={m.category === "Transformation Champion" ? "green" : m.category === "Needs Development" ? "amber" : m.category === "Flight Risk" ? "red" : "gray"}>{catIcons[m.category] || "✓"}</Badge></td>
         </tr>)}</tbody></table></div>
@@ -882,13 +883,13 @@ export function ManagerCapability({ model, f, onBack, onNavigate, viewCtx }: { m
    MODULE: CHANGE READINESS & ADOPTION
    ═══════════════════════════════════════════════════════════════ */
 export function ChangeReadiness({ model, f, onBack, onNavigate, viewCtx, simState }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext; simState?: { scenario: string; custom: boolean; custAdopt: number; custTimeline: number; investment: number } }) {
-  const [data, setData] = useState<Record<string, unknown> | null>(null);
+  const [data, setData] = useState<ChangeReadinessResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [crTab, setCrTab] = useState<"campaigns" | "activities" | "raci" | "messages" | "tracking">("campaigns");
 
   useEffect(() => { if (!model) return; setLoading(true); api.getChangeReadiness(model, f).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false)); }, [model, f.func, f.jf, f.sf, f.cl]);
 
-  const summary = (data?.summary || {}) as Record<string, unknown>;
+  const summary = data?.summary ?? { total_assessed: 0 };
   const total = Number(summary.total_assessed || 0);
 
   // Campaign state
@@ -1086,14 +1087,14 @@ export function ChangeReadiness({ model, f, onBack, onNavigate, viewCtx, simStat
    MODULE: MANAGER DEVELOPMENT TRACK
    ═══════════════════════════════════════════════════════════════ */
 export function ManagerDevelopment({ model, f, onBack, onNavigate, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext }) {
-  const [data, setData] = useState<Record<string, unknown> | null>(null);
+  const [data, setData] = useState<import("../../types/api").ManagerDevelopmentResponse | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => { if (!model) return; setLoading(true); api.getManagerDevelopment(model, f).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false)); }, [model, f.func, f.jf, f.sf, f.cl]);
 
-  const tracks = (data?.tracks || []) as { manager: string; category: string; average_score: number; direct_reports: number; weak_dimensions: string[]; interventions: { dimension: string; intervention: string; format: string; duration_weeks: number; cost: number }[]; role_in_change: string; total_cost: number; total_weeks: number }[];
-  const summary = (data?.summary || {}) as Record<string, unknown>;
-  const catColors: Record<string, string> = { "Transformation Champion": "#10B981", "Needs Development": "#F59E0B", "Flight Risk": "#EF4444" };
+  const tracks = data?.tracks ?? data?.plans ?? [];
+  const summary = data?.summary ?? {};
+  const catColors: Record<string, string> = { "Transformation Champion": "var(--success)", "Needs Development": "var(--warning)", "Flight Risk": "var(--risk)" };
   const catIcons: Record<string, string> = { "Transformation Champion": "🏆", "Needs Development": "📘", "Flight Risk": "⚠️" };
 
   if (!loading && tracks.length === 0) return <div>
@@ -1221,13 +1222,13 @@ export function AiRecommendationsEngine({ model, f, onBack, onNavigate, viewCtx 
         api.getReadiness(model, f),
       ]);
       const ctx = JSON.stringify({
-        employees: (overview as Record<string, unknown>)?.kpis,
-        func_distribution: ((overview as Record<string, unknown>)?.func_distribution as unknown[] || []).slice(0, 8),
-        top_tasks: ((priority as Record<string, unknown>)?.top10 as unknown[] || []).slice(0, 10),
-        summary: (priority as Record<string, unknown>)?.summary,
-        readiness_score: (readiness as Record<string, unknown>)?.score,
-        readiness_tier: (readiness as Record<string, unknown>)?.tier,
-        dimensions: (readiness as Record<string, unknown>)?.dimensions,
+        employees: overview.kpis,
+        func_distribution: (overview.func_distribution || []).slice(0, 8),
+        top_tasks: (priority.top10 || []).slice(0, 10),
+        summary: priority.summary,
+        readiness_score: readiness.score,
+        readiness_tier: readiness.tier,
+        dimensions: readiness.dimensions,
       }).slice(0, 4000);
 
       const raw = await callAI(
@@ -1259,7 +1260,7 @@ Rank by impact score (0-100). Make recommendations specific to this org's data, 
     .sort((a, b) => sortBy === "impact" ? b.impact - a.impact : (a.effort === "Low" ? 0 : a.effort === "Medium" ? 1 : 2) - (b.effort === "Low" ? 0 : b.effort === "Medium" ? 1 : 2));
 
   const effortColor = (e: string) => e === "Low" ? "green" : e === "Medium" ? "amber" : "red";
-  const impactGradient = (score: number) => score >= AI_READINESS_HIGH ? "from-[#D4860A] to-[#E8C547]" : score >= AI_READINESS_MEDIUM ? "from-[#C07030] to-[#D4860A]" : "from-[#A0522D] to-[#C07030]";
+  const impactGradient = (score: number) => score >= AI_READINESS_HIGH ? "from-[var(--accent-primary)] to-[var(--warning)]" : score >= AI_READINESS_MEDIUM ? "from-[var(--teal)] to-[var(--accent-primary)]" : "from-[var(--teal)] to-[var(--teal)]";
 
   return <div>
     <ContextStrip items={["AI-powered recommendations based on your workforce data, readiness scores, and task analysis."]} />
@@ -1273,7 +1274,7 @@ Rank by impact score (0-100). Make recommendations specific to this org's data, 
           AI will analyze your workforce data, AI readiness scores, and task-level impact analysis to generate
           ranked, actionable recommendations for your AI transformation journey.
         </p>
-        <button onClick={generate} className="px-8 py-3 rounded-2xl text-[14px] font-bold text-white transition-all hover:translate-y-[-2px] hover:shadow-lg" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", boxShadow: "var(--shadow-2)" }}>
+        <button onClick={generate} className="px-8 py-3 rounded-2xl text-[14px] font-bold text-white transition-all hover:translate-y-[-2px] hover:shadow-lg" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", boxShadow: "var(--shadow-2)" }}>
           🤖 Generate Recommendations
         </button>
       </div>
@@ -1359,10 +1360,12 @@ export function OrgHealthScorecard({ model, f, onBack, onNavigate, viewCtx }: { 
   const [benchIndustry, setBenchIndustry] = useState("technology");
   const [benchData, setBenchData] = useState<Record<string, Record<string, number | string>> | null>(null);
 
-  const kpis = (orgData as Record<string, unknown>)?.kpis as Record<string, number> || {};
-  const ovKpis = (overviewData as Record<string, unknown>)?.kpis as Record<string, unknown> || {};
-  const layers = ((orgData as Record<string, unknown>)?.layers || []) as { name: string; value: number }[];
-  const funcDist = ((overviewData as Record<string, unknown>)?.func_distribution || []) as { name: string; value: number }[];
+  const orgTyped = orgData as unknown as OrgDiagnosticsResponse | null;
+  const ovTyped = overviewData as unknown as OverviewResponse | null;
+  const kpis = orgTyped?.kpis ?? { total: 0, managers: 0, ics: 0, avg_span: 0, max_span: 0, layers: 0 };
+  const ovKpis = ovTyped?.kpis ?? { employees: 0, roles: 0, tasks_mapped: 0, avg_span: 0, high_ai_pct: 0, readiness_score: 0, readiness_tier: "" };
+  const layers = orgTyped?.layers ?? [];
+  const funcDist = ovTyped?.func_distribution ?? [];
   const empCount = Number(ovKpis.employees || 0);
 
   // Auto-detect industry from model name
@@ -1470,9 +1473,9 @@ export function OrgHealthScorecard({ model, f, onBack, onNavigate, viewCtx }: { 
               <PolarGrid stroke="var(--border)" />
               <PolarAngleAxis dataKey="subject" tick={{ fontSize: 15, fill: "var(--text-muted)" }} />
               <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
-              <Radar name="Your Org" dataKey="yours" stroke="#D4860A" fill="#D4860A" fillOpacity={0.25} strokeWidth={2} />
+              <Radar name="Your Org" dataKey="yours" stroke="var(--accent-primary)" fill="var(--accent-primary)" fillOpacity={0.25} strokeWidth={2} />
               <Radar name="Industry Avg" dataKey="industry" stroke="#3B82F6" fill="#3B82F6" fillOpacity={0.08} strokeWidth={2} strokeDasharray="6 4" />
-              <Radar name="Best in Class" dataKey="best" stroke="#10B981" fill="#10B981" fillOpacity={0.05} strokeWidth={1.5} strokeDasharray="3 3" />
+              <Radar name="Best in Class" dataKey="best" stroke="var(--success)" fill="var(--success)" fillOpacity={0.05} strokeWidth={1.5} strokeDasharray="3 3" />
               <Tooltip contentStyle={{ ...TT }} />
               <Legend wrapperStyle={{ fontSize: 15 }} />
             </RadarChart>
@@ -1523,7 +1526,7 @@ export function OrgHealthScorecard({ model, f, onBack, onNavigate, viewCtx }: { 
    ═══════════════════════════════════════════════════════════════ */
 
 export function AIImpactHeatmap({ model, f, onBack, onNavigate, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext }) {
-  const [data, setData] = useState<Record<string, unknown> | null>(null);
+  const [data, setData] = useState<AIHeatmapResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedCell, setSelectedCell] = useState<{function: string; family: string; score: number; impact: string; tasks: number; roles: string[]} | null>(null);
 
@@ -1533,9 +1536,9 @@ export function AIImpactHeatmap({ model, f, onBack, onNavigate, viewCtx }: { mod
     api.getAIHeatmap(model, f).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false));
   }, [model, f.func, f.jf, f.sf, f.cl]);
 
-  const cells = ((data as Record<string, unknown>)?.cells || []) as {function: string; family: string; score: number; impact: string; tasks: number; high_tasks: number; roles: string[]}[];
-  const functions = ((data as Record<string, unknown>)?.functions || []) as string[];
-  const families = ((data as Record<string, unknown>)?.families || []) as string[];
+  const cells = data?.cells ?? [];
+  const functions = data?.functions ?? [];
+  const families = data?.families ?? [];
 
   const cellColor = (score: number) => score >= IMPACT_SCORE_HIGH ? "rgba(239,68,68,0.7)" : score >= IMPACT_SCORE_MEDIUM ? "rgba(245,158,11,0.6)" : "rgba(16,185,129,0.5)";
   const getCell = (func: string, fam: string) => cells.find(c => c.function === func && c.family === fam);
@@ -1598,7 +1601,7 @@ export function AIImpactHeatmap({ model, f, onBack, onNavigate, viewCtx }: { mod
    ═══════════════════════════════════════════════════════════════ */
 
 export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext }) {
-  const [data, setData] = useState<Record<string, unknown> | null>(null);
+  const [data, setData] = useState<RoleClustersResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [expandedCluster, setExpandedCluster] = useState<number | null>(null);
 
@@ -1608,12 +1611,12 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
     api.getRoleClusters(model, f).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false));
   }, [model, f.func, f.jf, f.sf, f.cl]);
 
-  const clusters = ((data as Record<string, unknown>)?.clusters || []) as { name: string; function: string; family: string; roles: string[]; size: number; headcount: number; avg_overlap: number; consolidation_candidate: boolean; shared_skills: string[]; highest_pair: [string, string, number] | null }[];
-  const opportunities = ((data as Record<string, unknown>)?.opportunities || []) as { role_a: string; role_b: string; similarity: number; headcount_affected: number; estimated_savings: number; impact: string; risk: string }[];
-  const summary = ((data as Record<string, unknown>)?.summary || {}) as Record<string, unknown>;
-  const pairs = ((data as Record<string, unknown>)?.pairs || []) as { role_a: string; role_b: string; similarity: number }[];
+  const clusters = data?.clusters ?? [];
+  const opportunities = data?.opportunities ?? [];
+  const summary = data?.summary ?? {};
+  const pairs = data?.pairs ?? [];
 
-  const funcColors: Record<string, string> = { Technology: "#0891B2", Finance: "#D4860A", HR: "#8B5CF6", Operations: "#F59E0B", Marketing: "#EC4899", Legal: "#EF4444", Sales: "#6366F1", Product: "#10B981" };
+  const funcColors: Record<string, string> = { Technology: "#0891B2", Finance: "var(--accent-primary)", HR: "var(--purple)", Operations: "var(--warning)", Marketing: "#EC4899", Legal: "var(--risk)", Sales: "#6366F1", Product: "var(--success)" };
 
   return <div>
     <ContextStrip items={[clusters.length > 0 ? `${summary.total_clusters || clusters.length} clusters · ${summary.consolidation_opportunities || 0} consolidation opportunities · ${summary.roles_affected || 0} roles affected` : "Analyzing role similarity..."]} />

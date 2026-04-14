@@ -190,3 +190,8 @@ export function useToast() {
   }, [toasts, remove]);
   return { toast: add, ToastContainer };
 }
+
+/** Extract stable dependency array from model + filters — replaces 20+ manual [model, f.func, f.jf, f.sf, f.cl] arrays */
+export function useFilterDeps(model: string, f: { func: string; jf: string; sf: string; cl: string }): [string, string, string, string, string] {
+  return [model, f.func, f.jf, f.sf, f.cl];
+}

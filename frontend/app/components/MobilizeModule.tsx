@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import * as api from "../../lib/api";
 import type { Filters } from "../../lib/api";
+import type { ReskillingPathwaysResponse, TalentMarketplaceResponse, RoadmapResponse, RoadmapSummary, ChangeReadinessResponse } from "../../types/api";
 import { fmt } from "../../lib/formatters";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Legend, CartesianGrid } from "recharts";
 import {
@@ -27,7 +28,7 @@ type Pathway = {
 };
 
 export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobStates, simState }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext; jobStates?: Record<string, JobDesignState>; simState?: { scenario: string; custom: boolean; custAdopt: number; custTimeline: number; investment: number } }) {
-  const [data, setData] = useState<Record<string, unknown> | null>(null);
+  const [data, setData] = useState<ReskillingPathwaysResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
 
@@ -40,7 +41,7 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
   useEffect(() => { if (!model) return; setLoading(true); api.getReskillingPathways(model, f).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false)); }, [model, f.func, f.jf, f.sf, f.cl]);
 
   const allPathways = (data?.pathways || []) as Pathway[];
-  const summary = (data?.summary || {}) as Record<string, unknown>;
+  const summary = data?.summary ?? {};
 
   // Dynamic filter options from data
   const funcOptions = useMemo(() => [...new Set(allPathways.map(p => p.function).filter(Boolean))].sort(), [allPathways]);
@@ -85,7 +86,7 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
   const endIdx = Math.min(filtered.length, startIdx + visibleCount + 4);
   const visibleSlice = filtered.slice(startIdx, endIdx);
 
-  const priColor = (p: string) => p === "High" ? "var(--risk)" : p === "Medium" ? "#F59E0B" : "var(--success)";
+  const priColor = (p: string) => p === "High" ? "var(--risk)" : p === "Medium" ? "var(--warning)" : "var(--success)";
   const priBg = (p: string) => p === "High" ? "rgba(239,68,68,0.1)" : p === "Medium" ? "rgba(245,158,11,0.1)" : "rgba(16,185,129,0.1)";
 
   // Toggle chip helper
@@ -149,7 +150,7 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
                   <div className="text-[11px] text-[var(--text-muted)] truncate">{p.current_role}{p.target_role !== p.current_role ? ` → ${p.target_role}` : ""}</div>
                 </div>
                 <span className="px-1.5 py-0.5 rounded text-[10px] font-bold shrink-0" style={{ background: priBg(p.priority), color: priColor(p.priority) }}>{p.priority}</span>
-                <div className="w-8 text-center shrink-0"><div className="text-[12px] font-bold" style={{ color: p.readiness_score >= 70 ? "var(--success)" : p.readiness_score >= 40 ? "#F59E0B" : "var(--risk)" }}>{p.readiness_score}</div><div className="text-[9px] text-[var(--text-muted)]">ready</div></div>
+                <div className="w-8 text-center shrink-0"><div className="text-[12px] font-bold" style={{ color: p.readiness_score >= 70 ? "var(--success)" : p.readiness_score >= 40 ? "var(--warning)" : "var(--risk)" }}>{p.readiness_score}</div><div className="text-[9px] text-[var(--text-muted)]">ready</div></div>
                 <div className="w-10 text-right shrink-0 text-[11px] text-[var(--text-muted)]">{p.total_months > 0 ? `${p.total_months}mo` : "—"}</div>
               </div>;
             })}
@@ -165,7 +166,7 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
 
           {/* Priority distribution */}
           <div className="grid grid-cols-3 gap-3 mb-5">
-            {[{ label: "High Priority", count: fHigh, color: "var(--risk)" }, { label: "Medium Priority", count: fMed, color: "#F59E0B" }, { label: "Low Priority", count: fLow, color: "var(--success)" }].map(t => <div key={t.label} className="rounded-xl p-4 text-center border border-[var(--border)]">
+            {[{ label: "High Priority", count: fHigh, color: "var(--risk)" }, { label: "Medium Priority", count: fMed, color: "var(--warning)" }, { label: "Low Priority", count: fLow, color: "var(--success)" }].map(t => <div key={t.label} className="rounded-xl p-4 text-center border border-[var(--border)]">
               <div className="text-[12px] font-bold uppercase tracking-wider mb-1" style={{ color: t.color }}>{t.label}</div>
               <div className="text-[24px] font-extrabold text-[var(--text-primary)]">{fmt(t.count)}</div>
               <div className="text-[11px] text-[var(--text-muted)]">{filtered.length > 0 ? Math.round(t.count / filtered.length * 100) : 0}%</div>
@@ -199,8 +200,8 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
               <div className="text-[13px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Avg Readiness by Function</div>
               {funcs.map(fn => <div key={fn.fn} className="flex items-center gap-3 mb-1.5">
                 <span className="text-[12px] text-[var(--text-primary)] font-semibold w-32 truncate shrink-0">{fn.fn}</span>
-                <div className="flex-1 h-2 bg-[var(--surface-3)] rounded-full overflow-hidden"><div className="h-full rounded-full" style={{ width: `${fn.avg}%`, background: fn.avg >= 70 ? "var(--success)" : fn.avg >= 40 ? "#F59E0B" : "var(--risk)" }} /></div>
-                <span className="text-[12px] font-bold w-8 text-right" style={{ color: fn.avg >= 70 ? "var(--success)" : fn.avg >= 40 ? "#F59E0B" : "var(--risk)" }}>{fn.avg}</span>
+                <div className="flex-1 h-2 bg-[var(--surface-3)] rounded-full overflow-hidden"><div className="h-full rounded-full" style={{ width: `${fn.avg}%`, background: fn.avg >= 70 ? "var(--success)" : fn.avg >= 40 ? "var(--warning)" : "var(--risk)" }} /></div>
+                <span className="text-[12px] font-bold w-8 text-right" style={{ color: fn.avg >= 70 ? "var(--success)" : fn.avg >= 40 ? "var(--warning)" : "var(--risk)" }}>{fn.avg}</span>
               </div>)}
             </div>;
           })()}
@@ -236,7 +237,7 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
             </div>
             <div className="flex gap-2">
               <span className="px-2 py-0.5 rounded-full text-[11px] font-bold" style={{ background: priBg(selected.priority), color: priColor(selected.priority) }}>{selected.priority} Priority</span>
-              <span className="px-2 py-0.5 rounded-full text-[11px] font-bold" style={{ background: selected.readiness_score >= 70 ? "rgba(16,185,129,0.1)" : selected.readiness_score >= 40 ? "rgba(245,158,11,0.1)" : "rgba(239,68,68,0.1)", color: selected.readiness_score >= 70 ? "var(--success)" : selected.readiness_score >= 40 ? "#F59E0B" : "var(--risk)" }}>{selected.readiness_band} ({selected.readiness_score})</span>
+              <span className="px-2 py-0.5 rounded-full text-[11px] font-bold" style={{ background: selected.readiness_score >= 70 ? "rgba(16,185,129,0.1)" : selected.readiness_score >= 40 ? "rgba(245,158,11,0.1)" : "rgba(239,68,68,0.1)", color: selected.readiness_score >= 70 ? "var(--success)" : selected.readiness_score >= 40 ? "var(--warning)" : "var(--risk)" }}>{selected.readiness_band} ({selected.readiness_score})</span>
               <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[rgba(139,92,246,0.1)] text-[var(--purple)]">{selected.wave}</span>
             </div>
           </div>
@@ -253,7 +254,7 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
             </div>
             <div className="rounded-xl p-3 bg-[var(--surface-2)] border border-[var(--border)] text-center">
               <div className="text-[11px] text-[var(--text-muted)] uppercase">AI Impact</div>
-              <div className="text-[20px] font-extrabold" style={{ color: selected.ai_score >= 7 ? "var(--risk)" : selected.ai_score >= 4 ? "#F59E0B" : "var(--success)" }}>{fmt(selected.ai_score)}/10</div>
+              <div className="text-[20px] font-extrabold" style={{ color: selected.ai_score >= 7 ? "var(--risk)" : selected.ai_score >= 4 ? "var(--warning)" : "var(--success)" }}>{fmt(selected.ai_score)}/10</div>
             </div>
           </div>
 
@@ -263,12 +264,12 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
             <div className="space-y-2">{selected.skills_to_develop.map(s => <div key={s.skill} className="rounded-lg p-3 bg-[var(--surface-2)] border border-[var(--border)]">
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-[13px] font-bold text-[var(--text-primary)]">{s.skill}</span>
-                <span className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: s.intervention === "Course" ? "rgba(16,185,129,0.1)" : s.intervention === "Coaching" ? "rgba(245,158,11,0.1)" : "rgba(139,92,246,0.1)", color: s.intervention === "Course" ? "var(--success)" : s.intervention === "Coaching" ? "#F59E0B" : "var(--purple)" }}>{s.intervention} · {s.months}mo</span>
+                <span className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: s.intervention === "Course" ? "rgba(16,185,129,0.1)" : s.intervention === "Coaching" ? "rgba(245,158,11,0.1)" : "rgba(139,92,246,0.1)", color: s.intervention === "Course" ? "var(--success)" : s.intervention === "Coaching" ? "var(--warning)" : "var(--purple)" }}>{s.intervention} · {s.months}mo</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-bold w-6" style={{ color: "#F59E0B" }}>{s.current}</span>
+                <span className="text-[11px] font-bold w-6" style={{ color: "var(--warning)" }}>{s.current}</span>
                 <div className="flex-1 h-2 bg-[var(--surface-3)] rounded-full overflow-hidden relative">
-                  <div className="absolute inset-y-0 left-0 rounded-full bg-[#F59E0B]" style={{ width: `${(s.current / Math.max(s.target, 1)) * 100}%` }} />
+                  <div className="absolute inset-y-0 left-0 rounded-full bg-[var(--warning)]" style={{ width: `${(s.current / Math.max(s.target, 1)) * 100}%` }} />
                   <div className="absolute inset-y-0 left-0 rounded-full border-r-2 border-[var(--success)]" style={{ width: `${Math.min(100, (s.target / 5) * 100)}%`, borderStyle: "dashed" }} />
                 </div>
                 <span className="text-[11px] font-bold w-6 text-right" style={{ color: "var(--success)" }}>{s.target}</span>
@@ -301,7 +302,7 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
    ═══════════════════════════════════════════════════════════════ */
 
 export function TalentMarketplace({ model, f, onBack, onNavigate, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext }) {
-  const [data, setData] = useState<Record<string, unknown> | null>(null);
+  const [data, setData] = useState<TalentMarketplaceResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [shortlisted, setShortlisted] = usePersisted<Record<string, string[]>>(`${model}_mp_shortlist`, {});
 
@@ -425,11 +426,11 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
   const [aiChangePlan, setAiChangePlan] = useState<Record<string, unknown>[]>([]);
   // Gantt chart state
   const defaultGanttPhases = [
-    { id: "assess", label: "Assess", start: 0, duration: 3, color: "#D4860A", activities: ["Workforce baseline", "AI readiness scan", "Stakeholder mapping", "Risk assessment"], status: "on_track" as string },
-    { id: "design", label: "Design", start: 2, duration: 4, color: "#E8C547", activities: ["Role redesign", "Job architecture", "Operating model", "Skill gap analysis"], status: "on_track" as string },
-    { id: "pilot", label: "Pilot", start: 5, duration: 3, color: "#C07030", activities: ["Wave 1 rollout", "Training delivery", "Tool deployment", "Feedback collection"], status: "not_started" as string },
-    { id: "scale", label: "Scale", start: 7, duration: 5, color: "#D97706", activities: ["Wave 2-3 rollout", "Process optimization", "Manager development", "Performance tracking"], status: "not_started" as string },
-    { id: "sustain", label: "Sustain", start: 11, duration: 4, color: "#B8602A", activities: ["Continuous improvement", "Capability maturity", "Knowledge transfer", "BAU transition"], status: "not_started" as string },
+    { id: "assess", label: "Assess", start: 0, duration: 3, color: "var(--accent-primary)", activities: ["Workforce baseline", "AI readiness scan", "Stakeholder mapping", "Risk assessment"], status: "on_track" as string },
+    { id: "design", label: "Design", start: 2, duration: 4, color: "var(--warning)", activities: ["Role redesign", "Job architecture", "Operating model", "Skill gap analysis"], status: "on_track" as string },
+    { id: "pilot", label: "Pilot", start: 5, duration: 3, color: "var(--teal)", activities: ["Wave 1 rollout", "Training delivery", "Tool deployment", "Feedback collection"], status: "not_started" as string },
+    { id: "scale", label: "Scale", start: 7, duration: 5, color: "var(--amber)", activities: ["Wave 2-3 rollout", "Process optimization", "Manager development", "Performance tracking"], status: "not_started" as string },
+    { id: "sustain", label: "Sustain", start: 11, duration: 4, color: "var(--teal)", activities: ["Continuous improvement", "Capability maturity", "Knowledge transfer", "BAU transition"], status: "not_started" as string },
   ];
   const [ganttPhases, setGanttPhases] = usePersisted<typeof defaultGanttPhases>(`${model}_ganttPhases`, defaultGanttPhases);
   const [ganttDuration, setGanttDuration] = useState(18);
@@ -444,24 +445,24 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
   type WsActivity = { id: string; activity: string; owner: string; status: string; priority: string; pct: number };
   type Workstream = { id: string; name: string; icon: string; color: string; collapsed: boolean; items: WsActivity[] };
   const defaultWorkstreams: Workstream[] = [
-    { id: "tech", name: "Technology", icon: "💻", color: "#D4860A", collapsed: false, items: [
+    { id: "tech", name: "Technology", icon: "💻", color: "var(--accent-primary)", collapsed: false, items: [
       { id: "t1", activity: "AI tool selection & procurement", owner: "CTO", status: "In Progress", priority: "High", pct: 40 },
       { id: "t2", activity: "Data pipeline modernization", owner: "VP Engineering", status: "Planned", priority: "High", pct: 0 },
       { id: "t3", activity: "Integration testing", owner: "QA Lead", status: "Not Started", priority: "Medium", pct: 0 },
       { id: "t4", activity: "Security review & compliance", owner: "CISO", status: "In Progress", priority: "High", pct: 30 },
     ]},
-    { id: "people", name: "People & Change", icon: "👥", color: "#C07030", collapsed: false, items: [
+    { id: "people", name: "People & Change", icon: "👥", color: "var(--teal)", collapsed: false, items: [
       { id: "p1", activity: "Reskilling program design", owner: "L&D Director", status: "In Progress", priority: "High", pct: 50 },
       { id: "p2", activity: "Change champion network activation", owner: "Change Lead", status: "Complete", priority: "High", pct: 100 },
       { id: "p3", activity: "Role transition planning", owner: "HRBPs", status: "Planned", priority: "Medium", pct: 0 },
       { id: "p4", activity: "Employee communication rollout", owner: "Comms Director", status: "In Progress", priority: "Medium", pct: 25 },
     ]},
-    { id: "process", name: "Process & Operations", icon: "⚙️", color: "#E8C547", collapsed: false, items: [
+    { id: "process", name: "Process & Operations", icon: "⚙️", color: "var(--warning)", collapsed: false, items: [
       { id: "r1", activity: "Process mapping & documentation", owner: "Process Excellence", status: "Complete", priority: "Medium", pct: 100 },
       { id: "r2", activity: "AI workflow design", owner: "Process Lead", status: "In Progress", priority: "High", pct: 60 },
       { id: "r3", activity: "Standard operating procedure updates", owner: "Operations", status: "Not Started", priority: "Medium", pct: 0 },
     ]},
-    { id: "gov", name: "Governance & Compliance", icon: "🏛️", color: "#D97706", collapsed: false, items: [
+    { id: "gov", name: "Governance & Compliance", icon: "🏛️", color: "var(--amber)", collapsed: false, items: [
       { id: "g1", activity: "AI governance framework", owner: "Chief Risk Officer", status: "In Progress", priority: "High", pct: 35 },
       { id: "g2", activity: "Decision rights matrix (RACI)", owner: "COO", status: "Planned", priority: "Medium", pct: 0 },
       { id: "g3", activity: "KPI & measurement framework", owner: "Strategy Lead", status: "Planned", priority: "Medium", pct: 0 },
@@ -496,7 +497,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
   // ── ADKAR state ──
   const ADKAR_DIMS = ["Awareness", "Desire", "Knowledge", "Ability", "Reinforcement"] as const;
   const ADKAR_GROUPS = ["Executives", "Senior Leaders", "Middle Managers", "Frontline Managers", "Tech ICs", "Finance ICs", "HR ICs", "Operations ICs"] as const;
-  const ADKAR_COLORS: Record<string, string> = { Awareness: "#D4860A", Desire: "#C07030", Knowledge: "#8B5CF6", Ability: "#10B981", Reinforcement: "#0891B2" };
+  const ADKAR_COLORS: Record<string, string> = { Awareness: "var(--accent-primary)", Desire: "var(--teal)", Knowledge: "var(--purple)", Ability: "var(--success)", Reinforcement: "#0891B2" };
   const ADKAR_RECS: Record<string, { title: string; actions: string[] }> = {
     Awareness: { title: "Build Awareness — Communicate the Why", actions: ["Host town halls explaining the business case for change", "Create FAQ documents addressing common concerns", "Share success stories from similar transformations", "Send personalized impact statements to each group", "Appoint visible executive sponsors who model the change narrative"] },
     Desire: { title: "Build Desire — Address What's In It For Me", actions: ["Involve resistors in co-designing the solution", "Identify and activate change champions in each team", "Address personal fears: job security, skill relevance, status", "Show career advancement opportunities in the new model", "Create incentives aligned with adoption (recognition, development)"] },
@@ -572,17 +573,16 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
         // Fetch change readiness data to inform the plan
         let readinessContext = "";
         try {
-          const crData = await api.getChangeReadiness(model);
-          const cr = crData as Record<string, unknown>;
-          const segments = cr?.segments as Record<string, unknown>[] | undefined;
+          const cr = await api.getChangeReadiness(model);
+          const segments = cr?.segments;
           if (segments?.length) {
-            const highRisk = segments.filter(s => String(s.quadrant || "").toLowerCase().includes("risk")).length;
-            const champions = segments.filter(s => String(s.quadrant || "").toLowerCase().includes("champion")).length;
+            const highRisk = segments.filter(s => String((s as Record<string, unknown>).quadrant || "").toLowerCase().includes("risk")).length;
+            const champions = segments.filter(s => String((s as Record<string, unknown>).quadrant || "").toLowerCase().includes("champion")).length;
             readinessContext = ` Change Readiness: ${highRisk} high-risk employees needing intensive support, ${champions} champions available as advocates.`;
           }
-          const summary = cr?.summary as Record<string, unknown> | undefined;
-          if (summary) {
-            readinessContext += ` Avg readiness: ${summary.avg_readiness || "—"}/5. High-impact segment: ${summary.high_impact_pct || "—"}%.`;
+          const crSummary = cr?.summary;
+          if (crSummary) {
+            readinessContext += ` Avg readiness: ${(crSummary as Record<string, unknown>).avg_readiness || "—"}/5. High-impact segment: ${(crSummary as Record<string, unknown>).high_impact_pct || "—"}%.`;
           }
         } catch (e) { console.error("[MobilizeModule] readiness context error", e); }
         const scenarioCtx = simState ? ` Active scenario: ${simState.scenario}${simState.custom ? ` (custom: ${simState.custAdopt}% adoption, ${simState.custTimeline}mo timeline, $${simState.investment} investment)` : ""}.` : "";
@@ -591,7 +591,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
           const initiatives = JSON.parse(raw.replace(/\`\`\`json\n?/g,"").replace(/\`\`\`\n?/g,"").trim());
           if (Array.isArray(initiatives)) setAiChangePlan(initiatives);
         } catch (e) { console.error("[MobilizeModule] AI change plan JSON parse error", e); }
-      }} className="px-4 py-2 rounded-lg text-[15px] font-semibold text-white shrink-0" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>☕ Auto-Build Plan</button>
+      }} className="px-4 py-2 rounded-lg text-[15px] font-semibold text-white shrink-0" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>☕ Auto-Build Plan</button>
     </div>}
     {aiChangePlan.length > 0 && sub === "road" && <Card title="☕ AI-Generated Change Plan">
       <div className="flex justify-end mb-2"><button onClick={() => setAiChangePlan([])} className="text-[15px] text-[var(--text-muted)] hover:text-[var(--risk)]">Clear Plan ✕</button></div>
@@ -652,9 +652,9 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
         </div>
       </div>
     </Card>}
-    {sub === "road" ? (() => { const d = data as Record<string, unknown> | null; const s = ((d?.summary ?? {}) as Record<string, unknown>);
-      const wd = ((d?.wave_distribution ?? {}) as Record<string, number>);
-      const waves = Object.entries(wd); const pd = ((d?.priority_distribution ?? {}) as Record<string, number>); return <div><div className="grid grid-cols-4 gap-3 mb-5"><KpiCard label="Initiatives" value={s.total as number ?? 0} accent /><KpiCard label="High Priority" value={s.high_priority as number ?? 0} /><KpiCard label="Waves" value={s.waves as number ?? 0} /><KpiCard label="Source" value={String(s.source ?? "—")} /></div>
+    {sub === "road" ? (() => { const d = data as unknown as RoadmapResponse | null; const s = (d?.summary ?? { total: 0, high_priority: 0, waves: 0, source: "" }) as RoadmapSummary;
+      const wd = (d?.wave_distribution ?? {}) as Record<string, number>;
+      const waves = Object.entries(wd); const pd = (d?.priority_distribution ?? {}) as Record<string, number>; return <div><div className="grid grid-cols-4 gap-3 mb-5"><KpiCard label="Initiatives" value={s.total ?? 0} accent /><KpiCard label="High Priority" value={s.high_priority ?? 0} /><KpiCard label="Waves" value={s.waves ?? 0} /><KpiCard label="Source" value={String(s.source ?? "—")} /></div>
       {/* Timeline visualization */}
       {waves.length > 0 && <Card title="Transformation Timeline">
         <div className="flex items-end gap-1 h-32 mb-2">{waves.map(([name, count], i) => <div key={name} className="flex-1 flex flex-col items-center justify-end">
@@ -677,7 +677,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
             </select>
           </div>
           <div className="flex gap-2 ml-auto">
-            <button onClick={() => { const id = `p${Date.now()}`; const colors = ["#D4860A","#E8C547","#C07030","#D97706","#B8602A","#8B5CF6"]; setGanttPhases(prev => [...prev, { id, label: "New Phase", start: Math.max(0, ...prev.map(p => p.start + p.duration)), duration: 2, color: colors[prev.length % colors.length], activities: ["Define activities..."], status: "not_started" }]); }} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 hover:bg-[var(--accent-primary)]/5 transition-all">+ Add Phase</button>
+            <button onClick={() => { const id = `p${Date.now()}`; const colors = ["var(--accent-primary)","var(--warning)","var(--teal)","var(--amber)","var(--teal)","var(--purple)"]; setGanttPhases(prev => [...prev, { id, label: "New Phase", start: Math.max(0, ...prev.map(p => p.start + p.duration)), duration: 2, color: colors[prev.length % colors.length], activities: ["Define activities..."], status: "not_started" }]); }} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 hover:bg-[var(--accent-primary)]/5 transition-all">+ Add Phase</button>
             <button onClick={() => { const id = `m${Date.now()}`; setGanttMilestones(prev => [...prev, { id, label: "New Milestone", month: 6 }]); }} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:border-[var(--accent-primary)]/30 transition-all">+ Milestone</button>
             {ganttEdited && <button onClick={() => setGanttPhases(defaultGanttPhases)} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">Reset</button>}
           </div>
@@ -689,7 +689,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
             {/* Milestones row */}
             <div className="flex mb-1 ml-32 relative h-6">
               {ganttMilestones.map(ms => <div key={ms.id} className="absolute flex flex-col items-center group" style={{ left: `${(ms.month / ganttDuration) * 100}%`, transform: "translateX(-50%)" }}>
-                <div style={{ width: 10, height: 10, background: "#EF4444", transform: "rotate(45deg)" }} />
+                <div style={{ width: 10, height: 10, background: "var(--risk)", transform: "rotate(45deg)" }} />
                 <div className="text-[13px] text-[var(--risk)] font-semibold whitespace-nowrap mt-1 opacity-70 group-hover:opacity-100">{ms.label}</div>
               </div>)}
             </div>
@@ -753,7 +753,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
             {/* Legend */}
             <div className="flex gap-4 mt-4 pt-3 border-t border-[var(--border)] flex-wrap">
               {ganttPhases.map(p => <div key={p.id} className="flex items-center gap-1.5 text-[14px] text-[var(--text-muted)]"><div className="w-3 h-2 rounded-sm" style={{ background: p.color }} />{p.label} ({p.duration}mo)</div>)}
-              <div className="flex items-center gap-1.5 text-[14px] text-[var(--text-muted)] ml-auto"><div style={{ width: 8, height: 8, background: "#EF4444", transform: "rotate(45deg)" }} /> Milestone</div>
+              <div className="flex items-center gap-1.5 text-[14px] text-[var(--text-muted)] ml-auto"><div style={{ width: 8, height: 8, background: "var(--risk)", transform: "rotate(45deg)" }} /> Milestone</div>
             </div>
           </div>
         </div>
@@ -787,7 +787,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
             <option value="All">All Statuses</option>{statuses.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
           <div className="ml-auto flex gap-2">
-            <button onClick={() => { const id = `ws${Date.now()}`; const colors = ["#8B5CF6","#D4860A","#C07030","#E8C547","#D97706"]; setWorkstreams(prev => [...prev, { id, name: "New Workstream", icon: "📋", color: colors[prev.length % colors.length], collapsed: false, items: [{ id: `${id}_a1`, activity: "Define activities...", owner: "TBD", status: "Not Started", priority: "Medium", pct: 0 }] }]); }} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30">+ Workstream</button>
+            <button onClick={() => { const id = `ws${Date.now()}`; const colors = ["var(--purple)","var(--accent-primary)","var(--teal)","var(--warning)","var(--amber)"]; setWorkstreams(prev => [...prev, { id, name: "New Workstream", icon: "📋", color: colors[prev.length % colors.length], collapsed: false, items: [{ id: `${id}_a1`, activity: "Define activities...", owner: "TBD", status: "Not Started", priority: "Medium", pct: 0 }] }]); }} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30">+ Workstream</button>
           </div>
         </div>
 
@@ -847,7 +847,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
           { id: "heatmap" as const, label: "Heatmap", icon: "🗺" },
           { id: "actions" as const, label: "Action Plan", icon: "📋" },
           { id: "track" as const, label: "Progress", icon: "📈" },
-        ]).map(v => <button key={v.id} onClick={() => setAdkarView(v.id)} className="flex-1 px-3 py-2 rounded-lg text-[14px] font-semibold transition-all" style={{ background: adkarView === v.id ? "rgba(212,134,10,0.12)" : "transparent", color: adkarView === v.id ? "#e09040" : "var(--text-muted)" }}>{v.icon} {v.label}</button>)}
+        ]).map(v => <button key={v.id} onClick={() => setAdkarView(v.id)} className="flex-1 px-3 py-2 rounded-lg text-[14px] font-semibold transition-all" style={{ background: adkarView === v.id ? "rgba(212,134,10,0.12)" : "transparent", color: adkarView === v.id ? "var(--accent-primary)" : "var(--text-muted)" }}>{v.icon} {v.label}</button>)}
       </div>
 
       {/* ─── ASSESSMENT ─── */}
@@ -962,7 +962,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
                 })));
                 setAdkarActions(actions);
                 showToast(`Generated ${actions.length} ADKAR actions`);
-              }} className="mt-3 w-full px-4 py-2 rounded-lg text-[14px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>Convert to Editable Action Plan</button>
+              }} className="mt-3 w-full px-4 py-2 rounded-lg text-[14px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>Convert to Editable Action Plan</button>
             </div>}
             {/* AI generate */}
             <button onClick={async () => {
@@ -974,7 +974,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
                 if (Array.isArray(actions)) { setAdkarActions(actions.map((a: Record<string, unknown>, i: number) => ({ ...a, id: `adkar_ai_${i}` })) as typeof adkarActions); showToast(`Generated ${actions.length} AI actions`); }
               } catch { showToast("AI couldn't complete the generation — try again"); }
               setAdkarAiGenerating(false);
-            }} disabled={adkarAiGenerating || barriers.length === 0} className="px-4 py-2 rounded-lg text-[14px] font-semibold text-white mb-4" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: adkarAiGenerating || barriers.length === 0 ? 0.4 : 1 }}>{adkarAiGenerating ? "Generating..." : "✨ AI Generate Actions"}</button>
+            }} disabled={adkarAiGenerating || barriers.length === 0} className="px-4 py-2 rounded-lg text-[14px] font-semibold text-white mb-4" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", opacity: adkarAiGenerating || barriers.length === 0 ? 0.4 : 1 }}>{adkarAiGenerating ? "Generating..." : "✨ AI Generate Actions"}</button>
           </>;
         })()}
         {/* Action table */}
@@ -1048,10 +1048,10 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
     {/* ═══ STAKEHOLDER MAP — Draggable ═══ */}
     {sub === "stakeholders" && (() => {
       const quads = [
-        { id: "manage", label: "Manage Closely", desc: "High Power + High Interest", color: "#EF4444", bg: "rgba(239,68,68,0.05)" },
-        { id: "satisfy", label: "Keep Satisfied", desc: "High Power + Low Interest", color: "#D4860A", bg: "rgba(212,134,10,0.05)" },
-        { id: "inform", label: "Keep Informed", desc: "Low Power + High Interest", color: "#D97706", bg: "rgba(217,119,6,0.05)" },
-        { id: "monitor", label: "Monitor", desc: "Low Power + Low Interest", color: "#10B981", bg: "rgba(16,185,129,0.05)" },
+        { id: "manage", label: "Manage Closely", desc: "High Power + High Interest", color: "var(--risk)", bg: "rgba(239,68,68,0.05)" },
+        { id: "satisfy", label: "Keep Satisfied", desc: "High Power + Low Interest", color: "var(--accent-primary)", bg: "rgba(212,134,10,0.05)" },
+        { id: "inform", label: "Keep Informed", desc: "Low Power + High Interest", color: "var(--amber)", bg: "rgba(217,119,6,0.05)" },
+        { id: "monitor", label: "Monitor", desc: "Low Power + Low Interest", color: "var(--success)", bg: "rgba(16,185,129,0.05)" },
       ];
       const sentColor = (s: string) => s === "Champion" || s === "Supportive" ? "var(--success)" : s === "Resistant" || s === "Opposed" ? "var(--risk)" : s === "Concerned" || s === "Cautious" ? "var(--warning)" : "var(--text-muted)";
       const handleDrop = (quadId: string, e: React.DragEvent) => {
@@ -1241,9 +1241,9 @@ export function TransformationStoryBuilder({ model, f, onBack, onNavigate, viewC
       const [overview, readiness, roadmap] = await Promise.all([
         api.getOverview(model, f), api.getReadiness(model, f), api.getRoadmap(model, f),
       ]);
-      const ovKpis = (overview as Record<string, unknown>)?.kpis as Record<string, unknown> || {};
-      const rdScore = (readiness as Record<string, unknown>)?.score || 0;
-      const rmSummary = ((roadmap as Record<string, unknown>)?.summary || {}) as Record<string, unknown>;
+      const ovKpis = overview.kpis;
+      const rdScore = readiness.score || 0;
+      const rmSummary = roadmap.summary;
       const toneGuide = tone === "board" ? "Formal, metric-heavy, suitable for board of directors" : tone === "allhands" ? "Inspiring, people-focused, suitable for all-hands meeting" : "ROI-focused, strategic, suitable for investor update";
       const raw = await callAI(
         `Write a 3-paragraph executive transformation narrative. Tone: ${toneGuide}. Return plain text, no markdown.`,
@@ -1276,7 +1276,7 @@ export function TransformationStoryBuilder({ model, f, onBack, onNavigate, viewC
       <div className="text-4xl mb-3 opacity-40">📖</div>
       <h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">Generate Your Transformation Story</h3>
       <p className="text-[15px] text-[var(--text-secondary)] mb-5 max-w-md mx-auto">AI will synthesize data from Overview, Diagnose, Simulate, and Mobilize into a polished executive narrative.</p>
-      <button onClick={generate} className="px-6 py-3 rounded-2xl text-[14px] font-bold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>📖 Generate Narrative</button>
+      <button onClick={generate} className="px-6 py-3 rounded-2xl text-[14px] font-bold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>📖 Generate Narrative</button>
     </div></Card>}
 
     {loading && <Card><div className="text-center py-12"><LoadingBar /><div className="text-[15px] text-[var(--text-secondary)] mt-4">Crafting your transformation story...</div></div></Card>}
@@ -1305,9 +1305,9 @@ export function ReadinessArchetypes({ model, f, onBack, onNavigate }: { model: s
   const [data] = useApiData(() => model ? api.getChangeReadiness(model, f) : Promise.resolve(null), [model, f.func, f.jf, f.sf, f.cl]);
 
   // Calculate archetype distribution from change readiness quadrant data
-  const readinessData = data as Record<string, unknown> | null;
-  const quadrants = (readinessData?.quadrants || null) as Record<string, Record<string, unknown>> | null;
-  const summary = (readinessData?.summary || {}) as Record<string, unknown>;
+  const readinessData = data as unknown as ChangeReadinessResponse | null;
+  const quadrants = (readinessData?.quadrants || null) as Record<string, { count: number }> | null;
+  const summary = readinessData?.summary ?? { total_assessed: 0 };
   const total = Number(summary.total_assessed || 0);
 
   // Map backend quadrants (willingness × ability) to archetypes:
@@ -1318,10 +1318,10 @@ export function ReadinessArchetypes({ model, f, onBack, onNavigate }: { model: s
   let earlyPct = 0, eagerPct = 0, skepticPct = 0, atriskPct = 0;
   const hasArchetypeData = quadrants !== null && total > 0;
   if (hasArchetypeData) {
-    const champCount = Number((quadrants.high_ready_high_impact as Record<string, unknown>)?.count || 0);
-    const supportCount = Number((quadrants.high_ready_low_impact as Record<string, unknown>)?.count || 0);
-    const monitorCount = Number((quadrants.low_ready_low_impact as Record<string, unknown>)?.count || 0);
-    const highRiskCount = Number((quadrants.low_ready_high_impact as Record<string, unknown>)?.count || 0);
+    const champCount = Number(quadrants.high_ready_high_impact?.count || 0);
+    const supportCount = Number(quadrants.high_ready_low_impact?.count || 0);
+    const monitorCount = Number(quadrants.low_ready_low_impact?.count || 0);
+    const highRiskCount = Number(quadrants.low_ready_high_impact?.count || 0);
     const t = Math.max(total, 1);
     earlyPct = Math.round(champCount / t * 100);
     eagerPct = Math.round(supportCount / t * 100);
@@ -1331,10 +1331,10 @@ export function ReadinessArchetypes({ model, f, onBack, onNavigate }: { model: s
 
   type Archetype = { id: string; label: string; icon: string; color: string; bgColor: string; desc: string; engagement: string[]; pct: number };
   const archetypes: Archetype[] = [
-    { id: "early", label: "Early Adopter", icon: "🚀", color: "#10B981", bgColor: "rgba(16,185,129,0.08)", desc: "High willingness + High ability — your champions", engagement: ["Empower as peer trainers and AI ambassadors", "Give early access to new AI tools", "Feature in internal success stories", "Involve in design decisions as co-creators"], pct: earlyPct },
-    { id: "eager", label: "Eager Learner", icon: "📚", color: "#D4860A", bgColor: "rgba(212,134,10,0.08)", desc: "High willingness + Low ability — motivated but need upskilling", engagement: ["Prioritize for training programs", "Pair with Early Adopters as mentors", "Provide sandbox environments", "Celebrate learning milestones"], pct: eagerPct },
-    { id: "skeptic", label: "Skeptic with Expertise", icon: "🔍", color: "#F59E0B", bgColor: "rgba(245,158,11,0.08)", desc: "Low willingness + High ability — critical group with deep knowledge", engagement: ["Involve in design decisions (ownership, not orders)", "Address specific concerns directly with data", "Position as quality gatekeepers for AI outputs", "Respect their expertise — they see risks others miss"], pct: skepticPct },
-    { id: "atrisk", label: "At-Risk Anchor", icon: "⚠️", color: "#EF4444", bgColor: "rgba(239,68,68,0.08)", desc: "Low willingness + Low ability — highest intervention need", engagement: ["One-on-one career conversations", "Clear personal impact assessment", "Explore redeployment options early", "Connect with support resources (EAP, coaching)"], pct: atriskPct },
+    { id: "early", label: "Early Adopter", icon: "🚀", color: "var(--success)", bgColor: "rgba(16,185,129,0.08)", desc: "High willingness + High ability — your champions", engagement: ["Empower as peer trainers and AI ambassadors", "Give early access to new AI tools", "Feature in internal success stories", "Involve in design decisions as co-creators"], pct: earlyPct },
+    { id: "eager", label: "Eager Learner", icon: "📚", color: "var(--accent-primary)", bgColor: "rgba(212,134,10,0.08)", desc: "High willingness + Low ability — motivated but need upskilling", engagement: ["Prioritize for training programs", "Pair with Early Adopters as mentors", "Provide sandbox environments", "Celebrate learning milestones"], pct: eagerPct },
+    { id: "skeptic", label: "Skeptic with Expertise", icon: "🔍", color: "var(--warning)", bgColor: "rgba(245,158,11,0.08)", desc: "Low willingness + High ability — critical group with deep knowledge", engagement: ["Involve in design decisions (ownership, not orders)", "Address specific concerns directly with data", "Position as quality gatekeepers for AI outputs", "Respect their expertise — they see risks others miss"], pct: skepticPct },
+    { id: "atrisk", label: "At-Risk Anchor", icon: "⚠️", color: "var(--risk)", bgColor: "rgba(239,68,68,0.08)", desc: "Low willingness + Low ability — highest intervention need", engagement: ["One-on-one career conversations", "Clear personal impact assessment", "Explore redeployment options early", "Connect with support resources (EAP, coaching)"], pct: atriskPct },
   ];
 
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -1430,7 +1430,7 @@ function forceSimulate(nodes: SimNode[], edges: GraphEdge[], width: number, heig
   }
 }
 
-const CATEGORY_COLORS: Record<string, string> = { Technology: "#0891B2", Finance: "#D4860A", HR: "#8B5CF6", Operations: "#F59E0B", Product: "#10B981", "Sales & Marketing": "#EC4899", Marketing: "#EC4899", Sales: "#6366F1", General: "#888", Legal: "#EF4444" };
+const CATEGORY_COLORS: Record<string, string> = { Technology: "#0891B2", Finance: "var(--accent-primary)", HR: "var(--purple)", Operations: "var(--warning)", Product: "var(--success)", "Sales & Marketing": "#EC4899", Marketing: "#EC4899", Sales: "#6366F1", General: "#888", Legal: "var(--risk)" };
 
 export function SkillsNetwork({ model, f, onBack, onNavigate }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void }) {
   const [graph, setGraph] = useState<{ nodes: GraphNode[]; edges: GraphEdge[]; stats?: Record<string, unknown> } | null>(null);
@@ -1547,7 +1547,7 @@ export function SkillsNetwork({ model, f, onBack, onNavigate }: { model: string;
                 {skillOptions.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
             </div>
-            <button onClick={findPath} disabled={pathLoading || !pathSource || !pathTarget} className="w-full py-2 rounded-xl text-[13px] font-bold text-white transition-all disabled:opacity-40" style={{ background: "linear-gradient(135deg, #D4860A, #C07030)" }}>{pathLoading ? "Finding..." : "Find Path →"}</button>
+            <button onClick={findPath} disabled={pathLoading || !pathSource || !pathTarget} className="w-full py-2 rounded-xl text-[13px] font-bold text-white transition-all disabled:opacity-40" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>{pathLoading ? "Finding..." : "Find Path →"}</button>
           </div>
 
           {/* Path results */}
@@ -1566,7 +1566,7 @@ export function SkillsNetwork({ model, f, onBack, onNavigate }: { model: string;
               <div className="flex items-center gap-2 py-1.5">
                 <div className="w-3 h-3 rounded-full" style={{ background: i === pathResult.steps.length - 1 ? "var(--accent-primary)" : "var(--surface-3)", border: `2px solid ${i === pathResult.steps.length - 1 ? "var(--accent-primary)" : "var(--border)"}` }} />
                 <span className="text-[12px] font-bold text-[var(--text-primary)]">{step.to_skill}</span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: step.learning_approach === "build" ? "rgba(16,185,129,0.1)" : step.learning_approach === "borrow" ? "rgba(245,158,11,0.1)" : "rgba(239,68,68,0.1)", color: step.learning_approach === "build" ? "var(--success)" : step.learning_approach === "borrow" ? "#F59E0B" : "var(--risk)" }}>{step.learning_approach}</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: step.learning_approach === "build" ? "rgba(16,185,129,0.1)" : step.learning_approach === "borrow" ? "rgba(245,158,11,0.1)" : "rgba(239,68,68,0.1)", color: step.learning_approach === "build" ? "var(--success)" : step.learning_approach === "borrow" ? "var(--warning)" : "var(--risk)" }}>{step.learning_approach}</span>
               </div>
             </div>)}</div>
             <div className="mt-3 p-3 rounded-lg bg-[var(--surface-2)] border border-[var(--border)]">
@@ -1586,7 +1586,7 @@ export function SkillsNetwork({ model, f, onBack, onNavigate }: { model: string;
           return <Card title={node.name}>
             <div className="grid grid-cols-3 gap-2 mb-3">
               <div className="text-center p-2 rounded-lg bg-[var(--surface-2)]"><div className="text-[16px] font-extrabold text-[var(--accent-primary)]">{node.employee_count}</div><div className="text-[10px] text-[var(--text-muted)]">employees</div></div>
-              <div className="text-center p-2 rounded-lg bg-[var(--surface-2)]"><div className="text-[16px] font-extrabold" style={{ color: node.ai_relevance >= 7 ? "var(--risk)" : node.ai_relevance >= 4 ? "#F59E0B" : "var(--success)" }}>{node.ai_relevance}</div><div className="text-[10px] text-[var(--text-muted)]">AI relevance</div></div>
+              <div className="text-center p-2 rounded-lg bg-[var(--surface-2)]"><div className="text-[16px] font-extrabold" style={{ color: node.ai_relevance >= 7 ? "var(--risk)" : node.ai_relevance >= 4 ? "var(--warning)" : "var(--success)" }}>{node.ai_relevance}</div><div className="text-[10px] text-[var(--text-muted)]">AI relevance</div></div>
               <div className="text-center p-2 rounded-lg bg-[var(--surface-2)]"><div className="text-[16px] font-extrabold text-[var(--text-primary)]">{node.proficiency_avg}</div><div className="text-[10px] text-[var(--text-muted)]">avg prof.</div></div>
             </div>
             <div className="text-[11px] font-bold text-[var(--text-muted)] uppercase mb-1">Adjacent skills ({connections.length})</div>
@@ -1615,7 +1615,7 @@ export function SkillsNetwork({ model, f, onBack, onNavigate }: { model: string;
             const isPathEdge = pathEdgeSet.has(`${e.source}→${e.target}`);
             const dim = hasPath && !isPathEdge;
             return <line key={i} x1={a.x} y1={a.y} x2={b.x} y2={b.y}
-              stroke={isPathEdge ? "#D4860A" : e.overlap_type === "task" ? "rgba(8,145,178,0.3)" : "rgba(139,92,246,0.25)"}
+              stroke={isPathEdge ? "var(--accent-primary)" : e.overlap_type === "task" ? "rgba(8,145,178,0.3)" : "rgba(139,92,246,0.25)"}
               strokeWidth={isPathEdge ? 3 : Math.max(0.5, e.weight * 4)}
               opacity={dim ? 0.08 : 1}
             />;
@@ -1628,8 +1628,8 @@ export function SkillsNetwork({ model, f, onBack, onNavigate }: { model: string;
             const isHovered = hoveredNode === n.id;
             const dim = hasPath && !isPath;
             return <g key={n.id} onClick={() => { setSelectedNode(n.id === selectedNode ? null : n.id); }} onMouseEnter={() => setHoveredNode(n.id)} onMouseLeave={() => setHoveredNode(null)} className="cursor-pointer">
-              <circle cx={n.x} cy={n.y} r={r + 2} fill="none" stroke={isSelected ? "#D4860A" : isPath ? "#D4860A" : "none"} strokeWidth={isSelected ? 3 : 2} opacity={dim ? 0.15 : 1} />
-              <circle cx={n.x} cy={n.y} r={r} fill={isPath ? "#D4860A" : getNodeColor(n)} opacity={dim ? 0.15 : isHovered ? 1 : 0.85} />
+              <circle cx={n.x} cy={n.y} r={r + 2} fill="none" stroke={isSelected ? "var(--accent-primary)" : isPath ? "var(--accent-primary)" : "none"} strokeWidth={isSelected ? 3 : 2} opacity={dim ? 0.15 : 1} />
+              <circle cx={n.x} cy={n.y} r={r} fill={isPath ? "var(--accent-primary)" : getNodeColor(n)} opacity={dim ? 0.15 : isHovered ? 1 : 0.85} />
               {(isHovered || isSelected || isPath) && <text x={n.x} y={n.y - r - 4} textAnchor="middle" fill="var(--text-primary)" fontSize={10} fontWeight={700} fontFamily="Outfit, sans-serif">{n.name}</text>}
             </g>;
           })}

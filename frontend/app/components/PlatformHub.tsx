@@ -33,7 +33,7 @@ export function PlatformHub({ user, onBack, onUpdateUser }: { user: authApi.Auth
         <span className="group-hover:-translate-x-0.5 transition-transform">←</span> Back to Platform
       </button>
       <div className="flex items-center gap-2.5 mb-6 px-2">
-        <div style={{ width: 32, height: 32, borderRadius: 10, background: "linear-gradient(135deg, #e09040, #c07030)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 800, color: "#fff", fontFamily: "'Outfit', sans-serif" }}>AI</div>
+        <div style={{ width: 32, height: 32, borderRadius: 10, background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 800, color: "#fff", fontFamily: "'Outfit', sans-serif" }}>AI</div>
         <div>
           <div className="text-[15px] font-bold" style={{ color: "rgba(255,245,235,0.9)" }}>Platform Hub</div>
           <div className="text-[14px]" style={{ color: "rgba(212,134,10,0.4)" }}>v4.0</div>
@@ -42,7 +42,7 @@ export function PlatformHub({ user, onBack, onUpdateUser }: { user: authApi.Auth
       <div className="space-y-0.5 relative">
         {tabs.map(t => {
           const active = tab === t.id;
-          return <button key={t.id} onClick={() => setTab(t.id)} className="w-full text-left px-3 py-2.5 rounded-xl text-[15px] transition-all flex items-center gap-2.5 relative" style={{ background: active ? "rgba(212,134,10,0.1)" : "transparent", color: active ? "#e09040" : "rgba(255,230,200,0.35)", fontWeight: active ? 600 : 400, borderLeft: active ? "3px solid #D4860A" : "3px solid transparent" }} onMouseEnter={e => { if (!active) e.currentTarget.style.color = "rgba(255,230,200,0.6)"; }} onMouseLeave={e => { if (!active) e.currentTarget.style.color = "rgba(255,230,200,0.35)"; }}>
+          return <button key={t.id} onClick={() => setTab(t.id)} className="w-full text-left px-3 py-2.5 rounded-xl text-[15px] transition-all flex items-center gap-2.5 relative" style={{ background: active ? "rgba(212,134,10,0.1)" : "transparent", color: active ? "var(--accent-primary)" : "rgba(255,230,200,0.35)", fontWeight: active ? 600 : 400, borderLeft: active ? "3px solid var(--accent-primary)" : "3px solid transparent" }} onMouseEnter={e => { if (!active) e.currentTarget.style.color = "rgba(255,230,200,0.6)"; }} onMouseLeave={e => { if (!active) e.currentTarget.style.color = "rgba(255,230,200,0.35)"; }}>
             <span className="text-[15px]">{t.icon}</span>{t.label}
           </button>;
         })}
@@ -105,7 +105,7 @@ function AccountTab({ user, onUpdate }: { user: authApi.AuthUser; onUpdate: (u: 
     {/* Profile hero card */}
     <div className="rounded-2xl p-6 mb-6" style={{ background: "linear-gradient(135deg, rgba(212,134,10,0.08), rgba(192,112,48,0.04))", border: "1px solid rgba(212,134,10,0.12)" }}>
       <div className="flex items-center gap-5 mb-5">
-        <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-[28px] font-bold text-white shrink-0" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", fontFamily: "'Outfit',sans-serif", boxShadow: "var(--shadow-3)" }}>{(dn || "U")[0].toUpperCase()}</div>
+        <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-[28px] font-bold text-white shrink-0" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", fontFamily: "'Outfit',sans-serif", boxShadow: "var(--shadow-3)" }}>{(dn || "U")[0].toUpperCase()}</div>
         <div>
           <div className="text-[18px] font-bold text-[var(--text-primary)] font-heading">{user.username}</div>
           <div className="flex gap-4 mt-1.5 text-[15px] font-data" style={{ color: "rgba(212,134,10,0.5)" }}>
@@ -134,7 +134,7 @@ function AccountTab({ user, onUpdate }: { user: authApi.AuthUser; onUpdate: (u: 
       </div>
     </div>
 
-    <button onClick={save} disabled={saving} className="px-8 py-3 rounded-xl text-[15px] font-semibold text-white transition-all hover:translate-y-[-1px] disabled:opacity-50" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", boxShadow: "var(--shadow-2)" }}>{saving ? "Saving..." : "Save Changes"}</button>
+    <button onClick={save} disabled={saving} className="px-8 py-3 rounded-xl text-[15px] font-semibold text-white transition-all hover:translate-y-[-1px] disabled:opacity-50" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", boxShadow: "var(--shadow-2)" }}>{saving ? "Saving..." : "Save Changes"}</button>
   </div>;
 }
 
@@ -144,9 +144,9 @@ function AboutTab() {
   useEffect(() => { const t = setInterval(() => setQuoteIdx(p => (p + 1) % 3), 12000); return () => clearInterval(t); }, []);
 
   const quotes = [
-    { q: "What factors do you attribute to your success and advancement in your career?", text: "This might seem clich\u00E9, but I\u2019ve found that the most successful people are those who find opportunity even in challenging situations, and when they encounter adversity, they\u2019re able to have resilience coupled with a positive mindset. That not only allows you to figure out how to solve for something, but you also inspire others to work through change. That outlook really helped me over the course of my career. Change is a constant in today\u2019s world, so having a muscle for it that I\u2019ve built over time has helped me accept change as part of the everyday equation.", author: "Stephanie Penner", accent: "#D4860A" },
+    { q: "What factors do you attribute to your success and advancement in your career?", text: "This might seem clich\u00E9, but I\u2019ve found that the most successful people are those who find opportunity even in challenging situations, and when they encounter adversity, they\u2019re able to have resilience coupled with a positive mindset. That not only allows you to figure out how to solve for something, but you also inspire others to work through change. That outlook really helped me over the course of my career. Change is a constant in today\u2019s world, so having a muscle for it that I\u2019ve built over time has helped me accept change as part of the everyday equation.", author: "Stephanie Penner", accent: "var(--accent-primary)" },
     { q: "What are the most important qualities you look for in people and leaders?", text: "I look for a whole bunch of things. They have to be smart, they have to have good judgment, they have to work hard\u2026 they have to be capable. But character is a sine qua non \u2014 an absolute necessity. They tell the truth, and nothing but the truth. They don\u2019t shave the truth. They don\u2019t twist it depending on who they\u2019re talking to. They have courage \u2014 they\u2019re not afraid to speak up. They care about the company, not just themselves.", author: "Jamie Dimon, Chairman & CEO, JPMorgan Chase", accent: "#3B82F6" },
-    { q: "On preparation and excellence", text: "You have to take responsibility for your job. You have to do the work ahead of time. You can\u2019t just show up and expect things to work out. Always be prepared. Because you never know when you\u2019re going to be tested. It could be in a meeting, it could be when someone asks you a question, it could be when you least expect it. And if you\u2019re not prepared, it\u2019s going to show. People will know.", author: "Jim Donovan, Vice Chairman, Goldman Sachs", accent: "#C07030" },
+    { q: "On preparation and excellence", text: "You have to take responsibility for your job. You have to do the work ahead of time. You can\u2019t just show up and expect things to work out. Always be prepared. Because you never know when you\u2019re going to be tested. It could be in a meeting, it could be when someone asks you a question, it could be when you least expect it. And if you\u2019re not prepared, it\u2019s going to show. People will know.", author: "Jim Donovan, Vice Chairman, Goldman Sachs", accent: "var(--teal)" },
   ];
   const cur = quotes[quoteIdx];
 
@@ -155,7 +155,7 @@ function AboutTab() {
   return <div style={{ fontFamily: "'DM Sans', 'Outfit', sans-serif" }}>
 
     {/* ═══ SECTION 1: HERO — Full-width, video bg, centred typography ═══ */}
-    <div className="relative overflow-hidden flex items-center justify-center" style={{ minHeight: 420, background: "linear-gradient(160deg, #1a0c00 0%, #3d2000 30%, #C07030 60%, #D4860A 85%, #E8C547 100%)" }}>
+    <div className="relative overflow-hidden flex items-center justify-center" style={{ minHeight: 420, background: "linear-gradient(160deg, #1a0c00 0%, #3d2000 30%, var(--teal) 60%, var(--accent-primary) 85%, var(--warning) 100%)" }}>
       {/* Subtle radial overlay */}
       <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 80%, rgba(0,0,0,0.35) 0%, transparent 60%)" }} />
       <div className="relative z-10 text-center px-8 py-16">
@@ -174,8 +174,8 @@ function AboutTab() {
         {/* Left: Bio (60%) */}
         <div style={{ flex: "0 0 58%", minWidth: 0 }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: "rgba(212,134,10,0.5)", textTransform: "uppercase", letterSpacing: 2.5, marginBottom: 12, fontFamily: "'IBM Plex Mono', monospace" }}>About</div>
-          <p style={{ fontSize: 18, lineHeight: 1.9, color: "rgba(255,230,200,0.55)", fontFamily: "'DM Sans', sans-serif" }}>Born in Montreal and raised in the mountains of Western North Carolina, Hiral is now based in <strong style={{ color: "#e09040" }}>New York</strong> as a Consultant at <strong style={{ color: "#e09040" }}>Mercer</strong>. He holds a Bachelor of Science from the University of North Carolina at Charlotte.</p>
-          <p style={{ fontSize: 18, lineHeight: 1.9, color: "rgba(255,230,200,0.55)", fontFamily: "'DM Sans', sans-serif", marginTop: 20 }}>Passionate about the intersection of <strong style={{ color: "#e09040" }}>AI and people</strong>, and the democratization of knowledge that enables a more confident workforce &mdash; this platform is a reflection of that mission. The AI Transformation Platform provides the analytical rigor of a top-tier consulting engagement in a self-service tool that any organization can use.</p>
+          <p style={{ fontSize: 18, lineHeight: 1.9, color: "rgba(255,230,200,0.55)", fontFamily: "'DM Sans', sans-serif" }}>Born in Montreal and raised in the mountains of Western North Carolina, Hiral is now based in <strong style={{ color: "var(--accent-primary)" }}>New York</strong> as a Consultant at <strong style={{ color: "var(--accent-primary)" }}>Mercer</strong>. He holds a Bachelor of Science from the University of North Carolina at Charlotte.</p>
+          <p style={{ fontSize: 18, lineHeight: 1.9, color: "rgba(255,230,200,0.55)", fontFamily: "'DM Sans', sans-serif", marginTop: 20 }}>Passionate about the intersection of <strong style={{ color: "var(--accent-primary)" }}>AI and people</strong>, and the democratization of knowledge that enables a more confident workforce &mdash; this platform is a reflection of that mission. The AI Transformation Platform provides the analytical rigor of a top-tier consulting engagement in a self-service tool that any organization can use.</p>
         </div>
         {/* Right: At a Glance (40%) */}
         <div style={{ flex: "0 0 38%", minWidth: 0, borderRadius: 20, padding: "32px 28px", background: "rgba(255,255,255,0.02)", backdropFilter: "blur(16px)", border: "1px solid rgba(212,134,10,0.1)", boxShadow: "0 4px 32px rgba(0,0,0,0.1)" }}>
@@ -188,7 +188,7 @@ function AboutTab() {
             { icon: "\u{1F4E7}", label: "merchanthiral@gmail.com" },
           ].map(item => <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16, fontSize: 16, color: "rgba(255,230,200,0.55)", fontFamily: "'DM Sans', sans-serif" }}>
             <span style={{ fontSize: 18, width: 24, textAlign: "center", flexShrink: 0 }}>{item.icon}</span>
-            {item.link ? <a href={item.link} target="_blank" rel="noopener noreferrer" style={{ color: "#e09040", textDecoration: "none" }}>{item.label}</a> : <span>{item.label}</span>}
+            {item.link ? <a href={item.link} target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent-primary)", textDecoration: "none" }}>{item.label}</a> : <span>{item.label}</span>}
           </div>)}
         </div>
       </div>
@@ -198,14 +198,14 @@ function AboutTab() {
     <div style={{ padding: "80px 48px 100px", background: "linear-gradient(180deg, transparent 0%, rgba(212,134,10,0.02) 50%, transparent 100%)" }}>
       <div className="text-center" style={{ marginBottom: 48 }}>
         <h2 style={{ fontSize: 34, fontWeight: 800, fontFamily: "'Outfit', sans-serif", color: "rgba(255,245,235,0.9)", letterSpacing: "-0.5px", marginBottom: 8 }}>Words That Shape the Work</h2>
-        <div style={{ width: 64, height: 3, borderRadius: 2, background: "#D4860A", margin: "0 auto 12px" }} />
+        <div style={{ width: 64, height: 3, borderRadius: 2, background: "var(--accent-primary)", margin: "0 auto 12px" }} />
         <p style={{ fontSize: 16, color: "rgba(232,197,71,0.35)", fontFamily: "'DM Sans', sans-serif" }}>Three voices, one philosophy</p>
       </div>
 
       <div className="relative" style={{ maxWidth: 900, margin: "0 auto" }}>
         {/* Navigation arrows — large, visible */}
-        <button onClick={() => setQuoteIdx((quoteIdx + 2) % 3)} style={{ position: "absolute", left: -64, top: "50%", transform: "translateY(-50%)", width: 48, height: 48, borderRadius: 14, background: "rgba(255,255,255,0.04)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,200,150,0.1)", color: "rgba(255,230,200,0.4)", fontSize: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s", zIndex: 2 }} onMouseEnter={e => { e.currentTarget.style.color = "#D4860A"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.3)"; e.currentTarget.style.background = "rgba(212,134,10,0.08)"; }} onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,230,200,0.4)"; e.currentTarget.style.borderColor = "rgba(255,200,150,0.1)"; e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}>{"\u2190"}</button>
-        <button onClick={() => setQuoteIdx((quoteIdx + 1) % 3)} style={{ position: "absolute", right: -64, top: "50%", transform: "translateY(-50%)", width: 48, height: 48, borderRadius: 14, background: "rgba(255,255,255,0.04)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,200,150,0.1)", color: "rgba(255,230,200,0.4)", fontSize: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s", zIndex: 2 }} onMouseEnter={e => { e.currentTarget.style.color = "#D4860A"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.3)"; e.currentTarget.style.background = "rgba(212,134,10,0.08)"; }} onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,230,200,0.4)"; e.currentTarget.style.borderColor = "rgba(255,200,150,0.1)"; e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}>{"\u2192"}</button>
+        <button onClick={() => setQuoteIdx((quoteIdx + 2) % 3)} style={{ position: "absolute", left: -64, top: "50%", transform: "translateY(-50%)", width: 48, height: 48, borderRadius: 14, background: "rgba(255,255,255,0.04)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,200,150,0.1)", color: "rgba(255,230,200,0.4)", fontSize: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s", zIndex: 2 }} onMouseEnter={e => { e.currentTarget.style.color = "var(--accent-primary)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.3)"; e.currentTarget.style.background = "rgba(212,134,10,0.08)"; }} onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,230,200,0.4)"; e.currentTarget.style.borderColor = "rgba(255,200,150,0.1)"; e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}>{"\u2190"}</button>
+        <button onClick={() => setQuoteIdx((quoteIdx + 1) % 3)} style={{ position: "absolute", right: -64, top: "50%", transform: "translateY(-50%)", width: 48, height: 48, borderRadius: 14, background: "rgba(255,255,255,0.04)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,200,150,0.1)", color: "rgba(255,230,200,0.4)", fontSize: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s", zIndex: 2 }} onMouseEnter={e => { e.currentTarget.style.color = "var(--accent-primary)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.3)"; e.currentTarget.style.background = "rgba(212,134,10,0.08)"; }} onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,230,200,0.4)"; e.currentTarget.style.borderColor = "rgba(255,200,150,0.1)"; e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}>{"\u2192"}</button>
 
         {/* Glassmorphism quote card */}
         <div key={quoteIdx} className="relative overflow-hidden" style={{ padding: "48px 56px", borderRadius: 24, background: "rgba(255,255,255,0.03)", backdropFilter: "blur(20px)", border: `1px solid rgba(255,200,150,0.08)`, borderLeft: `4px solid ${cur.accent}`, boxShadow: "0 8px 48px rgba(0,0,0,0.15)", animation: "quoteFade 0.5s ease" }}>
@@ -218,7 +218,7 @@ function AboutTab() {
         </div>
 
         {/* Dots */}
-        <div className="flex justify-center gap-2.5" style={{ marginTop: 20 }}>{[0,1,2].map(i => <button key={i} onClick={() => setQuoteIdx(i)} style={{ width: i === quoteIdx ? 24 : 8, height: 8, borderRadius: 4, background: i === quoteIdx ? "#D4860A" : "rgba(255,255,255,0.06)", border: "none", cursor: "pointer", transition: "all 0.3s", padding: 0 }} />)}</div>
+        <div className="flex justify-center gap-2.5" style={{ marginTop: 20 }}>{[0,1,2].map(i => <button key={i} onClick={() => setQuoteIdx(i)} style={{ width: i === quoteIdx ? 24 : 8, height: 8, borderRadius: 4, background: i === quoteIdx ? "var(--accent-primary)" : "rgba(255,255,255,0.06)", border: "none", cursor: "pointer", transition: "all 0.3s", padding: 0 }} />)}</div>
         <style>{`@keyframes quoteFade { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }`}</style>
       </div>
     </div>
@@ -227,21 +227,21 @@ function AboutTab() {
     <div style={{ padding: "80px 48px 100px", maxWidth: 860, margin: "0 auto" }}>
       <div style={{ textAlign: "center", marginBottom: 48 }}>
         <h2 style={{ fontSize: 34, fontWeight: 800, fontFamily: "'Outfit', sans-serif", color: "rgba(255,245,235,0.9)", letterSpacing: "-0.5px", marginBottom: 8 }}>This Is About You</h2>
-        <div style={{ width: 64, height: 3, borderRadius: 2, background: "#D4860A", margin: "0 auto 12px" }} />
+        <div style={{ width: 64, height: 3, borderRadius: 2, background: "var(--accent-primary)", margin: "0 auto 12px" }} />
         <p style={{ fontSize: 16, color: "rgba(232,197,71,0.35)", fontFamily: "'DM Sans', sans-serif" }}>Why these principles define the transformation journey</p>
       </div>
 
       {/* Courage */}
       <p style={{ fontSize: 17, lineHeight: 1.9, color: "rgba(255,230,200,0.5)", fontFamily: "'DM Sans', sans-serif", marginBottom: 24 }}>At some point in your transformation journey, you{"\u2019"}re going to sit in a room with data that tells an uncomfortable truth. Maybe 40% of tasks in your largest function are automatable. Maybe your most tenured leaders hold the roles most exposed to AI disruption. In that moment, you have a choice &mdash; soften the message or tell the truth.</p>
 
-      <div style={{ padding: "24px 32px", borderRadius: 16, background: "rgba(212,134,10,0.04)", border: "1px solid rgba(212,134,10,0.1)", borderLeft: "4px solid #D4860A", marginBottom: 40 }}>
-        <p style={{ fontSize: 18, fontWeight: 600, color: "#e09040", fontFamily: "'Outfit', sans-serif", lineHeight: 1.7, margin: 0 }}>The organizations that transform successfully are led by people who choose truth. Not because it{"\u2019"}s easy, but because every decision built on incomplete truth compounds into a plan that doesn{"\u2019"}t work.</p>
+      <div style={{ padding: "24px 32px", borderRadius: 16, background: "rgba(212,134,10,0.04)", border: "1px solid rgba(212,134,10,0.1)", borderLeft: "4px solid var(--accent-primary)", marginBottom: 40 }}>
+        <p style={{ fontSize: 18, fontWeight: 600, color: "var(--accent-primary)", fontFamily: "'Outfit', sans-serif", lineHeight: 1.7, margin: 0 }}>The organizations that transform successfully are led by people who choose truth. Not because it{"\u2019"}s easy, but because every decision built on incomplete truth compounds into a plan that doesn{"\u2019"}t work.</p>
       </div>
 
       {/* Resilience */}
       <p style={{ fontSize: 17, lineHeight: 1.9, color: "rgba(255,230,200,0.5)", fontFamily: "'DM Sans', sans-serif", marginBottom: 24 }}>Transformation is not a single moment &mdash; it{"\u2019"}s an eighteen-month, sometimes three-year grind. Stakeholders will lose patience. Pilots won{"\u2019"}t show results fast enough. Employees will push back harder than expected. A champion will become a skeptic.</p>
 
-      <p style={{ fontSize: 17, lineHeight: 1.9, color: "rgba(255,230,200,0.5)", fontFamily: "'DM Sans', sans-serif", marginBottom: 24 }}>When 60% of your workforce scores as {"\u201C"}resistant to change{"\u201D"} in the readiness assessment, that{"\u2019"}s not a failure &mdash; that{"\u2019"}s a segmentation strategy. The resilience isn{"\u2019"}t in ignoring the data. It{"\u2019"}s in asking <strong style={{ color: "#e09040" }}>{"\u201C"}what does this tell me about what to do differently?{"\u201D"}</strong></p>
+      <p style={{ fontSize: 17, lineHeight: 1.9, color: "rgba(255,230,200,0.5)", fontFamily: "'DM Sans', sans-serif", marginBottom: 24 }}>When 60% of your workforce scores as {"\u201C"}resistant to change{"\u201D"} in the readiness assessment, that{"\u2019"}s not a failure &mdash; that{"\u2019"}s a segmentation strategy. The resilience isn{"\u2019"}t in ignoring the data. It{"\u2019"}s in asking <strong style={{ color: "var(--accent-primary)" }}>{"\u201C"}what does this tell me about what to do differently?{"\u201D"}</strong></p>
 
       <div style={{ padding: "24px 32px", borderRadius: 16, background: "rgba(59,130,246,0.04)", border: "1px solid rgba(59,130,246,0.1)", borderLeft: "4px solid #3B82F6", marginBottom: 40 }}>
         <p style={{ fontSize: 18, fontWeight: 600, color: "rgba(147,197,253,0.8)", fontFamily: "'Outfit', sans-serif", lineHeight: 1.7, margin: 0 }}>The consultants and HR leaders who deliver real transformation find opportunity in setbacks. A redesigned role rejected by the business is feedback, not defeat.</p>
@@ -250,7 +250,7 @@ function AboutTab() {
       {/* Preparation */}
       <p style={{ fontSize: 17, lineHeight: 1.9, color: "rgba(255,230,200,0.5)", fontFamily: "'DM Sans', sans-serif", marginBottom: 24 }}>Preparation is everything that separates a plan that gets funded from one that gets shelved. When your CEO asks {"\u201C"}what{"\u2019"}s the ROI?{"\u201D"} and you{"\u2019"}ve run the cost model with realistic assumptions, pressure-tested it across three scenarios, and can speak to skill gaps, reskilling costs, and timeline &mdash; you earn credibility. When you can{"\u2019"}t, you lose the room.</p>
 
-      <div style={{ padding: "24px 32px", borderRadius: 16, background: "rgba(192,112,48,0.04)", border: "1px solid rgba(192,112,48,0.1)", borderLeft: "4px solid #C07030", marginBottom: 40 }}>
+      <div style={{ padding: "24px 32px", borderRadius: 16, background: "rgba(192,112,48,0.04)", border: "1px solid rgba(192,112,48,0.1)", borderLeft: "4px solid var(--teal)", marginBottom: 40 }}>
         <p style={{ fontSize: 18, fontWeight: 600, color: "rgba(220,160,90,0.8)", fontFamily: "'Outfit', sans-serif", lineHeight: 1.7, margin: 0 }}>This platform exists so you{"\u2019"}re never caught unprepared. Every module is a layer of preparation &mdash; from the org health scorecard to the capacity waterfall to the stakeholder map.</p>
       </div>
 
@@ -260,7 +260,7 @@ function AboutTab() {
       {/* Closing & Why */}
       <div style={{ padding: "32px 36px", borderRadius: 20, background: "linear-gradient(135deg, rgba(212,134,10,0.04), rgba(232,197,71,0.02))", border: "1px solid rgba(212,134,10,0.12)", marginBottom: 40, textAlign: "center" }}>
         <p style={{ fontSize: 19, fontStyle: "italic", lineHeight: 1.8, color: "rgba(232,197,71,0.6)", fontFamily: "'Outfit', sans-serif", margin: "0 0 16px 0" }}>{"\u201C"}The principles behind great leadership and great transformation are the same. And those principles shouldn{"\u2019"}t be locked behind expensive consulting engagements that only Fortune 500 companies can access.{"\u201D"}</p>
-        <p style={{ fontSize: 16, color: "rgba(255,230,200,0.4)", fontFamily: "'DM Sans', sans-serif", margin: 0 }}>A 200-person healthcare system deserves the same rigor as a 50,000-person bank. That{"\u2019"}s what <strong style={{ color: "#e09040" }}>democratizing knowledge</strong> means.</p>
+        <p style={{ fontSize: 16, color: "rgba(255,230,200,0.4)", fontFamily: "'DM Sans', sans-serif", margin: 0 }}>A 200-person healthcare system deserves the same rigor as a 50,000-person bank. That{"\u2019"}s what <strong style={{ color: "var(--accent-primary)" }}>democratizing knowledge</strong> means.</p>
       </div>
 
       {/* Signature */}
@@ -409,7 +409,7 @@ function TutorialsTab() {
     </div>)}
     <div className="rounded-2xl p-4 flex items-center gap-3" style={{ background: "rgba(255,250,240,0.02)", border: "1px solid rgba(212,134,10,0.06)" }}>
       <input value={requestText} onChange={e => setRequestText(e.target.value)} placeholder="Request a tutorial topic..." className="flex-1 rounded-xl px-4 py-2.5 text-[15px] text-[var(--text-primary)] outline-none" style={{ background: "rgba(255,250,240,0.03)", border: "1px solid rgba(212,134,10,0.1)" }} />
-      <button onClick={() => { if (requestText.trim()) { const r = JSON.parse(localStorage.getItem("tutorial_requests") || "[]"); r.push({ text: requestText, date: new Date().toISOString() }); localStorage.setItem("tutorial_requests", JSON.stringify(r)); setRequestText(""); }}} className="px-5 py-2.5 rounded-xl text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>Request</button>
+      <button onClick={() => { if (requestText.trim()) { const r = JSON.parse(localStorage.getItem("tutorial_requests") || "[]"); r.push({ text: requestText, date: new Date().toISOString() }); localStorage.setItem("tutorial_requests", JSON.stringify(r)); setRequestText(""); }}} className="px-5 py-2.5 rounded-xl text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>Request</button>
     </div>
   </div>;
 }
@@ -468,7 +468,7 @@ function FeedbackTab({ user }: { user: authApi.AuthUser }) {
         </div>
         <div><label style={LBL}>Subject</label><input value={subject} onChange={e => setSubject(e.target.value)} placeholder="Brief description" style={IS} onFocus={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.4)"} onBlur={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.15)"} /></div>
         <div><label style={LBL}>Description</label><textarea value={desc} onChange={e => setDesc(e.target.value)} placeholder="Detailed description..." rows={4} style={{ ...IS, resize: "vertical" as const }} onFocus={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.4)"} onBlur={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.15)"} /></div>
-        <button onClick={submit} disabled={!subject.trim() || !desc.trim()} className="px-6 py-2.5 rounded-xl text-[15px] font-semibold text-white transition-all disabled:opacity-30" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>Submit Feedback</button>
+        <button onClick={submit} disabled={!subject.trim() || !desc.trim()} className="px-6 py-2.5 rounded-xl text-[15px] font-semibold text-white transition-all disabled:opacity-30" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>Submit Feedback</button>
       </div>
     </div>
     {submitted.length > 0 && <div className="rounded-2xl p-6" style={{ background: "rgba(255,250,240,0.02)", border: "1px solid rgba(212,134,10,0.08)" }}>

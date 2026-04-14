@@ -38,7 +38,7 @@ export function PresenceAvatars({ users }: { users: CollabUser[] }) {
             style={{
               width: 28, height: 28, borderRadius: "50%",
               background: u.color,
-              border: u.editing ? "2px solid #10B981" : "2px solid var(--surface-1)",
+              border: u.editing ? "2px solid var(--success)" : "2px solid var(--surface-1)",
               color: "#fff", fontSize: 12, fontWeight: 700,
               display: "flex", alignItems: "center", justifyContent: "center",
               marginLeft: i > 0 ? -8 : 0,
@@ -53,7 +53,7 @@ export function PresenceAvatars({ users }: { users: CollabUser[] }) {
               <span style={{
                 position: "absolute", bottom: -2, right: -2,
                 width: 10, height: 10, borderRadius: "50%",
-                background: "#10B981", border: "2px solid var(--surface-1)",
+                background: "var(--success)", border: "2px solid var(--surface-1)",
               }} />
             )}
           </div>
@@ -115,7 +115,7 @@ export function PresenceAvatars({ users }: { users: CollabUser[] }) {
                   </div>
                   <div style={{ fontSize: 11, color: "var(--text-muted)" }}>
                     {u.editing
-                      ? <span style={{ color: "#10B981" }}>Editing {moduleLabel(u.editing.module)}</span>
+                      ? <span style={{ color: "var(--success)" }}>Editing {moduleLabel(u.editing.module)}</span>
                       : <>Viewing {moduleLabel(u.active_tab)}</>
                     }
                   </div>
@@ -145,11 +145,11 @@ export function EditingIndicator({ users }: { users: CollabUser[] }) {
           borderBottom: "1px solid rgba(16,185,129,0.15)",
           padding: "6px 20px",
           display: "flex", alignItems: "center", gap: 8,
-          fontSize: 13, color: "#10B981",
+          fontSize: 13, color: "var(--success)",
           fontFamily: "'IBM Plex Mono', monospace",
         }}
       >
-        <span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: "#10B981", animation: "pulse 1.5s infinite" }} />
+        <span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: "var(--success)", animation: "pulse 1.5s infinite" }} />
         {editing.length === 1
           ? `${editing[0].display_name} is editing ${moduleLabel(editing[0].editing!.module)}...`
           : `${editing.length} collaborators are editing...`

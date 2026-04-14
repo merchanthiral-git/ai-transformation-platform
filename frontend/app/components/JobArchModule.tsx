@@ -33,9 +33,9 @@ type Employee = {
 type OrgNode = { id: string; name: string; title: string; function: string; level: string; track: string; managerId: string; children: OrgNode[]; headcount: number; collapsed: boolean; performance: string; flightRisk: string };
 
 const ORG_FUNC_COLORS: Record<string, string> = {
-  Technology: "#0891B2", Finance: "#D4860A", HR: "#8B5CF6", Operations: "#F59E0B",
-  Marketing: "#EC4899", Legal: "#EF4444", Product: "#10B981", Sales: "#6366F1",
-  "Customer Service": "#14B8A6", Strategy: "#A855F7", Risk: "#F43F5E", Executive: "#D4860A",
+  Technology: "#0891B2", Finance: "var(--accent-primary)", HR: "var(--purple)", Operations: "var(--warning)",
+  Marketing: "#EC4899", Legal: "var(--risk)", Product: "var(--success)", Sales: "#6366F1",
+  "Customer Service": "#14B8A6", Strategy: "var(--purple)", Risk: "#F43F5E", Executive: "var(--accent-primary)",
 };
 
 function OrgChartBuilder({ employees, jobs }: { employees: Employee[]; jobs: Job[] }) {
@@ -193,7 +193,7 @@ function OrgChartBuilder({ employees, jobs }: { employees: Employee[]; jobs: Job
           width: 220, minHeight: 72, padding: "10px 14px",
           background: isSelected ? "rgba(212,134,10,0.08)" : "rgba(26,35,64,0.75)",
           backdropFilter: "blur(16px)",
-          borderColor: isSelected ? "#e09040" : `${funcColor}30`,
+          borderColor: isSelected ? "var(--accent-primary)" : `${funcColor}30`,
           borderWidth: isSelected ? 2 : 1,
           boxShadow: isSelected ? "0 0 20px rgba(224,144,64,0.2)" : isHovered ? "0 4px 16px rgba(0,0,0,0.3)" : "0 2px 8px rgba(0,0,0,0.15)",
           transform: isHovered ? "translateY(-2px)" : "none",
@@ -270,7 +270,7 @@ function OrgChartBuilder({ employees, jobs }: { employees: Employee[]; jobs: Job
       <span className="text-[11px] text-[var(--text-muted)] uppercase tracking-wider mr-1">Chain:</span>
       {breadcrumb.map((n, i) => <React.Fragment key={n.id}>
         {i > 0 && <span className="text-[var(--text-muted)] text-[12px]">→</span>}
-        <button onClick={() => selectEmployee(n.id)} className="text-[12px] font-semibold px-1.5 py-0.5 rounded transition-colors hover:bg-[var(--hover)]" style={{ color: i === breadcrumb.length - 1 ? "#e09040" : "var(--text-muted)" }}>{n.name}<span className="text-[10px] font-normal text-[var(--text-muted)] ml-0.5">({n.title})</span></button>
+        <button onClick={() => selectEmployee(n.id)} className="text-[12px] font-semibold px-1.5 py-0.5 rounded transition-colors hover:bg-[var(--hover)]" style={{ color: i === breadcrumb.length - 1 ? "var(--accent-primary)" : "var(--text-muted)" }}>{n.name}<span className="text-[10px] font-normal text-[var(--text-muted)] ml-0.5">({n.title})</span></button>
       </React.Fragment>)}
     </div>}
 
@@ -458,7 +458,7 @@ function JobProfileLibrary({ jobs, model }: { jobs: Job[]; model: string }) {
           <span className="px-2 py-0.5 rounded-full text-[12px] font-bold" style={{ background: `${badge.color}12`, color: badge.color }}>{badge.label} · {completeness(selectedJob.id)}%</span>
         </div>
         <div className="flex gap-2">
-          <button onClick={() => generateProfile(selectedJob)} disabled={generating} className="px-4 py-2 rounded-lg text-[14px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: generating ? 0.5 : 1 }}>{generating ? "Generating..." : completeness(selectedJob.id) > 0 ? "✨ Regenerate" : "✨ Generate Profile"}</button>
+          <button onClick={() => generateProfile(selectedJob)} disabled={generating} className="px-4 py-2 rounded-lg text-[14px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", opacity: generating ? 0.5 : 1 }}>{generating ? "Generating..." : completeness(selectedJob.id) > 0 ? "✨ Regenerate" : "✨ Generate Profile"}</button>
           {compareJobs.length < 3 && !compareJobs.includes(selectedJob.id) && <button onClick={() => { setCompareJobs(prev => [...prev, selectedJob.id]); showToast("Added to comparison"); }} className="px-3 py-2 rounded-lg text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">+ Compare</button>}
         </div>
       </div>
@@ -524,13 +524,13 @@ function JobProfileLibrary({ jobs, model }: { jobs: Job[]; model: string }) {
       <select value={filterFunc} onChange={e => setFilterFunc(e.target.value)} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-2 py-1.5 text-[14px] text-[var(--text-primary)] outline-none"><option value="All">All Functions</option>{Array.from(new Set(jobs.map(j => j.function))).sort().map(f => <option key={f}>{f}</option>)}</select>
       <select value={filterComplete} onChange={e => setFilterComplete(e.target.value)} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-2 py-1.5 text-[14px] text-[var(--text-primary)] outline-none"><option value="All">All Status</option><option>Complete</option><option>Draft</option><option>Empty</option></select>
       <div className="flex rounded-lg overflow-hidden border border-[var(--border)]">
-        <button onClick={() => setLibraryViewMode("grid")} className="px-3 py-1.5 text-[13px]" style={{ background: libraryViewMode === "grid" ? "rgba(212,134,10,0.12)" : "var(--surface-2)", color: libraryViewMode === "grid" ? "#e09040" : "var(--text-muted)" }}>Grid</button>
-        <button onClick={() => setLibraryViewMode("list")} className="px-3 py-1.5 text-[13px]" style={{ background: libraryViewMode === "list" ? "rgba(212,134,10,0.12)" : "var(--surface-2)", color: libraryViewMode === "list" ? "#e09040" : "var(--text-muted)" }}>List</button>
+        <button onClick={() => setLibraryViewMode("grid")} className="px-3 py-1.5 text-[13px]" style={{ background: libraryViewMode === "grid" ? "rgba(212,134,10,0.12)" : "var(--surface-2)", color: libraryViewMode === "grid" ? "var(--accent-primary)" : "var(--text-muted)" }}>Grid</button>
+        <button onClick={() => setLibraryViewMode("list")} className="px-3 py-1.5 text-[13px]" style={{ background: libraryViewMode === "list" ? "rgba(212,134,10,0.12)" : "var(--surface-2)", color: libraryViewMode === "list" ? "var(--accent-primary)" : "var(--text-muted)" }}>List</button>
       </div>
       <div className="ml-auto flex gap-2">
         <button onClick={() => setShowTemplates(true)} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--accent-primary)]">Browse Templates</button>
         {compareJobs.length >= 2 && <button onClick={() => setShowCompare(true)} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold text-[var(--purple)] border border-[var(--purple)]/30">Compare ({compareJobs.length})</button>}
-        <button onClick={bulkGenerate} disabled={bulkGenerating} className="px-4 py-1.5 rounded-lg text-[14px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: bulkGenerating ? 0.5 : 1 }}>{bulkGenerating ? `Generating... ${bulkProgress}%` : "✨ Generate All Empty"}</button>
+        <button onClick={bulkGenerate} disabled={bulkGenerating} className="px-4 py-1.5 rounded-lg text-[14px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", opacity: bulkGenerating ? 0.5 : 1 }}>{bulkGenerating ? `Generating... ${bulkProgress}%` : "✨ Generate All Empty"}</button>
       </div>
     </div>
     {/* Bulk progress */}
@@ -654,9 +654,9 @@ function JobEvaluationTab({ jobs, model }: { jobs: Job[]; model: string }) {
     {/* Methodology selector */}
     <div className="flex items-center gap-3 mb-4">
       <span className="text-[14px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Methodology:</span>
-      {(["ipe", "hay"] as const).map(m => <button key={m} onClick={() => setMethodology(m)} className="px-4 py-2 rounded-xl text-[14px] font-semibold transition-all" style={{ background: methodology === m ? "rgba(212,134,10,0.12)" : "var(--surface-2)", color: methodology === m ? "#e09040" : "var(--text-muted)", border: methodology === m ? "1px solid rgba(212,134,10,0.3)" : "1px solid var(--border)" }}>{EVAL_METHODOLOGIES[m].name}</button>)}
+      {(["ipe", "hay"] as const).map(m => <button key={m} onClick={() => setMethodology(m)} className="px-4 py-2 rounded-xl text-[14px] font-semibold transition-all" style={{ background: methodology === m ? "rgba(212,134,10,0.12)" : "var(--surface-2)", color: methodology === m ? "var(--accent-primary)" : "var(--text-muted)", border: methodology === m ? "1px solid rgba(212,134,10,0.3)" : "1px solid var(--border)" }}>{EVAL_METHODOLOGIES[m].name}</button>)}
       <div className="ml-auto flex gap-2">
-        {(["score", "comparison", "batch"] as const).map(v => <button key={v} onClick={() => setEvalView(v)} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold" style={{ background: evalView === v ? "rgba(212,134,10,0.1)" : "transparent", color: evalView === v ? "#e09040" : "var(--text-muted)" }}>{v === "score" ? "Score" : v === "comparison" ? "Compare" : "Batch AI"}</button>)}
+        {(["score", "comparison", "batch"] as const).map(v => <button key={v} onClick={() => setEvalView(v)} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold" style={{ background: evalView === v ? "rgba(212,134,10,0.1)" : "transparent", color: evalView === v ? "var(--accent-primary)" : "var(--text-muted)" }}>{v === "score" ? "Score" : v === "comparison" ? "Compare" : "Batch AI"}</button>)}
       </div>
     </div>
 
@@ -733,7 +733,7 @@ function JobEvaluationTab({ jobs, model }: { jobs: Job[]; model: string }) {
     {evalView === "batch" && <Card title="Batch AI Evaluation">
       <div className="text-[15px] text-[var(--text-secondary)] mb-4">Use AI to auto-evaluate all roles based on title, function, and level. Review and adjust scores after generation.</div>
       <div className="flex items-center gap-4 mb-4">
-        <button onClick={aiEvaluateAll} disabled={aiEvalLoading} className="px-5 py-2.5 rounded-xl text-[15px] font-bold text-white glow-pulse" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: aiEvalLoading ? 0.5 : 1 }}>{aiEvalLoading ? "Evaluating..." : `✨ AI Evaluate All (${Math.min(jobs.length, 30)} roles)`}</button>
+        <button onClick={aiEvaluateAll} disabled={aiEvalLoading} className="px-5 py-2.5 rounded-xl text-[15px] font-bold text-white glow-pulse" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", opacity: aiEvalLoading ? 0.5 : 1 }}>{aiEvalLoading ? "Evaluating..." : `✨ AI Evaluate All (${Math.min(jobs.length, 30)} roles)`}</button>
         <span className="text-[14px] text-[var(--text-muted)]">{evaluatedCount} of {jobs.length} roles evaluated</span>
       </div>
       {evaluatedCount > 0 && <div className="grid grid-cols-3 gap-3 mb-4">
@@ -761,7 +761,7 @@ function CareerLatticeTab({ jobs, model }: { jobs: Job[]; model: string }) {
     const bNum = parseInt(b.replace(/\D/g, "")) || 0;
     return aNum - bNum;
   });
-  const trackColors: Record<string, string> = { IC: "#0891B2", Manager: "#8B5CF6", Executive: "#D4860A", P: "#0891B2", S: "#10B981", T: "#F59E0B", ST: "#EC4899", M: "#8B5CF6", E: "#D4860A" };
+  const trackColors: Record<string, string> = { IC: "#0891B2", Manager: "var(--purple)", Executive: "var(--accent-primary)", P: "#0891B2", S: "var(--success)", T: "var(--warning)", ST: "#EC4899", M: "var(--purple)", E: "var(--accent-primary)" };
 
   const selectedJob = jobs.find(j => j.id === selectedJobId);
   const paths = selectedJobId ? pathData[selectedJobId] : null;
@@ -825,7 +825,7 @@ function CareerLatticeTab({ jobs, model }: { jobs: Job[]; model: string }) {
       {selectedJob && <div className="mt-4 rounded-xl border border-[var(--accent-primary)]/20 bg-[rgba(212,134,10,0.04)] p-5">
         <div className="flex items-center justify-between mb-3">
           <div><div className="text-[18px] font-bold text-[var(--text-primary)] font-heading">{selectedJob.title}</div><div className="text-[14px] text-[var(--text-muted)]">{selectedJob.function} · {selectedJob.track} · {selectedJob.level} · {selectedJob.headcount} people</div></div>
-          <button onClick={generatePaths} disabled={aiGenerating} className="px-4 py-2 rounded-xl text-[14px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: aiGenerating ? 0.5 : 1 }}>{aiGenerating ? "Generating..." : "✨ AI Generate Paths"}</button>
+          <button onClick={generatePaths} disabled={aiGenerating} className="px-4 py-2 rounded-xl text-[14px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", opacity: aiGenerating ? 0.5 : 1 }}>{aiGenerating ? "Generating..." : "✨ AI Generate Paths"}</button>
         </div>
         {paths ? <div className="grid grid-cols-3 gap-4">
           <div><div className="text-[13px] font-bold text-[var(--success)] uppercase mb-2">↑ Promotion Paths</div>{paths.nextMoves.map(t => <div key={t} className="text-[14px] text-[var(--text-secondary)] mb-1">• {t}</div>)}{paths.nextMoves.length === 0 && <div className="text-[13px] text-[var(--text-muted)]">None identified</div>}</div>
@@ -884,7 +884,7 @@ function JAGovernanceTab({ jobs, employees, model }: { jobs: Job[]; employees: E
         { id: "health" as const, label: "JA Health Dashboard", icon: "📊" },
         { id: "changes" as const, label: "Change Requests", icon: "📝" },
         { id: "review" as const, label: "Annual Review", icon: "📋" },
-      ]).map(v => <button key={v.id} onClick={() => setGovView(v.id)} className="flex-1 px-3 py-2 rounded-lg text-[14px] font-semibold transition-all" style={{ background: govView === v.id ? "rgba(212,134,10,0.12)" : "transparent", color: govView === v.id ? "#e09040" : "var(--text-muted)" }}>{v.icon} {v.label}</button>)}
+      ]).map(v => <button key={v.id} onClick={() => setGovView(v.id)} className="flex-1 px-3 py-2 rounded-lg text-[14px] font-semibold transition-all" style={{ background: govView === v.id ? "rgba(212,134,10,0.12)" : "transparent", color: govView === v.id ? "var(--accent-primary)" : "var(--text-muted)" }}>{v.icon} {v.label}</button>)}
     </div>
 
     {/* ─── HEALTH DASHBOARD ─── */}
@@ -1030,13 +1030,13 @@ function JAIntelligenceTab({ jobs, employees, model }: { jobs: Job[]; employees:
         { id: "emerging" as const, label: "Emerging Roles", icon: "🌱" },
         { id: "drift" as const, label: "Architecture Drift", icon: "📡" },
         { id: "vitals" as const, label: "Vital Signs", icon: "💓" },
-      ]).map(v => <button key={v.id} onClick={() => setIntView(v.id)} className="flex-1 px-3 py-2 rounded-lg text-[14px] font-semibold transition-all" style={{ background: intView === v.id ? "rgba(212,134,10,0.12)" : "transparent", color: intView === v.id ? "#e09040" : "var(--text-muted)" }}>{v.icon} {v.label}</button>)}
+      ]).map(v => <button key={v.id} onClick={() => setIntView(v.id)} className="flex-1 px-3 py-2 rounded-lg text-[14px] font-semibold transition-all" style={{ background: intView === v.id ? "rgba(212,134,10,0.12)" : "transparent", color: intView === v.id ? "var(--accent-primary)" : "var(--text-muted)" }}>{v.icon} {v.label}</button>)}
     </div>
 
     {/* ─── ROLE EVOLUTION ─── */}
     {intView === "evolution" && <Card title="Role Evolution Detector">
       <div className="text-[15px] text-[var(--text-secondary)] mb-4">AI-detected roles that are transforming, converging, or at risk of compression.</div>
-      <button onClick={generateInsights} disabled={aiLoading} className="px-5 py-2 rounded-xl text-[14px] font-bold text-white mb-4" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: aiLoading ? 0.5 : 1 }}>{aiLoading ? "Analyzing..." : "✨ AI Detect Role Evolution"}</button>
+      <button onClick={generateInsights} disabled={aiLoading} className="px-5 py-2 rounded-xl text-[14px] font-bold text-white mb-4" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", opacity: aiLoading ? 0.5 : 1 }}>{aiLoading ? "Analyzing..." : "✨ AI Detect Role Evolution"}</button>
       {/* Auto-detected insights */}
       <div className="space-y-3">
         {highAiImpact.length > 0 && <div className="rounded-xl border-l-4 p-4" style={{ borderLeftColor: "var(--risk)", background: "rgba(239,68,68,0.04)" }}>
@@ -1177,7 +1177,7 @@ function RoleNetworkTab({ jobs, model }: { jobs: Job[]; model: string }) {
         { id: "overlap" as const, label: "Task Overlap", icon: "🔗" },
         { id: "skills" as const, label: "Skill Adjacency", icon: "🧠" },
         { id: "succession" as const, label: "Succession Risk", icon: "⚠️" },
-      ]).map(v => <button key={v.id} onClick={() => setNetView(v.id)} className="flex-1 px-3 py-2 rounded-lg text-[14px] font-semibold transition-all" style={{ background: netView === v.id ? "rgba(212,134,10,0.12)" : "transparent", color: netView === v.id ? "#e09040" : "var(--text-muted)" }}>{v.icon} {v.label}</button>)}
+      ]).map(v => <button key={v.id} onClick={() => setNetView(v.id)} className="flex-1 px-3 py-2 rounded-lg text-[14px] font-semibold transition-all" style={{ background: netView === v.id ? "rgba(212,134,10,0.12)" : "transparent", color: netView === v.id ? "var(--accent-primary)" : "var(--text-muted)" }}>{v.icon} {v.label}</button>)}
     </div>
 
     {/* ─── TASK OVERLAP ─── */}
@@ -1331,7 +1331,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
     return result;
   }, [jobs, selectedPath, debouncedSearch, filterTrack, filterAI, sortBy]);
 
-  const trackColor = (track: string) => track === "Executive" ? "#1A2340" : track === "Manager" ? "#D4860A" : track === "IC" ? "#4A9E6B" : "#C07030";
+  const trackColor = (track: string) => track === "Executive" ? "var(--surface-2)" : track === "Manager" ? "var(--accent-primary)" : track === "IC" ? "#4A9E6B" : "var(--teal)";
   const trackBg = (track: string) => track === "Executive" ? "rgba(26,35,64,0.15)" : track === "Manager" ? "rgba(212,134,10,0.12)" : track === "IC" ? "rgba(74,158,107,0.12)" : "rgba(192,112,48,0.12)";
   const aiDot = (impact: string) => impact === "High" ? "var(--risk)" : impact === "Moderate" ? "var(--warning)" : "var(--success)";
   const levelNum = (l: string) => parseInt(l.replace(/\D/g, ""), 10) || 0;
@@ -1655,7 +1655,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
           <ExpandableChart title="Family Size Distribution">{(() => {
             const famData = ((analytics.family_sizes || []) as {family:string;headcount:number;roles:number}[]).slice(0, 15);
             const totalHC = famData.reduce((s, f) => s + f.headcount, 0);
-            const famColors = ["#D4860A","#C07030","#E8C547","#8B6D3F","#D97706","#C98860","#A0734D","#4A9B8E","#9B7EC0","#C76B5A","#6B9E6B","#B8860B","#8B7355","#5F8A8B","#A67B5B"];
+            const famColors = ["var(--accent-primary)","var(--teal)","var(--warning)","#8B6D3F","var(--amber)","#C98860","#A0734D","#4A9B8E","#9B7EC0","#C76B5A","#6B9E6B","#B8860B","#8B7355","#5F8A8B","#A67B5B"];
             return <ResponsiveContainer width="100%" height={360}>
               <BarChart data={famData} margin={{ bottom: 60 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
@@ -1700,7 +1700,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
               <XAxis dataKey="level" tick={{ fontSize: 15, fill: "var(--text-muted)" }} />
               <YAxis tick={{ fontSize: 15, fill: "var(--text-muted)" }} />
               <Tooltip contentStyle={{ ...TT }} />
-              <Bar dataKey="headcount" fill="#C07030" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="headcount" fill="var(--teal)" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer></ExpandableChart>
         </Card>

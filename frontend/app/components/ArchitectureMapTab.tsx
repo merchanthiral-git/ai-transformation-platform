@@ -44,8 +44,8 @@ type ColorMetric = "headcount" | "ai_impact" | "tenure_risk" | "vacancy";
    HELPERS
    ═══════════════════════════════════════════════════════════════ */
 
-const TC = ["#D4860A", "#C07030", "#E8C547", "#A0522D", "#B8602A", "#D97706", "#8B6914", "#6B8E6B"];
-const trackColor = (t: string) => t === "Executive" ? "#1A2340" : t === "Manager" ? "#D4860A" : t === "IC" ? "#4A9E6B" : "#C07030";
+const TC = ["var(--accent-primary)", "var(--teal)", "var(--warning)", "var(--teal)", "var(--teal)", "var(--amber)", "#8B6914", "#6B8E6B"];
+const trackColor = (t: string) => t === "Executive" ? "var(--surface-2)" : t === "Manager" ? "var(--accent-primary)" : t === "IC" ? "#4A9E6B" : "var(--teal)";
 const trackBg = (t: string) => t === "Executive" ? "rgba(26,35,64,0.15)" : t === "Manager" ? "rgba(212,134,10,0.12)" : "rgba(74,158,107,0.12)";
 const aiDot = (impact: string) => impact === "High" ? "var(--risk)" : impact === "Moderate" ? "var(--warning)" : "var(--success)";
 
@@ -101,8 +101,8 @@ function flattenJobs(nodes: TreeNode[]): { id: string; label: string; headcount:
 
 function getNodeColor(node: TreeNode, metric: ColorMetric, jobs: Job[], employees: Employee[]): string {
   if (metric === "headcount") {
-    if (node.headcount > 50) return "#D4860A";
-    if (node.headcount > 20) return "#E8C547";
+    if (node.headcount > 50) return "var(--accent-primary)";
+    if (node.headcount > 20) return "var(--warning)";
     if (node.headcount > 5) return "#4A9E6B";
     return "#6B8E6B";
   }
@@ -329,9 +329,9 @@ function MappingLine({ mapping, index }: { mapping: Mapping; index: number }) {
     switch (mapping.type) {
       case "one-to-one": return { stroke: "#4A9E6B", strokeDasharray: "none" };
       case "one-to-many": return { stroke: "#3B82F6", strokeDasharray: "6 4" };
-      case "many-to-one": return { stroke: "#F59E0B", strokeDasharray: "6 4" };
+      case "many-to-one": return { stroke: "var(--warning)", strokeDasharray: "6 4" };
       case "new": return { stroke: "#4A9E6B", strokeDasharray: "none" };
-      case "sunset": return { stroke: "#EF4444", strokeDasharray: "4 4" };
+      case "sunset": return { stroke: "var(--risk)", strokeDasharray: "4 4" };
       default: return { stroke: "#666", strokeDasharray: "none" };
     }
   })();
@@ -916,9 +916,9 @@ export function ArchitectureMapTab({ tree, jobs, employees, model }: {
           {[
             { color: "#4A9E6B", dash: false, label: "1:1 Continue" },
             { color: "#3B82F6", dash: true, label: "1:Many Split" },
-            { color: "#F59E0B", dash: true, label: "Many:1 Merge" },
+            { color: "var(--warning)", dash: true, label: "Many:1 Merge" },
             { color: "#4A9E6B", dash: false, label: "New Role", badge: "NEW" },
-            { color: "#EF4444", dash: true, label: "Sunset", strike: true },
+            { color: "var(--risk)", dash: true, label: "Sunset", strike: true },
           ].map(l => (
             <div key={l.label} className="flex items-center gap-1.5 text-[15px] text-[var(--text-muted)]">
               <div className="w-3 h-0.5 rounded" style={{ background: l.color, ...(l.dash ? { borderTop: `1px dashed ${l.color}`, background: "transparent" } : {}) }} />

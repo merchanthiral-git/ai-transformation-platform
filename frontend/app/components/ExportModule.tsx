@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import * as api from "../../lib/api";
 import type { Filters } from "../../lib/api";
+import type { ExportSummaryResponse } from "../../types/api";
 import {
   ViewContext, COLORS, TT,
   KpiCard, Card, Empty, Badge, InsightPanel, NarrativePanel, DataTable,
@@ -12,7 +13,7 @@ import {
 } from "./shared";
 
 export function ExportReport({ model, f, onBack, onNavigate, jobStates, simState, decisionLog, riskRegister }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; jobStates?: Record<string, { deconRows: Record<string, unknown>[]; redeployRows: Record<string, unknown>[]; scenario: string; deconSubmitted: boolean; redeploySubmitted: boolean; finalized: boolean }>; simState?: { scenario: string; custom: boolean; custAdopt: number; custTimeline: number; investment: number }; decisionLog?: { ts: string; module: string; action: string; detail: string }[]; riskRegister?: { id: string; source: string; risk: string; probability: string; impact: string; mitigation: string; status: string }[] }) {
-  const [data, setData] = useState<Record<string, unknown> | null>(null);
+  const [data, setData] = useState<ExportSummaryResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [generated, setGenerated] = useState(false);
@@ -41,11 +42,11 @@ export function ExportReport({ model, f, onBack, onNavigate, jobStates, simState
     setGenerating(false);
   };
 
-  const bbba = (data?.bbba_summary || {}) as Record<string, unknown>;
-  const reskill = (data?.reskilling_summary || {}) as Record<string, unknown>;
-  const mp = (data?.marketplace_summary || {}) as Record<string, unknown>;
-  const wf = (data?.headcount_waterfall || {}) as Record<string, unknown>;
-  const mgr = (data?.manager_summary || {}) as Record<string, unknown>;
+  const bbba = data?.bbba_summary ?? { build: 0, buy: 0, total_investment: 0 };
+  const reskill = data?.reskilling_summary ?? { total_investment: 0 };
+  const mp = data?.marketplace_summary ?? { internal_fill: 0 };
+  const wf = data?.headcount_waterfall ?? { net_change: 0 };
+  const mgr = data?.manager_summary ?? { champions: 0 };
 
   return <div>
     <ContextStrip items={["Generate your board-ready transformation report. All module data is summarized below."]} />
@@ -114,7 +115,7 @@ export function ExportReport({ model, f, onBack, onNavigate, jobStates, simState
           <div className="text-3xl mb-2">📝</div>
           <div className="text-[15px] font-bold text-[var(--text-primary)] font-heading mb-1">Word Report</div>
           <div className="text-[15px] text-[var(--text-muted)] mb-3">12-section narrative with data tables</div>
-          <button onClick={generateDocx} disabled={generating} className="px-5 py-2 rounded-xl text-[15px] font-semibold text-white disabled:opacity-50" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>{generating ? "..." : "Download .docx"}</button>
+          <button onClick={generateDocx} disabled={generating} className="px-5 py-2 rounded-xl text-[15px] font-semibold text-white disabled:opacity-50" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>{generating ? "..." : "Download .docx"}</button>
         </div>
 
         {/* AI Narrative */}
@@ -156,7 +157,7 @@ export function ExportReport({ model, f, onBack, onNavigate, jobStates, simState
               else showToast("Couldn't generate the PowerPoint — try again");
             } catch { showToast("The export service isn't responding — try again shortly"); }
             setGenerating(false);
-          }} disabled={generating} className="px-4 py-2 rounded-xl text-[15px] font-semibold text-white shrink-0 disabled:opacity-50" style={{ background: "linear-gradient(135deg, #D97706, #B8602A)" }}>{generating ? "..." : "Download .pptx"}</button>
+          }} disabled={generating} className="px-4 py-2 rounded-xl text-[15px] font-semibold text-white shrink-0 disabled:opacity-50" style={{ background: "linear-gradient(135deg, var(--amber), var(--teal))" }}>{generating ? "..." : "Download .pptx"}</button>
         </div>
 
         {/* PDF Executive Summary */}
@@ -198,7 +199,7 @@ export function ExportReport({ model, f, onBack, onNavigate, jobStates, simState
    Exportable as PDF via browser print.
    ═══════════════════════════════════════════════════════════════ */
 
-function ExecSummaryGenerator({ model, f, data }: { model: string; f: Filters; data: Record<string, unknown> | null }) {
+function ExecSummaryGenerator({ model, f, data }: { model: string; f: Filters; data: ExportSummaryResponse | null }) {
   const [summary, setSummary] = useState<{
     headline: string;
     overview: string;
@@ -211,10 +212,10 @@ function ExecSummaryGenerator({ model, f, data }: { model: string; f: Filters; d
   const [generating, setGenerating] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
-  const bbba = (data?.bbba_summary || {}) as Record<string, unknown>;
-  const reskill = (data?.reskilling_summary || {}) as Record<string, unknown>;
-  const wf = (data?.headcount_waterfall || {}) as Record<string, unknown>;
-  const mgr = (data?.manager_summary || {}) as Record<string, unknown>;
+  const bbba = data?.bbba_summary ?? { build: 0, buy: 0, total_investment: 0 };
+  const reskill = data?.reskilling_summary ?? { total_investment: 0 };
+  const wf = data?.headcount_waterfall ?? { net_change: 0 };
+  const mgr = data?.manager_summary ?? { champions: 0 };
 
   const generate = async () => {
     if (!model || !data) { showToast("Load data first"); return; }
@@ -227,9 +228,9 @@ function ExecSummaryGenerator({ model, f, data }: { model: string; f: Filters; d
         api.getReadiness(model, f),
       ]);
       const ctx = JSON.stringify({
-        employees: (overview as Record<string, unknown>)?.kpis,
-        task_summary: (priority as Record<string, unknown>)?.summary,
-        readiness: { score: (readiness as Record<string, unknown>)?.score, tier: (readiness as Record<string, unknown>)?.tier },
+        employees: overview.kpis,
+        task_summary: priority.summary,
+        readiness: { score: readiness.score, tier: readiness.tier },
         bbba: bbba, reskilling: reskill, headcount: wf, managers: mgr,
         skills_coverage: data?.skills_coverage, critical_gaps: data?.critical_gaps,
       }).slice(0, 3500);
@@ -294,7 +295,7 @@ Be specific with numbers from the data. Keep each item to 1-2 sentences max.`
         AI will pull KPIs from Overview, top findings from Diagnose, recommended redesigns from Design,
         and projected impact from Simulate into a board-ready one-pager. Exportable as PDF.
       </p>
-      <button onClick={generate} disabled={generating} className="px-6 py-3 rounded-2xl text-[14px] font-bold text-white transition-all hover:translate-y-[-2px] disabled:opacity-50" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", boxShadow: "var(--shadow-2)" }}>
+      <button onClick={generate} disabled={generating} className="px-6 py-3 rounded-2xl text-[14px] font-bold text-white transition-all hover:translate-y-[-2px] disabled:opacity-50" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", boxShadow: "var(--shadow-2)" }}>
         {generating ? "Generating..." : "📊 Generate Executive Summary"}
       </button>
     </div>}
@@ -310,7 +311,7 @@ Be specific with numbers from the data. Keep each item to 1-2 sentences max.`
 
       {/* Preview — this div gets exported */}
       <div id="exec-summary-print" className="bg-[var(--surface-2)] rounded-xl p-6 border border-[var(--border)]">
-        <h1 style={{ fontFamily: "'Outfit',sans-serif", fontSize: 20, fontWeight: 700, color: "#E8C547", marginBottom: 4 }}>{summary.headline}</h1>
+        <h1 style={{ fontFamily: "'Outfit',sans-serif", fontSize: 20, fontWeight: 700, color: "var(--warning)", marginBottom: 4 }}>{summary.headline}</h1>
         <div style={{ fontSize: 15, color: "var(--text-muted)", marginBottom: 12 }}>{model} · {new Date().toLocaleDateString()} · Confidential</div>
 
         <div style={{ fontSize: 15, lineHeight: 1.6, color: "var(--text-secondary)", marginBottom: 16 }}>{summary.overview}</div>
@@ -332,19 +333,19 @@ Be specific with numbers from the data. Keep each item to 1-2 sentences max.`
         {/* Sections */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <h2 style={{ fontFamily: "'Outfit',sans-serif", fontSize: 15, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: 1, color: "#D4860A", borderBottom: "2px solid #E8C547", paddingBottom: 4, marginBottom: 8 }}>Key Findings</h2>
+            <h2 style={{ fontFamily: "'Outfit',sans-serif", fontSize: 15, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: 1, color: "var(--accent-primary)", borderBottom: "2px solid var(--warning)", paddingBottom: 4, marginBottom: 8 }}>Key Findings</h2>
             <ul className="space-y-1 list-disc pl-4">{summary.findings.map((f, i) => <li key={i} className="text-[15px] text-[var(--text-secondary)] leading-relaxed">{f}</li>)}</ul>
           </div>
           <div>
-            <h2 style={{ fontFamily: "'Outfit',sans-serif", fontSize: 15, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: 1, color: "#D4860A", borderBottom: "2px solid #E8C547", paddingBottom: 4, marginBottom: 8 }}>Recommendations</h2>
+            <h2 style={{ fontFamily: "'Outfit',sans-serif", fontSize: 15, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: 1, color: "var(--accent-primary)", borderBottom: "2px solid var(--warning)", paddingBottom: 4, marginBottom: 8 }}>Recommendations</h2>
             <ul className="space-y-1 list-disc pl-4">{summary.recommendations.map((r, i) => <li key={i} className="text-[15px] text-[var(--text-secondary)] leading-relaxed">{r}</li>)}</ul>
           </div>
           <div>
-            <h2 style={{ fontFamily: "'Outfit',sans-serif", fontSize: 15, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: 1, color: "#D4860A", borderBottom: "2px solid #E8C547", paddingBottom: 4, marginBottom: 8 }}>Projected Impact</h2>
+            <h2 style={{ fontFamily: "'Outfit',sans-serif", fontSize: 15, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: 1, color: "var(--accent-primary)", borderBottom: "2px solid var(--warning)", paddingBottom: 4, marginBottom: 8 }}>Projected Impact</h2>
             <ul className="space-y-1 list-disc pl-4">{summary.projectedImpact.map((p, i) => <li key={i} className="text-[15px] text-[var(--text-secondary)] leading-relaxed">{p}</li>)}</ul>
           </div>
           <div>
-            <h2 style={{ fontFamily: "'Outfit',sans-serif", fontSize: 15, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: 1, color: "#D4860A", borderBottom: "2px solid #E8C547", paddingBottom: 4, marginBottom: 8 }}>Risks & Next Steps</h2>
+            <h2 style={{ fontFamily: "'Outfit',sans-serif", fontSize: 15, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: 1, color: "var(--accent-primary)", borderBottom: "2px solid var(--warning)", paddingBottom: 4, marginBottom: 8 }}>Risks & Next Steps</h2>
             <ul className="space-y-1 list-disc pl-4">
               {summary.risks.map((r, i) => <li key={i} className="text-[15px] text-[var(--risk)] leading-relaxed">⚠ {r}</li>)}
               {summary.nextSteps.map((n, i) => <li key={i} className="text-[15px] text-[var(--success)] leading-relaxed">→ {n}</li>)}

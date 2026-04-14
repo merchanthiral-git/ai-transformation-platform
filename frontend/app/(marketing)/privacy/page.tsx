@@ -14,7 +14,7 @@ const S: Record<string, React.CSSProperties> = {
   ul: { paddingLeft: 20, marginBottom: 16 },
   li: { fontSize: 15, lineHeight: 1.85, marginBottom: 8 },
   strong: { color: "rgba(255,245,235,0.75)" },
-  callout: { padding: "16px 20px", borderRadius: 12, background: "rgba(212,134,10,0.04)", border: "1px solid rgba(212,134,10,0.1)", borderLeft: "3px solid #D4860A", marginBottom: 24, fontSize: 14, lineHeight: 1.8 },
+  callout: { padding: "16px 20px", borderRadius: 12, background: "rgba(212,134,10,0.04)", border: "1px solid rgba(212,134,10,0.1)", borderLeft: "3px solid var(--accent-primary)", marginBottom: 24, fontSize: 14, lineHeight: 1.8 },
   footer: { marginTop: 64, paddingTop: 24, borderTop: "1px solid rgba(212,134,10,0.06)", textAlign: "center" as const, fontSize: 13, color: "rgba(255,200,150,0.2)" },
 };
 

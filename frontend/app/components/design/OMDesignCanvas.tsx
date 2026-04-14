@@ -23,18 +23,18 @@ export interface OMObjective2 { id: string; name: string; description: string; p
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 export const OM_NODE_CFG: Record<OMNodeType2,{icon:string;color:string;defaultW:number;defaultH:number}> = {
-  "org-unit":       { icon:"⬜", color:"#D4860A", defaultW:148, defaultH:52 },
-  "coe":            { icon:"◈",  color:"#D4860A", defaultW:148, defaultH:52 },
+  "org-unit":       { icon:"⬜", color:"var(--accent-primary)", defaultW:148, defaultH:52 },
+  "coe":            { icon:"◈",  color:"var(--accent-primary)", defaultW:148, defaultH:52 },
   "shared-service": { icon:"◉",  color:"#4A9E6B", defaultW:148, defaultH:52 },
-  "ai-node":        { icon:"⬡",  color:"#E8C547", defaultW:148, defaultH:52 },
+  "ai-node":        { icon:"⬡",  color:"var(--warning)", defaultW:148, defaultH:52 },
   "role":           { icon:"○",  color:"#C0622A", defaultW:120, defaultH:44 },
-  "governance":     { icon:"◇",  color:"#8B5CF6", defaultW:140, defaultH:52 },
+  "governance":     { icon:"◇",  color:"var(--purple)", defaultW:140, defaultH:52 },
 };
 export const OM_EDGE_CFG: Record<OMEdgeType2,{label:string;dash:string;color:string}> = {
   "reporting": { label:"Reporting",  dash:"none",    color:"#A0967A" },
-  "service":   { label:"Service",    dash:"6,3",     color:"#D4860A" },
+  "service":   { label:"Service",    dash:"6,3",     color:"var(--accent-primary)" },
   "advisory":  { label:"Advisory",   dash:"3,3",     color:"#6B6355" },
-  "data-flow": { label:"Data Flow",  dash:"8,2,2,2", color:"#E8C547" },
+  "data-flow": { label:"Data Flow",  dash:"8,2,2,2", color:"var(--warning)" },
 };
 export const OM_WAVE_COLOR: Record<number,string> = { 0:"#3d3930",1:"#4a9e6b",2:"#4a82c4",3:"#d4860a",4:"#8b5cf6" };
 export const OM_STATUS_COLOR: Record<string,string> = { "on-track":"#4a9e6b","at-risk":"#f0a500","off-track":"#e06c75","achieved":"#4a82c4" };
@@ -58,27 +58,27 @@ export const OM_FUNCTION_PRESETS: Record<string, OMPreset[]> = {
         {label:"AI & Analytics Layer",y:384,height:70,color:"rgba(232,197,71,0.07)"},
       ],
       nodes: [
-        {type:"governance",label:"CHRO",x:200,y:32,w:130,h:48,color:"#D4860A",currentFte:1,targetFte:1},
-        {type:"coe",label:"Total Rewards CoE",x:30,y:124,w:148,h:48,color:"#D4860A",currentFte:8,targetFte:6},
-        {type:"coe",label:"Talent & L&D CoE",x:200,y:124,w:148,h:48,color:"#D4860A",currentFte:12,targetFte:10},
-        {type:"coe",label:"People Analytics",x:370,y:124,w:148,h:48,color:"#D4860A",currentFte:4,targetFte:8},
+        {type:"governance",label:"CHRO",x:200,y:32,w:130,h:48,color:"var(--accent-primary)",currentFte:1,targetFte:1},
+        {type:"coe",label:"Total Rewards CoE",x:30,y:124,w:148,h:48,color:"var(--accent-primary)",currentFte:8,targetFte:6},
+        {type:"coe",label:"Talent & L&D CoE",x:200,y:124,w:148,h:48,color:"var(--accent-primary)",currentFte:12,targetFte:10},
+        {type:"coe",label:"People Analytics",x:370,y:124,w:148,h:48,color:"var(--accent-primary)",currentFte:4,targetFte:8},
         {type:"org-unit",label:"BU HRBP — Corp",x:50,y:216,w:140,h:48,color:"#C0622A",currentFte:6,targetFte:4},
         {type:"org-unit",label:"BU HRBP — Ops",x:220,y:216,w:140,h:48,color:"#C0622A",currentFte:8,targetFte:5},
         {type:"org-unit",label:"BU HRBP — Tech",x:390,y:216,w:140,h:48,color:"#C0622A",currentFte:5,targetFte:3},
         {type:"shared-service",label:"HR Ops / GBS",x:60,y:308,w:150,h:48,color:"#4A9E6B",currentFte:25,targetFte:16},
         {type:"shared-service",label:"Payroll & Benefits",x:240,y:308,w:150,h:48,color:"#4A9E6B",currentFte:12,targetFte:8},
         {type:"shared-service",label:"Recruiting Ops",x:420,y:308,w:140,h:48,color:"#4A9E6B",currentFte:10,targetFte:6},
-        {type:"ai-node",label:"AI Copilot Layer",x:150,y:396,w:150,h:44,color:"#E8C547",currentFte:0,targetFte:4,aiMaturity:"Piloting"},
-        {type:"ai-node",label:"Predictive Analytics",x:330,y:396,w:150,h:44,color:"#E8C547",currentFte:0,targetFte:3,aiMaturity:"Exploring"},
+        {type:"ai-node",label:"AI Copilot Layer",x:150,y:396,w:150,h:44,color:"var(--warning)",currentFte:0,targetFte:4,aiMaturity:"Piloting"},
+        {type:"ai-node",label:"Predictive Analytics",x:330,y:396,w:150,h:44,color:"var(--warning)",currentFte:0,targetFte:3,aiMaturity:"Exploring"},
       ],
     },
     { label: "HR Centralized GBS", desc: "Single global business services center with thin HRBP layer. Efficiency-first model.", industry: "Manufacturing",
       layers: [{label:"HR Leadership",y:16,height:80,color:"rgba(212,134,10,0.07)"},{label:"Central HR Functions",y:108,height:90,color:"rgba(74,130,196,0.07)"},{label:"Global Business Services",y:210,height:90,color:"rgba(74,158,107,0.07)"}],
       nodes: [
-        {type:"governance",label:"CHRO",x:200,y:32,w:130,h:48,color:"#D4860A",currentFte:1,targetFte:1},
-        {type:"coe",label:"Comp & Benefits",x:40,y:124,w:148,h:48,color:"#D4860A",currentFte:10,targetFte:7},
-        {type:"coe",label:"Talent Mgmt",x:210,y:124,w:130,h:48,color:"#D4860A",currentFte:8,targetFte:6},
-        {type:"coe",label:"L&D / Academy",x:360,y:124,w:130,h:48,color:"#D4860A",currentFte:6,targetFte:5},
+        {type:"governance",label:"CHRO",x:200,y:32,w:130,h:48,color:"var(--accent-primary)",currentFte:1,targetFte:1},
+        {type:"coe",label:"Comp & Benefits",x:40,y:124,w:148,h:48,color:"var(--accent-primary)",currentFte:10,targetFte:7},
+        {type:"coe",label:"Talent Mgmt",x:210,y:124,w:130,h:48,color:"var(--accent-primary)",currentFte:8,targetFte:6},
+        {type:"coe",label:"L&D / Academy",x:360,y:124,w:130,h:48,color:"var(--accent-primary)",currentFte:6,targetFte:5},
         {type:"shared-service",label:"GBS — Transactional HR",x:80,y:230,w:180,h:50,color:"#4A9E6B",currentFte:40,targetFte:25},
         {type:"shared-service",label:"GBS — Recruiting",x:290,y:230,w:150,h:50,color:"#4A9E6B",currentFte:15,targetFte:8},
       ],
@@ -94,17 +94,17 @@ export const OM_FUNCTION_PRESETS: Record<string, OMPreset[]> = {
         {label:"Security Operations",y:374,height:70,color:"rgba(139,92,246,0.07)"},
       ],
       nodes: [
-        {type:"governance",label:"CIO / CTO",x:200,y:28,w:130,h:44,color:"#D4860A",currentFte:1,targetFte:1},
-        {type:"coe",label:"Enterprise Arch",x:40,y:110,w:148,h:48,color:"#D4860A",currentFte:5,targetFte:4},
-        {type:"coe",label:"Cloud Platform",x:210,y:110,w:130,h:48,color:"#D4860A",currentFte:12,targetFte:15},
-        {type:"coe",label:"Data Platform",x:360,y:110,w:130,h:48,color:"#D4860A",currentFte:8,targetFte:12},
+        {type:"governance",label:"CIO / CTO",x:200,y:28,w:130,h:44,color:"var(--accent-primary)",currentFte:1,targetFte:1},
+        {type:"coe",label:"Enterprise Arch",x:40,y:110,w:148,h:48,color:"var(--accent-primary)",currentFte:5,targetFte:4},
+        {type:"coe",label:"Cloud Platform",x:210,y:110,w:130,h:48,color:"var(--accent-primary)",currentFte:12,targetFte:15},
+        {type:"coe",label:"Data Platform",x:360,y:110,w:130,h:48,color:"var(--accent-primary)",currentFte:8,targetFte:12},
         {type:"org-unit",label:"NOC",x:40,y:205,w:120,h:48,color:"#C0622A",currentFte:15,targetFte:8},
         {type:"org-unit",label:"ITOC Command",x:180,y:205,w:148,h:48,color:"#C0622A",currentFte:8,targetFte:6},
         {type:"org-unit",label:"Release Mgmt",x:348,y:205,w:140,h:48,color:"#C0622A",currentFte:6,targetFte:4},
         {type:"shared-service",label:"Service Desk L1/L2",x:60,y:298,w:170,h:48,color:"#4A9E6B",currentFte:30,targetFte:15},
         {type:"shared-service",label:"App Support",x:260,y:298,w:130,h:48,color:"#4A9E6B",currentFte:18,targetFte:12},
-        {type:"ai-node",label:"SOC / SIEM",x:120,y:386,w:130,h:44,color:"#8B5CF6",currentFte:8,targetFte:10},
-        {type:"ai-node",label:"AIOps",x:280,y:386,w:130,h:44,color:"#E8C547",currentFte:0,targetFte:5,aiMaturity:"Piloting"},
+        {type:"ai-node",label:"SOC / SIEM",x:120,y:386,w:130,h:44,color:"var(--purple)",currentFte:8,targetFte:10},
+        {type:"ai-node",label:"AIOps",x:280,y:386,w:130,h:44,color:"var(--warning)",currentFte:0,targetFte:5,aiMaturity:"Piloting"},
       ],
     },
   ],
@@ -112,28 +112,28 @@ export const OM_FUNCTION_PRESETS: Record<string, OMPreset[]> = {
     { label: "Finance Federated OM", desc: "CFO-led with FP&A CoE, treasury, controllership, and shared transactional processing.", industry: "General",
       layers: [{label:"CFO Office",y:16,height:70,color:"rgba(212,134,10,0.07)"},{label:"Finance CoEs",y:98,height:80,color:"rgba(74,130,196,0.07)"},{label:"Business Finance",y:190,height:80,color:"rgba(192,98,42,0.07)"},{label:"Shared Services",y:282,height:80,color:"rgba(74,158,107,0.07)"}],
       nodes: [
-        {type:"governance",label:"CFO",x:200,y:28,w:130,h:44,color:"#D4860A",currentFte:1,targetFte:1},
-        {type:"coe",label:"FP&A CoE",x:40,y:110,w:130,h:48,color:"#D4860A",currentFte:10,targetFte:8},
-        {type:"coe",label:"Treasury",x:190,y:110,w:120,h:48,color:"#D4860A",currentFte:6,targetFte:5},
-        {type:"coe",label:"Tax & Compliance",x:330,y:110,w:148,h:48,color:"#D4860A",currentFte:8,targetFte:7},
+        {type:"governance",label:"CFO",x:200,y:28,w:130,h:44,color:"var(--accent-primary)",currentFte:1,targetFte:1},
+        {type:"coe",label:"FP&A CoE",x:40,y:110,w:130,h:48,color:"var(--accent-primary)",currentFte:10,targetFte:8},
+        {type:"coe",label:"Treasury",x:190,y:110,w:120,h:48,color:"var(--accent-primary)",currentFte:6,targetFte:5},
+        {type:"coe",label:"Tax & Compliance",x:330,y:110,w:148,h:48,color:"var(--accent-primary)",currentFte:8,targetFte:7},
         {type:"org-unit",label:"BU Finance BP",x:60,y:206,w:150,h:48,color:"#C0622A",currentFte:12,targetFte:8},
         {type:"org-unit",label:"Controller",x:240,y:206,w:120,h:48,color:"#C0622A",currentFte:8,targetFte:6},
         {type:"shared-service",label:"AP / AR / GL",x:60,y:298,w:150,h:48,color:"#4A9E6B",currentFte:20,targetFte:10},
         {type:"shared-service",label:"Financial Reporting",x:240,y:298,w:160,h:48,color:"#4A9E6B",currentFte:8,targetFte:5},
-        {type:"ai-node",label:"AI Close Automation",x:430,y:298,w:148,h:48,color:"#E8C547",currentFte:0,targetFte:3,aiMaturity:"Piloting"},
+        {type:"ai-node",label:"AI Close Automation",x:430,y:298,w:148,h:48,color:"var(--warning)",currentFte:0,targetFte:3,aiMaturity:"Piloting"},
       ],
     },
     { label: "Finance OM — Banking", desc: "Three Lines of Defense model with front/middle/back office. Regulatory-driven.", industry: "Financial Services", company: "jpmorgan",
       layers: [{label:"CFO / Group Finance",y:16,height:70,color:"rgba(212,134,10,0.07)"},{label:"1st Line — Business",y:98,height:80,color:"rgba(74,130,196,0.07)"},{label:"2nd Line — Risk & Control",y:190,height:80,color:"rgba(192,98,42,0.07)"},{label:"3rd Line — Audit",y:282,height:70,color:"rgba(139,92,246,0.07)"},{label:"Shared / GBS",y:364,height:70,color:"rgba(74,158,107,0.07)"}],
       nodes: [
-        {type:"governance",label:"Group CFO",x:200,y:28,w:130,h:44,color:"#D4860A",currentFte:1,targetFte:1},
-        {type:"org-unit",label:"Front Office Finance",x:40,y:110,w:170,h:48,color:"#D4860A",currentFte:30,targetFte:25},
-        {type:"org-unit",label:"Product Control",x:240,y:110,w:140,h:48,color:"#D4860A",currentFte:18,targetFte:14},
+        {type:"governance",label:"Group CFO",x:200,y:28,w:130,h:44,color:"var(--accent-primary)",currentFte:1,targetFte:1},
+        {type:"org-unit",label:"Front Office Finance",x:40,y:110,w:170,h:48,color:"var(--accent-primary)",currentFte:30,targetFte:25},
+        {type:"org-unit",label:"Product Control",x:240,y:110,w:140,h:48,color:"var(--accent-primary)",currentFte:18,targetFte:14},
         {type:"org-unit",label:"Risk Finance",x:100,y:206,w:130,h:48,color:"#C0622A",currentFte:15,targetFte:12},
         {type:"org-unit",label:"Regulatory Reporting",x:260,y:206,w:160,h:48,color:"#C0622A",currentFte:12,targetFte:8},
-        {type:"governance",label:"Internal Audit",x:180,y:294,w:148,h:44,color:"#8B5CF6",currentFte:8,targetFte:7},
+        {type:"governance",label:"Internal Audit",x:180,y:294,w:148,h:44,color:"var(--purple)",currentFte:8,targetFte:7},
         {type:"shared-service",label:"Finance GBS",x:120,y:376,w:150,h:44,color:"#4A9E6B",currentFte:40,targetFte:25},
-        {type:"ai-node",label:"RegTech / AI",x:300,y:376,w:130,h:44,color:"#E8C547",currentFte:0,targetFte:6,aiMaturity:"Scaling"},
+        {type:"ai-node",label:"RegTech / AI",x:300,y:376,w:130,h:44,color:"var(--warning)",currentFte:0,targetFte:6,aiMaturity:"Scaling"},
       ],
     },
   ],
@@ -141,13 +141,13 @@ export const OM_FUNCTION_PRESETS: Record<string, OMPreset[]> = {
     { label: "Legal Ops OM", desc: "General Counsel led with practice groups, legal ops, and outsourced discovery.", industry: "General",
       layers: [{label:"GC Office",y:16,height:70,color:"rgba(212,134,10,0.07)"},{label:"Practice Groups",y:98,height:80,color:"rgba(74,130,196,0.07)"},{label:"Legal Operations",y:190,height:80,color:"rgba(74,158,107,0.07)"}],
       nodes: [
-        {type:"governance",label:"General Counsel",x:180,y:28,w:160,h:44,color:"#D4860A",currentFte:1,targetFte:1},
-        {type:"coe",label:"Corporate / M&A",x:30,y:110,w:140,h:48,color:"#D4860A",currentFte:6,targetFte:5},
-        {type:"coe",label:"Regulatory",x:190,y:110,w:120,h:48,color:"#D4860A",currentFte:5,targetFte:4},
-        {type:"coe",label:"Employment Law",x:330,y:110,w:140,h:48,color:"#D4860A",currentFte:4,targetFte:3},
+        {type:"governance",label:"General Counsel",x:180,y:28,w:160,h:44,color:"var(--accent-primary)",currentFte:1,targetFte:1},
+        {type:"coe",label:"Corporate / M&A",x:30,y:110,w:140,h:48,color:"var(--accent-primary)",currentFte:6,targetFte:5},
+        {type:"coe",label:"Regulatory",x:190,y:110,w:120,h:48,color:"var(--accent-primary)",currentFte:5,targetFte:4},
+        {type:"coe",label:"Employment Law",x:330,y:110,w:140,h:48,color:"var(--accent-primary)",currentFte:4,targetFte:3},
         {type:"shared-service",label:"CLM & Contracts",x:40,y:206,w:150,h:48,color:"#4A9E6B",currentFte:8,targetFte:4},
         {type:"shared-service",label:"eDiscovery",x:220,y:206,w:120,h:48,color:"#4A9E6B",currentFte:6,targetFte:3},
-        {type:"ai-node",label:"AI Contract Review",x:370,y:206,w:148,h:48,color:"#E8C547",currentFte:0,targetFte:3,aiMaturity:"Piloting"},
+        {type:"ai-node",label:"AI Contract Review",x:370,y:206,w:148,h:48,color:"var(--warning)",currentFte:0,targetFte:3,aiMaturity:"Piloting"},
       ],
     },
   ],
@@ -155,16 +155,16 @@ export const OM_FUNCTION_PRESETS: Record<string, OMPreset[]> = {
     { label: "Supply Chain OM", desc: "End-to-end supply chain with planning, procurement, manufacturing, and logistics.", industry: "Manufacturing", company: "toyota",
       layers: [{label:"SVP Supply Chain",y:16,height:70,color:"rgba(212,134,10,0.07)"},{label:"Planning & Procurement",y:98,height:80,color:"rgba(74,130,196,0.07)"},{label:"Manufacturing & Quality",y:190,height:80,color:"rgba(192,98,42,0.07)"},{label:"Logistics & Distribution",y:282,height:80,color:"rgba(74,158,107,0.07)"}],
       nodes: [
-        {type:"governance",label:"SVP Supply Chain",x:180,y:28,w:160,h:44,color:"#D4860A",currentFte:1,targetFte:1},
-        {type:"coe",label:"Demand Planning",x:40,y:110,w:140,h:48,color:"#D4860A",currentFte:10,targetFte:8},
-        {type:"coe",label:"Strategic Procurement",x:200,y:110,w:160,h:48,color:"#D4860A",currentFte:8,targetFte:6},
-        {type:"coe",label:"Supplier Quality",x:380,y:110,w:140,h:48,color:"#D4860A",currentFte:6,targetFte:5},
+        {type:"governance",label:"SVP Supply Chain",x:180,y:28,w:160,h:44,color:"var(--accent-primary)",currentFte:1,targetFte:1},
+        {type:"coe",label:"Demand Planning",x:40,y:110,w:140,h:48,color:"var(--accent-primary)",currentFte:10,targetFte:8},
+        {type:"coe",label:"Strategic Procurement",x:200,y:110,w:160,h:48,color:"var(--accent-primary)",currentFte:8,targetFte:6},
+        {type:"coe",label:"Supplier Quality",x:380,y:110,w:140,h:48,color:"var(--accent-primary)",currentFte:6,targetFte:5},
         {type:"org-unit",label:"Plant Operations",x:60,y:206,w:150,h:48,color:"#C0622A",currentFte:200,targetFte:180},
         {type:"org-unit",label:"Quality Control",x:240,y:206,w:140,h:48,color:"#C0622A",currentFte:30,targetFte:22},
         {type:"org-unit",label:"EHS",x:400,y:206,w:100,h:48,color:"#C0622A",currentFte:12,targetFte:10},
         {type:"shared-service",label:"Logistics Hub",x:80,y:298,w:150,h:48,color:"#4A9E6B",currentFte:40,targetFte:30},
         {type:"shared-service",label:"Warehouse Ops",x:260,y:298,w:140,h:48,color:"#4A9E6B",currentFte:35,targetFte:25},
-        {type:"ai-node",label:"AI Demand Forecast",x:430,y:298,w:148,h:48,color:"#E8C547",currentFte:0,targetFte:4,aiMaturity:"Scaling"},
+        {type:"ai-node",label:"AI Demand Forecast",x:430,y:298,w:148,h:48,color:"var(--warning)",currentFte:0,targetFte:4,aiMaturity:"Scaling"},
       ],
     },
   ],
@@ -172,26 +172,26 @@ export const OM_FUNCTION_PRESETS: Record<string, OMPreset[]> = {
     { label: "Product & Eng OM", desc: "Product-led org with squads, platform teams, and SRE. Spotify-influenced.", industry: "Technology", company: "spotify",
       layers: [{label:"CPO / CTO",y:16,height:70,color:"rgba(212,134,10,0.07)"},{label:"Product Tribes",y:98,height:80,color:"rgba(74,130,196,0.07)"},{label:"Platform & SRE",y:190,height:80,color:"rgba(74,158,107,0.07)"},{label:"Enablement",y:282,height:70,color:"rgba(232,197,71,0.07)"}],
       nodes: [
-        {type:"governance",label:"CPO / CTO",x:200,y:28,w:130,h:44,color:"#D4860A",currentFte:2,targetFte:2},
-        {type:"org-unit",label:"Tribe: Growth",x:30,y:110,w:140,h:48,color:"#D4860A",currentFte:25,targetFte:28},
-        {type:"org-unit",label:"Tribe: Platform",x:190,y:110,w:140,h:48,color:"#D4860A",currentFte:20,targetFte:25},
-        {type:"org-unit",label:"Tribe: Content",x:350,y:110,w:140,h:48,color:"#D4860A",currentFte:18,targetFte:22},
+        {type:"governance",label:"CPO / CTO",x:200,y:28,w:130,h:44,color:"var(--accent-primary)",currentFte:2,targetFte:2},
+        {type:"org-unit",label:"Tribe: Growth",x:30,y:110,w:140,h:48,color:"var(--accent-primary)",currentFte:25,targetFte:28},
+        {type:"org-unit",label:"Tribe: Platform",x:190,y:110,w:140,h:48,color:"var(--accent-primary)",currentFte:20,targetFte:25},
+        {type:"org-unit",label:"Tribe: Content",x:350,y:110,w:140,h:48,color:"var(--accent-primary)",currentFte:18,targetFte:22},
         {type:"shared-service",label:"Platform Eng",x:60,y:206,w:140,h:48,color:"#4A9E6B",currentFte:12,targetFte:15},
         {type:"shared-service",label:"SRE / DevOps",x:220,y:206,w:140,h:48,color:"#4A9E6B",currentFte:8,targetFte:10},
         {type:"shared-service",label:"Data Infra",x:380,y:206,w:120,h:48,color:"#4A9E6B",currentFte:6,targetFte:10},
-        {type:"ai-node",label:"ML Platform",x:140,y:294,w:130,h:44,color:"#E8C547",currentFte:4,targetFte:12,aiMaturity:"Scaling"},
-        {type:"ai-node",label:"AI Features",x:300,y:294,w:130,h:44,color:"#E8C547",currentFte:3,targetFte:8,aiMaturity:"Piloting"},
+        {type:"ai-node",label:"ML Platform",x:140,y:294,w:130,h:44,color:"var(--warning)",currentFte:4,targetFte:12,aiMaturity:"Scaling"},
+        {type:"ai-node",label:"AI Features",x:300,y:294,w:130,h:44,color:"var(--warning)",currentFte:3,targetFte:8,aiMaturity:"Piloting"},
       ],
     },
     { label: "Netflix Tech OM", desc: "Full freedom & responsibility. Minimal hierarchy, strong platform.", industry: "Technology", company: "netflix",
       layers: [{label:"Leadership",y:16,height:70,color:"rgba(212,134,10,0.07)"},{label:"Product Teams",y:98,height:90,color:"rgba(74,130,196,0.07)"},{label:"Platform",y:200,height:80,color:"rgba(74,158,107,0.07)"}],
       nodes: [
-        {type:"governance",label:"VP Eng",x:200,y:28,w:130,h:44,color:"#D4860A",currentFte:3,targetFte:3},
-        {type:"org-unit",label:"Studio Tech",x:30,y:116,w:140,h:48,color:"#D4860A",currentFte:60,targetFte:65},
-        {type:"org-unit",label:"Streaming",x:190,y:116,w:130,h:48,color:"#D4860A",currentFte:45,targetFte:50},
-        {type:"org-unit",label:"Data & ML",x:340,y:116,w:130,h:48,color:"#D4860A",currentFte:35,targetFte:45},
+        {type:"governance",label:"VP Eng",x:200,y:28,w:130,h:44,color:"var(--accent-primary)",currentFte:3,targetFte:3},
+        {type:"org-unit",label:"Studio Tech",x:30,y:116,w:140,h:48,color:"var(--accent-primary)",currentFte:60,targetFte:65},
+        {type:"org-unit",label:"Streaming",x:190,y:116,w:130,h:48,color:"var(--accent-primary)",currentFte:45,targetFte:50},
+        {type:"org-unit",label:"Data & ML",x:340,y:116,w:130,h:48,color:"var(--accent-primary)",currentFte:35,targetFte:45},
         {type:"shared-service",label:"Core Platform",x:100,y:216,w:150,h:48,color:"#4A9E6B",currentFte:30,targetFte:35},
-        {type:"ai-node",label:"Personalization AI",x:280,y:216,w:160,h:48,color:"#E8C547",currentFte:15,targetFte:25,aiMaturity:"Optimizing"},
+        {type:"ai-node",label:"Personalization AI",x:280,y:216,w:160,h:48,color:"var(--warning)",currentFte:15,targetFte:25,aiMaturity:"Optimizing"},
       ],
     },
   ],
@@ -199,14 +199,14 @@ export const OM_FUNCTION_PRESETS: Record<string, OMPreset[]> = {
     { label: "Three Lines Model", desc: "Industry standard for financial services — business ownership, risk oversight, independent audit.", industry: "Financial Services", company: "jpmorgan",
       layers: [{label:"Board / Risk Committee",y:16,height:60,color:"rgba(212,134,10,0.07)"},{label:"1st Line — Business",y:88,height:80,color:"rgba(74,130,196,0.07)"},{label:"2nd Line — Risk & Compliance",y:180,height:80,color:"rgba(192,98,42,0.07)"},{label:"3rd Line — Internal Audit",y:272,height:70,color:"rgba(139,92,246,0.07)"}],
       nodes: [
-        {type:"governance",label:"CRO / Board",x:180,y:24,w:148,h:40,color:"#D4860A",currentFte:2,targetFte:2},
-        {type:"org-unit",label:"Business Risk Owners",x:40,y:104,w:170,h:48,color:"#D4860A",currentFte:20,targetFte:18},
-        {type:"org-unit",label:"Operational Risk",x:240,y:104,w:150,h:48,color:"#D4860A",currentFte:12,targetFte:10},
+        {type:"governance",label:"CRO / Board",x:180,y:24,w:148,h:40,color:"var(--accent-primary)",currentFte:2,targetFte:2},
+        {type:"org-unit",label:"Business Risk Owners",x:40,y:104,w:170,h:48,color:"var(--accent-primary)",currentFte:20,targetFte:18},
+        {type:"org-unit",label:"Operational Risk",x:240,y:104,w:150,h:48,color:"var(--accent-primary)",currentFte:12,targetFte:10},
         {type:"org-unit",label:"ERM",x:60,y:196,w:120,h:48,color:"#C0622A",currentFte:8,targetFte:7},
         {type:"org-unit",label:"Compliance",x:200,y:196,w:120,h:48,color:"#C0622A",currentFte:15,targetFte:12},
         {type:"org-unit",label:"Model Risk",x:340,y:196,w:120,h:48,color:"#C0622A",currentFte:6,targetFte:5},
-        {type:"governance",label:"Internal Audit",x:160,y:284,w:148,h:44,color:"#8B5CF6",currentFte:10,targetFte:9},
-        {type:"ai-node",label:"AI Surveillance",x:340,y:284,w:148,h:44,color:"#E8C547",currentFte:0,targetFte:5,aiMaturity:"Piloting"},
+        {type:"governance",label:"Internal Audit",x:160,y:284,w:148,h:44,color:"var(--purple)",currentFte:10,targetFte:9},
+        {type:"ai-node",label:"AI Surveillance",x:340,y:284,w:148,h:44,color:"var(--warning)",currentFte:0,targetFte:5,aiMaturity:"Piloting"},
       ],
     },
   ],
@@ -214,15 +214,15 @@ export const OM_FUNCTION_PRESETS: Record<string, OMPreset[]> = {
     { label: "Clinical OM", desc: "Hospital system operating model — clinical, administrative, revenue cycle.", industry: "Healthcare",
       layers: [{label:"CMO / CNO Office",y:16,height:70,color:"rgba(212,134,10,0.07)"},{label:"Clinical Departments",y:98,height:80,color:"rgba(74,130,196,0.07)"},{label:"Clinical Support",y:190,height:80,color:"rgba(74,158,107,0.07)"},{label:"Revenue Cycle",y:282,height:70,color:"rgba(192,98,42,0.07)"}],
       nodes: [
-        {type:"governance",label:"CMO / CNO",x:180,y:28,w:148,h:44,color:"#D4860A",currentFte:2,targetFte:2},
-        {type:"org-unit",label:"Medicine",x:30,y:110,w:120,h:48,color:"#D4860A",currentFte:80,targetFte:80},
-        {type:"org-unit",label:"Surgery",x:170,y:110,w:110,h:48,color:"#D4860A",currentFte:60,targetFte:58},
-        {type:"org-unit",label:"Emergency",x:300,y:110,w:120,h:48,color:"#D4860A",currentFte:45,targetFte:45},
-        {type:"org-unit",label:"Pharmacy",x:440,y:110,w:110,h:48,color:"#D4860A",currentFte:20,targetFte:18},
+        {type:"governance",label:"CMO / CNO",x:180,y:28,w:148,h:44,color:"var(--accent-primary)",currentFte:2,targetFte:2},
+        {type:"org-unit",label:"Medicine",x:30,y:110,w:120,h:48,color:"var(--accent-primary)",currentFte:80,targetFte:80},
+        {type:"org-unit",label:"Surgery",x:170,y:110,w:110,h:48,color:"var(--accent-primary)",currentFte:60,targetFte:58},
+        {type:"org-unit",label:"Emergency",x:300,y:110,w:120,h:48,color:"var(--accent-primary)",currentFte:45,targetFte:45},
+        {type:"org-unit",label:"Pharmacy",x:440,y:110,w:110,h:48,color:"var(--accent-primary)",currentFte:20,targetFte:18},
         {type:"shared-service",label:"Health IT / EHR",x:60,y:206,w:150,h:48,color:"#4A9E6B",currentFte:15,targetFte:18},
         {type:"shared-service",label:"Quality & Safety",x:240,y:206,w:148,h:48,color:"#4A9E6B",currentFte:10,targetFte:8},
         {type:"shared-service",label:"Coding & Billing",x:100,y:294,w:148,h:48,color:"#C0622A",currentFte:25,targetFte:15},
-        {type:"ai-node",label:"AI Clinical Decision",x:280,y:294,w:170,h:44,color:"#E8C547",currentFte:0,targetFte:4,aiMaturity:"Exploring"},
+        {type:"ai-node",label:"AI Clinical Decision",x:280,y:294,w:170,h:44,color:"var(--warning)",currentFte:0,targetFte:4,aiMaturity:"Exploring"},
       ],
     },
   ],
@@ -249,12 +249,12 @@ export const OM_ARCHETYPES_2: Record<string,{label:string;desc:string;layers:Omi
       {label:"Shared Services",      y:334,height:90,  color:"rgba(139,92,246,0.07)"},
     ],
     nodes:[
-      {type:"org-unit",label:"CHRO",         x:90,  y:38,  w:130,h:48,color:"#D4860A",currentFte:1, targetFte:1},
-      {type:"org-unit",label:"CDO",          x:270, y:38,  w:130,h:48,color:"#D4860A",currentFte:1, targetFte:1},
-      {type:"coe",     label:"AI CoE",       x:90,  y:143, w:130,h:48,color:"#D4860A",currentFte:0, targetFte:8},
-      {type:"coe",     label:"People Analytics",x:268,y:143,w:148,h:48,color:"#D4860A",currentFte:2, targetFte:5},
-      {type:"org-unit",label:"BU HR BP",     x:68,  y:249, w:130,h:48,color:"#D4860A",currentFte:5, targetFte:3},
-      {type:"org-unit",label:"BU HR BP",     x:248, y:249, w:130,h:48,color:"#D4860A",currentFte:5, targetFte:3},
+      {type:"org-unit",label:"CHRO",         x:90,  y:38,  w:130,h:48,color:"var(--accent-primary)",currentFte:1, targetFte:1},
+      {type:"org-unit",label:"CDO",          x:270, y:38,  w:130,h:48,color:"var(--accent-primary)",currentFte:1, targetFte:1},
+      {type:"coe",     label:"AI CoE",       x:90,  y:143, w:130,h:48,color:"var(--accent-primary)",currentFte:0, targetFte:8},
+      {type:"coe",     label:"People Analytics",x:268,y:143,w:148,h:48,color:"var(--accent-primary)",currentFte:2, targetFte:5},
+      {type:"org-unit",label:"BU HR BP",     x:68,  y:249, w:130,h:48,color:"var(--accent-primary)",currentFte:5, targetFte:3},
+      {type:"org-unit",label:"BU HR BP",     x:248, y:249, w:130,h:48,color:"var(--accent-primary)",currentFte:5, targetFte:3},
       {type:"shared-service",label:"Ops & Admin",x:68,y:355,w:138,h:48,color:"#4A9E6B",currentFte:18,targetFte:12},
       {type:"shared-service",label:"Tech & Data", x:252,y:355,w:138,h:48,color:"#4A9E6B",currentFte:8, targetFte:8},
     ],
@@ -267,9 +267,9 @@ export const OM_ARCHETYPES_2: Record<string,{label:string;desc:string;layers:Omi
       {label:"Delivery",           y:228,height:90,  color:"rgba(74,158,107,0.07)"},
     ],
     nodes:[
-      {type:"org-unit",     label:"CPO / CHRO",    x:188,y:38,  w:158,h:48,color:"#D4860A",currentFte:1,targetFte:1},
-      {type:"coe",          label:"AI & Analytics", x:82, y:143, w:148,h:48,color:"#D4860A",currentFte:3,targetFte:8},
-      {type:"coe",          label:"Talent CoE",     x:278,y:143, w:138,h:48,color:"#D4860A",currentFte:14,targetFte:10},
+      {type:"org-unit",     label:"CPO / CHRO",    x:188,y:38,  w:158,h:48,color:"var(--accent-primary)",currentFte:1,targetFte:1},
+      {type:"coe",          label:"AI & Analytics", x:82, y:143, w:148,h:48,color:"var(--accent-primary)",currentFte:3,targetFte:8},
+      {type:"coe",          label:"Talent CoE",     x:278,y:143, w:138,h:48,color:"var(--accent-primary)",currentFte:14,targetFte:10},
       {type:"shared-service",label:"GBS Delivery",  x:148,y:249, w:148,h:48,color:"#4A9E6B",currentFte:28,targetFte:20},
     ],
   },
@@ -282,11 +282,11 @@ export const OM_ARCHETYPES_2: Record<string,{label:string;desc:string;layers:Omi
       {label:"Enablement",    y:334,height:90,  color:"rgba(139,92,246,0.07)"},
     ],
     nodes:[
-      {type:"org-unit",label:"Global HR Hub", x:194,y:38,  w:170,h:48,color:"#D4860A",currentFte:5,targetFte:5},
+      {type:"org-unit",label:"Global HR Hub", x:194,y:38,  w:170,h:48,color:"var(--accent-primary)",currentFte:5,targetFte:5},
       {type:"org-unit",label:"Americas Hub",  x:52, y:143, w:138,h:48,color:"#C0622A",currentFte:10,targetFte:8},
       {type:"org-unit",label:"EMEA Hub",      x:234,y:143, w:138,h:48,color:"#C0622A",currentFte:10,targetFte:8},
       {type:"org-unit",label:"APAC Hub",      x:416,y:143, w:138,h:48,color:"#C0622A",currentFte:10,targetFte:8},
-      {type:"ai-node", label:"AI Platform",   x:234,y:355, w:138,h:48,color:"#E8C547",currentFte:0, targetFte:6,aiMaturity:"Scaling"},
+      {type:"ai-node", label:"AI Platform",   x:234,y:355, w:138,h:48,color:"var(--warning)",currentFte:0, targetFte:6,aiMaturity:"Scaling"},
     ],
   },
 };
@@ -308,19 +308,19 @@ export function OMNodeEl({ n, selected, mode, onDown, onEnter, onLeave, kpis }: 
 
   return (
     <g transform={`translate(${n.x},${n.y})`} onMouseDown={onDown} onMouseEnter={onEnter} onMouseLeave={onLeave} style={{cursor:"grab",userSelect:"none"}}>
-      {selected && <rect x={-5} y={-5} width={n.w+10} height={n.h+10} rx={10} fill="none" stroke="#E8C547" strokeWidth={1.5} strokeDasharray="4,3" opacity={0.6} />}
+      {selected && <rect x={-5} y={-5} width={n.w+10} height={n.h+10} rx={10} fill="none" stroke="var(--warning)" strokeWidth={1.5} strokeDasharray="4,3" opacity={0.6} />}
       {isAi ? (
         (() => {
           const cx=n.w/2,cy=n.h/2,r=Math.min(cx,cy)-5;
           const pts=Array.from({length:6},(_,i)=>{const a=(Math.PI/3)*i-Math.PI/6;return `${cx+r*Math.cos(a)},${cy+r*Math.sin(a)}`;}).join(" ");
-          return <polygon points={pts} fill={`${n.color}20`} stroke={selected?"#E8C547":n.color} strokeWidth={selected?2:1.5} />;
+          return <polygon points={pts} fill={`${n.color}20`} stroke={selected?"var(--warning)":n.color} strokeWidth={selected?2:1.5} />;
         })()
       ) : n.type==="governance" ? (
-        <polygon points={`${n.w/2},4 ${n.w-4},${n.h/2} ${n.w/2},${n.h-4} 4,${n.h/2}`} fill={`${n.color}20`} stroke={selected?"#E8C547":n.color} strokeWidth={selected?2:1.5} />
+        <polygon points={`${n.w/2},4 ${n.w-4},${n.h/2} ${n.w/2},${n.h-4} 4,${n.h/2}`} fill={`${n.color}20`} stroke={selected?"var(--warning)":n.color} strokeWidth={selected?2:1.5} />
       ) : n.type==="role" ? (
-        <ellipse cx={n.w/2} cy={n.h/2} rx={n.w/2-3} ry={n.h/2-3} fill={`${n.color}20`} stroke={selected?"#E8C547":n.color} strokeWidth={selected?2:1.5} />
+        <ellipse cx={n.w/2} cy={n.h/2} rx={n.w/2-3} ry={n.h/2-3} fill={`${n.color}20`} stroke={selected?"var(--warning)":n.color} strokeWidth={selected?2:1.5} />
       ) : (
-        <rect x={2} y={2} width={n.w-4} height={n.h-4} rx={6} fill={`${n.color}20`} stroke={selected?"#E8C547":n.color} strokeWidth={selected?2:1.5} />
+        <rect x={2} y={2} width={n.w-4} height={n.h-4} rx={6} fill={`${n.color}20`} stroke={selected?"var(--warning)":n.color} strokeWidth={selected?2:1.5} />
       )}
 
       {/* Wave badge */}
@@ -341,7 +341,7 @@ export function OMNodeEl({ n, selected, mode, onDown, onEnter, onLeave, kpis }: 
       {/* FTE line */}
       {n.currentFte!=null && (
         <text x={n.w-5} y={n.h-5} textAnchor="end" fontSize={9}
-          fill={mode==="target"?(delta<0?"#e06c75":delta>0?"#4a9e6b":"#7a7368"):"#D4860A"}
+          fill={mode==="target"?(delta<0?"#e06c75":delta>0?"#4a9e6b":"#7a7368"):"var(--accent-primary)"}
           fontFamily="'IBM Plex Mono',monospace" style={{pointerEvents:"none"}}>
           {mode==="target"?`${n.targetFte??0} FTE${delta!==0?` (${delta>0?"+":""}${delta})`:""}`:
                            `${n.currentFte} FTE`}
@@ -349,7 +349,7 @@ export function OMNodeEl({ n, selected, mode, onDown, onEnter, onLeave, kpis }: 
       )}
 
       {/* AI maturity */}
-      {n.aiMaturity && <text x={6} y={n.h-5} fontSize={8} fill="#E8C547" fontFamily="'IBM Plex Mono',monospace" style={{pointerEvents:"none"}}>⬡ {n.aiMaturity}</text>}
+      {n.aiMaturity && <text x={6} y={n.h-5} fontSize={8} fill="var(--warning)" fontFamily="'IBM Plex Mono',monospace" style={{pointerEvents:"none"}}>⬡ {n.aiMaturity}</text>}
     </g>
   );
 }
@@ -367,7 +367,7 @@ export function OMEdgeEl({ e, nodes, selected, onSelect }: { e:OMEdge2; nodes:OM
   return (
     <g onClick={ev=>{ev.stopPropagation();onSelect();}}>
       <path d={`M${x1},${y1} C${x1},${my} ${x2},${my} ${x2},${y2}`} fill="none" stroke="transparent" strokeWidth={12} style={{cursor:"pointer"}} />
-      <path d={`M${x1},${y1} C${x1},${my} ${x2},${my} ${x2},${y2}`} fill="none" stroke={selected?"#E8C547":color} strokeWidth={selected?2:1.5} strokeDasharray={dash} markerEnd={`url(#omarr2-${e.type})`} opacity={0.75} />
+      <path d={`M${x1},${y1} C${x1},${my} ${x2},${my} ${x2},${y2}`} fill="none" stroke={selected?"var(--warning)":color} strokeWidth={selected?2:1.5} strokeDasharray={dash} markerEnd={`url(#omarr2-${e.type})`} opacity={0.75} />
     </g>
   );
 }
@@ -383,7 +383,7 @@ export function OMProps({ n, kpis, onChange, onDelete, onClose }: {
   return (
     <div style={{position:"absolute",top:0,right:0,width:248,height:"100%",background:"#1a1814",borderLeft:"1px solid #2e2b24",display:"flex",flexDirection:"column",zIndex:25,fontFamily:"'Outfit',sans-serif",boxShadow:"-4px 0 20px rgba(0,0,0,0.35)"}}>
       <div style={{padding:"10px 12px",borderBottom:"1px solid #2e2b24",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-        <span style={{fontSize: 14,fontWeight:800,color:"#D4860A",letterSpacing:"0.12em",textTransform:"uppercase"}}>Properties</span>
+        <span style={{fontSize: 14,fontWeight:800,color:"var(--accent-primary)",letterSpacing:"0.12em",textTransform:"uppercase"}}>Properties</span>
         <button onClick={onClose} style={{background:"none",border:"none",color:"#6B6355",cursor:"pointer",fontSize:17,padding:0,lineHeight:1}}>×</button>
       </div>
       <div style={{flex:1,overflowY:"auto",padding:12,display:"flex",flexDirection:"column",gap:9}}>
@@ -399,8 +399,8 @@ export function OMProps({ n, kpis, onChange, onDelete, onClose }: {
         </div>
         <div><label style={LB}>Color</label>
           <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
-            {["#D4860A","#D4860A","#4A9E6B","#E8C547","#C0622A","#8B5CF6","#e06c75","#C07030"].map(c=>(
-              <button key={c} onClick={()=>onChange({color:c})} style={{width:20,height:20,borderRadius:4,background:c,border:"none",cursor:"pointer",outline:n.color===c?"2px solid #E8C547":"none",outlineOffset:2}} />
+            {["var(--accent-primary)","var(--accent-primary)","#4A9E6B","var(--warning)","#C0622A","var(--purple)","#e06c75","var(--teal)"].map(c=>(
+              <button key={c} onClick={()=>onChange({color:c})} style={{width:20,height:20,borderRadius:4,background:c,border:"none",cursor:"pointer",outline:n.color===c?"2px solid var(--warning)":"none",outlineOffset:2}} />
             ))}
           </div>
         </div>
@@ -426,7 +426,7 @@ export function OMProps({ n, kpis, onChange, onDelete, onClose }: {
           );})}
         </div>}
         <div><label style={LB}>Width</label>
-          <input type="range" min={80} max={280} value={n.w} onChange={e=>onChange({w:Number(e.target.value)})} style={{width:"100%",accentColor:"#D4860A"}} />
+          <input type="range" min={80} max={280} value={n.w} onChange={e=>onChange({w:Number(e.target.value)})} style={{width:"100%",accentColor:"var(--accent-primary)"}} />
         </div>
         <div><label style={LB}>Notes</label><textarea value={n.notes??""} onChange={e=>onChange({notes:e.target.value})} rows={3} style={{...IS,resize:"vertical",minHeight:56}} /></div>
       </div>
@@ -582,11 +582,11 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
     <div style={{height:"calc(100vh - 96px)",display:"flex",flexDirection:"column",background:"#0f0e0c",fontFamily:"'Outfit',sans-serif",color:"#f0ece4",borderRadius:12,overflow:"hidden",border:"1px solid #2e2b24"}}>
       {/* Header */}
       <div style={{padding:"7px 12px",borderBottom:"1px solid #2e2b24",display:"flex",alignItems:"center",gap:8,background:"#1a1814",flexShrink:0,flexWrap:"wrap"}}>
-        <span style={{fontSize: 15,fontWeight:800,color:"#D4860A",letterSpacing:"0.04em",marginRight:4}}>OM CANVAS</span>
+        <span style={{fontSize: 15,fontWeight:800,color:"var(--accent-primary)",letterSpacing:"0.04em",marginRight:4}}>OM CANVAS</span>
         {onNavigateLab && <button onClick={onNavigateLab} style={{padding:"2px 9px",borderRadius:4,fontSize: 14,fontWeight:700,background:"transparent",border:"1px solid #2e2b24",color:"#6B6355",cursor:"pointer",marginRight:4}} title="Switch to Analysis Lab">🧬 Lab</button>}
         <div style={{display:"flex",background:"#211f1b",borderRadius:6,padding:2,border:"1px solid #2e2b24"}}>
           {(["current","target"] as OMDesignMode2[]).map(m=>(
-            <button key={m} onClick={()=>setMode(m)} style={{padding:"2px 9px",borderRadius:4,fontSize: 15,fontWeight:700,background:mode===m?(m==="current"?"#D4860A":"#D4860A"):"transparent",border:"none",color:mode===m?"#fff":"#6B6355",cursor:"pointer"}}>
+            <button key={m} onClick={()=>setMode(m)} style={{padding:"2px 9px",borderRadius:4,fontSize: 15,fontWeight:700,background:mode===m?(m==="current"?"var(--accent-primary)":"var(--accent-primary)"):"transparent",border:"none",color:mode===m?"#fff":"#6B6355",cursor:"pointer"}}>
               {m==="current"?"Current":"Target"}
             </button>
           ))}
@@ -603,12 +603,12 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
         <span style={{fontSize: 15,fontFamily:"'IBM Plex Mono',monospace",color:"#6B6355",minWidth:30,textAlign:"center"}}>{Math.round(zoom*100)}%</span>
         <button onClick={fitView} style={IB()} title="Fit to screen">⌂</button>
         <button onClick={()=>setZoom(z=>Math.max(0.25,z-0.1))} style={IB()}>−</button>
-        <button onClick={()=>setSnapOn(s=>!s)} style={IB({color:snapOn?"#D4860A":"#6B6355",border:`1px solid ${snapOn?"#D4860A":"#2e2b24"}`})} title="Snap to grid">⊞</button>
+        <button onClick={()=>setSnapOn(s=>!s)} style={IB({color:snapOn?"var(--accent-primary)":"#6B6355",border:`1px solid ${snapOn?"var(--accent-primary)":"#2e2b24"}`})} title="Snap to grid">⊞</button>
         <div style={{width:1,height:14,background:"#2e2b24"}} />
         <button onClick={exportSVG} style={IB()}>↓ SVG</button>
-        <button onClick={()=>{setShowVers(v=>!v);setShowLayers(false);}} style={IB({color:showVers?"#D4860A":"#b8b0a0"})}>◷</button>
+        <button onClick={()=>{setShowVers(v=>!v);setShowLayers(false);}} style={IB({color:showVers?"var(--accent-primary)":"#b8b0a0"})}>◷</button>
         <button onClick={()=>{setNodes(nodes);setEdges(edges);setLayers(layers);setSaved(true);setTimeout(()=>setSaved(false),2000);}}
-          style={{padding:"4px 12px",borderRadius:5,fontSize: 15,fontWeight:700,background:saved?"#4A9E6B":"#D4860A",border:"none",color:"#fff",cursor:"pointer",transition:"background 0.3s"}}>
+          style={{padding:"4px 12px",borderRadius:5,fontSize: 15,fontWeight:700,background:saved?"#4A9E6B":"var(--accent-primary)",border:"none",color:"#fff",cursor:"pointer",transition:"background 0.3s"}}>
           {saved?"✓":"Save"}
         </button>
       </div>
@@ -620,7 +620,7 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
           <OMPalSec label="Function Scope">
             <div style={{display:"flex",flexWrap:"wrap",gap:3}}>
               {Object.keys(OM_FUNCTION_PRESETS).map(f=>(
-                <button key={f} onClick={()=>setCanvasFunc(f)} style={{padding:"2px 7px",borderRadius:4,fontSize: 15,fontWeight:700,background:canvasFunc===f?"rgba(212,134,10,0.2)":"transparent",border:`1px solid ${canvasFunc===f?"#D4860A":"#2e2b24"}`,color:canvasFunc===f?"#D4860A":"#6B6355",cursor:"pointer"}}>{f}</button>
+                <button key={f} onClick={()=>setCanvasFunc(f)} style={{padding:"2px 7px",borderRadius:4,fontSize: 15,fontWeight:700,background:canvasFunc===f?"rgba(212,134,10,0.2)":"transparent",border:`1px solid ${canvasFunc===f?"var(--accent-primary)":"#2e2b24"}`,color:canvasFunc===f?"var(--accent-primary)":"#6B6355",cursor:"pointer"}}>{f}</button>
               ))}
             </div>
           </OMPalSec>
@@ -640,7 +640,7 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
           {/* OM Dictionary button */}
           <OMPalSec label="Dictionary">
             <OMPalBtn onClick={()=>setShowDict(d=>!d)}>
-              <span style={{color:"#E8C547",marginRight:6,fontSize: 15}}>📖</span>
+              <span style={{color:"var(--warning)",marginRight:6,fontSize: 15}}>📖</span>
               <span style={{fontSize: 15,fontWeight:700}}>{showDict?"Close":"Browse All Models"}</span>
             </OMPalBtn>
           </OMPalSec>
@@ -666,7 +666,7 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
           <div style={{height:1,background:"#2e2b24",margin:"2px 0"}} />
           <OMPalSec label="Layers">
             <OMPalBtn onClick={()=>{setShowLayers(l=>!l);setShowVers(false);}}>
-              <span style={{color:"#D4860A",marginRight:6}}>⊟</span>
+              <span style={{color:"var(--accent-primary)",marginRight:6}}>⊟</span>
               <span style={{fontSize: 15}}>Edit Layers</span>
             </OMPalBtn>
           </OMPalSec>
@@ -679,13 +679,13 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
               </div>
             ))}
           </OMPalSec>
-          {edgeMode&&<div style={{margin:"6px 8px",padding:"7px 9px",borderRadius:5,background:"rgba(212,134,10,0.1)",border:"1px solid rgba(212,134,10,0.3)",fontSize: 14,color:"#D4860A"}}>{edgeStart?"Click target":"Click source"}</div>}
+          {edgeMode&&<div style={{margin:"6px 8px",padding:"7px 9px",borderRadius:5,background:"rgba(212,134,10,0.1)",border:"1px solid rgba(212,134,10,0.3)",fontSize: 14,color:"var(--accent-primary)"}}>{edgeStart?"Click target":"Click source"}</div>}
         </div>
 
         {/* OM Dictionary Panel — slides over canvas */}
         {showDict && <div style={{width:320,flexShrink:0,background:"#1a1814",borderRight:"1px solid #2e2b24",display:"flex",flexDirection:"column",overflowY:"auto"}}>
           <div style={{padding:"10px 12px",borderBottom:"1px solid #2e2b24",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-            <span style={{fontSize: 15,fontWeight:800,color:"#E8C547",letterSpacing:"0.03em"}}>📖 OM Dictionary</span>
+            <span style={{fontSize: 15,fontWeight:800,color:"var(--warning)",letterSpacing:"0.03em"}}>📖 OM Dictionary</span>
             <button onClick={()=>setShowDict(false)} style={{background:"none",border:"none",color:"#6B6355",cursor:"pointer",fontSize:14}}>✕</button>
           </div>
           <div style={{padding:"6px 10px"}}>
@@ -697,16 +697,16 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
               const filtered = dictFilter ? presets.filter(p=>`${p.label} ${p.desc} ${p.industry||""} ${p.company||""} ${func}`.toLowerCase().includes(dictFilter.toLowerCase())) : presets;
               if(filtered.length===0) return null;
               return <div key={func}>
-                <div style={{fontSize: 14,fontWeight:800,color:"#D4860A",letterSpacing:"0.08em",textTransform:"uppercase",padding:"8px 0 4px",borderBottom:"1px solid #2e2b24",marginBottom:4}}>{func}</div>
+                <div style={{fontSize: 14,fontWeight:800,color:"var(--accent-primary)",letterSpacing:"0.08em",textTransform:"uppercase",padding:"8px 0 4px",borderBottom:"1px solid #2e2b24",marginBottom:4}}>{func}</div>
                 {filtered.map((p,i)=>(
                   <div key={i} onClick={()=>loadPreset(p)} style={{padding:"8px 10px",marginBottom:4,borderRadius:6,background:"#211f1b",border:"1px solid #2e2b24",cursor:"pointer",transition:"all 0.15s"}}
-                    onMouseEnter={e=>{e.currentTarget.style.borderColor="#D4860A";e.currentTarget.style.background="#2a2720";}}
+                    onMouseEnter={e=>{e.currentTarget.style.borderColor="var(--accent-primary)";e.currentTarget.style.background="#2a2720";}}
                     onMouseLeave={e=>{e.currentTarget.style.borderColor="#2e2b24";e.currentTarget.style.background="#211f1b";}}>
                     <div style={{fontSize: 15,fontWeight:700,color:"#f0ece4",marginBottom:2}}>{p.label}</div>
                     <div style={{fontSize: 14,color:"#7a7368",lineHeight:1.4,marginBottom:4}}>{p.desc}</div>
                     <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
-                      {p.industry && <span style={{fontSize: 15,fontWeight:700,padding:"1px 5px",borderRadius:3,background:"rgba(74,130,196,0.15)",color:"#D4860A"}}>{p.industry}</span>}
-                      {p.company && <span style={{fontSize: 15,fontWeight:700,padding:"1px 5px",borderRadius:3,background:"rgba(212,134,10,0.15)",color:"#D4860A"}}>{p.company}</span>}
+                      {p.industry && <span style={{fontSize: 15,fontWeight:700,padding:"1px 5px",borderRadius:3,background:"rgba(74,130,196,0.15)",color:"var(--accent-primary)"}}>{p.industry}</span>}
+                      {p.company && <span style={{fontSize: 15,fontWeight:700,padding:"1px 5px",borderRadius:3,background:"rgba(212,134,10,0.15)",color:"var(--accent-primary)"}}>{p.company}</span>}
                       <span style={{fontSize: 15,fontWeight:700,padding:"1px 5px",borderRadius:3,background:"rgba(74,158,107,0.15)",color:"#4A9E6B"}}>{p.nodes.length} nodes · {p.layers.length} layers</span>
                       {(() => { const delta = p.nodes.reduce((s,n)=>(n.targetFte??0)-(n.currentFte??0)+s,0); return delta !== 0 ? <span style={{fontSize: 15,fontWeight:700,padding:"1px 5px",borderRadius:3,background:delta<0?"rgba(224,108,117,0.15)":"rgba(74,158,107,0.15)",color:delta<0?"#e06c75":"#4a9e6b"}}>{delta>0?"+":""}{delta} FTE</span> : null; })()}
                     </div>
@@ -743,7 +743,7 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
                 </g>
               ))}
               {edges.map(e=><OMEdgeEl key={e.id} e={e} nodes={nodes} selected={selEdge===e.id} onSelect={()=>{setSelEdge(e.id);setSelId(null);}} />)}
-              {multiSel.map(id=>{const n=nodes.find(x=>x.id===id);if(!n)return null;return <rect key={id} x={n.x-4} y={n.y-4} width={n.w+8} height={n.h+8} rx={8} fill="rgba(232,197,71,0.06)" stroke="#E8C547" strokeWidth={1} strokeDasharray="3,2" />;}) }
+              {multiSel.map(id=>{const n=nodes.find(x=>x.id===id);if(!n)return null;return <rect key={id} x={n.x-4} y={n.y-4} width={n.w+8} height={n.h+8} rx={8} fill="rgba(232,197,71,0.06)" stroke="var(--warning)" strokeWidth={1} strokeDasharray="3,2" />;}) }
               {nodes.map(n=><OMNodeEl key={n.id} n={n} selected={selId===n.id} mode={mode} kpis={kpis}
                 onDown={e=>onNodeDown(e,n.id)} onEnter={()=>setHovered(n.id)} onLeave={()=>setHovered(null)} />)}
             </g>
@@ -752,7 +752,7 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
           {/* Delta strip */}
           {nodes.length>0&&(
             <div style={{position:"absolute",bottom:10,left:172,display:"flex",gap:7}}>
-              {[{k:"Current FTE",v:totCur,c:"#D4860A"},{k:"Target FTE",v:totTgt,c:"#D4860A"},{k:"Net Δ",v:delta>0?`+${delta}`:String(delta),c:delta<0?"#e06c75":"#4A9E6B"},{k:"Nodes",v:nodes.length,c:"#b8b0a0"}].map(({k,v,c})=>(
+              {[{k:"Current FTE",v:totCur,c:"var(--accent-primary)"},{k:"Target FTE",v:totTgt,c:"var(--accent-primary)"},{k:"Net Δ",v:delta>0?`+${delta}`:String(delta),c:delta<0?"#e06c75":"#4A9E6B"},{k:"Nodes",v:nodes.length,c:"#b8b0a0"}].map(({k,v,c})=>(
                 <div key={k} style={{padding:"3px 9px",borderRadius:5,background:"#1a1814",border:"1px solid #2e2b24"}}>
                   <div style={{fontSize: 15,color:"#6B6355",textTransform:"uppercase",fontFamily:"'IBM Plex Mono',monospace"}}>{k}</div>
                   <div style={{fontSize: 15,fontWeight:700,color:c,fontFamily:"'IBM Plex Mono',monospace"}}>{v}</div>
@@ -765,7 +765,7 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
           {showLayers&&(
             <div style={{position:"absolute",top:48,left:170,zIndex:30,background:"#1a1814",border:"1px solid #2e2b24",borderRadius:8,padding:14,width:240,boxShadow:"0 10px 28px rgba(0,0,0,0.45)"}}>
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
-                <span style={{fontSize: 14,fontWeight:800,color:"#D4860A",letterSpacing:"0.1em",textTransform:"uppercase"}}>Edit Layers</span>
+                <span style={{fontSize: 14,fontWeight:800,color:"var(--accent-primary)",letterSpacing:"0.1em",textTransform:"uppercase"}}>Edit Layers</span>
                 <button onClick={()=>setShowLayers(false)} style={{background:"none",border:"none",color:"#6B6355",cursor:"pointer",fontSize:16}}>×</button>
               </div>
               {layers.map((l,i)=>(
@@ -775,7 +775,7 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
                 </div>
               ))}
               <button onClick={()=>{const lastY=layers.length?layers[layers.length-1].y+layers[layers.length-1].height+16:16;setLayers([...layers,{id:omUid(),label:"New Layer",y:lastY,height:90,color:"rgba(255,255,255,0.04)"}]);}}
-                style={{width:"100%",marginTop:4,padding:"5px 0",background:"rgba(212,134,10,0.12)",border:"1px solid rgba(212,134,10,0.4)",borderRadius:5,color:"#D4860A",fontSize: 15,fontWeight:700,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>
+                style={{width:"100%",marginTop:4,padding:"5px 0",background:"rgba(212,134,10,0.12)",border:"1px solid rgba(212,134,10,0.4)",borderRadius:5,color:"var(--accent-primary)",fontSize: 15,fontWeight:700,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>
                 + Add Layer
               </button>
             </div>
@@ -785,12 +785,12 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
           {showVers&&(
             <div style={{position:"absolute",top:0,right:selNode?248:0,width:240,height:"100%",background:"#1a1814",borderLeft:"1px solid #2e2b24",display:"flex",flexDirection:"column",zIndex:24,boxShadow:"-4px 0 16px rgba(0,0,0,0.3)"}}>
               <div style={{padding:"10px 12px",borderBottom:"1px solid #2e2b24",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-                <span style={{fontSize: 14,fontWeight:800,color:"#D4860A",letterSpacing:"0.1em",textTransform:"uppercase"}}>Versions</span>
+                <span style={{fontSize: 14,fontWeight:800,color:"var(--accent-primary)",letterSpacing:"0.1em",textTransform:"uppercase"}}>Versions</span>
                 <button onClick={()=>setShowVers(false)} style={{background:"none",border:"none",color:"#6B6355",cursor:"pointer",fontSize:17}}>×</button>
               </div>
               <div style={{padding:"9px 10px",borderBottom:"1px solid #2e2b24",background:"#211f1b"}}>
                 <input value={vName} onChange={e=>setVName(e.target.value)} placeholder='Snapshot name…' style={{width:"100%",background:"#1a1814",border:"1px solid #2e2b24",borderRadius:4,color:"#f0ece4",padding:"4px 7px",fontSize: 15,outline:"none",boxSizing:"border-box",marginBottom:5}} />
-                <button onClick={saveVersion} disabled={!vName.trim()} style={{width:"100%",padding:"5px 0",borderRadius:4,background:vName.trim()?"rgba(212,134,10,0.15)":"transparent",border:`1px solid ${vName.trim()?"rgba(212,134,10,0.5)":"#2e2b24"}`,color:vName.trim()?"#D4860A":"#6B6355",fontSize: 15,fontWeight:700,cursor:vName.trim()?"pointer":"default",fontFamily:"'Outfit',sans-serif"}}>Save Snapshot</button>
+                <button onClick={saveVersion} disabled={!vName.trim()} style={{width:"100%",padding:"5px 0",borderRadius:4,background:vName.trim()?"rgba(212,134,10,0.15)":"transparent",border:`1px solid ${vName.trim()?"rgba(212,134,10,0.5)":"#2e2b24"}`,color:vName.trim()?"var(--accent-primary)":"#6B6355",fontSize: 15,fontWeight:700,cursor:vName.trim()?"pointer":"default",fontFamily:"'Outfit',sans-serif"}}>Save Snapshot</button>
               </div>
               <div style={{flex:1,overflowY:"auto",padding:8}}>
                 {versions.length===0&&<div style={{textAlign:"center",padding:"20px 0",color:"#6B6355",fontSize: 15}}>No snapshots yet</div>}
@@ -802,7 +802,7 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
                       {[{k:"N",val:v.nodes.length},{k:"E",val:v.edges.length}].map(({k,val})=><span key={k} style={{padding:"1px 5px",borderRadius:2,background:"#2e2b24",fontSize: 15,color:"#6B6355",fontFamily:"'IBM Plex Mono',monospace"}}>{k}:{val}</span>)}
                     </div>
                     <button onClick={()=>{setNodes(v.nodes);setEdges(v.edges);setLayers(v.layers);setShowVers(false);}}
-                      style={{width:"100%",padding:"4px 0",borderRadius:4,background:"rgba(212,134,10,0.1)",border:"1px solid rgba(212,134,10,0.4)",color:"#D4860A",fontSize: 14,fontWeight:700,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>
+                      style={{width:"100%",padding:"4px 0",borderRadius:4,background:"rgba(212,134,10,0.1)",border:"1px solid rgba(212,134,10,0.4)",color:"var(--accent-primary)",fontSize: 14,fontWeight:700,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>
                       Restore
                     </button>
                   </div>
@@ -835,7 +835,7 @@ export function OMPalSec({label,children}:{label:string;children:React.ReactNode
 }
 export function OMPalBtn({children,onClick,active}:{children:React.ReactNode;onClick:()=>void;active?:boolean}) {
   return (
-    <button onClick={onClick} style={{width:"100%",padding:"5px 7px",marginBottom:2,borderRadius:5,textAlign:"left",display:"flex",alignItems:"center",background:active?"rgba(212,134,10,0.12)":"#211f1b",border:`1px solid ${active?"rgba(212,134,10,0.5)":"#2e2b24"}`,color:active?"#D4860A":"#b8b0a0",cursor:"pointer"}}>
+    <button onClick={onClick} style={{width:"100%",padding:"5px 7px",marginBottom:2,borderRadius:5,textAlign:"left",display:"flex",alignItems:"center",background:active?"rgba(212,134,10,0.12)":"#211f1b",border:`1px solid ${active?"rgba(212,134,10,0.5)":"#2e2b24"}`,color:active?"var(--accent-primary)":"#b8b0a0",cursor:"pointer"}}>
       {children}
     </button>
   );
@@ -1013,7 +1013,7 @@ export function KPIAlignmentModule({ projectId, canvasNodes, onBack }: {
         <div className="grid grid-cols-6 gap-3 mb-5">
           {[
             {k:"Objectives",  v:objectives.length,                 c:"var(--accent-primary)"},
-            {k:"KPIs",        v:kpis.length,                       c:"var(--info,#D4860A)"},
+            {k:"KPIs",        v:kpis.length,                       c:"var(--info,var(--accent-primary))"},
             {k:"Coverage",    v:`${kpis.length?Math.round(kpis.filter(k=>k.linkedNodeIds.length>0).length/kpis.length*100):0}%`, c:kpis.every(k=>k.linkedNodeIds.length>0)&&kpis.length>0?"var(--success)":"var(--warning)"},
             {k:"At Risk",     v:kpis.filter(k=>k.status==="at-risk").length, c:"var(--warning)"},
             {k:"Off Track",   v:kpis.filter(k=>k.status==="off-track").length, c:"var(--risk)"},
@@ -1189,7 +1189,7 @@ export function KPIAlignmentModule({ projectId, canvasNodes, onBack }: {
                                 return (
                                   <button key={n.id} onClick={()=>toggleKpiNode(k.id,n.id)}
                                     className="text-[15px] px-1.5 py-0.5 rounded cursor-pointer font-semibold transition-all"
-                                    style={{background:linked?`${n.color||"#D4860A"}20`:"transparent",border:`1px solid ${linked?n.color||"#D4860A":"#2e2b24"}`,color:linked?n.color||"#D4860A":"#6B6355"}}>
+                                    style={{background:linked?`${n.color||"var(--accent-primary)"}20`:"transparent",border:`1px solid ${linked?n.color||"var(--accent-primary)":"#2e2b24"}`,color:linked?n.color||"var(--accent-primary)":"#6B6355"}}>
                                     {(n.label||"").slice(0,7)}
                                   </button>
                                 );
@@ -1225,7 +1225,7 @@ export function KPIAlignmentModule({ projectId, canvasNodes, onBack }: {
                 const linkedKpis=kpis.filter(k=>k.linkedNodeIds.includes(n.id));
                 const atRisk=linkedKpis.filter(k=>k.status==="at-risk"||k.status==="off-track").length;
                 const hasAny=linkedKpis.length>0;
-                const nodeColor=n.color||"#D4860A";
+                const nodeColor=n.color||"var(--accent-primary)";
                 return (
                   <div key={n.id} className="p-3 rounded-xl border transition-all" style={{background:"var(--surface-1)",borderColor:hasAny?`${nodeColor}40`:"var(--border)",borderLeft:`3px solid ${hasAny?nodeColor:"var(--border)"}`}}>
                     <div className="flex items-center gap-2 mb-3">

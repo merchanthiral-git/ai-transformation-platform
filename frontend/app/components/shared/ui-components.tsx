@@ -142,7 +142,7 @@ export function CommandPalette({ actions, recentIds, onClose }: { actions: CmdAc
       {/* Search input */}
       <div className="flex items-center gap-3 px-5 py-4 border-b border-[var(--border)]">
         <span className="text-[18px] text-[var(--text-muted)]">🔍</span>
-        <input ref={inputRef} value={query} onChange={e => setQuery(e.target.value)} onKeyDown={handleKey} placeholder="Search anything..." className="flex-1 bg-transparent text-[18px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] font-heading" />
+        <input ref={inputRef} value={query} onChange={e => setQuery(e.target.value)} onKeyDown={handleKey} placeholder="Search anything..." title="Command Palette (Cmd+K)" className="flex-1 bg-transparent text-[18px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] font-heading" />
         <span className="text-[12px] text-[var(--text-muted)] px-1.5 py-0.5 rounded border border-[var(--border)] font-data">ESC</span>
       </div>
       {/* Results */}
@@ -177,11 +177,11 @@ export type Annotation = {
 };
 
 const ANNO_COLORS = [
-  { id: "amber", hex: "#D4860A", label: "Insight" },
-  { id: "red", hex: "#EF4444", label: "Risk" },
-  { id: "green", hex: "#10B981", label: "Opportunity" },
+  { id: "amber", hex: "var(--accent-primary)", label: "Insight" },
+  { id: "red", hex: "var(--risk)", label: "Risk" },
+  { id: "green", hex: "var(--success)", label: "Opportunity" },
   { id: "blue", hex: "#3B82F6", label: "Question" },
-  { id: "purple", hex: "#8B5CF6", label: "Action" },
+  { id: "purple", hex: "var(--purple)", label: "Action" },
 ];
 
 export function AnnotationLayer({ annotations, moduleId, onAdd, onUpdate, onDelete, annotateMode, children }: {
@@ -220,7 +220,7 @@ export function AnnotationLayer({ annotations, moduleId, onAdd, onUpdate, onDele
     setCreating(null);
   };
 
-  const colorHex = (id: string) => ANNO_COLORS.find(c => c.id === id)?.hex || "#D4860A";
+  const colorHex = (id: string) => ANNO_COLORS.find(c => c.id === id)?.hex || "var(--accent-primary)";
   const pinSize = (p: string) => p === "High" ? 20 : p === "Medium" ? 16 : 13;
 
   return <div ref={containerRef} className="relative" style={{ cursor: annotateMode ? "crosshair" : undefined }} onClick={handleClick}>
@@ -229,7 +229,7 @@ export function AnnotationLayer({ annotations, moduleId, onAdd, onUpdate, onDele
       const isEditing = editingId === a.id;
       return <div key={a.id} className="absolute z-30 group" style={{ left: `${a.xPct}%`, top: `${a.yPct}%`, transform: "translate(-50%, -50%)" }}>
         {/* Pin dot */}
-        <motion.div className="cursor-pointer" style={{ width: pinSize(a.priority), height: pinSize(a.priority), borderRadius: "50%", background: a.resolved ? "var(--text-muted)" : colorHex(a.color), boxShadow: `0 2px 6px ${a.resolved ? "rgba(0,0,0,0.2)" : colorHex(a.color)}40`, opacity: a.resolved ? 0.4 : 1, border: "2px solid rgba(255,255,255,0.3)" }}
+        <motion.div className="cursor-pointer" style={{ width: pinSize(a.priority), height: pinSize(a.priority), borderRadius: "50%", background: a.resolved ? "var(--text-muted)" : colorHex(a.color), boxShadow: `0 2px 6px ${a.resolved ? "rgba(0,0,0,0.2)" : colorHex(a.color)}40`, opacity: a.resolved ? 0.55 : 1, border: "2px solid rgba(255,255,255,0.3)" }}
           whileHover={{ scale: 1.3 }} onClick={e => { e.stopPropagation(); setEditingId(isEditing ? null : a.id); }} />
         {/* Hover tooltip */}
         {!isEditing && <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity" style={{ width: 200 }}>
@@ -294,7 +294,7 @@ export function AnnotationPanel({ annotations, onUpdate, onDelete, onClose, onSc
     </div>
     <div className="flex-1 overflow-y-auto p-3 space-y-2">
       {filtered.length === 0 && <div className="text-center py-8 text-[var(--text-muted)] text-[14px]">No notes yet. Toggle annotate mode and click on any content to add notes.</div>}
-      {filtered.map(a => <div key={a.id} className="rounded-xl p-3 cursor-pointer transition-all hover:border-[var(--accent-primary)]/30" style={{ background: "var(--surface-2)", borderLeft: `3px solid ${ANNO_COLORS.find(c => c.id === a.color)?.hex || "#888"}`, border: `1px solid var(--border)` }} onClick={() => onScrollTo?.(a.id)}>
+      {filtered.map(a => <div key={a.id} className="rounded-xl p-3 cursor-pointer transition-all hover:border-[var(--accent-primary)]/30" style={{ background: "var(--surface-2)", borderLeft: `3px solid ${ANNO_COLORS.find(c => c.id === a.color)?.hex || "#888"}`, border: `1px solid "var(--border)"` }} onClick={() => onScrollTo?.(a.id)}>
         <div className="text-[14px] text-[var(--text-primary)]" style={{ textDecoration: a.resolved ? "line-through" : "none", opacity: a.resolved ? 0.5 : 1 }}>{a.text}</div>
         <div className="flex items-center gap-2 mt-1.5 text-[12px] text-[var(--text-muted)]">
           {a.tag && <span className="px-1.5 py-0.5 rounded bg-[var(--bg)] text-[11px]">{a.tag}</span>}
@@ -476,8 +476,8 @@ export function Card({ children, title }: { children: React.ReactNode; title?: s
 export function Empty({ text, icon = "📭", action, onAction }: { text: string; icon?: string; action?: string; onAction?: () => void }) {
   return <div className="text-center py-12 text-[var(--text-secondary)]">
     <div className="relative inline-block mb-3">
-      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="opacity-15 mx-auto"><circle cx="24" cy="24" r="20" stroke="var(--text-muted)" strokeWidth="1.5" strokeDasharray="4 4" /><circle cx="24" cy="24" r="10" stroke="var(--accent-primary)" strokeWidth="1" opacity="0.4" /></svg>
-      <div className="absolute inset-0 flex items-center justify-center text-2xl opacity-40">{icon}</div>
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="opacity-25 mx-auto"><circle cx="24" cy="24" r="20" stroke="var(--text-muted)" strokeWidth="1.5" strokeDasharray="4 4" /><circle cx="24" cy="24" r="10" stroke="var(--accent-primary)" strokeWidth="1" opacity="0.55" /></svg>
+      <div className="absolute inset-0 flex items-center justify-center text-2xl opacity-55">{icon}</div>
     </div>
     <div className="text-sm max-w-sm mx-auto leading-relaxed">{text}</div>
     {action && onAction && <button onClick={onAction} className="btn-interactive mt-3 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-semibold bg-[var(--accent-primary)] text-white">{action}</button>}
@@ -588,10 +588,10 @@ export function PageHeader({ icon, title, subtitle, onBack, moduleId, onUpload, 
   const noTemplate = moduleId === "opmodel"; // Op Model Lab is a sandbox, no upload needed
 
   return <div className="mb-6">
-    <button onClick={onBack} className="text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mb-3 flex items-center gap-1 transition-colors">← {(() => { if (!moduleId) return "Back to Home"; const mod = MODULES.find(m => m.id === moduleId); if (!mod) return "Back to Home"; const phase = PHASES.find(p => p.modules.includes(moduleId)); return phase ? `Back to ${phase.label}` : "Back to Home"; })()}</button>
+    <button onClick={onBack} title="Go back (Escape)" className="text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mb-3 flex items-center gap-1 transition-colors">← {(() => { if (!moduleId) return "Back to Home"; const mod = MODULES.find(m => m.id === moduleId); if (!mod) return "Back to Home"; const phase = PHASES.find(p => p.modules.includes(moduleId)); return phase ? `Back to ${phase.label}` : "Back to Home"; })()}</button>
     <div className="flex items-center justify-between flex-wrap gap-4">
       <div className="flex items-center gap-3">
-        <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#e09040] to-[#c07030] flex items-center justify-center text-xl" style={{ boxShadow: "var(--shadow-1)" }}>{icon}</div>
+        <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[var(--accent-primary)] to-[var(--teal)] flex items-center justify-center text-xl" style={{ boxShadow: "var(--shadow-1)" }}>{icon}</div>
         <div><h1 className="text-[22px] font-extrabold text-[var(--text-primary)] tracking-tight font-heading">{title}</h1><p className="text-[16px] text-[var(--text-secondary)]">{subtitle}</p></div>
         {moduleId && <InfoButton moduleId={moduleId} />}
       </div>
@@ -632,7 +632,7 @@ export function LoadingSkeleton({ rows = 3 }: { rows?: number }) {
 
 export function EmptyWithAction({ text, icon = "📭", actionLabel, onAction }: { text: string; icon?: string; actionLabel?: string; onAction?: () => void }) {
   return <div className="text-center py-12 text-[var(--text-secondary)]">
-    <div className="text-3xl mb-2 opacity-40">{icon}</div>
+    <div className="text-3xl mb-2 opacity-55">{icon}</div>
     <div className="text-sm max-w-xs mx-auto leading-relaxed mb-3">{text}</div>
     {actionLabel && onAction && <button onClick={onAction} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[15px] font-semibold bg-[var(--accent-primary)] text-white hover:opacity-90 transition-opacity">{actionLabel}</button>}
   </div>;
@@ -715,7 +715,7 @@ export function AiEspressoPanel({ moduleId, contextData, isGlobal = false }: { m
             <div className="text-[15px] text-[var(--text-muted)] mb-2 italic">Prompt: {p.prompt}</div>
             <div className="flex justify-end gap-2">
               <button onClick={() => setActivePrompt(null)} className="px-3 py-1.5 rounded-lg text-[15px] text-[var(--text-muted)]">Cancel</button>
-              <button onClick={() => { if (promptInput.trim()) sendMessage(`${p.prompt} ${p.inputLabel}: ${promptInput.trim()}`); }} disabled={!promptInput.trim()} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: promptInput.trim() ? 1 : 0.4 }}>Run ☕</button>
+              <button onClick={() => { if (promptInput.trim()) sendMessage(`${p.prompt} ${p.inputLabel}: ${promptInput.trim()}`); }} disabled={!promptInput.trim()} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", opacity: promptInput.trim() ? 1 : 0.4 }}>Run ☕</button>
             </div>
           </div>}
         </div>)}
@@ -725,18 +725,18 @@ export function AiEspressoPanel({ moduleId, contextData, isGlobal = false }: { m
     {/* Messages */}
     <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3" style={{ maxHeight: messages.length ? "50vh" : "0", minHeight: messages.length ? 120 : 0 }}>
       {messages.map((m, i) => <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-        <div className="max-w-[85%] rounded-xl px-4 py-2.5 text-[15px] leading-relaxed" style={{ background: m.role === "user" ? "linear-gradient(135deg, #e09040, #c07030)" : "var(--surface-2)", color: m.role === "user" ? "#fff" : "var(--text-primary)", borderBottomRightRadius: m.role === "user" ? 4 : 12, borderBottomLeftRadius: m.role === "user" ? 12 : 4 }}>
+        <div className="max-w-[85%] rounded-xl px-4 py-2.5 text-[15px] leading-relaxed" style={{ background: m.role === "user" ? "linear-gradient(135deg, var(--accent-primary), var(--teal))" : "var(--surface-2)", color: m.role === "user" ? "#fff" : "var(--text-primary)", borderBottomRightRadius: m.role === "user" ? 4 : 12, borderBottomLeftRadius: m.role === "user" ? 12 : 4 }}>
           {m.content.split("\n").map((line, li) => <div key={li} className={li > 0 ? "mt-1.5" : ""}>{line}</div>)}
         </div>
       </div>)}
-      {loading && <div className="flex justify-start"><div className="rounded-xl px-4 py-2.5 text-[15px] flex items-center gap-2" style={{ background: "var(--surface-2)", color: "var(--text-muted)" }}><span className="inline-block w-4 h-4 rounded-full animate-pulse" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }} /> Brewing your espresso...</div></div>}
+      {loading && <div className="flex justify-start"><div className="rounded-xl px-4 py-2.5 text-[15px] flex items-center gap-2" style={{ background: "var(--surface-2)", color: "var(--text-muted)" }}><span className="inline-block w-4 h-4 rounded-full animate-pulse" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }} /> Brewing your espresso...</div></div>}
       <div ref={messagesEndRef} />
     </div>
 
     {/* Free-form input */}
     <div className="px-4 py-3 flex gap-2" style={{ borderTop: "1px solid var(--border)" }}>
       <input ref={inputRef} value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === "Enter") sendMessage(input); }} placeholder={messages.length ? "Follow up..." : "Or type your own question..."} className="flex-1 bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-[15px] text-[var(--text-primary)] outline-none focus:border-[rgba(224,144,64,0.3)] placeholder:text-[var(--text-muted)]" />
-      <button onClick={() => sendMessage(input)} disabled={loading || !input.trim()} className="px-4 py-2.5 rounded-xl text-[15px] font-semibold text-white transition-all disabled:opacity-40" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>☕</button>
+      <button onClick={() => sendMessage(input)} disabled={loading || !input.trim()} className="px-4 py-2.5 rounded-xl text-[15px] font-semibold text-white transition-all disabled:opacity-40" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>☕</button>
     </div>
   </div>;
 }
@@ -748,7 +748,7 @@ export function AiEspressoButton({ moduleId, contextData, viewMode: vMode }: { m
 
   return <>
     {/* Floating espresso button */}
-    <button onClick={() => setOpen(!open)} className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-xl transition-all duration-300 hover:scale-105 group" style={{ background: open ? "var(--risk)" : "linear-gradient(135deg, #e09040, #c07030)", boxShadow: open ? "0 8px 30px rgba(239,68,68,0.3)" : "0 8px 30px rgba(200,120,40,0.35)" }} title="AI Espresso">
+    <button onClick={() => setOpen(!open)} className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-xl transition-all duration-300 hover:scale-105 group" style={{ background: open ? "var(--risk)" : "linear-gradient(135deg, var(--accent-primary), var(--teal))", boxShadow: open ? "0 8px 30px rgba(239,68,68,0.3)" : "0 8px 30px rgba(200,120,40,0.35)" }} title="AI Espresso">
       {open ? "✕" : "☕"}
     </button>
 
@@ -894,18 +894,18 @@ export function AiCoPilot({ moduleId, contextData, open, onClose, onNavigate }: 
     <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3">
       {messages.length === 0 && !visibleSuggestions.length && !aiSuggestion && !aiSugLoading && <div className="text-center py-8"><div className="text-[28px] mb-2 opacity-50">🤖</div><div className="text-[14px] text-[var(--text-muted)]">I{"'"}m here if you need me.<br/>Ask anything about your transformation.</div></div>}
       {messages.map((m, i) => <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-        <div className="max-w-[85%] rounded-xl px-3.5 py-2 text-[14px] leading-relaxed" style={{ background: m.role === "user" ? "linear-gradient(135deg, #e09040, #c07030)" : "var(--surface-2)", color: m.role === "user" ? "#fff" : "var(--text-primary)", borderBottomRightRadius: m.role === "user" ? 4 : 12, borderBottomLeftRadius: m.role === "user" ? 12 : 4 }}>
+        <div className="max-w-[85%] rounded-xl px-3.5 py-2 text-[14px] leading-relaxed" style={{ background: m.role === "user" ? "linear-gradient(135deg, var(--accent-primary), var(--teal))" : "var(--surface-2)", color: m.role === "user" ? "#fff" : "var(--text-primary)", borderBottomRightRadius: m.role === "user" ? 4 : 12, borderBottomLeftRadius: m.role === "user" ? 12 : 4 }}>
           {m.content.split("\n").map((line, li) => <div key={li} className={li > 0 ? "mt-1" : ""}>{line}</div>)}
         </div>
       </div>)}
-      {loading && <div className="flex justify-start"><div className="rounded-xl px-3.5 py-2 text-[14px] flex items-center gap-2" style={{ background: "var(--surface-2)", color: "var(--text-muted)" }}><span className="inline-block w-3 h-3 rounded-full animate-pulse" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }} /> Thinking...</div></div>}
+      {loading && <div className="flex justify-start"><div className="rounded-xl px-3.5 py-2 text-[14px] flex items-center gap-2" style={{ background: "var(--surface-2)", color: "var(--text-muted)" }}><span className="inline-block w-3 h-3 rounded-full animate-pulse" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }} /> Thinking...</div></div>}
       <div ref={messagesEndRef} />
     </div>
 
     {/* Input */}
     <div className="px-3 py-3 flex gap-2 border-t border-[var(--border)]">
       <input ref={inputRef} value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === "Enter") sendMessage(input); }} placeholder="Ask anything..." className="flex-1 bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-3.5 py-2 text-[14px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]" />
-      <button onClick={() => sendMessage(input)} disabled={loading || !input.trim()} className="px-3 py-2 rounded-xl text-[14px] font-semibold text-white transition-all disabled:opacity-40" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>☕</button>
+      <button onClick={() => sendMessage(input)} disabled={loading || !input.trim()} className="px-3 py-2 rounded-xl text-[14px] font-semibold text-white transition-all disabled:opacity-40" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>☕</button>
     </div>
   </motion.div>;
 }
@@ -996,8 +996,8 @@ export function StoryEngine({ projectName, model, contextData, onClose, onNaviga
           <select value={tone} onChange={e => setTone(e.target.value)} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-[14px] text-[var(--text-primary)] outline-none">
             {STORY_TONES.map(t => <option key={t.id} value={t.id}>{t.label} — {t.desc}</option>)}
           </select>
-          {sections.length === 0 ? <button onClick={generateStory} disabled={generating} className="px-5 py-2 rounded-xl text-[15px] font-bold text-white glow-pulse" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: generating ? 0.5 : 1 }}>{generating ? "Generating..." : "✨ Generate Story"}</button>
-          : <><button onClick={copyAll} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">📋 Copy</button><button onClick={generateStory} disabled={generating} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: generating ? 0.5 : 1 }}>✨ Regenerate All</button></>}
+          {sections.length === 0 ? <button onClick={generateStory} disabled={generating} className="px-5 py-2 rounded-xl text-[15px] font-bold text-white glow-pulse" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", opacity: generating ? 0.5 : 1 }}>{generating ? "Generating..." : "✨ Generate Story"}</button>
+          : <><button onClick={copyAll} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">📋 Copy</button><button onClick={generateStory} disabled={generating} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", opacity: generating ? 0.5 : 1 }}>✨ Regenerate All</button></>}
           <button onClick={onClose} className="text-[18px] text-[var(--text-muted)] hover:text-[var(--text-primary)]">×</button>
         </div>
       </div>
@@ -1014,7 +1014,7 @@ export function StoryEngine({ projectName, model, contextData, onClose, onNaviga
           <div className="text-[48px] mb-4 opacity-50">📖</div>
           <div className="text-[20px] font-bold text-[var(--text-primary)] font-heading mb-2">Generate Your Executive Story</div>
           <div className="text-[16px] text-[var(--text-muted)] max-w-md mx-auto mb-6">The AI will analyze all your platform data and generate a complete executive narrative with findings, recommendations, and a business case.</div>
-          <button onClick={generateStory} className="px-8 py-3 rounded-2xl text-[16px] font-bold text-white glow-pulse" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>✨ Generate Executive Narrative</button>
+          <button onClick={generateStory} className="px-8 py-3 rounded-2xl text-[16px] font-bold text-white glow-pulse" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>✨ Generate Executive Narrative</button>
         </div>}
 
         {sections.map((section, si) => {
@@ -1154,9 +1154,9 @@ export function ViewSelector({ onSelect, employees, jobs, filterOptions, onBack 
   const [guideOpen, setGuideOpen] = useState<"consultant" | "hr" | null>(null);
 
   const views = [
-    { id: "org", icon: "🏢", title: "Organization", desc: "Full org analysis — all functions, roles, and employees", color: "#D4860A", ready: true },
-    { id: "job", icon: "💼", title: "Job Focus", desc: "Deep dive into a single role", color: "#10B981", ready: jobs.length > 0 },
-    { id: "employee", icon: "👤", title: "Employee", desc: "One person's world — profile, org chart, impact", color: "#8B5CF6", ready: employees.length > 0 },
+    { id: "org", icon: "🏢", title: "Organization", desc: "Full org analysis — all functions, roles, and employees", color: "var(--accent-primary)", ready: true },
+    { id: "job", icon: "💼", title: "Job Focus", desc: "Deep dive into a single role", color: "var(--success)", ready: jobs.length > 0 },
+    { id: "employee", icon: "👤", title: "Employee", desc: "One person's world — profile, org chart, impact", color: "var(--purple)", ready: employees.length > 0 },
     { id: "custom", icon: "⚙️", title: "Custom Slice", desc: "Filter by function, family, level, or track", color: "#F97316", ready: true },
     { id: "consultant", icon: "📋", title: "Consultant Guide", desc: "Guided pathway for external consultants — frameworks and deliverables", color: "#0891B2", ready: true },
     { id: "hr", icon: "👥", title: "HR Professional Guide", desc: "Tailored for HR and People Analytics — workforce planning and talent strategy", color: "#EC4899", ready: true },
@@ -1447,7 +1447,7 @@ Return ONLY valid JSON in this exact format:
     setEditIdx(null);
   }
 
-  const checkboxStyle: React.CSSProperties = { accentColor: "#A855F7", width: 13, height: 13, cursor: "pointer" };
+  const checkboxStyle: React.CSSProperties = { accentColor: "var(--purple)", width: 13, height: 13, cursor: "pointer" };
 
   return <div style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center" }}>
     <div onClick={onClose} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)" }} />
@@ -1464,7 +1464,7 @@ Return ONLY valid JSON in this exact format:
       {/* Loading shimmer */}
       {loading && <div className="space-y-3 py-8">
         <div className="text-center text-[15px] text-purple-400 font-semibold mb-4">AI is analyzing this role...</div>
-        {[1,2,3,4,5,6].map(i => <div key={i} className="h-8 rounded-lg animate-pulse" style={{ background: `linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3, rgba(255,255,255,0.05)) 50%, var(--surface-2) 75%)`, backgroundSize: "200% 100%", animation: `shimmer 1.5s infinite ${i * 0.15}s` }} />)}
+        {[1,2,3,4,5,6].map(i => <div key={i} className="h-8 rounded-lg animate-pulse" style={{ background: `linear-gradient(90deg, "var(--surface-2)" 25%, var(--surface-3, rgba(255,255,255,0.05)) 50%, "var(--surface-2)" 75%)`, backgroundSize: "200% 100%", animation: `shimmer 1.5s infinite ${i * 0.15}s` }} />)}
         <style>{`@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }`}</style>
       </div>}
 
@@ -1558,7 +1558,7 @@ Return ONLY valid JSON in this exact format:
           <div className="flex gap-2">
             <button onClick={onClose} className="px-4 py-2 rounded-lg text-[15px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">Dismiss</button>
             <button onClick={handleAcceptSelected} disabled={checkedTasks.size === 0 && checkedSkills.size === 0}
-              className="px-4 py-2 rounded-lg text-[15px] font-semibold text-white disabled:opacity-40 transition-all" style={{ background: "linear-gradient(135deg, #A855F7, #7C3AED)" }}>
+              className="px-4 py-2 rounded-lg text-[15px] font-semibold text-white disabled:opacity-40 transition-all" style={{ background: "linear-gradient(135deg, var(--purple), #7C3AED)" }}>
               Accept Selected
             </button>
           </div>

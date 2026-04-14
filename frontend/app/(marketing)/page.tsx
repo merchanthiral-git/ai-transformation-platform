@@ -761,32 +761,32 @@ footer { padding: 48px 56px; border-top: 1px solid var(--rule); display: flex; j
               <div className="pain-card-illo">
                 <svg viewBox="0 0 320 140" xmlns="http://www.w3.org/2000/svg">
                   {/* Sun */}
-                  <circle cx="260" cy="30" r="20" fill="#E8C547" opacity="0.3"/>
-                  <circle cx="260" cy="30" r="12" fill="#E8C547" opacity="0.5"/>
+                  <circle cx="260" cy="30" r="20" fill="var(--warning)" opacity="0.3"/>
+                  <circle cx="260" cy="30" r="12" fill="var(--warning)" opacity="0.5"/>
                   {/* Swing set */}
                   <line x1="80" y1="20" x2="60" y2="120" stroke="#C07840" strokeWidth="3"/>
                   <line x1="160" y1="20" x2="180" y2="120" stroke="#C07840" strokeWidth="3"/>
                   <line x1="60" y1="20" x2="180" y2="20" stroke="#C07840" strokeWidth="3"/>
                   {/* Swing chains + seat */}
-                  <line x1="100" y1="20" x2="95" y2="85" stroke="#D4860A" strokeWidth="1.5"/>
-                  <line x1="115" y1="20" x2="120" y2="85" stroke="#D4860A" strokeWidth="1.5"/>
+                  <line x1="100" y1="20" x2="95" y2="85" stroke="var(--accent-primary)" strokeWidth="1.5"/>
+                  <line x1="115" y1="20" x2="120" y2="85" stroke="var(--accent-primary)" strokeWidth="1.5"/>
                   <rect x="90" y="85" width="35" height="6" rx="2" fill="#C07840"/>
                   {/* Happy figure on swing */}
                   <circle cx="108" cy="72" r="8" fill="#E8D5C4"/>
                   <rect x="101" y="80" width="14" height="6" rx="2" fill="#2A6B6B"/>
                   {/* Ground */}
-                  <ellipse cx="160" cy="125" rx="140" ry="8" fill="#E8C547" opacity="0.15"/>
+                  <ellipse cx="160" cy="125" rx="140" ry="8" fill="var(--warning)" opacity="0.15"/>
                   {/* Running figure */}
                   <circle cx="220" cy="95" r="7" fill="#D4B896"/>
                   <rect x="214" y="102" width="12" height="15" rx="2" fill="#C04B2D" opacity="0.7"/>
                   {/* Open field feeling — small flowers/dots */}
                   <circle cx="40" cy="115" r="2" fill="#2A6B6B" opacity="0.3"/>
-                  <circle cx="200" cy="118" r="2" fill="#D4860A" opacity="0.3"/>
+                  <circle cx="200" cy="118" r="2" fill="var(--accent-primary)" opacity="0.3"/>
                   <circle cx="140" cy="120" r="2" fill="#2A6B6B" opacity="0.2"/>
-                  <circle cx="280" cy="112" r="2" fill="#E8C547" opacity="0.4"/>
+                  <circle cx="280" cy="112" r="2" fill="var(--warning)" opacity="0.4"/>
                 </svg>
               </div>
-              <div className="pain-card-num" style={{ color: "#D4860A", letterSpacing: "4px" }}>RECESS</div>
+              <div className="pain-card-num" style={{ color: "var(--accent-primary)", letterSpacing: "4px" }}>RECESS</div>
               <h3 style={{ fontSize: 30, color: "#1A1A17" }}>What if it felt like <em style={{ color: "#C04B2D", fontStyle: "italic" }}>play?</em></h3>
               <p style={{ color: "#5C5A54", fontSize: 16 }}>What if diagnosing your org, redesigning roles, and simulating outcomes felt less like a compliance exercise and more like recess? That&apos;s what we built. A place where the hard work of transformation actually feels like play.</p>
               <div style={{ marginTop: 24, textAlign: "center" }}>

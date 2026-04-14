@@ -40,7 +40,7 @@ const AGENT_LABELS: Record<string, { label: string; icon: string; endpoint: stri
 };
 
 function ConfidenceBar({ confidence }: { confidence: number }) {
-  const color = confidence >= 0.8 ? "var(--success)" : confidence >= 0.6 ? "#F59E0B" : "var(--risk)";
+  const color = confidence >= 0.8 ? "var(--success)" : confidence >= 0.6 ? "var(--warning)" : "var(--risk)";
   return <div className="w-full h-[3px] rounded-full overflow-hidden" style={{ background: "var(--surface-3)" }}>
     <div className="h-full rounded-full transition-all duration-500" style={{ width: `${confidence * 100}%`, background: color }} />
   </div>;
@@ -100,13 +100,13 @@ export function AgentPanel({ agentName, projectId, sessionData, title, dataChang
     <div className="px-4 py-3 border-b border-[var(--border)] flex items-center gap-2">
       <span className="text-[16px]">{config.icon}</span>
       <span className="text-[14px] font-bold text-[var(--text-primary)] font-heading flex-1">{title || config.label}</span>
-      {findings?.from_memory && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[rgba(139,92,246,0.1)] text-[#8B5CF6]">from memory</span>}
+      {findings?.from_memory && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[rgba(139,92,246,0.1)] text-[var(--purple)]">from memory</span>}
     </div>
 
     {/* Data changed banner */}
-    {dataChanged && state !== "loading" && <div className="px-4 py-2.5 bg-[rgba(245,158,11,0.08)] border-b border-[#F59E0B]/20 flex items-center gap-2">
-      <span className="text-[13px] text-[#F59E0B] flex-1">New data detected — your last analysis may be outdated.</span>
-      <button onClick={runAgent} className="text-[12px] font-bold text-[#F59E0B] hover:text-[#D97706] transition-colors">Re-run</button>
+    {dataChanged && state !== "loading" && <div className="px-4 py-2.5 bg-[rgba(245,158,11,0.08)] border-b border-[var(--warning)]/20 flex items-center gap-2">
+      <span className="text-[13px] text-[var(--warning)] flex-1">New data detected — your last analysis may be outdated.</span>
+      <button onClick={runAgent} className="text-[12px] font-bold text-[var(--warning)] hover:text-[var(--amber)] transition-colors">Re-run</button>
     </div>}
 
     <div className="p-4">
@@ -136,8 +136,8 @@ export function AgentPanel({ agentName, projectId, sessionData, title, dataChang
         </div>}
 
         {/* Clarifying question — show before findings */}
-        {findings.clarifying_question && !findings.error && <div className="mb-4 rounded-lg border border-[#F59E0B]/30 bg-[rgba(245,158,11,0.06)] p-3">
-          <div className="text-[12px] font-bold text-[#F59E0B] uppercase mb-1">Clarifying Question</div>
+        {findings.clarifying_question && !findings.error && <div className="mb-4 rounded-lg border border-[var(--warning)]/30 bg-[rgba(245,158,11,0.06)] p-3">
+          <div className="text-[12px] font-bold text-[var(--warning)] uppercase mb-1">Clarifying Question</div>
           <div className="text-[13px] text-[var(--text-primary)] mb-3">{findings.clarifying_question}</div>
           <div className="flex gap-2">
             <input value={questionAnswer} onChange={e => setQuestionAnswer(e.target.value)} onKeyDown={e => e.key === "Enter" && submitAnswer()} placeholder="Your answer..." className="flex-1 bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-[13px] text-[var(--text-primary)] outline-none" />
@@ -213,7 +213,7 @@ function FindingsBody({ findings }: { findings: AgentFindings }) {
         const items = (findings.role_reconstruction as Record<string, unknown[]>)[cat];
         if (!Array.isArray(items) || items.length === 0) return null;
         const catLabels: Record<string, string> = { automate: "Automate", augment: "Augment with AI", keep_human: "Keep Human", new_tasks: "New Tasks" };
-        const catColors: Record<string, string> = { automate: "var(--risk)", augment: "#F59E0B", keep_human: "var(--success)", new_tasks: "#8B5CF6" };
+        const catColors: Record<string, string> = { automate: "var(--risk)", augment: "var(--warning)", keep_human: "var(--success)", new_tasks: "var(--purple)" };
         return <div key={cat} className="mb-2">
           <div className="text-[11px] font-bold mb-1" style={{ color: catColors[cat] }}>{catLabels[cat]} ({items.length})</div>
           {items.map((t: unknown, i: number) => {
@@ -249,7 +249,7 @@ function FindingsBody({ findings }: { findings: AgentFindings }) {
 
     {/* Overall score (Readiness) */}
     {typeof findings.overall_score === "number" && <div className="flex items-center gap-3 p-3 rounded-lg bg-[var(--surface-2)]">
-      <div className="text-[28px] font-extrabold" style={{ color: (findings.overall_score as number) >= 70 ? "var(--success)" : (findings.overall_score as number) >= 40 ? "#F59E0B" : "var(--risk)" }}>{findings.overall_score}</div>
+      <div className="text-[28px] font-extrabold" style={{ color: (findings.overall_score as number) >= 70 ? "var(--success)" : (findings.overall_score as number) >= 40 ? "var(--warning)" : "var(--risk)" }}>{findings.overall_score}</div>
       <div><div className="text-[13px] font-bold text-[var(--text-primary)]">Overall Readiness</div><div className="text-[12px] text-[var(--text-muted)]">{(findings.maturity_level as string) || ""}</div></div>
     </div>}
 
@@ -291,7 +291,7 @@ function Section({ title, items }: { title: string; items: { label: string; deta
         </div>
         {item.badge && <span className="shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded" style={{
           background: item.badge === "Quick Win" ? "rgba(16,185,129,0.1)" : item.badge === "critical" || item.badge === "high" ? "rgba(239,68,68,0.1)" : "rgba(245,158,11,0.1)",
-          color: item.badge === "Quick Win" ? "var(--success)" : item.badge === "critical" || item.badge === "high" ? "var(--risk)" : "#F59E0B",
+          color: item.badge === "Quick Win" ? "var(--success)" : item.badge === "critical" || item.badge === "high" ? "var(--risk)" : "var(--warning)",
         }}>{item.badge}</span>}
       </div>)}
     </div>
@@ -402,7 +402,7 @@ export function AgentOrchestrator({ projectId, sessionData }: OrchestratorProps)
                 <span className="text-[14px]">{AGENT_ICONS[entry.agent] || "✓"}</span>
                 <span className="text-[12px] font-semibold" style={{ color: entry.status === "complete" ? "var(--success)" : "var(--risk)" }}>{entry.agent}</span>
                 <span className="text-[10px] text-[var(--text-muted)]">{entry.duration_ms}ms</span>
-                {entry.from_memory && <span className="text-[9px] text-[#8B5CF6]">cached</span>}
+                {entry.from_memory && <span className="text-[9px] text-[var(--purple)]">cached</span>}
               </div>
               {i < result.chain_log.length - 1 && <span className="text-[var(--success)] text-[12px]">→</span>}
             </React.Fragment>)}
@@ -416,8 +416,8 @@ export function AgentOrchestrator({ projectId, sessionData }: OrchestratorProps)
           </div>}
 
           {/* Clarifying question */}
-          {result.clarifying_question && <div className="mb-4 p-3 rounded-lg border border-[#F59E0B]/30 bg-[rgba(245,158,11,0.06)]">
-            <div className="text-[12px] font-bold text-[#F59E0B] mb-1">Agent has a question</div>
+          {result.clarifying_question && <div className="mb-4 p-3 rounded-lg border border-[var(--warning)]/30 bg-[rgba(245,158,11,0.06)]">
+            <div className="text-[12px] font-bold text-[var(--warning)] mb-1">Agent has a question</div>
             <div className="text-[13px] text-[var(--text-primary)]">{result.clarifying_question}</div>
           </div>}
 
@@ -432,7 +432,7 @@ export function AgentOrchestrator({ projectId, sessionData }: OrchestratorProps)
                   <span className="text-[14px]">{AGENT_ICONS[agent]}</span>
                   <span className="text-[13px] font-bold text-[var(--text-primary)] flex-1 capitalize">{agent.replace("_", " ")}</span>
                   {typeof agentFindings.confidence === "number" && <span className="text-[11px] text-[var(--text-muted)]">{Math.round(agentFindings.confidence * 100)}%</span>}
-                  {agentFindings.from_memory && <span className="text-[9px] text-[#8B5CF6] font-bold">CACHED</span>}
+                  {agentFindings.from_memory && <span className="text-[9px] text-[var(--purple)] font-bold">CACHED</span>}
                   <span className="text-[12px] text-[var(--text-muted)]">{isExpanded ? "▼" : "▶"}</span>
                 </button>
                 {isExpanded && <div className="px-4 pb-4 border-t border-[var(--border)]">

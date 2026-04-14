@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import * as api from "../../../lib/api";
 import type { Filters } from "../../../lib/api";
+import type { JobContextKpis, JobContextResponse } from "../../../types/api";
 import {
   COLORS, KpiCard, Card, Empty, Badge, InsightPanel, DataTable,
   BarViz, DonutViz, TabBar, PageHeader, LoadingBar, LoadingSkeleton,
@@ -400,11 +401,12 @@ Rules:
     setAiGenerating(false);
   };
 
-  const k = (ctx?.kpis ?? {}) as Record<string, unknown>;
-  const meta = (ctx?.meta ?? {}) as Record<string, string>;
-  const ws = ((ctx?.ws_breakdown ?? []) as Record<string, unknown>[]);
-  const ds = ((ctx?.decon_summary ?? []) as Record<string, unknown>[]);
-  const aid = ((ctx?.ai_distribution ?? []) as { name: string; value: number }[]);
+  const ctxTyped = ctx as unknown as JobContextResponse | null;
+  const k = ctxTyped?.kpis ?? { hours_week: 0, tasks: 0, workstreams: 0, released_hrs: 0, released_pct: 0, future_hrs: 0, evolution: "" };
+  const meta = (ctxTyped?.meta ?? {}) as Record<string, string>;
+  const ws = ctxTyped?.ws_breakdown ?? [];
+  const ds = ctxTyped?.decon_summary ?? [];
+  const aid = (ctxTyped?.ai_distribution ?? []) as { name: string; value: number }[];
   const aip = (((decon as Record<string, unknown> | null)?.ai_priority ?? []) as Record<string, unknown>[]);
 
   // Editable cell components
@@ -545,7 +547,7 @@ Rules:
               setWdTab("decon");
               showToast(`✨ Pre-populated ${rows.length} tasks for ${job} — review and edit below`);
             }} />
-            <button onClick={() => { generateTasks(); setWdTab("decon"); }} disabled={aiGenerating} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>{aiGenerating ? "Generating..." : "Quick Generate"}</button>
+            <button onClick={() => { generateTasks(); setWdTab("decon"); }} disabled={aiGenerating} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>{aiGenerating ? "Generating..." : "Quick Generate"}</button>
             <button onClick={() => setWdTab("decon")} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold text-[var(--text-secondary)] bg-[var(--surface-2)] border border-[var(--border)]">Manual Entry →</button>
           </div>
         </div>}
@@ -559,7 +561,7 @@ Rules:
           <div className="text-2xl mb-2">✨</div>
           <h3 className="text-[15px] font-bold font-heading text-[var(--text-primary)] mb-1">No tasks yet for {job}</h3>
           <p className="text-[15px] text-[var(--text-secondary)] mb-4 max-w-md mx-auto">Let AI generate a detailed task breakdown, or add tasks manually below.</p>
-          <button onClick={generateTasks} className="px-5 py-2.5 rounded-xl text-[14px] font-semibold text-white transition-all hover:opacity-90" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", boxShadow: "var(--shadow-2)" }}>✨ Auto-Generate Task Breakdown</button>
+          <button onClick={generateTasks} className="px-5 py-2.5 rounded-xl text-[14px] font-semibold text-white transition-all hover:opacity-90" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", boxShadow: "var(--shadow-2)" }}>✨ Auto-Generate Task Breakdown</button>
         </div>}
         {aiGenerating && <div className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl p-6 mb-4 text-center animate-pulse">
           <div className="text-2xl mb-2">🧠</div>
@@ -604,7 +606,7 @@ Rules:
           <div className="flex items-center justify-between mb-3">
             <span className="text-[15px] text-[var(--text-muted)]">{js.deconRows.length} tasks · {totalEstHours}h/wk</span>
             <div className="flex gap-2">
-              <button onClick={generateTasks} disabled={aiGenerating || js.finalized} className={`px-3 py-1.5 rounded-md text-[15px] font-semibold transition-all ${aiGenerating ? "animate-pulse" : ""}`} style={{ background: "linear-gradient(135deg, #e09040, #c07030)", color: "#fff", opacity: aiGenerating || js.finalized ? 0.5 : 1 }}>{aiGenerating ? "✨ Generating..." : "✨ Auto-Generate Tasks"}</button>
+              <button onClick={generateTasks} disabled={aiGenerating || js.finalized} className={`px-3 py-1.5 rounded-md text-[15px] font-semibold transition-all ${aiGenerating ? "animate-pulse" : ""}`} style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", color: "#fff", opacity: aiGenerating || js.finalized ? 0.5 : 1 }}>{aiGenerating ? "✨ Generating..." : "✨ Auto-Generate Tasks"}</button>
               {dictEntries.length > 0 && <button onClick={() => setShowTaskDict(d => !d)} className="px-3 py-1.5 rounded-md text-[15px] font-semibold bg-[rgba(139,92,246,0.1)] border border-[rgba(139,92,246,0.3)] text-[var(--purple)]" style={{ opacity: js.finalized ? 0.5 : 1 }}>📖 Dictionary ({dictEntries.length})</button>}
               <button onClick={() => { const maxId = js.deconRows.reduce((m, r) => { const n = parseInt(String(r["Task ID"] || "T0").replace("T", ""), 10); return n > m ? n : m; }, 0); setJobState(job, { deconRows: [...js.deconRows, { "Task ID": `T${String(maxId + 1).padStart(3, "0")}`, "Task Name": "", Workstream: "", "AI Impact": "Low", "Est Hours/Week": 0, "Current Time Spent %": 0, "Time Saved %": 0, "Task Type": "Variable", Interaction: "Interactive", Logic: "Probabilistic", "Primary Skill": "", "Secondary Skill": "" }], deconSubmitted: false, redeploySubmitted: false, finalized: false, recon: null, redeployRows: [] }); }} className="px-3 py-1.5 bg-[var(--surface-3)] rounded-md text-[15px] font-semibold text-[var(--text-secondary)]">+ Add Task</button>
               <button disabled={!deconValid || js.finalized} onClick={() => { setJobState(job, { deconSubmitted: true, redeploySubmitted: false, finalized: false, recon: null, redeployRows: [] }); setWdTab("redeploy"); }} className={`px-3 py-1.5 rounded-md text-[15px] font-semibold ${!deconValid || js.finalized ? "bg-[var(--border)] text-[var(--text-muted)]" : "bg-[var(--accent-primary)] text-white hover:opacity-90"}`}>{js.deconSubmitted ? "Update" : "Submit"} Deconstruction</button>
@@ -682,7 +684,7 @@ Rules:
               return { ...row, Decision: decision, Technology: techMap[decision] || "Human-led" };
             });
             setJobState(job, { redeployRows: newRows, redeploySubmitted: false, finalized: false, recon: null });
-          }} disabled={js.finalized} className="w-full py-2 rounded-md text-[15px] font-semibold text-white mb-2" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>☕ Auto-Recommend</button><div className="text-[15px] text-[var(--text-muted)]">AI assigns Retain/Augment/Automate based on task characteristics</div></Card>
+          }} disabled={js.finalized} className="w-full py-2 rounded-md text-[15px] font-semibold text-white mb-2" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>☕ Auto-Recommend</button><div className="text-[15px] text-[var(--text-muted)]">AI assigns Retain/Augment/Automate based on task characteristics</div></Card>
           <Card title="Submit"><button disabled={!redeployValid || js.finalized} onClick={() => { setJobState(job, { redeploySubmitted: true, finalized: false, recon: null }); setWdTab("recon"); }} className={`w-full py-2 rounded-md text-[15px] font-semibold ${!redeployValid ? "bg-[var(--border)] text-[var(--text-muted)]" : "bg-[var(--accent-primary)] text-white"}`}>{js.redeploySubmitted ? "Update" : "Submit"} Redeployment</button></Card>
         </div>
         <Card title="Redeployment Plan — Editable">

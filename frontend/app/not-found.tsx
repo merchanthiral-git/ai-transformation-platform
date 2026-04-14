@@ -13,7 +13,7 @@ export default function NotFound() {
             display: "inline-flex", alignItems: "center", gap: 8,
             padding: "12px 28px", borderRadius: 12, fontSize: 15, fontWeight: 600,
             background: "rgba(212,134,10,0.12)", border: "1px solid rgba(212,134,10,0.3)",
-            color: "#e09040", textDecoration: "none", transition: "all 0.2s",
+            color: "var(--accent-primary)", textDecoration: "none", transition: "all 0.2s",
           }}
         >
           &larr; Back to Platform

@@ -26,9 +26,9 @@ export type KBEntry = {
 
 /* ── Category colors ── */
 const CAT_COLORS: Record<string, string> = {
-  "Overview": "#D4860A", "Diagnose": "#C07030", "Design": "#E8C547",
-  "Simulate": "#D97706", "Mobilize": "#B8602A", "Export": "#A0522D",
-  "Job Architecture": "#E09040", "Platform": "#8B5CF6",
+  "Overview": "var(--accent-primary)", "Diagnose": "var(--teal)", "Design": "var(--warning)",
+  "Simulate": "var(--amber)", "Mobilize": "var(--teal)", "Export": "var(--teal)",
+  "Job Architecture": "var(--accent-primary)", "Platform": "var(--purple)",
 };
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1363,14 +1363,14 @@ export function KnowledgeModal({ moduleId, onClose }: { moduleId: string; onClos
   ];
 
   const slides = buildSlides(entry, activeSection);
-  const accentColor = entry.categoryColor || "#D4860A";
+  const accentColor = entry.categoryColor || "var(--accent-primary)";
 
   // Full-screen presentation mode
   if (presenting) {
     return <div style={{ position: "fixed", inset: 0, zIndex: 999999, background: "var(--surface-1)", display: "flex", flexDirection: "column" }}>
       <div style={{ padding: "16px 24px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>{entry.title} — {sections.find(s => s.id === activeSection)?.label}</div>
-        <button onClick={() => setPresenting(false)} style={{ padding: "6px 14px", borderRadius: 8, fontSize: 15, fontWeight: 600, background: "rgba(212,134,10,0.1)", border: "1px solid rgba(212,134,10,0.2)", color: "#D4860A", cursor: "pointer" }}>Exit Presentation</button>
+        <button onClick={() => setPresenting(false)} style={{ padding: "6px 14px", borderRadius: 8, fontSize: 15, fontWeight: 600, background: "rgba(212,134,10,0.1)", border: "1px solid rgba(212,134,10,0.2)", color: "var(--accent-primary)", cursor: "pointer" }}>Exit Presentation</button>
       </div>
       <div style={{ flex: 1, padding: "40px 80px", overflow: "auto" }}><SlideViewer slides={slides} accentColor={accentColor} /></div>
     </div>;
@@ -1397,7 +1397,7 @@ export function KnowledgeModal({ moduleId, onClose }: { moduleId: string; onClos
               <h2 className="text-[20px] font-bold text-[var(--text-primary)] font-heading">{entry.title}</h2>
             </div>
             <div className="flex items-center gap-2">
-              <button onClick={() => setPresenting(true)} title="Present fullscreen" style={{ padding: "4px 10px", borderRadius: 6, fontSize: 15, fontWeight: 600, background: "rgba(212,134,10,0.06)", border: "1px solid rgba(212,134,10,0.12)", color: "rgba(212,134,10,0.6)", cursor: "pointer" }} onMouseEnter={e => { e.currentTarget.style.color = "#D4860A"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.3)"; }} onMouseLeave={e => { e.currentTarget.style.color = "rgba(212,134,10,0.6)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.12)"; }}>🖥 Present</button>
+              <button onClick={() => setPresenting(true)} title="Present fullscreen" style={{ padding: "4px 10px", borderRadius: 6, fontSize: 15, fontWeight: 600, background: "rgba(212,134,10,0.06)", border: "1px solid rgba(212,134,10,0.12)", color: "rgba(212,134,10,0.6)", cursor: "pointer" }} onMouseEnter={e => { e.currentTarget.style.color = "var(--accent-primary)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.3)"; }} onMouseLeave={e => { e.currentTarget.style.color = "rgba(212,134,10,0.6)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.12)"; }}>🖥 Present</button>
               <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--hover)] transition-all text-lg">✕</button>
             </div>
           </div>

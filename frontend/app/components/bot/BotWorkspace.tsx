@@ -36,7 +36,7 @@ interface BotState {
 
 // ── Constants ──
 
-const COLORS = ["#E09040", "#8B5CF6", "#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#EC4899", "#14B8A6"];
+const COLORS = ["var(--accent-primary)", "var(--purple)", "#3B82F6", "var(--success)", "var(--warning)", "var(--risk)", "#EC4899", "#14B8A6"];
 const TT: React.CSSProperties = { background: "rgba(15,12,8,0.95)", border: "1px solid rgba(255,200,150,0.1)", borderRadius: 10, fontSize: 12, color: "#f5e6d0" };
 
 const ACTION_LABELS: Record<string, string> = {
@@ -78,7 +78,7 @@ function TypingText({ text, speed }: { text: string; speed: number }) {
     return () => clearInterval(iv);
   }, [text, speed]);
   const typing = displayed.length < text.length;
-  return <span>{displayed}{typing && <span style={{ borderRight: "2px solid #E09040", marginLeft: 1, animation: "blink 0.8s step-end infinite" }}>&thinsp;</span>}</span>;
+  return <span>{displayed}{typing && <span style={{ borderRight: "2px solid var(--accent-primary)", marginLeft: 1, animation: "blink 0.8s step-end infinite" }}>&thinsp;</span>}</span>;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -120,7 +120,7 @@ function ProfileViz({ data }: { data: Record<string, unknown> }) {
         <BarChart data={barData} layout="vertical" margin={{ left: 80, right: 20 }}>
           <XAxis type="number" tick={{ fill: "rgba(255,200,150,0.3)", fontSize: 11 }} axisLine={false} />
           <YAxis dataKey="name" type="category" tick={{ fill: "rgba(255,200,150,0.6)", fontSize: 12 }} axisLine={false} width={80} />
-          <Tooltip contentStyle={TT} /><Bar dataKey="value" fill="#E09040" radius={[0, 4, 4, 0]} animationDuration={800} />
+          <Tooltip contentStyle={TT} /><Bar dataKey="value" fill="var(--accent-primary)" radius={[0, 4, 4, 0]} animationDuration={800} />
         </BarChart>
       </ResponsiveContainer>
     </div>
@@ -158,7 +158,7 @@ function OrgViz({ data }: { data: Record<string, unknown> }) {
         <BarChart data={levelData} margin={{ left: 20, right: 20 }}>
           <XAxis dataKey="name" tick={{ fill: "rgba(255,200,150,0.4)", fontSize: 11 }} axisLine={false} />
           <YAxis tick={{ fill: "rgba(255,200,150,0.3)", fontSize: 11 }} axisLine={false} />
-          <Tooltip contentStyle={TT} /><Bar dataKey="value" fill="#8B5CF6" radius={[4, 4, 0, 0]} animationDuration={800} />
+          <Tooltip contentStyle={TT} /><Bar dataKey="value" fill="var(--purple)" radius={[4, 4, 0, 0]} animationDuration={800} />
         </BarChart>
       </ResponsiveContainer>
     </>}
@@ -179,14 +179,14 @@ function ReadinessViz({ data }: { data: Record<string, unknown> }) {
         <PolarGrid stroke="rgba(255,255,255,0.06)" />
         <PolarAngleAxis dataKey="subject" tick={{ fill: "rgba(255,200,150,0.5)", fontSize: 11 }} />
         <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
-        <Radar name="Technology" dataKey="technology" stroke="#E09040" fill="#E09040" fillOpacity={0.15} animationDuration={800} />
-        <Radar name="Process" dataKey="process" stroke="#8B5CF6" fill="#8B5CF6" fillOpacity={0.1} animationDuration={800} />
-        <Radar name="People" dataKey="people" stroke="#10B981" fill="#10B981" fillOpacity={0.1} animationDuration={800} />
+        <Radar name="Technology" dataKey="technology" stroke="var(--accent-primary)" fill="var(--accent-primary)" fillOpacity={0.15} animationDuration={800} />
+        <Radar name="Process" dataKey="process" stroke="var(--purple)" fill="var(--purple)" fillOpacity={0.1} animationDuration={800} />
+        <Radar name="People" dataKey="people" stroke="var(--success)" fill="var(--success)" fillOpacity={0.1} animationDuration={800} />
         <Tooltip contentStyle={TT} />
       </RadarChart>
     </ResponsiveContainer>
     <div style={{ display: "flex", gap: 16, justifyContent: "center", marginTop: 8 }}>
-      {[["Technology", "#E09040"], ["Process", "#8B5CF6"], ["People", "#10B981"], ["Data", "#3B82F6"]].map(([l, c]) => <Legend2 key={l} color={c as string} label={l as string} />)}
+      {[["Technology", "var(--accent-primary)"], ["Process", "var(--purple)"], ["People", "var(--success)"], ["Data", "#3B82F6"]].map(([l, c]) => <Legend2 key={l} color={c as string} label={l as string} />)}
     </div>
   </div>;
 }
@@ -203,7 +203,7 @@ function OppsViz({ data }: { data: Record<string, unknown> }) {
         <XAxis dataKey="x" name="Automation %" tick={{ fill: "rgba(255,200,150,0.4)", fontSize: 11 }} />
         <YAxis dataKey="y" name="FTEs" tick={{ fill: "rgba(255,200,150,0.4)", fontSize: 11 }} />
         <ZAxis dataKey="z" range={[40, 400]} />
-        <Tooltip contentStyle={TT} /><Scatter data={scatterData} fill="#E09040" fillOpacity={0.7} animationDuration={800} />
+        <Tooltip contentStyle={TT} /><Scatter data={scatterData} fill="var(--accent-primary)" fillOpacity={0.7} animationDuration={800} />
       </ScatterChart>
     </ResponsiveContainer>
   </div>;
@@ -212,7 +212,7 @@ function OppsViz({ data }: { data: Record<string, unknown> }) {
 function ScenariosViz({ data }: { data: Record<string, unknown> }) {
   const scenarios = data.scenarios as Record<string, Record<string, unknown>> | undefined;
   if (!scenarios) return <EmptyViz />;
-  const colors: Record<string, string> = { conservative: "#10B981", moderate: "#E09040", aggressive: "#EF4444" };
+  const colors: Record<string, string> = { conservative: "var(--success)", moderate: "var(--accent-primary)", aggressive: "var(--risk)" };
   return <div style={{ padding: 24, height: "100%", overflow: "auto" }}>
     <VizLabel>Scenario Comparison</VizLabel>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
@@ -236,7 +236,7 @@ function ScenariosViz({ data }: { data: Record<string, unknown> }) {
 function RoadmapViz({ data }: { data: Record<string, unknown> }) {
   const phases = data.phases as Array<Record<string, unknown>> | undefined;
   if (!phases) return <EmptyViz />;
-  const pc = ["#E09040", "#8B5CF6", "#3B82F6", "#10B981"];
+  const pc = ["var(--accent-primary)", "var(--purple)", "#3B82F6", "var(--success)"];
   const totalEnd = Number((phases[phases.length - 1] as Record<string, unknown>).end_month || 18);
   return <div style={{ padding: 24, height: "100%", overflow: "auto" }}>
     <VizLabel>Implementation Roadmap</VizLabel>
@@ -287,7 +287,7 @@ function VizLabel({ children }: { children: React.ReactNode }) {
 function MetricCard({ label, value, bench }: { label: string; value: string; bench?: string }) {
   return <div style={{ padding: "14px 16px", borderRadius: 12, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
     <div style={{ fontSize: 11, color: "rgba(255,200,150,0.4)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>{label}</div>
-    <div style={{ fontSize: 24, fontWeight: 800, color: "#E09040", fontFamily: "'IBM Plex Mono', monospace" }}>{value}</div>
+    <div style={{ fontSize: 24, fontWeight: 800, color: "var(--accent-primary)", fontFamily: "'IBM Plex Mono', monospace" }}>{value}</div>
     {bench && <div style={{ fontSize: 11, color: "rgba(255,200,150,0.25)" }}>Benchmark: {bench}</div>}
   </div>;
 }
@@ -308,13 +308,13 @@ function exportLog(state: BotState, results: Record<string, unknown>) {
 
   const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>AI Analyst Report</title>
 <style>body{font-family:'DM Sans',system-ui,sans-serif;max-width:900px;margin:40px auto;padding:0 24px;color:#1a1a2e;line-height:1.6}
-h1{font-family:'Outfit',sans-serif;font-size:32px;color:#E09040;border-bottom:2px solid #E09040;padding-bottom:8px}
+h1{font-family:'Outfit',sans-serif;font-size:32px;color:var(--accent-primary);border-bottom:2px solid var(--accent-primary);padding-bottom:8px}
 h2{font-family:'Outfit',sans-serif;font-size:22px;color:#333;margin-top:32px;border-bottom:1px solid #eee;padding-bottom:6px}
 h3{font-family:'Outfit',sans-serif;font-size:16px;color:#555;margin-top:20px}
 .finding{padding:12px 16px;margin:8px 0;border-radius:8px;border-left:4px solid}
-.critical{border-color:#EF4444;background:#FEF2F2}.warning{border-color:#F59E0B;background:#FFFBEB}.info{border-color:#3B82F6;background:#EFF6FF}
+.critical{border-color:var(--risk);background:#FEF2F2}.warning{border-color:var(--warning);background:#FFFBEB}.info{border-color:#3B82F6;background:#EFF6FF}
 .corrected{opacity:0.6;text-decoration:line-through}.acknowledged{opacity:0.8}
-.metric{font-family:'IBM Plex Mono',monospace;font-weight:700;color:#E09040}
+.metric{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--accent-primary)}
 table{width:100%;border-collapse:collapse;margin:16px 0}th,td{padding:8px 12px;text-align:left;border-bottom:1px solid #eee}th{background:#f8f8f8;font-weight:600;font-size:13px}
 .footer{margin-top:40px;padding-top:16px;border-top:1px solid #eee;font-size:12px;color:#999;text-align:center}
 </style></head><body>
@@ -357,10 +357,10 @@ function IntroScreen({ onStart }: { onStart: () => void }) {
   }, []);
   return <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "#0B1120", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
     <AnimatePresence>
-      {step >= 0 && <motion.div key="s0" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} style={{ width: 56, height: 56, borderRadius: "50%", background: "linear-gradient(135deg, #E09040, #C07030)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, marginBottom: 8 }}>🤖</motion.div>}
+      {step >= 0 && <motion.div key="s0" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} style={{ width: 56, height: 56, borderRadius: "50%", background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, marginBottom: 8 }}>🤖</motion.div>}
       {step >= 1 && <motion.div key="s1" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} style={{ fontSize: 28, fontWeight: 800, color: "#fff", fontFamily: "'Outfit', sans-serif" }}>Meet your AI Analyst</motion.div>}
       {step >= 2 && <motion.div key="s2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ fontSize: 15, color: "rgba(255,200,150,0.45)", maxWidth: 400, textAlign: "center", lineHeight: 1.6 }}>It analyzes your organization while you watch and guide. You're always in control.</motion.div>}
-      {step >= 3 && <motion.button key="s3" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} onClick={onStart} style={{ marginTop: 16, padding: "14px 36px", borderRadius: 14, background: "linear-gradient(135deg, #E09040, #C07030)", border: "none", color: "#fff", fontSize: 16, fontWeight: 700, cursor: "pointer", fontFamily: "'Outfit', sans-serif", boxShadow: "0 4px 20px rgba(224,144,64,0.3)" }}>Start Analysis</motion.button>}
+      {step >= 3 && <motion.button key="s3" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} onClick={onStart} style={{ marginTop: 16, padding: "14px 36px", borderRadius: 14, background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", border: "none", color: "#fff", fontSize: 16, fontWeight: 700, cursor: "pointer", fontFamily: "'Outfit', sans-serif", boxShadow: "0 4px 20px rgba(224,144,64,0.3)" }}>Start Analysis</motion.button>}
     </AnimatePresence>
   </div>;
 }
@@ -376,7 +376,7 @@ function StatsBar({ state, elapsed }: { state: BotState; elapsed: number }) {
   const corrections = state.findings.filter(f => f.user_status === "corrected").length;
   const mins = Math.floor(elapsed / 60); const secs = elapsed % 60;
   return <div style={{ height: 32, display: "flex", alignItems: "center", gap: 20, padding: "0 20px", background: "rgba(255,255,255,0.02)", borderTop: "1px solid rgba(255,255,255,0.04)", fontSize: 11, color: "rgba(255,200,150,0.3)", fontFamily: "'IBM Plex Mono', monospace", flexShrink: 0 }}>
-    <span>Findings: {crit + warn + info} ({crit > 0 ? <span style={{ color: "#EF4444" }}>{crit} critical</span> : null}{crit > 0 && warn > 0 ? ", " : ""}{warn > 0 ? <span style={{ color: "#F59E0B" }}>{warn} warnings</span> : null}{(crit > 0 || warn > 0) && info > 0 ? ", " : ""}{info > 0 ? `${info} info` : ""})</span>
+    <span>Findings: {crit + warn + info} ({crit > 0 ? <span style={{ color: "var(--risk)" }}>{crit} critical</span> : null}{crit > 0 && warn > 0 ? ", " : ""}{warn > 0 ? <span style={{ color: "var(--warning)" }}>{warn} warnings</span> : null}{(crit > 0 || warn > 0) && info > 0 ? ", " : ""}{info > 0 ? `${info} info` : ""})</span>
     <span>Steps: {state.progress.completed}/{state.progress.total}</span>
     {corrections > 0 && <span>Corrections: {corrections}</span>}
     <span style={{ marginLeft: "auto" }}>{mins}m {secs < 10 ? "0" : ""}{secs}s</span>
@@ -643,15 +643,15 @@ export default function BotWorkspace({ projectId, modelId, onClose }: { projectI
     return <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} onClick={() => setMinimized(false)}
       style={{ position: "fixed", bottom: 80, right: 20, width: 300, zIndex: 9998, borderRadius: 20, padding: "16px 20px", background: "rgba(11,17,32,0.95)", backdropFilter: "blur(20px)", border: "1px solid rgba(224,144,64,0.15)", cursor: "pointer", boxShadow: "0 8px 40px rgba(0,0,0,0.4)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-        <div style={{ width: 28, height: 28, borderRadius: "50%", background: "linear-gradient(135deg, #E09040, #C07030)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>🤖</div>
+        <div style={{ width: 28, height: 28, borderRadius: "50%", background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>🤖</div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#E09040", fontFamily: "'Outfit', sans-serif" }}>AI Analyst</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "var(--accent-primary)", fontFamily: "'Outfit', sans-serif" }}>AI Analyst</div>
           <div style={{ fontSize: 11, color: "rgba(255,200,150,0.4)" }}>{state?.status === "running" ? "Analyzing..." : state?.status === "completed" ? "Complete" : "Waiting"}</div>
         </div>
-        {newFindings > 0 && <div style={{ padding: "2px 8px", borderRadius: 10, background: "rgba(224,144,64,0.2)", fontSize: 11, fontWeight: 700, color: "#E09040" }}>{newFindings} new</div>}
+        {newFindings > 0 && <div style={{ padding: "2px 8px", borderRadius: 10, background: "rgba(224,144,64,0.2)", fontSize: 11, fontWeight: 700, color: "var(--accent-primary)" }}>{newFindings} new</div>}
       </div>
       <div style={{ height: 3, borderRadius: 2, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
-        <div style={{ height: "100%", borderRadius: 2, background: "#E09040", width: `${state?.progress?.percentage || 0}%`, transition: "width 0.5s ease" }} />
+        <div style={{ height: "100%", borderRadius: 2, background: "var(--accent-primary)", width: `${state?.progress?.percentage || 0}%`, transition: "width 0.5s ease" }} />
       </div>
     </motion.div>;
   }
@@ -664,23 +664,23 @@ export default function BotWorkspace({ projectId, modelId, onClose }: { projectI
     {/* ── CONTROL BAR ── */}
     <div style={{ height: 64, display: "flex", alignItems: "center", padding: "0 20px", background: "rgba(255,255,255,0.03)", backdropFilter: "blur(16px)", borderBottom: "1px solid rgba(255,255,255,0.06)", flexShrink: 0, gap: 16 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1 }}>
-        <div style={{ width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg, #E09040, #C07030)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>🤖</div>
+        <div style={{ width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>🤖</div>
         <div>
-          <div style={{ fontSize: 15, fontWeight: 700, color: "#E09040", fontFamily: "'Outfit', sans-serif" }}>AI Analyst</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: "var(--accent-primary)", fontFamily: "'Outfit', sans-serif" }}>AI Analyst</div>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <div style={{ width: 6, height: 6, borderRadius: "50%", background: state.status === "running" ? "#10B981" : state.status === "waiting_for_user" ? "#E09040" : state.status === "completed" ? "#8B5CF6" : "#6B7280", animation: state.status === "running" ? "statusPulse 1.5s infinite" : "none" }} />
+            <div style={{ width: 6, height: 6, borderRadius: "50%", background: state.status === "running" ? "var(--success)" : state.status === "waiting_for_user" ? "var(--accent-primary)" : state.status === "completed" ? "var(--purple)" : "#6B7280", animation: state.status === "running" ? "statusPulse 1.5s infinite" : "none" }} />
             <span style={{ fontSize: 12, color: "rgba(255,200,150,0.4)" }}>
               {state.current_action ? ACTION_LABELS[state.current_action] || state.current_action : state.status === "completed" ? "Analysis complete" : state.status === "waiting_for_user" ? "Awaiting input" : state.status}
-              {sseConnected && <span style={{ marginLeft: 6, fontSize: 10, color: "#10B981", fontWeight: 700 }}>LIVE</span>}
+              {sseConnected && <span style={{ marginLeft: 6, fontSize: 10, color: "var(--success)", fontWeight: 700 }}>LIVE</span>}
               {!sseConnected && sessionRef.current && <span style={{ marginLeft: 6, fontSize: 10, color: "rgba(255,200,150,0.25)" }}>polling</span>}
             </span>
           </div>
         </div>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <button onClick={togglePlayPause} style={{ width: 44, height: 44, borderRadius: "50%", background: "linear-gradient(135deg, #E09040, #C07030)", border: "none", color: "#fff", fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 16px rgba(224,144,64,0.3)" }}>{state.status === "running" ? "⏸" : "▶"}</button>
+        <button onClick={togglePlayPause} style={{ width: 44, height: 44, borderRadius: "50%", background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", border: "none", color: "#fff", fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 16px rgba(224,144,64,0.3)" }}>{state.status === "running" ? "⏸" : "▶"}</button>
         <div style={{ display: "flex", borderRadius: 8, overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)" }}>
-          {(["autopilot", "guided", "question"] as const).map(m => <button key={m} onClick={() => setMode(m)} style={{ padding: "6px 14px", fontSize: 12, fontWeight: mode === m ? 700 : 500, background: mode === m ? "rgba(224,144,64,0.15)" : "transparent", color: mode === m ? "#E09040" : "rgba(255,200,150,0.35)", border: "none", cursor: "pointer", textTransform: "capitalize" }}>{m}</button>)}
+          {(["autopilot", "guided", "question"] as const).map(m => <button key={m} onClick={() => setMode(m)} style={{ padding: "6px 14px", fontSize: 12, fontWeight: mode === m ? 700 : 500, background: mode === m ? "rgba(224,144,64,0.15)" : "transparent", color: mode === m ? "var(--accent-primary)" : "rgba(255,200,150,0.35)", border: "none", cursor: "pointer", textTransform: "capitalize" }}>{m}</button>)}
         </div>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 12, flex: 1, justifyContent: "flex-end" }}>
@@ -689,7 +689,7 @@ export default function BotWorkspace({ projectId, modelId, onClose }: { projectI
         </div>
         <div style={{ textAlign: "right" }}>
           <div style={{ fontSize: 12, color: "rgba(255,200,150,0.4)", fontFamily: "'IBM Plex Mono', monospace" }}>Step {state.progress.completed}/{state.progress.total}</div>
-          <div style={{ width: 80, height: 3, borderRadius: 2, background: "rgba(255,255,255,0.06)", overflow: "hidden", marginTop: 2 }}><div style={{ height: "100%", borderRadius: 2, background: "#E09040", width: `${state.progress.percentage}%`, transition: "width 0.5s ease" }} /></div>
+          <div style={{ width: 80, height: 3, borderRadius: 2, background: "rgba(255,255,255,0.06)", overflow: "hidden", marginTop: 2 }}><div style={{ height: "100%", borderRadius: 2, background: "var(--accent-primary)", width: `${state.progress.percentage}%`, transition: "width 0.5s ease" }} /></div>
         </div>
         <button onClick={() => exportLog(state, analysisResults.current)} style={{ padding: "5px 12px", borderRadius: 8, fontSize: 11, fontWeight: 600, background: "transparent", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,200,150,0.35)", cursor: "pointer" }} title="Export (E)">Export</button>
         <button onClick={() => setMinimized(true)} style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,200,150,0.4)", fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} title="Minimize (M)">▾</button>
@@ -717,13 +717,13 @@ export default function BotWorkspace({ projectId, modelId, onClose }: { projectI
             const isFinding = entry.type === "finding";
             const severity = entry.metadata?.severity as string;
             const findingType = entry.metadata?.finding_type as string | undefined;
-            const borderColor = severity === "critical" ? "#EF4444" : severity === "warning" ? "#F59E0B" : isBot ? "#E09040" : "#3B82F6";
+            const borderColor = severity === "critical" ? "var(--risk)" : severity === "warning" ? "var(--warning)" : isBot ? "var(--accent-primary)" : "#3B82F6";
             const isRecent = i >= (state.activity_log.length - 6);
             const linkedModule = isFinding && severity ? CATEGORY_MODULE[findingType || severity] || CATEGORY_MODULE[entry.metadata?.category as string || ""] : null;
 
             return <div key={entry.id} style={{ display: "flex", gap: 10, padding: "8px 0", borderBottom: "1px solid rgba(255,255,255,0.03)" }}>
               <div style={{ width: 3, borderRadius: 2, background: borderColor, flexShrink: 0, alignSelf: "stretch", opacity: 0.6 }} />
-              <div style={{ width: 22, height: 22, borderRadius: "50%", background: isBot ? "rgba(224,144,64,0.15)" : "rgba(59,130,246,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, flexShrink: 0, marginTop: 2, color: isBot ? "#E09040" : "#3B82F6" }}>
+              <div style={{ width: 22, height: 22, borderRadius: "50%", background: isBot ? "rgba(224,144,64,0.15)" : "rgba(59,130,246,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, flexShrink: 0, marginTop: 2, color: isBot ? "var(--accent-primary)" : "#3B82F6" }}>
                 {isBot ? "🤖" : entry.actor === "system" ? "⚙" : "U"}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -736,7 +736,7 @@ export default function BotWorkspace({ projectId, modelId, onClose }: { projectI
                     {linkedModule && <button onClick={() => sendCommand(`show me ${entry.content.slice(0, 30)}`)} style={{ padding: "3px 10px", borderRadius: 6, fontSize: 11, fontWeight: 600, background: "rgba(224,144,64,0.06)", border: "1px solid rgba(224,144,64,0.12)", color: "rgba(224,144,64,0.5)", cursor: "pointer" }}>View in detail →</button>}
                     {entry.metadata?.confidence != null && (() => {
                       const conf = Number(entry.metadata!.confidence);
-                      const color = conf >= 0.8 ? "#10B981" : conf >= 0.5 ? "#F59E0B" : "#EF4444";
+                      const color = conf >= 0.8 ? "var(--success)" : conf >= 0.5 ? "var(--warning)" : "var(--risk)";
                       const style = conf >= 0.8 ? "solid" : conf >= 0.5 ? "dashed" : "dotted";
                       return <span style={{ fontSize: 10, color, borderLeft: `2px ${style} ${color}`, paddingLeft: 6, fontFamily: "'IBM Plex Mono', monospace" }}>{Math.round(conf * 100)}% confidence</span>;
                     })()}
@@ -745,7 +745,7 @@ export default function BotWorkspace({ projectId, modelId, onClose }: { projectI
                 {/* Question buttons */}
                 {isQuestion && (
                   <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
-                    <button onClick={() => sendCommand("go")} style={{ padding: "5px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600, background: "rgba(224,144,64,0.1)", border: "1px solid rgba(224,144,64,0.2)", color: "#E09040", cursor: "pointer" }}>Go →</button>
+                    <button onClick={() => sendCommand("go")} style={{ padding: "5px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600, background: "rgba(224,144,64,0.1)", border: "1px solid rgba(224,144,64,0.2)", color: "var(--accent-primary)", cursor: "pointer" }}>Go →</button>
                     <button onClick={() => sendCommand("skip")} style={{ padding: "5px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,200,150,0.4)", cursor: "pointer" }}>Skip</button>
                     <button onClick={() => sendCommand("tell me more")} style={{ padding: "5px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,200,150,0.4)", cursor: "pointer" }}>Tell me more</button>
                   </div>
@@ -767,7 +767,7 @@ export default function BotWorkspace({ projectId, modelId, onClose }: { projectI
             <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === "Enter") sendCommand(input); }}
               placeholder="Type a command or ask a question..."
               style={{ flex: 1, padding: "10px 16px", borderRadius: 12, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "#fff", fontSize: 13, outline: "none", fontFamily: "'DM Sans', sans-serif" }} />
-            <button onClick={() => sendCommand(input)} style={{ width: 40, height: 40, borderRadius: 12, background: "linear-gradient(135deg, #E09040, #C07030)", border: "none", color: "#fff", fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>→</button>
+            <button onClick={() => sendCommand(input)} style={{ width: 40, height: 40, borderRadius: 12, background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", border: "none", color: "#fff", fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>→</button>
           </div>
         </div>
       </div>

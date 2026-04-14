@@ -704,9 +704,9 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
         {playing ? (
           /* Animated sound bars */
           <>
-            <span style={{ display: "inline-block", width: 3, height: 8, borderRadius: 1.5, background: "#e09040", animation: "barPulse1 0.8s ease-in-out infinite" }} />
-            <span style={{ display: "inline-block", width: 3, height: 12, borderRadius: 1.5, background: "#e09040", animation: "barPulse2 0.7s ease-in-out infinite 0.15s" }} />
-            <span style={{ display: "inline-block", width: 3, height: 6, borderRadius: 1.5, background: "#e09040", animation: "barPulse3 0.9s ease-in-out infinite 0.3s" }} />
+            <span style={{ display: "inline-block", width: 3, height: 8, borderRadius: 1.5, background: "var(--accent-primary)", animation: "barPulse1 0.8s ease-in-out infinite" }} />
+            <span style={{ display: "inline-block", width: 3, height: 12, borderRadius: 1.5, background: "var(--accent-primary)", animation: "barPulse2 0.7s ease-in-out infinite 0.15s" }} />
+            <span style={{ display: "inline-block", width: 3, height: 6, borderRadius: 1.5, background: "var(--accent-primary)", animation: "barPulse3 0.9s ease-in-out infinite 0.3s" }} />
           </>
         ) : (
           /* Muted icon */
@@ -730,12 +730,12 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
       <div style={{ fontSize: 14, color: "rgba(255,255,255,0.35)" }}>{audioError ? "Click play to retry" : activeMood ? `${MOODS.find(m => m.id === activeMood)?.icon} ${MOODS.find(m => m.id === activeMood)?.label}` : GENRES.find(g => g.id === genre)?.label}{!audioError && focusActive ? ` · ${Math.floor(focusRemaining / 60)}:${String(focusRemaining % 60).padStart(2, "0")}` : ""}</div>
     </div>
     <div onClick={e => { e.stopPropagation(); seek(e); }} style={{ width: 80, height: 3, background: "rgba(255,255,255,0.08)", borderRadius: 2, cursor: "pointer", flexShrink: 0, overflow: "hidden" }}>
-      <div style={{ height: "100%", borderRadius: 2, background: "#D4860A", width: `${progress * 100}%` }} />
+      <div style={{ height: "100%", borderRadius: 2, background: "var(--accent-primary)", width: `${progress * 100}%` }} />
     </div>
     <button onClick={e => { e.stopPropagation(); toggle(); }} style={{ ...btnBase, color: "#f5e6d0", fontSize: 16, width: 32, height: 32 }}>{playing ? "⏸" : "▶"}</button>
     <button onClick={e => { e.stopPropagation(); nextTrack(); }} style={{ ...btnBase, color: "rgba(255,255,255,0.4)", fontSize: 15 }}>⏭</button>
     <button onClick={e => { e.stopPropagation(); changeVolume(volume > 0 ? 0 : 0.5); }} style={{ ...btnBase, fontSize: 13, color: "rgba(255,255,255,0.3)" }}>{volume === 0 ? "🔇" : "🔊"}</button>
-    <input type="range" min={0} max={1} step={0.02} value={volume} onClick={e => e.stopPropagation()} onChange={e => { e.stopPropagation(); changeVolume(Number(e.target.value)); }} style={{ width: 50, accentColor: "#e09040", height: 3, flexShrink: 0 }} />
+    <input type="range" min={0} max={1} step={0.02} value={volume} onClick={e => e.stopPropagation()} onChange={e => { e.stopPropagation(); changeVolume(Number(e.target.value)); }} style={{ width: 50, accentColor: "var(--accent-primary)", height: 3, flexShrink: 0 }} />
     <button onClick={e => { e.stopPropagation(); setViewState("mini"); }} style={{ ...btnBase, color: "rgba(255,255,255,0.25)", fontSize: 14 }} title="Hide player">✕</button>
   </div>;
 
@@ -754,7 +754,7 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
         <div style={{ width: 80, height: 80, borderRadius: 16, overflow: "hidden", flexShrink: 0, background: "radial-gradient(circle, rgba(212,134,10,0.08), rgba(0,0,0,0.3))", boxShadow: `0 4px 20px rgba(212,134,10,${0.1 + amplitude * 0.2})`, position: "relative", cursor: "pointer" }} onClick={() => setImmersive(true)} title="Enter Immersive Mode">
           <OrbScene freqData={freqDataRef.current} bassEnergy={bassEnergy} midEnergy={midEnergy} highEnergy={highEnergy} amplitude={amplitude} />
           {focusActive && <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.6)", borderRadius: 16 }}>
-            <div style={{ fontSize: 16, fontWeight: 800, color: "#E8C547", fontFamily: "'IBM Plex Mono', monospace" }}>{Math.floor(focusRemaining / 60)}:{String(focusRemaining % 60).padStart(2, "0")}</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: "var(--warning)", fontFamily: "'IBM Plex Mono', monospace" }}>{Math.floor(focusRemaining / 60)}:{String(focusRemaining % 60).padStart(2, "0")}</div>
             <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: 1 }}>Focus</div>
           </div>}
         </div>
@@ -762,7 +762,7 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <div style={{ fontSize: 16, fontWeight: 700, color: audioError ? "#f87171" : "#f5e6d0", fontFamily: "'Outfit', sans-serif", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{audioError || (buffering ? `Loading ${track?.name || ""}...` : track?.name || "—")}</div>
-            {!audioError && <button onClick={() => track && toggleFav(track.id)} style={{ ...btnBase, fontSize: 14, color: track && favorites.has(track.id) ? "#EF4444" : "rgba(255,255,255,0.2)" }}>{track && favorites.has(track.id) ? "♥" : "♡"}</button>}
+            {!audioError && <button onClick={() => track && toggleFav(track.id)} style={{ ...btnBase, fontSize: 14, color: track && favorites.has(track.id) ? "var(--risk)" : "rgba(255,255,255,0.2)" }}>{track && favorites.has(track.id) ? "♥" : "♡"}</button>}
           </div>
           <div style={{ fontSize: 14, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>
             {audioError ? "Click play to retry" : <>{activeMood ? <span style={{ color: "rgba(212,134,10,0.7)" }}>{MOODS.find(m => m.id === activeMood)?.icon} {MOODS.find(m => m.id === activeMood)?.label} · </span> : ""}{GENRES.find(g => g.id === genre)?.icon} {GENRES.find(g => g.id === genre)?.label} · {(trackIdx % genreTracks.length) + 1}/{genreTracks.length}</>}
@@ -771,17 +771,17 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
 
         {/* Main controls */}
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <button onClick={() => setShuffle(!shuffle)} style={{ ...btnBase, color: shuffle ? "#D4860A" : "rgba(255,255,255,0.25)", fontSize: 14 }} title="Shuffle">⇄</button>
+          <button onClick={() => setShuffle(!shuffle)} style={{ ...btnBase, color: shuffle ? "var(--accent-primary)" : "rgba(255,255,255,0.25)", fontSize: 14 }} title="Shuffle">⇄</button>
           <button onClick={prevTrack} style={{ ...btnBase, color: "rgba(255,255,255,0.5)", fontSize: 15 }}>⏮</button>
-          <button onClick={toggle} style={{ width: 44, height: 44, borderRadius: 22, background: "linear-gradient(135deg, #e09040, #c07030)", border: "none", color: "#fff", fontSize: 17, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 16px rgba(224,144,64,0.3)", transition: "transform 0.15s" }} onMouseEnter={e => e.currentTarget.style.transform = "scale(1.08)"} onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}>{playing ? "⏸" : "▶"}</button>
+          <button onClick={toggle} style={{ width: 44, height: 44, borderRadius: 22, background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", border: "none", color: "#fff", fontSize: 17, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 16px rgba(224,144,64,0.3)", transition: "transform 0.15s" }} onMouseEnter={e => e.currentTarget.style.transform = "scale(1.08)"} onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}>{playing ? "⏸" : "▶"}</button>
           <button onClick={nextTrack} style={{ ...btnBase, color: "rgba(255,255,255,0.5)", fontSize: 15 }}>⏭</button>
-          <button onClick={() => setRepeat(!repeat)} style={{ ...btnBase, color: repeat ? "#D4860A" : "rgba(255,255,255,0.25)", fontSize: 14 }} title="Repeat">↻</button>
+          <button onClick={() => setRepeat(!repeat)} style={{ ...btnBase, color: repeat ? "var(--accent-primary)" : "rgba(255,255,255,0.25)", fontSize: 14 }} title="Repeat">↻</button>
         </div>
 
         {/* Volume */}
         <div style={{ display: "flex", alignItems: "center", gap: 5, width: 100, flexShrink: 0 }}>
           <button onClick={() => changeVolume(volume > 0 ? 0 : 0.5)} style={{ ...btnBase, fontSize: 14, color: "rgba(255,255,255,0.35)" }}>{volume === 0 ? "🔇" : volume < 0.3 ? "🔈" : "🔊"}</button>
-          <input type="range" min={0} max={1} step={0.02} value={volume} onChange={e => changeVolume(Number(e.target.value))} style={{ flex: 1, accentColor: "#e09040", height: 3 }} />
+          <input type="range" min={0} max={1} step={0.02} value={volume} onChange={e => changeVolume(Number(e.target.value))} style={{ flex: 1, accentColor: "var(--accent-primary)", height: 3 }} />
         </div>
       </div>
 
@@ -789,26 +789,26 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
         <span style={{ fontSize: 13, color: "rgba(255,255,255,0.3)", fontFamily: "'IBM Plex Mono', monospace", width: 32, textAlign: "right" }}>{fmt(currentTime)}</span>
         <div onClick={seek} style={{ flex: 1, height: 5, background: "rgba(255,255,255,0.06)", borderRadius: 3, cursor: "pointer", overflow: "hidden" }}>
-          <div style={{ height: "100%", borderRadius: 3, background: "linear-gradient(90deg, #D4860A, #E8C547)", width: `${progress * 100}%`, transition: "width 0.1s linear" }} />
+          <div style={{ height: "100%", borderRadius: 3, background: "linear-gradient(90deg, var(--accent-primary), var(--warning))", width: `${progress * 100}%`, transition: "width 0.1s linear" }} />
         </div>
         <span style={{ fontSize: 13, color: "rgba(255,255,255,0.3)", fontFamily: "'IBM Plex Mono', monospace", width: 32 }}>{fmt(duration)}</span>
       </div>
 
       {/* Mood pills + Focus timer */}
       <div style={{ display: "flex", gap: 5, alignItems: "center", marginBottom: 8, flexWrap: "wrap" }}>
-        {MOODS.map(m => <button key={m.id} onClick={() => selectMood(m.id)} style={{ padding: "3px 10px", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", border: activeMood === m.id ? "1px solid rgba(212,134,10,0.4)" : "1px solid rgba(255,255,255,0.06)", background: activeMood === m.id ? "rgba(212,134,10,0.12)" : "transparent", color: activeMood === m.id ? "#e09040" : "rgba(255,255,255,0.3)", transition: "all 0.2s", fontFamily: "'Outfit', sans-serif" }}>{m.icon} {m.label}</button>)}
+        {MOODS.map(m => <button key={m.id} onClick={() => selectMood(m.id)} style={{ padding: "3px 10px", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", border: activeMood === m.id ? "1px solid rgba(212,134,10,0.4)" : "1px solid rgba(255,255,255,0.06)", background: activeMood === m.id ? "rgba(212,134,10,0.12)" : "transparent", color: activeMood === m.id ? "var(--accent-primary)" : "rgba(255,255,255,0.3)", transition: "all 0.2s", fontFamily: "'Outfit', sans-serif" }}>{m.icon} {m.label}</button>)}
         <div style={{ flex: 1 }} />
         {/* Focus timer button */}
         {!focusActive ? <div style={{ display: "flex", gap: 3 }}>
           {[25, 45, 60].map(mins => <button key={mins} onClick={() => startFocus(mins)} style={{ ...btnBase, fontSize: 12, color: "rgba(255,255,255,0.3)", padding: "2px 8px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.06)" }} title={`${mins}min focus session`}>🎯 {mins}m</button>)}
-        </div> : <button onClick={() => { setFocusActive(false); setFocusRemaining(0); }} style={{ ...btnBase, fontSize: 12, color: "#E8C547", padding: "2px 10px", borderRadius: 6, border: "1px solid rgba(232,197,71,0.2)" }}>🎯 End Focus ({Math.floor(focusRemaining / 60)}:{String(focusRemaining % 60).padStart(2, "0")})</button>}
+        </div> : <button onClick={() => { setFocusActive(false); setFocusRemaining(0); }} style={{ ...btnBase, fontSize: 12, color: "var(--warning)", padding: "2px 10px", borderRadius: 6, border: "1px solid rgba(232,197,71,0.2)" }}>🎯 End Focus ({Math.floor(focusRemaining / 60)}:{String(focusRemaining % 60).padStart(2, "0")})</button>}
         <button onClick={() => setImmersive(true)} style={{ ...btnBase, fontSize: 12, color: "rgba(255,255,255,0.3)", padding: "2px 8px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.06)" }} title="Fullscreen visualizer">🌌 Immersive</button>
       </div>
 
       {/* Genre pills + track list */}
       <div style={{ display: "flex", gap: 5, alignItems: "center" }}>
         {GENRES.map(g => <button key={g.id} onClick={() => { setGenre(g.id); setTrackIdx(0); setActiveMood(null); }}
-          style={{ padding: "3px 10px", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", border: genre === g.id && !activeMood ? "1px solid rgba(212,134,10,0.4)" : "1px solid rgba(255,255,255,0.06)", background: genre === g.id && !activeMood ? "rgba(212,134,10,0.12)" : "transparent", color: genre === g.id && !activeMood ? "#e09040" : "rgba(255,255,255,0.3)", transition: "all 0.2s", fontFamily: "'Outfit', sans-serif" }}>{g.icon} {g.label}</button>)}
+          style={{ padding: "3px 10px", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", border: genre === g.id && !activeMood ? "1px solid rgba(212,134,10,0.4)" : "1px solid rgba(255,255,255,0.06)", background: genre === g.id && !activeMood ? "rgba(212,134,10,0.12)" : "transparent", color: genre === g.id && !activeMood ? "var(--accent-primary)" : "rgba(255,255,255,0.3)", transition: "all 0.2s", fontFamily: "'Outfit', sans-serif" }}>{g.icon} {g.label}</button>)}
         {favorites.size > 0 && <button onClick={() => { const favTracks = ALL_TRACKS.filter(t => favorites.has(t.id)); if (favTracks.length) { const picked = favTracks[0]; setGenre(picked.genre); const gt = ALL_TRACKS.filter(t => t.genre === picked.genre); setTrackIdx(gt.findIndex(t => t.id === picked.id)); setActiveMood(null); } }} style={{ padding: "3px 10px", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", border: "1px solid rgba(239,68,68,0.15)", background: "transparent", color: "rgba(239,68,68,0.5)", fontFamily: "'Outfit', sans-serif" }}>♥ {favorites.size}</button>}
         <div style={{ flex: 1 }} />
         <button onClick={() => setShowList(!showList)} style={{ ...btnBase, fontSize: 13, color: "rgba(255,255,255,0.35)", fontFamily: "'IBM Plex Mono', monospace" }}>{showList ? "Hide" : "Tracks"} ▾</button>
@@ -816,12 +816,12 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
 
       {showList && <div style={{ marginTop: 6, maxHeight: 130, overflowY: "auto", borderRadius: 8, border: "1px solid rgba(255,255,255,0.06)" }}>
         {genreTracks.map((t, i) => <button key={t.id} onClick={() => changeTrack(i)}
-          style={{ width: "100%", padding: "5px 10px", background: i === trackIdx % genreTracks.length ? "rgba(212,134,10,0.1)" : "transparent", border: "none", borderBottom: "1px solid rgba(255,255,255,0.04)", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: i === trackIdx % genreTracks.length ? "#e09040" : "rgba(255,255,255,0.45)", transition: "all 0.15s", fontFamily: "'Outfit', sans-serif" }}
+          style={{ width: "100%", padding: "5px 10px", background: i === trackIdx % genreTracks.length ? "rgba(212,134,10,0.1)" : "transparent", border: "none", borderBottom: "1px solid rgba(255,255,255,0.04)", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: i === trackIdx % genreTracks.length ? "var(--accent-primary)" : "rgba(255,255,255,0.45)", transition: "all 0.15s", fontFamily: "'Outfit', sans-serif" }}
           onMouseEnter={e => { if (i !== trackIdx % genreTracks.length) e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }}
           onMouseLeave={e => { if (i !== trackIdx % genreTracks.length) e.currentTarget.style.background = "transparent"; }}>
           <span style={{ width: 14, fontSize: 13, textAlign: "right", opacity: 0.4, fontFamily: "'IBM Plex Mono', monospace" }}>{i === trackIdx % genreTracks.length && playing ? "♫" : `${i + 1}`}</span>
           <span style={{ flex: 1, textAlign: "left" }}>{t.name}</span>
-          <button onClick={e => { e.stopPropagation(); toggleFav(t.id); }} style={{ ...btnBase, fontSize: 12, color: favorites.has(t.id) ? "#EF4444" : "rgba(255,255,255,0.15)", padding: 0 }}>{favorites.has(t.id) ? "♥" : "♡"}</button>
+          <button onClick={e => { e.stopPropagation(); toggleFav(t.id); }} style={{ ...btnBase, fontSize: 12, color: favorites.has(t.id) ? "var(--risk)" : "rgba(255,255,255,0.15)", padding: 0 }}>{favorites.has(t.id) ? "♥" : "♡"}</button>
         </button>)}
       </div>}
     </div>
@@ -839,12 +839,12 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
       {/* Controls */}
       <div style={{ position: "absolute", bottom: 24, left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 20, zIndex: 1 }}>
         <button onClick={prevTrack} style={{ ...btnBase, color: "rgba(255,255,255,0.4)", fontSize: 20 }}>⏮</button>
-        <button onClick={toggle} style={{ width: 56, height: 56, borderRadius: 28, background: "linear-gradient(135deg, #e09040, #c07030)", border: "none", color: "#fff", fontSize: 22, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 24px rgba(224,144,64,0.4)" }}>{playing ? "⏸" : "▶"}</button>
+        <button onClick={toggle} style={{ width: 56, height: 56, borderRadius: 28, background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", border: "none", color: "#fff", fontSize: 22, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 24px rgba(224,144,64,0.4)" }}>{playing ? "⏸" : "▶"}</button>
         <button onClick={nextTrack} style={{ ...btnBase, color: "rgba(255,255,255,0.4)", fontSize: 20 }}>⏭</button>
       </div>
       {/* Progress */}
       <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 3 }}>
-        <div style={{ height: "100%", background: "linear-gradient(90deg, #D4860A, #E8C547)", width: `${progress * 100}%`, transition: "width 0.1s linear" }} />
+        <div style={{ height: "100%", background: "linear-gradient(90deg, var(--accent-primary), var(--warning))", width: `${progress * 100}%`, transition: "width 0.1s linear" }} />
       </div>
       {/* Time */}
       <div style={{ position: "absolute", bottom: 6, right: 16, fontSize: 13, color: "rgba(255,255,255,0.2)", fontFamily: "'IBM Plex Mono', monospace", zIndex: 1 }}>{fmt(currentTime)} / {fmt(duration)}</div>
@@ -1483,7 +1483,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
             <div className="text-[15px] font-bold text-[var(--text-primary)]">Select & Upload Your Data File</div>
             {/* Format templates */}
             <div className="flex gap-2 flex-wrap">
-              {[{ id: "custom", label: "Generic / Custom" }, { id: "workday", label: "Workday" }, { id: "sap", label: "SAP SuccessFactors" }, { id: "oracle", label: "Oracle HCM" }, { id: "adp", label: "ADP" }].map(t => <button key={t.id} onClick={() => setWizTemplate(t.id)} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold transition-all" style={{ background: wizTemplate === t.id ? "rgba(212,134,10,0.12)" : "var(--surface-2)", color: wizTemplate === t.id ? "#e09040" : "var(--text-muted)", border: wizTemplate === t.id ? "1px solid rgba(212,134,10,0.3)" : "1px solid var(--border)" }}>{t.label}</button>)}
+              {[{ id: "custom", label: "Generic / Custom" }, { id: "workday", label: "Workday" }, { id: "sap", label: "SAP SuccessFactors" }, { id: "oracle", label: "Oracle HCM" }, { id: "adp", label: "ADP" }].map(t => <button key={t.id} onClick={() => setWizTemplate(t.id)} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold transition-all" style={{ background: wizTemplate === t.id ? "rgba(212,134,10,0.12)" : "var(--surface-2)", color: wizTemplate === t.id ? "var(--accent-primary)" : "var(--text-muted)", border: wizTemplate === t.id ? "1px solid rgba(212,134,10,0.3)" : "1px solid var(--border)" }}>{t.label}</button>)}
             </div>
             {/* Drop zone */}
             <div className="border-2 border-dashed border-[var(--border)] rounded-xl p-10 text-center hover:border-[var(--accent-primary)] transition-all cursor-pointer" onDragOver={e => e.preventDefault()} onDrop={e => { e.preventDefault(); const files = Array.from(e.dataTransfer.files); if (files.length) { setWizFiles(files); wizParseFile(files[0]); } }} onClick={() => { const input = document.createElement("input"); input.type = "file"; input.accept = ".xlsx,.xls,.csv,.tsv"; input.multiple = true; input.onchange = () => { const files = Array.from(input.files || []); if (files.length) { setWizFiles(files); wizParseFile(files[0]); } }; input.click(); }}>
@@ -1500,7 +1500,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
               <div className="text-[14px] text-[var(--success)] mb-2">Detected <strong>{wizPreview.rows.toLocaleString()}</strong> rows and <strong>{wizPreview.cols}</strong> columns</div>
               <div className="flex flex-wrap gap-1">{wizPreview.headers.slice(0, 15).map(h => <span key={h} className="px-2 py-0.5 rounded text-[12px] bg-[var(--bg)] text-[var(--text-secondary)]">{h}</span>)}{wizPreview.headers.length > 15 && <span className="text-[12px] text-[var(--text-muted)]">+{wizPreview.headers.length - 15} more</span>}</div>
             </div>}
-            {wizPreview && <button onClick={() => setWizStep(2)} className="w-full px-4 py-2.5 rounded-xl text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>Continue to Column Mapping →</button>}
+            {wizPreview && <button onClick={() => setWizStep(2)} className="w-full px-4 py-2.5 rounded-xl text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>Continue to Column Mapping →</button>}
           </div>}
 
           {/* STEP 2: Column Mapping */}
@@ -1535,7 +1535,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
             </div>}
             <div className="flex gap-2">
               <button onClick={() => setWizStep(1)} className="px-4 py-2 rounded-lg text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">← Back</button>
-              <button onClick={() => { wizRunValidation(); setWizStep(3); }} className="flex-1 px-4 py-2.5 rounded-xl text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>Validate Data →</button>
+              <button onClick={() => { wizRunValidation(); setWizStep(3); }} className="flex-1 px-4 py-2.5 rounded-xl text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>Validate Data →</button>
             </div>
           </div>}
 
@@ -1563,7 +1563,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
             })()}
             <div className="flex gap-2">
               <button onClick={() => setWizStep(2)} className="px-4 py-2 rounded-lg text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">← Back</button>
-              <button onClick={() => setWizStep(4)} disabled={wizValidation.some(v => v.type === "error")} className="flex-1 px-4 py-2.5 rounded-xl text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: wizValidation.some(v => v.type === "error") ? 0.4 : 1 }}>Confirm & Import →</button>
+              <button onClick={() => setWizStep(4)} disabled={wizValidation.some(v => v.type === "error")} className="flex-1 px-4 py-2.5 rounded-xl text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", opacity: wizValidation.some(v => v.type === "error") ? 0.4 : 1 }}>Confirm & Import →</button>
             </div>
           </div>}
 
@@ -1585,7 +1585,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
             </div>}
             <div className="flex gap-2">
               <button onClick={() => setWizStep(3)} className="px-4 py-2 rounded-lg text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">← Back</button>
-              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={wizDoImport} disabled={wizImporting} className="flex-1 px-4 py-3 rounded-xl text-[16px] font-bold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: wizImporting ? 0.5 : 1 }}>{wizImporting ? "Importing..." : "🚀 Import Data"}</motion.button>
+              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={wizDoImport} disabled={wizImporting} className="flex-1 px-4 py-3 rounded-xl text-[16px] font-bold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", opacity: wizImporting ? 0.5 : 1 }}>{wizImporting ? "Importing..." : "🚀 Import Data"}</motion.button>
             </div>
             {wizImporting && <div className="h-2 bg-[var(--surface-2)] rounded-full overflow-hidden"><div className="h-full rounded-full bg-[var(--accent-primary)] animate-pulse" style={{ width: "80%" }} /></div>}
           </div>}
@@ -1710,8 +1710,8 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
         <button onClick={() => navigate("flightrecorder")} className={`w-full text-left px-2 py-1.5 rounded-lg text-[15px] mb-1 flex items-center gap-2 transition-all ${page === "flightrecorder" ? "bg-[rgba(212,134,10,0.08)] text-[var(--accent-primary)] font-semibold" : "text-[var(--text-muted)] hover:bg-[var(--hover)]"}`}>
           <span className="text-[15px]">🛫</span> Flight Recorder
         </button>
-        <button onClick={() => setShowActivityFeed(!showActivityFeed)} className={`w-full text-left px-2 py-1.5 rounded-lg text-[15px] mb-1 flex items-center gap-2 transition-all ${showActivityFeed ? "bg-[rgba(16,185,129,0.1)] text-[#10B981] font-semibold" : "text-[var(--text-muted)] hover:bg-[var(--hover)]"}`}>
-          <span className="text-[15px]">📡</span> Activity Feed {collab.presence.length > 0 && <span className="text-[12px] px-1.5 py-0.5 rounded-full bg-[rgba(16,185,129,0.2)] text-[#10B981] font-bold">{collab.presence.length}</span>}
+        <button onClick={() => setShowActivityFeed(!showActivityFeed)} className={`w-full text-left px-2 py-1.5 rounded-lg text-[15px] mb-1 flex items-center gap-2 transition-all ${showActivityFeed ? "bg-[rgba(16,185,129,0.1)] text-[var(--success)] font-semibold" : "text-[var(--text-muted)] hover:bg-[var(--hover)]"}`}>
+          <span className="text-[15px]">📡</span> Activity Feed {collab.presence.length > 0 && <span className="text-[12px] px-1.5 py-0.5 rounded-full bg-[rgba(16,185,129,0.2)] text-[var(--success)] font-bold">{collab.presence.length}</span>}
         </button>
         <button onClick={() => setShowDecLog(!showDecLog)} className={`w-full text-left px-2 py-1.5 rounded-lg text-[15px] mb-1 flex items-center gap-2 transition-all ${showDecLog ? "bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] font-semibold" : "text-[var(--text-muted)] hover:bg-[var(--hover)]"}`}>
           <span className="text-[15px]">📝</span> Decision Log {decisionLog.length > 0 && <span className="text-[14px] px-1.5 py-0.5 rounded-full bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] font-bold">{decisionLog.length}</span>}
@@ -1759,7 +1759,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
 
         {/* Avatar + name — clickable to open dropdown */}
         {user && <button onClick={() => setAccountMenuOpen(!accountMenuOpen)} className="w-full flex items-center gap-2 mb-2 rounded-lg px-1 py-1 transition-all" style={{ background: accountMenuOpen ? "rgba(212,134,10,0.06)" : "transparent", cursor: "pointer", border: "none", textAlign: "left" }} onMouseEnter={e => { if (!accountMenuOpen) e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }} onMouseLeave={e => { if (!accountMenuOpen) e.currentTarget.style.background = "transparent"; }}>
-          <div className="w-7 h-7 rounded-lg flex items-center justify-center text-[15px] font-bold shrink-0" style={{ background: "linear-gradient(135deg, rgba(212,134,10,0.2), rgba(192,112,48,0.15))", border: "1px solid rgba(224,144,64,0.2)", color: "#e09040", fontFamily: "'Outfit', sans-serif" }}>{(user.display_name || user.username || "U")[0].toUpperCase()}</div>
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center text-[15px] font-bold shrink-0" style={{ background: "linear-gradient(135deg, rgba(212,134,10,0.2), rgba(192,112,48,0.15))", border: "1px solid rgba(224,144,64,0.2)", color: "var(--accent-primary)", fontFamily: "'Outfit', sans-serif" }}>{(user.display_name || user.username || "U")[0].toUpperCase()}</div>
           <div className="flex-1 min-w-0">
             <div className="text-[15px] font-semibold text-[var(--text-primary)] truncate">{user.display_name || user.username}</div>
             {user.last_login && <div className="text-[15px] text-[var(--text-muted)] font-data truncate">Last: {new Date(user.last_login).toLocaleDateString()}</div>}
@@ -1850,7 +1850,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       <div className="px-4 py-3 flex items-center justify-between border-b border-[var(--border)]" style={{ background: "linear-gradient(135deg, rgba(139,92,246,0.06), transparent)" }}>
         <div className="flex items-center gap-2.5"><span className="text-[18px]">🤖</span><div><div className="text-[15px] font-bold text-[var(--text-primary)] font-heading">Agent Hub</div><div className="text-[12px] text-[var(--text-muted)]">{AGENT_DEFS.filter(a => agentSettings[a.id]?.enabled).length} agents active</div></div></div>
         <div className="flex items-center gap-2">
-          <button onClick={runAllAgents} disabled={!!agentRunning} className="px-3 py-1.5 rounded-lg text-[12px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #8B5CF6, #7C3AED)", opacity: agentRunning ? 0.5 : 1 }}>{agentRunning ? "Running..." : "▶ Run All"}</button>
+          <button onClick={runAllAgents} disabled={!!agentRunning} className="px-3 py-1.5 rounded-lg text-[12px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--purple), #7C3AED)", opacity: agentRunning ? 0.5 : 1 }}>{agentRunning ? "Running..." : "▶ Run All"}</button>
           <button onClick={() => setShowAgentHub(false)} className="text-[16px] text-[var(--text-muted)] hover:text-[var(--text-primary)]">×</button>
         </div>
       </div>
@@ -2270,12 +2270,12 @@ function SandboxViewSelector({ companyName, onSelect }: { companyName: string; o
 const TUTORIAL_VISUALS: Record<number, string> = { 0: "👋", 1: "🗺️", 2: "📊", 3: "🔍", 4: "📈", 5: "🎯", 6: "🏥", 7: "🔥", 8: "🔄", 9: "🏗️", 10: "🔬", 11: "🛠️", 12: "🧬", 13: "⚖️", 14: "📐", 15: "📊", 16: "⚡", 17: "💰", 18: "🔀", 19: "📋", 20: "👥", 21: "📊", 22: "🎓", 23: "📤", 24: "🤖", 25: "🏛️", 26: "🎯" };
 
 const TUTORIAL_PHASES = [
-  { label: "Start", icon: "👋", range: [0, 2], color: "#D4860A" },
-  { label: "Discover", icon: "🔍", range: [3, 5], color: "#E8C547" },
-  { label: "Diagnose", icon: "🩺", range: [6, 10], color: "#C07030" },
-  { label: "Design", icon: "✏️", range: [11, 15], color: "#10B981" },
-  { label: "Simulate", icon: "⚡", range: [16, 18], color: "#8B5CF6" },
-  { label: "Mobilize", icon: "🚀", range: [19, 23], color: "#F59E0B" },
+  { label: "Start", icon: "👋", range: [0, 2], color: "var(--accent-primary)" },
+  { label: "Discover", icon: "🔍", range: [3, 5], color: "var(--warning)" },
+  { label: "Diagnose", icon: "🩺", range: [6, 10], color: "var(--teal)" },
+  { label: "Design", icon: "✏️", range: [11, 15], color: "var(--success)" },
+  { label: "Simulate", icon: "⚡", range: [16, 18], color: "var(--purple)" },
+  { label: "Mobilize", icon: "🚀", range: [19, 23], color: "var(--warning)" },
   { label: "Platform", icon: "🏛️", range: [24, 26], color: "#0891B2" },
 ];
 
@@ -2358,7 +2358,7 @@ function TutorialOverlay({ step, totalSteps, steps, onNext, onPrev, onClose, onJ
           {/* Pro tip */}
           {s.tip && <div style={{ padding: "14px 18px", borderRadius: 12, background: "rgba(212,134,10,0.06)", borderLeft: "3px solid rgba(212,134,10,0.4)", animation: `tutTipIn 0.4s ease-out ${0.5 + bodyLines.length * 0.08}s both` }}>
             <span style={{ fontSize: 15, fontStyle: "italic", color: "rgba(255,230,200,0.55)", lineHeight: 1.65 }}>
-              <span style={{ fontWeight: 700, color: "#D4860A", fontStyle: "normal" }}>💡 Pro tip: </span>{s.tip}
+              <span style={{ fontWeight: 700, color: "var(--accent-primary)", fontStyle: "normal" }}>💡 Pro tip: </span>{s.tip}
             </span>
           </div>}
         </div>
@@ -2397,7 +2397,7 @@ function TutorialOverlay({ step, totalSteps, steps, onNext, onPrev, onClose, onJ
           <span style={{ fontSize: 14, color: "rgba(255,230,200,0.2)", fontFamily: "'IBM Plex Mono', monospace" }}>{pct}%</span>
           <button onClick={onClose} style={{ padding: "8px 16px", borderRadius: 10, fontSize: 14, cursor: "pointer", background: "none", border: "1px solid rgba(255,255,255,0.06)", color: "rgba(255,230,200,0.3)", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.color = "rgba(255,230,200,0.6)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)"; }} onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,230,200,0.3)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; }}>Minimize</button>
         </div>
-        <button onClick={handleNext} style={{ padding: "10px 28px", borderRadius: 12, fontSize: 16, fontWeight: 700, cursor: "pointer", border: "none", color: "#fff", background: isLast ? "linear-gradient(135deg, #10B981, #059669)" : "linear-gradient(135deg, #E09040, #C07030)", boxShadow: isLast ? "0 4px 16px rgba(16,185,129,0.3)" : "0 4px 16px rgba(224,144,64,0.25)", transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"} onMouseLeave={e => e.currentTarget.style.transform = "none"}>{isLast ? "Finish" : "Next →"}</button>
+        <button onClick={handleNext} style={{ padding: "10px 28px", borderRadius: 12, fontSize: 16, fontWeight: 700, cursor: "pointer", border: "none", color: "#fff", background: isLast ? "linear-gradient(135deg, var(--success), #059669)" : "linear-gradient(135deg, var(--accent-primary), var(--teal))", boxShadow: isLast ? "0 4px 16px rgba(16,185,129,0.3)" : "0 4px 16px rgba(224,144,64,0.25)", transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"} onMouseLeave={e => e.currentTarget.style.transform = "none"}>{isLast ? "Finish" : "Next →"}</button>
       </div>
     </div>}
   </div>;
@@ -2407,10 +2407,10 @@ function TutorialOverlay({ step, totalSteps, steps, onNext, onPrev, onClose, onJ
 function TutorialBadge({ onClick, step, total }: { onClick: () => void; step: number; total: number }) {
   const pct = Math.round(((step + 1) / total) * 100);
   const isComplete = step >= total - 1;
-  return <button onClick={onClick} style={{ position: "fixed", bottom: 56, right: 16, zIndex: 35, padding: "8px 14px", borderRadius: 14, fontSize: 14, fontWeight: 700, cursor: "pointer", background: "rgba(15,12,8,0.92)", backdropFilter: "blur(16px)", border: "1px solid rgba(212,134,10,0.15)", color: "#E09040", display: "flex", alignItems: "center", gap: 8, boxShadow: "var(--shadow-2)", transition: "all 0.3s" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.35)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.15)"; }}>
+  return <button onClick={onClick} style={{ position: "fixed", bottom: 56, right: 16, zIndex: 35, padding: "8px 14px", borderRadius: 14, fontSize: 14, fontWeight: 700, cursor: "pointer", background: "rgba(15,12,8,0.92)", backdropFilter: "blur(16px)", border: "1px solid rgba(212,134,10,0.15)", color: "var(--accent-primary)", display: "flex", alignItems: "center", gap: 8, boxShadow: "var(--shadow-2)", transition: "all 0.3s" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.35)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.15)"; }}>
     <span>{isComplete ? "📖" : "🎓"}</span>
     <span>{isComplete ? "Guide" : "Tutorial"}</span>
-    {!isComplete && <><span style={{ fontSize: 13, opacity: 0.5 }}>{pct}%</span><div style={{ width: 28, height: 3, borderRadius: 2, background: "rgba(212,134,10,0.15)", overflow: "hidden" }}><div style={{ width: `${pct}%`, height: "100%", background: "#D4860A", borderRadius: 2 }} /></div></>}
+    {!isComplete && <><span style={{ fontSize: 13, opacity: 0.5 }}>{pct}%</span><div style={{ width: 28, height: 3, borderRadius: 2, background: "rgba(212,134,10,0.15)", overflow: "hidden" }}><div style={{ width: `${pct}%`, height: "100%", background: "var(--accent-primary)", borderRadius: 2 }} /></div></>}
   </button>;
 }
 
@@ -2585,7 +2585,7 @@ function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox, showS
                 { id: "aerospace", icon: "🚀", label: "Aerospace", s: "Kratos · 4,000", m: "L3Harris · 17,000", l: "Northrop Grumman · 33,000" },
               ].map(ind => <tr key={ind.id}>
                 <td style={{ fontSize: 15, color: "rgba(200,180,255,0.7)", padding: "3px 10px", fontWeight: 600 }}><span style={{ marginRight: 6 }}>{ind.icon}</span>{ind.label}</td>
-                {[{size: "small", info: ind.s, color: "rgba(16,185,129,0.12)", border: "rgba(16,185,129,0.25)", text: "#6EE7B7"}, {size: "mid", info: ind.m, color: "rgba(212,134,10,0.12)", border: "rgba(212,134,10,0.25)", text: "#E8C547"}, {size: "large", info: ind.l, color: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.18)", text: "#FCA5A5"}].map(t => <td key={t.size} style={{ padding: 2 }}><button disabled={!!seedingId} onClick={async (e) => {
+                {[{size: "small", info: ind.s, color: "rgba(16,185,129,0.12)", border: "rgba(16,185,129,0.25)", text: "#6EE7B7"}, {size: "mid", info: ind.m, color: "rgba(212,134,10,0.12)", border: "rgba(212,134,10,0.25)", text: "var(--warning)"}, {size: "large", info: ind.l, color: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.18)", text: "#FCA5A5"}].map(t => <td key={t.size} style={{ padding: 2 }}><button disabled={!!seedingId} onClick={async (e) => {
                   e.stopPropagation();
                   const tid = `tutorial_${t.size}_${ind.id}`;
                   setSeedingId(tid);
@@ -2648,7 +2648,7 @@ function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox, showS
 
       {/* ── HEADER ── */}
       <div style={{ marginBottom: 48, animation: "hubFadeUp 0.6s ease forwards" }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: "#E09040", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 8, fontFamily: "'IBM Plex Mono', monospace" }}>Welcome back, {displayName}</div>
+        <div style={{ fontSize: 13, fontWeight: 600, color: "var(--accent-primary)", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 8, fontFamily: "'IBM Plex Mono', monospace" }}>Welcome back, {displayName}</div>
         <h1 style={{ fontSize: 48, fontWeight: 700, color: "#fff", margin: 0, lineHeight: 1.15, fontFamily: "'Outfit', sans-serif", textShadow: "0 2px 32px rgba(0,0,0,0.4)" }}>Your Projects</h1>
         <p style={{ fontSize: 17, color: "rgba(255,220,180,0.45)", marginTop: 8, fontFamily: "'Outfit', sans-serif", fontWeight: 400 }}>Select a project or create a new one</p>
       </div>
@@ -2682,7 +2682,7 @@ function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox, showS
             {INDUSTRIES_PREVIEW.map((icon, i) => <div key={i} style={{ width: 30, height: 30, borderRadius: 10, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>{icon}</div>)}
             <span style={{ fontSize: 12, color: "rgba(255,200,150,0.35)", fontWeight: 600, marginLeft: 4 }}>8 industries</span>
           </div>
-          <div className="hub-cta" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 24px", borderRadius: 100, background: "linear-gradient(135deg, #E09040, #C07030)", border: "none", color: "#fff", fontSize: 14, fontWeight: 700, fontFamily: "'Outfit', sans-serif", boxShadow: "0 4px 20px rgba(224,144,64,0.3)" }}>Explore Companies <span style={{ fontSize: 16 }}>→</span></div>
+          <div className="hub-cta" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 24px", borderRadius: 100, background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", border: "none", color: "#fff", fontSize: 14, fontWeight: 700, fontFamily: "'Outfit', sans-serif", boxShadow: "0 4px 20px rgba(224,144,64,0.3)" }}>Explore Companies <span style={{ fontSize: 16 }}>→</span></div>
         </div>
 
         {/* NEW PROJECT CARD */}
@@ -2699,14 +2699,14 @@ function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox, showS
       {projects.length > 0 && <div style={{ marginBottom: 48, animation: "hubFadeUp 0.6s ease forwards", animationDelay: "0.4s", opacity: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
           <div style={{ fontSize: 18, fontWeight: 700, color: "rgba(255,255,255,0.85)", fontFamily: "'Outfit', sans-serif" }}>Recent Projects</div>
-          <span style={{ fontSize: 12, fontWeight: 700, padding: "2px 10px", borderRadius: 100, background: "rgba(224,144,64,0.12)", color: "#E09040" }}>{projects.length}</span>
+          <span style={{ fontSize: 12, fontWeight: 700, padding: "2px 10px", borderRadius: 100, background: "rgba(224,144,64,0.12)", color: "var(--accent-primary)" }}>{projects.length}</span>
         </div>
         <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 8, scrollSnapType: "x mandatory" }}>
           {projects.map(p => {
             let pStatus = p.status;
             try { const v = localStorage.getItem(`${p.id}_visited`); if (v && Object.keys(JSON.parse(v)).length > 0) pStatus = "In Progress"; } catch (e) { console.error("[Storage]", e); }
             try { const vm = localStorage.getItem(`${p.id}_viewMode`); if (vm) pStatus = "In Progress"; } catch (e) { console.error("[Storage]", e); }
-            const statusColor = pStatus === "In Progress" ? "#E09040" : pStatus === "Complete" ? "#10B981" : "rgba(255,200,150,0.25)";
+            const statusColor = pStatus === "In Progress" ? "var(--accent-primary)" : pStatus === "Complete" ? "var(--success)" : "rgba(255,200,150,0.25)";
             let modulesVisited = 0;
             try { const v = localStorage.getItem(`${p.id}_visited`); if (v) modulesVisited = Object.keys(JSON.parse(v)).length; } catch (e) { console.error("[Storage]", e); }
             const progressPct = Math.min(100, Math.round((modulesVisited / 8) * 100));
@@ -2777,7 +2777,7 @@ function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox, showS
         </div>
         <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 24 }}>
           <button onClick={() => { setModalOpen(false); setNewName(""); setNewDesc(""); setNewClient(""); setNewIndustry(""); setNewSize(""); setNewLead(""); }} style={{ padding: "10px 20px", borderRadius: 12, fontSize: 14, fontWeight: 600, color: "rgba(255,200,150,0.5)", border: "1px solid rgba(255,255,255,0.08)", background: "none", cursor: "pointer" }}>Cancel</button>
-          <button onClick={createProject} disabled={!newName.trim() || nameTaken} style={{ padding: "10px 28px", borderRadius: 12, fontSize: 14, fontWeight: 700, color: "#fff", border: "none", background: "linear-gradient(135deg, #E09040, #C07030)", cursor: !newName.trim() || nameTaken ? "not-allowed" : "pointer", opacity: !newName.trim() || nameTaken ? 0.4 : 1, boxShadow: "0 4px 16px rgba(224,144,64,0.25)" }}>Create Project</button>
+          <button onClick={createProject} disabled={!newName.trim() || nameTaken} style={{ padding: "10px 28px", borderRadius: 12, fontSize: 14, fontWeight: 700, color: "#fff", border: "none", background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", cursor: !newName.trim() || nameTaken ? "not-allowed" : "pointer", opacity: !newName.trim() || nameTaken ? 0.4 : 1, boxShadow: "0 4px 16px rgba(224,144,64,0.25)" }}>Create Project</button>
         </div>
       </div>
     </div>}
@@ -2971,7 +2971,7 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
 
   const inputStyle: React.CSSProperties = { width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(0,0,0,0.35)", color: "#f5e6d0", fontSize: 14, fontFamily: "'Outfit', sans-serif", outline: "none", boxSizing: "border-box" as const, backdropFilter: "blur(4px)", transition: "border-color 0.2s" };
   const labelStyle: React.CSSProperties = { display: "block", fontSize: 15, color: "rgba(255,255,255,0.5)", marginBottom: 6, fontFamily: "'IBM Plex Mono', monospace", textTransform: "uppercase" as const, letterSpacing: "1.5px" };
-  const btnStyle: React.CSSProperties = { width: "100%", padding: "14px", borderRadius: 12, border: "none", background: "linear-gradient(135deg, #e09040, #c07030)", color: "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Outfit', sans-serif", letterSpacing: "0.5px", boxShadow: "0 4px 20px rgba(224,144,64,0.3)", transition: "all 0.3s" };
+  const btnStyle: React.CSSProperties = { width: "100%", padding: "14px", borderRadius: 12, border: "none", background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", color: "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Outfit', sans-serif", letterSpacing: "0.5px", boxShadow: "0 4px 20px rgba(224,144,64,0.3)", transition: "all 0.3s" };
   const hintStyle: React.CSSProperties = { fontSize: 14, fontFamily: "'IBM Plex Mono', monospace", marginTop: 3, display: "flex", alignItems: "center", gap: 4 };
   const focusBorder = "rgba(224,144,64,0.5)";
 
@@ -3023,7 +3023,7 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
                 <button key={m} onClick={() => { setMode(m); setError(""); setMessage(""); }}
                   style={{ flex: 1, padding: "9px 0", borderRadius: 8, fontSize: 15, fontWeight: 600, fontFamily: "'Outfit', sans-serif", border: "none", cursor: "pointer", transition: "all 0.25s",
                     background: mode === m ? "rgba(224,144,64,0.18)" : "transparent",
-                    color: mode === m ? "#e09040" : "rgba(255,255,255,0.35)",
+                    color: mode === m ? "var(--accent-primary)" : "rgba(255,255,255,0.35)",
                   }}>{m === "login" ? "Sign In" : "Create Account"}</button>
               ))}
             </div>
@@ -3057,7 +3057,7 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
                 </div>
               </div>
               <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
-                <input type="checkbox" checked={rememberMe} onChange={e => { setRememberMe(e.target.checked); if (!e.target.checked) authApi.clearRememberedCredentials(); }} style={{ accentColor: "#e09040", width: 14, height: 14 }} />
+                <input type="checkbox" checked={rememberMe} onChange={e => { setRememberMe(e.target.checked); if (!e.target.checked) authApi.clearRememberedCredentials(); }} style={{ accentColor: "var(--accent-primary)", width: 14, height: 14 }} />
                 <span style={{ fontSize: 15, color: "rgba(255,255,255,0.4)", fontFamily: "'IBM Plex Mono', monospace" }}>Remember me</span>
               </label>
               <button type="submit" disabled={loading || !username || !password} style={{ ...btnStyle, opacity: loading ? 0.5 : 1, marginTop: 2 }}>{loading ? "Signing in..." : "Sign In"}</button>
@@ -3079,7 +3079,7 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
                   {emailAvailable === "taken" && <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#ef4444", fontSize: 15 }}>✕</span>}
                 </div>
                 {showEmailFormatError && <span style={{ ...hintStyle, color: "#ef4444" }}>Please enter a valid email address</span>}
-                {emailAvailable === "taken" && <span style={{ ...hintStyle, color: "#ef4444" }}>An account with this email already exists — <button onClick={() => { setMode("login"); setError(""); }} style={{ background: "none", border: "none", color: "#e09040", cursor: "pointer", fontSize: 14, fontFamily: "inherit", textDecoration: "underline" }}>sign in instead?</button></span>}
+                {emailAvailable === "taken" && <span style={{ ...hintStyle, color: "#ef4444" }}>An account with this email already exists — <button onClick={() => { setMode("login"); setError(""); }} style={{ background: "none", border: "none", color: "var(--accent-primary)", cursor: "pointer", fontSize: 14, fontFamily: "inherit", textDecoration: "underline" }}>sign in instead?</button></span>}
                 {emailAvailable === "available" && showEmailFormatOk && <span style={{ ...hintStyle, color: "#10b981" }}>Valid email</span>}
               </div>
 
@@ -3097,7 +3097,7 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
                 {usernameStatus === "taken" && <span style={{ ...hintStyle, color: "#ef4444" }}>Username already taken</span>}
                 {usernameStatus === "invalid" && <span style={{ ...hintStyle, color: "#ef4444" }}>3-30 characters, letters, numbers, underscores only</span>}
                 {usernameStatus === "taken" && usernameSuggestions.length > 0 && <div style={{ display: "flex", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
-                  {usernameSuggestions.map(s => <button key={s} onClick={() => setUsername(s)} style={{ padding: "4px 10px", borderRadius: 6, border: "1px solid rgba(224,144,64,0.3)", background: "rgba(224,144,64,0.08)", color: "#e09040", fontSize: 15, cursor: "pointer", fontFamily: "'IBM Plex Mono', monospace" }}>{s}</button>)}
+                  {usernameSuggestions.map(s => <button key={s} onClick={() => setUsername(s)} style={{ padding: "4px 10px", borderRadius: 6, border: "1px solid rgba(224,144,64,0.3)", background: "rgba(224,144,64,0.08)", color: "var(--accent-primary)", fontSize: 15, cursor: "pointer", fontFamily: "'IBM Plex Mono', monospace" }}>{s}</button>)}
                 </div>}
               </div>
 
@@ -3140,8 +3140,8 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
 
               {/* Terms */}
               <label style={{ display: "flex", alignItems: "flex-start", gap: 8, cursor: "pointer", marginTop: 2 }}>
-                <input type="checkbox" checked={agreeTerms} onChange={e => setAgreeTerms(e.target.checked)} style={{ accentColor: "#e09040", width: 14, height: 14, marginTop: 1 }} />
-                <span style={{ fontSize: 15, color: "rgba(255,255,255,0.4)", fontFamily: "'IBM Plex Mono', monospace", lineHeight: 1.5 }}>I agree to the <span style={{ color: "#e09040", cursor: "pointer" }}>Terms of Service</span> and <span style={{ color: "#e09040", cursor: "pointer" }}>Privacy Policy</span></span>
+                <input type="checkbox" checked={agreeTerms} onChange={e => setAgreeTerms(e.target.checked)} style={{ accentColor: "var(--accent-primary)", width: 14, height: 14, marginTop: 1 }} />
+                <span style={{ fontSize: 15, color: "rgba(255,255,255,0.4)", fontFamily: "'IBM Plex Mono', monospace", lineHeight: 1.5 }}>I agree to the <span style={{ color: "var(--accent-primary)", cursor: "pointer" }}>Terms of Service</span> and <span style={{ color: "var(--accent-primary)", cursor: "pointer" }}>Privacy Policy</span></span>
               </label>
 
               {/* Submit */}
@@ -3283,7 +3283,7 @@ export default function Page() {
   const hubAccountBar = (
     <div style={{ position: "fixed", top: 16, right: 20, zIndex: 9999, display: "flex", alignItems: "center", gap: 10 }}>
       <button onClick={() => setShowPlatformHub(true)} style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid rgba(255,200,150,0.15)", background: "rgba(0,0,0,0.3)", backdropFilter: "blur(12px)", color: "rgba(255,200,150,0.6)", fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "'Outfit', sans-serif", display: "flex", alignItems: "center", gap: 6 }}><span style={{ fontSize: 15 }}>🧭</span> Platform Hub</button>
-      <button onClick={() => setShowProfile(true)} style={{ width: 30, height: 30, borderRadius: 10, border: "1px solid rgba(224,144,64,0.2)", background: "linear-gradient(135deg, rgba(212,134,10,0.15), rgba(192,112,48,0.1))", color: "#e09040", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: "'Outfit', sans-serif", display: "flex", alignItems: "center", justifyContent: "center" }} title="Profile Settings">{(user.display_name || user.username || "U")[0].toUpperCase()}</button>
+      <button onClick={() => setShowProfile(true)} style={{ width: 30, height: 30, borderRadius: 10, border: "1px solid rgba(224,144,64,0.2)", background: "linear-gradient(135deg, rgba(212,134,10,0.15), rgba(192,112,48,0.1))", color: "var(--accent-primary)", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: "'Outfit', sans-serif", display: "flex", alignItems: "center", justifyContent: "center" }} title="Profile Settings">{(user.display_name || user.username || "U")[0].toUpperCase()}</button>
       <button onClick={() => authApi.logout()} style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid rgba(255,200,150,0.15)", background: "rgba(0,0,0,0.3)", backdropFilter: "blur(12px)", color: "rgba(255,200,150,0.6)", fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "'Outfit', sans-serif" }}>Sign Out</button>
     </div>
   );
@@ -3355,7 +3355,7 @@ function ProfileModal({ user, onClose, onUpdate }: { user: authApi.AuthUser; onC
 
       <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4 }}>
-          <div style={{ width: 48, height: 48, borderRadius: 14, background: "linear-gradient(135deg, #e09040, #c07030)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 20, fontWeight: 700, fontFamily: "'Outfit', sans-serif" }}>{(displayName || "U")[0].toUpperCase()}</div>
+          <div style={{ width: 48, height: 48, borderRadius: 14, background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 20, fontWeight: 700, fontFamily: "'Outfit', sans-serif" }}>{(displayName || "U")[0].toUpperCase()}</div>
           <div>
             <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>{user.username}</div>
             <div style={{ fontSize: 15, color: "var(--text-muted)", fontFamily: "'IBM Plex Mono', monospace" }}>Member since {user.last_login ? new Date().toLocaleDateString() : "today"}</div>
@@ -3381,7 +3381,7 @@ function ProfileModal({ user, onClose, onUpdate }: { user: authApi.AuthUser; onC
           </div>
         </div>
 
-        <button onClick={handleSave} disabled={saving || !emailValid} style={{ width: "100%", padding: "12px", borderRadius: 10, border: "none", background: "linear-gradient(135deg, #e09040, #c07030)", color: "#fff", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: "'Outfit', sans-serif", opacity: (saving || !emailValid) ? 0.5 : 1, marginTop: 4 }}>{saving ? "Saving..." : "Save Changes"}</button>
+        <button onClick={handleSave} disabled={saving || !emailValid} style={{ width: "100%", padding: "12px", borderRadius: 10, border: "none", background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", color: "#fff", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: "'Outfit', sans-serif", opacity: (saving || !emailValid) ? 0.5 : 1, marginTop: 4 }}>{saving ? "Saving..." : "Save Changes"}</button>
       </div>
     </div>
   </div>;

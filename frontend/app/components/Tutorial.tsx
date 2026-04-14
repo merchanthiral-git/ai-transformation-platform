@@ -111,7 +111,7 @@ export function Tutorial({ onClose, onGoToSandbox, onGoToNewProject }: {
   return <div style={{ position: "fixed", inset: 0, zIndex: 99998, background: "#0B1120", overflow: "hidden", display: "flex", flexDirection: "column" }}>
     {/* Progress header */}
     <div style={{ background: "rgba(11,17,32,0.95)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(255,255,255,0.06)", flexShrink: 0 }}>
-      <div style={{ height: 3, background: "rgba(255,255,255,0.05)" }}><div style={{ height: "100%", width: `${pct}%`, background: "linear-gradient(90deg, #3B82F6, #8B5CF6)", transition: "width 0.4s cubic-bezier(0.34,1.56,0.64,1)" }} /></div>
+      <div style={{ height: 3, background: "rgba(255,255,255,0.05)" }}><div style={{ height: "100%", width: `${pct}%`, background: "linear-gradient(90deg, #3B82F6, var(--purple))", transition: "width 0.4s cubic-bezier(0.34,1.56,0.64,1)" }} /></div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 24px" }}>
         <span style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", fontFamily: "'IBM Plex Mono', monospace" }}>{step + 1} of {STEP_LABELS.length} · {STEP_LABELS[step]}</span>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
@@ -184,14 +184,14 @@ function AnimNum({ value, suffix = "" }: { value: number; suffix?: string }) {
 function CompanyCard() {
   return <div style={{ maxWidth: 480, margin: "40px auto" }}>
     <div style={{ textAlign: "center", marginBottom: 24 }}>
-      <div style={{ width: 72, height: 72, borderRadius: 20, background: "linear-gradient(135deg, #1a2a4a, #0f1f35)", border: "2px solid rgba(212,134,10,0.3)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 32, fontWeight: 800, color: "#e09040", fontFamily: "'Outfit', sans-serif", marginBottom: 12 }}>M</div>
+      <div style={{ width: 72, height: 72, borderRadius: 20, background: "linear-gradient(135deg, #1a2a4a, #0f1f35)", border: "2px solid rgba(212,134,10,0.3)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 32, fontWeight: 800, color: "var(--accent-primary)", fontFamily: "'Outfit', sans-serif", marginBottom: 12 }}>M</div>
       <h2 style={{ fontSize: 22, fontWeight: 800, color: "#f5e6d0", fontFamily: "'Outfit', sans-serif" }}>{MERIDIAN.name}</h2>
-      <span style={{ display: "inline-block", padding: "3px 10px", borderRadius: 6, fontSize: 11, fontWeight: 700, background: "rgba(212,134,10,0.12)", color: "#e09040", marginTop: 6 }}>{MERIDIAN.industry}</span>
+      <span style={{ display: "inline-block", padding: "3px 10px", borderRadius: 6, fontSize: 11, fontWeight: 700, background: "rgba(212,134,10,0.12)", color: "var(--accent-primary)", marginTop: 6 }}>{MERIDIAN.industry}</span>
     </div>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }}>
       {[{ label: "Employees", value: MERIDIAN.employees }, { label: "Labor Cost", value: 2.1, suffix: "B" }, { label: "Functions", value: MERIDIAN.functions.length }, { label: "Readiness", value: MERIDIAN.readiness.overall, suffix: "/100" }].map(kpi => <div key={kpi.label} style={{ padding: 16, borderRadius: 14, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", textAlign: "center" }}>
         <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>{kpi.label}</div>
-        <div style={{ fontSize: 24, fontWeight: 800, color: kpi.label === "Readiness" ? "#F59E0B" : "#f5e6d0", fontFamily: "'Outfit', sans-serif" }}>{kpi.suffix === "B" ? "$" : ""}<AnimNum value={kpi.value} />{kpi.suffix || ""}</div>
+        <div style={{ fontSize: 24, fontWeight: 800, color: kpi.label === "Readiness" ? "var(--warning)" : "#f5e6d0", fontFamily: "'Outfit', sans-serif" }}>{kpi.suffix === "B" ? "$" : ""}<AnimNum value={kpi.value} />{kpi.suffix || ""}</div>
       </div>)}
     </div>
     <div style={{ marginTop: 16, padding: 14, borderRadius: 12, background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.15)", fontSize: 13, color: "rgba(255,255,255,0.5)", lineHeight: 1.6, textAlign: "center" }}>Readiness score 52/100 — below the industry benchmark of 65</div>
@@ -220,7 +220,7 @@ function DataPreview() {
 function SnapshotPanel() {
   return <div style={{ maxWidth: 520, margin: "20px auto" }}>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginBottom: 16 }}>
-      {[{ l: "Employees", v: MERIDIAN.employees, c: "#f5e6d0" }, { l: "AI Readiness", v: MERIDIAN.readiness.overall, c: "#F59E0B", s: "/100" }, { l: "Avg AI Impact", v: 6.8, c: "#EF4444", s: "/10" }].map(k => <div key={k.l} style={{ padding: 14, borderRadius: 12, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", textAlign: "center" }}>
+      {[{ l: "Employees", v: MERIDIAN.employees, c: "#f5e6d0" }, { l: "AI Readiness", v: MERIDIAN.readiness.overall, c: "var(--warning)", s: "/100" }, { l: "Avg AI Impact", v: 6.8, c: "var(--risk)", s: "/10" }].map(k => <div key={k.l} style={{ padding: 14, borderRadius: 12, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", textAlign: "center" }}>
         <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 3 }}>{k.l}</div>
         <div style={{ fontSize: 22, fontWeight: 800, color: k.c }}><AnimNum value={k.v} />{k.s || ""}</div>
       </div>)}
@@ -252,9 +252,9 @@ function DiagnosisPanel({ thinkingDone }: { thinkingDone: boolean }) {
   return <div style={{ maxWidth: 520, margin: "20px auto" }}>
     <div style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>AI Opportunity Areas</div>
     {areas.map((a, i) => <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 10, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)", marginBottom: 6, animation: `fadeSlide 0.3s ease ${i * 0.1}s both` }}>
-      <div style={{ width: 32, height: 32, borderRadius: 8, background: `rgba(212,134,10,${a.score / 20})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 800, color: "#e09040" }}>{a.score}</div>
+      <div style={{ width: 32, height: 32, borderRadius: 8, background: `rgba(212,134,10,${a.score / 20})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 800, color: "var(--accent-primary)" }}>{a.score}</div>
       <div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 600, color: "#f5e6d0" }}>{a.area}</div><div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>{a.roles} roles affected</div></div>
-      {a.quickWin && <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 6, background: "rgba(16,185,129,0.1)", color: "#10B981" }}>Quick Win</span>}
+      {a.quickWin && <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 6, background: "rgba(16,185,129,0.1)", color: "var(--success)" }}>Quick Win</span>}
     </div>)}
     <div style={{ marginTop: 16, padding: 12, borderRadius: 10, background: "rgba(139,92,246,0.06)", border: "1px solid rgba(139,92,246,0.15)", fontSize: 12, color: "rgba(255,255,255,0.5)" }}>💡 Surprise: Wealth Management has 40% of roles flagged for AI augmentation within 18 months</div>
     <style>{`@keyframes fadeSlide { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }`}</style>
@@ -262,7 +262,7 @@ function DiagnosisPanel({ thinkingDone }: { thinkingDone: boolean }) {
 }
 
 function DesignPanel({ revealCount }: { revealCount: number }) {
-  const colors = { automate: "#EF4444", augment: "#F59E0B", keep: "#10B981" };
+  const colors = { automate: "var(--risk)", augment: "var(--warning)", keep: "var(--success)" };
   const labels = { automate: "Automate", augment: "Augment", keep: "Keep Human" };
   return <div style={{ maxWidth: 520, margin: "20px auto" }}>
     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
@@ -279,8 +279,8 @@ function DesignPanel({ revealCount }: { revealCount: number }) {
       <div style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", marginBottom: 4 }}>This role doesn't disappear — it evolves</div>
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <span style={{ fontSize: 13, color: "rgba(255,255,255,0.5)" }}>Operations Analyst</span>
-        <span style={{ color: "#e09040" }}>→</span>
-        <span style={{ fontSize: 13, fontWeight: 700, color: "#e09040" }}>AI Operations Specialist</span>
+        <span style={{ color: "var(--accent-primary)" }}>→</span>
+        <span style={{ fontSize: 13, fontWeight: 700, color: "var(--accent-primary)" }}>AI Operations Specialist</span>
       </div>
     </div>}
   </div>;
@@ -297,14 +297,14 @@ function ScenarioPanel() {
   return <div style={{ maxWidth: 520, margin: "20px auto" }}>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, marginBottom: 20 }}>
       {scenarios.map((s, i) => <div key={s.name} style={{ padding: 12, borderRadius: 10, background: i === 1 ? "rgba(212,134,10,0.08)" : "rgba(255,255,255,0.02)", border: `1px solid ${i === 1 ? "rgba(212,134,10,0.3)" : "rgba(255,255,255,0.04)"}`, textAlign: "center" }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: i === 1 ? "#e09040" : "rgba(255,255,255,0.3)", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>{s.name}</div>
+        <div style={{ fontSize: 11, fontWeight: 700, color: i === 1 ? "var(--accent-primary)" : "rgba(255,255,255,0.3)", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>{s.name}</div>
         <div style={{ fontSize: 16, fontWeight: 800, color: "#f5e6d0", fontFamily: "'Outfit', sans-serif" }}>{fmt(s.hc)}</div>
         <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>{s.cost > 0 ? `-${s.cost}% cost` : "baseline"}</div>
         <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>{s.time} · {s.attrition}</div>
       </div>)}
     </div>
     <div style={{ padding: 14, borderRadius: 12, background: "rgba(16,185,129,0.06)", border: "1px solid rgba(16,185,129,0.15)" }}>
-      <div style={{ fontSize: 13, fontWeight: 700, color: "#10B981", marginBottom: 4 }}>Recommended: Optimized Scenario</div>
+      <div style={{ fontSize: 13, fontWeight: 700, color: "var(--success)", marginBottom: 4 }}>Recommended: Optimized Scenario</div>
       <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", lineHeight: 1.5 }}>12% cost reduction with only 3.2% attrition over 18 months. $4.2M reskilling investment pays back in 14 months.</div>
     </div>
   </div>;
@@ -315,11 +315,11 @@ function PlanPanel() {
     <div style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>Top Skills Gaps</div>
     {MERIDIAN.skillsGaps.map(g => <div key={g.skill} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
       <span style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", width: 130, flexShrink: 0 }}>{g.skill}</span>
-      <div style={{ flex: 1, height: 6, background: "rgba(255,255,255,0.04)", borderRadius: 3, overflow: "hidden" }}><div style={{ height: "100%", borderRadius: 3, width: `${(g.employees / 2100) * 100}%`, background: g.severity === "critical" ? "#EF4444" : g.severity === "high" ? "#F59E0B" : "#60a5fa" }} /></div>
+      <div style={{ flex: 1, height: 6, background: "rgba(255,255,255,0.04)", borderRadius: 3, overflow: "hidden" }}><div style={{ height: "100%", borderRadius: 3, width: `${(g.employees / 2100) * 100}%`, background: g.severity === "critical" ? "var(--risk)" : g.severity === "high" ? "var(--warning)" : "#60a5fa" }} /></div>
       <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", width: 50, textAlign: "right", fontFamily: "'IBM Plex Mono', monospace" }}>{fmt(g.employees)}</span>
     </div>)}
     <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginTop: 20 }}>
-      {[{ l: "Wave 1", v: 800, c: "#EF4444" }, { l: "Wave 2", v: 900, c: "#F59E0B" }, { l: "Wave 3", v: 400, c: "#10B981" }].map(w => <div key={w.l} style={{ padding: 12, borderRadius: 10, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)", textAlign: "center" }}>
+      {[{ l: "Wave 1", v: 800, c: "var(--risk)" }, { l: "Wave 2", v: 900, c: "var(--warning)" }, { l: "Wave 3", v: 400, c: "var(--success)" }].map(w => <div key={w.l} style={{ padding: 12, borderRadius: 10, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)", textAlign: "center" }}>
         <div style={{ fontSize: 10, color: w.c, fontWeight: 700, marginBottom: 2 }}>{w.l}</div>
         <div style={{ fontSize: 18, fontWeight: 800, color: "#f5e6d0" }}>{fmt(w.v)}</div>
         <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)" }}>employees</div>
@@ -341,7 +341,7 @@ function HandoffPanel() {
     <h2 style={{ fontSize: 22, fontWeight: 800, color: "#f5e6d0", fontFamily: "'Outfit', sans-serif", marginBottom: 20 }}>Meridian has a transformation strategy.</h2>
     <div style={{ textAlign: "left", maxWidth: 380, margin: "0 auto" }}>
       {checks.map((c, i) => <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 8 }}>
-        <span style={{ color: "#10B981", fontSize: 14, marginTop: 1 }}>✓</span>
+        <span style={{ color: "var(--success)", fontSize: 14, marginTop: 1 }}>✓</span>
         <span style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", lineHeight: 1.5 }}>{c}</span>
       </div>)}
     </div>

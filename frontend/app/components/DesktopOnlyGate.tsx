@@ -12,7 +12,7 @@ export function DesktopOnlyGate({ children }: { children: React.ReactNode }) {
   const [checked, setChecked] = useState(false);
 
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 1024);
+    const check = () => setIsMobile(window.innerWidth < 960);
     check();
     setChecked(true);
     window.addEventListener("resize", check);
@@ -61,7 +61,7 @@ export function DesktopOnlyGate({ children }: { children: React.ReactNode }) {
 }
 .desktop-gate .gate-btn:hover { background: #C04B2D; color: white; }
 /* CSS-only gate for immediate render before JS hydrates */
-@media (min-width: 1024px) { .desktop-gate { display: none; } }
+@media (min-width: 960px) { .desktop-gate { display: none; } }
       `}</style>
       <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
       <div className="desktop-gate">

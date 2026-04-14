@@ -200,7 +200,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
   // ── Service Delivery Layer state ──
   const SVC_MODELS = ["In-House", "Shared Services", "COE", "Outsourced/BPO", "Hybrid"] as const;
   type SvcModel = typeof SVC_MODELS[number];
-  const SVC_MODEL_COLORS: Record<string, string> = { "In-House": "#10B981", "Shared Services": "#6366F1", "COE": "#8B5CF6", "Outsourced/BPO": "#F97316", "Hybrid": "#D4860A" };
+  const SVC_MODEL_COLORS: Record<string, string> = { "In-House": "var(--success)", "Shared Services": "#6366F1", "COE": "var(--purple)", "Outsourced/BPO": "#F97316", "Hybrid": "var(--accent-primary)" };
   const SVC_FUNCTIONS_DEFAULT = [
     { id: "fin_ap", label: "Accounts Payable", func: "Finance" },
     { id: "fin_ar", label: "Accounts Receivable", func: "Finance" },
@@ -244,7 +244,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
   // ── Process Layer state ──
   type ProcStep = { id: string; name: string; func: string; duration: string; system: string; automation: "Manual" | "Semi-Auto" | "Automated"; isHandoff?: boolean };
   type ProcDef = { id: string; name: string; owner: string; trigger: string; output: string; functions: string[]; cycleTime: string; steps: ProcStep[]; maturity: number; industryBenchmark: number };
-  const PROC_FUNC_COLORS: Record<string, string> = { Finance: "#10B981", HR: "#6366F1", Technology: "#8B5CF6", Operations: "#F97316", Legal: "#EF4444", Marketing: "#D4860A", Sales: "#0891B2", Product: "#EC4899", "Customer Service": "#14B8A6", Strategy: "#A855F7", Risk: "#F43F5E", Supply: "#F59E0B" };
+  const PROC_FUNC_COLORS: Record<string, string> = { Finance: "var(--success)", HR: "#6366F1", Technology: "var(--purple)", Operations: "#F97316", Legal: "var(--risk)", Marketing: "var(--accent-primary)", Sales: "#0891B2", Product: "#EC4899", "Customer Service": "#14B8A6", Strategy: "var(--purple)", Risk: "#F43F5E", Supply: "var(--warning)" };
   const PROC_DEFAULT: ProcDef[] = [
     { id: "p1", name: "Hire to Retire", owner: "CHRO", trigger: "Headcount request approved", output: "Employee offboarded / alumni", functions: ["HR", "Finance", "Technology", "Operations"], cycleTime: "30-365 days", maturity: 0, industryBenchmark: 3.2, steps: [
       { id: "p1s1", name: "Requisition Approval", func: "HR", duration: "2-5 days", system: "Workday", automation: "Semi-Auto" },
@@ -511,7 +511,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
   ]);
   const [transAddingChange, setTransAddingChange] = useState(false);
   const [transAddingStakeholder, setTransAddingStakeholder] = useState(false);
-  const TRANS_CAT_COLORS: Record<string, string> = { Structure: "#6366F1", Process: "#10B981", Technology: "#8B5CF6", People: "#F59E0B", Governance: "#D4860A" };
+  const TRANS_CAT_COLORS: Record<string, string> = { Structure: "#6366F1", Process: "var(--success)", Technology: "var(--purple)", People: "var(--warning)", Governance: "var(--accent-primary)" };
   const TRANS_WAVE_LABELS = ["Wave 0: Foundations (M1-3)", "Wave 1: Quick Wins (M3-6)", "Wave 2: Core Changes (M6-12)", "Wave 3: Optimization (M12-18)"];
 
   // ── Model Governance state ──
@@ -592,9 +592,9 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
     const platformBoost = arch === "platform" ? 15 : arch === "network" ? 5 : 0;
     // Centralized model favors more automation
     const modelBoost = opModel === "centralized" ? 10 : opModel === "decentralized" ? -5 : 0;
-    if (l.includes("analytics") || l.includes("data") || l.includes("reporting") || l.includes("qa") || l.includes("audit")) { const p = Math.min(70 + platformBoost + modelBoost, 95); return { tier: "AI-First" as const, color: "#8B5CF6", pct: p }; }
-    if (l.includes("ops") || l.includes("admin") || l.includes("procurement") || l.includes("processing") || l.includes("payable") || l.includes("receivable")) { const p = Math.min(45 + platformBoost + modelBoost, 85); return { tier: "AI-Augmented" as const, color: "#D4860A", pct: p }; }
-    if (l.includes("strategy") || l.includes("leadership") || l.includes("relations") || l.includes("counsel") || l.includes("culture")) { const p = Math.max(15 + platformBoost + modelBoost, 5); return { tier: "Human-Led" as const, color: "#10B981", pct: p }; }
+    if (l.includes("analytics") || l.includes("data") || l.includes("reporting") || l.includes("qa") || l.includes("audit")) { const p = Math.min(70 + platformBoost + modelBoost, 95); return { tier: "AI-First" as const, color: "var(--purple)", pct: p }; }
+    if (l.includes("ops") || l.includes("admin") || l.includes("procurement") || l.includes("processing") || l.includes("payable") || l.includes("receivable")) { const p = Math.min(45 + platformBoost + modelBoost, 85); return { tier: "AI-Augmented" as const, color: "var(--accent-primary)", pct: p }; }
+    if (l.includes("strategy") || l.includes("leadership") || l.includes("relations") || l.includes("counsel") || l.includes("culture")) { const p = Math.max(15 + platformBoost + modelBoost, 5); return { tier: "Human-Led" as const, color: "var(--success)", pct: p }; }
     const p = Math.min(35 + platformBoost + modelBoost, 80); return { tier: "Hybrid" as const, color: "#F97316", pct: p }; };
   const getSM = (t: string) => { if (sharedLayer.some(s => s.toLowerCase().includes(t.toLowerCase().split(" ")[0]))) return "Shared"; return "Embedded"; };
   const activeCoreLayer = aiBlueprint?.core || coreLayer.map(c => c.replace(archD.coreSuffix, ""));
@@ -609,7 +609,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
 
   // ── Step navigator structure ──
   const OM_PHASES = [
-    { id: "1", label: "Strategic Intent", icon: "🎯", color: "#D4860A", steps: [
+    { id: "1", label: "Strategic Intent", icon: "🎯", color: "var(--accent-primary)", steps: [
       { id: "1.1", label: "Strategic Priorities", desc: "Vision, priorities & design principles" },
       { id: "1.2", label: "Business Model & Value Chain", desc: "How you create and capture value" },
     ]},
@@ -620,12 +620,12 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
       { id: "2.4", label: "Technology & Systems", desc: "App portfolio, rationalization & AI" },
       { id: "2.5", label: "Governance & Decisions", desc: "Decision rights, forums & bottlenecks" },
     ]},
-    { id: "3", label: "People & Organization", icon: "👥", color: "#8B5CF6", steps: [
+    { id: "3", label: "People & Organization", icon: "👥", color: "var(--purple)", steps: [
       { id: "3.1", label: "Organization Structure", desc: "Blueprint, archetype & structure" },
       { id: "3.2", label: "Culture & Ways of Working", desc: "Culture, leadership & collaboration" },
       { id: "3.3", label: "Workforce Model", desc: "Skills, capacity & change readiness" },
     ]},
-    { id: "4", label: "Business Case & Execution", icon: "📊", color: "#10B981", steps: [
+    { id: "4", label: "Business Case & Execution", icon: "📊", color: "var(--success)", steps: [
       { id: "4.1", label: "Financial Model", desc: "Costing, ROI & business case" },
       { id: "4.2", label: "Performance Framework", desc: "Scorecard, OKRs & health check" },
       { id: "4.3", label: "Transition Plan", desc: "Waves, dependencies & sign-off" },
@@ -683,7 +683,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
           <span className="text-[14px] font-semibold text-[var(--text-primary)]">Operating Model: {completionPct}% complete — {completedSteps} of {totalSteps} steps configured</span>
           <div className="flex items-center gap-2">
             <button onClick={() => onNavigateCanvas && onNavigateCanvas()} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--accent-primary)] transition-all">⬡ Design Canvas</button>
-            <button onClick={() => setShowTomSummary(true)} className="px-4 py-1.5 rounded-lg text-[13px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>📋 View Target Operating Model</button>
+            <button onClick={() => setShowTomSummary(true)} className="px-4 py-1.5 rounded-lg text-[13px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>📋 View Target Operating Model</button>
           </div>
         </div>
         <div className="h-2 bg-[var(--surface-2)] rounded-full overflow-hidden"><div className="h-full rounded-full transition-all" style={{ width: `${completionPct}%`, background: completionPct >= 70 ? "var(--success)" : completionPct >= 30 ? "var(--accent-primary)" : "var(--text-muted)" }} /></div>
@@ -699,8 +699,8 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
         </div>
         <div className="grid grid-cols-3 gap-4">
           {/* 1. Strategic Intent */}
-          <div className="rounded-xl border-l-4 border border-[var(--border)] bg-[var(--surface-2)] p-4" style={{ borderLeftColor: "#D4860A" }}>
-            <div className="text-[13px] font-bold uppercase mb-2" style={{ color: "#D4860A" }}>Strategic Intent</div>
+          <div className="rounded-xl border-l-4 border border-[var(--border)] bg-[var(--surface-2)] p-4" style={{ borderLeftColor: "var(--accent-primary)" }}>
+            <div className="text-[13px] font-bold uppercase mb-2" style={{ color: "var(--accent-primary)" }}>Strategic Intent</div>
             {stratPriorities.length > 0 ? <div className="space-y-1">{stratPriorities.map((id, i) => { const p = STRAT_PRIORITIES_ALL.find(x => x.id === id); return <div key={id} className="text-[13px]"><strong>#{i+1}</strong> {p?.icon} {p?.label}</div>; })}</div> : <div className="text-[13px] text-[var(--text-muted)]">Not configured</div>}
             {stratVision && <div className="text-[12px] text-[var(--text-muted)] mt-2 italic line-clamp-2">{stratVision}</div>}
           </div>
@@ -732,26 +732,26 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
             <div className="text-[12px]">{govDecisions.filter(d => d.clarity === "Undefined").length > 0 ? <span className="text-[var(--risk)]">{govDecisions.filter(d => d.clarity === "Undefined").length} decisions lack clarity</span> : <span className="text-[var(--success)]">All decisions have clear owners</span>}</div>
           </div>
           {/* 7. Organization */}
-          <div className="rounded-xl border-l-4 border border-[var(--border)] bg-[var(--surface-2)] p-4" style={{ borderLeftColor: "#8B5CF6" }}>
-            <div className="text-[13px] font-bold uppercase mb-2" style={{ color: "#8B5CF6" }}>Organization</div>
+          <div className="rounded-xl border-l-4 border border-[var(--border)] bg-[var(--surface-2)] p-4" style={{ borderLeftColor: "var(--purple)" }}>
+            <div className="text-[13px] font-bold uppercase mb-2" style={{ color: "var(--purple)" }}>Organization</div>
             <div className="text-[12px]">Archetype: <strong>{archD.label}</strong></div>
             <div className="text-[12px]">Model: <strong>{opModel.replace("_", " ")}</strong> · {gov} governance</div>
             {(() => { const gaps = CULTURE_DIMS.filter(d => cultureCurrent[d.id] && cultureTarget[d.id] && Math.abs(cultureTarget[d.id] - cultureCurrent[d.id]) >= 2); return gaps.length > 0 ? <div className="text-[12px] text-[var(--warning)]">{gaps.length} culture gap{gaps.length > 1 ? "s" : ""} to close</div> : null; })()}
           </div>
           {/* 8. Financials */}
-          <div className="rounded-xl border-l-4 border border-[var(--border)] bg-[var(--surface-2)] p-4" style={{ borderLeftColor: "#10B981" }}>
-            <div className="text-[13px] font-bold uppercase mb-2" style={{ color: "#10B981" }}>Financials</div>
+          <div className="rounded-xl border-l-4 border border-[var(--border)] bg-[var(--surface-2)] p-4" style={{ borderLeftColor: "var(--success)" }}>
+            <div className="text-[13px] font-bold uppercase mb-2" style={{ color: "var(--success)" }}>Financials</div>
             {(() => { const curT = FIN_FUNCS.reduce((s, f) => { const c = finCosts[f]; return s + (c?.people||0) + (c?.technology||0) + (c?.outsourcing||0) + (c?.facilities||0); }, 0); const tgtT = FIN_FUNCS.reduce((s, f) => { const c = finCosts[f]; return s + (c?.peopleTgt||0) + (c?.technologyTgt||0) + (c?.outsourcingTgt||0) + (c?.facilitiesTgt||0); }, 0); const d = tgtT - curT; return <><div className="text-[12px]">Current: <strong>${fmtK(curT)}</strong>/yr</div><div className="text-[12px]">Target: <strong>${fmtK(tgtT)}</strong>/yr</div>{d !== 0 && <div className="text-[12px] font-bold" style={{ color: d < 0 ? "var(--success)" : "var(--risk)" }}>{d < 0 ? "Saves" : "Costs"} ${fmtK(Math.abs(d))}/yr</div>}</>; })()}
           </div>
           {/* 9. Implementation */}
-          <div className="rounded-xl border-l-4 border border-[var(--border)] bg-[var(--surface-2)] p-4" style={{ borderLeftColor: "#10B981" }}>
-            <div className="text-[13px] font-bold uppercase mb-2" style={{ color: "#10B981" }}>Implementation</div>
+          <div className="rounded-xl border-l-4 border border-[var(--border)] bg-[var(--surface-2)] p-4" style={{ borderLeftColor: "var(--success)" }}>
+            <div className="text-[13px] font-bold uppercase mb-2" style={{ color: "var(--success)" }}>Implementation</div>
             {[0,1,2,3].map(w => { const c = transChanges.filter(ch => ch.wave === w).length; return c > 0 ? <div key={w} className="text-[12px]">{TRANS_WAVE_LABELS[w].split("(")[0]}: <strong>{c} changes</strong></div> : null; })}
             {(() => { const approved = transStakeholders.filter(s => s.status === "Approved").length; return <div className="text-[12px] mt-1">Sign-off: <strong>{approved}/{transStakeholders.length}</strong> approved</div>; })()}
           </div>
           {/* 10. KPIs */}
-          <div className="col-span-3 rounded-xl border-l-4 border border-[var(--border)] bg-[var(--surface-2)] p-4" style={{ borderLeftColor: "#10B981" }}>
-            <div className="text-[13px] font-bold uppercase mb-2" style={{ color: "#10B981" }}>Key Performance Indicators</div>
+          <div className="col-span-3 rounded-xl border-l-4 border border-[var(--border)] bg-[var(--surface-2)] p-4" style={{ borderLeftColor: "var(--success)" }}>
+            <div className="text-[13px] font-bold uppercase mb-2" style={{ color: "var(--success)" }}>Key Performance Indicators</div>
             <div className="grid grid-cols-4 gap-2">{perfKpis.slice(0, 8).map(k => { const ragC: Record<string, string> = { Red: "var(--risk)", Amber: "var(--warning)", Green: "var(--success)" }; return <div key={k.id} className="flex items-center gap-2 text-[12px]"><span className="w-2 h-2 rounded-full shrink-0" style={{ background: ragC[k.status] }} /><span className="truncate">{k.name}: <strong>{k.current}</strong> → {k.target}</span></div>; })}</div>
           </div>
         </div>
@@ -763,7 +763,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
       {/* ── LEFT: Step Navigator ── */}
       <div className="w-[240px] shrink-0 sticky top-4 self-start space-y-1 max-h-[calc(100vh-120px)] overflow-y-auto pr-1">
         {/* Industry Setup */}
-        <button onClick={() => setOmView("setup")} className="w-full text-left px-3 py-2 rounded-lg text-[13px] font-semibold transition-all mb-2" style={{ background: omView === "setup" ? "rgba(212,134,10,0.1)" : "var(--surface-2)", color: omView === "setup" ? "#e09040" : "var(--text-muted)", border: omView === "setup" ? "1px solid rgba(212,134,10,0.3)" : "1px solid var(--border)" }}>⚙️ Industry Setup</button>
+        <button onClick={() => setOmView("setup")} className="w-full text-left px-3 py-2 rounded-lg text-[13px] font-semibold transition-all mb-2" style={{ background: omView === "setup" ? "rgba(212,134,10,0.1)" : "var(--surface-2)", color: omView === "setup" ? "var(--accent-primary)" : "var(--text-muted)", border: omView === "setup" ? "1px solid rgba(212,134,10,0.3)" : "1px solid var(--border)" }}>⚙️ Industry Setup</button>
         {OM_PHASES.map(phase => {
           const phaseComplete = phase.steps.every(s => stepComplete(s.id));
           const phaseStarted = phase.steps.some(s => stepComplete(s.id) || stepInProgress(s.id));
@@ -801,7 +801,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
       <div className="flex-1 min-w-0">
         {/* Strategy context banner — shows on non-strategy steps */}
         {!omView.startsWith("1.") && omView !== "setup" && stratPriorities.length > 0 && <div className="rounded-xl bg-[rgba(212,134,10,0.05)] border border-[rgba(212,134,10,0.15)] px-4 py-2 mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-[14px]"><span>🎯</span><span style={{ color: "#e09040" }}>{stratPrioritySummary}</span></div>
+          <div className="flex items-center gap-2 text-[14px]"><span>🎯</span><span style={{ color: "var(--accent-primary)" }}>{stratPrioritySummary}</span></div>
           <button onClick={() => setOmView("1.1")} className="text-[12px] text-[var(--text-muted)] hover:text-[var(--accent-primary)]">Edit</button>
         </div>}
 
@@ -813,18 +813,18 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
             <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4 mb-4">
               <div className="text-[14px] font-bold text-[var(--text-primary)] mb-2">Quick Start — Load a Company Template</div>
               <div className="flex gap-2 flex-wrap mb-3">{Object.entries({...OM_COMPANIES,...aiCompanies}).map(([k,c]) => { const co = c as Record<string,string>; return <button key={k} onClick={() => seedCompanySandbox(k, co)} disabled={sandboxLoading===k} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold transition-all" style={{ background: sandboxLoading===k ? "rgba(224,144,64,0.2)" : "var(--surface-2)", color: sandboxLoading===k ? "var(--accent-primary)" : "var(--text-muted)", border: "1px solid var(--border)" }}>{sandboxLoading===k ? "⏳ " : ""}{co.name||k}</button>; })}</div>
-              <div className="flex gap-2"><input value={aiCompanyInput} onChange={e => setAiCompanyInput(e.target.value)} placeholder="Or type any company name..." className="flex-1 bg-[var(--bg)] border border-[var(--border)] rounded-lg px-3 py-2 text-[14px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]" onKeyDown={e => { if (e.key==="Enter") generateCompanyModel(); }} /><button onClick={generateCompanyModel} disabled={aiCompanyGenerating} className="px-4 py-2 rounded-lg text-[14px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>{aiCompanyGenerating ? "..." : "☕ Generate"}</button></div>
+              <div className="flex gap-2"><input value={aiCompanyInput} onChange={e => setAiCompanyInput(e.target.value)} placeholder="Or type any company name..." className="flex-1 bg-[var(--bg)] border border-[var(--border)] rounded-lg px-3 py-2 text-[14px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]" onKeyDown={e => { if (e.key==="Enter") generateCompanyModel(); }} /><button onClick={generateCompanyModel} disabled={aiCompanyGenerating} className="px-4 py-2 rounded-lg text-[14px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>{aiCompanyGenerating ? "..." : "☕ Generate"}</button></div>
             </div>
             {/* Architecture presets */}
             <div className="grid grid-cols-3 gap-3 mb-4">
               <div><div className="text-[13px] font-bold text-[var(--text-muted)] uppercase mb-2">Archetype</div><div className="space-y-1">{Object.entries(OM_ARCHETYPES).map(([k,v]) => <button key={k} onClick={() => setArch(k)} className="w-full text-left px-3 py-1.5 rounded-lg text-[14px] transition-all" style={{ background: arch===k ? "rgba(139,92,246,0.1)" : "transparent", border: arch===k ? "1px solid var(--purple)" : "1px solid transparent", color: arch===k ? "var(--purple)" : "var(--text-muted)" }}>{v.label}</button>)}</div></div>
               <div><div className="text-[13px] font-bold text-[var(--text-muted)] uppercase mb-2">Operating Model</div><div className="space-y-1">{["centralized","decentralized","federated","hub_spoke"].map(m => <button key={m} onClick={() => setOpModel(m)} className="w-full text-left px-3 py-1.5 rounded-lg text-[14px] transition-all" style={{ background: opModel===m ? "rgba(16,185,129,0.1)" : "transparent", border: opModel===m ? "1px solid var(--success)" : "1px solid transparent", color: opModel===m ? "var(--success)" : "var(--text-muted)" }}>{m.replace("_"," ")}</button>)}</div></div>
               <div><div className="text-[13px] font-bold text-[var(--text-muted)] uppercase mb-2">Governance Style</div><div className="space-y-1">{["tight","balanced","light"].map(g => <button key={g} onClick={() => setGov(g)} className="w-full text-left px-3 py-1.5 rounded-lg text-[14px] transition-all" style={{ background: gov===g ? "rgba(249,115,22,0.1)" : "transparent", border: gov===g ? "1px solid var(--warning)" : "1px solid transparent", color: gov===g ? "var(--warning)" : "var(--text-muted)" }}>{g}</button>)}</div>
-                <button onClick={async () => { setAiOmLoading(true); try { const r = await callAI("Return ONLY valid JSON.", `For ${fnD.label}, recommend: {"archetype":"functional|divisional|matrix|platform|network","opModel":"centralized|decentralized|federated|hub_spoke","governance":"tight|balanced|light","reasoning":"2 sentences"}`); const p = JSON.parse(r.replace(/```json\n?/g,"").replace(/```\n?/g,"").trim()); if (p.archetype) setArch(p.archetype); if (p.opModel) setOpModel(p.opModel); if (p.governance) setGov(p.governance); setAiOmReasoning(p.reasoning||""); } catch (e) { console.error("[DesignModule] AI OM recommend error", e); } setAiOmLoading(false); }} disabled={aiOmLoading} className="w-full mt-2 px-3 py-1.5 rounded-lg text-[13px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: aiOmLoading ? 0.5 : 1 }}>{aiOmLoading ? "..." : "☕ AI Recommend"}</button>
+                <button onClick={async () => { setAiOmLoading(true); try { const r = await callAI("Return ONLY valid JSON.", `For ${fnD.label}, recommend: {"archetype":"functional|divisional|matrix|platform|network","opModel":"centralized|decentralized|federated|hub_spoke","governance":"tight|balanced|light","reasoning":"2 sentences"}`); const p = JSON.parse(r.replace(/```json\n?/g,"").replace(/```\n?/g,"").trim()); if (p.archetype) setArch(p.archetype); if (p.opModel) setOpModel(p.opModel); if (p.governance) setGov(p.governance); setAiOmReasoning(p.reasoning||""); } catch (e) { console.error("[DesignModule] AI OM recommend error", e); } setAiOmLoading(false); }} disabled={aiOmLoading} className="w-full mt-2 px-3 py-1.5 rounded-lg text-[13px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", opacity: aiOmLoading ? 0.5 : 1 }}>{aiOmLoading ? "..." : "☕ AI Recommend"}</button>
                 {aiOmReasoning && <div className="text-[13px] text-[var(--text-secondary)] bg-[var(--bg)] rounded-lg p-2 mt-2">{aiOmReasoning}</div>}
               </div>
             </div>
-            <button onClick={() => setOmView("1.1")} className="w-full px-4 py-3 rounded-xl text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>Begin Building Your Operating Model →</button>
+            <button onClick={() => setOmView("1.1")} className="w-full px-4 py-3 rounded-xl text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>Begin Building Your Operating Model →</button>
           </Card>
         </div>}
 
@@ -840,7 +840,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
               {STRAT_PRIORITIES_ALL.map(p => {
                 const rank = stratPriorities.indexOf(p.id);
                 const isSelected = rank >= 0;
-                const rankColors = ["#D4860A", "#C07030", "#A0522D"];
+                const rankColors = ["var(--accent-primary)", "var(--teal)", "var(--teal)"];
                 return <button key={p.id} onClick={() => {
                   setStratPriorities(prev => {
                     if (isSelected) return prev.filter(x => x !== p.id);
@@ -848,8 +848,8 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
                     return [...prev, p.id];
                   });
                 }} className="relative rounded-xl p-4 text-left transition-all hover:-translate-y-0.5" style={{
-                  background: isSelected ? `${rankColors[rank] || "#A0522D"}12` : "var(--surface-2)",
-                  border: isSelected ? `2px solid ${rankColors[rank] || "#A0522D"}` : "1px solid var(--border)",
+                  background: isSelected ? `${rankColors[rank] || "var(--teal)"}12` : "var(--surface-2)",
+                  border: isSelected ? `2px solid ${rankColors[rank] || "var(--teal)"}` : "1px solid var(--border)",
                 }}>
                   {isSelected && <div className="absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center text-[14px] font-extrabold text-white" style={{ background: rankColors[rank] }}>#{rank + 1}</div>}
                   <div className="text-2xl mb-2">{p.icon}</div>
@@ -864,13 +864,13 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
                   const p = STRAT_PRIORITIES_ALL.find(x => x.id === id);
                   return <React.Fragment key={id}>
                     {i > 0 && <span className="text-[var(--text-muted)]">→</span>}
-                    <span className="px-3 py-1.5 rounded-lg text-[15px] font-bold" style={{ background: ["#D4860A","#C07030","#A0522D"][i] + "18", color: ["#D4860A","#C07030","#A0522D"][i] }}>#{i+1} {p?.icon} {p?.label}</span>
+                    <span className="px-3 py-1.5 rounded-lg text-[15px] font-bold" style={{ background: ["var(--accent-primary)","var(--teal)","var(--teal)"][i] + "18", color: ["var(--accent-primary)","var(--teal)","var(--teal)"][i] }}>#{i+1} {p?.icon} {p?.label}</span>
                   </React.Fragment>;
                 })}
               </div>
               <button onClick={() => setStratPriorities([])} className="ml-auto text-[14px] text-[var(--text-muted)] hover:text-[var(--risk)]">Reset</button>
             </div>}
-            {stratPriorities.length > 0 && <div className="mt-3 rounded-lg bg-[rgba(212,134,10,0.06)] border border-[rgba(212,134,10,0.15)] px-4 py-3 text-[15px]" style={{ color: "#e09040" }}>
+            {stratPriorities.length > 0 && <div className="mt-3 rounded-lg bg-[rgba(212,134,10,0.06)] border border-[rgba(212,134,10,0.15)] px-4 py-3 text-[15px]" style={{ color: "var(--accent-primary)" }}>
               {stratPrioritySummary}
             </div>}
             {stratPriorities.length > 1 && <div className="mt-2 text-[14px] text-[var(--text-muted)]">Drag to re-order: {stratPriorities.map((id, i) => {
@@ -913,7 +913,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
                     <span className="text-[13px] text-[var(--text-muted)] w-20 text-right shrink-0">{p.leftDesc.split(",")[0]}</span>
                     <input type="range" min={0} max={100} value={val} onChange={e => setVal(Number(e.target.value))}
                       className="flex-1 h-2 rounded-full appearance-none cursor-pointer"
-                      style={{ background: `linear-gradient(to right, var(--purple) 0%, var(--text-muted) 50%, var(--accent-primary) 100%)` }} />
+                      style={{ background: `linear-gradient(to right, "var(--purple)" 0%, "var(--text-muted)" 50%, "var(--accent-primary)" 100%)` }} />
                     <span className="text-[13px] text-[var(--text-muted)] w-20 shrink-0">{p.rightDesc.split(",")[0]}</span>
                   </div>
                   <input type="text" value={rationale} onChange={e => setRat(e.target.value)}
@@ -963,7 +963,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
                     <th className="px-3 py-2 text-left text-[14px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)] sticky left-0 bg-[var(--surface-2)] z-10 min-w-[160px]">Capability</th>
                     {stratPriorities.map((pri, i) => {
                       const p = STRAT_PRIORITIES_ALL.find(x => x.id === pri);
-                      return <th key={pri} className="px-2 py-2 text-center text-[14px] font-semibold border-b border-[var(--border)] min-w-[100px]" style={{ color: ["#D4860A","#C07030","#A0522D"][i] }}>{p?.icon} {p?.label}</th>;
+                      return <th key={pri} className="px-2 py-2 text-center text-[14px] font-semibold border-b border-[var(--border)] min-w-[100px]" style={{ color: ["var(--accent-primary)","var(--teal)","var(--teal)"][i] }}>{p?.icon} {p?.label}</th>;
                     })}
                     <th className="px-2 py-2 text-center text-[14px] font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Score</th>
                   </tr></thead>
@@ -1028,7 +1028,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
                   setStratVision(result.replace(/```/g, "").replace(/^["']|["']$/g, "").trim());
                 } catch { showToast("AI couldn't draft the vision — try again"); }
                 setStratVisionGenerating(false);
-              }} disabled={stratVisionGenerating} className="px-4 py-2 rounded-xl text-[15px] font-semibold text-white flex items-center gap-2" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: stratVisionGenerating ? 0.5 : 1 }}>
+              }} disabled={stratVisionGenerating} className="px-4 py-2 rounded-xl text-[15px] font-semibold text-white flex items-center gap-2" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", opacity: stratVisionGenerating ? 0.5 : 1 }}>
                 {stratVisionGenerating ? "Generating..." : "✨ AI Draft Vision"}
               </button>
               <span className="text-[14px] text-[var(--text-muted)]">{stratVision.length > 0 ? `${stratVision.split(/[.!?]+/).filter(Boolean).length} sentences` : "No vision set"}</span>
@@ -1099,7 +1099,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
                   <span style={{ color: c.done ? "var(--text-primary)" : "var(--text-muted)" }}>{c.label}</span>
                 </div>)}
               </div>
-              {completed >= 3 && <button onClick={() => setOmView("1.2")} className="mt-3 w-full px-4 py-2 rounded-xl text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>Continue to Step 1.2: Business Model →</button>}
+              {completed >= 3 && <button onClick={() => setOmView("1.2")} className="mt-3 w-full px-4 py-2 rounded-xl text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>Continue to Step 1.2: Business Model →</button>}
             </div>;
           })()}
         </div>}
@@ -1193,7 +1193,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
                 const uid = String(r.id);
                 const isSelected = omSelectedUnits.includes(uid);
                 return <div key={uid} className="flex items-center gap-2 py-1.5 border-b border-[var(--border)] last:border-0">
-                  <input type="checkbox" checked={isSelected} onChange={() => setOmSelectedUnits(prev => isSelected ? prev.filter(u => u !== uid) : [...prev, uid])} style={{ accentColor: "#D4860A" }} />
+                  <input type="checkbox" checked={isSelected} onChange={() => setOmSelectedUnits(prev => isSelected ? prev.filter(u => u !== uid) : [...prev, uid])} style={{ accentColor: "var(--accent-primary)" }} />
                   <span className="text-[15px] text-[var(--text-primary)] flex-1">{String(r.name)}</span>
                   <span className="text-[14px] px-1.5 py-0.5 rounded bg-[var(--surface-1)] text-[var(--text-muted)]">{String(r.layer)}</span>
                   <span className="text-[14px] text-[var(--text-muted)]">{String(r.function_label)}</span>
@@ -1219,7 +1219,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
                       <input type="checkbox" checked={allSelected} onChange={() => {
                         const ids = fdata.units.map(u => u.id);
                         setOmSelectedUnits(prev => allSelected ? prev.filter(u => !ids.includes(u)) : [...new Set([...prev, ...ids])]);
-                      }} onClick={e => e.stopPropagation()} style={{ accentColor: "#D4860A" }} />
+                      }} onClick={e => e.stopPropagation()} style={{ accentColor: "var(--accent-primary)" }} />
                       {fdata.source !== "universal" && <span className="text-[15px] px-1.5 py-0.5 rounded-full bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]">Industry</span>}
                       <span className="text-[var(--text-muted)] text-[15px]" style={{ transform: `rotate(${expanded ? 90 : 0}deg)`, transition: "transform 0.2s" }}>▸</span>
                     </div>
@@ -1230,7 +1230,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
                         const displayName = omRenames[u.id] || u.name;
                         const layerColors: Record<string,string> = { "Governance": "var(--risk)", "Core": "var(--accent-primary)", "Shared Services": "var(--success)", "Enabling": "var(--warning)", "Interface": "var(--purple)" };
                         return <div key={u.id} className="flex items-center gap-2 py-1 group">
-                          <input type="checkbox" checked={isSelected} onChange={() => setOmSelectedUnits(prev => isSelected ? prev.filter(x => x !== u.id) : [...prev, u.id])} style={{ accentColor: "#D4860A" }} />
+                          <input type="checkbox" checked={isSelected} onChange={() => setOmSelectedUnits(prev => isSelected ? prev.filter(x => x !== u.id) : [...prev, u.id])} style={{ accentColor: "var(--accent-primary)" }} />
                           <span className={`text-[15px] flex-1 ${isSelected ? "text-[var(--text-primary)]" : "text-[var(--text-muted)]"}`}>{displayName}</span>
                           <span className="text-[15px] px-1.5 py-0.5 rounded font-semibold" style={{ color: layerColors[u.layer] || "var(--text-muted)", background: `${layerColors[u.layer] || "var(--text-muted)"}15` }}>{u.layer}</span>
                           {isSelected && <button onClick={() => setOmScopedUnits(prev => ({...prev, [u.id]: scope === "in" ? "out" : "in"}))} className="text-[15px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: scope === "in" ? "var(--success)" : "var(--text-muted)", border: `1px solid ${scope === "in" ? "var(--success)" : "var(--border)"}` }}>{scope === "in" ? "In Scope" : "Out of Scope"}</button>}
@@ -1297,7 +1297,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
                 const parsed = JSON.parse(raw.replace(/\`\`\`json\n?/g,"").replace(/\`\`\`\n?/g,"").trim());
                 if (parsed.core) setAiBlueprint(parsed);
               } catch (e) { console.error("[DesignModule] AI blueprint error", e); } setAiOmLoading(false);
-            }} disabled={aiOmLoading} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold text-white shrink-0" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>{aiOmLoading ? "..." : "☕ AI Custom Blueprint"}</button>
+            }} disabled={aiOmLoading} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold text-white shrink-0" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>{aiOmLoading ? "..." : "☕ AI Custom Blueprint"}</button>
           </div>
 
           {aiBlueprint && <div className="bg-[rgba(224,144,64,0.06)] border border-[rgba(224,144,64,0.15)] rounded-lg px-3 py-2 mb-3 flex items-center justify-between"><span className="text-[15px]" style={{ color: "#f0a050" }}>☕ Showing AI-generated blueprint</span><button onClick={() => setAiBlueprint(null)} className="text-[15px] text-[var(--text-muted)] hover:text-[var(--text-primary)]">Reset to default</button></div>}
@@ -1329,7 +1329,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
               { id: "location" as const, label: "Location Strategy", icon: "🌍" },
             ]).map(v => <button key={v.id} onClick={() => setSvcView(v.id)} className="flex-1 px-3 py-2 rounded-lg text-[14px] font-semibold transition-all" style={{
               background: svcView === v.id ? "rgba(212,134,10,0.12)" : "transparent",
-              color: svcView === v.id ? "#e09040" : "var(--text-muted)",
+              color: svcView === v.id ? "var(--accent-primary)" : "var(--text-muted)",
             }}>{v.icon} {v.label}</button>)}
           </div>
 
@@ -1645,7 +1645,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
               { id: "bottlenecks" as const, label: "Bottleneck Analyzer", icon: "🔍" },
             ]).map(v => <button key={v.id} onClick={() => setGovView(v.id)} className="flex-1 px-3 py-2 rounded-lg text-[14px] font-semibold transition-all" style={{
               background: govView === v.id ? "rgba(212,134,10,0.12)" : "transparent",
-              color: govView === v.id ? "#e09040" : "var(--text-muted)",
+              color: govView === v.id ? "var(--accent-primary)" : "var(--text-muted)",
             }}>{v.icon} {v.label}</button>)}
           </div>
 
@@ -1667,7 +1667,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
               </div>)}
               <div className="ml-auto flex items-center gap-2">
                 <span className="text-[14px] text-[var(--text-muted)]">{govDecisions.filter(d => (govCatFilter === "All" || d.category === govCatFilter) && (govFuncFilter === "All" || d.func === govFuncFilter) && (govSpeedFilter === "All" || d.speed === govSpeedFilter) && (govClarityFilter === "All" || d.clarity === govClarityFilter)).length} decisions</span>
-                <button onClick={() => setGovAddingDecision(true)} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>+ Add Decision</button>
+                <button onClick={() => setGovAddingDecision(true)} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>+ Add Decision</button>
               </div>
             </div>
             {/* KPIs */}
@@ -2015,7 +2015,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
               { id: "bottlenecks" as const, label: "Handoff Analyzer", icon: "⚡" },
             ]).map(v => <button key={v.id} onClick={() => setProcView(v.id)} className="flex-1 px-3 py-2 rounded-lg text-[14px] font-semibold transition-all" style={{
               background: procView === v.id ? "rgba(212,134,10,0.12)" : "transparent",
-              color: procView === v.id ? "#e09040" : "var(--text-muted)",
+              color: procView === v.id ? "var(--accent-primary)" : "var(--text-muted)",
             }}>{v.icon} {v.label}</button>)}
           </div>
 
@@ -2111,7 +2111,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
                     if (Array.isArray(steps)) { setProcProcesses(prev => prev.map(p => p.id === procSelected.id ? { ...p, steps: steps.map((s: Record<string, unknown>, i: number) => ({ ...s, id: `${procSelected.id}s${i+1}`, automation: s.automation || "Manual" })) as ProcStep[] } : p)); }
                   } catch { showToast("AI couldn't complete the generation — try again"); }
                   setProcAiGenerating(false);
-                }} disabled={procAiGenerating} className="ml-auto px-3 py-1.5 rounded-lg text-[14px] font-semibold text-white shrink-0" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: procAiGenerating ? 0.5 : 1 }}>{procAiGenerating ? "Generating..." : "✨ AI Generate Steps"}</button>
+                }} disabled={procAiGenerating} className="ml-auto px-3 py-1.5 rounded-lg text-[14px] font-semibold text-white shrink-0" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", opacity: procAiGenerating ? 0.5 : 1 }}>{procAiGenerating ? "Generating..." : "✨ AI Generate Steps"}</button>
               </div>
               {/* Horizontal flow */}
               <div className="overflow-x-auto pb-3 mb-4">
@@ -2334,7 +2334,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
               { id: "aiready" as const, label: "AI Readiness", icon: "🤖" },
             ]).map(v => <button key={v.id} onClick={() => setTechView(v.id)} className="flex-1 px-3 py-2 rounded-lg text-[14px] font-semibold transition-all" style={{
               background: techView === v.id ? "rgba(212,134,10,0.12)" : "transparent",
-              color: techView === v.id ? "#e09040" : "var(--text-muted)",
+              color: techView === v.id ? "var(--accent-primary)" : "var(--text-muted)",
             }}>{v.icon} {v.label}</button>)}
           </div>
 
@@ -2353,7 +2353,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
                   <option value="All">All</option><option>Invest</option><option>Maintain</option><option>Migrate</option><option>Retire</option>
                 </select>
               </div>
-              <button onClick={() => setTechAddingSystem(true)} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>+ Add System</button>
+              <button onClick={() => setTechAddingSystem(true)} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>+ Add System</button>
             </div>
             {/* KPIs */}
             <div className="grid grid-cols-5 gap-2 mb-4">
@@ -2661,7 +2661,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
               { id: "capacity" as const, label: "Change Capacity", icon: "📊" },
             ]).map(v => <button key={v.id} onClick={() => setPcView(v.id)} className="flex-1 px-3 py-2 rounded-lg text-[14px] font-semibold transition-all" style={{
               background: pcView === v.id ? "rgba(212,134,10,0.12)" : "transparent",
-              color: pcView === v.id ? "#e09040" : "var(--text-muted)",
+              color: pcView === v.id ? "var(--accent-primary)" : "var(--text-muted)",
             }}>{v.icon} {v.label}</button>)}
           </div>
 
@@ -2861,7 +2861,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
                       <div className="text-[14px] text-[var(--text-muted)] uppercase mb-2">Change Capacity Status</div>
                       <div className="text-[36px] font-extrabold mb-1" style={{ color: statusColor }}>{status}</div>
                       <div className="h-4 bg-[var(--bg)] rounded-full overflow-hidden mx-auto max-w-[250px] mb-3">
-                        <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(loadPct, 150)}%`, background: `linear-gradient(to right, var(--success), ${loadPct > 80 ? "var(--warning)" : "var(--success)"}, ${loadPct > 100 ? "var(--risk)" : "var(--success)"})` }} />
+                        <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(loadPct, 150)}%`, background: `linear-gradient(to right, "var(--success)", ${loadPct > 80 ? "var(--warning)" : "var(--success)"}, ${loadPct > 100 ? "var(--risk)" : "var(--success)"})` }} />
                       </div>
                       <div className="text-[15px] text-[var(--text-secondary)]">
                         Your organization can absorb <strong style={{ color: "var(--accent-primary)" }}>~{capacity}</strong> concurrent change initiatives.
@@ -2917,7 +2917,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
               </div>
             </div>
           </Card>
-          <button onClick={() => setOmView("4.1")} className="w-full px-4 py-3 rounded-xl text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #10B981, #059669)" }}>Continue to Step 4.1: Financial Model →</button>
+          <button onClick={() => setOmView("4.1")} className="w-full px-4 py-3 rounded-xl text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--success), #059669)" }}>Continue to Step 4.1: Financial Model →</button>
         </div>}
 
         {/* ── Step 4.1: Financial Model ── */}
@@ -2931,7 +2931,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
               { id: "bizcase" as const, label: "Business Case", icon: "💼" },
             ]).map(v => <button key={v.id} onClick={() => setFinView(v.id)} className="flex-1 px-3 py-2 rounded-lg text-[14px] font-semibold transition-all" style={{
               background: finView === v.id ? "rgba(212,134,10,0.12)" : "transparent",
-              color: finView === v.id ? "#e09040" : "var(--text-muted)",
+              color: finView === v.id ? "var(--accent-primary)" : "var(--text-muted)",
             }}>{v.icon} {v.label}</button>)}
           </div>
 
@@ -2942,7 +2942,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
               const totalCur = FIN_FUNCS.reduce((s, f) => { const c = finCosts[f]; return s + (c?.people||0) + (c?.technology||0) + (c?.outsourcing||0) + (c?.facilities||0); }, 0);
               const totalTgt = FIN_FUNCS.reduce((s, f) => { const c = finCosts[f]; return s + (c?.peopleTgt||0) + (c?.technologyTgt||0) + (c?.outsourcingTgt||0) + (c?.facilitiesTgt||0); }, 0);
               const delta = totalTgt - totalCur;
-              const funcColors: Record<string, string> = { Finance: "#D4860A", HR: "#8B5CF6", Technology: "#0891B2", Operations: "#F59E0B", Marketing: "#EC4899", Legal: "#EF4444", Product: "#10B981", Executive: "#A855F7" };
+              const funcColors: Record<string, string> = { Finance: "var(--accent-primary)", HR: "var(--purple)", Technology: "#0891B2", Operations: "var(--warning)", Marketing: "#EC4899", Legal: "var(--risk)", Product: "var(--success)", Executive: "var(--purple)" };
               return <>
                 {/* Glass KPI cards */}
                 <div className="grid grid-cols-3 gap-4 mb-6">
@@ -3258,7 +3258,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
               { id: "healthcheck" as const, label: "OM Health Check", icon: "🩺" },
             ]).map(v => <button key={v.id} onClick={() => setPerfView(v.id)} className="flex-1 px-3 py-2 rounded-lg text-[14px] font-semibold transition-all" style={{
               background: perfView === v.id ? "rgba(212,134,10,0.12)" : "transparent",
-              color: perfView === v.id ? "#e09040" : "var(--text-muted)",
+              color: perfView === v.id ? "var(--accent-primary)" : "var(--text-muted)",
             }}>{v.icon} {v.label}</button>)}
           </div>
 
@@ -3338,7 +3338,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
                       {okr.keyResults.map(kr => <div key={kr.id} className="flex items-center gap-3">
                         <span className="text-[13px] text-[var(--text-muted)] shrink-0">KR</span>
                         <span className="text-[14px] text-[var(--text-secondary)] flex-1">{kr.text}</span>
-                        <input type="range" min={0} max={100} value={kr.progress} onChange={e => setPerfOkrs(prev => prev.map(o => o.id === okr.id ? {...o, keyResults: o.keyResults.map(k => k.id === kr.id ? {...k, progress: Number(e.target.value)} : k)} : o))} className="w-24 h-1.5 rounded-full appearance-none cursor-pointer" style={{ background: `linear-gradient(to right, ${kr.progress >= 70 ? "var(--success)" : kr.progress >= 40 ? "var(--warning)" : "var(--risk)"} ${kr.progress}%, var(--bg) ${kr.progress}%)` }} />
+                        <input type="range" min={0} max={100} value={kr.progress} onChange={e => setPerfOkrs(prev => prev.map(o => o.id === okr.id ? {...o, keyResults: o.keyResults.map(k => k.id === kr.id ? {...k, progress: Number(e.target.value)} : k)} : o))} className="w-24 h-1.5 rounded-full appearance-none cursor-pointer" style={{ background: `linear-gradient(to right, ${kr.progress >= 70 ? "var(--success)" : kr.progress >= 40 ? "var(--warning)" : "var(--risk)"} ${kr.progress}%, "var(--bg)" ${kr.progress}%)` }} />
                         <span className="text-[13px] font-bold w-10 text-right" style={{ color: kr.progress >= 70 ? "var(--success)" : kr.progress >= 40 ? "var(--warning)" : "var(--risk)" }}>{kr.progress}%</span>
                       </div>)}
                     </div>
@@ -3472,7 +3472,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
               { id: "signoff" as const, label: "Sign-off Tracker", icon: "✅" },
             ]).map(v => <button key={v.id} onClick={() => setTransView(v.id)} className="flex-1 px-3 py-2 rounded-lg text-[14px] font-semibold transition-all" style={{
               background: transView === v.id ? "rgba(212,134,10,0.12)" : "transparent",
-              color: transView === v.id ? "#e09040" : "var(--text-muted)",
+              color: transView === v.id ? "var(--accent-primary)" : "var(--text-muted)",
             }}>{v.icon} {v.label}</button>)}
           </div>
 
@@ -3744,7 +3744,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
               { id: "versions" as const, label: "Version Control", icon: "🔢" },
             ]).map(v => <button key={v.id} onClick={() => setMgovView(v.id)} className="flex-1 px-3 py-2 rounded-lg text-[14px] font-semibold transition-all" style={{
               background: mgovView === v.id ? "rgba(212,134,10,0.12)" : "transparent",
-              color: mgovView === v.id ? "#e09040" : "var(--text-muted)",
+              color: mgovView === v.id ? "var(--accent-primary)" : "var(--text-muted)",
             }}>{v.icon} {v.label}</button>)}
           </div>
 

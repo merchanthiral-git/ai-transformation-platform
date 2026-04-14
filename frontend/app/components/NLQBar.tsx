@@ -35,7 +35,7 @@ const SUGGESTIONS = [
   { category: "Reskilling", questions: ["What is our total reskilling investment?", "How many employees are high priority for reskilling?"] },
 ];
 
-const CHART_COLORS = ["#D4860A", "#C07030", "#E8C547", "#B8602A", "#D97706", "#F59E0B", "#A0522D", "#E09040"];
+const CHART_COLORS = ["var(--accent-primary)", "var(--teal)", "var(--warning)", "var(--teal)", "var(--amber)", "var(--warning)", "var(--teal)", "var(--accent-primary)"];
 
 export function NLQBar({ projectId, modelId, currentModule }: { projectId: string; modelId: string; currentModule: string }) {
   const [query, setQuery] = useState("");
@@ -159,7 +159,7 @@ export function NLQBar({ projectId, modelId, currentModule }: { projectId: strin
           <div className="w-7 h-7 rounded-lg flex items-center justify-center text-[14px] shrink-0" style={{ background: "linear-gradient(135deg, rgba(212,134,10,0.15), rgba(192,112,48,0.1))" }}>🔍</div>
           <div className="flex-1 min-w-0">
             <div className="text-[14px] text-[var(--text-primary)] leading-relaxed font-heading">{result.answer}</div>
-            {result.confidence !== undefined && result.confidence < 0.7 && <div className="text-[11px] text-[#F59E0B] mt-1 flex items-center gap-1"><span>⚠</span> Based on available data (confidence: {Math.round(result.confidence * 100)}%)</div>}
+            {result.confidence !== undefined && result.confidence < 0.7 && <div className="text-[11px] text-[var(--warning)] mt-1 flex items-center gap-1"><span>⚠</span> Based on available data (confidence: {Math.round(result.confidence * 100)}%)</div>}
             {result.sql_like_logic && <div className="text-[11px] text-[var(--text-muted)] mt-1 font-data">{result.sql_like_logic}</div>}
             {result.elapsed_ms && <div className="text-[10px] text-[var(--text-muted)] mt-0.5">{result.elapsed_ms}ms</div>}
           </div>

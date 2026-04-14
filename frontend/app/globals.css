@@ -453,4 +453,18 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
    PREMIUM CSS-ONLY BACKGROUNDS — no image dependencies
    ═══════════════════════════════════════════════════════════════ */
 
+/* ═══ HORIZONTAL SCROLL SHADOW INDICATORS ═══ */
+.scroll-shadow {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  background:
+    linear-gradient(to right, var(--surface-1), var(--surface-1)) local,
+    linear-gradient(to right, var(--surface-1), transparent) scroll,
+    linear-gradient(to left, var(--surface-1), var(--surface-1)) local,
+    linear-gradient(to left, var(--surface-1), transparent) scroll;
+  background-size: 40px 100%, 20px 100%, 40px 100%, 20px 100%;
+  background-position: left, left, right, right;
+  background-repeat: no-repeat;
+}
+
 /* (Dead CSS removed: .auth-bg, .hub-bg, pageCrossfade — unused in codebase) */

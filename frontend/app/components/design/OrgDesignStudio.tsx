@@ -182,7 +182,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
           const context = currentData.map(d => `${d.name}: ${d.headcount}hd, span ${d.avgSpan}, ${d.layers} layers, ${d.managers} mgrs`).join("; ");
           const aiText1 = await callAI("Return ONLY a valid JSON array of strings.", `Analyze this org structure and give 4-5 specific restructuring recommendations. Current state: ${context}. Return ONLY a JSON array of strings.`);
           setAiOdsInsights(JSON.parse(aiText1.replace(/```json\n?/g,"").replace(/```\n?/g,"").trim()));
-      } catch (e) { console.error("[DesignModule] AI ODS insights error", e); } setAiOdsLoading(false); }} disabled={aiOdsLoading} className="px-3 py-2 rounded-lg text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)", opacity: aiOdsLoading ? 0.5 : 1 }}>{aiOdsLoading ? "Analyzing..." : "✨ AI Recommendations"}</button>
+      } catch (e) { console.error("[DesignModule] AI ODS insights error", e); } setAiOdsLoading(false); }} disabled={aiOdsLoading} className="px-3 py-2 rounded-lg text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", opacity: aiOdsLoading ? 0.5 : 1 }}>{aiOdsLoading ? "Analyzing..." : "✨ AI Recommendations"}</button>
       <button onClick={() => { realDataBuilt.current = false; const c = odsGenDept(); setCurrentData(c); setScenarios([odsGenScenario(c, "Optimized", 0.5, 0), odsGenScenario(c, "Aggressive", 0.9, 1), odsGenScenario(c, "Conservative", 0.25, 2)]); }} className="px-3 py-2 rounded-lg text-[15px] font-semibold border border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--accent-primary)]">↻ Reset</button>
     </div>
 
@@ -220,7 +220,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       const totalCur = curLevels.reduce((s, l) => s + l.count, 0);
       const totalFut = futLevels.reduce((s, l) => s + l.count, 0);
       const maxCount = Math.max(...curLevels.map(l => l.count), ...futLevels.map(l => l.count), 1);
-      const layerColors = ["#C07030", "#D4860A", "#D97706", "#E8C547", "#F0C060", "#F5DEB3"];
+      const layerColors = ["var(--teal)", "var(--accent-primary)", "var(--amber)", "var(--warning)", "#F0C060", "#F5DEB3"];
       const benchmarks: Record<string, number> = { "C-Suite": 0.5, SVP: 1.5, VP: 4, Director: 10, Manager: 18, IC: 66 };
 
       // Chain analysis
@@ -276,7 +276,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
               </div>;
             })}
             <div className="flex items-center gap-3 text-[14px] text-[var(--text-muted)] mt-2 pt-2 border-t border-[var(--border)]">
-              <div className="flex items-center gap-1"><div className="w-3 h-2 rounded" style={{ background: "#D4860A" }} /> Current</div>
+              <div className="flex items-center gap-1"><div className="w-3 h-2 rounded" style={{ background: "var(--accent-primary)" }} /> Current</div>
               <div className="flex items-center gap-1"><div className="w-3 h-2 rounded" style={{ background: "rgba(16,185,129,0.6)" }} /> {sc.label}</div>
               <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-[var(--success)]" /> Healthy</div>
               <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-[var(--warning)]" /> Watch</div>

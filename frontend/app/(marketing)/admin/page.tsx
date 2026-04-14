@@ -47,7 +47,7 @@ export default function AdminPage() {
           <div style={{ fontSize: 48, marginBottom: 16, opacity: 0.3 }}>🔒</div>
           <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>Admin Access Required</h1>
           <p style={{ color: "rgba(255,200,150,0.5)", marginBottom: 24 }}>Sign in with an admin account to access analytics.</p>
-          <a href="/" style={{ color: "#E09040", textDecoration: "none", fontWeight: 600 }}>← Back to Platform</a>
+          <a href="/" style={{ color: "var(--accent-primary)", textDecoration: "none", fontWeight: 600 }}>← Back to Platform</a>
         </div>
       </div>
     );
@@ -67,10 +67,10 @@ export default function AdminPage() {
 
   // Funnel
   const funnelSteps = [
-    { key: "landed", label: "Landed", color: "#E09040" },
-    { key: "signed_up", label: "Signed Up", color: "#8B5CF6" },
+    { key: "landed", label: "Landed", color: "var(--accent-primary)" },
+    { key: "signed_up", label: "Signed Up", color: "var(--purple)" },
     { key: "uploaded_data", label: "Uploaded Data", color: "#3B82F6" },
-    { key: "used_3_modules", label: "Used 3+ Modules", color: "#10B981" },
+    { key: "used_3_modules", label: "Used 3+ Modules", color: "var(--success)" },
   ];
 
   const maxFunnel = Math.max(...funnelSteps.map(s => metrics.funnel[s.key] || 0), 1);
@@ -80,7 +80,7 @@ export default function AdminPage() {
       {/* Header */}
       <div style={{ padding: "24px 40px", borderBottom: "1px solid rgba(255,200,150,0.08)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: "#E09040" }}>Analytics Dashboard</h1>
+          <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: "var(--accent-primary)" }}>Analytics Dashboard</h1>
           <p style={{ fontSize: 13, color: "rgba(255,200,150,0.4)", margin: "4px 0 0" }}>Platform usage and engagement metrics</p>
         </div>
         <a href="/" style={{ color: "rgba(255,200,150,0.5)", textDecoration: "none", fontSize: 14, fontWeight: 600, padding: "8px 16px", borderRadius: 10, border: "1px solid rgba(255,200,150,0.1)", background: "rgba(255,200,150,0.03)" }}>← Back to Platform</a>
@@ -91,8 +91,8 @@ export default function AdminPage() {
         {(["overview", "modules", "funnel", "users"] as const).map(t => (
           <button key={t} onClick={() => setTab(t)} style={{
             padding: "12px 20px", fontSize: 14, fontWeight: tab === t ? 700 : 500,
-            color: tab === t ? "#E09040" : "rgba(255,200,150,0.4)",
-            borderBottom: tab === t ? "2px solid #E09040" : "2px solid transparent",
+            color: tab === t ? "var(--accent-primary)" : "rgba(255,200,150,0.4)",
+            borderBottom: tab === t ? "2px solid var(--accent-primary)" : "2px solid transparent",
             background: "none", border: "none", cursor: "pointer",
             fontFamily: "'Outfit', sans-serif", textTransform: "capitalize",
           }}>{t}</button>
@@ -110,7 +110,7 @@ export default function AdminPage() {
 }
 
 // ── KPI Card ──
-function KpiCard({ label, value, sub, color = "#E09040" }: { label: string; value: string | number; sub?: string; color?: string }) {
+function KpiCard({ label, value, sub, color = "var(--accent-primary)" }: { label: string; value: string | number; sub?: string; color?: string }) {
   return (
     <div style={{
       background: "rgba(255,200,150,0.03)", border: "1px solid rgba(255,200,150,0.08)",
@@ -129,18 +129,18 @@ function OverviewTab({ metrics, totalUsers, active7d, active30d }: { metrics: Lo
     <div>
       <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 32 }}>
         <KpiCard label="Total Users" value={totalUsers} />
-        <KpiCard label="Active (7d)" value={active7d} color="#10B981" />
+        <KpiCard label="Active (7d)" value={active7d} color="var(--success)" />
         <KpiCard label="Active (30d)" value={active30d} color="#3B82F6" />
-        <KpiCard label="Avg Session" value={`${metrics.avgSessionMinutes}m`} color="#8B5CF6" sub="per module visit" />
+        <KpiCard label="Avg Session" value={`${metrics.avgSessionMinutes}m`} color="var(--purple)" sub="per module visit" />
       </div>
 
       <h3 style={{ fontSize: 16, fontWeight: 700, color: "rgba(255,200,150,0.7)", marginBottom: 16 }}>Engagement Counters</h3>
       <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 32 }}>
-        <KpiCard label="Signups" value={metrics.counters.signups || 0} color="#8B5CF6" />
-        <KpiCard label="Logins" value={metrics.counters.logins || 0} color="#E09040" />
+        <KpiCard label="Signups" value={metrics.counters.signups || 0} color="var(--purple)" />
+        <KpiCard label="Logins" value={metrics.counters.logins || 0} color="var(--accent-primary)" />
         <KpiCard label="Projects Created" value={metrics.counters.projects_created || 0} color="#3B82F6" />
-        <KpiCard label="Sandbox Opens" value={metrics.counters.sandbox_selected || 0} color="#F59E0B" />
-        <KpiCard label="Data Uploads" value={metrics.counters.data_uploads || 0} color="#10B981" />
+        <KpiCard label="Sandbox Opens" value={metrics.counters.sandbox_selected || 0} color="var(--warning)" />
+        <KpiCard label="Data Uploads" value={metrics.counters.data_uploads || 0} color="var(--success)" />
         <KpiCard label="Exports" value={metrics.counters.exports || 0} color="#EC4899" />
         <KpiCard label="AI Uses" value={metrics.counters.ai_uses || 0} color="#6366F1" />
       </div>
@@ -158,7 +158,7 @@ function OverviewTab({ metrics, totalUsers, active7d, active30d }: { metrics: Lo
                 <div style={{ flex: 1, height: 24, background: "rgba(255,200,150,0.04)", borderRadius: 6, overflow: "hidden" }}>
                   <div style={{ width: `${(count / max) * 100}%`, height: "100%", background: "linear-gradient(90deg, rgba(224,144,64,0.3), rgba(224,144,64,0.6))", borderRadius: 6, transition: "width 0.5s ease" }} />
                 </div>
-                <div style={{ width: 50, textAlign: "right", fontSize: 14, fontWeight: 700, color: "#E09040", fontFamily: "'IBM Plex Mono', monospace" }}>{count}</div>
+                <div style={{ width: 50, textAlign: "right", fontSize: 14, fontWeight: 700, color: "var(--accent-primary)", fontFamily: "'IBM Plex Mono', monospace" }}>{count}</div>
               </div>
             );
           })}
@@ -185,7 +185,7 @@ function ModulesTab({ sortedModules, maxVisits, durations }: { sortedModules: [s
               <div style={{ flex: 1, height: 20, background: "rgba(255,200,150,0.04)", borderRadius: 5, overflow: "hidden" }}>
                 <div style={{ width: `${(count / maxVisits) * 100}%`, height: "100%", background: "linear-gradient(90deg, rgba(139,92,246,0.3), rgba(139,92,246,0.6))", borderRadius: 5 }} />
               </div>
-              <div style={{ width: 60, textAlign: "right", fontSize: 13, fontWeight: 700, color: "#8B5CF6", fontFamily: "'IBM Plex Mono', monospace" }}>{count}</div>
+              <div style={{ width: 60, textAlign: "right", fontSize: 13, fontWeight: 700, color: "var(--purple)", fontFamily: "'IBM Plex Mono', monospace" }}>{count}</div>
               <div style={{ width: 80, textAlign: "right", fontSize: 12, color: "rgba(255,200,150,0.35)", fontFamily: "'IBM Plex Mono', monospace" }}>
                 {avg > 0 ? `~${avg}s avg` : "—"}
               </div>
@@ -213,7 +213,7 @@ function FunnelTab({ steps, funnel, maxFunnel }: { steps: { key: string; label: 
               {i > 0 && (
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, paddingLeft: 4 }}>
                   <span style={{ fontSize: 14, color: "rgba(255,200,150,0.2)" }}>↓</span>
-                  <span style={{ fontSize: 12, color: conversion >= 50 ? "#10B981" : conversion >= 25 ? "#F59E0B" : "#EF4444", fontWeight: 700, fontFamily: "'IBM Plex Mono', monospace" }}>{conversion}% conversion</span>
+                  <span style={{ fontSize: 12, color: conversion >= 50 ? "var(--success)" : conversion >= 25 ? "var(--warning)" : "var(--risk)", fontWeight: 700, fontFamily: "'IBM Plex Mono', monospace" }}>{conversion}% conversion</span>
                 </div>
               )}
               <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
@@ -258,11 +258,11 @@ function UsersTab({ users }: { users: Record<string, unknown>[] }) {
           <tbody>
             {users.map((u, i) => (
               <tr key={i} style={{ borderBottom: "1px solid rgba(255,200,150,0.04)" }}>
-                <td style={{ padding: "10px 12px", color: "#E09040", fontWeight: 600 }}>{String(u.username || "")}</td>
+                <td style={{ padding: "10px 12px", color: "var(--accent-primary)", fontWeight: 600 }}>{String(u.username || "")}</td>
                 <td style={{ padding: "10px 12px", color: "rgba(255,200,150,0.6)" }}>{String(u.display_name || "—")}</td>
                 <td style={{ padding: "10px 12px", color: "rgba(255,200,150,0.4)", fontFamily: "'IBM Plex Mono', monospace" }}>{String(u.email || "—")}</td>
                 <td style={{ padding: "10px 12px" }}>
-                  <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 6, background: u.user_type === "consultant" ? "rgba(139,92,246,0.15)" : "rgba(16,185,129,0.15)", color: u.user_type === "consultant" ? "#8B5CF6" : "#10B981", fontWeight: 600 }}>{String(u.user_type || "—")}</span>
+                  <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 6, background: u.user_type === "consultant" ? "rgba(139,92,246,0.15)" : "rgba(16,185,129,0.15)", color: u.user_type === "consultant" ? "var(--purple)" : "var(--success)", fontWeight: 600 }}>{String(u.user_type || "—")}</span>
                 </td>
                 <td style={{ padding: "10px 12px", color: "rgba(255,200,150,0.35)", fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>{u.last_login ? new Date(String(u.last_login)).toLocaleDateString() : "—"}</td>
                 <td style={{ padding: "10px 12px", color: "rgba(255,200,150,0.35)", fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>{u.created ? new Date(String(u.created)).toLocaleDateString() : "—"}</td>

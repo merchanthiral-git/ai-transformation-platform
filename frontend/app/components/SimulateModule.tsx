@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import * as api from "../../lib/api";
 import type { Filters } from "../../lib/api";
+import type { ReadinessResponse } from "../../types/api";
 import { fmt } from "../../lib/formatters";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Legend, CartesianGrid } from "recharts";
 import {
@@ -205,7 +206,7 @@ Paragraph 6 (RECOMMENDATION): Is this scenario right, and what are the specific 
 
           {/* ═══ ACTION BAR ═══ */}
           <div className="flex items-center gap-2 pt-4" style={{ borderTop: "1px solid var(--border)" }}>
-            <button onClick={generateNarrative} disabled={loading} className="px-4 py-2 rounded-xl text-[14px] font-semibold text-white disabled:opacity-50 glow-pulse" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>
+            <button onClick={generateNarrative} disabled={loading} className="px-4 py-2 rounded-xl text-[14px] font-semibold text-white disabled:opacity-50 glow-pulse" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>
               {loading ? "..." : "✨ Regenerate with AI"}
             </button>
             <button onClick={copyToClipboard} className="px-3 py-2 rounded-xl text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--accent-primary)] hover:border-[var(--accent-primary)]/30 transition-all">
@@ -291,7 +292,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
   }, [realJobs, f.func]);
   const activeJobs = filteredJobs;
 
-  const cfg = custom ? { label: "Custom", adoption: custAdopt / 100, timeline: custTimeline, ramp: 0.75, color: "#D97706" } : SIM_PRESETS[scenario];
+  const cfg = custom ? { label: "Custom", adoption: custAdopt / 100, timeline: custTimeline, ramp: 0.75, color: "var(--amber)" } : SIM_PRESETS[scenario];
 
   const scenData = activeJobs.map(j => {
     const rel = Math.round(j.aiEligibleHrs * cfg.adoption * cfg.ramp);
@@ -305,12 +306,12 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
   // Try to fetch readiness from backend, fall back to demo
   const [backendReadiness] = useApiData(() => model ? api.getReadiness(model, f) : Promise.resolve(null), [model, f.func, f.jf, f.sf, f.cl]);
   const readinessData = useMemo(() => {
-    const br = backendReadiness as Record<string, unknown> | null;
-    if (br && br.dimensions && Object.keys(br.dimensions as object).length > 0) {
+    const br = backendReadiness as unknown as ReadinessResponse | null;
+    if (br && br.dimensions && Object.keys(br.dimensions).length > 0) {
       // Backend has real readiness data
-      return { source: "uploaded", data: br };
+      return { source: "uploaded" as const, data: br };
     }
-    return { source: "demo", data: null };
+    return { source: "demo" as const, data: null };
   }, [backendReadiness]);
 
   // Readiness scoring
@@ -403,7 +404,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
       {/* Scenario pills */}
       <div className="flex gap-2 mb-4 flex-wrap">
         {Object.entries(SIM_PRESETS).map(([k, v]) => <button key={k} onClick={() => update({ scenario: k, custom: false })} className="px-4 py-2 rounded-lg text-[15px] font-semibold transition-all" style={{ border: !custom && scenario === k ? `2px solid ${v.color}` : "1px solid var(--border)", background: !custom && scenario === k ? `${v.color}14` : "transparent", color: !custom && scenario === k ? v.color : "var(--text-muted)" }}>{v.label}</button>)}
-        <button onClick={() => update({ custom: true })} className="px-4 py-2 rounded-lg text-[15px] font-semibold transition-all" style={{ border: custom ? "2px solid #D97706" : "1px solid var(--border)", background: custom ? "rgba(217,119,6,0.08)" : "transparent", color: custom ? "#D97706" : "var(--text-muted)" }}>+ Custom</button>
+        <button onClick={() => update({ custom: true })} className="px-4 py-2 rounded-lg text-[15px] font-semibold transition-all" style={{ border: custom ? "2px solid var(--amber)" : "1px solid var(--border)", background: custom ? "rgba(217,119,6,0.08)" : "transparent", color: custom ? "var(--amber)" : "var(--text-muted)" }}>+ Custom</button>
       </div>
 
       {/* Custom builder */}
@@ -561,10 +562,10 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
       {scenSub === "waterfall" && <Card title="Capacity Waterfall">
         <div className="text-[15px] text-[var(--text-secondary)] mb-4">How capacity flows from current state through AI transformation to future state. Each segment is clickable.</div>
         <div className="flex items-end gap-1 justify-center mb-4" style={{ height: 280 }}>
-          {[{ label: "Current", value: totals.cur, color: "#D4860A", detail: `${activeJobs.length} roles, ${totals.cur.toLocaleString()}h/mo total capacity` },
-            { label: "AI Removed", value: -totals.rel, color: "#EF4444", detail: `${totals.rel.toLocaleString()}h freed by automation (${totalPct}% of current)` },
-            { label: "Redesigned", value: Math.round(totals.rel * 0.15), color: "#10B981", detail: `~${Math.round(totals.rel * 0.15).toLocaleString()}h added through role redesign and new tasks` },
-            { label: "Net Future", value: totals.fut, color: "#1A2340", detail: `${totals.fut.toLocaleString()}h/mo future capacity (${Math.round(totals.fut / Math.max(totals.cur, 1) * 100)}% of current)` },
+          {[{ label: "Current", value: totals.cur, color: "var(--accent-primary)", detail: `${activeJobs.length} roles, ${totals.cur.toLocaleString()}h/mo total capacity` },
+            { label: "AI Removed", value: -totals.rel, color: "var(--risk)", detail: `${totals.rel.toLocaleString()}h freed by automation (${totalPct}% of current)` },
+            { label: "Redesigned", value: Math.round(totals.rel * 0.15), color: "var(--success)", detail: `~${Math.round(totals.rel * 0.15).toLocaleString()}h added through role redesign and new tasks` },
+            { label: "Net Future", value: totals.fut, color: "var(--surface-2)", detail: `${totals.fut.toLocaleString()}h/mo future capacity (${Math.round(totals.fut / Math.max(totals.cur, 1) * 100)}% of current)` },
           ].map((seg, i) => {
             const maxH = Math.max(totals.cur, totals.fut);
             const barH = Math.abs(seg.value) / maxH * 220;
@@ -612,11 +613,11 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                 <XAxis type="number" tick={{ fontSize: 15, fill: "var(--text-muted)" }} />
                 <YAxis dataKey="dept" type="category" tick={{ fontSize: 15, fill: "var(--text-muted)" }} width={100} />
-                <Tooltip contentStyle={{ background: "#1A2340", border: "1px solid #2A3555", borderRadius: 8, fontSize: 15, color: "#E8ECF4" }} />
+                <Tooltip contentStyle={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 15, color: "var(--text-primary)" }} />
                 <Legend wrapperStyle={{ fontSize: 15 }} />
-                <Bar dataKey="reduced" name="Reduced" fill="#EF4444" stackId="a" />
-                <Bar dataKey="redeployed" name="Redeployed" fill="#D4860A" stackId="a" />
-                <Bar dataKey="created" name="Created" fill="#10B981" stackId="a" />
+                <Bar dataKey="reduced" name="Reduced" fill="var(--risk)" stackId="a" />
+                <Bar dataKey="redeployed" name="Redeployed" fill="var(--accent-primary)" stackId="a" />
+                <Bar dataKey="created" name="Created" fill="var(--success)" stackId="a" />
               </BarChart>
             </ResponsiveContainer>
           </ExpandableChart>
@@ -678,7 +679,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                   <XAxis dataKey="name" tick={{ fontSize: 15, fill: "var(--text-muted)" }} />
                   <YAxis tick={{ fontSize: 15, fill: "var(--text-muted)" }} />
-                  <Tooltip contentStyle={{ background: "#1A2340", border: "1px solid #2A3555", borderRadius: 8, fontSize: 15, color: "#E8ECF4" }} />
+                  <Tooltip contentStyle={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 15, color: "var(--text-primary)" }} />
                   <Bar dataKey="fte" name="FTE Released">{savedScenarios.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Bar>
                 </BarChart>
               </ResponsiveContainer>
@@ -693,7 +694,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                   <XAxis dataKey="name" tick={{ fontSize: 15, fill: "var(--text-muted)" }} />
                   <YAxis tick={{ fontSize: 15, fill: "var(--text-muted)" }} tickFormatter={v => `${fmtNum(v)}`} />
-                  <Tooltip contentStyle={{ background: "#1A2340", border: "1px solid #2A3555", borderRadius: 8, fontSize: 15, color: "#E8ECF4" }} formatter={(v: number) => `$${v.toLocaleString()}`} />
+                  <Tooltip contentStyle={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 15, color: "var(--text-primary)" }} formatter={(v: number) => `$${v.toLocaleString()}`} />
                   <Bar dataKey="savings" name="Annual Savings">{savedScenarios.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Bar>
                 </BarChart>
               </ResponsiveContainer>
@@ -718,7 +719,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
                 <PolarRadiusAxis tick={{ fontSize: 14, fill: "var(--text-muted)" }} />
                 {savedScenarios.map((s, i) => <Radar key={s.name} name={s.name} dataKey={s.name} stroke={COLORS[i % COLORS.length]} fill={COLORS[i % COLORS.length]} fillOpacity={0.15} />)}
                 <Legend wrapperStyle={{ fontSize: 15 }} />
-                <Tooltip contentStyle={{ background: "#1A2340", border: "1px solid #2A3555", borderRadius: 8, fontSize: 15, color: "#E8ECF4" }} />
+                <Tooltip contentStyle={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 15, color: "var(--text-primary)" }} />
               </RadarChart>
             </ResponsiveContainer>
           </ExpandableChart>
@@ -1036,7 +1037,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
               </div>
               {/* Single progress bar with milestone markers */}
               <div className="relative h-3 bg-[var(--surface-3)] rounded-full overflow-hidden">
-                <div className="absolute inset-y-0 left-0 rounded-full transition-all" style={{ width: `${pct}%`, background: pct >= 75 ? "var(--success)" : pct >= 25 ? "#F59E0B" : "var(--risk)" }} />
+                <div className="absolute inset-y-0 left-0 rounded-full transition-all" style={{ width: `${pct}%`, background: pct >= 75 ? "var(--success)" : pct >= 25 ? "var(--warning)" : "var(--risk)" }} />
                 {/* Milestone tick marks */}
                 {t.milestones.map((m, mi) => {
                   const pos = ((mi + 1) / t.milestones.length) * 100;
@@ -1194,9 +1195,9 @@ function NegotiateTab({ projectId, model, savedScenarios, setSavedScenarios }: {
     showToast("Scenario saved to comparison tab");
   };
 
-  const statusColor = (s: string) => s === "met" ? "var(--success)" : s === "partial" ? "#F59E0B" : "var(--risk)";
+  const statusColor = (s: string) => s === "met" ? "var(--success)" : s === "partial" ? "var(--warning)" : "var(--risk)";
   const statusBg = (s: string) => s === "met" ? "rgba(16,185,129,0.1)" : s === "partial" ? "rgba(245,158,11,0.1)" : "rgba(239,68,68,0.1)";
-  const feasColor = (f: string) => f === "fully_achievable" ? "var(--success)" : f === "partially_achievable" ? "#F59E0B" : "var(--risk)";
+  const feasColor = (f: string) => f === "fully_achievable" ? "var(--success)" : f === "partially_achievable" ? "var(--warning)" : "var(--risk)";
   const feasBg = (f: string) => f === "fully_achievable" ? "rgba(16,185,129,0.08)" : f === "partially_achievable" ? "rgba(245,158,11,0.08)" : "rgba(239,68,68,0.08)";
   const feasLabel = (f: string) => f === "fully_achievable" ? "All constraints achievable" : f === "partially_achievable" ? "Partially achievable — see tradeoffs below" : "Constraints conflict — negotiated alternatives available";
   const feasIcon = (f: string) => f === "fully_achievable" ? "✓" : f === "partially_achievable" ? "⚡" : "✗";
@@ -1227,7 +1228,7 @@ function NegotiateTab({ projectId, model, savedScenarios, setSavedScenarios }: {
       <div className="flex items-center gap-3">
         <button onClick={addConstraint} className="text-[13px] text-[var(--accent-primary)] font-semibold hover:underline">+ Add constraint</button>
         <div className="flex-1" />
-        <button onClick={negotiate} disabled={loading || constraints.length === 0} className="px-6 py-2.5 rounded-xl text-[14px] font-bold text-white transition-all hover:scale-[1.02] disabled:opacity-40" style={{ background: "linear-gradient(135deg, #D4860A, #C07030)" }}>
+        <button onClick={negotiate} disabled={loading || constraints.length === 0} className="px-6 py-2.5 rounded-xl text-[14px] font-bold text-white transition-all hover:scale-[1.02] disabled:opacity-40" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>
           {loading ? "Negotiating..." : "Find My Scenario →"}
         </button>
       </div>
@@ -1236,7 +1237,7 @@ function NegotiateTab({ projectId, model, savedScenarios, setSavedScenarios }: {
     {/* Loading */}
     {loading && <><div className="rounded-xl border border-[var(--border)] bg-[var(--surface-1)] p-6">
       <div className="text-[14px] text-[var(--text-muted)] mb-3 text-center">Negotiating your scenario...</div>
-      <div className="h-1.5 bg-[var(--surface-3)] rounded-full overflow-hidden"><div className="h-full rounded-full transition-all duration-300" style={{ width: `${progress}%`, background: "linear-gradient(90deg, #D4860A, #E8C547)" }} /></div>
+      <div className="h-1.5 bg-[var(--surface-3)] rounded-full overflow-hidden"><div className="h-full rounded-full transition-all duration-300" style={{ width: `${progress}%`, background: "linear-gradient(90deg, var(--accent-primary), var(--warning))" }} /></div>
       <div className="text-[11px] text-[var(--text-muted)] text-center mt-2">Analyzing {constraints.length} constraints against your org data</div>
     </div><div className="mt-4 space-y-4"><SkeletonKpiRow count={4} /><SkeletonChart height={180} /></div></>}
 
@@ -1272,11 +1273,11 @@ function NegotiateTab({ projectId, model, savedScenarios, setSavedScenarios }: {
 
       {/* Tradeoffs */}
       {result.tradeoffs.length > 0 && <Card title="Tradeoffs">
-        <div className="space-y-3">{result.tradeoffs.map((t, i) => <div key={i} className="rounded-xl p-4 bg-[rgba(245,158,11,0.06)] border border-[#F59E0B]/20">
-          <div className="text-[13px] text-[var(--text-primary)] mb-2"><strong className="text-[#F59E0B]">{t.constraint_a}</strong> vs <strong className="text-[#F59E0B]">{t.constraint_b}</strong></div>
+        <div className="space-y-3">{result.tradeoffs.map((t, i) => <div key={i} className="rounded-xl p-4 bg-[rgba(245,158,11,0.06)] border border-[var(--warning)]/20">
+          <div className="text-[13px] text-[var(--text-primary)] mb-2"><strong className="text-[var(--warning)]">{t.constraint_a}</strong> vs <strong className="text-[var(--warning)]">{t.constraint_b}</strong></div>
           <div className="text-[13px] text-[var(--text-secondary)] mb-3">{t.description}</div>
           <div className="text-[11px] font-bold text-[var(--text-muted)] uppercase mb-1">Resolution Options</div>
-          <div className="space-y-1">{t.resolution_options.map((opt, oi) => <div key={oi} className="text-[13px] text-[var(--text-secondary)] pl-3 border-l-2 border-[#F59E0B]/30 py-0.5">{opt}</div>)}</div>
+          <div className="space-y-1">{t.resolution_options.map((opt, oi) => <div key={oi} className="text-[13px] text-[var(--text-secondary)] pl-3 border-l-2 border-[var(--warning)]/30 py-0.5">{opt}</div>)}</div>
         </div>)}</div>
       </Card>}
 
@@ -1326,7 +1327,7 @@ function NegotiateTab({ projectId, model, savedScenarios, setSavedScenarios }: {
 
       {/* Section 3: Actions */}
       <div className="flex items-center gap-3">
-        <button onClick={saveAsScenario} className="px-5 py-2.5 rounded-xl text-[14px] font-bold text-white" style={{ background: "linear-gradient(135deg, #10B981, #059669)" }}>Save as Scenario</button>
+        <button onClick={saveAsScenario} className="px-5 py-2.5 rounded-xl text-[14px] font-bold text-white" style={{ background: "linear-gradient(135deg, var(--success), #059669)" }}>Save as Scenario</button>
         <button onClick={() => setResult(null)} className="px-5 py-2.5 rounded-xl text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--accent-primary)]">Re-negotiate</button>
       </div>
     </>}
@@ -1440,7 +1441,7 @@ function StressTestTab({ projectId, model }: { projectId: string; model: string 
 
   const reset = () => { setShockType(null); setDescription(""); setScope("whole_org"); setScopeValue(""); setMagnitude(20); setTimeline("90_days"); };
 
-  const sevColor = (s: string) => s === "critical" ? "var(--risk)" : s === "high" ? "#F59E0B" : s === "medium" ? "var(--accent-primary)" : "var(--success)";
+  const sevColor = (s: string) => s === "critical" ? "var(--risk)" : s === "high" ? "var(--warning)" : s === "medium" ? "var(--accent-primary)" : "var(--success)";
   const sevBg = (s: string) => s === "critical" ? "rgba(239,68,68,0.08)" : s === "high" ? "rgba(245,158,11,0.08)" : s === "medium" ? "rgba(212,134,10,0.08)" : "rgba(16,185,129,0.08)";
   const sevLabel = (s: string) => s === "critical" ? "This shock poses existential risk to transformation timeline" : s === "high" ? "Significant disruption expected across multiple functions" : s === "medium" ? "Manageable with proactive intervention" : "Limited impact, monitor and adjust";
   const sevIcon = (s: string) => s === "critical" ? "🔴" : s === "high" ? "🟠" : s === "medium" ? "🟡" : "🟢";
@@ -1501,7 +1502,7 @@ function StressTestTab({ projectId, model }: { projectId: string; model: string 
         </div>
 
         <div className="flex justify-end pt-2">
-          <button onClick={runTest} disabled={loading || !description.trim()} className="px-6 py-2.5 rounded-xl text-[14px] font-bold text-white transition-all hover:scale-[1.02] disabled:opacity-40" style={{ background: "linear-gradient(135deg, #EF4444, #DC2626)" }}>
+          <button onClick={runTest} disabled={loading || !description.trim()} className="px-6 py-2.5 rounded-xl text-[14px] font-bold text-white transition-all hover:scale-[1.02] disabled:opacity-40" style={{ background: "linear-gradient(135deg, var(--risk), #DC2626)" }}>
             {loading ? "Modeling..." : "Run Stress Test →"}
           </button>
         </div>
@@ -1511,7 +1512,7 @@ function StressTestTab({ projectId, model }: { projectId: string; model: string 
     {/* Loading */}
     {loading && <><div className="rounded-xl border border-[var(--border)] bg-[var(--surface-1)] p-6">
       <div className="text-[14px] text-[var(--text-muted)] mb-3 text-center">Modeling shock impact...</div>
-      <div className="h-1.5 bg-[var(--surface-3)] rounded-full overflow-hidden"><div className="h-full rounded-full transition-all duration-300" style={{ width: `${progress}%`, background: "linear-gradient(90deg, #EF4444, #F59E0B)" }} /></div>
+      <div className="h-1.5 bg-[var(--surface-3)] rounded-full overflow-hidden"><div className="h-full rounded-full transition-all duration-300" style={{ width: `${progress}%`, background: "linear-gradient(90deg, var(--risk), var(--warning))" }} /></div>
       <div className="flex justify-center gap-3 mt-3">
         {["Headcount", "Costs", "Skills", "Delivery", "Culture"].map((d, i) => <span key={d} className="text-[11px] font-data animate-pulse" style={{ color: "var(--text-muted)", animationDelay: `${i * 0.3}s` }}>{d}</span>)}
       </div>
@@ -1568,12 +1569,12 @@ function StressTestTab({ projectId, model }: { projectId: string; model: string 
             return <div key={i}>
               <div className="flex items-center justify-between mb-1">
                 <span className="text-[12px] font-bold text-[var(--text-primary)]">{vm.area}</span>
-                <span className="text-[11px] font-data" style={{ color: drop > 3 ? "var(--risk)" : drop > 1 ? "#F59E0B" : "var(--success)" }}>{vm.current_resilience} → {vm.post_shock_resilience}</span>
+                <span className="text-[11px] font-data" style={{ color: drop > 3 ? "var(--risk)" : drop > 1 ? "var(--warning)" : "var(--success)" }}>{vm.current_resilience} → {vm.post_shock_resilience}</span>
               </div>
               <div className="flex gap-1 h-3">
                 <div className="flex-1 bg-[var(--surface-3)] rounded-full overflow-hidden relative">
                   <div className="absolute inset-y-0 left-0 rounded-full bg-[var(--success)] opacity-30" style={{ width: `${vm.current_resilience * 10}%` }} />
-                  <div className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${vm.post_shock_resilience * 10}%`, background: vm.post_shock_resilience < 4 ? "var(--risk)" : vm.post_shock_resilience < 7 ? "#F59E0B" : "var(--success)" }} />
+                  <div className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${vm.post_shock_resilience * 10}%`, background: vm.post_shock_resilience < 4 ? "var(--risk)" : vm.post_shock_resilience < 7 ? "var(--warning)" : "var(--success)" }} />
                 </div>
               </div>
               <div className="text-[10px] text-[var(--text-muted)] mt-0.5">{vm.why_vulnerable}</div>

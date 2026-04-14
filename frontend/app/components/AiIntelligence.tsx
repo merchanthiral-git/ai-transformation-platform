@@ -114,7 +114,7 @@ export function AiObservationsPanel({ module, dataSummary, context, filters, pro
             <div style={{ padding: "0 16px 14px" }}>
               {loading && (
                 <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0" }}>
-                  <div style={{ width: 14, height: 14, border: "2px solid rgba(139,92,246,0.3)", borderTopColor: "#8B5CF6", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+                  <div style={{ width: 14, height: 14, border: "2px solid rgba(139,92,246,0.3)", borderTopColor: "var(--purple)", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
                   <span style={{ fontSize: 13, color: "rgba(139,92,246,0.5)" }}>Analyzing...</span>
                   <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
                 </div>
@@ -147,7 +147,7 @@ export function AiObservationsPanel({ module, dataSummary, context, filters, pro
 
                   <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 8 }}>
                     <div style={{ width: 40, height: 3, borderRadius: 2, background: "rgba(139,92,246,0.1)", overflow: "hidden" }}>
-                      <div style={{ width: `${insights.confidence * 100}%`, height: "100%", background: "#8B5CF6", borderRadius: 2 }} />
+                      <div style={{ width: `${insights.confidence * 100}%`, height: "100%", background: "var(--purple)", borderRadius: 2 }} />
                     </div>
                     <span style={{ fontSize: 10, color: "rgba(139,92,246,0.35)", fontFamily: "'IBM Plex Mono', monospace" }}>
                       {insights.source === "ai" ? "AI-powered" : "Rule-based"} · {Math.round(insights.confidence * 100)}% confidence
@@ -199,7 +199,7 @@ export function SmartRecommendations({ completedModules, hasWorkforce, hasWorkDe
   const visible = recs.filter(r => !dismissed.has(r.title));
   if (visible.length === 0) return null;
 
-  const priorityColor = (p: string) => p === "high" ? "#E09040" : p === "medium" ? "#8B5CF6" : "rgba(255,255,255,0.3)";
+  const priorityColor = (p: string) => p === "high" ? "var(--accent-primary)" : p === "medium" ? "var(--purple)" : "rgba(255,255,255,0.3)";
   const priorityIcon = (p: string) => p === "high" ? "⚡" : p === "medium" ? "💡" : "📌";
 
   return (

@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { ResponsiveContainer, PieChart, Pie, Cell, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Legend, Tooltip } from "recharts";
 import * as api from "../../lib/api";
 import type { Filters } from "../../lib/api";
+import type { OverviewResponse, OverviewKpis, NameValue, DataCoverageEntry, SkillAnalysisResponse, ExportSummaryResponse } from "../../types/api";
 import { VideoBackground } from "./VideoBackground";
 import { CDN_BASE, cb } from "../../lib/cdn";
 import {
@@ -39,8 +40,8 @@ import {
 import type { ViewContext, JobDesignState } from "./shared";
 import { SkeletonKpiRow, SkeletonChart } from "./ui-primitives";
 
-export function TransformationDashboard({ data, jobStates, simState, viewCtx }: { data: Record<string, unknown> | null; jobStates: Record<string, JobDesignState>; simState: { scenario: string; custom: boolean; custAdopt: number; custTimeline: number; investment: number }; viewCtx?: ViewContext }) {
-  const k = (data?.kpis ?? {}) as Record<string, unknown>;
+export function TransformationDashboard({ data, jobStates, simState, viewCtx }: { data: OverviewResponse | null; jobStates: Record<string, JobDesignState>; simState: { scenario: string; custom: boolean; custAdopt: number; custTimeline: number; investment: number }; viewCtx?: ViewContext }) {
+  const k = (data?.kpis ?? { employees: 0, roles: 0, tasks_mapped: 0, avg_span: 0, high_ai_pct: 0, readiness_score: 0, readiness_tier: "" }) as OverviewKpis;
   const _js = jobStates || {};
   const finalized = Object.values(_js).filter(s => s.finalized).length;
   const totalJobs = Object.values(_js).filter(s => s.deconRows?.length > 0).length;
@@ -212,7 +213,7 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
         <div className="grid gap-4" style={{ gridTemplateColumns: phaseMods.length <= 2 ? "1fr 1fr" : phaseMods.length <= 4 ? "1fr 1fr" : "1fr 1fr 1fr" }}>
           {phaseMods.map((m, mi) => {
             const status = moduleStatus[m.id] || "not_started";
-            const statusColor = status === "complete" ? "#10B981" : status === "in_progress" ? "#E09040" : "rgba(255,255,255,0.08)";
+            const statusColor = status === "complete" ? "var(--success)" : status === "in_progress" ? "var(--accent-primary)" : "rgba(255,255,255,0.08)";
             const statusLabel = status === "complete" ? "Complete" : status === "in_progress" ? "In Progress" : "";
             const mTitle = viewMode === "employee" && (m as Record<string, unknown>).empTitle ? String((m as Record<string, unknown>).empTitle) : viewMode === "job" && (m as Record<string, unknown>).jobTitle ? String((m as Record<string, unknown>).jobTitle) : m.title;
             const mDesc = viewMode === "employee" && (m as Record<string, unknown>).empDesc ? String((m as Record<string, unknown>).empDesc) : viewMode === "job" && (m as Record<string, unknown>).jobDesc ? String((m as Record<string, unknown>).jobDesc) : m.desc;
@@ -276,9 +277,9 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
     {/* Header with subtle dark gradient for readability — z-20 to stay above milestone z-10 */}
     <div className="relative z-20 text-center pt-6 pb-4" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 80%, transparent 100%)" }}>
       <div style={{ fontSize: 14, color: "rgba(255,255,255,0.45)", marginBottom: 8, display: "flex", justifyContent: "center", gap: 6, alignItems: "center" }}>
-        {onBackToHub && <button onClick={onBackToHub} style={{ cursor: "pointer", textShadow: "0 1px 4px rgba(0,0,0,0.5)", background: "none", border: "none", color: "rgba(255,255,255,0.45)", fontSize: 14, padding: "2px 4px", borderRadius: 4, transition: "color 0.15s" }} onMouseEnter={e => e.currentTarget.style.color = "#D4860A"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.45)"}>Home</button>}
+        {onBackToHub && <button onClick={onBackToHub} style={{ cursor: "pointer", textShadow: "0 1px 4px rgba(0,0,0,0.5)", background: "none", border: "none", color: "rgba(255,255,255,0.45)", fontSize: 14, padding: "2px 4px", borderRadius: 4, transition: "color 0.15s" }} onMouseEnter={e => e.currentTarget.style.color = "var(--accent-primary)"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.45)"}>Home</button>}
         {onBackToHub && <span style={{ opacity: 0.3 }}>/</span>}
-        {onBackToSplash && projectName && <button onClick={onBackToSplash} style={{ cursor: "pointer", textShadow: "0 1px 4px rgba(0,0,0,0.5)", background: "none", border: "none", color: "rgba(255,255,255,0.45)", fontSize: 14, padding: "2px 4px", borderRadius: 4, transition: "color 0.15s" }} onMouseEnter={e => e.currentTarget.style.color = "#D4860A"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.45)"}>
+        {onBackToSplash && projectName && <button onClick={onBackToSplash} style={{ cursor: "pointer", textShadow: "0 1px 4px rgba(0,0,0,0.5)", background: "none", border: "none", color: "rgba(255,255,255,0.45)", fontSize: 14, padding: "2px 4px", borderRadius: 4, transition: "color 0.15s" }} onMouseEnter={e => e.currentTarget.style.color = "var(--accent-primary)"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.45)"}>
           {projectName}
         </button>}
         {onBackToSplash && <span style={{ opacity: 0.3 }}>/</span>}
@@ -322,9 +323,9 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
       </button>
       <div className="inline-flex items-center gap-4 px-5 py-2 rounded-full" style={{ background: "rgba(0,0,0,0.3)", backdropFilter: "blur(4px)" }}>
         <div style={{ width: 60, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.1)", overflow: "hidden" }}>
-          <div style={{ width: `${progressPct}%`, height: "100%", borderRadius: 2, background: "#D4860A" }} />
+          <div style={{ width: `${progressPct}%`, height: "100%", borderRadius: 2, background: "var(--accent-primary)" }} />
         </div>
-        <span style={{ fontSize: 14, fontWeight: 700, color: "#D4860A" }}>{progressPct}%</span>
+        <span style={{ fontSize: 14, fontWeight: 700, color: "var(--accent-primary)" }}>{progressPct}%</span>
         <span style={{ fontSize: 14, color: "rgba(255,255,255,0.35)" }}>{totalExplored}/{totalModules}</span>
       </div>
     </div>
@@ -460,7 +461,7 @@ export function PersonalImpactCard({ employee, jobStates, simState }: { employee
 }
 
 export function TransformationExecDashboard({ model, f, onBack, onNavigate, decisionLog = [], riskRegister = [], addRisk, updateRisk, jobStates, simState, transformationSummary }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; decisionLog?: {ts:string;module:string;action:string;detail:string}[]; riskRegister?: {id:string;source:string;risk:string;probability:string;impact:string;mitigation:string;status:string}[]; addRisk?: (s:string,r:string,p:string,i:string,m:string) => void; updateRisk?: (id:string,u:Partial<{status:string;mitigation:string}>) => void; jobStates?: Record<string, unknown>; simState?: { scenario: string; custom: boolean; custAdopt: number; custTimeline: number; investment: number }; transformationSummary?: { designedJobCount: number; inProgressJobCount: number; totalJobCount: number; totalTasks: number; tasksAutomate: number; tasksAugment: number; tasksEliminate: number; tasksRetain: number; capacityFreedPct: number; scenario: string; adoptionRate: number; timeline: number; investment: number; decisionCount: number; riskCount: number; openRiskCount: number } }) {
-  const [data, setData] = useState<Record<string, unknown> | null>(null);
+  const [data, setData] = useState<ExportSummaryResponse | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -469,11 +470,11 @@ export function TransformationExecDashboard({ model, f, onBack, onNavigate, deci
     api.getExportSummary(model).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false));
   }, [model]);
 
-  const bbba = (data?.bbba_summary || {}) as Record<string, unknown>;
-  const reskill = (data?.reskilling_summary || {}) as Record<string, unknown>;
-  const mp = (data?.marketplace_summary || {}) as Record<string, unknown>;
-  const wf = (data?.headcount_waterfall || {}) as Record<string, unknown>;
-  const mgr = (data?.manager_summary || {}) as Record<string, unknown>;
+  const bbba = data?.bbba_summary ?? { build: 0, buy: 0, total_investment: 0 };
+  const reskill = data?.reskilling_summary ?? { total_investment: 0 };
+  const mp = data?.marketplace_summary ?? { internal_fill: 0 };
+  const wf = data?.headcount_waterfall ?? { net_change: 0 };
+  const mgr = data?.manager_summary ?? { champions: 0 };
   const bands = (data?.readiness_bands || {}) as Record<string, number>;
 
   const nav = (id: string) => onNavigate ? onNavigate(id) : onBack();
@@ -485,19 +486,19 @@ export function TransformationExecDashboard({ model, f, onBack, onNavigate, deci
     {/* Phase summary cards */}
     <div className="grid grid-cols-3 gap-4 mb-6">
       {[
-        { phase: "Discover", icon: "🔍", color: "#D4860A", ready: true, items: [
+        { phase: "Discover", icon: "🔍", color: "var(--accent-primary)", ready: true, items: [
           { label: "Employees", value: data?.total_employees ? Number(data.total_employees).toLocaleString() : "—" },
           { label: "AI Readiness", value: data?.org_readiness ? `${data.org_readiness}/5` : "—" },
           { label: "Champions", value: typeof mgr.champions === "object" ? "—" : (mgr.champions || "—") },
           { label: "At Risk", value: typeof bands.at_risk === "object" ? "—" : (bands.at_risk || "—") },
         ]},
-        { phase: "Design", icon: "✏️", color: "#10B981", ready: !!(bbba.build || bbba.buy || data?.skills_coverage), items: [
+        { phase: "Design", icon: "✏️", color: "var(--success)", ready: !!(bbba.build || bbba.buy || data?.skills_coverage), items: [
           { label: "Skills Coverage", value: data?.skills_coverage ? `${data.skills_coverage}%` : "—" },
           { label: "Critical Gaps", value: typeof data?.critical_gaps === "object" ? "—" : (data?.critical_gaps || "—") },
           { label: "Build Roles", value: typeof bbba.build === "object" ? "—" : (bbba.build || "—") },
           { label: "Buy Roles", value: typeof bbba.buy === "object" ? "—" : (bbba.buy || "—") },
         ]},
-        { phase: "Deliver", icon: "🚀", color: "#F59E0B", ready: !!(Number(reskill.total_investment) || Number(wf.net_change)), items: [
+        { phase: "Deliver", icon: "🚀", color: "var(--warning)", ready: !!(Number(reskill.total_investment) || Number(wf.net_change)), items: [
           { label: "High Risk %", value: data?.high_risk_pct ? `${data.high_risk_pct}%` : "—" },
           { label: "Internal Fill", value: typeof mp.internal_fill === "object" ? "—" : (mp.internal_fill || "—") },
           { label: "Reskill Cost", value: Number(reskill.total_investment) ? fmtNum(reskill.total_investment) : "—" },
@@ -512,12 +513,12 @@ export function TransformationExecDashboard({ model, f, onBack, onNavigate, deci
     {/* Cross-module transformation progress — computed from live state */}
     {transformationSummary && (transformationSummary.designedJobCount > 0 || transformationSummary.decisionCount > 0) && <div className="grid grid-cols-6 gap-3 mb-6">
       {[
-        { label: "Jobs Designed", value: `${transformationSummary.designedJobCount}/${transformationSummary.totalJobCount}`, color: "#10B981" },
-        { label: "Tasks Analyzed", value: String(transformationSummary.totalTasks), color: "#D4860A" },
-        { label: "Capacity Freed", value: `${transformationSummary.capacityFreedPct}%`, color: "#8B5CF6" },
-        { label: "Active Scenario", value: transformationSummary.scenario.charAt(0).toUpperCase() + transformationSummary.scenario.slice(1), color: "#E8C547" },
+        { label: "Jobs Designed", value: `${transformationSummary.designedJobCount}/${transformationSummary.totalJobCount}`, color: "var(--success)" },
+        { label: "Tasks Analyzed", value: String(transformationSummary.totalTasks), color: "var(--accent-primary)" },
+        { label: "Capacity Freed", value: `${transformationSummary.capacityFreedPct}%`, color: "var(--purple)" },
+        { label: "Active Scenario", value: transformationSummary.scenario.charAt(0).toUpperCase() + transformationSummary.scenario.slice(1), color: "var(--warning)" },
         { label: "Decisions Made", value: String(transformationSummary.decisionCount), color: "#0891B2" },
-        { label: "Open Risks", value: String(transformationSummary.openRiskCount), color: transformationSummary.openRiskCount > 3 ? "#EF4444" : "#10B981" },
+        { label: "Open Risks", value: String(transformationSummary.openRiskCount), color: transformationSummary.openRiskCount > 3 ? "var(--risk)" : "var(--success)" },
       ].map(m => <div key={m.label} className="rounded-xl p-3 text-center border" style={{ borderColor: `${m.color}20`, background: `${m.color}06` }}>
         <div className="text-[20px] font-extrabold" style={{ color: m.color }}>{m.value}</div>
         <div className="text-[13px] text-[var(--text-muted)] uppercase">{m.label}</div>
@@ -618,11 +619,11 @@ export function TransformationExecDashboard({ model, f, onBack, onNavigate, deci
       {(() => {
         const visited = JSON.parse(localStorage.getItem(`${model}_visited`) || "{}") as Record<string, boolean>;
         const phases = [
-          {name:"Discover",modules:["dashboard","snapshot","skillshift","jobarch"],color:"#D4860A"},
-          {name:"Diagnose",modules:["orghealth","scan","heatmap","readiness","changeready","clusters","recommendations","mgrcap","skills"],color:"#E8C547"},
-          {name:"Design",modules:["design","opmodel","build","bbba","headcount","quickwins","rolecompare"],color:"#10B981"},
-          {name:"Simulate",modules:["simulate"],color:"#8B5CF6"},
-          {name:"Mobilize",modules:["plan","story","archetypes","mgrdev","reskill","marketplace","export"],color:"#F59E0B"},
+          {name:"Discover",modules:["dashboard","snapshot","skillshift","jobarch"],color:"var(--accent-primary)"},
+          {name:"Diagnose",modules:["orghealth","scan","heatmap","readiness","changeready","clusters","recommendations","mgrcap","skills"],color:"var(--warning)"},
+          {name:"Design",modules:["design","opmodel","build","bbba","headcount","quickwins","rolecompare"],color:"var(--success)"},
+          {name:"Simulate",modules:["simulate"],color:"var(--purple)"},
+          {name:"Mobilize",modules:["plan","story","archetypes","mgrdev","reskill","marketplace","export"],color:"var(--warning)"},
         ];
         return <div className="grid grid-cols-3 gap-4">{phases.map(p => {
           const done = p.modules.filter(m => visited[m]).length;
@@ -695,7 +696,7 @@ function UploadIntelligencePanel({ insights, funcDist, onNavigate }: {
   }, [collapsed, insights.observations.length, insights.suggestions.length]);
 
   // Data quality traffic light
-  const qualityColor = insights.completeness_pct >= 90 ? "#10B981" : insights.completeness_pct >= 60 ? "#F59E0B" : "#EF4444";
+  const qualityColor = insights.completeness_pct >= 90 ? "var(--success)" : insights.completeness_pct >= 60 ? "var(--warning)" : "var(--risk)";
   const qualityLabel = insights.completeness_pct >= 90 ? "Complete" : insights.completeness_pct >= 60 ? "Some Gaps" : "Needs Attention";
 
   return <div className="mb-5 rounded-2xl border overflow-hidden transition-all" style={{ borderColor: "rgba(212,134,10,0.15)", background: "linear-gradient(135deg, rgba(212,134,10,0.03), rgba(232,197,71,0.02))" }}>
@@ -723,7 +724,7 @@ function UploadIntelligencePanel({ insights, funcDist, onNavigate }: {
       {analyzing && <div className="py-6">
         <div className="text-center text-[15px] text-[var(--accent-primary)] font-semibold mb-3">Analyzing your data...</div>
         <div className="h-1.5 bg-[var(--surface-2)] rounded-full overflow-hidden mx-auto" style={{ maxWidth: 300 }}>
-          <div className="h-full rounded-full" style={{ background: "linear-gradient(90deg, #D4860A, #E8C547)", animation: "analyzeBar 1.2s ease-in-out", width: "100%" }} />
+          <div className="h-full rounded-full" style={{ background: "linear-gradient(90deg, var(--accent-primary), var(--warning))", animation: "analyzeBar 1.2s ease-in-out", width: "100%" }} />
         </div>
         <style>{`@keyframes analyzeBar { 0% { width: 0%; } 100% { width: 100%; } }`}</style>
       </div>}
@@ -763,7 +764,7 @@ function UploadIntelligencePanel({ insights, funcDist, onNavigate }: {
             {insights.level_distribution.length > 0 ? (() => {
               // Group levels by track prefix, sort numerically within each
               const TRACK_NAMES: Record<string, string> = { P: "Professional", M: "Management", S: "Senior", E: "Executive", L: "Level", I: "Individual", D: "Director", A: "Associate", C: "C-Suite" };
-              const TRACK_COLORS: Record<string, string> = { P: "#0891B2", M: "#D4860A", S: "#8B5CF6", E: "#EC4899", L: "#D4860A", I: "#10B981", D: "#F59E0B", A: "#6366F1", C: "#EF4444" };
+              const TRACK_COLORS: Record<string, string> = { P: "#0891B2", M: "var(--accent-primary)", S: "var(--purple)", E: "#EC4899", L: "var(--accent-primary)", I: "var(--success)", D: "var(--warning)", A: "#6366F1", C: "var(--risk)" };
 
               // Detect track prefixes dynamically from data
               const groups: Record<string, { level: string; count: number; num: number }[]> = {};
@@ -793,7 +794,7 @@ function UploadIntelligencePanel({ insights, funcDist, onNavigate }: {
                 {sortedTracks.map(track => {
                   const items = groups[track];
                   const trackLabel = TRACK_NAMES[track] || track;
-                  const trackColor = TRACK_COLORS[track] || "#D4860A";
+                  const trackColor = TRACK_COLORS[track] || "var(--accent-primary)";
                   const trackTotal = items.reduce((s, d) => s + d.count, 0);
                   return <div key={track}>
                     {/* Track header */}
@@ -860,11 +861,12 @@ function UploadIntelligencePanel({ insights, funcDist, onNavigate }: {
 export function WorkforceSnapshot({ model, f, onBack, onNavigate, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext }) {
   const [data, loading] = useApiData(() => api.getOverview(model, f), [model, f.func, f.jf, f.sf, f.cl]);
   const [aiSnapSummary, setAiSnapSummary] = useState("");
-  const k = (data?.kpis ?? {}) as Record<string, unknown>;
-  const fd = ((data?.func_distribution ?? []) as Record<string, unknown>[]);
-  const ad = ((data?.ai_distribution ?? []) as Record<string, unknown>[]);
-  const cov = (data?.data_coverage ?? {}) as Record<string, Record<string, unknown>>;
-  const dims = (data?.readiness_dims ?? {}) as Record<string, number>;
+  const ovData = data as OverviewResponse | null;
+  const k = ovData?.kpis ?? { employees: 0, roles: 0, tasks_mapped: 0, avg_span: 0, high_ai_pct: 0, readiness_score: 0, readiness_tier: "" };
+  const fd = ovData?.func_distribution ?? [];
+  const ad = ovData?.ai_distribution ?? [];
+  const cov = (ovData?.data_coverage ?? {}) as Record<string, DataCoverageEntry>;
+  const dims = ovData?.readiness_dims ?? {};
   // Employee view: show profile card instead of org KPIs
   if (viewCtx?.mode === "employee" && viewCtx.employee) return <div>
     <PageHeader icon="👤" title={`${viewCtx.employee}`} subtitle="Employee Profile & Impact" onBack={onBack} moduleId="snapshot" />
@@ -933,7 +935,7 @@ export function WorkforceSnapshot({ model, f, onBack, onNavigate, viewCtx }: { m
           <button onClick={async () => {
             const summary = await callAI("Write a concise 3-paragraph executive summary for a consulting deliverable.", `Workforce data: ${JSON.stringify(k)}. Functions: ${fd.map(d => `${d.name}: ${d.value}`).join(", ")}. Write an executive summary covering workforce composition, structural observations, and AI readiness assessment.`);
             if (summary) setAiSnapSummary(summary);
-          }} className="w-full mt-2 px-3 py-2 rounded-lg text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>☕ Generate AI Executive Brief</button>
+          }} className="w-full mt-2 px-3 py-2 rounded-lg text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>☕ Generate AI Executive Brief</button>
           {aiSnapSummary && <div className="mt-3 bg-[var(--surface-2)] rounded-xl p-4 border border-[var(--border)] text-[15px] text-[var(--text-secondary)] leading-relaxed whitespace-pre-line">{aiSnapSummary}</div>}</div>
       <div className="col-span-3"><Card title="AI Readiness">{Object.keys(dims).length ? <RadarViz data={Object.entries(dims).map(([n, v]) => ({ subject: n.replace("Readiness", "").replace("Standardization", "Std.").replace("Enablement", "Enable.").replace("Alignment", "Align.").trim(), current: v, max: 20 }))} /> : <Empty text="Readiness data pending" icon="📈" />}</Card></div>
     </div>
@@ -954,9 +956,10 @@ export function WorkforceSnapshot({ model, f, onBack, onNavigate, viewCtx }: { m
 export function SkillShiftIndex({ model, f, onBack, onNavigate }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void }) {
   const [data] = useApiData(() => model ? api.getSkillAnalysis(model, f) : Promise.resolve(null), [model, f.func, f.jf, f.sf, f.cl]);
 
-  const current = ((data as Record<string, unknown>)?.current || []) as { Skill: string; Weight: string }[];
-  const future = ((data as Record<string, unknown>)?.future || []) as { Skill: string; Weight: string }[];
-  const gap = ((data as Record<string, unknown>)?.gap || []) as { Skill: string; Current: string; Future: string; Delta: string }[];
+  const skillData = data as unknown as SkillAnalysisResponse | null;
+  const current = skillData?.current ?? [];
+  const future = skillData?.future ?? [];
+  const gap = skillData?.gap ?? [];
 
   const declining = gap.filter(g => Number(g.Delta) < -2).sort((a, b) => Number(a.Delta) - Number(b.Delta));
   const amplified = gap.filter(g => Number(g.Delta) > 2).sort((a, b) => Number(b.Delta) - Number(a.Delta));
