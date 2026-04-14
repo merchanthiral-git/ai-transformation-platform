@@ -582,7 +582,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
           }
           const crSummary = cr?.summary;
           if (crSummary) {
-            readinessContext += ` Avg readiness: ${(crSummary as Record<string, unknown>).avg_readiness || "—"}/5. High-impact segment: ${(crSummary as Record<string, unknown>).high_impact_pct || "—"}%.`;
+            readinessContext += ` Avg readiness: ${String((crSummary as Record<string, unknown>).avg_readiness ?? "—")}/5. High-impact segment: ${String((crSummary as Record<string, unknown>).high_impact_pct ?? "—")}%.`;
           }
         } catch (e) { console.error("[MobilizeModule] readiness context error", e); }
         const scenarioCtx = simState ? ` Active scenario: ${simState.scenario}${simState.custom ? ` (custom: ${simState.custAdopt}% adoption, ${simState.custTimeline}mo timeline, $${simState.investment} investment)` : ""}.` : "";

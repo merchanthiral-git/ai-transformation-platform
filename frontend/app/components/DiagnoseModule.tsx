@@ -715,14 +715,14 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
       </div>}
 
       <div className="grid grid-cols-5 gap-3 mb-5">
-        <KpiCard label="Org Average" value={`${orgAvg || data?.org_average || "—"}/5`} accent /><KpiCard label="Ready Now" value={bands.ready_now || 0} /><KpiCard label="Coachable" value={bands.coachable || 0} /><KpiCard label="At Risk" value={bands.at_risk || 0} /><KpiCard label="Weakest" value={String(Object.entries(dimAvgs).sort((a,b) => Number(a[1]) - Number(b[1]))[0]?.[0] || data?.lowest_dimension || "—")} />
+        <KpiCard label="Org Average" value={`${orgAvg || data?.org_average || "—"}/5`} accent /><KpiCard label="Ready Now" value={Number(bands.ready_now || 0)} /><KpiCard label="Coachable" value={Number(bands.coachable || 0)} /><KpiCard label="At Risk" value={Number(bands.at_risk || 0)} /><KpiCard label="Weakest" value={String(Object.entries(dimAvgs).sort((a,b) => Number(a[1]) - Number(b[1]))[0]?.[0] || data?.lowest_dimension || "—")} />
       </div>
 
       <div className="flex gap-2 mb-4">{(["org","individual"] as const).map(v => <button key={v} onClick={() => setViewLevel(v)} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold" style={{ background: viewLevel === v ? "var(--accent-primary)" : "var(--surface-2)", color: viewLevel === v ? "#fff" : "var(--text-muted)" }}>{v === "org" ? "Organization View" : "Individual Scores"}</button>)}</div>
 
       {viewLevel === "org" ? <div className="grid grid-cols-2 gap-4">
         <Card title="Readiness by Dimension"><RadarViz data={Object.entries(dimAvgs).map(([k,v]) => ({ subject: k, current: Number(v), max: 5 }))} /></Card>
-        <Card title="Readiness Bands"><DonutViz data={[{name:"Ready Now",value:bands.ready_now||0},{name:"Coachable",value:bands.coachable||0},{name:"At Risk",value:bands.at_risk||0}]} />
+        <Card title="Readiness Bands"><DonutViz data={[{name:"Ready Now",value:Number(bands.ready_now||0)},{name:"Coachable",value:Number(bands.coachable||0)},{name:"At Risk",value:Number(bands.at_risk||0)}]} />
           <div className="mt-3 space-y-2">{[{band:"Ready Now",color:"var(--success)",desc:"Can adopt AI tools immediately"},{band:"Coachable",color:"var(--warning)",desc:"Needs 3-6 months of support"},{band:"At Risk",color:"var(--risk)",desc:"Needs intensive intervention"}].map(b => <div key={b.band} className="flex items-center gap-2 text-[14px]"><div className="w-2.5 h-2.5 rounded-full shrink-0" style={{background:b.color}} /><span className="font-semibold" style={{color:b.color}}>{b.band}</span><span className="text-[var(--text-muted)]">— {b.desc}</span></div>)}</div>
         </Card>
       </div> : <Card title="Individual Readiness Scores">
@@ -785,7 +785,7 @@ export function ManagerCapability({ model, f, onBack, onNavigate, viewCtx }: { m
     {loading && <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={6} /><SkeletonTable rows={5} cols={4} /></div></>}
 
     <div className="grid grid-cols-6 gap-3 mb-5">
-      <KpiCard label="Managers" value={managers.length} /><KpiCard label="Champions" value={champCount} accent /><KpiCard label="Needs Dev" value={devCount} /><KpiCard label="Flight Risk" value={riskCount} /><KpiCard label="Weakest Dim" value={String(summary.weakest_dimension || dims.length ? dims[0] : "—")} /><KpiCard label="Multiplier" value={String(summary.correlation_multiplier || "2.1x")} accent />
+      <KpiCard label="Managers" value={managers.length} /><KpiCard label="Champions" value={champCount} accent /><KpiCard label="Needs Dev" value={devCount} /><KpiCard label="Flight Risk" value={riskCount} /><KpiCard label="Weakest Dim" value={String(summary.weakest_dimension || (dims.length ? dims[0] : "—"))} /><KpiCard label="Multiplier" value={String(summary.correlation_multiplier || "2.1x")} accent />
     </div>
 
     <TabBar tabs={[{ id: "scorecard", label: "Manager Scorecard" }, { id: "correlation", label: "Team Correlation" }]} active={tab} onChange={t => setTab(t as "scorecard"|"correlation")} />
@@ -863,7 +863,7 @@ export function ManagerCapability({ model, f, onBack, onNavigate, viewCtx }: { m
           <div className="rounded-xl p-5 text-center border" style={{ background: "rgba(239,68,68,0.06)", borderColor: "rgba(239,68,68,0.2)" }}><div className="text-[14px] text-[var(--text-muted)] mb-1">At-Risk Teams</div><div className="text-[28px] font-extrabold text-[var(--risk)]">{Number(summary.low_mgr_team_readiness || 2.1)}<span className="text-[14px]">/5</span></div></div>
           <div className="rounded-xl p-5 text-center border" style={{ background: "rgba(212,134,10,0.06)", borderColor: "rgba(212,134,10,0.2)" }}><div className="text-[14px] text-[var(--text-muted)] mb-1">Multiplier Effect</div><div className="text-[28px] font-extrabold text-[var(--accent-primary)]">{String(summary.correlation_multiplier || "2.1x")}</div></div>
         </div>
-        <div className="text-[14px] text-[var(--text-secondary)] mb-4 p-3 rounded-lg border-l-3" style={{ borderLeft: "3px solid var(--accent-primary)", background: "rgba(212,134,10,0.04)" }}>Manager capability has a <strong>{summary.correlation_multiplier || "2.1x"}</strong> multiplier effect on team readiness. Investing in manager development is the highest-leverage intervention.</div>
+        <div className="text-[14px] text-[var(--text-secondary)] mb-4 p-3 rounded-lg border-l-3" style={{ borderLeft: "3px solid var(--accent-primary)", background: "rgba(212,134,10,0.04)" }}>Manager capability has a <strong>{String(summary.correlation_multiplier || "2.1x")}</strong> multiplier effect on team readiness. Investing in manager development is the highest-leverage intervention.</div>
         <div className="space-y-2">{managers.slice(0, 15).map(m => <div key={m.manager} className="flex items-center gap-3 p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)]">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[12px] font-bold text-white shrink-0" style={{ background: catColors[m.category] || "#888" }}>{m.manager.split(" ").map(w => w[0]).join("").slice(0,2)}</div>
           <div className="flex-1"><div className="text-[14px] font-semibold text-[var(--text-primary)]">{m.manager}</div><div className="text-[12px] text-[var(--text-muted)]">{m.direct_reports} reports</div></div>
@@ -1109,7 +1109,7 @@ export function ManagerDevelopment({ model, f, onBack, onNavigate, viewCtx }: { 
     {loading && <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={5} /><SkeletonTable rows={5} cols={4} /></div></>}
 
     <div className="grid grid-cols-5 gap-3 mb-5">
-      <KpiCard label="Managers" value={Number(summary.total_managers || 0)} /><KpiCard label="Change Agents" value={Number(summary.change_agents || 0)} accent /><KpiCard label="Need Dev" value={Number(summary.need_development || 0)} /><KpiCard label="Avg Duration" value={`${summary.avg_duration_weeks || 0}wk`} /><KpiCard label="Investment" value={fmtNum(summary.total_investment || 0)} />
+      <KpiCard label="Managers" value={Number(summary.total_managers || 0)} /><KpiCard label="Change Agents" value={Number(summary.change_agents || 0)} accent /><KpiCard label="Need Dev" value={Number(summary.need_development || 0)} /><KpiCard label="Avg Duration" value={`${Number(summary.avg_duration_weeks || 0)}wk`} /><KpiCard label="Investment" value={fmtNum(Number(summary.total_investment || 0))} />
     </div>
 
     {/* Category summary */}
@@ -1151,9 +1151,9 @@ export function ManagerDevelopment({ model, f, onBack, onNavigate, viewCtx }: { 
     </Card>)}
 
     <InsightPanel title="Investment Summary" items={[
-      `Total manager development investment: ${fmtNum(summary.total_investment || 0)}`,
-      `${summary.change_agents || 0} managers ready to deploy as change agents immediately`,
-      `${summary.need_development || 0} managers need ${summary.avg_duration_weeks || 0} weeks average development before they can lead transformation`,
+      `Total manager development investment: ${fmtNum(Number(summary.total_investment || 0))}`,
+      `${Number(summary.change_agents || 0)} managers ready to deploy as change agents immediately`,
+      `${Number(summary.need_development || 0)} managers need ${Number(summary.avg_duration_weeks || 0)} weeks average development before they can lead transformation`,
       `Flight Risk managers should be engaged within 2 weeks — delay increases attrition probability`,
     ]} icon="🎓" />
 
@@ -1619,7 +1619,7 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
   const funcColors: Record<string, string> = { Technology: "#0891B2", Finance: "var(--accent-primary)", HR: "var(--purple)", Operations: "var(--warning)", Marketing: "#EC4899", Legal: "var(--risk)", Sales: "#6366F1", Product: "var(--success)" };
 
   return <div>
-    <ContextStrip items={[clusters.length > 0 ? `${summary.total_clusters || clusters.length} clusters · ${summary.consolidation_opportunities || 0} consolidation opportunities · ${summary.roles_affected || 0} roles affected` : "Analyzing role similarity..."]} />
+    <ContextStrip items={[clusters.length > 0 ? `${Number(summary.total_clusters || clusters.length)} clusters · ${Number(summary.consolidation_opportunities || 0)} consolidation opportunities · ${Number(summary.roles_affected || 0)} roles affected` : "Analyzing role similarity..."]} />
     <PageHeader icon="🔗" title="Role Clustering" subtitle="Identify similar roles, consolidation candidates, and redundancies" onBack={onBack} moduleId="clusters" viewCtx={viewCtx} />
     {loading && <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={5} /><SkeletonTable rows={5} cols={4} /></div></>}
 
@@ -1630,7 +1630,7 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
       <KpiCard label="Clusters" value={Number(summary.total_clusters || clusters.length)} />
       <KpiCard label="Consolidation Opps" value={Number(summary.consolidation_opportunities || 0)} accent />
       <KpiCard label="Potential Savings" value={fmtNum(Number(summary.potential_savings || 0))} />
-      <KpiCard label="Roles Affected" value={`${summary.roles_affected || 0}/${summary.total_roles || 0}`} />
+      <KpiCard label="Roles Affected" value={`${Number(summary.roles_affected || 0)}/${Number(summary.total_roles || 0)}`} />
       <KpiCard label="Highest Overlap" value={pairs.length > 0 ? `${pairs[0].similarity}%` : "—"} />
     </div>}
 

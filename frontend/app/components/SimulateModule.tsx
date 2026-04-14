@@ -1306,7 +1306,7 @@ function NegotiateTab({ projectId, model, savedScenarios, setSavedScenarios }: {
           {[
             { label: "Headcount Change", value: `${fmt(Number(result.scenario.headcount_delta || 0), "delta")}`, sub: `${fmt(Number(result.scenario.headcount_pct_change || 0), "pct")}`, color: Number(result.scenario.headcount_delta || 0) < 0 ? "var(--risk)" : "var(--success)" },
             { label: "Cost Impact", value: `${fmt(Number(result.scenario.cost_delta_pct || 0), "pct")}`, sub: fmt(Number(result.scenario.cost_delta || 0), "$"), color: Number(result.scenario.cost_delta || 0) < 0 ? "var(--success)" : "var(--risk)" },
-            { label: "Timeline", value: `${result.scenario.timeline_months || "—"} mo`, sub: `Attrition: ${fmt(Number(result.scenario.attrition_pct || 0), "pct")}`, color: "var(--accent-primary)" },
+            { label: "Timeline", value: `${Number(result.scenario.timeline_months) || "—"} mo`, sub: `Attrition: ${fmt(Number(result.scenario.attrition_pct || 0), "pct")}`, color: "var(--accent-primary)" },
             { label: "Automation", value: `${fmt(Number(result.scenario.automation_coverage_pct || 0), "pct")}`, sub: `Reskilling: ${fmt(Number(result.scenario.reskilling_investment || 0), "$")}`, color: "var(--purple)" },
           ].map(kpi => <div key={kpi.label} className="rounded-xl p-3 bg-[var(--surface-2)] border border-[var(--border)] text-center">
             <div className="text-[11px] text-[var(--text-muted)] uppercase mb-1">{kpi.label}</div>

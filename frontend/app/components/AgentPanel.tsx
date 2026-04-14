@@ -227,8 +227,8 @@ function FindingsBody({ findings }: { findings: AgentFindings }) {
     {/* Evolved role profile (Design) */}
     {findings.evolved_role_profile && <div className="p-3 rounded-lg bg-[var(--surface-2)]">
       <div className="text-[12px] font-bold text-[var(--text-muted)] uppercase mb-1">Evolved Role</div>
-      <div className="text-[14px] font-bold text-[var(--text-primary)]">{(findings.evolved_role_profile as Record<string, unknown>).title as string}</div>
-      <div className="text-[12px] text-[var(--text-secondary)] mt-1">{(findings.evolved_role_profile as Record<string, unknown>).summary as string}</div>
+      <div className="text-[14px] font-bold text-[var(--text-primary)]">{String((findings.evolved_role_profile as Record<string, unknown>).title || "")}</div>
+      <div className="text-[12px] text-[var(--text-secondary)] mt-1">{String((findings.evolved_role_profile as Record<string, unknown>).summary || "")}</div>
     </div>}
 
     {/* Skills gaps */}
@@ -244,13 +244,13 @@ function FindingsBody({ findings }: { findings: AgentFindings }) {
     {/* FTE waterfall */}
     {Array.isArray(findings.fte_waterfall) && <Section title="FTE Impact" items={(findings.fte_waterfall as Record<string, unknown>[]).map(f => ({
       label: String(f.stage || ""),
-      detail: `${Number(f.fte_change) > 0 ? "+" : ""}${f.fte_change} FTE — ${f.driver}`,
+      detail: `${Number(f.fte_change) > 0 ? "+" : ""}${Number(f.fte_change)} FTE — ${String(f.driver || "")}`,
     }))} />}
 
     {/* Overall score (Readiness) */}
     {typeof findings.overall_score === "number" && <div className="flex items-center gap-3 p-3 rounded-lg bg-[var(--surface-2)]">
       <div className="text-[28px] font-extrabold" style={{ color: (findings.overall_score as number) >= 70 ? "var(--success)" : (findings.overall_score as number) >= 40 ? "var(--warning)" : "var(--risk)" }}>{findings.overall_score}</div>
-      <div><div className="text-[13px] font-bold text-[var(--text-primary)]">Overall Readiness</div><div className="text-[12px] text-[var(--text-muted)]">{(findings.maturity_level as string) || ""}</div></div>
+      <div><div className="text-[13px] font-bold text-[var(--text-primary)]">Overall Readiness</div><div className="text-[12px] text-[var(--text-muted)]">{String(findings.maturity_level || "")}</div></div>
     </div>}
 
     {/* Blockers (Readiness) */}
@@ -448,11 +448,11 @@ export function AgentOrchestrator({ projectId, sessionData }: OrchestratorProps)
 
           {/* Delta/actions for non-agent intents */}
           {result.findings.delta && <div className="p-4 rounded-lg bg-[var(--surface-2)]">
-            <div className="text-[13px] text-[var(--text-secondary)] leading-relaxed">{(result.findings.delta as Record<string, unknown>).narrative as string}</div>
+            <div className="text-[13px] text-[var(--text-secondary)] leading-relaxed">{String((result.findings.delta as Record<string, unknown>).narrative || "")}</div>
             {Array.isArray((result.findings.delta as Record<string, unknown>).changes) && ((result.findings.delta as Record<string, unknown>).changes as Record<string, unknown>[]).map((c, i) => <div key={i} className="flex items-center gap-2 mt-2 text-[12px]">
-              <span>{AGENT_ICONS[c.agent as string]}</span>
-              <span className="text-[var(--text-primary)] font-semibold capitalize">{(c.agent as string).replace("_", " ")}</span>
-              <span style={{ color: c.direction === "improved" ? "var(--success)" : c.direction === "declined" ? "var(--risk)" : "var(--text-muted)" }}>{c.direction as string}</span>
+              <span>{AGENT_ICONS[String(c.agent || "")]}</span>
+              <span className="text-[var(--text-primary)] font-semibold capitalize">{String(c.agent || "").replace("_", " ")}</span>
+              <span style={{ color: c.direction === "improved" ? "var(--success)" : c.direction === "declined" ? "var(--risk)" : "var(--text-muted)" }}>{String(c.direction || "")}</span>
             </div>)}
           </div>}
 

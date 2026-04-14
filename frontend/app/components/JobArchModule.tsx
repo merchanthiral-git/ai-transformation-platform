@@ -1348,19 +1348,19 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
   if (loading && !data) return <div className="module-enter"><PageHeader icon="🏗️" title="Job Architecture" subtitle={showLoader ? "Loading job architecture..." : "Enterprise job catalogue, hierarchy, and career framework"} onBack={onBack} />{showLoader && <><LoadingBar /><div className="grid grid-cols-3 gap-4"><LoadingSkeleton rows={8} /><LoadingSkeleton rows={8} /><LoadingSkeleton rows={8} /></div></>}</div>;
 
   return <div>
-    <ContextStrip items={[`${Number(stats.total_headcount || 0).toLocaleString()} employees · ${stats.total_functions || 0} functions · ${stats.total_family_groups || 0} family groups · ${stats.total_families || 0} families · ${stats.total_jobs || 0} roles`]} />
+    <ContextStrip items={[`${Number(stats.total_headcount || 0).toLocaleString()} employees · ${Number(stats.total_functions || 0)} functions · ${Number(stats.total_family_groups || 0)} family groups · ${Number(stats.total_families || 0)} families · ${Number(stats.total_jobs || 0)} roles`]} />
     <PageHeader icon="🏗️" title="Job Architecture" subtitle="Enterprise job catalogue, hierarchy, career framework & validation" onBack={onBack} moduleId="jobarch" viewCtx={viewCtx} />
 
     {/* KPI Strip */}
     <div className="grid grid-cols-8 gap-3 mb-5">
       <KpiCard label="Headcount" value={Number(stats.total_headcount || 0).toLocaleString()} accent />
-      <KpiCard label="Functions" value={stats.total_functions || 0} />
-      <KpiCard label="Family Groups" value={stats.total_family_groups || 0} />
-      <KpiCard label="Job Families" value={stats.total_families || 0} />
-      <KpiCard label="Sub-Families" value={stats.total_sub_families || 0} />
-      <KpiCard label="Unique Roles" value={stats.total_jobs || 0} />
-      <KpiCard label="Levels" value={stats.total_levels || 0} />
-      <KpiCard label="Health" value={`${analytics.health_score || 0}/100`} accent />
+      <KpiCard label="Functions" value={Number(stats.total_functions || 0)} />
+      <KpiCard label="Family Groups" value={Number(stats.total_family_groups || 0)} />
+      <KpiCard label="Job Families" value={Number(stats.total_families || 0)} />
+      <KpiCard label="Sub-Families" value={Number(stats.total_sub_families || 0)} />
+      <KpiCard label="Unique Roles" value={Number(stats.total_jobs || 0)} />
+      <KpiCard label="Levels" value={Number(stats.total_levels || 0)} />
+      <KpiCard label="Health" value={`${Number(analytics.health_score || 0)}/100`} accent />
     </div>
 
     <TabBar tabs={[
@@ -1383,7 +1383,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
       {/* Left tree navigator */}
       <div className="w-56 shrink-0 bg-[var(--surface-1)] rounded-xl border border-[var(--border)] p-3 overflow-y-auto" style={{ maxHeight: "70vh" }}>
         <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2 font-heading">Hierarchy</div>
-        <button onClick={() => setSelectedPath([])} className={`w-full text-left px-2 py-1.5 rounded-lg text-[15px] font-semibold mb-1 transition-all ${selectedPath.length === 0 ? "bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]" : "text-[var(--text-secondary)] hover:bg-[var(--hover)]"}`}>All ({stats.total_headcount || 0})</button>
+        <button onClick={() => setSelectedPath([])} className={`w-full text-left px-2 py-1.5 rounded-lg text-[15px] font-semibold mb-1 transition-all ${selectedPath.length === 0 ? "bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]" : "text-[var(--text-secondary)] hover:bg-[var(--hover)]"}`}>All ({Number(stats.total_headcount || 0)})</button>
         {tree.map(func => <TreeNav key={func.id} node={func} depth={0} selectedPath={selectedPath} onSelect={setSelectedPath} />)}
       </div>
 
@@ -1620,9 +1620,9 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
     {/* ═══ VALIDATION TAB ═══ */}
     {tab === "validation" && <div className="animate-tab-enter">
       <div className="grid grid-cols-4 gap-3 mb-5">
-        <KpiCard label="Health Score" value={`${analytics.health_score || 0}/100`} accent />
-        <KpiCard label="Critical" value={analytics.critical_flags || 0} />
-        <KpiCard label="Warnings" value={analytics.warning_flags || 0} />
+        <KpiCard label="Health Score" value={`${Number(analytics.health_score || 0)}/100`} accent />
+        <KpiCard label="Critical" value={Number(analytics.critical_flags || 0)} />
+        <KpiCard label="Warnings" value={Number(analytics.warning_flags || 0)} />
         <KpiCard label="Total Flags" value={flags.length} />
       </div>
 

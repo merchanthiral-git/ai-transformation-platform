@@ -71,25 +71,25 @@ export function TransformationDashboard({ data, jobStates, simState, viewCtx }: 
   const cfg = simState.custom ? { adoption: simState.custAdopt / 100 } : (SIM_PRESETS[simState.scenario] || { adoption: 0.6 });
   const kpis = viewCtx?.mode === "employee" ? [
     { label: "My AI Impact", value: `${Math.round(cfg.adoption * 100)}%`, icon: "🤖", color: "var(--warning)" },
-    { label: "Tasks Augmented", value: Math.round(highAiTasks * cfg.adoption) || "—", icon: "⚡", color: "var(--accent-primary)" },
+    { label: "Tasks Augmented", value: Number(Math.round(highAiTasks * cfg.adoption)) || "—", icon: "⚡", color: "var(--accent-primary)" },
     { label: "Time Freed", value: `${Math.round(cfg.adoption * 40)}%`, icon: "⏰", color: "var(--success)" },
-    { label: "New Skills", value: Math.round(cfg.adoption * 3) || "—", icon: "📚", color: "var(--purple)" },
+    { label: "New Skills", value: Number(Math.round(cfg.adoption * 3)) || "—", icon: "📚", color: "var(--purple)" },
     { label: "Change Wave", value: "Wave 1", icon: "🚀", color: "var(--accent-primary)" },
-    { label: "Readiness", value: `${k.readiness_score || "—"}/100`, icon: "◎", color: "var(--warning)" },
+    { label: "Readiness", value: `${String(k.readiness_score || "—")}/100`, icon: "◎", color: "var(--warning)" },
   ] : viewCtx?.mode === "job" ? [
     { label: "Incumbents", value: Number(k.employees) || 0, icon: "👥", color: "var(--accent-primary)" },
-    { label: "Tasks Mapped", value: totalTasks || "—", icon: "📋", color: "var(--success)" },
-    { label: "High AI Tasks", value: highAiTasks || "—", icon: "🤖", color: "var(--warning)" },
+    { label: "Tasks Mapped", value: Number(totalTasks) || "—", icon: "📋", color: "var(--success)" },
+    { label: "High AI Tasks", value: Number(highAiTasks) || "—", icon: "🤖", color: "var(--warning)" },
     { label: "AI Impact", value: `${Math.round(cfg.adoption * 100)}%`, icon: "⚡", color: "var(--accent-primary)" },
     { label: "Status", value: finalized > 0 ? "Finalized" : totalJobs > 0 ? "In Progress" : "Not Started", icon: "✓", color: finalized > 0 ? "var(--success)" : "var(--warning)" },
-    { label: "Readiness", value: `${k.readiness_score || "—"}/100`, icon: "◎", color: "var(--warning)" },
+    { label: "Readiness", value: `${String(k.readiness_score || "—")}/100`, icon: "◎", color: "var(--warning)" },
   ] : [
     { label: "Employees", value: Number(k.employees) || 0, icon: "👥", color: "var(--accent-primary)" },
     { label: "Roles Analyzed", value: totalJobs, icon: "💼", color: "var(--purple)" },
     { label: "Tasks Mapped", value: totalTasks, icon: "📋", color: "var(--success)" },
     { label: "High AI Tasks", value: highAiTasks, icon: "🤖", color: "var(--warning)" },
-    { label: "Jobs Finalized", value: `${finalized}/${totalJobs || "—"}`, icon: "✓", color: "var(--success)" },
-    { label: "AI Readiness", value: `${k.readiness_score || "—"}/100`, icon: "◎", color: k.readiness_score && Number(k.readiness_score) >= 60 ? "var(--success)" : "var(--warning)" },
+    { label: "Jobs Finalized", value: `${finalized}/${Number(totalJobs) || "—"}`, icon: "✓", color: "var(--success)" },
+    { label: "AI Readiness", value: `${String(k.readiness_score || "—")}/100`, icon: "◎", color: k.readiness_score && Number(k.readiness_score) >= 60 ? "var(--success)" : "var(--warning)" },
   ];
 
   return <div className="mb-6">
@@ -499,10 +499,10 @@ export function TransformationExecDashboard({ model, f, onBack, onNavigate, deci
           { label: "Buy Roles", value: typeof bbba.buy === "object" ? "—" : (bbba.buy || "—") },
         ]},
         { phase: "Deliver", icon: "🚀", color: "var(--warning)", ready: !!(Number(reskill.total_investment) || Number(wf.net_change)), items: [
-          { label: "High Risk %", value: data?.high_risk_pct ? `${data.high_risk_pct}%` : "—" },
+          { label: "High Risk %", value: data?.high_risk_pct && typeof data.high_risk_pct !== "object" ? `${data.high_risk_pct}%` : "—" },
           { label: "Internal Fill", value: typeof mp.internal_fill === "object" ? "—" : (mp.internal_fill || "—") },
           { label: "Reskill Cost", value: Number(reskill.total_investment) ? fmtNum(reskill.total_investment) : "—" },
-          { label: "Net HC Change", value: wf.net_change != null && wf.net_change !== 0 && typeof wf.net_change !== "object" ? wf.net_change : "—" },
+          { label: "Net HC Change", value: wf.net_change != null && wf.net_change !== 0 && typeof wf.net_change !== "object" ? String(wf.net_change) : "—" },
         ]},
       ].map(p => <div key={p.phase} className="rounded-2xl p-5 border transition-all hover:translate-y-[-2px]" style={{ background: `${p.color}08`, borderColor: `${p.color}20`, opacity: p.ready ? 1 : 0.6 }}>
         <div className="flex items-center gap-2 mb-4"><span className="text-xl">{p.icon}</span><span className="text-[15px] font-bold" style={{ color: p.color }}>{p.phase}</span>{!p.ready && <span className="text-[13px] text-[var(--text-muted)]">Not started</span>}</div>
@@ -529,7 +529,7 @@ export function TransformationExecDashboard({ model, f, onBack, onNavigate, deci
     <Card title="Investment & ROI Summary">
       <div className="grid grid-cols-4 gap-4">
         <div className="rounded-xl p-4 text-center border border-[var(--border)] bg-[var(--surface-2)]"><div className="text-[15px] text-[var(--text-muted)] uppercase mb-1">Total Investment</div><div className="text-[24px] font-extrabold text-[var(--text-primary)]">{fmtNum(Number(bbba.total_investment) || 0)}</div></div>
-        <div className="rounded-xl p-4 text-center border border-[var(--border)] bg-[var(--surface-2)]"><div className="text-[15px] text-[var(--text-muted)] uppercase mb-1">Reskilling</div><div className="text-[24px] font-extrabold text-[var(--success)]">{fmtNum(Number(bbba.reskilling_investment || reskill.total_investment) || 0)}</div></div>
+        <div className="rounded-xl p-4 text-center border border-[var(--border)] bg-[var(--surface-2)]"><div className="text-[15px] text-[var(--text-muted)] uppercase mb-1">Reskilling</div><div className="text-[24px] font-extrabold text-[var(--success)]">{fmtNum(Number(typeof bbba.reskilling_investment === "object" ? reskill.total_investment : (bbba.reskilling_investment || reskill.total_investment)) || 0)}</div></div>
         <div className="rounded-xl p-4 text-center border border-[var(--border)] bg-[var(--surface-2)]"><div className="text-[15px] text-[var(--text-muted)] uppercase mb-1">Hiring</div><div className="text-[24px] font-extrabold text-[var(--accent-primary)]">{fmtNum(Number(bbba.hiring_cost) || 0)}</div></div>
         <div className="rounded-xl p-4 text-center border border-[var(--border)] bg-[var(--surface-2)]"><div className="text-[15px] text-[var(--text-muted)] uppercase mb-1">Manager Dev</div><div className="text-[24px] font-extrabold text-[var(--purple)]">{fmtNum(Number((data?.manager_summary as Record<string,unknown>)?.total_investment) || 0)}</div></div>
       </div>
@@ -539,9 +539,9 @@ export function TransformationExecDashboard({ model, f, onBack, onNavigate, deci
     <div className="grid grid-cols-2 gap-4">
       <Card title="Workforce Readiness">
         <div className="flex gap-3">{[
-          { label: "Ready Now", value: bands.ready_now || 0, color: "var(--success)" },
-          { label: "Coachable", value: bands.coachable || 0, color: "var(--warning)" },
-          { label: "At Risk", value: bands.at_risk || 0, color: "var(--risk)" },
+          { label: "Ready Now", value: Number(bands.ready_now || 0), color: "var(--success)" },
+          { label: "Coachable", value: Number(bands.coachable || 0), color: "var(--warning)" },
+          { label: "At Risk", value: Number(bands.at_risk || 0), color: "var(--risk)" },
         ].map(b => <div key={b.label} className="flex-1 rounded-xl p-3 text-center border border-[var(--border)]">
           <div className="text-[24px] font-extrabold" style={{ color: b.color }}>{b.value}</div>
           <div className="text-[15px] text-[var(--text-muted)]">{b.label}</div>
@@ -638,11 +638,11 @@ export function TransformationExecDashboard({ model, f, onBack, onNavigate, deci
     </Card>
 
     <InsightPanel title="Executive Summary" items={[
-      `${data?.total_employees || 0} employees assessed with ${data?.skills_coverage || 0}% skills coverage`,
-      `${data?.critical_gaps || 0} critical skill gaps identified — ${Object.values(bbba).reduce((s: number, v) => s + (typeof v === "number" ? v : 0), 0) || 0} roles need sourcing decisions`,
-      `Workforce readiness: ${data?.org_readiness || "—"}/5 — ${bands.at_risk || 0} employees in At Risk band need intervention`,
-      `Total transformation investment: ${fmtNum(bbba.total_investment || 0)} across reskilling, hiring, and manager development`,
-      `${data?.high_risk_pct || 0}% of workforce is in the High Risk change segment — prioritize these for support`,
+      `${Number(data?.total_employees || 0)} employees assessed with ${Number(data?.skills_coverage || 0)}% skills coverage`,
+      `${Number(data?.critical_gaps || 0)} critical skill gaps identified — ${Object.values(bbba).reduce((s: number, v) => s + (typeof v === "number" ? v : 0), 0) || 0} roles need sourcing decisions`,
+      `Workforce readiness: ${String(data?.org_readiness || "—")}/5 — ${Number(bands.at_risk || 0)} employees in At Risk band need intervention`,
+      `Total transformation investment: ${fmtNum(Number(typeof bbba.total_investment === "object" ? 0 : (bbba.total_investment || 0)))} across reskilling, hiring, and manager development`,
+      `${Number(data?.high_risk_pct || 0)}% of workforce is in the High Risk change segment — prioritize these for support`,
     ]} icon="🎯" />
   </div>;
 }
@@ -878,16 +878,16 @@ export function WorkforceSnapshot({ model, f, onBack, onNavigate, viewCtx }: { m
     {data && <div className="grid grid-cols-2 gap-4">
       <Card title="Workforce Composition">
         <div className="space-y-3">
-          <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-2)]"><span className="text-[15px]">Total Headcount</span><span className="text-[18px] font-extrabold text-[var(--accent-primary)]">{Number((data as Record<string, unknown>).employees || 0).toLocaleString()}</span></div>
-          <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-2)]"><span className="text-[15px]">Functions</span><span className="text-[18px] font-extrabold text-[var(--text-primary)]">{((data as Record<string, unknown>).func_distribution as {name:string}[] || []).length}</span></div>
-          <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-2)]"><span className="text-[15px]">Roles Mapped</span><span className="text-[18px] font-extrabold text-[var(--text-primary)]">{Number((data as Record<string, unknown>).roles || 0)}</span></div>
+          <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-2)]"><span className="text-[15px]">Total Headcount</span><span className="text-[18px] font-extrabold text-[var(--accent-primary)]">{Number(typeof (data as Record<string, unknown>).employees === "object" ? 0 : ((data as Record<string, unknown>).employees || 0)).toLocaleString()}</span></div>
+          <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-2)]"><span className="text-[15px]">Functions</span><span className="text-[18px] font-extrabold text-[var(--text-primary)]">{(Array.isArray((data as Record<string, unknown>).func_distribution) ? (data as Record<string, unknown>).func_distribution as {name:string}[] : []).length}</span></div>
+          <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-2)]"><span className="text-[15px]">Roles Mapped</span><span className="text-[18px] font-extrabold text-[var(--text-primary)]">{Number(typeof (data as Record<string, unknown>).roles === "object" ? 0 : ((data as Record<string, unknown>).roles || 0))}</span></div>
         </div>
       </Card>
       <Card title="Workforce Metrics">
         <div className="space-y-3">
-          <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-2)]"><span className="text-[15px]">Manager-to-IC Ratio</span><span className="text-[18px] font-extrabold text-[var(--text-primary)]">1:{Math.max(1, Math.round((Number((data as Record<string, unknown>).employees || 1) * 0.8) / Math.max(Number((data as Record<string, unknown>).employees || 1) * 0.2, 1)))}</span></div>
-          <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-2)]"><span className="text-[15px]">Avg Span of Control</span><span className="text-[18px] font-extrabold text-[var(--text-primary)]">{Math.round(Number((data as Record<string, unknown>).employees || 0) * 0.8 / Math.max(Number((data as Record<string, unknown>).employees || 0) * 0.2, 1))}</span></div>
-          <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-2)]"><span className="text-[15px]">AI Readiness Score</span><span className="text-[18px] font-extrabold" style={{color: Number((data as Record<string, unknown>).readiness || 0) >= 70 ? "var(--success)" : "var(--warning)"}}>{String((data as Record<string, unknown>).readiness || "—")}/100</span></div>
+          <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-2)]"><span className="text-[15px]">Manager-to-IC Ratio</span><span className="text-[18px] font-extrabold text-[var(--text-primary)]">1:{Math.max(1, Math.round((Number(typeof (data as Record<string, unknown>).employees === "object" ? 1 : ((data as Record<string, unknown>).employees || 1)) * 0.8) / Math.max(Number(typeof (data as Record<string, unknown>).employees === "object" ? 1 : ((data as Record<string, unknown>).employees || 1)) * 0.2, 1)))}</span></div>
+          <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-2)]"><span className="text-[15px]">Avg Span of Control</span><span className="text-[18px] font-extrabold text-[var(--text-primary)]">{Math.round(Number(typeof (data as Record<string, unknown>).employees === "object" ? 0 : ((data as Record<string, unknown>).employees || 0)) * 0.8 / Math.max(Number(typeof (data as Record<string, unknown>).employees === "object" ? 0 : ((data as Record<string, unknown>).employees || 0)) * 0.2, 1))}</span></div>
+          <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-2)]"><span className="text-[15px]">AI Readiness Score</span><span className="text-[18px] font-extrabold" style={{color: Number(typeof (data as Record<string, unknown>).readiness === "object" ? 0 : ((data as Record<string, unknown>).readiness || 0)) >= 70 ? "var(--success)" : "var(--warning)"}}>{String(typeof (data as Record<string, unknown>).readiness === "object" ? "—" : ((data as Record<string, unknown>).readiness || "—"))}/100</span></div>
         </div>
       </Card>
     </div>}
@@ -943,7 +943,7 @@ export function WorkforceSnapshot({ model, f, onBack, onNavigate, viewCtx }: { m
       {Number(k.readiness_score) < 40 && <div className="mt-3 text-[13px] text-[var(--text-muted)]">Complete the Diagnose and Design phases to generate financial projections.</div>}
     </div>
     {loading && <><LoadingBar /><div className="space-y-4 mt-4"><SkeletonKpiRow count={6} /><div className="grid grid-cols-12 gap-4"><div className="col-span-5"><SkeletonChart height={200} /></div><div className="col-span-7"><SkeletonChart height={200} /></div></div></div></>}
-    {!loading && Number(k.employees || 0) === 0 && <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-2xl p-8 mb-5 text-center">
+    {!loading && Number(typeof k.employees === "object" ? 0 : (k.employees || 0)) === 0 && <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-2xl p-8 mb-5 text-center">
       <div className="text-3xl mb-3 opacity-40">📊</div>
       <h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">No Workforce Data Yet</h3>
       <p className="text-[15px] text-[var(--text-secondary)] mb-4 max-w-md mx-auto">Upload your employee roster to see headcount, org structure, function distribution, and AI readiness scores.</p>
