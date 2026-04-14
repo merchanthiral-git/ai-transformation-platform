@@ -13,6 +13,7 @@ import {
   exportToCSV, EmptyWithAction, JobDesignState, fmtNum
 } from "./shared";
 import { SkeletonKpiRow, SkeletonTable } from "./ui-primitives";
+import { RISK_SCORE_HIGH, RISK_SCORE_MEDIUM } from "../../lib/constants/scoring";
 
 type Pathway = {
   employee: string; employee_id: string;
@@ -1098,7 +1099,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
       const sortCol = riskSortCol; const setSortCol = setRiskSortCol;
       const newRisk = newRiskForm; const setNewRisk = setNewRiskForm;
       const sorted = [...risks].sort((a, b) => sortCol === "score" ? (b.prob * b.impact) - (a.prob * a.impact) : a.name.localeCompare(b.name));
-      const riskColor = (score: number) => score >= 16 ? "var(--risk)" : score >= 9 ? "var(--warning)" : "var(--success)";
+      const riskColor = (score: number) => score >= RISK_SCORE_HIGH ? "var(--risk)" : score >= RISK_SCORE_MEDIUM ? "var(--warning)" : "var(--success)";
       const addRisk = () => {
         if (!newRisk.name.trim()) return;
         const id = `R${risks.length + 1}`;

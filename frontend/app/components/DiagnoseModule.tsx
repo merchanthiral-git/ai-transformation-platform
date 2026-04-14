@@ -35,6 +35,10 @@ import {
   type JobDesignState,
 } from "./shared";
 import { SkeletonKpiRow, SkeletonTable, SkeletonChart } from "./ui-primitives";
+import {
+  AI_READINESS_HIGH, AI_READINESS_MEDIUM,
+  IMPACT_SCORE_HIGH, IMPACT_SCORE_MEDIUM,
+} from "../../lib/constants/scoring";
 
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1255,7 +1259,7 @@ Rank by impact score (0-100). Make recommendations specific to this org's data, 
     .sort((a, b) => sortBy === "impact" ? b.impact - a.impact : (a.effort === "Low" ? 0 : a.effort === "Medium" ? 1 : 2) - (b.effort === "Low" ? 0 : b.effort === "Medium" ? 1 : 2));
 
   const effortColor = (e: string) => e === "Low" ? "green" : e === "Medium" ? "amber" : "red";
-  const impactGradient = (score: number) => score >= 80 ? "from-[#D4860A] to-[#E8C547]" : score >= 60 ? "from-[#C07030] to-[#D4860A]" : "from-[#A0522D] to-[#C07030]";
+  const impactGradient = (score: number) => score >= AI_READINESS_HIGH ? "from-[#D4860A] to-[#E8C547]" : score >= AI_READINESS_MEDIUM ? "from-[#C07030] to-[#D4860A]" : "from-[#A0522D] to-[#C07030]";
 
   return <div>
     <ContextStrip items={["AI-powered recommendations based on your workforce data, readiness scores, and task analysis."]} />
@@ -1533,7 +1537,7 @@ export function AIImpactHeatmap({ model, f, onBack, onNavigate, viewCtx }: { mod
   const functions = ((data as Record<string, unknown>)?.functions || []) as string[];
   const families = ((data as Record<string, unknown>)?.families || []) as string[];
 
-  const cellColor = (score: number) => score >= 6 ? "rgba(239,68,68,0.7)" : score >= 3.5 ? "rgba(245,158,11,0.6)" : "rgba(16,185,129,0.5)";
+  const cellColor = (score: number) => score >= IMPACT_SCORE_HIGH ? "rgba(239,68,68,0.7)" : score >= IMPACT_SCORE_MEDIUM ? "rgba(245,158,11,0.6)" : "rgba(16,185,129,0.5)";
   const getCell = (func: string, fam: string) => cells.find(c => c.function === func && c.family === fam);
 
   return <div>

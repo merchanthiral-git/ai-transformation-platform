@@ -13,6 +13,10 @@ import {
   exportToCSV, EmptyWithAction, JobDesignState, AiInsightCard, fmtNum, ExpandableChart
 } from "./shared";
 import { PersonalImpactCard } from "./OverviewModule";
+import {
+  AUTOMATION_THRESHOLD_LOW, AUTOMATION_THRESHOLD_HIGH,
+  TIMELINE_ACCELERATION_FACTOR, ADOPTION_HIGH_THRESHOLD, ADOPTION_LOW_THRESHOLD,
+} from "../../lib/constants/scoring";
 import { SkeletonKpiRow, SkeletonChart } from "./ui-primitives";
 
 /* ═══════════════════════════════════════════════════════════════
@@ -39,9 +43,9 @@ function ScenarioNarrative({ scenario, adoption, timeline, totals, totalPct, tot
   const topDeptPct = topDept ? Math.round(topDept[1] / Math.max(totals.rel, 1) * 100) : 0;
 
   // Roles enhanced vs redesigned vs consolidated
-  const enhanced = scenData.filter(j => j.pctSaved < 30).length;
-  const redesigned = scenData.filter(j => j.pctSaved >= 30 && j.pctSaved < 60).length;
-  const consolidated = scenData.filter(j => j.pctSaved >= 60).length;
+  const enhanced = scenData.filter(j => j.pctSaved < AUTOMATION_THRESHOLD_LOW).length;
+  const redesigned = scenData.filter(j => j.pctSaved >= AUTOMATION_THRESHOLD_LOW && j.pctSaved < AUTOMATION_THRESHOLD_HIGH).length;
+  const consolidated = scenData.filter(j => j.pctSaved >= AUTOMATION_THRESHOLD_HIGH).length;
 
   // 3-year net
   const threeYearNet = totals.savings * 3 - totalInv;
@@ -52,13 +56,13 @@ function ScenarioNarrative({ scenario, adoption, timeline, totals, totalPct, tot
 
     const opportunity = `Your highest-impact opportunity is in ${topDept?.[0] || "the organization"}, where ${fmt(topDept?.[1] || 0)} hours per month can be freed — ${topDeptPct}% of total capacity released. This represents ${fmt(totals.fte)} FTE equivalents that can be redirected to higher-value strategic work.`;
 
-    const people = `This scenario affects ${activeJobs.length} roles. ${enhanced} role${enhanced !== 1 ? "s" : ""} will be enhanced with AI tools, ${redesigned} will be redesigned with shifted responsibilities, and ${consolidated} will see significant consolidation (60%+ task automation). Average retraining timeline: ${Math.round(timeline * 0.4)} months.`;
+    const people = `This scenario affects ${activeJobs.length} roles. ${enhanced} role${enhanced !== 1 ? "s" : ""} will be enhanced with AI tools, ${redesigned} will be redesigned with shifted responsibilities, and ${consolidated} will see significant consolidation (60%+ task automation). Average retraining timeline: ${Math.round(timeline * TIMELINE_ACCELERATION_FACTOR)} months.`;
 
     const financial = `Total transformation investment: ${fmtNum(totalInv)}, including technology, reskilling, and change management costs. Projected annual savings of ${fmtNum(totals.savings)} yield a payback period of ${breakEven} months and a 3-year net value of ${fmtNum(Math.round(threeYearNet))}.`;
 
-    const risk = `Key risks include adoption resistance (mitigate with change champions at 1:5 ratio), data quality gaps in automation-targeted processes, and skill transition timelines exceeding estimates. At ${adoption}% adoption, ${totalPct}% of current capacity is being released — ${totalPct > 40 ? "this is aggressive and requires strong executive sponsorship" : totalPct > 20 ? "a balanced approach with manageable change impact" : "a conservative start that minimizes disruption"}.`;
+    const risk = `Key risks include adoption resistance (mitigate with change champions at 1:5 ratio), data quality gaps in automation-targeted processes, and skill transition timelines exceeding estimates. At ${adoption}% adoption, ${totalPct}% of current capacity is being released — ${totalPct > ADOPTION_HIGH_THRESHOLD ? "this is aggressive and requires strong executive sponsorship" : totalPct > ADOPTION_LOW_THRESHOLD ? "a balanced approach with manageable change impact" : "a conservative start that minimizes disruption"}.`;
 
-    const recommendation = `Based on the analysis, this scenario is ${totalPct > 40 ? "suited for organizations with mature change capabilities and strong executive sponsorship" : totalPct > 20 ? "appropriate for most mid-to-large organizations ready to invest in workforce transformation" : "ideal as a Phase 1 pilot to build confidence before scaling"}. Next steps: finalize role redesigns in the Work Design Lab, then build the change management roadmap in Mobilize.`;
+    const recommendation = `Based on the analysis, this scenario is ${totalPct > ADOPTION_HIGH_THRESHOLD ? "suited for organizations with mature change capabilities and strong executive sponsorship" : totalPct > ADOPTION_LOW_THRESHOLD ? "appropriate for most mid-to-large organizations ready to invest in workforce transformation" : "ideal as a Phase 1 pilot to build confidence before scaling"}. Next steps: finalize role redesigns in the Work Design Lab, then build the change management roadmap in Mobilize.`;
 
     return { headline, opportunity, people, financial, risk, recommendation };
   }, [scenario, adoption, timeline, totals, totalPct, totalInv, breakEven, activeJobs.length, topDept, topDeptPct, enhanced, redesigned, consolidated, threeYearNet]);
@@ -173,7 +177,7 @@ Paragraph 6 (RECOMMENDATION): Is this scenario right, and what are the specific 
             <div className="flex items-center gap-2 mb-2"><span className="text-[16px]">📅</span><span className="text-[14px] font-bold text-[var(--text-primary)]">Timeline</span></div>
             <div className="text-[14px] text-[var(--text-secondary)]">{enhanced} roles enhanced with AI</div>
             <div className="text-[13px] text-[var(--text-muted)]">{redesigned} roles redesigned</div>
-            <div className="text-[13px] text-[var(--text-muted)]">Avg retraining: {Math.round(timeline * 0.4)} months</div>
+            <div className="text-[13px] text-[var(--text-muted)]">Avg retraining: {Math.round(timeline * TIMELINE_ACCELERATION_FACTOR)} months</div>
           </div>
         </div>
 
@@ -420,7 +424,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
             { label: "ROI", value: `${totals.savings > 0 ? (totals.savings / Math.max(totalInv, 1)).toFixed(1) : "0"}x`, color: "var(--accent-primary)", icon: "📈" },
             { label: "Payback", value: breakEven <= 36 ? `${breakEven}mo` : "36+", color: "#0EA5E9", icon: "⏱️" },
             { label: "FTEs Impacted", value: totals.fte.toFixed(1), color: "var(--purple)", icon: "👥" },
-            { label: "Risk Level", value: totalPct > 40 ? "High" : totalPct > 20 ? "Medium" : "Low", color: totalPct > 40 ? "var(--risk)" : totalPct > 20 ? "var(--warning)" : "var(--success)", icon: totalPct > 40 ? "🔴" : totalPct > 20 ? "🟡" : "🟢" },
+            { label: "Risk Level", value: totalPct > ADOPTION_HIGH_THRESHOLD ? "High" : totalPct > ADOPTION_LOW_THRESHOLD ? "Medium" : "Low", color: totalPct > ADOPTION_HIGH_THRESHOLD ? "var(--risk)" : totalPct > ADOPTION_LOW_THRESHOLD ? "var(--warning)" : "var(--success)", icon: totalPct > ADOPTION_HIGH_THRESHOLD ? "🔴" : totalPct > ADOPTION_LOW_THRESHOLD ? "🟡" : "🟢" },
           ].map(k => <div key={k.label} className="text-center">
             <div className="text-[11px] text-[var(--text-muted)] uppercase tracking-wider mb-1">{k.icon} {k.label}</div>
             <div className="text-[22px] font-extrabold font-data" style={{ color: k.color }}>{k.value}</div>
