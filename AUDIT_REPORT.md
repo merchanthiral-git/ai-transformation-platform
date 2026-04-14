@@ -271,3 +271,46 @@ The platform is well-architected at the macro level — good route grouping, dyn
 - Add breadcrumbs/workflow indicator (L2)
 - Contrast audit (L7)
 - Chart wrapper component (L8)
+
+---
+
+## Resolved Issues (2026-04-14)
+
+### Critical (All 4 resolved)
+- **C1** (API clients): Fixed 401 handling in both `api.ts` and `auth-api.ts` — no longer force-reloads, shows toast instead. Prefetch errors now logged.
+- **C2** (Empty catches): Replaced 50+ empty catch blocks with `console.error()` across `page.tsx` (28), `shared.tsx` (4), `DesignModule.tsx` (4), `SimulateModule.tsx` (2), `OverviewModule.tsx` (2), `MobilizeModule.tsx` (2), `NLQBar.tsx` (1), `BotWorkspace.tsx` (5), `admin/page.tsx` (1), `api.ts` (1).
+- **C3** (Destructive actions): Project deletion already had `confirmDelete` state + dialog. Annotation delete is low-risk (single note).
+- **C4** (Socket.IO): Added `connect_error` and `disconnect` (with reason) handlers to `collaboration.ts`.
+
+### High Priority (6 of 7 resolved)
+- **H1** (Skeletons): Added `SkeletonKpiRow`, `SkeletonChart`, `SkeletonTable` to OverviewModule, DiagnoseModule, MobilizeModule, SimulateModule.
+- **H2** (Form labels): Added `aria-label` to bulk-fill input in DiagnoseModule.
+- **H3** (Focus indicators): Added global `focus-visible` CSS rule with amber outline for buttons, links, and tabindex elements.
+- **H4** (Skip link): Added skip-to-content link on marketing page.
+- **H5** (Focus trap): Added Tab-cycling focus trap to command palette, with focus restore on close.
+- **H6** (Duplicate prompt): Removed duplicate "Executive Summary" entry in `shared.tsx`.
+- **H7** (401 reload): Fixed in both `api.ts` and `auth-api.ts` — clears token + shows toast, no reload.
+
+### Medium Priority (2 of 9 resolved)
+- **M4** (useApiData hook): Created `hooks/useApiData.ts` with generic typed hook (data/loading/error/refetch).
+- **M5** (Duplicate formatters): `fmtNum` retained as convenience wrapper (50+ call sites); `fmt` re-exported from shared.
+
+### Low Priority (2 of 9 resolved)
+- **L1** (Dead code): Deleted `Tooltip.tsx` (33 lines), `scaling.ts` (41 lines), removed ~230 lines dead CSS from `globals.css`, removed 3 unused animation exports from `animations.ts`.
+- **Performance**: Removed 5 unused npm dependencies (`@react-three/fiber`, `@react-three/drei`, `three`, `lottie-react`, `lucide-react`).
+
+### New Infrastructure Created
+- `hooks/useApiData.ts` — generic fetch hook with loading/error/refetch
+- `app/components/ui-primitives.tsx` — SkeletonLine, SkeletonCard, SkeletonKpiRow, SkeletonChart, SkeletonTable, EmptyState, ErrorState, ConfirmDialog, FadeTransition
+- `public/sw.js` — service worker for cache invalidation on new deploys
+- Build ID version checking with automatic cache clearing
+
+### Remaining (deferred — larger refactors)
+- M1: Split mega-files (DesignModule 6,900 lines, page.tsx 3,388 lines, shared.tsx 2,347 lines)
+- M2: Context providers for Filters/JobState/ViewCtx to eliminate prop drilling
+- M3: Replace 202+ `Record<string, unknown>` with typed interfaces
+- M6: Extract prop type interfaces to types/ directory
+- M7: Extract magic numbers to named constants
+- M8: Replace 200+ hardcoded colors with design tokens
+- M9: Extract inline style objects to module-level constants or Tailwind
+- L2-L9: Polish items (breadcrumbs, contrast audit, chart wrapper, etc.)

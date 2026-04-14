@@ -34,7 +34,7 @@ import {
   type ViewContext,
   type JobDesignState,
 } from "./shared";
-import { SkeletonKpiRow, SkeletonTable } from "./ui-primitives";
+import { SkeletonKpiRow, SkeletonTable, SkeletonChart } from "./ui-primitives";
 
 
 /* ═══════════════════════════════════════════════════════════════
