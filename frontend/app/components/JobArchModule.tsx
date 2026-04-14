@@ -39,501 +39,289 @@ const ORG_FUNC_COLORS: Record<string, string> = {
 };
 
 function OrgChartBuilder({ employees, jobs }: { employees: Employee[]; jobs: Job[] }) {
-  const [zoom, setZoom] = useState(0.55);
-  const [pan, setPan] = useState({ x: 0, y: 0 });
-  const [dragging, setDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState("");
-  const [viewMode, setViewMode] = useState<"structure" | "ai_impact" | "tenure" | "span" | "flight" | "readiness">("structure");
-  const [funcFilter, setFuncFilter] = useState("All");
-  const [showHeadcount, setShowHeadcount] = useState(true);
-  const [stateMode, setStateMode] = useState<"current" | "future">("current");
-  const [futureChanges, setFutureChanges] = useState<Record<string, string>>({});
-  const [changeCount, setChangeCount] = useState(0);
-  const [showCompare, setShowCompare] = useState(false);
+  const [searchResults, setSearchResults] = useState<OrgNode[]>([]);
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+  const [viewFromLayer, setViewFromLayer] = useState(0);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const [showStats, setShowStats] = useState(false);
-  const canvasRef = React.useRef<HTMLDivElement>(null);
+  const [funcFilter, setFuncFilter] = useState("All");
+  const searchRef = React.useRef<HTMLInputElement>(null);
+  const MAX_VISIBLE_DEPTH = 4;
 
   // Build person-level org tree from employee data
   const orgTree = useMemo(() => {
     if (!employees.length) return [];
     const byName: Record<string, OrgNode> = {};
-    // Create nodes
     employees.forEach(e => {
       byName[e.name] = { id: e.id, name: e.name, title: e.title, function: e.function, level: e.level, track: e.track, managerId: e.manager, children: [], headcount: 0, collapsed: false, performance: e.performance, flightRisk: e.flight_risk };
     });
-    // Link children to parents
     const roots: OrgNode[] = [];
     Object.values(byName).forEach(node => {
       const parent = byName[node.managerId];
       if (parent && parent.id !== node.id) { parent.children.push(node); }
       else { roots.push(node); }
     });
-    // Count headcount recursively
     const countHC = (n: OrgNode): number => { n.headcount = n.children.reduce((s, c) => s + countHC(c), 0) + 1; return n.headcount; };
     roots.forEach(r => countHC(r));
-    // Sort children by headcount desc
     const sortChildren = (n: OrgNode) => { n.children.sort((a, b) => b.headcount - a.headcount); n.children.forEach(sortChildren); };
     roots.forEach(sortChildren);
     return roots;
   }, [employees]);
 
-  // Flat node lookup by ID
-  const nodeById = useMemo(() => {
+  // Flat node lookup + parent map
+  const { nodeById, parentOf } = useMemo(() => {
     const map: Record<string, OrgNode> = {};
-    const walk = (n: OrgNode) => { map[n.id] = n; n.children.forEach(walk); };
+    const pmap: Record<string, string> = {};
+    const walk = (n: OrgNode) => { map[n.id] = n; n.children.forEach(c => { pmap[c.id] = n.id; walk(c); }); };
     orgTree.forEach(walk);
-    return map;
+    return { nodeById: map, parentOf: pmap };
   }, [orgTree]);
 
-  // Collapsed state — auto-collapse below depth 2 on initial load
-  const [collapsedIds, setCollapsedIds] = useState<Set<string>>(() => {
-    const ids = new Set<string>();
-    const walk = (n: OrgNode, depth: number) => { if (n.children.length > 0) ids.add(n.id); n.children.forEach(c => walk(c, depth + 1)); };
-    // Will be empty until orgTree is built, then effect below handles it
-    return ids;
-  });
-  const initialCollapseRef = React.useRef(false);
-  React.useEffect(() => {
-    if (orgTree.length > 0 && !initialCollapseRef.current) {
-      initialCollapseRef.current = true;
-      const ids = new Set<string>();
-      const walk = (n: OrgNode, depth: number) => { if (n.children.length > 0) ids.add(n.id); n.children.forEach(c => walk(c, depth + 1)); };
-      orgTree.forEach(r => walk(r, 0));
-      setCollapsedIds(ids);
+  // Compute depth (layer) for each node
+  const nodeDepth = useMemo(() => {
+    const depths: Record<string, number> = {};
+    const walk = (n: OrgNode, d: number) => { depths[n.id] = d; n.children.forEach(c => walk(c, d + 1)); };
+    orgTree.forEach(r => walk(r, 0));
+    return depths;
+  }, [orgTree]);
+
+  // Layer labels for the filter
+  const layerLabels = useMemo(() => {
+    const maxD = Math.max(0, ...Object.values(nodeDepth));
+    const labels: string[] = [];
+    for (let d = 0; d <= Math.min(maxD, 6); d++) {
+      const nodesAtD = Object.entries(nodeDepth).filter(([, dep]) => dep === d).map(([id]) => nodeById[id]);
+      const sample = nodesAtD[0];
+      const label = d === 0 ? "CEO / Top" : d === 1 ? "C-Suite / SVPs" : d === 2 ? "VPs / Directors" : d === 3 ? "Managers" : `Layer ${d + 1}`;
+      labels.push(`${label} (${nodesAtD.length})`);
     }
-  }, [orgTree]);
-  const toggleCollapse = (id: string) => setCollapsedIds(prev => { const next = new Set(prev); if (next.has(id)) next.delete(id); else next.add(id); return next; });
-  const expandAll = () => setCollapsedIds(new Set());
-  const collapseAll = () => { const ids = new Set<string>(); const walk = (n: OrgNode) => { if (n.children.length > 0) ids.add(n.id); n.children.forEach(walk); }; orgTree.forEach(walk); setCollapsedIds(ids); };
+    return labels;
+  }, [nodeDepth, nodeById]);
 
-  // Search
-  const searchMatch = useMemo(() => {
-    if (!search.trim()) return null;
+  // Get path from root to a specific node
+  const getPathTo = useCallback((targetId: string): OrgNode[] => {
+    const path: OrgNode[] = [];
+    let cur = targetId;
+    while (cur && nodeById[cur]) { path.unshift(nodeById[cur]); cur = parentOf[cur]; }
+    return path;
+  }, [nodeById, parentOf]);
+
+  // Toggle expand/collapse of a node's children
+  const toggleExpand = useCallback((id: string) => {
+    setExpandedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }, []);
+
+  // Search logic
+  React.useEffect(() => {
+    if (!search.trim()) { setSearchResults([]); return; }
     const q = search.toLowerCase();
-    const find = (n: OrgNode): OrgNode | null => { if (n.name.toLowerCase().includes(q) || n.title.toLowerCase().includes(q)) return n; for (const c of n.children) { const r = find(c); if (r) return r; } return null; };
-    for (const root of orgTree) { const r = find(root); if (r) return r; }
-    return null;
+    const results: OrgNode[] = [];
+    const walk = (n: OrgNode) => { if (n.name.toLowerCase().includes(q) || n.title.toLowerCase().includes(q)) results.push(n); n.children.forEach(walk); };
+    orgTree.forEach(walk);
+    setSearchResults(results.slice(0, 15));
   }, [search, orgTree]);
 
-  // Auto-select and expand path to search result
-  React.useEffect(() => { if (searchMatch) { setSelectedId(searchMatch.id); } }, [searchMatch]);
+  // When an employee is selected from search, expand the full path to them
+  const selectEmployee = useCallback((id: string) => {
+    const path = getPathTo(id);
+    const newExpanded = new Set<string>();
+    path.forEach(n => newExpanded.add(n.id));
+    setExpandedIds(newExpanded);
+    setSelectedId(id);
+    setSearch("");
+    setShowSearchDropdown(false);
+  }, [getPathTo]);
 
-  // Breadcrumb path to selected
-  const breadcrumb = useMemo(() => {
-    if (!selectedId) return [];
-    const path: OrgNode[] = [];
-    const find = (n: OrgNode, trail: OrgNode[]): boolean => { if (n.id === selectedId) { path.push(...trail, n); return true; } for (const c of n.children) { if (find(c, [...trail, n])) return true; } return false; };
-    for (const root of orgTree) { if (find(root, [])) break; }
-    return path;
-  }, [selectedId, orgTree]);
+  // Nodes visible at the root level (considering viewFromLayer)
+  const rootNodes = useMemo(() => {
+    if (viewFromLayer === 0) return orgTree;
+    const nodesAtLayer: OrgNode[] = [];
+    const walk = (n: OrgNode, d: number) => {
+      if (d === viewFromLayer) { nodesAtLayer.push(n); return; }
+      n.children.forEach(c => walk(c, d + 1));
+    };
+    orgTree.forEach(r => walk(r, 0));
+    return nodesAtLayer;
+  }, [orgTree, viewFromLayer]);
 
-  const selectedNode = useMemo(() => {
-    if (!selectedId) return null;
-    const find = (n: OrgNode): OrgNode | null => { if (n.id === selectedId) return n; for (const c of n.children) { const r = find(c); if (r) return r; } return null; };
-    for (const root of orgTree) { const r = find(root); if (r) return r; }
-    return null;
-  }, [selectedId, orgTree]);
+  // Filter by function
+  const filteredRoots = useMemo(() => {
+    if (funcFilter === "All") return rootNodes;
+    const filterFunc = (n: OrgNode): OrgNode | null => {
+      const filteredChildren = n.children.map(filterFunc).filter(Boolean) as OrgNode[];
+      if (n.function === funcFilter || filteredChildren.length > 0) return { ...n, children: filteredChildren };
+      return null;
+    };
+    return rootNodes.map(filterFunc).filter(Boolean) as OrgNode[];
+  }, [rootNodes, funcFilter]);
 
-  // Filter tree for view modes
-  const filterTree = (nodes: OrgNode[]): OrgNode[] => {
-    if (viewMode === "span") return nodes.map(n => ({ ...n, children: filterTree(n.children.filter(c => c.children.length > 0 || c.track === "Manager" || c.track === "Executive")) })).filter(n => n.children.length > 0 || n.track === "Manager" || n.track === "Executive");
-    if (funcFilter !== "All") {
-      const filterFunc = (n: OrgNode): OrgNode | null => {
-        const filteredChildren = n.children.map(filterFunc).filter(Boolean) as OrgNode[];
-        if (n.function === funcFilter || filteredChildren.length > 0) return { ...n, children: filteredChildren };
-        return null;
-      };
-      return nodes.map(filterFunc).filter(Boolean) as OrgNode[];
-    }
-    return nodes;
-  };
-  const displayTree = filterTree(orgTree);
-
-  // Drag to pan
-  const handleMouseDown = (e: React.MouseEvent) => { if (e.target === canvasRef.current || (e.target as HTMLElement).classList.contains("org-canvas-bg")) { setDragging(true); setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y }); } };
-  const handleMouseMove = (e: React.MouseEvent) => { if (dragging) setPan({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y }); };
-  const handleMouseUp = () => setDragging(false);
-  const handleWheel = (e: React.WheelEvent) => { e.preventDefault(); setZoom(z => Math.max(0.2, Math.min(2, z - e.deltaY * 0.001))); };
-
-  // Drag-and-drop reporting line change (future state)
-  const [dragNode, setDragNode] = useState<string | null>(null);
-  const [dropTarget, setDropTarget] = useState<string | null>(null);
-  const handleDrop = (targetId: string) => {
-    if (dragNode && dragNode !== targetId && stateMode === "future") {
-      const draggedNode = (() => { const find = (n: OrgNode): OrgNode | null => { if (n.id === dragNode) return n; for (const c of n.children) { const r = find(c); if (r) return r; } return null; }; for (const r of orgTree) { const found = find(r); if (found) return found; } return null; })();
-      if (draggedNode) {
-        setFutureChanges(prev => ({ ...prev, [dragNode]: targetId }));
-        setChangeCount(c => c + 1);
-        showToast(`Moved ${draggedNode.name} to report to new manager`);
-      }
-    }
-    setDragNode(null); setDropTarget(null);
-  };
+  // Breadcrumb path for selected employee
+  const breadcrumb = useMemo(() => selectedId ? getPathTo(selectedId) : [], [selectedId, getPathTo]);
 
   // Span of control color
   const spanColor = (n: OrgNode) => {
-    const direct = n.children.length;
-    if (direct === 0) return "var(--text-muted)";
-    if (direct >= 1 && direct <= 3) return "var(--warning)"; // narrow
-    if (direct >= 4 && direct <= 8) return "var(--success)"; // healthy
-    if (direct >= 9 && direct <= 12) return "var(--warning)"; // wide
-    return "var(--risk)"; // too wide
+    const d = n.children.length;
+    if (d === 0) return "var(--text-muted)";
+    return d <= 3 ? "var(--warning)" : d <= 8 ? "var(--success)" : d <= 12 ? "var(--warning)" : "var(--risk)";
   };
 
-  // Render a single org node
-  // Heat map color based on view mode
-  const getNodeColor = (node: OrgNode): string => {
+  // ── Node card ──
+  const renderCard = (node: OrgNode, depth: number) => {
     const funcColor = ORG_FUNC_COLORS[node.function] || "#888";
-    if (viewMode === "structure") return funcColor;
-    if (viewMode === "ai_impact") {
-      // Derive from job's AI score if available
-      const job = jobs.find(j => j.title === node.title);
-      const aiScore = job?.ai_score || 3;
-      return aiScore >= 6 ? "#EF4444" : aiScore >= 4 ? "#F59E0B" : aiScore >= 2 ? "#0891B2" : "#10B981";
-    }
-    if (viewMode === "tenure") {
-      const t = node.level; // Approximate tenure from level hash
-      const tenureEst = ((node.name.charCodeAt(0) + node.name.charCodeAt(1)) % 12) + 1;
-      return tenureEst > 8 ? "#EF4444" : tenureEst > 5 ? "#F59E0B" : tenureEst < 1 ? "#F59E0B" : "#10B981";
-    }
-    if (viewMode === "span") return spanColor(node);
-    if (viewMode === "flight") {
-      return node.flightRisk === "High" ? "#EF4444" : node.flightRisk === "Medium" ? "#F59E0B" : "#10B981";
-    }
-    if (viewMode === "readiness") {
-      return node.performance === "Exceeds" ? "#10B981" : node.performance === "Meets" ? "#F59E0B" : "#EF4444";
-    }
-    return funcColor;
-  };
-
-  // ── Render a single node card (no children layout — just the card itself) ──
-  const renderNodeCard = (node: OrgNode) => {
-    const isSelected = selectedId === node.id;
-    const funcColor = ORG_FUNC_COLORS[node.function] || "#888";
-    const heatColor = getNodeColor(node);
     const hasChildren = node.children.length > 0;
-    const isDragOver = dropTarget === node.id && dragNode !== node.id;
-    const isSearchMatch = searchMatch?.id === node.id;
+    const isExpanded = expandedIds.has(node.id);
+    const isSelected = selectedId === node.id;
     const isHovered = hoveredId === node.id;
-    const isCollapsed = collapsedIds.has(node.id);
-    const isSearchDimmed = search && !isSearchMatch && searchMatch !== null;
     const initials = node.name.split(" ").map(w => w[0]).join("").slice(0, 2);
-    const job = jobs.find(j => j.title === node.title);
-    const aiPct = job ? Math.min((job.ai_score || 0) / 10, 1) : 0.3;
+    const onPath = breadcrumb.some(b => b.id === node.id);
+    const dimmed = selectedId && !onPath && breadcrumb.length > 0 && depth > 0;
 
-    return <div
-      className="relative cursor-pointer"
-      style={{ transition: "transform 0.2s, box-shadow 0.2s", opacity: isSearchDimmed ? 0.15 : 1 }}
-      draggable={stateMode === "future"}
-      onDragStart={e => { e.dataTransfer.effectAllowed = "move"; setDragNode(node.id); }}
-      onDragOver={e => { e.preventDefault(); setDropTarget(node.id); }}
-      onDragLeave={() => setDropTarget(null)}
-      onDrop={e => { e.preventDefault(); handleDrop(node.id); }}
-      onClick={e => { e.stopPropagation(); setSelectedId(node.id); }}
-      onDoubleClick={e => { e.stopPropagation(); if (hasChildren) toggleCollapse(node.id); }}
-      onMouseEnter={() => setHoveredId(node.id)}
-      onMouseLeave={() => setHoveredId(null)}
-    >
-      <div className="rounded-2xl border transition-all" style={{
-        width: 200, minHeight: 80, padding: "10px 12px",
-        background: "rgba(26,35,64,0.75)",
-        backdropFilter: "blur(16px)",
-        borderColor: isSelected ? "#e09040" : isDragOver ? "var(--success)" : isSearchMatch ? "#e09040" : `${heatColor}30`,
-        borderWidth: isSelected || isSearchMatch ? 2 : 1,
-        boxShadow: isSelected ? "0 0 24px rgba(224,144,64,0.3)" : isHovered ? "0 4px 20px rgba(0,0,0,0.3)" : "0 2px 10px rgba(0,0,0,0.2)",
-        transform: isHovered ? "translateY(-3px)" : "none",
-      }}>
-        <div className="absolute bottom-0 left-3 right-3 h-[2px] rounded-t" style={{ background: funcColor }} />
-        <div className="absolute top-2 right-1 bottom-2 w-[3px] rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
-          <div className="absolute bottom-0 left-0 right-0 rounded-full transition-all" style={{ height: `${aiPct * 100}%`, background: aiPct > 0.6 ? "#EF4444" : aiPct > 0.3 ? "#F59E0B" : "#10B981" }} />
-        </div>
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0" style={{ background: `linear-gradient(135deg, ${heatColor}, ${heatColor}90)`, boxShadow: `0 2px 8px ${heatColor}30` }}>{initials}</div>
-          <div className="flex-1 min-w-0 mr-2">
-            <div className="text-[13px] font-bold text-[var(--text-primary)] truncate leading-tight">{node.name}</div>
-            <div className="text-[11px] text-[var(--text-muted)] truncate">{node.title}</div>
-            <div className="flex items-center gap-1.5 mt-1">
-              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: `${funcColor}15`, color: funcColor }}>{node.function.slice(0, 10)}</span>
-              {node.level && <span className="text-[9px] font-bold px-1 py-0.5 rounded bg-[rgba(255,255,255,0.06)] text-[var(--text-muted)]">{node.level}</span>}
-              {showHeadcount && hasChildren && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: `${heatColor}15`, color: heatColor }}>{node.children.length}</span>}
+    return <div key={node.id} style={{ opacity: dimmed ? 0.3 : 1, transition: "opacity 0.2s" }}>
+      <div
+        className="relative cursor-pointer group"
+        onClick={() => { if (hasChildren) toggleExpand(node.id); setSelectedId(node.id); }}
+        onMouseEnter={() => setHoveredId(node.id)}
+        onMouseLeave={() => setHoveredId(null)}
+      >
+        <div className="rounded-2xl border transition-all" style={{
+          width: 220, minHeight: 72, padding: "10px 14px",
+          background: isSelected ? "rgba(212,134,10,0.08)" : "rgba(26,35,64,0.75)",
+          backdropFilter: "blur(16px)",
+          borderColor: isSelected ? "#e09040" : `${funcColor}30`,
+          borderWidth: isSelected ? 2 : 1,
+          boxShadow: isSelected ? "0 0 20px rgba(224,144,64,0.2)" : isHovered ? "0 4px 16px rgba(0,0,0,0.3)" : "0 2px 8px rgba(0,0,0,0.15)",
+          transform: isHovered ? "translateY(-2px)" : "none",
+        }}>
+          <div className="absolute bottom-0 left-3 right-3 h-[2px] rounded-t" style={{ background: funcColor }} />
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0" style={{ background: `linear-gradient(135deg, ${funcColor}, ${funcColor}90)`, boxShadow: `0 2px 6px ${funcColor}30` }}>{initials}</div>
+            <div className="flex-1 min-w-0">
+              <div className="text-[13px] font-bold text-[var(--text-primary)] truncate leading-tight">{node.name}</div>
+              <div className="text-[11px] text-[var(--text-muted)] truncate">{node.title}</div>
+              <div className="flex items-center gap-1.5 mt-1">
+                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: `${funcColor}15`, color: funcColor }}>{node.function.length > 12 ? node.function.slice(0, 10) + "…" : node.function}</span>
+                {node.level && <span className="text-[9px] font-bold px-1 py-0.5 rounded bg-[rgba(255,255,255,0.06)] text-[var(--text-muted)]">{node.level}</span>}
+              </div>
             </div>
+            {hasChildren && <div className="flex flex-col items-center shrink-0">
+              <span className="text-[11px] font-bold" style={{ color: funcColor }}>{node.headcount - 1}</span>
+              <span className="text-[8px] text-[var(--text-muted)]">below</span>
+              <span className="text-[14px] transition-transform" style={{ color: "var(--text-muted)", transform: isExpanded ? "rotate(180deg)" : "none" }}>▾</span>
+            </div>}
           </div>
+          {/* Hover tooltip */}
+          {isHovered && <div className="mt-2 pt-2 border-t border-[rgba(255,255,255,0.06)] text-[11px] text-[var(--text-muted)] space-y-0.5" style={{ animation: "fadeIn 0.15s ease" }}>
+            <div>{node.children.length} direct · {node.headcount - 1} total</div>
+            <div className="flex gap-2"><span style={{ color: spanColor(node) }}>Span: {node.children.length}</span><span>Perf: {node.performance || "—"}</span></div>
+            {node.flightRisk === "High" && <div className="text-[var(--risk)] font-semibold">⚠ Flight Risk</div>}
+          </div>}
         </div>
-        {isHovered && <div className="mt-2 pt-2 border-t border-[rgba(255,255,255,0.06)] space-y-0.5" style={{ animation: "fadeIn 0.2s ease" }}>
-          <div className="text-[11px] text-[var(--text-muted)]">{node.children.length} direct reports · {node.headcount - 1} total</div>
-          <div className="flex items-center gap-2">
-            <span className="text-[11px]" style={{ color: spanColor(node) }}>Span: {node.children.length}{node.children.length > 10 ? " ⚠" : ""}</span>
-            <span className="text-[11px] text-[var(--text-muted)]">AI: {Math.round(aiPct * 100)}%</span>
-          </div>
-          {node.flightRisk === "High" && <div className="text-[10px] text-[var(--risk)] font-semibold">⚠ Flight Risk</div>}
-        </div>}
       </div>
-      {hasChildren && <button className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full border text-[10px] font-bold flex items-center justify-center z-10 transition-all" style={{ background: "var(--surface-1)", borderColor: isCollapsed ? heatColor : "var(--border)", color: isCollapsed ? heatColor : "var(--text-muted)" }} onClick={e => { e.stopPropagation(); toggleCollapse(node.id); }}>{isCollapsed ? `+${node.headcount - 1}` : "−"}</button>}
+      {/* Children — expanded with animation */}
+      {hasChildren && isExpanded && (nodeDepth[node.id] || 0) - viewFromLayer < MAX_VISIBLE_DEPTH - 1 && <div className="ml-8 mt-1 pl-4 border-l border-[rgba(255,255,255,0.08)]" style={{ animation: "slideDown 0.2s ease" }}>
+        {node.children.map(c => renderCard(c, depth + 1))}
+      </div>}
+      {/* Truncation message when at max depth */}
+      {hasChildren && isExpanded && (nodeDepth[node.id] || 0) - viewFromLayer >= MAX_VISIBLE_DEPTH - 1 && <div className="ml-8 mt-1 pl-4 border-l border-[rgba(255,255,255,0.05)]">
+        <div className="text-[12px] text-[var(--text-muted)] py-2 pl-2 italic">
+          {node.children.length} reports — click to drill deeper or use the layer filter
+        </div>
+      </div>}
     </div>;
   };
 
-  // ── Recursive tree layout: children grouped under parents, wrapping rows ──
-  const NODE_W = 200;
-  const NODE_H = 100;
-  const H_GAP = 20;
-  const V_GAP = 56;
-  const MAX_CHILDREN_PER_ROW = 6;
-
-  const layoutData = useMemo(() => {
-    const positions: Record<string, { x: number; y: number }> = {};
-    const edges: { parentId: string; childId: string }[] = [];
-
-    // Calculate subtree width recursively, wrapping children into rows
-    const subtreeWidth = (node: OrgNode): number => {
-      if (collapsedIds.has(node.id) || node.children.length === 0) return NODE_W;
-      const rowCount = Math.ceil(node.children.length / MAX_CHILDREN_PER_ROW);
-      let maxRowWidth = 0;
-      for (let r = 0; r < rowCount; r++) {
-        const rowChildren = node.children.slice(r * MAX_CHILDREN_PER_ROW, (r + 1) * MAX_CHILDREN_PER_ROW);
-        const rowWidth = rowChildren.reduce((sum, c) => sum + subtreeWidth(c), 0) + (rowChildren.length - 1) * H_GAP;
-        maxRowWidth = Math.max(maxRowWidth, rowWidth);
-      }
-      return Math.max(NODE_W, maxRowWidth);
-    };
-
-    // Position nodes recursively — parent centered above children, wrapping rows
-    const positionNode = (node: OrgNode, x: number, y: number) => {
-      const width = subtreeWidth(node);
-      positions[node.id] = { x: x + width / 2, y };
-
-      if (!collapsedIds.has(node.id) && node.children.length > 0) {
-        const rowCount = Math.ceil(node.children.length / MAX_CHILDREN_PER_ROW);
-        let rowY = y + NODE_H + V_GAP;
-        for (let r = 0; r < rowCount; r++) {
-          const rowChildren = node.children.slice(r * MAX_CHILDREN_PER_ROW, (r + 1) * MAX_CHILDREN_PER_ROW);
-          const rowWidth = rowChildren.reduce((sum, c) => sum + subtreeWidth(c), 0) + (rowChildren.length - 1) * H_GAP;
-          // Center row under parent
-          let childX = x + (width - rowWidth) / 2;
-          for (const child of rowChildren) {
-            const cw = subtreeWidth(child);
-            edges.push({ parentId: node.id, childId: child.id });
-            positionNode(child, childX, rowY);
-            childX += cw + H_GAP;
-          }
-          // Calculate the max depth of this row's subtrees for the next row offset
-          let maxRowDepth = NODE_H;
-          const rowSubtreeDepth = (n: OrgNode): number => {
-            if (collapsedIds.has(n.id) || n.children.length === 0) return NODE_H;
-            const childRows = Math.ceil(n.children.length / MAX_CHILDREN_PER_ROW);
-            let maxChildDepth = 0;
-            for (const c of n.children) {
-              if (!collapsedIds.has(n.id)) maxChildDepth = Math.max(maxChildDepth, rowSubtreeDepth(c));
-            }
-            return NODE_H + V_GAP + (childRows - 1) * (NODE_H + V_GAP) + maxChildDepth;
-          };
-          for (const child of rowChildren) {
-            maxRowDepth = Math.max(maxRowDepth, rowSubtreeDepth(child));
-          }
-          rowY += maxRowDepth + V_GAP;
-        }
-      }
-    };
-
-    // If multiple roots, create a virtual root so they stack under one center point
-    if (displayTree.length > 1) {
-      // Treat all roots as children of a virtual top node — lay them out in wrapped rows
-      const rowCount = Math.ceil(displayTree.length / MAX_CHILDREN_PER_ROW);
-      let rowY = 0;
-      for (let r = 0; r < rowCount; r++) {
-        const rowRoots = displayTree.slice(r * MAX_CHILDREN_PER_ROW, (r + 1) * MAX_CHILDREN_PER_ROW);
-        const rowWidth = rowRoots.reduce((sum, c) => sum + subtreeWidth(c), 0) + (rowRoots.length - 1) * H_GAP;
-        let childX = -rowWidth / 2;
-        for (const root of rowRoots) {
-          const cw = subtreeWidth(root);
-          positionNode(root, childX, rowY);
-          childX += cw + H_GAP;
-        }
-        rowY += NODE_H + V_GAP;
-        // Add extra space for any expanded subtrees
-        let maxSubDepth = NODE_H;
-        for (const root of rowRoots) {
-          if (!collapsedIds.has(root.id) && root.children.length > 0) {
-            maxSubDepth = Math.max(maxSubDepth, NODE_H + V_GAP + Math.ceil(root.children.length / MAX_CHILDREN_PER_ROW) * (NODE_H + V_GAP));
-          }
-        }
-        rowY += maxSubDepth;
-      }
-    } else if (displayTree.length === 1) {
-      positionNode(displayTree[0], 0, 0);
-    }
-
-    // Calculate bounds
-    let minX = Infinity, maxX = -Infinity, maxY = 0;
-    Object.values(positions).forEach(p => {
-      minX = Math.min(minX, p.x - NODE_W / 2);
-      maxX = Math.max(maxX, p.x + NODE_W / 2);
-      maxY = Math.max(maxY, p.y);
-    });
-    if (!isFinite(minX)) { minX = 0; maxX = 400; }
-
-    const totalWidth = maxX - minX + 80;
-    const totalHeight = maxY + NODE_H + 40;
-    const offsetX = -minX + 40;
-
-    return { positions, edges, totalWidth, totalHeight, offsetX };
-  }, [displayTree, collapsedIds]);
-
-  // Fit-to-screen: calculate zoom so the full tree fits the viewport
-  const fitToScreen = useCallback(() => {
-    if (!canvasRef.current || layoutData.totalWidth <= 0) { setZoom(0.7); setPan({ x: 0, y: 0 }); return; }
-    const rect = canvasRef.current.getBoundingClientRect();
-    const zx = (rect.width - 40) / layoutData.totalWidth;
-    const zy = (rect.height - 40) / layoutData.totalHeight;
-    const newZoom = Math.max(0.3, Math.min(1, Math.min(zx, zy)));
-    setZoom(newZoom);
-    setPan({ x: 0, y: 0 });
-  }, [layoutData.totalWidth, layoutData.totalHeight]);
-
-  // Auto-fit on first render after layout is computed
-  const autoFitRef = React.useRef(false);
-  React.useEffect(() => {
-    if (layoutData.totalWidth > 0 && !autoFitRef.current && canvasRef.current) {
-      autoFitRef.current = true;
-      requestAnimationFrame(() => fitToScreen());
-    }
-  }, [layoutData.totalWidth, fitToScreen]);
-
   if (!employees.length) return <div className="text-center py-20"><div className="text-[40px] mb-3">🏢</div><div className="text-[15px] font-semibold text-[var(--text-primary)] mb-1">No Employee Data</div><div className="text-[14px] text-[var(--text-muted)]">Upload workforce data with Manager ID fields to generate the org chart.</div></div>;
 
-  // Graceful empty state for when data exists but tree is empty (filter mismatch)
-  if (!displayTree.length) return <div className="text-center py-20"><div className="text-[40px] mb-3">🔍</div><div className="text-[15px] font-semibold text-[var(--text-primary)] mb-1">No Matching Employees</div><div className="text-[14px] text-[var(--text-muted)]">Adjust your filters to see the org hierarchy.</div></div>;
-
   return <div className="animate-tab-enter">
-    {/* Toolbar */}
+    {/* ── Toolbar ── */}
     <div className="flex items-center gap-2 mb-3 flex-wrap">
-      <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search name or title..." className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-[14px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] w-56" />
-      <div className="flex rounded-lg overflow-hidden border border-[var(--border)]">
-        {(["structure", "ai_impact", "tenure", "span", "flight", "readiness"] as const).map(m => <button key={m} onClick={() => setViewMode(m)} className="px-3 py-1.5 text-[13px] font-semibold transition-all" style={{ background: viewMode === m ? "rgba(212,134,10,0.12)" : "var(--surface-2)", color: viewMode === m ? "#e09040" : "var(--text-muted)" }}>{m === "structure" ? "Structure" : m === "ai_impact" ? "AI Impact" : m === "tenure" ? "Tenure" : m === "span" ? "Span" : m === "flight" ? "Flight Risk" : "Readiness"}</button>)}
+      {/* Search with dropdown */}
+      <div className="relative">
+        <input ref={searchRef} value={search} onChange={e => { setSearch(e.target.value); setShowSearchDropdown(true); }} onFocus={() => { if (search) setShowSearchDropdown(true); }} onBlur={() => setTimeout(() => setShowSearchDropdown(false), 200)} placeholder="Search employee..." className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-[14px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] w-56" />
+        {showSearchDropdown && searchResults.length > 0 && <div className="absolute top-full left-0 mt-1 w-72 bg-[var(--surface-1)] border border-[var(--border)] rounded-xl shadow-lg z-50 max-h-[280px] overflow-y-auto" style={{ backdropFilter: "blur(20px)" }}>
+          {searchResults.map(r => <button key={r.id} onClick={() => selectEmployee(r.id)} className="w-full text-left px-3 py-2 hover:bg-[var(--hover)] transition-colors flex items-center gap-2 border-b border-[var(--border)] last:border-0">
+            <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0" style={{ background: ORG_FUNC_COLORS[r.function] || "#888" }}>{r.name.split(" ").map(w => w[0]).join("").slice(0, 2)}</div>
+            <div className="min-w-0"><div className="text-[13px] font-semibold text-[var(--text-primary)] truncate">{r.name}</div><div className="text-[11px] text-[var(--text-muted)] truncate">{r.title} · {r.function}</div></div>
+          </button>)}
+        </div>}
       </div>
+      {/* Layer filter */}
+      <select value={viewFromLayer} onChange={e => { setViewFromLayer(Number(e.target.value)); setExpandedIds(new Set()); setSelectedId(null); }} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-2 py-1.5 text-[13px] text-[var(--text-primary)] outline-none">
+        {layerLabels.map((label, i) => <option key={i} value={i}>View from: {label}</option>)}
+      </select>
+      {/* Function filter */}
       <select value={funcFilter} onChange={e => setFuncFilter(e.target.value)} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-2 py-1.5 text-[13px] text-[var(--text-primary)] outline-none">
         <option value="All">All Functions</option>{Array.from(new Set(employees.map(e => e.function))).sort().map(f => <option key={f}>{f}</option>)}
       </select>
-      <div className="flex rounded-lg overflow-hidden border border-[var(--border)] ml-auto">
-        <button onClick={() => setStateMode("current")} className="px-3 py-1.5 text-[13px] font-semibold" style={{ background: stateMode === "current" ? "rgba(16,185,129,0.12)" : "var(--surface-2)", color: stateMode === "current" ? "var(--success)" : "var(--text-muted)" }}>Current</button>
-        <button onClick={() => setStateMode("future")} className="px-3 py-1.5 text-[13px] font-semibold" style={{ background: stateMode === "future" ? "rgba(139,92,246,0.12)" : "var(--surface-2)", color: stateMode === "future" ? "var(--purple)" : "var(--text-muted)" }}>Future</button>
+      {/* Quick actions */}
+      <div className="flex gap-1 ml-auto">
+        <button onClick={() => { setExpandedIds(new Set()); setSelectedId(null); setViewFromLayer(0); }} className="px-2 py-1 rounded text-[12px] text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--accent-primary)]">Reset</button>
       </div>
-      <label className="flex items-center gap-1.5 text-[13px] text-[var(--text-muted)] cursor-pointer"><input type="checkbox" checked={showHeadcount} onChange={e => setShowHeadcount(e.target.checked)} className="rounded" />Headcount</label>
-      <button onClick={expandAll} className="px-2 py-1 rounded text-[12px] text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--accent-primary)]">Expand All</button>
-      <button onClick={collapseAll} className="px-2 py-1 rounded text-[12px] text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--accent-primary)]">Collapse All</button>
-      <button onClick={fitToScreen} className="px-2 py-1 rounded text-[12px] text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--accent-primary)]">Fit</button>
-      {stateMode === "future" && changeCount > 0 && <span className="px-2 py-1 rounded-full text-[12px] font-bold bg-[rgba(139,92,246,0.1)] text-[var(--purple)]">{changeCount} changes</span>}
     </div>
 
-    {/* Breadcrumb */}
-    {breadcrumb.length > 0 && <div className="flex items-center gap-1 mb-2 text-[13px]">
-      {breadcrumb.map((n, i) => <React.Fragment key={n.id}>{i > 0 && <span className="text-[var(--text-muted)]">→</span>}<button onClick={() => setSelectedId(n.id)} className="font-semibold" style={{ color: i === breadcrumb.length - 1 ? "#e09040" : "var(--text-muted)" }}>{n.name}</button></React.Fragment>)}
+    {/* ── Breadcrumb (chain of command) ── */}
+    {breadcrumb.length > 1 && <div className="flex items-center gap-1 mb-3 px-2 py-1.5 rounded-lg bg-[var(--surface-2)] border border-[var(--border)]">
+      <span className="text-[11px] text-[var(--text-muted)] uppercase tracking-wider mr-1">Chain:</span>
+      {breadcrumb.map((n, i) => <React.Fragment key={n.id}>
+        {i > 0 && <span className="text-[var(--text-muted)] text-[12px]">→</span>}
+        <button onClick={() => selectEmployee(n.id)} className="text-[12px] font-semibold px-1.5 py-0.5 rounded transition-colors hover:bg-[var(--hover)]" style={{ color: i === breadcrumb.length - 1 ? "#e09040" : "var(--text-muted)" }}>{n.name}<span className="text-[10px] font-normal text-[var(--text-muted)] ml-0.5">({n.title})</span></button>
+      </React.Fragment>)}
     </div>}
 
-    {/* Main area: Canvas + Detail Panel */}
-    <div className="flex gap-4" style={{ height: "calc(100vh - 320px)", minHeight: 500 }}>
-      {/* Canvas */}
-      <div ref={canvasRef} className="flex-1 rounded-xl border border-[var(--border)] overflow-auto relative" style={{ background: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0)", backgroundSize: "24px 24px" }}
-        onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} onWheel={handleWheel}>
-        <div className="org-canvas-bg" style={{ cursor: dragging ? "grabbing" : "grab", minWidth: "100%", minHeight: "100%" }}>
-          <div style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: "top center", transition: dragging ? "none" : "transform 0.15s ease", position: "relative", width: layoutData.totalWidth, height: layoutData.totalHeight, margin: "0 auto", paddingTop: 20 }}>
-            {/* SVG connector lines */}
-            <svg style={{ position: "absolute", top: 0, left: 0, width: layoutData.totalWidth, height: layoutData.totalHeight, pointerEvents: "none" }}>
-              {layoutData.edges.map(({ parentId, childId }) => {
-                const parentPos = layoutData.positions[parentId];
-                const childPos = layoutData.positions[childId];
-                if (!parentPos || !childPos) return null;
-                const x1 = parentPos.x + layoutData.offsetX;
-                const y1 = parentPos.y + NODE_H;
-                const x2 = childPos.x + layoutData.offsetX;
-                const y2 = childPos.y;
-                const midY = y1 + (y2 - y1) / 2;
-                return <path key={`${parentId}-${childId}`} d={`M${x1},${y1} L${x1},${midY} L${x2},${midY} L${x2},${y2}`} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" />;
-              })}
-            </svg>
-            {/* Node cards positioned absolutely */}
-            {Object.entries(layoutData.positions).map(([id, pos]) => {
-              const node = nodeById[id];
-              if (!node) return null;
-              return <div key={id} style={{ position: "absolute", left: pos.x + layoutData.offsetX - NODE_W / 2, top: pos.y, width: NODE_W }}>
-                {renderNodeCard(node)}
-              </div>;
-            })}
-            {displayTree.length === 0 && <div className="text-[var(--text-muted)] text-center py-20 w-full">No employees match the current filters</div>}
-          </div>
+    {/* ── Main content: Tree + Detail panel ── */}
+    <div className="flex gap-4" style={{ minHeight: 500 }}>
+      {/* Tree view */}
+      <div className="flex-1 rounded-xl border border-[var(--border)] p-4 overflow-auto" style={{ background: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.015) 1px, transparent 0)", backgroundSize: "20px 20px", maxHeight: "calc(100vh - 300px)" }}>
+        {filteredRoots.length === 0 && <div className="text-center py-12 text-[var(--text-muted)]">No employees match the current filters</div>}
+        <div className="space-y-1">
+          {filteredRoots.map(node => renderCard(node, 0))}
         </div>
-        {/* Zoom indicator */}
-        <div className="absolute bottom-3 left-3 flex items-center gap-2 bg-[rgba(0,0,0,0.5)] rounded-lg px-3 py-1.5 backdrop-blur z-10">
-          <button onClick={() => setZoom(z => Math.min(2, z + 0.1))} className="text-[14px] text-white/60 hover:text-white">+</button>
-          <span className="text-[12px] text-white/60">{Math.round(zoom * 100)}%</span>
-          <button onClick={() => setZoom(z => Math.max(0.2, z - 0.1))} className="text-[14px] text-white/60 hover:text-white">−</button>
-        </div>
-        {stateMode === "future" && <div className="absolute top-3 left-3 px-3 py-1.5 rounded-lg text-[13px] font-semibold bg-[rgba(139,92,246,0.15)] text-[var(--purple)] border border-[var(--purple)]/20 z-10">Editing Future State — drag nodes to change reporting lines</div>}
       </div>
 
       {/* Detail panel */}
-      {selectedNode && <div className="w-72 shrink-0 rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4 overflow-y-auto">
-        <div className="flex items-center justify-between mb-3">
-          <div className="text-[16px] font-bold text-[var(--text-primary)]">{selectedNode.name}</div>
-          <button onClick={() => setSelectedId(null)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)]">×</button>
-        </div>
-        <div className="space-y-3">
-          <div><div className="text-[12px] text-[var(--text-muted)] uppercase">Title</div><div className="text-[14px] text-[var(--text-primary)] font-semibold">{selectedNode.title}</div></div>
-          <div className="grid grid-cols-2 gap-2">
-            <div><div className="text-[12px] text-[var(--text-muted)] uppercase">Function</div><div className="text-[14px] font-semibold" style={{ color: ORG_FUNC_COLORS[selectedNode.function] || "#888" }}>{selectedNode.function}</div></div>
-            <div><div className="text-[12px] text-[var(--text-muted)] uppercase">Level</div><div className="text-[14px] text-[var(--text-primary)]">{selectedNode.level}</div></div>
-            <div><div className="text-[12px] text-[var(--text-muted)] uppercase">Track</div><div className="text-[14px] text-[var(--text-primary)]">{selectedNode.track}</div></div>
-            <div><div className="text-[12px] text-[var(--text-muted)] uppercase">Reports to</div><div className="text-[14px] text-[var(--text-primary)]">{selectedNode.managerId || "—"}</div></div>
+      {selectedId && nodeById[selectedId] && (() => {
+        const sn = nodeById[selectedId];
+        return <div className="w-72 shrink-0 rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4 overflow-y-auto" style={{ maxHeight: "calc(100vh - 300px)" }}>
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-[16px] font-bold text-[var(--text-primary)]">{sn.name}</div>
+            <button onClick={() => setSelectedId(null)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-[18px]">×</button>
           </div>
-          <div className="grid grid-cols-2 gap-2">
-            <div><div className="text-[12px] text-[var(--text-muted)] uppercase">Performance</div><div className="text-[14px] font-semibold" style={{ color: selectedNode.performance === "Exceeds" ? "var(--success)" : selectedNode.performance === "Meets" ? "var(--accent-primary)" : "var(--warning)" }}>{selectedNode.performance}</div></div>
-            <div><div className="text-[12px] text-[var(--text-muted)] uppercase">Flight Risk</div><div className="text-[14px] font-semibold" style={{ color: selectedNode.flightRisk === "High" ? "var(--risk)" : selectedNode.flightRisk === "Medium" ? "var(--warning)" : "var(--success)" }}>{selectedNode.flightRisk}</div></div>
+          <div className="space-y-3">
+            <div><div className="text-[12px] text-[var(--text-muted)] uppercase">Title</div><div className="text-[14px] text-[var(--text-primary)] font-semibold">{sn.title}</div></div>
+            <div className="grid grid-cols-2 gap-2">
+              <div><div className="text-[12px] text-[var(--text-muted)] uppercase">Function</div><div className="text-[14px] font-semibold" style={{ color: ORG_FUNC_COLORS[sn.function] || "#888" }}>{sn.function}</div></div>
+              <div><div className="text-[12px] text-[var(--text-muted)] uppercase">Level</div><div className="text-[14px] text-[var(--text-primary)]">{sn.level}</div></div>
+              <div><div className="text-[12px] text-[var(--text-muted)] uppercase">Track</div><div className="text-[14px] text-[var(--text-primary)]">{sn.track}</div></div>
+              <div><div className="text-[12px] text-[var(--text-muted)] uppercase">Reports to</div><div className="text-[14px] text-[var(--text-primary)]">{sn.managerId || "—"}</div></div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div><div className="text-[12px] text-[var(--text-muted)] uppercase">Performance</div><div className="text-[14px] font-semibold" style={{ color: sn.performance === "Exceeds" ? "var(--success)" : sn.performance === "Meets" ? "var(--accent-primary)" : "var(--warning)" }}>{sn.performance || "—"}</div></div>
+              <div><div className="text-[12px] text-[var(--text-muted)] uppercase">Flight Risk</div><div className="text-[14px] font-semibold" style={{ color: sn.flightRisk === "High" ? "var(--risk)" : sn.flightRisk === "Medium" ? "var(--warning)" : "var(--success)" }}>{sn.flightRisk || "—"}</div></div>
+            </div>
+            {sn.children.length > 0 && <>
+              <div><div className="text-[12px] text-[var(--text-muted)] uppercase">Span of Control</div><div className="text-[14px] font-bold" style={{ color: spanColor(sn) }}>{sn.children.length} direct reports</div></div>
+              <div><div className="text-[12px] text-[var(--text-muted)] uppercase">Total Organization</div><div className="text-[14px] text-[var(--text-primary)]">{sn.headcount - 1} people</div></div>
+              <div><div className="text-[12px] text-[var(--text-muted)] uppercase mb-1">Direct Reports</div><div className="space-y-1 max-h-[200px] overflow-y-auto">{sn.children.map(c => <button key={c.id} onClick={() => selectEmployee(c.id)} className="w-full text-left px-2 py-1.5 rounded-lg hover:bg-[var(--bg)] transition-all flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full shrink-0" style={{ background: ORG_FUNC_COLORS[c.function] || "#888" }} />
+                <div className="min-w-0"><div className="text-[13px] font-semibold text-[var(--text-primary)] truncate">{c.name}</div><div className="text-[11px] text-[var(--text-muted)] truncate">{c.title} · {c.children.length > 0 ? `${c.headcount - 1} below` : "IC"}</div></div>
+              </button>)}</div></div>
+            </>}
           </div>
-          {selectedNode.children.length > 0 && <>
-            <div><div className="text-[12px] text-[var(--text-muted)] uppercase">Span of Control</div><div className="text-[14px] font-bold" style={{ color: spanColor(selectedNode) }}>{selectedNode.children.length} direct reports</div></div>
-            <div><div className="text-[12px] text-[var(--text-muted)] uppercase">Total Organization</div><div className="text-[14px] text-[var(--text-primary)]">{selectedNode.headcount - 1} people</div></div>
-            <div><div className="text-[12px] text-[var(--text-muted)] uppercase mb-1">Direct Reports</div><div className="space-y-1 max-h-[200px] overflow-y-auto">{selectedNode.children.map(c => <button key={c.id} onClick={() => setSelectedId(c.id)} className="w-full text-left px-2 py-1.5 rounded-lg hover:bg-[var(--bg)] transition-all flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full shrink-0" style={{ background: ORG_FUNC_COLORS[c.function] || "#888" }} />
-              <div className="min-w-0"><div className="text-[13px] font-semibold text-[var(--text-primary)] truncate">{c.name}</div><div className="text-[11px] text-[var(--text-muted)] truncate">{c.title}</div></div>
-            </button>)}</div></div>
-          </>}
-        </div>
-      </div>}
+        </div>;
+      })()}
     </div>
 
-    {/* Heat map legends */}
-    {viewMode === "span" && <div className="flex gap-4 mt-2 text-[13px] text-[var(--text-muted)]">
-      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full bg-[var(--warning)]" />1-3 (narrow)</span>
-      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full bg-[var(--success)]" />4-8 (healthy)</span>
-      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full bg-[var(--warning)]" />9-12 (wide)</span>
-      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full bg-[var(--risk)]" />13+ (too wide)</span>
-    </div>}
-    {viewMode === "ai_impact" && <div className="flex gap-4 mt-2 text-[13px] text-[var(--text-muted)]">
-      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full" style={{background:"#10b981"}} />Low AI Impact</span>
-      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full" style={{background:"#f59e0b"}} />Moderate</span>
-      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full" style={{background:"#ef4444"}} />High AI Impact</span>
-    </div>}
-    {viewMode === "tenure" && <div className="flex gap-4 mt-2 text-[13px] text-[var(--text-muted)]">
-      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full" style={{background:"#60a5fa"}} />&lt;2 yrs</span>
-      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full" style={{background:"#10b981"}} />2-5 yrs</span>
-      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full" style={{background:"#f59e0b"}} />5-10 yrs</span>
-      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full" style={{background:"#c084fc"}} />10+ yrs</span>
-    </div>}
-    {viewMode === "flight" && <div className="flex gap-4 mt-2 text-[13px] text-[var(--text-muted)]">
-      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full" style={{background:"#10b981"}} />Low Risk</span>
-      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full" style={{background:"#f59e0b"}} />Medium Risk</span>
-      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full" style={{background:"#ef4444"}} />High Risk</span>
-    </div>}
-    {viewMode === "readiness" && <div className="flex gap-4 mt-2 text-[13px] text-[var(--text-muted)]">
-      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full" style={{background:"#ef4444"}} />Not Ready</span>
-      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full" style={{background:"#f59e0b"}} />Developing</span>
-      <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full" style={{background:"#10b981"}} />Ready</span>
-    </div>}
+    {/* Function legend */}
+    <div className="flex gap-2 flex-wrap mt-3">{Array.from(new Set(employees.map(e => e.function))).sort().map(f => <span key={f} className="flex items-center gap-1 text-[12px]"><span className="w-2.5 h-2.5 rounded-full" style={{ background: ORG_FUNC_COLORS[f] || "#888" }} /><span style={{ color: ORG_FUNC_COLORS[f] || "#888" }}>{f}</span></span>)}</div>
 
-    {/* Function color legend */}
-    {viewMode === "structure" && <div className="flex gap-2 flex-wrap mt-2">{Array.from(new Set(employees.map(e => e.function))).sort().map(f => <span key={f} className="flex items-center gap-1 text-[12px]"><span className="w-2.5 h-2.5 rounded-full" style={{ background: ORG_FUNC_COLORS[f] || "#888" }} /><span style={{ color: ORG_FUNC_COLORS[f] || "#888" }}>{f}</span></span>)}</div>}
+    {/* Animations */}
+    <style>{`@keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }`}</style>
   </div>;
 }
 

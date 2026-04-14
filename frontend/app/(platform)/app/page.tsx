@@ -623,18 +623,7 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
   const btnBase: React.CSSProperties = { background: "none", border: "none", cursor: "pointer", transition: "all 0.2s", display: "flex", alignItems: "center", justifyContent: "center" };
   const expandedRef = useRef<HTMLDivElement>(null);
 
-  // Debug overlay — shows audio state for diagnosing playback issues.
-  // TODO: Remove once playback is confirmed working.
-  const [debugInfo, setDebugInfo] = useState("");
-  useEffect(() => {
-    const id = setInterval(() => {
-      const a = audioRef.current;
-      if (!a) { setDebugInfo("Audio: null"); return; }
-      setDebugInfo(`src: ${a.src ? a.src.split("/").pop() : "none"} | vol: ${a.volume.toFixed(2)} | muted: ${a.muted} | paused: ${a.paused} | ready: ${a.readyState} | err: ${a.error?.message || "none"}`);
-    }, 500);
-    return () => clearInterval(id);
-  }, []);
-  const debugOverlay = <div style={{ position: "fixed", bottom: viewState === "collapsed" ? 48 : viewState === "expanded" ? "auto" : 60, top: viewState === "expanded" ? 4 : "auto", right: 8, zIndex: 9999, background: "rgba(0,0,0,0.85)", color: "#0f0", padding: "4px 8px", borderRadius: 6, fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", maxWidth: 420, wordBreak: "break-all", pointerEvents: "none" }}>{debugInfo}</div>;
+  // Debug overlay removed — playback confirmed working.
 
   // Escape key collapses expanded player or exits immersive
   useEffect(() => {
@@ -659,7 +648,7 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
   if (!cdnReachable) return null;
 
   // ── Prompt state: "This site has a soundtrack" pill ──
-  if (viewState === "prompt") return <>{debugOverlay}
+  if (viewState === "prompt") return <>
     <style>{`
       @keyframes soundtrackGlow { 0%, 100% { box-shadow: 0 4px 20px rgba(224,144,64,0.15), 0 0 0 0 rgba(224,144,64,0.08); } 50% { box-shadow: 0 4px 24px rgba(224,144,64,0.3), 0 0 0 8px rgba(224,144,64,0.04); } }
       @keyframes soundtrackFadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
@@ -701,7 +690,7 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
   </>;
 
   // ── Mini state: small floating icon with sound bars ──
-  if (viewState === "mini") return <>{debugOverlay}
+  if (viewState === "mini") return <>
     <div style={{ position: "fixed", bottom: 20, right: 24, zIndex: 40, display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
       <button onClick={() => {
         if (!playing && volume === 0) changeVolume(0.5);
@@ -748,11 +737,10 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     <button onClick={e => { e.stopPropagation(); changeVolume(volume > 0 ? 0 : 0.5); }} style={{ ...btnBase, fontSize: 13, color: "rgba(255,255,255,0.3)" }}>{volume === 0 ? "🔇" : "🔊"}</button>
     <input type="range" min={0} max={1} step={0.02} value={volume} onClick={e => e.stopPropagation()} onChange={e => { e.stopPropagation(); changeVolume(Number(e.target.value)); }} style={{ width: 50, accentColor: "#e09040", height: 3, flexShrink: 0 }} />
     <button onClick={e => { e.stopPropagation(); setViewState("mini"); }} style={{ ...btnBase, color: "rgba(255,255,255,0.25)", fontSize: 14 }} title="Hide player">✕</button>
-    {debugOverlay}
   </div>;
 
   // ── Expanded state: full player panel ──
-  return <>{debugOverlay}<div ref={expandedRef} style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 40, background: "rgba(10,8,6,0.92)", backdropFilter: "blur(24px)", borderTop: "1px solid rgba(212,134,10,0.12)", transition: "all 0.4s cubic-bezier(0.16,1,0.3,1)" }}>
+  return <>{null}<div ref={expandedRef} style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 40, background: "rgba(10,8,6,0.92)", backdropFilter: "blur(24px)", borderTop: "1px solid rgba(212,134,10,0.12)", transition: "all 0.4s cubic-bezier(0.16,1,0.3,1)" }}>
     {/* Visible collapse/close buttons at top-right of panel */}
     <div style={{ position: "absolute", top: 10, right: 16, display: "flex", gap: 6, zIndex: 1 }}>
       <button onClick={() => setViewState("collapsed")} title="Minimize to bar" style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)", fontSize: 15, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.12)"; e.currentTarget.style.color = "#f5e6d0"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; e.currentTarget.style.color = "rgba(255,255,255,0.5)"; }}>▾</button>
