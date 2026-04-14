@@ -291,30 +291,38 @@ The platform is well-architected at the macro level — good route grouping, dyn
 - **H6** (Duplicate prompt): Removed duplicate "Executive Summary" entry in `shared.tsx`.
 - **H7** (401 reload): Fixed in both `api.ts` and `auth-api.ts` — clears token + shows toast, no reload.
 
-### Medium Priority (4 of 9 resolved)
-- **M1** (Mega-files): Split DesignModule.tsx (6,900 lines → 9-line barrel + 8 focused files in `design/`). Split shared.tsx (2,373 lines → 6-line barrel + 5 focused files in `shared/`). Barrel re-exports maintain full backwards compatibility.
+### Medium Priority (7 of 9 resolved)
+- **M1** (Mega-files): Split DesignModule.tsx (6,900 → 9-line barrel + 8 files in `design/`). Split shared.tsx (2,373 → 6-line barrel + 5 files in `shared/`). Barrel re-exports maintain full backwards compatibility.
+- **M3** (Typed API): Created `types/api.ts` with 46 interfaces for all API endpoints. Updated `lib/api.ts` with explicit return types. Replaced `Record<string, unknown>` casts: DiagnoseModule 41→9, MobilizeModule 28→14, OverviewModule 28→13, ExportModule 15→1, SimulateModule 3→2. Remaining are legitimately generic.
 - **M4** (useApiData hook): Created `hooks/useApiData.ts` with generic typed hook (data/loading/error/refetch).
 - **M5** (Duplicate formatters): `fmtNum` retained as convenience wrapper (50+ call sites); `fmt` re-exported from shared.
-- **M7** (Magic numbers): Created `lib/constants/scoring.ts` with 10 named business thresholds (AI_READINESS_HIGH, AUTOMATION_THRESHOLD_LOW, RISK_SCORE_HIGH, etc.). Replaced raw numbers in SimulateModule, DiagnoseModule, MobilizeModule.
+- **M7** (Magic numbers): Created `lib/constants/scoring.ts` with 10 named business thresholds. Replaced raw numbers in SimulateModule, DiagnoseModule, MobilizeModule.
+- **M8** (Design tokens): Replaced 200+ hardcoded hex/rgba colors with CSS variable tokens across ~30 files. Full token mapping applied (accent-primary, surface-2, text-primary, success, risk, purple, etc.). Preserved hardcoded colors in print windows and chart series array.
+- **M9** (Partial): Chart tooltip styles extracted to `CHART_TOOLTIP_STYLE` constant via ChartWrapper component.
 
-### Low Priority (2 of 9 resolved)
-- **L1** (Dead code): Deleted `Tooltip.tsx` (33 lines), `scaling.ts` (41 lines), removed ~230 lines dead CSS from `globals.css`, removed 3 unused animation exports from `animations.ts`.
-- **Performance**: Removed 5 unused npm dependencies (`@react-three/fiber`, `@react-three/drei`, `three`, `lottie-react`, `lucide-react`).
+### Low Priority (8 of 9 resolved)
+- **L1** (Dead code): Deleted `Tooltip.tsx`, `scaling.ts`, ~230 lines dead CSS, 3 unused animation exports.
+- **L3** (Scroll shadows): Added `.scroll-shadow` CSS class with gradient fade indicators. Applied to DataTable.
+- **L4** (Desktop gate): Lowered from 1024px to 960px to allow landscape tablets.
+- **L6** (Shortcut hints): Added `title` attributes to back button ("Go back (Escape)") and command palette input ("Cmd+K").
+- **L7** (Contrast): Increased opacity on resolved annotations (0.4→0.55), icon SVGs (opacity-15→opacity-25), empty state icons (opacity-40→opacity-55).
+- **L8** (ChartWrapper): Created `shared/ChartWrapper.tsx` with `ChartWrapper` component and `CHART_TOOLTIP_STYLE` export.
+- **L9** (useFilterDeps): Added `useFilterDeps(model, f)` helper to `shared/hooks.ts`.
+- **Performance**: Removed 5 unused npm dependencies.
 
 ### New Infrastructure Created
+- `types/api.ts` — 46 typed interfaces for all API endpoint responses
 - `hooks/useApiData.ts` — generic fetch hook with loading/error/refetch
-- `app/components/ui-primitives.tsx` — SkeletonLine, SkeletonCard, SkeletonKpiRow, SkeletonChart, SkeletonTable, EmptyState, ErrorState, ConfirmDialog, FadeTransition
+- `app/components/ui-primitives.tsx` — Skeleton, EmptyState, ErrorState, ConfirmDialog, FadeTransition
+- `app/components/shared/ChartWrapper.tsx` — chart wrapper with tooltip style constant
 - `public/sw.js` — service worker for cache invalidation on new deploys
-- Build ID version checking with automatic cache clearing
 - `lib/constants/scoring.ts` — named business logic thresholds
 - `app/components/design/` — 8 focused design module files
-- `app/components/shared/` — 5 focused shared module files (animations, hooks, constants, visualizations, ui-components)
+- `app/components/shared/` — 6 focused shared module files (animations, hooks, constants, visualizations, ui-components, ChartWrapper)
 
-### Remaining (deferred — larger refactors)
-- M1 (partial): page.tsx (3,388 lines) not yet split — requires extracting state management into context providers first
+### Remaining (deferred)
+- M1 (partial): page.tsx (3,388 lines) not yet split — requires context providers (M2) first
 - M2: Context providers for Filters/JobState/ViewCtx to eliminate prop drilling
-- M3: Replace 202+ `Record<string, unknown>` with typed interfaces
 - M6: Extract prop type interfaces to types/ directory
-- M8: Replace 200+ hardcoded colors with design tokens
-- M9: Extract inline style objects to module-level constants or Tailwind
-- L2-L9: Polish items (breadcrumbs, contrast audit, chart wrapper, etc.)
+- L2: Breadcrumb/workflow step indicator
+- L5: Migrate marketing page inline styles to Tailwind
