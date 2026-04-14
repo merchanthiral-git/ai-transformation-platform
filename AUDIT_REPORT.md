@@ -291,9 +291,11 @@ The platform is well-architected at the macro level — good route grouping, dyn
 - **H6** (Duplicate prompt): Removed duplicate "Executive Summary" entry in `shared.tsx`.
 - **H7** (401 reload): Fixed in both `api.ts` and `auth-api.ts` — clears token + shows toast, no reload.
 
-### Medium Priority (2 of 9 resolved)
+### Medium Priority (4 of 9 resolved)
+- **M1** (Mega-files): Split DesignModule.tsx (6,900 lines → 9-line barrel + 8 focused files in `design/`). Split shared.tsx (2,373 lines → 6-line barrel + 5 focused files in `shared/`). Barrel re-exports maintain full backwards compatibility.
 - **M4** (useApiData hook): Created `hooks/useApiData.ts` with generic typed hook (data/loading/error/refetch).
 - **M5** (Duplicate formatters): `fmtNum` retained as convenience wrapper (50+ call sites); `fmt` re-exported from shared.
+- **M7** (Magic numbers): Created `lib/constants/scoring.ts` with 10 named business thresholds (AI_READINESS_HIGH, AUTOMATION_THRESHOLD_LOW, RISK_SCORE_HIGH, etc.). Replaced raw numbers in SimulateModule, DiagnoseModule, MobilizeModule.
 
 ### Low Priority (2 of 9 resolved)
 - **L1** (Dead code): Deleted `Tooltip.tsx` (33 lines), `scaling.ts` (41 lines), removed ~230 lines dead CSS from `globals.css`, removed 3 unused animation exports from `animations.ts`.
@@ -304,13 +306,15 @@ The platform is well-architected at the macro level — good route grouping, dyn
 - `app/components/ui-primitives.tsx` — SkeletonLine, SkeletonCard, SkeletonKpiRow, SkeletonChart, SkeletonTable, EmptyState, ErrorState, ConfirmDialog, FadeTransition
 - `public/sw.js` — service worker for cache invalidation on new deploys
 - Build ID version checking with automatic cache clearing
+- `lib/constants/scoring.ts` — named business logic thresholds
+- `app/components/design/` — 8 focused design module files
+- `app/components/shared/` — 5 focused shared module files (animations, hooks, constants, visualizations, ui-components)
 
 ### Remaining (deferred — larger refactors)
-- M1: Split mega-files (DesignModule 6,900 lines, page.tsx 3,388 lines, shared.tsx 2,347 lines)
+- M1 (partial): page.tsx (3,388 lines) not yet split — requires extracting state management into context providers first
 - M2: Context providers for Filters/JobState/ViewCtx to eliminate prop drilling
 - M3: Replace 202+ `Record<string, unknown>` with typed interfaces
 - M6: Extract prop type interfaces to types/ directory
-- M7: Extract magic numbers to named constants
 - M8: Replace 200+ hardcoded colors with design tokens
 - M9: Extract inline style objects to module-level constants or Tailwind
 - L2-L9: Polish items (breadcrumbs, contrast audit, chart wrapper, etc.)
