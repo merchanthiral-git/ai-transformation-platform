@@ -518,9 +518,31 @@ The AI impact scoring methodology is **sound and defensible**:
 
 ## Quick Wins (highest impact per effort)
 
-1. **Add "Business Case at a Glance" card on Overview homepage** — shows ROI headline, investment, payback, one-click PDF. Solves CEO dealbreaker + CHRO friction. (Est: 1 day)
-2. **Add glossary popovers** — hover any metric shows definition + action guidance. Solves jargon confusion for all non-HR personas. (Est: 2 days)
-3. **Fix Talent Readiness formula** — replace headcount-based scoring with skills gap data. (Est: 1 day, backend)
-4. **Fix 3-year ROI with ramp curve** — proper Year 1/2/3 adoption rates. (Est: 1 day, frontend)
-5. **Rename "Transformative" to "Aggressive" and change to 12mo/80% adoption** — credibility fix. (Est: 30 minutes)
-6. **Unify readiness model** — single source of truth across all modules. (Est: 3 days)
+1. ~~**Add "Business Case at a Glance" card on Overview homepage**~~ — DONE. Added to WorkforceSnapshot with ROI, payback, roles impacted, and Export Board Summary button.
+2. ~~**Add glossary popovers**~~ — DONE. Created lib/glossary.ts (20 terms) + GlossaryTip component. KpiCard labels auto-show tooltips on hover.
+3. ~~**Fix Talent Readiness formula**~~ — DONE. Now uses actual skill/proficiency data with fallback to data completeness.
+4. ~~**Fix 3-year ROI with ramp curve**~~ — DONE. Uses 50%/80%/95% adoption Y1/Y2/Y3 with 15% recurring maintenance.
+5. ~~**Rename "Transformative" to "Aggressive"**~~ — DONE. Changed to 80% adoption, 12 months, 0.9 ramp.
+6. **Unify readiness model** — NOT YET. Still 3 separate models across Simulate/Mobilize/Overview. (Est: 3 days)
+
+---
+
+## Resolution Status (updated 2026-04-14)
+
+### FIX NOW — 7 of 8 resolved
+| # | Issue | Status |
+|---|-------|--------|
+| 1 | Talent Readiness formula | FIXED — uses skill/proficiency data, not headcount |
+| 2 | 3-year ROI formula | FIXED — proper ramp curve with recurring costs |
+| 3 | Process maturity exceeds max | FIXED — components capped at 2 each (max 5) |
+| 4 | No ROI on homepage | FIXED — Business Case at a Glance card added |
+| 5 | Three readiness models | DEFERRED — requires architectural unification |
+| 6 | "Transformative" scenario unrealistic | FIXED — renamed "Aggressive", 80% adoption, 12mo |
+| 7 | Level codes don't map | DEFERRED — requires unified level coding standard |
+| 8 | Comp table dead data | FIXED — removed E4, P6, T6, T5, S4, S3 |
+
+### FIX SOON — 2 of 12 resolved
+| # | Issue | Status |
+|---|-------|--------|
+| 9 | No glossary/tooltips | FIXED — GlossaryTip component with 20 terms |
+| 17 | Payback period ignores adoption | FIXED — monthly ramp loop over timeline |
