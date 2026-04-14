@@ -48,8 +48,12 @@ function ScenarioNarrative({ scenario, adoption, timeline, totals, totalPct, tot
   const redesigned = scenData.filter(j => j.pctSaved >= AUTOMATION_THRESHOLD_LOW && j.pctSaved < AUTOMATION_THRESHOLD_HIGH).length;
   const consolidated = scenData.filter(j => j.pctSaved >= AUTOMATION_THRESHOLD_HIGH).length;
 
-  // 3-year net
-  const threeYearNet = totals.savings * 3 - totalInv;
+  // Proper 3-year projection with adoption ramp curve
+  const year1Savings = totals.savings * 0.5;  // 50% adoption ramp in year 1
+  const year2Savings = totals.savings * 0.8;  // 80% in year 2
+  const year3Savings = totals.savings * 0.95; // 95% in year 3
+  const recurringCost = Math.round(totalInv * 0.15); // 15% ongoing maintenance/yr
+  const threeYearNet = (year1Savings - totalInv) + (year2Savings - recurringCost) + (year3Savings - recurringCost);
 
   // Template-based fallback narrative (always available, no AI needed)
   const templateNarrative = useMemo(() => {
@@ -301,7 +305,22 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
   const totals = scenData.reduce((a, j) => ({ cur: a.cur + j.currentHrs, rel: a.rel + j.released, fut: a.fut + j.future, ai: a.ai + j.aiTasks, fte: a.fte + j.fte, savings: a.savings + (j.released * j.rate) }), { cur: 0, rel: 0, fut: 0, ai: 0, fte: 0, savings: 0 });
   const totalPct = Math.round((totals.rel / totals.cur) * 100);
   const totalInv = activeJobs.length * investment;
-  const breakEven = totals.savings > 0 ? Math.ceil(totalInv / (totals.savings / 12)) : 999;
+  // Payback period accounting for adoption ramp (monthly savings increase over time)
+  const monthlyFullSavings = totals.savings / 12;
+  let cumSavings = 0;
+  let breakEven = 999;
+  for (let m = 1; m <= 36; m++) {
+    const rampFactor = Math.min(1, m / Math.max(cfg.timeline, 6)); // linear ramp over timeline
+    cumSavings += monthlyFullSavings * rampFactor;
+    if (cumSavings >= totalInv && breakEven === 999) { breakEven = m; break; }
+  }
+
+  // Proper 3-year projection with adoption ramp curve
+  const year1Savings = totals.savings * 0.5;
+  const year2Savings = totals.savings * 0.8;
+  const year3Savings = totals.savings * 0.95;
+  const recurringCost = Math.round(totalInv * 0.15);
+  const threeYearNet = (year1Savings - totalInv) + (year2Savings - recurringCost) + (year3Savings - recurringCost);
 
   // Try to fetch readiness from backend, fall back to demo
   const [backendReadiness] = useApiData(() => model ? api.getReadiness(model, f) : Promise.resolve(null), [model, f.func, f.jf, f.sf, f.cl]);
@@ -525,7 +544,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
               { label: "Investment", val: `$${totalInv.toLocaleString()}`, color: "var(--warning)" },
               { label: "Annual Savings", val: `$${totals.savings.toLocaleString()}`, color: "var(--success)" },
               { label: "Net Year 1", val: `$${(totals.savings - totalInv).toLocaleString()}`, color: totals.savings - totalInv > 0 ? "var(--success)" : "var(--risk)" },
-              { label: "3-Year NPV", val: `$${Math.round(totals.savings * 3 - totalInv).toLocaleString()}`, color: "var(--success)" },
+              { label: "3-Year NPV", val: `$${Math.round(threeYearNet).toLocaleString()}`, color: "var(--success)" },
               { label: "Payback", val: `${breakEven}mo`, color: "#0EA5E9" },
               { label: "ROI", val: `${totals.savings > 0 ? (totals.savings / Math.max(totalInv, 1)).toFixed(1) : "0"}x`, color: "var(--accent-primary)" },
             ].map(k => <div key={k.label} className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[11px] text-[var(--text-muted)] uppercase mb-1">{k.label}</div><div className="text-[20px] font-extrabold font-data" style={{ color: k.color }}>{k.val}</div></div>)}
@@ -786,7 +805,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
           <KpiCard label="Total Investment" value={fmtNum(totalInv)} />
           <KpiCard label="Annual Savings" value={fmtNum(totals.savings)} accent />
           <KpiCard label="Year 1 Net" value={fmtNum(totals.savings - totalInv)} delta={totals.savings - totalInv > 0 ? "Positive ROI" : "Investment year"} />
-          <KpiCard label="3-Year Net Value" value={fmtNum(totals.savings * 3 - totalInv - Math.round(totalInv * 0.15) * 2)} accent />
+          <KpiCard label="3-Year Net Value" value={fmtNum(Math.round(threeYearNet))} accent />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <Card title="Cost Breakdown (Estimated)">

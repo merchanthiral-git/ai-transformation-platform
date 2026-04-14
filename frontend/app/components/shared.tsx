@@ -5,3 +5,4 @@ export * from "./shared/constants";
 export * from "./shared/visualizations";
 export * from "./shared/ui-components";
 export * from "./shared/ChartWrapper";
+export { GlossaryTip } from "./GlossaryTip";

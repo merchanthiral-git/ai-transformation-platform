@@ -7,6 +7,7 @@ import { CDN_BASE, cb } from "../../../lib/cdn";
 import { trackExportGenerated, trackAIFeatureUsed } from "../../../lib/analytics";
 import { motion, AnimatePresence } from "framer-motion";
 import { AnimatedModal, AnimatedNumber, AnimatedBar } from "./animations";
+import { GlossaryTip } from "../GlossaryTip";
 import { Kbd, showToast, usePersisted } from "./hooks";
 import { COLORS, TT, MODULE_HELP, MODULES, PHASES, CAREER_FRAMEWORKS, MODULE_QUICK_PROMPTS, MODULE_AI_PROMPTS } from "./constants";
 
@@ -460,7 +461,7 @@ export function KpiCard({ label, value, accent, delta }: { label: string; value:
   const numVal = typeof value === "number" ? value : parseFloat(String(value).replace(/[^0-9.-]/g, ""));
   const isNum = !isNaN(numVal) && typeof value === "number";
   return <motion.div className={`bg-[var(--surface-1)] border rounded-2xl px-5 py-4 ${accent ? "border-l-[3px] border-l-[var(--accent-primary)] border-[var(--border)]" : "border-[var(--border)]"}`} style={{ boxShadow: "var(--shadow-1)" }} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }} whileHover={{ y: -2, boxShadow: "var(--shadow-3)" }}>
-    <div className="text-[14px] font-semibold text-[var(--text-muted)] uppercase tracking-[0.5px] mb-1.5 font-heading">{label}</div>
+    <div className="text-[14px] font-semibold text-[var(--text-muted)] uppercase tracking-[0.5px] mb-1.5 font-heading"><GlossaryTip term={label}>{label}</GlossaryTip></div>
     <div className="text-[24px] font-extrabold text-[var(--text-primary)] tracking-tight font-data">{isNum ? <AnimatedNumber value={numVal} /> : (typeof value === "string" || typeof value === "number" ? value : String(value ?? "\u2014"))}</div>
     {delta && <div className="text-[14px] font-semibold text-[var(--success)] mt-1.5">{delta}</div>}
   </motion.div>;
@@ -786,7 +787,7 @@ const COPILOT_SUGGESTIONS: Record<string, (ctx: string) => CoPilotSuggestion[]> 
   design: () => [{ id: "s3", icon: "✏️", text: "Start with your highest-headcount roles — redesigning these creates the most organizational impact.", moduleId: "design" }],
   opmodel: () => [{ id: "s4", icon: "🧬", text: "Begin with Strategy (Step 1.1) to anchor all downstream decisions. Without strategic priorities, operating model choices lack direction.", moduleId: "opmodel" }],
   plan: () => [{ id: "s5", icon: "🚀", text: "Run the ADKAR assessment before building your roadmap — understanding resistance patterns prevents implementation failures.", actionLabel: "Open ADKAR →", moduleId: "plan" }],
-  simulate: () => [{ id: "s6", icon: "⚡", text: "Compare the Balanced scenario first — it typically offers the best risk-adjusted return. Then stress-test with Conservative and Transformative.", moduleId: "simulate" }],
+  simulate: () => [{ id: "s6", icon: "⚡", text: "Compare the Balanced scenario first — it typically offers the best risk-adjusted return. Then stress-test with Conservative and Aggressive.", moduleId: "simulate" }],
   jobarch: () => [{ id: "s7", icon: "🏗️", text: "Check the Validation tab for structural issues — role consolidation opportunities are often hiding in similar titles across functions.", moduleId: "jobarch" }],
   home: () => [{ id: "s8", icon: "🏠", text: "Upload your workforce data to unlock all platform capabilities. The AI Transformation journey starts with understanding your current state.", moduleId: "home" }],
 };

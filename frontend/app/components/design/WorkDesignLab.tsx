@@ -667,7 +667,7 @@ Rules:
 
       {wdTab === "redeploy" && <div>{!js.deconSubmitted ? <Empty text="Submit Deconstruction first" icon="🔒" /> : <>
         <div className="grid grid-cols-3 gap-4 mb-5">
-          <Card title="Scenario"><SelectCell value={js.scenario} onChange={v => setJobState(job, { scenario: v, redeploySubmitted: false, recon: null })} options={["Conservative","Balanced","Transformative"]} /></Card>
+          <Card title="Scenario"><SelectCell value={js.scenario} onChange={v => setJobState(job, { scenario: v, redeploySubmitted: false, recon: null })} options={["Conservative","Balanced","Aggressive"]} /></Card>
           <InsightPanel title="Guidance" items={[`New Time total: ${redeployTotal}%`, "Adjust decisions and future time.", "Submit to see reconstruction."]} icon="🧭" />
           <Card title="AI Assist"><button onClick={async () => {
             const newRows = js.redeployRows.map(row => {

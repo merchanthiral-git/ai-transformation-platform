@@ -163,7 +163,7 @@ export const SIM_DIMS = ["Data Readiness","Process Standardization","Technology 
 export const SIM_PRESETS: Record<string, { label: string; adoption: number; timeline: number; ramp: number; color: string }> = {
   conservative: { label: "Conservative", adoption: 0.3, timeline: 18, ramp: 0.6, color: "#D4860A" },
   balanced: { label: "Balanced", adoption: 0.6, timeline: 12, ramp: 0.8, color: "#10B981" },
-  transformative: { label: "Transformative", adoption: 0.9, timeline: 6, ramp: 1.0, color: "#8B5CF6" },
+  aggressive: { label: "Aggressive", adoption: 0.8, timeline: 12, ramp: 0.9, color: "var(--purple)" },
 };
 export const SIM_JOBS = [
   { role: "Financial Analyst", dept: "Finance", currentHrs: 188, aiEligibleHrs: 120, highAiTasks: 14, rate: 85 },

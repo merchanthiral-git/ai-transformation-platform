@@ -1626,7 +1626,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
         {page === "snapshot" ? "Key metrics to highlight: total headcount, function distribution, AI readiness score. Note any anomalies in the data." :
          page === "scan" ? "Focus on the top 3 highest-impact findings. Walk through the AI impact matrix — which functions have the most automation potential?" :
          page === "design" ? "Walk through the Work Design Lab results for the top 2 roles. Show before/after time allocation." :
-         page === "simulate" ? "Compare Conservative vs. Balanced vs. Transformative. Highlight the risk-adjusted returns." :
+         page === "simulate" ? "Compare Conservative vs. Balanced vs. Aggressive. Highlight the risk-adjusted returns." :
          page === "plan" ? "Show the Gantt timeline. Walk through the ADKAR assessment results for leadership buy-in." :
          page === "opmodel" ? "Start with strategic priorities, then walk through the capability maturity gaps." :
          page === "heatmap" ? "The heatmap shows AI impact by function × job family. Red cells = highest transformation priority." :
@@ -2152,7 +2152,7 @@ function buildTutorialSteps(projectId: string): TutorialStep[] {
     tip: "Always model attrition savings separately. Natural turnover often covers 30-50% of headcount reductions without any layoffs." },
 
   { page: "simulate", icon: "⚡", title: "Scenario Builder — Testing Your Assumptions", subtitle: "Phase 4: Simulate",
-    body: `The Scenario Builder lets you model different transformation approaches: Conservative (minimal disruption, lower savings), Balanced (moderate change, moderate return), and Transformative (maximum transformation, highest savings but highest risk). You can also build custom scenarios. Compare scenarios side by side to find the right balance for your organization.`,
+    body: `The Scenario Builder lets you model different transformation approaches: Conservative (minimal disruption, lower savings), Balanced (moderate change, moderate return), and Aggressive (maximum transformation, highest savings but highest risk). You can also build custom scenarios. Compare scenarios side by side to find the right balance for your organization.`,
     tip: "Always present three scenarios to leadership. It frames the decision as 'which approach' not 'whether to transform.'" },
 
   { page: "simulate", icon: "💰", title: "ROI Calculator — The Business Case", subtitle: "Phase 4: Simulate",

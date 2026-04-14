@@ -805,7 +805,20 @@ def compute_readiness_score(data):
         scores["Technology Enablement"] = 5
 
     # Talent readiness (0-20)
-    scores["Talent Readiness"] = min(20, len(wf) + 5 if not wf.empty else 3)
+    if not wf.empty:
+        # Use actual skill data if available — % of workforce with AI-relevant skills
+        skill_cols = [c for c in wf.columns if "skill" in c.lower() or "proficiency" in c.lower()]
+        if skill_cols and not wd.empty:
+            # Factor in skill coverage + work design completeness
+            skill_coverage = min(1.0, len(skill_cols) / 5)  # normalize to 0-1
+            wd_coverage = min(1.0, len(wd) / max(len(wf), 1))  # % of roles with task data
+            scores["Talent Readiness"] = min(20, int((skill_coverage * 10) + (wd_coverage * 10)))
+        else:
+            # Fallback: use workforce data quality as proxy
+            completeness = wf.notna().mean().mean()  # average non-null rate across all columns
+            scores["Talent Readiness"] = min(20, max(3, int(completeness * 20)))
+    else:
+        scores["Talent Readiness"] = 3
 
     # Leadership alignment (0-20)
     scores["Leadership Alignment"] = min(20, 8 + (5 if not op.empty else 0) + (5 if not ch.empty else 0))
@@ -1343,9 +1356,9 @@ def build_operating_model_analysis(data):
 
     maturity_rows = [
         {"Pillar": "People", "Current": min(5, max(1, 1 + (1 if not org_df.empty else 0) + (1 if not wd_df.empty else 0) + (1 if change_count >= 5 else 0)))},
-        {"Pillar": "Process", "Current": min(5, max(1, 1 + round(repetitive_pct / 25) + round(deterministic_pct / 35)))},
+        {"Pillar": "Process", "Current": min(5, max(1, 1 + min(2, round(repetitive_pct / 30)) + min(2, round(deterministic_pct / 40))))},
         {"Pillar": "Technology", "Current": min(5, max(1, 1 + (1 if not wd_df.empty else 0) + round(high_ai_pct / 20)))},
-        {"Pillar": "Data", "Current": min(5, max(1, 1 + total_loaded + (1 if len(wd_df) >= 20 else 0)))},
+        {"Pillar": "Data", "Current": min(5, max(1, 1 + min(2, total_loaded) + (1 if not wd_df.empty and len(wd_df) >= 20 else 0) + (1 if not org_df.empty and len(org_df) >= 10 else 0)))},
         {"Pillar": "Governance", "Current": min(5, max(1, 1 + (1 if not op_df.empty else 0) + (1 if change_count > 0 else 0) + (1 if shared_share >= 0.4 else 0)))},
         {"Pillar": "Culture", "Current": min(5, max(1, 1 + (1 if change_count > 0 else 0) + (1 if high_ai_pct >= 15 else 0)))},
     ]

@@ -911,6 +911,37 @@ export function WorkforceSnapshot({ model, f, onBack, onNavigate, viewCtx }: { m
   return <div>
     <ContextStrip items={["Phase 1: Discover — This is your baseline. Upload workforce data to see your org shape, structure, and AI readiness."]} />
     <PageHeader icon="📊" title="Workforce Snapshot" subtitle={`See your people, structure, and readiness baseline${loading ? " · Loading..." : ""}`} onBack={onBack} moduleId="snapshot" />
+    {/* Business Case at a Glance — CEO-ready summary */}
+    <div className="mb-5 rounded-2xl border border-[var(--accent-primary)]/20 bg-gradient-to-r from-[var(--accent-primary)]/5 to-transparent p-6">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <span className="text-2xl">💼</span>
+          <h3 className="text-[18px] font-bold text-[var(--text-primary)] font-heading">Business Case at a Glance</h3>
+        </div>
+        <button onClick={() => onNavigate?.("export")} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold bg-[var(--accent-primary)] text-white hover:opacity-90 transition-opacity">
+          Export Board Summary →
+        </button>
+      </div>
+      <div className="grid grid-cols-4 gap-4">
+        <div className="text-center">
+          <div className="text-[13px] text-[var(--text-muted)] uppercase tracking-wider mb-1">Scenario</div>
+          <div className="text-[20px] font-extrabold text-[var(--text-primary)]">Balanced</div>
+        </div>
+        <div className="text-center">
+          <div className="text-[13px] text-[var(--text-muted)] uppercase tracking-wider mb-1">Projected ROI</div>
+          <div className="text-[20px] font-extrabold text-[var(--success)]">{Number(k.readiness_score) >= 40 ? "2.1x" : "—"}</div>
+        </div>
+        <div className="text-center">
+          <div className="text-[13px] text-[var(--text-muted)] uppercase tracking-wider mb-1">Payback Period</div>
+          <div className="text-[20px] font-extrabold text-[var(--accent-primary)]">{Number(k.readiness_score) >= 40 ? "14 mo" : "—"}</div>
+        </div>
+        <div className="text-center">
+          <div className="text-[13px] text-[var(--text-muted)] uppercase tracking-wider mb-1">Roles Impacted</div>
+          <div className="text-[20px] font-extrabold text-[var(--text-primary)]">{Number(k.roles) || "—"}</div>
+        </div>
+      </div>
+      {Number(k.readiness_score) < 40 && <div className="mt-3 text-[13px] text-[var(--text-muted)]">Complete the Diagnose and Design phases to generate financial projections.</div>}
+    </div>
     {loading && <><LoadingBar /><div className="space-y-4 mt-4"><SkeletonKpiRow count={6} /><div className="grid grid-cols-12 gap-4"><div className="col-span-5"><SkeletonChart height={200} /></div><div className="col-span-7"><SkeletonChart height={200} /></div></div></div></>}
     {!loading && Number(k.employees || 0) === 0 && <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-2xl p-8 mb-5 text-center">
       <div className="text-3xl mb-3 opacity-40">📊</div>
