@@ -416,10 +416,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     font-variant-numeric: tabular-nums;
   }
 
-  /* Smooth modal entrance */
-  @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-  .animate-modal { animation: modalIn 0.2s ease-out; }
-
   /* Skeleton shimmer loading */
   @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
   .skeleton {
@@ -429,22 +425,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     border-radius: 8px;
   }
 
-  /* Shimmer text effect */
-  @keyframes textShimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
-  .text-shimmer {
-    background: linear-gradient(90deg, var(--accent-primary) 0%, #E8C547 25%, var(--accent-primary) 50%, #E8C547 75%, var(--accent-primary) 100%);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: textShimmer 4s linear infinite;
-  }
-
-  /* Ambient glow pulse for primary buttons */
-  @keyframes glowPulse { 0%, 100% { box-shadow: 0 2px 12px rgba(212,134,10,0.15); } 50% { box-shadow: 0 4px 20px rgba(212,134,10,0.35); } }
-  .glow-pulse:hover { animation: glowPulse 2s ease-in-out infinite; }
-
-  /* Twinkling star */
-  @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+  /* Skeleton shimmer — retained for LoadingSkeleton component */
 
   /* ═══ Presentation Mode ═══ */
   [data-present="true"] {
@@ -465,103 +446,4 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
    PREMIUM CSS-ONLY BACKGROUNDS — no image dependencies
    ═══════════════════════════════════════════════════════════════ */
 
-/* Login / Auth — warm atmospheric lounge feel */
-.auth-bg {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 50% 40%, rgba(180,83,9,0.18) 0%, transparent 55%),
-    radial-gradient(ellipse at 80% 20%, rgba(217,119,6,0.09) 0%, transparent 40%),
-    radial-gradient(ellipse at 20% 70%, rgba(192,112,48,0.07) 0%, transparent 45%),
-    radial-gradient(circle at 65% 80%, rgba(139,69,19,0.06) 0%, transparent 35%),
-    linear-gradient(135deg, #0c0a07 0%, #1a1510 25%, #0f0d08 50%, #1c1612 75%, #0a0908 100%);
-  overflow: hidden;
-}
-/* Floating particles */
-.auth-bg::before {
-  content: '';
-  position: absolute;
-  inset: -50%;
-  background-image:
-    radial-gradient(1.5px 1.5px at 20% 30%, rgba(232,197,71,0.35) 50%, transparent 100%),
-    radial-gradient(1px 1px at 40% 70%, rgba(212,134,10,0.25) 50%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 60% 20%, rgba(245,158,11,0.2) 50%, transparent 100%),
-    radial-gradient(1px 1px at 80% 50%, rgba(232,197,71,0.3) 50%, transparent 100%),
-    radial-gradient(1px 1px at 15% 55%, rgba(192,112,48,0.2) 50%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 70% 85%, rgba(212,134,10,0.25) 50%, transparent 100%),
-    radial-gradient(1px 1px at 50% 10%, rgba(245,158,11,0.3) 50%, transparent 100%),
-    radial-gradient(1px 1px at 35% 90%, rgba(232,197,71,0.2) 50%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 90% 35%, rgba(180,83,9,0.2) 50%, transparent 100%),
-    radial-gradient(1px 1px at 10% 15%, rgba(212,134,10,0.3) 50%, transparent 100%),
-    radial-gradient(1px 1px at 55% 45%, rgba(245,158,11,0.15) 50%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 75% 65%, rgba(232,197,71,0.25) 50%, transparent 100%),
-    radial-gradient(1px 1px at 25% 80%, rgba(192,112,48,0.2) 50%, transparent 100%),
-    radial-gradient(1px 1px at 85% 10%, rgba(212,134,10,0.2) 50%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 45% 55%, rgba(180,83,9,0.15) 50%, transparent 100%);
-  background-size: 200% 200%;
-  animation: authParticles 45s linear infinite;
-}
-/* Soft center glow behind the form */
-.auth-bg::after {
-  content: '';
-  position: absolute;
-  top: 35%;
-  left: 50%;
-  width: 500px;
-  height: 400px;
-  transform: translate(-50%, -50%);
-  background: radial-gradient(ellipse, rgba(212,134,10,0.08) 0%, rgba(180,83,9,0.04) 40%, transparent 70%);
-  animation: authGlow 8s ease-in-out infinite alternate;
-}
-@keyframes authParticles {
-  0%   { background-position: 0% 0%; }
-  100% { background-position: 100% 100%; }
-}
-@keyframes authGlow {
-  0%   { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
-  100% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
-}
-
-/* Project Hub / Sandbox — dark navy with geometric accents */
-.hub-bg {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 30% 20%, rgba(99,102,241,0.06) 0%, transparent 50%),
-    radial-gradient(ellipse at 70% 80%, rgba(212,134,10,0.05) 0%, transparent 45%),
-    radial-gradient(ellipse at 50% 50%, rgba(59,130,246,0.03) 0%, transparent 60%),
-    linear-gradient(160deg, #070b14 0%, #0B1120 30%, #0f1525 60%, #0a0f1a 100%);
-  overflow: hidden;
-}
-/* Subtle dot grid overlay */
-.hub-bg::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image:
-    radial-gradient(circle at center, rgba(212,134,10,0.04) 1px, transparent 1px);
-  background-size: 32px 32px;
-  mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
-  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
-}
-/* Warm accent glow */
-.hub-bg::after {
-  content: '';
-  position: absolute;
-  top: 15%;
-  right: 10%;
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, rgba(212,134,10,0.06) 0%, transparent 60%);
-  animation: hubGlow 12s ease-in-out infinite alternate;
-}
-@keyframes hubGlow {
-  0%   { opacity: 0.5; transform: scale(1); }
-  100% { opacity: 1; transform: scale(1.2); }
-}
-
-/* Page crossfade transition — used for view switches */
-@keyframes pageCrossfade {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
+/* (Dead CSS removed: .auth-bg, .hub-bg, pageCrossfade — unused in codebase) */

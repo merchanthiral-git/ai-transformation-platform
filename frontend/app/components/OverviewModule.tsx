@@ -345,7 +345,7 @@ export function EmployeeProfileCard({ employee, model, f }: { employee: string; 
     if (!employee || !model) return;
     setLoading(true);
     callAI("Return ONLY valid JSON.", `Based on the employee name "${employee}" in an organization, generate a plausible employee profile. Return JSON: {"name":"${employee}","title":"likely job title","department":"department","manager":"manager name","level":"Junior/Mid/Senior/Lead/Director","track":"IC/Manager","tenure":"e.g. 3 years","location":"city","skills":["3 skills"],"aiImpact":"High/Moderate/Low","summary":"1 sentence about their role"}`).then(raw => {
-      try { setAiProfile(JSON.parse(raw.replace(/\`\`\`json\n?/g,"").replace(/\`\`\`\n?/g,"").trim())); } catch {}
+      try { setAiProfile(JSON.parse(raw.replace(/\`\`\`json\n?/g,"").replace(/\`\`\`\n?/g,"").trim())); } catch (e) { console.error("[OverviewModule] AI profile JSON parse error", e); }
       setLoading(false);
     });
   }, [employee, model]);
@@ -391,7 +391,7 @@ export function EmployeeOrgChart({ employee, model, f }: { employee: string; mod
       const orgContext = orgData ? `This organization has ${(orgData as Record<string, unknown>)?.kpis ? JSON.stringify((orgData as Record<string, unknown>).kpis) : "unknown structure"}.` : "";
       return callAI("Return ONLY valid JSON.", `Generate a plausible org chart for employee "${employee}" in this organization. ${orgContext} Return JSON: {"skip_level":{"name":"SVP name","title":"SVP title"},"manager":{"name":"Director name","title":"Director title"},"self":{"name":"${employee}","title":"their title"},"peers":[{"name":"peer1","title":"title"},{"name":"peer2","title":"title"}],"directs":[{"name":"report1","title":"title"}]}`);
     }).then(raw => {
-      try { setChart(JSON.parse(raw.replace(/\`\`\`json\n?/g,"").replace(/\`\`\`\n?/g,"").trim())); } catch {}
+      try { setChart(JSON.parse(raw.replace(/\`\`\`json\n?/g,"").replace(/\`\`\`\n?/g,"").trim())); } catch (e) { console.error("[OverviewModule] org chart JSON parse error", e); }
       setLoading(false);
     });
   }, [employee, model]);

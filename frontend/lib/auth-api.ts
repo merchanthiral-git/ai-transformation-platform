@@ -76,7 +76,8 @@ async function authFetch<T>(path: string, fallback: T, options?: RequestInit): P
     });
     if (res.status === 401) {
       clearToken();
-      window.location.reload();
+      // Don't force-reload — let the app detect the missing token and show login
+      console.warn("[AUTH] Session expired — token cleared");
       return fallback;
     }
     if (!res.ok) {

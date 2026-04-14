@@ -111,12 +111,12 @@ Paragraph 6 (RECOMMENDATION): Is this scenario right, and what are the specific 
   // Sync narrative to backend for export integration
   useEffect(() => {
     if (narrative) {
-      try { localStorage.setItem(`${model}_scenario_narrative`, narrative); } catch {}
+      try { localStorage.setItem(`${model}_scenario_narrative`, narrative); } catch (e) { console.error("[SimulateModule] localStorage write error", e); }
       // Fire-and-forget POST to backend for inclusion in DOCX/PPTX/PDF exports
       api.apiFetch(`/api/export/narrative/${model}`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ narrative }),
-      }).catch(() => {});
+      }).catch((e) => { console.error("[SimulateModule] narrative sync error", e); });
     }
   }, [narrative, model]);
 

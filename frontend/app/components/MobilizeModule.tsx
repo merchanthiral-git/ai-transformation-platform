@@ -582,13 +582,13 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
           if (summary) {
             readinessContext += ` Avg readiness: ${summary.avg_readiness || "—"}/5. High-impact segment: ${summary.high_impact_pct || "—"}%.`;
           }
-        } catch {}
+        } catch (e) { console.error("[MobilizeModule] readiness context error", e); }
         const scenarioCtx = simState ? ` Active scenario: ${simState.scenario}${simState.custom ? ` (custom: ${simState.custAdopt}% adoption, ${simState.custTimeline}mo timeline, $${simState.investment} investment)` : ""}.` : "";
         const raw = await callAI("Return ONLY valid JSON array.", `Based on these work design decisions, generate 6-8 change management initiatives.${readinessContext}${scenarioCtx} Context: ${context}. Return JSON array: [{"initiative":"name","description":"what","owner":"role title","priority":"High/Medium/Low","wave":"Wave 1/Wave 2/Wave 3","start":"2026-Q1","end":"2026-Q2","risk":"main risk","dependency":"what it depends on"}]`);
         try {
           const initiatives = JSON.parse(raw.replace(/\`\`\`json\n?/g,"").replace(/\`\`\`\n?/g,"").trim());
           if (Array.isArray(initiatives)) setAiChangePlan(initiatives);
-        } catch {}
+        } catch (e) { console.error("[MobilizeModule] AI change plan JSON parse error", e); }
       }} className="px-4 py-2 rounded-lg text-[15px] font-semibold text-white shrink-0" style={{ background: "linear-gradient(135deg, #e09040, #c07030)" }}>☕ Auto-Build Plan</button>
     </div>}
     {aiChangePlan.length > 0 && sub === "road" && <Card title="☕ AI-Generated Change Plan">

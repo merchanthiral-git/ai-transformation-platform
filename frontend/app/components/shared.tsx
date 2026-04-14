@@ -923,11 +923,11 @@ export function ReadinessDot({ ready }: { ready: boolean }) { return <span class
    ═══════════════════════════════════════════════════════════════ */
 export function usePersisted<T>(key: string, initial: T): [T, (v: T | ((prev: T) => T)) => void] {
   const [val, setVal] = useState<T>(initial);
-  useEffect(() => { try { const s = localStorage.getItem(key); if (s !== null) setVal(JSON.parse(s)); } catch {} }, [key]);
+  useEffect(() => { try { const s = localStorage.getItem(key); if (s !== null) setVal(JSON.parse(s)); } catch (e) { console.error("[usePersisted] read failed", e); } }, [key]);
   const setter = useCallback((v: T | ((prev: T) => T)) => {
     setVal(prev => {
       const next = typeof v === "function" ? (v as (prev: T) => T)(prev) : v;
-      try { localStorage.setItem(key, JSON.stringify(next)); } catch {}
+      try { localStorage.setItem(key, JSON.stringify(next)); } catch (e) { console.error("[usePersisted] write failed", e); }
       return next;
     });
   }, [key]);
@@ -1100,8 +1100,6 @@ export function NextStepBar({ currentModuleId, onNavigate }: { currentModuleId: 
 
 export const MODULE_QUICK_PROMPTS: Record<string, { label: string; prompt: string; needsInput?: boolean; inputLabel?: string; inputPlaceholder?: string }[]> = {
   snapshot: [
-    { label: "Executive Summary", prompt: "Write a 3-paragraph executive summary of our workforce. Include headcount, largest functions, AI readiness score, and top risks." },
-
     { label: "Executive Summary", prompt: "Write a 3-paragraph executive summary of our workforce. Include headcount, largest functions, AI readiness score, and top risks." },
     { label: "Risk Assessment", prompt: "Identify the top 5 workforce risks based on our structure, span of control, and AI readiness data." },
     { label: "Benchmark Compare", prompt: "How does our org structure compare to industry benchmarks for a company of this size?", needsInput: true, inputLabel: "Industry", inputPlaceholder: "e.g. Financial Services, Tech, Healthcare..." },
@@ -1348,7 +1346,7 @@ export function AiCoPilot({ moduleId, contextData, open, onClose, onNavigate }: 
       try {
         const result = await callAI("You are a proactive AI co-pilot. Give ONE specific, actionable suggestion (2 sentences max) based on this context. Be concrete with numbers.", `Module: ${moduleName}. Context: ${contextData?.slice(0, 1500)}`);
         if (result) setAiSuggestion(result);
-      } catch {}
+      } catch (e) { console.error("[AiSuggestion] fetch failed", e); }
       setAiSugLoading(false);
     }, 2000);
     return () => clearTimeout(timer);
@@ -1498,7 +1496,7 @@ export function StoryEngine({ projectName, model, contextData, onClose, onNaviga
     try {
       const result = await callAI(`You are a senior consultant. ${toneInstruction} Every sentence must reference specific data.`, `Regenerate the "${def.title}" section for ${projectName}. ${def.prompt}\n\nContext:\n${contextData.slice(0, 2000)}`);
       setSections(prev => prev.map(s => s.id === sectionId ? { ...s, content: result.replace(/```/g, "").trim() } : s));
-    } catch {}
+    } catch (e) { console.error("[regenerateSection] failed", e); }
     setRegenSectionId(null);
   };
 

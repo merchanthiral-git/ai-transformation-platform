@@ -46,10 +46,11 @@ async function fetchJSON<T>(path: string, fallback: T, options?: RequestInit): P
       },
     });
     if (res.status === 401) {
-      // Token expired or invalid — redirect to login
+      // Token expired or invalid — clear token, let app detect and show login
       localStorage.removeItem("auth_token");
       localStorage.removeItem("auth_user");
-      window.location.reload();
+      console.warn("[API] Session expired — token cleared");
+      if (_apiToast) _apiToast("Your session has expired — please sign in again");
       return fallback;
     }
     if (!res.ok) {
@@ -102,7 +103,7 @@ export async function prefetch(moduleName: string, modelId: string) {
     try {
       const data = await fn();
       _prefetchCache[key] = { data, ts: Date.now() };
-    } catch {}
+    } catch (e) { console.error("[Prefetch]", moduleName, e); }
   }
 }
 

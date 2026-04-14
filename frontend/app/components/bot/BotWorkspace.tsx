@@ -424,15 +424,15 @@ export default function BotWorkspace({ projectId, modelId, onClose }: { projectI
                 // Add resume message
                 const lastAction = data.completed_actions?.[data.completed_actions.length - 1];
                 if (lastAction && data.status !== "completed") {
-                  fetch(`/api/bot/${sid}/command`, { method: "POST", headers: authH(), body: JSON.stringify({ text: "resume" }) }).catch(() => {});
+                  fetch(`/api/bot/${sid}/command`, { method: "POST", headers: authH(), body: JSON.stringify({ text: "resume" }) }).catch((e) => { console.error("[BotWorkspace] resume command error", e); });
                 }
               } else {
                 localStorage.removeItem(SESSION_STORAGE_KEY + projectId);
                 setShowIntro(true);
               }
-            }).catch(() => { localStorage.removeItem(SESSION_STORAGE_KEY + projectId); setShowIntro(true); });
+            }).catch((e) => { console.error("[BotWorkspace] session restore error", e); localStorage.removeItem(SESSION_STORAGE_KEY + projectId); setShowIntro(true); });
         }
-      } catch { localStorage.removeItem(SESSION_STORAGE_KEY + projectId); }
+      } catch (e) { console.error("[BotWorkspace] session parse error", e); localStorage.removeItem(SESSION_STORAGE_KEY + projectId); }
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -497,11 +497,11 @@ export default function BotWorkspace({ projectId, modelId, onClose }: { projectI
             fetch(`/api/bot/${sid}/status`, { headers: authH() }).then(r => r.json()).then(d => {
               if (d.analysis_results) analysisResults.current = { ...analysisResults.current, ...d.analysis_results };
               if (d.completed_actions) setState(prev => prev ? { ...prev, completed_actions: d.completed_actions, progress: d.progress } : prev);
-            }).catch(() => {});
+            }).catch((e) => { console.error("[BotWorkspace] status fetch error", e); });
           } else if (data.type === "done") {
             setState(prev => prev ? { ...prev, status: data.status } : prev);
           }
-        } catch {}
+        } catch (e) { console.error("[BotWorkspace] SSE event parse error", e); }
       };
 
       // Narration, finding, question, status events → append to activity log
@@ -517,7 +517,7 @@ export default function BotWorkspace({ projectId, modelId, onClose }: { projectI
             });
             prevLogLen.current++;
           }
-        } catch {}
+        } catch (e) { console.error("[BotWorkspace] log event parse error", e); }
       };
 
       const handleFinding = (e: MessageEvent) => {
@@ -530,7 +530,7 @@ export default function BotWorkspace({ projectId, modelId, onClose }: { projectI
               return { ...prev, findings: [...prev.findings, finding] };
             });
           }
-        } catch {}
+        } catch (e) { console.error("[BotWorkspace] finding parse error", e); }
       };
 
       es.addEventListener("narration", handleLogEvent);
@@ -561,7 +561,7 @@ export default function BotWorkspace({ projectId, modelId, onClose }: { projectI
             return { ...prev!, ...data, mode: prev?.mode || mode, speed: prev?.speed || speed };
           });
         }
-      } catch {}
+      } catch (e) { console.error("[BotWorkspace] poll error", e); }
     };
 
     // Start polling as fallback (SSE will supersede if it connects)

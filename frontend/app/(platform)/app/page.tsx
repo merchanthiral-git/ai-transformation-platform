@@ -220,9 +220,9 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
   }, []);
   const [genre, setGenre] = useState("jazz");
   const [playing, setPlaying] = useState(false);
-  const [trackIdx, setTrackIdx] = useState(() => { try { const saved = localStorage.getItem("music_track"); return saved ? Number(saved) : ACID_JAZZ_II_IDX; } catch { return ACID_JAZZ_II_IDX; } });
-  const [volume, setVolume] = useState(() => { try { return Number(localStorage.getItem("music_vol") || "0.5"); } catch { return 0.5; } });
-  const [viewState, setViewState] = useState<"prompt" | "mini" | "collapsed" | "expanded">(() => { try { return localStorage.getItem("music_prompted") ? "mini" : "prompt"; } catch { return "prompt"; } });
+  const [trackIdx, setTrackIdx] = useState(() => { try { const saved = localStorage.getItem("music_track"); return saved ? Number(saved) : ACID_JAZZ_II_IDX; } catch (e) { console.error("[Storage]", e); return ACID_JAZZ_II_IDX; } });
+  const [volume, setVolume] = useState(() => { try { return Number(localStorage.getItem("music_vol") || "0.5"); } catch (e) { console.error("[Storage]", e); return 0.5; } });
+  const [viewState, setViewState] = useState<"prompt" | "mini" | "collapsed" | "expanded">(() => { try { return localStorage.getItem("music_prompted") ? "mini" : "prompt"; } catch (e) { console.error("[Storage]", e); return "prompt"; } });
   const [promptHovered, setPromptHovered] = useState(false);
   const [promptDismissing, setPromptDismissing] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -249,7 +249,7 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
   const freqDataRef = useRef<Uint8Array>(new Uint8Array(64));
   // Mood & Favorites
   const [activeMood, setActiveMood] = useState<string | null>(null);
-  const [favorites, setFavorites] = useState<Set<number>>(() => { try { const s = localStorage.getItem("music_favs"); return s ? new Set(JSON.parse(s)) : new Set(); } catch { return new Set(); } });
+  const [favorites, setFavorites] = useState<Set<number>>(() => { try { const s = localStorage.getItem("music_favs"); return s ? new Set(JSON.parse(s)) : new Set(); } catch (e) { console.error("[Storage]", e); return new Set(); } });
   // Audio band energies for visualizer
   const [bassEnergy, setBassEnergy] = useState(0);
   const [midEnergy, setMidEnergy] = useState(0);
@@ -287,7 +287,7 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     try {
       const ctx = new AudioContext();
       audioCtxRef.current = ctx;
-    } catch {}
+    } catch (e) { console.error("[Storage]", e); }
   }, []);
 
   // CDN reachability check on mount — use no-cors to avoid CORS blocking the check.
@@ -480,7 +480,7 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
   }, [focusActive, focusRemaining > 0]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Save favorites
-  useEffect(() => { try { localStorage.setItem("music_favs", JSON.stringify([...favorites])); } catch {} }, [favorites]);
+  useEffect(() => { try { localStorage.setItem("music_favs", JSON.stringify([...favorites])); } catch (e) { console.error("[Storage]", e); } }, [favorites]);
   const toggleFav = (id: number) => setFavorites(prev => { const next = new Set(prev); if (next.has(id)) next.delete(id); else next.add(id); return next; });
 
   // Mood-based track filtering
@@ -594,7 +594,7 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     const gt = ALL_TRACKS.filter(t => t.genre === genre);
     const t = gt[idx % gt.length];
     if (t) playTrack(t.file);
-    try { localStorage.setItem("music_track", String(idx)); } catch {}
+    try { localStorage.setItem("music_track", String(idx)); } catch (e) { console.error("[Storage]", e); }
   }, [genre, playTrack]);
 
   // Cross-genre shuffle: pick a random track from ALL_TRACKS, switch genre to match
@@ -607,7 +607,7 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
       const idxInGenre = newGenreTracks.findIndex(t => t.id === picked.id);
       setTrackIdx(idxInGenre >= 0 ? idxInGenre : 0);
       playTrack(picked.file);
-      try { localStorage.setItem("music_track", String(idxInGenre >= 0 ? idxInGenre : 0)); } catch {}
+      try { localStorage.setItem("music_track", String(idxInGenre >= 0 ? idxInGenre : 0)); } catch (e) { console.error("[Storage]", e); }
     } else {
       const idxInGenre = genreTracks.findIndex(t => t.id === picked.id);
       changeTrack(idxInGenre >= 0 ? idxInGenre : 0);
@@ -617,7 +617,7 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
 
   const nextTrack = () => { if (shuffle) { shuffleAny(); return; } const gt = genreTracks; changeTrack((trackIdx + 1) % gt.length); };
   const prevTrack = () => { if (shuffle) { shuffleAny(); return; } const gt = genreTracks; changeTrack((trackIdx - 1 + gt.length) % gt.length); };
-  const changeVolume = (v: number) => { setVolume(v); volumeRef.current = v; if (audioRef.current) { audioRef.current.volume = v; audioRef.current.muted = false; } try { localStorage.setItem("music_vol", String(v)); } catch {} };
+  const changeVolume = (v: number) => { setVolume(v); volumeRef.current = v; if (audioRef.current) { audioRef.current.volume = v; audioRef.current.muted = false; } try { localStorage.setItem("music_vol", String(v)); } catch (e) { console.error("[Storage]", e); } };
   const seek = (e: React.MouseEvent<HTMLDivElement>) => { const rect = e.currentTarget.getBoundingClientRect(); const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width)); if (audioRef.current?.duration) audioRef.current.currentTime = pct * audioRef.current.duration; };
 
   const btnBase: React.CSSProperties = { background: "none", border: "none", cursor: "pointer", transition: "all 0.2s", display: "flex", alignItems: "center", justifyContent: "center" };
@@ -660,7 +660,7 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     <button
       onClick={() => {
         setPromptDismissing(true);
-        try { localStorage.setItem("music_prompted", "1"); } catch {}
+        try { localStorage.setItem("music_prompted", "1"); } catch (e) { console.error("[Storage]", e); }
         toggle();
         setTimeout(() => { setViewState("mini"); setPromptDismissing(false); }, 600);
       }}
@@ -910,13 +910,13 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
   });
   const [agentRunning, setAgentRunning] = useState<string | null>(null);
   const [aiProviders, setAiProviders] = useState<{ claude: boolean; gemini: boolean; no_key_message?: string | null } | null>(null);
-  useEffect(() => { api.apiFetch("/api/ai/providers").then(r => r.json()).then(d => setAiProviders(d)).catch(() => {}); }, []);
+  useEffect(() => { api.apiFetch("/api/ai/providers").then(r => r.json()).then(d => setAiProviders(d)).catch((e) => { console.error("[API]", e); }); }, []);
   const [agentResults, setAgentResults] = usePersisted<{ id: string; agent: string; agentName: string; result: string; time: string; reviewed: boolean }[]>(`${projectId}_agent_results`, []);
   const [presentStartTime, setPresentStartTime] = useState(0);
   const [presentNotes, setPresentNotes] = useState(false);
   // Sync-read viewMode so the first render already has the value set by SandboxViewSelector.
   // usePersisted reads via useEffect (async) which causes a flash of the ViewSelector.
-  const _initViewMode = typeof window !== "undefined" ? (() => { try { const s = localStorage.getItem(`${projectId}_viewMode`); if (s) return JSON.parse(s); } catch {} return ""; })() : "";
+  const _initViewMode = typeof window !== "undefined" ? (() => { try { const s = localStorage.getItem(`${projectId}_viewMode`); if (s) return JSON.parse(s); } catch (e) { console.error("[Storage]", e); } return ""; })() : "";
   const [viewMode, setViewMode] = usePersisted<string>(`${projectId}_viewMode`, _initViewMode);
   const [viewEmployee, setViewEmployee] = usePersisted<string>(`${projectId}_viewEmployee`, "");
   const [viewJob, setViewJob] = usePersisted<string>(`${projectId}_viewJob`, "");
@@ -934,7 +934,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Tutorial mode — must be declared before the useEffect that references it
-  const [isTutorial] = useState(() => { try { return JSON.parse(localStorage.getItem(`${projectId}_isTutorial`) || "false"); } catch { return false; } });
+  const [isTutorial] = useState(() => { try { return JSON.parse(localStorage.getItem(`${projectId}_isTutorial`) || "false"); } catch (e) { console.error("[Storage]", e); return false; } });
 
   // Page state is intentionally useState (not usePersisted) — on project entry,
   // users always start at "home" (Overview). Navigation state is session-only.
@@ -948,12 +948,12 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
   const accountMenuRef = useRef<HTMLDivElement>(null);
   const [sidebarGuide, setSidebarGuide] = useState<"consultant" | "hr" | null>(() => {
     if (typeof window === "undefined") return null;
-    try { const g = sessionStorage.getItem(`${projectId}_openGuide`); if (g === "consultant" || g === "hr") { sessionStorage.removeItem(`${projectId}_openGuide`); return g; } } catch {}
+    try { const g = sessionStorage.getItem(`${projectId}_openGuide`); if (g === "consultant" || g === "hr") { sessionStorage.removeItem(`${projectId}_openGuide`); return g; } } catch (e) { console.error("[Storage]", e); }
     return null;
   });
   const [showSplash, setShowSplash] = useState(() => {
     if (typeof window === "undefined") return false;
-    try { return !sessionStorage.getItem(`${projectId}_splashSeen`); } catch { return true; }
+    try { return !sessionStorage.getItem(`${projectId}_splashSeen`); } catch (e) { console.error("[Storage]", e); return true; }
   });
   const [decLogFilter, setDecLogFilter] = useState("All");
   const [showActivityFeed, setShowActivityFeed] = useState(false);
@@ -990,14 +990,14 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
         if (lm && String(lm).startsWith("Tutorial_") && model !== lm) {
           setModel(lm);
         }
-      } catch {}
+      } catch (e) { console.error("[Parse]", e); }
       // Also try to derive model name from projectId if lastModel isn't set
       if (!model || model === "Demo_Model") {
         const derivedModel = projectId.replace("tutorial_", "Tutorial_").split("_").map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join("_");
         if (derivedModel.startsWith("Tutorial_")) {
           setModel(derivedModel);
           // Also re-trigger the backend seed in case it wasn't seeded yet
-          api.apiFetch(`/api/tutorial/seed?industry=${projectId.split("_").slice(2).join("_")}&size=${projectId.split("_")[1]}`).catch(() => {});
+          api.apiFetch(`/api/tutorial/seed?industry=${projectId.split("_").slice(2).join("_")}&size=${projectId.split("_")[1]}`).catch((e) => { console.error("[API]", e); });
         }
       }
     }
@@ -1009,7 +1009,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
     api.getOverview(model, f).then(d => {
       const names = ((d as Record<string, unknown>)?.employee_names ?? []) as string[];
       if (names.length) setEmployees(names);
-    }).catch(() => {});
+    }).catch((e) => { console.error("[API]", e); });
   }, [model, backendOk]);
 
   // ── Persistent work design state — scoped to project ──
@@ -1297,7 +1297,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
   }, [jobStates, jobs, simState, decisionLog, riskRegister]);
 
   // Tutorial mode state and handlers
-  const [tutorialStep, setTutorialStep] = useState(() => { try { return JSON.parse(localStorage.getItem(`${projectId}_tutorialStep`) || "0"); } catch { return 0; } });
+  const [tutorialStep, setTutorialStep] = useState(() => { try { return JSON.parse(localStorage.getItem(`${projectId}_tutorialStep`) || "0"); } catch (e) { console.error("[Storage]", e); return 0; } });
   const [tutorialVisible, setTutorialVisible] = useState(isTutorial);
   const tutorialSteps = useMemo(() => buildTutorialSteps(projectId), [projectId]);
 

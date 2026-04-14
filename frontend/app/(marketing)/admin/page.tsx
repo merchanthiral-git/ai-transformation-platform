@@ -34,7 +34,7 @@ export default function AdminPage() {
     if (user && token && user.username === ADMIN_USERNAME) {
       setAuthorized(true);
       setMetrics(getLocalMetrics());
-      authApi.adminGetUsers().then(d => setServerStats(d)).catch(() => {});
+      authApi.adminGetUsers().then(d => setServerStats(d)).catch((e) => { console.error("[AdminPage] failed to fetch users", e); });
     }
     setChecked(true);
   }, []);

@@ -96,9 +96,17 @@ export function useCollaboration(opts: {
       }
     };
 
-    const onDisconnect = () => {
+    const onDisconnect = (reason: string) => {
       setConnected(false);
       joinedRef.current = false;
+      if (reason === "io server disconnect" || reason === "transport close") {
+        console.warn("[Collab] Disconnected:", reason);
+      }
+    };
+
+    const onConnectError = (err: Error) => {
+      console.error("[Collab] Connection error:", err.message);
+      setConnected(false);
     };
 
     const onPresence = (users: CollabUser[]) => {
@@ -119,6 +127,7 @@ export function useCollaboration(opts: {
 
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
+    socket.on("connect_error", onConnectError);
     socket.on("presence", onPresence);
     socket.on("activity_feed", onActivityFeed);
     socket.on("activity_update", onActivityUpdate);
@@ -135,6 +144,7 @@ export function useCollaboration(opts: {
       joinedRef.current = false;
       socket.off("connect", onConnect);
       socket.off("disconnect", onDisconnect);
+      socket.off("connect_error", onConnectError);
       socket.off("presence", onPresence);
       socket.off("activity_feed", onActivityFeed);
       socket.off("activity_update", onActivityUpdate);

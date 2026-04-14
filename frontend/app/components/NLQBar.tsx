@@ -81,7 +81,7 @@ export function NLQBar({ projectId, modelId, currentModule }: { projectId: strin
   useEffect(() => {
     if (!projectId) return;
     fetch(`/api/nlq/history/${projectId}`, { headers: authHeaders() })
-      .then(r => r.json()).then(d => setHistory(d.history || [])).catch(() => {});
+      .then(r => r.json()).then(d => setHistory(d.history || [])).catch((e) => { console.error("[NLQBar] history fetch error", e); });
   }, [projectId]);
 
   const runQuery = useCallback(async (q: string) => {
