@@ -381,6 +381,37 @@ export async function inferSkills(jobTitle: string, tasks?: string[], descriptio
   return fetchJSON<Record<string, unknown>>("/api/skills/infer", {}, { method: "POST", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify({ job_title: jobTitle, tasks, description }) });
 }
 
+// ─── Job Notes & Restructuring ──────────────────────────
+export async function getNotes(jobTitle?: string, category?: string, search?: string): Promise<Record<string, unknown>> {
+  const p = new URLSearchParams();
+  if (jobTitle) p.set("job_title", jobTitle);
+  if (category) p.set("category", category);
+  if (search) p.set("search", search);
+  return fetchJSON<Record<string, unknown>>(`/api/notes?${p}`, { notes: [], total: 0 });
+}
+export async function createNote(data: Record<string, unknown>): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/notes", {}, { method: "POST", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify(data) });
+}
+export async function getNotesForJob(jobTitle: string): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/notes/job/${encodeURIComponent(jobTitle)}`, { notes: [], total: 0 });
+}
+export async function updateNote(noteId: string, data: Record<string, unknown>): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/notes/${noteId}`, {}, { method: "PUT", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify(data) });
+}
+export async function confirmNote(noteId: string): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/notes/${noteId}/confirm`, {}, { method: "POST", headers: getAuthHeaders() });
+}
+export async function getReorgScenarios(modelId?: string): Promise<Record<string, unknown>> {
+  const p = modelId ? `?model_id=${encodeURIComponent(modelId)}` : "";
+  return fetchJSON<Record<string, unknown>>(`/api/reorg/scenarios${p}`, { scenarios: [], total: 0 });
+}
+export async function saveReorgScenario(data: Record<string, unknown>): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/reorg/scenarios", {}, { method: "POST", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify(data) });
+}
+export async function getReorgImpact(scenarioId: string): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/reorg/impact/${scenarioId}`, {});
+}
+
 // ─── Build/Buy/Borrow/Automate ──────────────────────────
 export async function getBBBA(modelId: string, f?: Filters): Promise<BBBAResponse> {
   const q = f ? `?${filterParams(f)}` : "";

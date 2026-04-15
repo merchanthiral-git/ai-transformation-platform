@@ -17,6 +17,14 @@ async def check_tutorial(project_id: str):
     return {"is_tutorial": project_id == "tutorial_project"}
 
 
+@router.get("/tutorial/industry-titles")
+async def get_industry_titles(industry: str = "technology"):
+    """Get industry-specific title mappings for career levels."""
+    from app.config.industry_titles import get_all_titles_for_industry, INDUSTRY_TITLES, GENERIC_TITLES
+    titles = get_all_titles_for_industry(industry)
+    return _safe({"industry": industry, "titles": titles, "available_industries": list(INDUSTRY_TITLES.keys())})
+
+
 # ═══════════════════════════════════════════════════
 # TUTORIAL SANDBOX — Auto-seeds rich dataset
 # ═══════════════════════════════════════════════════
@@ -328,6 +336,12 @@ def _seed_tutorial_store(industry="technology", size_tier="mid"):
     
     # Always regenerate — don't cache, to ensure schema changes are picked up
     random.seed(hash(f"{industry}_{size_tier}") % 2**31)
+
+    # ═══════════════════════════════════════════════════
+    # INDUSTRY-SPECIFIC TITLE MAPPING
+    # ═══════════════════════════════════════════════════
+    from app.config.industry_titles import get_title_for_level, get_all_titles_for_industry
+    industry_titles = get_all_titles_for_industry(industry)
 
     # ═══════════════════════════════════════════════════
     # CAREER TRACK SYSTEM — levels vary by company size tier
@@ -1339,12 +1353,21 @@ def _seed_tutorial_store(industry="technology", size_tier="mid"):
             base_func = random.choices([f for f, _ in func_pcts], weights=func_weights)[0]
             real_func = renames.get(base_func, base_func)
 
-            # Pick a job title appropriate for this track and level
-            title = _pick_title_for_level(track, level, base_func, blueprints, renames, industry)
-            real_title = renames.get(title, title)
+            # Pick a base title for job family/hierarchy lookup
+            base_title = _pick_title_for_level(track, level, base_func, blueprints, renames, industry)
 
+            # Industry-specific display title derived from level code
+            industry_display_title = get_title_for_level(level, industry, size_tier)
+            # Combine with function context for specificity (e.g., "Senior Engineer - Engineering")
+            real_title = industry_display_title
+            # For generic titles that don't convey function, append function context
+            if real_title in ("Analyst", "Senior Analyst", "Specialist", "Associate", "Consultant") and real_func:
+                real_title = f"{industry_display_title}, {real_func}"
+
+            # Use base_title for hierarchy lookups (preserves job family mapping)
+            title = base_title
             # Career level name
-            cl_name = ALL_CAREER_TRACKS[track]["levels"].get(level, level)
+            cl_name = industry_display_title
 
             # Compensation based on level
             comp = _comp_for_level(level)

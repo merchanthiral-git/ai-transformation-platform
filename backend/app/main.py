@@ -48,6 +48,10 @@ try:
     from app.routes_skills import router as skills_router
 except ImportError:
     skills_router = None
+try:
+    from app.routes_notes import router as notes_router
+except ImportError:
+    notes_router = None
 
 app = FastAPI(title="AI Transformation Platform API", version="4.0")
 
@@ -119,6 +123,8 @@ app.include_router(tutorial_router)
 app.include_router(export_ext_router)
 if skills_router:
     app.include_router(skills_router)
+if notes_router:
+    app.include_router(notes_router)
 
 # Agent system
 from app.routes_agents import router as agents_router
