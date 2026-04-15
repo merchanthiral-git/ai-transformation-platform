@@ -11,6 +11,12 @@ import {
   useApiData, usePersisted, callAI, showToast, JobDesignState, fmtNum,
 } from "../shared";
 import { EmployeeOrgChart } from "../OverviewModule";
+import LayerDistributionChart from "./LayerDistributionChart";
+import type { LayerData } from "./LayerDistributionChart";
+import CostModelChart from "./CostModelChart";
+import type { LayerCostData } from "./CostModelChart";
+import RoleMigrationChart from "./RoleMigrationChart";
+import type { DepartmentMigration } from "./RoleMigrationChart";
 
 const ODS_DEPTS = ["Executive Office","Finance & Accounting","Human Resources","Marketing","Product Design","Supply Chain","IT & Digital","Sales & Commercial","Legal & Compliance","Operations"];
 const ODS_LEVELS = ["E5","E4","E3","E2","E1","M6","M5","M4","M3","M2","M1","P8","P7","P6","P5","P4","P3","P2","P1","T8","T7","T6","T5","T4","T3","T2","T1","S6","S5","S4","S3","S2","S1"];
@@ -217,22 +223,18 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       const srcFuture = layerScope === "all" ? (sc.departments || []) : (sc.departments || []).filter((d: ReturnType<typeof odsGenDept>[0]) => d.name === layerScope);
       const curLevels = ODS_LEVELS.map(l => ({ level: l, count: srcCurrent.reduce((s, d) => s + (d.levelDist?.[l] || 0), 0) }));
       const futLevels = ODS_LEVELS.map(l => ({ level: l, count: srcFuture.reduce((s: number, d: ReturnType<typeof odsGenDept>[0]) => s + (d.levelDist?.[l] || 0), 0) }));
-      const totalCur = curLevels.reduce((s, l) => s + l.count, 0);
-      const totalFut = futLevels.reduce((s, l) => s + l.count, 0);
-      const maxCount = Math.max(...curLevels.map(l => l.count), ...futLevels.map(l => l.count), 1);
-      const layerColors = ["var(--teal)", "var(--accent-primary)", "var(--amber)", "var(--warning)", "#F0C060", "#F5DEB3"];
-      const benchmarks: Record<string, number> = { "C-Suite": 0.5, SVP: 1.5, VP: 4, Director: 10, Manager: 18, IC: 66 };
 
-      // Chain analysis
-      const maxChain = Math.max(...currentData.map(d => d.layers), 0);
-      const minChain = Math.min(...currentData.map(d => d.layers), 99);
-      const avgChain = currentData.length > 0 ? (currentData.reduce((s, d) => s + d.layers, 0) / currentData.length).toFixed(1) : "0";
-      const deepest = currentData.find(d => d.layers === maxChain);
-      const shallowest = currentData.find(d => d.layers === minChain);
+      // Build LayerData for the new component — only E and M layers
+      const layerChartData: LayerData[] = ODS_LEVELS.filter(l => l.startsWith("E") || l.startsWith("M")).map(l => {
+        const li = ODS_LEVELS.indexOf(l);
+        return { layer: l, current: curLevels[li]?.count || 0, future: futLevels[li]?.count || 0 };
+      });
 
-      // Shape analysis
-      const topHeavyPct = curLevels.slice(0, 3).reduce((s, l) => s + l.count, 0) / Math.max(totalCur, 1) * 100;
-      const shape = topHeavyPct > 20 ? "top-heavy" : topHeavyPct < 8 ? "bottom-heavy" : "balanced";
+      // Build LayerCostData for the cost model
+      const costChartData: LayerCostData[] = ODS_LEVELS.map(l => {
+        const li = ODS_LEVELS.indexOf(l);
+        return { layer: l, currentHeadcount: curLevels[li]?.count || 0, futureHeadcount: futLevels[li]?.count || 0, avgComp: ODS_AVG_COMP[l] || 85000 };
+      });
 
       return <div>
         {/* Scope selector */}
@@ -244,181 +246,58 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
           </select>
         </div>
 
-        {/* Unified Org Pyramid — mirrored bar chart */}
+        {/* New bracketed delta chart */}
         <Card title="Layer Distribution — Current vs. Future">
-          <div className="space-y-3">
-            {ODS_LEVELS.map((level, li) => {
-              const cur = curLevels[li].count;
-              const fut = futLevels[li].count;
-              const delta = fut - cur;
-              const curPct = totalCur > 0 ? (cur / totalCur * 100).toFixed(1) : "0";
-              const futPct = totalFut > 0 ? (fut / totalFut * 100).toFixed(1) : "0";
-              const bPct = benchmarks[level] || 0;
-              const actualPct = Number(curPct);
-              const health = Math.abs(actualPct - bPct) < bPct * 0.5 ? "green" : Math.abs(actualPct - bPct) < bPct * 0.8 ? "amber" : "red";
-              return <div key={level}>
-                <div className="flex items-center gap-3 mb-1">
-                  <div className="w-20 text-right text-[15px] font-semibold text-[var(--text-secondary)] shrink-0">{level}</div>
-                  <div className="flex-1 flex flex-col gap-1">
-                    {/* Current bar */}
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 h-6 bg-[var(--surface-2)] rounded overflow-hidden"><div className="h-full rounded transition-all" style={{ width: `${Math.max((cur / maxCount) * 100, 1)}%`, background: `linear-gradient(90deg, ${layerColors[li]}dd, ${layerColors[li]}90)` }} /></div>
-                      <span className="text-[15px] font-data text-[var(--text-muted)] w-16 text-right">{cur} ({curPct}%)</span>
-                    </div>
-                    {/* Future bar */}
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 h-5 bg-[var(--surface-2)] rounded overflow-hidden"><div className="h-full rounded transition-all" style={{ width: `${Math.max((fut / maxCount) * 100, 1)}%`, background: `linear-gradient(90deg, rgba(16,185,129,0.7), rgba(16,185,129,0.4))` }} /></div>
-                      <span className="text-[15px] font-data w-16 text-right" style={{ color: delta < 0 ? "var(--success)" : delta > 0 ? "var(--risk)" : "var(--text-muted)" }}>{delta !== 0 ? `${delta > 0 ? "+" : ""}${delta}` : "—"}</span>
-                    </div>
-                  </div>
-                  <div className="w-6 flex items-center justify-center"><div className="w-2.5 h-2.5 rounded-full" style={{ background: health === "green" ? "var(--success)" : health === "amber" ? "var(--warning)" : "var(--risk)" }} /></div>
-                </div>
-              </div>;
-            })}
-            <div className="flex items-center gap-3 text-[14px] text-[var(--text-muted)] mt-2 pt-2 border-t border-[var(--border)]">
-              <div className="flex items-center gap-1"><div className="w-3 h-2 rounded" style={{ background: "var(--accent-primary)" }} /> Current</div>
-              <div className="flex items-center gap-1"><div className="w-3 h-2 rounded" style={{ background: "rgba(16,185,129,0.6)" }} /> {sc.label}</div>
-              <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-[var(--success)]" /> Healthy</div>
-              <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-[var(--warning)]" /> Watch</div>
-              <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-[var(--risk)]" /> Issue</div>
-            </div>
-          </div>
+          <LayerDistributionChart data={layerChartData} />
         </Card>
 
-        <div className="grid grid-cols-2 gap-4">
-          {/* Reporting chain analysis */}
-          <Card title="Reporting Chain Analysis">
-            <div className="grid grid-cols-3 gap-4 mb-4">
-              <div className="text-center"><div className="text-[28px] font-extrabold text-[var(--risk)]">{maxChain}</div><div className="text-[15px] text-[var(--text-muted)]">Deepest Chain</div><div className="text-[14px] text-[var(--text-muted)]">{deepest?.name || "—"}</div></div>
-              <div className="text-center"><div className="text-[28px] font-extrabold text-[var(--accent-primary)]">{avgChain}</div><div className="text-[15px] text-[var(--text-muted)]">Average Depth</div></div>
-              <div className="text-center"><div className="text-[28px] font-extrabold text-[var(--success)]">{minChain < 99 ? minChain : 0}</div><div className="text-[15px] text-[var(--text-muted)]">Shallowest</div><div className="text-[14px] text-[var(--text-muted)]">{shallowest?.name || "—"}</div></div>
-            </div>
-            {/* Visual chains */}
-            <div className="flex gap-6 justify-center">
-              {[{ label: "Deepest", dept: deepest, count: maxChain, color: "var(--risk)" }, { label: "Shallowest", dept: shallowest, count: minChain < 99 ? minChain : 0, color: "var(--success)" }].map(ch => <div key={ch.label} className="flex flex-col items-center gap-1">
-                <div className="text-[14px] font-bold uppercase tracking-wider mb-1" style={{ color: ch.color }}>{ch.label}</div>
-                {Array.from({ length: ch.count }, (_, j) => <div key={j} className="w-12 h-4 rounded-md flex items-center justify-center text-[15px] font-bold" style={{ background: `${ch.color}15`, border: `1px solid ${ch.color}30`, color: ch.color }}>{ODS_LEVELS[Math.min(j, ODS_LEVELS.length - 1)]?.slice(0, 3)}</div>)}
-              </div>)}
-            </div>
-          </Card>
-
-          {/* Layer distribution shape */}
-          <Card title="Distribution Shape Analysis">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="text-[15px] font-bold" style={{ color: shape === "balanced" ? "var(--success)" : shape === "top-heavy" ? "var(--warning)" : "var(--accent-primary)" }}>Your org is {shape}</div>
-              <Badge color={shape === "balanced" ? "green" : shape === "top-heavy" ? "amber" : "indigo"}>{topHeavyPct.toFixed(0)}% above Director</Badge>
-            </div>
-            <div className="flex items-end gap-1 h-24 mb-3">
-              {curLevels.map((l, i) => <div key={l.level} className="flex-1 flex flex-col items-center justify-end">
-                <div className="w-full rounded-t" style={{ height: `${Math.max((l.count / maxCount) * 100, 4)}%`, background: layerColors[i], opacity: 0.7, minHeight: 4 }} />
-                <div className="text-[15px] text-[var(--text-muted)] mt-1">{l.level.slice(0, 3)}</div>
-              </div>)}
-            </div>
-            <div className="text-[15px] text-[var(--text-secondary)] leading-relaxed">
-              {shape === "top-heavy" && "Consider de-layering senior levels to improve decision speed and reduce management overhead. Target: <15% of headcount above Director level."}
-              {shape === "balanced" && "Healthy pyramid distribution. Senior layers are proportionate to the overall workforce. Continue monitoring as transformation progresses."}
-              {shape === "bottom-heavy" && "Strong IC base with lean management. Ensure sufficient leadership coverage — may need to add management capacity in growing functions."}
-            </div>
-          </Card>
-        </div>
-
-        {/* Layer health table */}
-        <Card title="Layer Health Indicators">
-          <div className="overflow-auto rounded-lg border border-[var(--border)]">
-            <table className="w-full text-[15px]">
-              <thead><tr className="bg-[var(--surface-2)]">
-                {["Layer", "Current HC", "% of Org", "Benchmark", "Gap", "Avg Tenure", "Health"].map(h => <th key={h} className="px-3 py-2 text-left border-b border-[var(--border)] text-[var(--text-muted)] font-semibold uppercase text-[14px]">{h}</th>)}
-              </tr></thead>
-              <tbody>{curLevels.map((l, li) => {
-                const pct = totalCur > 0 ? (l.count / totalCur * 100) : 0;
-                const bPct = benchmarks[l.level] || 0;
-                const gap = pct - bPct;
-                const health = Math.abs(gap) < bPct * 0.5 ? "green" : Math.abs(gap) < bPct * 0.8 ? "amber" : "red";
-                const tenure = Math.round(3 + li * 1.5 + Math.random() * 2);
-                return <tr key={l.level} className="border-b border-[var(--border)] hover:bg-[var(--hover)]">
-                  <td className="px-3 py-2 font-semibold text-[var(--text-primary)]">{l.level}</td>
-                  <td className="px-3 py-2 font-data">{l.count.toLocaleString()}</td>
-                  <td className="px-3 py-2 font-data">{pct.toFixed(1)}%</td>
-                  <td className="px-3 py-2 font-data text-[var(--text-muted)]">{bPct}%</td>
-                  <td className="px-3 py-2 font-data" style={{ color: gap > 0 ? "var(--risk)" : gap < 0 ? "var(--success)" : "var(--text-muted)" }}>{gap > 0 ? "+" : ""}{gap.toFixed(1)}%</td>
-                  <td className="px-3 py-2 font-data text-[var(--text-muted)]">{tenure}yr</td>
-                  <td className="px-3 py-2"><div className="w-2.5 h-2.5 rounded-full" style={{ background: health === "green" ? "var(--success)" : health === "amber" ? "var(--warning)" : "var(--risk)" }} /></td>
-                </tr>;
-              })}</tbody>
-            </table>
-          </div>
-          {curLevels.some((l, li) => l.count === 0 && li > 0 && li < ODS_LEVELS.length - 1) && <div className="mt-3 p-3 rounded-lg bg-[var(--risk)]/5 border border-[var(--risk)]/15 text-[15px] text-[var(--risk)]">⚠ Gap detected: {curLevels.filter((l, li) => l.count === 0 && li > 0 && li < ODS_LEVELS.length - 1).map(l => l.level).join(", ")} has no employees — creates a career progression gap.</div>}
+        {/* Cost model below layer distribution */}
+        <Card title="Cost Model — Current vs. Future">
+          <CostModelChart data={costChartData} />
         </Card>
       </div>;
     })()}
 
-    {view === "cost" && <div>
-      {/* Cost methodology */}
-      <Card title="Cost Model — Methodology">
-        <div className="grid grid-cols-2 gap-6 mb-5">
-          <div>
-            <div className="text-[15px] font-bold text-[var(--text-primary)] mb-2">How Current Cost is Calculated</div>
-            <div className="text-[15px] text-[var(--text-secondary)] leading-relaxed mb-3">Total labor cost is computed by multiplying headcount at each career level by the average fully-loaded compensation for that level. This includes base salary, benefits (est. 25%), and overhead allocation.</div>
-            <div className="space-y-1.5">{ODS_LEVELS.map(l => { const n = currentData.reduce((s, d) => s + (d.levelDist?.[l] || 0), 0); const comp = ODS_AVG_COMP[l] || 85000; return <div key={l} className="flex items-center justify-between text-[15px] p-2 rounded-lg bg-[var(--surface-2)]">
-              <span className="text-[var(--text-secondary)]">{l}</span>
-              <span className="text-[var(--text-muted)]">{n} × {fmtNum(comp)}</span>
-              <span className="font-semibold text-[var(--accent-primary)]">{fmtNum((n * comp))}</span>
-            </div>; })}</div>
-            <div className="flex justify-between mt-2 p-2 rounded-lg bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/20 text-[15px] font-bold"><span className="text-[var(--accent-primary)]">Current Total</span><span className="text-[var(--accent-primary)]">{fmtNum(cA.cost)}</span></div>
-          </div>
-          <div>
-            <div className="text-[15px] font-bold text-[var(--text-primary)] mb-2">How Future Cost is Derived ({sc.label})</div>
-            <div className="text-[15px] text-[var(--text-secondary)] leading-relaxed mb-3">Future cost reflects scenario adjustments: layer removal reduces management headcount, span optimization redistributes ICs, and structural changes shift the level mix. Each change is applied per-department.</div>
-            <div className="space-y-1.5">{ODS_LEVELS.map(l => { const n = sc.departments.reduce((s, d) => s + (d.levelDist?.[l] || 0), 0); const cN = currentData.reduce((s, d) => s + (d.levelDist?.[l] || 0), 0); const comp = ODS_AVG_COMP[l] || 85000; const delta = n - cN; return <div key={l} className="flex items-center justify-between text-[15px] p-2 rounded-lg bg-[var(--surface-2)]">
-              <span className="text-[var(--text-secondary)]">{l}</span>
-              <span className="text-[var(--text-muted)]">{n} × {fmtNum(comp)} {delta !== 0 && <span style={{ color: delta < 0 ? "var(--success)" : "var(--risk)", fontSize: 15 }}>({delta > 0 ? "+" : ""}{delta})</span>}</span>
-              <span className="font-semibold text-[var(--success)]">{fmtNum((n * comp))}</span>
-            </div>; })}</div>
-            <div className="flex justify-between mt-2 p-2 rounded-lg bg-[var(--success)]/10 border border-[var(--success)]/20 text-[15px] font-bold"><span className="text-[var(--success)]">{sc.label} Total</span><span className="text-[var(--success)]">{fmtNum(fA.cost)}</span></div>
-          </div>
-        </div>
-        <div className="flex items-center justify-center gap-4 p-4 rounded-xl border border-[var(--border)] bg-[var(--surface-2)]">
-          <div className="text-center"><div className="text-[15px] text-[var(--text-muted)] uppercase">Net Change</div><div className="text-2xl font-extrabold" style={{ color: fA.cost < cA.cost ? "var(--success)" : "var(--risk)" }}>{fmtNum((fA.cost - cA.cost))}</div></div>
-          <div className="text-center"><div className="text-[15px] text-[var(--text-muted)] uppercase">Percent Change</div><div className="text-2xl font-extrabold" style={{ color: fA.cost < cA.cost ? "var(--success)" : "var(--risk)" }}>{cA.cost > 0 ? fmt(((fA.cost - cA.cost) / cA.cost) * 100, "pct") : "0%"}</div></div>
-          <div className="text-center"><div className="text-[15px] text-[var(--text-muted)] uppercase">HC Change</div><div className="text-2xl font-extrabold" style={{ color: fA.hc < cA.hc ? "var(--success)" : "var(--risk)" }}>{fmt(fA.hc - cA.hc, "delta")}</div></div>
-          <div className="text-center"><div className="text-[15px] text-[var(--text-muted)] uppercase">Cost per Head</div><div className="text-lg font-extrabold text-[var(--text-primary)]">{fmt(cA.hc > 0 ? (cA.cost / cA.hc) : 0, "$")} → {fmt(fA.hc > 0 ? (fA.cost / fA.hc) : 0, "$")}</div></div>
-        </div>
-      </Card>
-      <Card title="Cost by Department">
-        {(() => { const cCosts = currentData.map(d => { let c = 0; if (d.levelDist) Object.entries(d.levelDist).forEach(([l, n]) => { c += n * (ODS_AVG_COMP[l] || 85000); }); return c; }); const fCosts = (sc.departments || []).map(d => { let c = 0; if (d.levelDist) Object.entries(d.levelDist).forEach(([l, n]) => { c += n * (ODS_AVG_COMP[l] || 85000); }); return c; }); const maxCost = Math.max(...cCosts, ...fCosts, 1); return <div className="space-y-3">{currentData.map((d, i) => { const delta = (fCosts[i] ?? 0) - (cCosts[i] ?? 0); return <div key={d.name} className="flex items-center gap-3"><div className="w-36 text-[15px] font-semibold text-[var(--text-secondary)] text-right shrink-0">{d.name}</div><div className="flex-1 space-y-1"><HBar value={cCosts[i] ?? 0} max={maxCost} color="var(--accent-primary)" /><HBar value={fCosts[i] ?? 0} max={maxCost} color="var(--success)" /></div><div className="w-24 text-right shrink-0"><div className="text-[15px] font-semibold text-[var(--text-primary)]">{fmtNum(cCosts[i] ?? 0)}</div><div className="text-[15px]" style={{ color: delta < 0 ? "var(--success)" : delta > 0 ? "var(--risk)" : "var(--text-muted)" }}>{delta < 0 ? "↓" : delta > 0 ? "↑" : "→"} ${Math.abs(delta / 1e3).toFixed(0)}K</div></div></div>; })}</div>; })()}
-      </Card>
-    </div>}
+    {view === "cost" && (() => {
+      // Build cost data from current scenario
+      const srcCurrent = layerScope === "all" ? currentData : currentData.filter(d => d.name === layerScope);
+      const srcFuture = layerScope === "all" ? (sc.departments || []) : (sc.departments || []).filter((d: ReturnType<typeof odsGenDept>[0]) => d.name === layerScope);
+      const costChartData: LayerCostData[] = ODS_LEVELS.map(l => {
+        const curCount = srcCurrent.reduce((s, d) => s + (d.levelDist?.[l] || 0), 0);
+        const futCount = srcFuture.reduce((s: number, d: ReturnType<typeof odsGenDept>[0]) => s + (d.levelDist?.[l] || 0), 0);
+        return { layer: l, currentHeadcount: curCount, futureHeadcount: futCount, avgComp: ODS_AVG_COMP[l] || 85000 };
+      });
 
-    {view === "roles" && <Card title="Role Migration & Gap Analysis">
-      {(() => {
-        const gaps = currentData.map((d, i) => {
-          const f = sc.departments[i]; const nr = f?.newRoles || Math.floor(Math.random() * 3); const rr = f?.removedRoles || Math.floor(Math.random() * 4); const rs = f?.restructuredRoles || Math.floor(Math.random() * 5);
-          return { name: d.name, currentHC: d.headcount, futureHC: f?.headcount || d.headcount, newRoles: nr, removedRoles: rr, restructuredRoles: rs, retained: Math.max(0, Math.min(d.headcount, f?.headcount || d.headcount) - rr) };
-        });
-        const tn = gaps.reduce((s, g) => s + g.newRoles, 0); const tr = gaps.reduce((s, g) => s + g.removedRoles, 0); const ts = gaps.reduce((s, g) => s + g.restructuredRoles, 0); const tRet = gaps.reduce((s, g) => s + g.retained, 0);
-        const mostNew = [...gaps].sort((a, b) => b.newRoles - a.newRoles)[0] || { name: "—", newRoles: 0 };
-        const mostElim = [...gaps].sort((a, b) => b.removedRoles - a.removedRoles)[0] || { name: "—", removedRoles: 0 };
-        const totalHC = gaps.reduce((s, g) => s + g.currentHC, 0);
-        return <div>
-          <div className="grid grid-cols-4 gap-3 mb-5">{[{ label: "New Roles", val: tn, color: "var(--success)", desc: "Created by restructuring" }, { label: "Eliminated", val: tr, color: "var(--risk)", desc: "Removed or automated" }, { label: "Restructured", val: ts, color: "var(--warning)", desc: "Scope or level changed" }, { label: "Retained", val: tRet, color: "var(--accent-primary)", desc: "Unchanged in scope" }].map(k => <div key={k.label} className="bg-[var(--surface-2)] rounded-xl p-4 border-l-[3px] border border-[var(--border)]" style={{ borderLeftColor: k.color }}><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">{k.label}</div><div className="text-2xl font-extrabold" style={{ color: k.color }}>{k.val}</div><div className="text-[15px] text-[var(--text-muted)] mt-1">{k.desc}</div></div>)}</div>
+      return <div>
+        <Card title="Cost Model — Current vs. Future">
+          <CostModelChart data={costChartData} />
+        </Card>
+        <Card title="Cost by Department">
+          {(() => { const cCosts = currentData.map(d => { let c = 0; if (d.levelDist) Object.entries(d.levelDist).forEach(([l, n]) => { c += n * (ODS_AVG_COMP[l] || 85000); }); return c; }); const fCosts = (sc.departments || []).map(d => { let c = 0; if (d.levelDist) Object.entries(d.levelDist).forEach(([l, n]) => { c += n * (ODS_AVG_COMP[l] || 85000); }); return c; }); const maxCost = Math.max(...cCosts, ...fCosts, 1); return <div className="space-y-3">{currentData.map((d, i) => { const delta = (fCosts[i] ?? 0) - (cCosts[i] ?? 0); return <div key={d.name} className="flex items-center gap-3"><div className="w-36 text-[15px] font-semibold text-[var(--text-secondary)] text-right shrink-0">{d.name}</div><div className="flex-1 space-y-1"><HBar value={cCosts[i] ?? 0} max={maxCost} color="var(--accent-primary)" /><HBar value={fCosts[i] ?? 0} max={maxCost} color="var(--success)" /></div><div className="w-24 text-right shrink-0"><div className="text-[15px] font-semibold text-[var(--text-primary)]">{fmtNum(cCosts[i] ?? 0)}</div><div className="text-[15px]" style={{ color: delta < 0 ? "var(--success)" : delta > 0 ? "var(--risk)" : "var(--text-muted)" }}>{delta < 0 ? "↓" : delta > 0 ? "↑" : "→"} ${Math.abs(delta / 1e3).toFixed(0)}K</div></div></div>; })}</div>; })()}
+        </Card>
+      </div>;
+    })()}
 
-          {/* How these numbers were derived */}
-          <div className="bg-gradient-to-r from-[rgba(212,134,10,0.06)] to-transparent border border-[rgba(212,134,10,0.12)] rounded-xl p-5 mb-4">
-            <div className="text-[15px] font-bold text-[var(--accent-primary)] mb-2">📊 How Role Migration is Calculated</div>
-            <div className="grid grid-cols-2 gap-4 text-[15px] text-[var(--text-secondary)] leading-relaxed">
-              <div><strong className="text-[var(--text-primary)]">New roles</strong> emerge when a department grows headcount or the scenario adds specialized functions. {mostNew?.name} generates the most ({mostNew?.newRoles}) due to its headcount expansion from {mostNew?.currentHC} → {mostNew?.futureHC}.</div>
-              <div><strong className="text-[var(--text-primary)]">Eliminated roles</strong> result from layer compression and span widening. When a {mostElim?.name} department loses a management layer, the displaced manager positions are removed ({mostElim?.removedRoles} roles).</div>
-              <div><strong className="text-[var(--text-primary)]">Restructured roles</strong> keep the same headcount but change in scope — e.g., a "Data Entry Clerk" becoming an "AI Operations Analyst." The {sc.label} scenario restructures {ts} roles across {gaps.filter(g => g.restructuredRoles > 0).length} departments.</div>
-              <div><strong className="text-[var(--text-primary)]">Retained roles</strong> ({Math.round(tRet / totalHC * 100)}% of current workforce) continue unchanged. Higher retention is lower-risk but may limit transformation speed.</div>
-            </div>
-          </div>
+    {view === "roles" && (() => {
+      // Build migration data from scenario
+      const migrationData: DepartmentMigration[] = currentData.map((d, i) => {
+        const f = sc.departments[i];
+        return {
+          name: d.name,
+          totalHeadcount: d.headcount,
+          newRoles: f?.newRoles || Math.max(0, Math.floor((f?.headcount || d.headcount) - d.headcount)),
+          restructured: f?.restructuredRoles || Math.floor(Math.max(1, d.headcount * 0.02)),
+          eliminated: f?.removedRoles || Math.max(0, Math.floor(d.headcount - (f?.headcount || d.headcount))),
+        };
+      });
+      const totalHC = migrationData.reduce((s, d) => s + d.totalHeadcount, 0);
+      const totalImpacted = migrationData.reduce((s, d) => s + d.newRoles + d.restructured + d.eliminated, 0);
+      const retainedCount = totalHC - totalImpacted;
 
-          {/* Migration flow bars — taller */}
-          <div className="space-y-3">{gaps.map(g => { const total = g.retained + g.newRoles + g.removedRoles + g.restructuredRoles; return <div key={g.name} className="flex items-center gap-3"><div className="w-36 text-[15px] font-semibold text-[var(--text-secondary)] text-right shrink-0">{g.name}</div><div className="flex-1 flex h-7 rounded-lg overflow-hidden"><div className="flex items-center justify-center text-[14px] font-bold text-white" style={{ width: `${g.retained / total * 100}%`, background: "var(--accent-primary)", minWidth: g.retained > 0 ? 20 : 0 }}>{g.retained}</div><div className="flex items-center justify-center text-[14px] font-bold text-white" style={{ width: `${g.newRoles / total * 100}%`, background: "var(--success)", minWidth: g.newRoles > 0 ? 16 : 0 }}>{g.newRoles}</div><div className="flex items-center justify-center text-[14px] font-bold text-white" style={{ width: `${g.restructuredRoles / total * 100}%`, background: "var(--warning)", minWidth: g.restructuredRoles > 0 ? 16 : 0 }}>{g.restructuredRoles}</div><div className="flex items-center justify-center text-[14px] font-bold text-white" style={{ width: `${g.removedRoles / total * 100}%`, background: "var(--risk)", minWidth: g.removedRoles > 0 ? 16 : 0 }}>{g.removedRoles}</div></div><div className="w-16 text-[15px] text-[var(--text-muted)] text-right">{g.currentHC}→{g.futureHC}</div></div>; })}</div>
-          <div className="flex gap-4 mt-3 justify-center text-[15px] text-[var(--text-muted)]">{[{ c: "var(--accent-primary)", l: "Retained" }, { c: "var(--success)", l: "New" }, { c: "var(--warning)", l: "Restructured" }, { c: "var(--risk)", l: "Eliminated" }].map(x => <span key={x.l} className="flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ background: x.c }} />{x.l}</span>)}</div>
-        </div>;
-      })()}
-    </Card>}
+      return <Card title="Role Migration — Impact Analysis">
+        <RoleMigrationChart data={migrationData} retainedCount={retainedCount} />
+      </Card>;
+    })()}
 
     {/* Dept Drill-Down — expanded */}
     {view === "drill" && <div>
