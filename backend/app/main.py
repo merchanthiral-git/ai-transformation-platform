@@ -132,6 +132,22 @@ if notes_router:
 if job_content_router:
     app.include_router(job_content_router)
 
+# Skills Library
+try:
+    from app.routes_skills_library import router as skills_library_router
+except ImportError:
+    skills_library_router = None
+if skills_library_router:
+    app.include_router(skills_library_router)
+
+# O*NET Skills Map Engine
+try:
+    from app.routes_onet import router as onet_router
+except ImportError:
+    onet_router = None
+if onet_router:
+    app.include_router(onet_router)
+
 # Agent system
 from app.routes_agents import router as agents_router
 app.include_router(agents_router)

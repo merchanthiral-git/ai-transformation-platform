@@ -504,8 +504,101 @@ export async function getManagerDevelopment(modelId: string, f?: Filters): Promi
   return fetchJSON<ManagerDevelopmentResponse>(`/api/manager-development/${encodeURIComponent(modelId)}${q}`, { plans: [], summary: {} });
 }
 
+// ─── Skills Library ─────────────────────────────────────
+export async function searchSkillsLibrary(params?: Record<string, string>): Promise<Record<string, unknown>> {
+  const p = new URLSearchParams(params || {});
+  return fetchJSON<Record<string, unknown>>(`/api/skills/library?${p}`, { skills: [], total: 0 });
+}
+export async function getSkillsLibraryDomains(): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/skills/library/domains", { domains: [] });
+}
+export async function getSkillFromLibrary(skillId: string): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/skills/library/${skillId}`, {});
+}
+export async function addSkillToLibrary(data: Record<string, unknown>): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/skills/library", {}, { method: "POST", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify(data) });
+}
+export async function updateSkillInLibrary(skillId: string, data: Record<string, unknown>): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/skills/library/${skillId}`, {}, { method: "PUT", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify(data) });
+}
+export async function matchSkillsToRole(data: Record<string, unknown>): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/skills/library/match", {}, { method: "POST", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify(data) });
+}
+export async function getSkillsLibraryStats(): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/skills/library/stats", {});
+}
+export async function getIndustrySkills(industry: string): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/skills/library/industry/${encodeURIComponent(industry)}`, { skills: [], count: 0 });
+}
+
 // ─── Export ─────────────────────────────────────────────
 export async function getExportSummary(modelId: string, f?: Filters): Promise<ExportSummaryResponse> {
   const q = f ? `?${filterParams(f)}` : "";
   return fetchJSON<ExportSummaryResponse>(`/api/export/summary/${encodeURIComponent(modelId)}${q}`, { summary: {} });
+}
+
+// ─── O*NET Skills Map Engine ────────────────────────────
+export async function searchOnetOccupations(params?: Record<string, string>): Promise<Record<string, unknown>> {
+  const p = new URLSearchParams(params || {});
+  return fetchJSON<Record<string, unknown>>(`/api/skills-map/occupations?${p}`, { occupations: [], total: 0 });
+}
+export async function getOnetOccupation(socCode: string): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/skills-map/occupations/${encodeURIComponent(socCode)}`, {});
+}
+export async function getOnetOccupationSkills(socCode: string): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/skills-map/occupations/${encodeURIComponent(socCode)}/skills`, { skills: [] });
+}
+export async function listOnetSkills(): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/skills-map/skills", { skills: [] });
+}
+export async function getOnetSkillOccupations(elementId: string): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/skills-map/skills/${encodeURIComponent(elementId)}/occupations`, { occupations: [] });
+}
+export async function searchOnetAll(q: string): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/skills-map/search?q=${encodeURIComponent(q)}`, { occupations: [], skills: [] });
+}
+export async function getOnetMajorGroups(): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/skills-map/major-groups", { major_groups: [] });
+}
+export async function matchJobToOnet(title: string, description?: string): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/skills-map/match-single", {}, { method: "POST", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify({ title, description }) });
+}
+export async function autoMatchJobs(jobs: Record<string, unknown>[]): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/skills-map/auto-match", {}, { method: "POST", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify({ jobs }) });
+}
+export async function confirmOnetMatch(jobId: string, socCode: string): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/skills-map/confirm-match", {}, { method: "POST", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify({ job_id: jobId, onet_soc_code: socCode }) });
+}
+export async function getOnetMatchStatus(): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/skills-map/match-status", { confirmed_matches: [], total: 0 });
+}
+export async function getMapperJobs(): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/skills-map/mapper/jobs", { jobs: [] });
+}
+export async function getJobMappedSkills(jobId: string): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/skills-map/mapper/jobs/${encodeURIComponent(jobId)}/skills`, {});
+}
+export async function updateJobMappedSkills(jobId: string, skills: Record<string, unknown>[]): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/skills-map/mapper/jobs/${encodeURIComponent(jobId)}/skills`, {}, { method: "PUT", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify({ skills }) });
+}
+export async function addCustomSkill(jobId: string, data: Record<string, unknown>): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/skills-map/mapper/jobs/${encodeURIComponent(jobId)}/custom-skill`, {}, { method: "POST", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify(data) });
+}
+export async function submitJobForReview(jobId: string, reviewer?: string): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/skills-map/mapper/jobs/${encodeURIComponent(jobId)}/submit-review`, {}, { method: "PUT", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify({ reviewer }) });
+}
+export async function approveJobMapping(jobId: string): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/skills-map/mapper/jobs/${encodeURIComponent(jobId)}/approve`, {}, { method: "PUT", headers: { ...getAuthHeaders() } });
+}
+export async function getMapperProgress(): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/skills-map/mapper/progress", {});
+}
+export async function getSkillsMapExportByJob(): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/skills-map/export/by-job", { rows: [] });
+}
+export async function getSkillsMapExportBySkill(): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/skills-map/export/by-skill", { skills: [] });
+}
+export async function getSkillsMapExportSummary(): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/skills-map/export/summary", {});
 }
