@@ -13,8 +13,8 @@ import {
 import { EmployeeOrgChart } from "../OverviewModule";
 
 const ODS_DEPTS = ["Executive Office","Finance & Accounting","Human Resources","Marketing","Product Design","Supply Chain","IT & Digital","Sales & Commercial","Legal & Compliance","Operations"];
-const ODS_LEVELS = ["E3","E2","E1","M5","M4","M3","M2","M1","P5","P4","P3","P2","P1","T4","T3","T2","T1","S2","S1"];
-const ODS_AVG_COMP: Record<string, number> = { "E3": 420000, "E2": 310000, "E1": 235000, "M5": 200000, "M4": 175000, "M3": 145000, "M2": 125000, "M1": 105000, "P5": 180000, "P4": 150000, "P3": 120000, "P2": 95000, "P1": 75000, "T4": 170000, "T3": 140000, "T2": 115000, "T1": 90000, "S2": 55000, "S1": 48000 };
+const ODS_LEVELS = ["E5","E4","E3","E2","E1","M6","M5","M4","M3","M2","M1","P8","P7","P6","P5","P4","P3","P2","P1","T8","T7","T6","T5","T4","T3","T2","T1","S6","S5","S4","S3","S2","S1"];
+const ODS_AVG_COMP: Record<string, number> = { "E5": 650000, "E4": 450000, "E3": 375000, "E2": 310000, "E1": 250000, "M6": 225000, "M5": 190000, "M4": 155000, "M3": 120000, "M2": 95000, "M1": 75000, "P8": 340000, "P7": 260000, "P6": 218000, "P5": 175000, "P4": 142000, "P3": 115000, "P2": 95000, "P1": 72000, "T8": 360000, "T7": 280000, "T6": 235000, "T5": 195000, "T4": 162000, "T3": 130000, "T2": 105000, "T1": 82000, "S6": 90000, "S5": 81000, "S4": 73000, "S3": 66000, "S2": 57000, "S1": 48000 };
 let _odsSeed = 42;
 
 function odsRand() { _odsSeed = (_odsSeed * 16807 + 0) % 2147483647; return _odsSeed / 2147483647; }
@@ -495,7 +495,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       if (!insights.length) insights.push({ type: "info", title: "No Major Flags", body: "Current scenario changes are within normal ranges.", color: "var(--accent-primary)" });
       return <div>
         <div className="text-[15px] text-[var(--text-secondary)] mb-4">{insights.length} insights generated from structural analysis of {currentData.length} departments, {fmt(cA.hc)} employees, comparing current state to {sc.label} scenario.</div>
-        <div className="space-y-3">{insights.map((ins, i) => <div key={i} className="rounded-xl p-5 border" style={{ background: `${ins.color}08`, borderColor: `${ins.color}20`, borderLeftWidth: 4, borderLeftColor: ins.color }}>
+        <div className="space-y-3">{insights.map((ins, i) => <div key={i} className="rounded-xl p-5 border" style={{ background: `${ins.color}08`, borderTopColor: `${ins.color}20`, borderRightColor: `${ins.color}20`, borderBottomColor: `${ins.color}20`, borderLeftWidth: 4, borderLeftColor: ins.color }}>
           <div className="flex items-center justify-between mb-1"><div className="text-[14px] font-bold" style={{ color: ins.color }}>{ins.title}</div>{ins.metric && <span className="px-2 py-0.5 rounded-full text-[15px] font-bold" style={{ background: `${ins.color}15`, color: ins.color }}>{ins.metric}</span>}</div>
           <div className="text-[15px] text-[var(--text-secondary)] leading-relaxed">{ins.body}</div>
         </div>)}</div>

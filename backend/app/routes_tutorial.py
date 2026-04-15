@@ -330,16 +330,77 @@ def _seed_tutorial_store(industry="technology", size_tier="mid"):
     random.seed(hash(f"{industry}_{size_tier}") % 2**31)
 
     # ═══════════════════════════════════════════════════
-    # CAREER TRACK SYSTEM
-    # S=Support, P=Professional, T=Technical, ST=Scientific, M=Management, E=Executive
+    # CAREER TRACK SYSTEM — levels vary by company size tier
     # ═══════════════════════════════════════════════════
-    CAREER_TRACKS = {
-        "S": {"name": "Support", "levels": {"S1": "Support Associate", "S2": "Senior Support Associate", "S3": "Support Specialist", "S4": "Senior Support Specialist"}},
-        "P": {"name": "Professional", "levels": {"P1": "Analyst/Associate", "P2": "Senior Analyst", "P3": "Specialist/Consultant", "P4": "Senior Specialist", "P5": "Principal/Lead", "P6": "Distinguished"}},
-        "T": {"name": "Technical", "levels": {"T1": "Engineer I", "T2": "Engineer II", "T3": "Senior Engineer", "T4": "Staff Engineer", "T5": "Principal Engineer", "T6": "Distinguished Engineer"}},
-        "M": {"name": "Management", "levels": {"M1": "Team Lead", "M2": "Manager", "M3": "Senior Manager", "M4": "Director", "M5": "Senior Director/VP"}},
-        "E": {"name": "Executive", "levels": {"E1": "Vice President", "E2": "Senior Vice President", "E3": "EVP/C-Suite", "E4": "CEO/President"}},
+    ALL_CAREER_TRACKS = {
+        "S": {"name": "Support", "levels": {
+            "S1": "Support Associate", "S2": "Senior Support Associate", "S3": "Support Specialist",
+            "S4": "Senior Support Specialist", "S5": "Lead Support Specialist", "S6": "Support Operations Lead"}},
+        "P": {"name": "Professional", "levels": {
+            "P1": "Analyst/Associate", "P2": "Senior Analyst", "P3": "Specialist/Consultant",
+            "P4": "Senior Specialist", "P5": "Principal/Lead", "P6": "Distinguished",
+            "P7": "Senior Distinguished", "P8": "Fellow/Chief Scientist"}},
+        "T": {"name": "Technical", "levels": {
+            "T1": "Engineer I", "T2": "Engineer II", "T3": "Senior Engineer",
+            "T4": "Staff Engineer", "T5": "Principal Engineer", "T6": "Distinguished Engineer",
+            "T7": "Senior Distinguished Engineer", "T8": "Fellow/Chief Architect"}},
+        "M": {"name": "Management", "levels": {
+            "M1": "Support Manager", "M2": "Junior Manager", "M3": "Manager",
+            "M4": "Senior Manager", "M5": "Director", "M6": "Senior Director"}},
+        "E": {"name": "Executive", "levels": {
+            "E1": "Vice President", "E2": "Senior Vice President", "E3": "Executive Vice President",
+            "E4": "C-Suite/CEO", "E5": "CEO/President"}},
     }
+
+    # Levels available per size tier
+    LEVELS_BY_SIZE = {
+        "small": {
+            "S": ["S1","S2","S3","S4"], "P": ["P1","P2","P3","P4","P5","P6"],
+            "T": ["T1","T2","T3","T4","T5","T6"], "M": ["M1","M2","M3","M4","M5"],
+            "E": ["E1","E2","E3","E4"],
+        },
+        "mid": {
+            "S": ["S1","S2","S3","S4","S5"], "P": ["P1","P2","P3","P4","P5","P6"],
+            "T": ["T1","T2","T3","T4","T5","T6"], "M": ["M1","M2","M3","M4","M5","M6"],
+            "E": ["E1","E2","E3","E4"],
+        },
+        "large": {
+            "S": ["S1","S2","S3","S4","S5","S6"], "P": ["P1","P2","P3","P4","P5","P6","P7","P8"],
+            "T": ["T1","T2","T3","T4","T5","T6","T7","T8"], "M": ["M1","M2","M3","M4","M5","M6"],
+            "E": ["E1","E2","E3","E4","E5"],
+        },
+    }
+
+    available_levels = LEVELS_BY_SIZE[size_tier]
+    # CEO level is the highest E level for this tier
+    ceo_level = available_levels["E"][-1]  # E4 for small/mid, E5 for large
+
+    # Distribution percentages (midpoint of each range)
+    DIST_BY_SIZE = {
+        "small": {
+            "S1": 0.135, "S2": 0.09, "S3": 0.045, "S4": 0.025,
+            "P1": 0.11, "P2": 0.09, "P3": 0.06, "P4": 0.04, "P5": 0.025, "P6": 0.007,
+            "T1": 0.035, "T2": 0.035, "T3": 0.025, "T4": 0.015, "T5": 0.007, "T6": 0.003,
+            "M1": 0.07, "M2": 0.045, "M3": 0.035, "M4": 0.018, "M5": 0.007,
+            "E1": 0.007, "E2": 0.004, "E3": 0.0015,
+        },
+        "mid": {
+            "S1": 0.11, "S2": 0.07, "S3": 0.035, "S4": 0.025, "S5": 0.015,
+            "P1": 0.09, "P2": 0.08, "P3": 0.055, "P4": 0.035, "P5": 0.025, "P6": 0.012,
+            "T1": 0.035, "T2": 0.035, "T3": 0.025, "T4": 0.018, "T5": 0.012, "T6": 0.007,
+            "M1": 0.06, "M2": 0.045, "M3": 0.035, "M4": 0.025, "M5": 0.018, "M6": 0.007,
+            "E1": 0.007, "E2": 0.004, "E3": 0.0015,
+        },
+        "large": {
+            "S1": 0.09, "S2": 0.055, "S3": 0.035, "S4": 0.025, "S5": 0.012, "S6": 0.007,
+            "P1": 0.08, "P2": 0.065, "P3": 0.045, "P4": 0.035, "P5": 0.025, "P6": 0.018, "P7": 0.007, "P8": 0.002,
+            "T1": 0.035, "T2": 0.035, "T3": 0.025, "T4": 0.018, "T5": 0.012, "T6": 0.007, "T7": 0.003, "T8": 0.001,
+            "M1": 0.055, "M2": 0.045, "M3": 0.035, "M4": 0.028, "M5": 0.022, "M6": 0.012,
+            "E1": 0.012, "E2": 0.006, "E3": 0.0015, "E4": 0.0003,
+        },
+    }
+
+    CAREER_TRACKS = ALL_CAREER_TRACKS
 
     # Map old L-levels to new track+level based on role track
     LEVEL_MAP_IC = {"L2": "P1", "L3": "P2", "L4": "P3", "L5": "P5", "L6": "P6"}
@@ -1189,82 +1250,238 @@ def _seed_tutorial_store(industry="technology", size_tier="mid"):
     skills = INDUSTRY_SKILLS.get(industry, INDUSTRY_SKILLS["technology"])
     blueprints = FUNC_BLUEPRINTS["technology"]  # Use tech as base
 
+    def _pick_title_for_level(track, level, base_func, blueprints, renames, industry):
+        """Pick a job title appropriate for the given track/level/function."""
+        level_num = int(level[1:])
+        # Find roles in this function from blueprints
+        func_roles = []
+        for bf, pct, roles in blueprints:
+            if bf == base_func:
+                func_roles = roles
+                break
+
+        if track in ("M", "E"):
+            # Manager/exec roles
+            mgr_roles = [r for r in func_roles if r[2] == "Manager"]
+            if mgr_roles:
+                # Pick based on level seniority
+                idx = min(level_num - 1, len(mgr_roles) - 1)
+                return mgr_roles[max(0, idx)][0]
+            return f"Manager - {renames.get(base_func, base_func)}"
+        elif track == "S":
+            # Support roles — look for L2 roles (entry level)
+            support_roles = [r for r in func_roles if r[1] in ("L2",)]
+            if support_roles:
+                return support_roles[0][0]
+            return func_roles[0][0] if func_roles else f"Associate - {renames.get(base_func, base_func)}"
+        elif track == "T":
+            # Technical roles
+            tech_roles = [r for r in func_roles if r[2] == "IC"]
+            if tech_roles:
+                idx = min(level_num - 1, len(tech_roles) - 1)
+                return tech_roles[max(0, idx)][0]
+            return func_roles[0][0] if func_roles else f"Engineer - {renames.get(base_func, base_func)}"
+        else:
+            # Professional/IC roles
+            ic_roles = [r for r in func_roles if r[2] == "IC"]
+            if ic_roles:
+                idx = min(level_num - 1, len(ic_roles) - 1)
+                return ic_roles[max(0, idx)][0]
+            return func_roles[0][0] if func_roles else f"Analyst - {renames.get(base_func, base_func)}"
+
+    def _comp_for_level(level):
+        """Return base compensation for a career level."""
+        COMP_RANGES = {
+            "S1": (42000,55000), "S2": (50000,65000), "S3": (58000,75000), "S4": (65000,82000),
+            "S5": (72000,90000), "S6": (80000,100000),
+            "P1": (60000,85000), "P2": (80000,110000), "P3": (95000,135000), "P4": (120000,165000),
+            "P5": (150000,200000), "P6": (185000,250000), "P7": (220000,300000), "P8": (280000,400000),
+            "T1": (70000,95000), "T2": (90000,120000), "T3": (110000,150000), "T4": (140000,185000),
+            "T5": (170000,220000), "T6": (200000,270000), "T7": (240000,320000), "T8": (300000,420000),
+            "M1": (65000,85000), "M2": (80000,110000), "M3": (100000,140000), "M4": (130000,180000),
+            "M5": (160000,220000), "M6": (190000,260000),
+            "E1": (200000,300000), "E2": (250000,380000), "E3": (300000,450000),
+            "E4": (350000,550000), "E5": (500000,800000),
+        }
+        lo, hi = COMP_RANGES.get(level, (70000, 100000))
+        return random.randint(lo, hi)
+
     emp_id = 1
     employees = []
     mgr_map = {}
 
-    for base_func, pct, roles in blueprints:
-        real_func = renames.get(base_func, base_func)
-        func_count = max(2, round(gen_size * pct))
-        func_mgrs = []
-        
-        for title, level, track, comp_lo, comp_hi, role_pct in roles:
+    # Step 1: Calculate headcount per career level from distribution
+    dist = DIST_BY_SIZE[size_tier]
+    level_counts = {}
+    remaining = gen_size
+    for level, pct in dist.items():
+        count = max(1, round(gen_size * pct))
+        level_counts[level] = count
+        remaining -= count
+    # CEO is always exactly 1
+    level_counts[ceo_level] = 1
+    # Adjust largest bucket to hit exact target
+    total = sum(level_counts.values())
+    if total != gen_size:
+        # Find the largest IC bucket and adjust
+        largest = max((lv for lv in level_counts if lv.startswith(("S","P"))), key=lambda x: level_counts[x])
+        level_counts[largest] += (gen_size - total)
+
+    # Step 2: Assign employees to functions proportionally
+    func_pcts = [(base_func, pct) for base_func, pct, roles in blueprints]
+
+    # Step 3: Generate employees level by level
+    for level, count in level_counts.items():
+        track = level[0]  # S, P, T, M, or E
+        for i in range(count):
+            # Pick function weighted by function percentages
+            func_weights = [p for _, p in func_pcts]
+            base_func = random.choices([f for f, _ in func_pcts], weights=func_weights)[0]
+            real_func = renames.get(base_func, base_func)
+
+            # Pick a job title appropriate for this track and level
+            title = _pick_title_for_level(track, level, base_func, blueprints, renames, industry)
             real_title = renames.get(title, title)
-            role_count = max(1, round(func_count * role_pct))
-            
-            for _ in range(role_count):
-                name = f"{random.choice(FIRST_NAMES)} {random.choice(LAST_NAMES)}"
-                comp = random.randint(comp_lo, comp_hi)
-                eid = f"EMP{str(emp_id).zfill(5)}"
 
-                jf, sf = _get_hierarchy(title, real_func)
-                jfg = _get_family_group(real_func, jf)
-                # Use hierarchy-specified level if available, else blueprint default
-                allowed = _get_level_for_role(title)
-                actual_level = random.choice(allowed) if allowed else level
-                # Apply career track system
-                ct, cl, cl_name = assign_career_track(real_title, actual_level, track, industry)
-                tenure = random.randint(0, 20)
-                hire_year = 2026 - tenure
-                hire_month = random.randint(1, 12)
-                hire_date = f"{hire_year}-{str(hire_month).zfill(2)}-{str(random.randint(1,28)).zfill(2)}"
-                perf = random.choices([1,2,3,4,5], weights=[3,10,50,30,7])[0]
-                total_cash = int(comp * random.uniform(1.05, 1.35))
-                is_mgr = ct in ("M", "E")
-                employees.append({
-                    "Employee ID": eid, "Name": name, "Job Title": real_title,
-                    "Function": real_func, "Job Family Group": jfg, "Job Family": jf, "Sub-Function": sf,
-                    "Career Level": cl, "Career Track": ct,
-                    "Manager ID": "", "Compensation": comp,
-                    "Tenure": tenure, "Hire Date": hire_date,
-                    "Location": random.choice(LOCATIONS),
-                    "Department": real_func,
-                    "Org Unit": jfg if jfg != real_func else jf,
-                    "FTE": 1.0 if random.random() > 0.05 else round(random.choice([0.5, 0.6, 0.8]), 1),
-                    "Total Cash": total_cash,
-                    "Performance Rating": perf,
-                    "Critical Role": "Yes" if cl in ["L5", "L6"] or (is_mgr and random.random() > 0.6) else "No",
-                })
-                if ct in ("M", "E"): func_mgrs.append(eid)
-                emp_id += 1
-        
-        mgr_map[real_func] = func_mgrs
+            # Career level name
+            cl_name = ALL_CAREER_TRACKS[track]["levels"].get(level, level)
 
-    # Assign managers — respect seniority hierarchy:
-    #   E (Executives) → report to CEO or no one
-    #   M4/M5 (Directors/VPs) → report to executives in their function
-    #   M1-M3 (Managers) → report to directors (M4+) in their function
-    #   IC/Support → report to managers (M1+) in their function
-    LEVEL_RANK = {"E4":90,"E3":80,"E2":70,"E1":60,"M5":55,"M4":50,"M3":40,"M2":30,"M1":20,
-                  "P6":16,"P5":15,"P4":14,"P3":13,"P2":12,"P1":11,
-                  "T6":16,"T5":15,"T4":14,"T3":13,"T2":12,"T1":11,
-                  "S4":8,"S3":7,"S2":6,"S1":5}
-    # Build per-function lookup for potential managers (M and E tracks)
-    func_mgr_emps = {}
+            # Compensation based on level
+            comp = _comp_for_level(level)
+
+            name = f"{random.choice(FIRST_NAMES)} {random.choice(LAST_NAMES)}"
+            eid = f"EMP{str(emp_id).zfill(5)}"
+
+            jf, sf = _get_hierarchy(title, real_func)
+            jfg = _get_family_group(real_func, jf)
+
+            tenure = random.randint(0, 20)
+            hire_year = 2026 - tenure
+            hire_date = f"{hire_year}-{str(random.randint(1,12)).zfill(2)}-{str(random.randint(1,28)).zfill(2)}"
+            perf = random.choices([1,2,3,4,5], weights=[3,10,50,30,7])[0]
+            total_cash = int(comp * random.uniform(1.05, 1.35))
+
+            employees.append({
+                "Employee ID": eid, "Name": name, "Job Title": real_title,
+                "Function": real_func, "Job Family Group": jfg, "Job Family": jf, "Sub-Function": sf,
+                "Career Level": level, "Career Track": track,
+                "Manager ID": "", "Compensation": comp,
+                "Tenure": tenure, "Hire Date": hire_date,
+                "Location": random.choice(LOCATIONS),
+                "Department": real_func,
+                "Org Unit": jfg if jfg != real_func else jf,
+                "FTE": 1.0 if random.random() > 0.05 else round(random.choice([0.5, 0.6, 0.8]), 1),
+                "Total Cash": total_cash,
+                "Performance Rating": perf,
+                "Critical Role": "Yes" if level in ("P5","P6","P7","P8","T5","T6","T7","T8","E1","E2","E3","E4","E5") or (track in ("M","E") and random.random() > 0.6) else "No",
+            })
+            if track in ("M", "E"):
+                mgr_map.setdefault(real_func, []).append(eid)
+            emp_id += 1
+
+    # Assign managers — cross-track reporting rules
+    LEVEL_RANK = {
+        "E5":100,"E4":90,"E3":80,"E2":70,"E1":60,
+        "M6":58,"M5":55,"M4":50,"M3":40,"M2":30,"M1":20,
+        "P8":18,"P7":17,"P6":16,"P5":15,"P4":14,"P3":13,"P2":12,"P1":11,
+        "T8":18,"T7":17,"T6":16,"T5":15,"T4":14,"T3":13,"T2":12,"T1":11,
+        "S6":10,"S5":9,"S4":8,"S3":7,"S2":6,"S1":5,
+    }
+
+    # ═══ REPORTING RULES ═══
+    # Maps employee level → list of acceptable manager levels
+    REPORT_TO = {
+        "S1": ["M1"], "S2": ["M1"], "S3": ["M1","M2"], "S4": ["M1","M2"],
+        "S5": ["M2","M3"], "S6": ["M3"],
+        "P1": ["M2","M3"], "P2": ["M2","M3"], "P3": ["M3","M4"], "P4": ["M3","M4"],
+        "P5": ["M4","M5"], "P6": ["M4","M5"], "P7": ["M5","M6"], "P8": ["M5","M6"],
+        "T1": ["M2","M3"], "T2": ["M2","M3"], "T3": ["M3","M4"], "T4": ["M3","M4"],
+        "T5": ["M4","M5"], "T6": ["M4","M5"], "T7": ["M5","M6"], "T8": ["M5","M6"],
+        "M1": ["M2","M3"], "M2": ["M3","M4"], "M3": ["M4","M5"],
+        "M4": ["M5","M6"], "M5": ["M6","E1"], "M6": ["E1","E2"],
+        "E1": ["E2","E3"], "E2": ["E3"], "E3": ["E4"],
+    }
+    # For large-cap, E4 reports to E5
+    if size_tier == "large":
+        REPORT_TO["E4"] = ["E5"]
+    # CEO has no manager
+    # REPORT_TO does NOT include the CEO level
+
+    # Build lookup: function → level → list of employee dicts
+    func_level_lookup = {}
     for emp in employees:
-        if emp["Career Track"] in ("M", "E"):
-            func_mgr_emps.setdefault(emp["Function"], []).append(emp)
+        func_level_lookup.setdefault(emp["Function"], {}).setdefault(emp["Career Level"], []).append(emp)
 
     for emp in employees:
-        rank = LEVEL_RANK.get(emp["Career Level"], 10)
-        # Executives report to CEO (no manager assigned here) or skip
-        if emp["Career Track"] == "E":
+        cl = emp["Career Level"]
+        if cl == ceo_level:
+            emp["Manager ID"] = ""
             continue
-        # Find potential bosses: same function, strictly higher rank
-        candidates = [m for m in func_mgr_emps.get(emp["Function"], [])
-                      if LEVEL_RANK.get(m["Career Level"], 10) > rank and m["Employee ID"] != emp["Employee ID"]]
+        acceptable = REPORT_TO.get(cl, [])
+        # Filter to levels that exist in this size tier
+        acceptable = [lv for lv in acceptable if lv in [l for levels in available_levels.values() for l in levels]]
+        if not acceptable:
+            emp["Manager ID"] = ""
+            continue
+        # Find candidates in same function first
+        candidates = []
+        for mgr_level in acceptable:
+            candidates.extend(func_level_lookup.get(emp["Function"], {}).get(mgr_level, []))
+        # Remove self
+        candidates = [c for c in candidates if c["Employee ID"] != emp["Employee ID"]]
+        if not candidates:
+            # Cross-function fallback
+            for func in func_level_lookup:
+                for mgr_level in acceptable:
+                    candidates.extend(func_level_lookup.get(func, {}).get(mgr_level, []))
+            candidates = [c for c in candidates if c["Employee ID"] != emp["Employee ID"]]
         if candidates:
             emp["Manager ID"] = random.choice(candidates)["Employee ID"]
+        else:
+            emp["Manager ID"] = ""
+
+    # ═══ POST-GENERATION VALIDATION ═══
+    emp_by_id = {e["Employee ID"]: e for e in employees}
+    val_errors = []
+
+    # Check 1: No ICs with direct reports
+    mgr_ids_used = set(e["Manager ID"] for e in employees if e["Manager ID"])
+    for mid in mgr_ids_used:
+        mgr = emp_by_id.get(mid)
+        if mgr and mgr["Career Track"] not in ("M", "E"):
+            val_errors.append(f"IC {mid} ({mgr['Career Level']}) has direct reports")
+
+    # Check 2: No same-level or downward reporting
+    for emp in employees:
+        if not emp["Manager ID"]:
+            continue
+        mgr = emp_by_id.get(emp["Manager ID"])
+        if mgr and LEVEL_RANK.get(mgr["Career Level"], 0) <= LEVEL_RANK.get(emp["Career Level"], 0):
+            val_errors.append(f"{emp['Employee ID']} ({emp['Career Level']}) reports to {mgr['Employee ID']} ({mgr['Career Level']}) — same or lower")
+
+    # Check 3: Exactly 1 CEO
+    ceos = [e for e in employees if e["Career Level"] == ceo_level]
+    if len(ceos) != 1:
+        val_errors.append(f"Expected 1 CEO ({ceo_level}), found {len(ceos)}")
+
+    # Check 4: No orphans (everyone except CEO has a manager)
+    orphans = [e for e in employees if not e["Manager ID"] and e["Career Level"] != ceo_level]
+    if orphans:
+        val_errors.append(f"{len(orphans)} orphan employees without managers")
+
+    # Check 5: No invalid levels for this size tier
+    all_valid_levels = set(l for levels in available_levels.values() for l in levels)
+    invalid = [e for e in employees if e["Career Level"] not in all_valid_levels]
+    if invalid:
+        val_errors.append(f"{len(invalid)} employees with invalid levels for {size_tier}-cap")
+
+    # Print validation summary
+    if val_errors:
+        print(f"  ⚠ Validation issues ({len(val_errors)}):")
+        for err in val_errors[:10]:
+            print(f"    - {err}")
+    else:
+        print(f"  ✓ All validation checks passed")
 
     # Resolve Manager Names and compute span of control
     emp_lookup = {e["Employee ID"]: e["Name"] for e in employees}

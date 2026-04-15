@@ -170,7 +170,7 @@ export function FlightRecorder({ projectId, projectName, onBack }: { projectId: 
             const hasSnapshot = event.data_snapshot && (event.data_snapshot.before || event.data_snapshot.after);
             const hasContext = event.agent_context && Object.keys(event.agent_context).length > 0;
 
-            return <div key={event.id} className="relative rounded-xl border bg-[var(--surface-1)] p-4 transition-all hover:border-[var(--accent-primary)]/20" style={{ borderColor: event.is_milestone ? `${modColor}40` : "var(--border)", borderLeftWidth: 3, borderLeftColor: modColor }}>
+            return <div key={event.id} className="relative rounded-xl border bg-[var(--surface-1)] p-4 transition-all hover:border-[var(--accent-primary)]/20" style={{ borderTopColor: event.is_milestone ? `${modColor}40` : "var(--border)", borderRightColor: event.is_milestone ? `${modColor}40` : "var(--border)", borderBottomColor: event.is_milestone ? `${modColor}40` : "var(--border)", borderLeftWidth: 3, borderLeftColor: modColor }}>
               {/* Timeline dot */}
               <div className="absolute -left-[21px] top-5 w-3 h-3 rounded-full border-2" style={{ background: event.is_milestone ? modColor : "var(--surface-1)", borderColor: modColor }} />
 

@@ -190,9 +190,9 @@ export default function GuideViewer({ guide, onBack, onNavigate }: GuideViewerPr
                       {expandedChapters.has(ch.id) && ch.sections.length > 0 && (
                         <div style={{ marginTop: 6, paddingLeft: 2 }}>
                           {ch.sections.map(sec => (
-                            <button key={sec.id} onClick={e => { e.stopPropagation(); scrollToSection(ch.id, sec.id); }} style={{ display: "block", width: "100%", textAlign: "left", padding: "4px 0", border: "none", background: "none", cursor: "pointer", fontSize: 12, color: activeSection === sec.id ? "var(--accent-primary)" : "rgba(255,200,150,0.35)", lineHeight: 1.4, transition: "color 0.15s" }}>
+                            <div role="button" tabIndex={0} key={sec.id} onClick={e => { e.stopPropagation(); scrollToSection(ch.id, sec.id); }} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.stopPropagation(); scrollToSection(ch.id, sec.id); } }} style={{ display: "block", width: "100%", textAlign: "left", padding: "4px 0", border: "none", background: "none", cursor: "pointer", fontSize: 12, color: activeSection === sec.id ? "var(--accent-primary)" : "rgba(255,200,150,0.35)", lineHeight: 1.4, transition: "color 0.15s" }}>
                               {sec.title}
-                            </button>
+                            </div>
                           ))}
                         </div>
                       )}

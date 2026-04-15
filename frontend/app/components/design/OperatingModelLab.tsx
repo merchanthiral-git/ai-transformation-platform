@@ -3633,7 +3633,7 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
                     const dependents = transChanges.filter(c => c.dependencies.includes(change.id));
                     const depth = chainLength(change.id);
                     const isCritical = depth === criticalPath;
-                    return <div key={change.id} className="rounded-lg border bg-[var(--surface-2)] p-3 flex items-center gap-3" style={{ borderColor: isCritical ? "var(--accent-primary)" : "var(--border)", borderLeftWidth: isCritical ? 3 : 1, borderLeftColor: isCritical ? "var(--accent-primary)" : undefined }}>
+                    return <div key={change.id} className="rounded-lg border bg-[var(--surface-2)] p-3 flex items-center gap-3" style={{ borderTopColor: isCritical ? "var(--accent-primary)" : "var(--border)", borderRightColor: isCritical ? "var(--accent-primary)" : "var(--border)", borderBottomColor: isCritical ? "var(--accent-primary)" : "var(--border)", borderLeftWidth: isCritical ? 3 : 1, borderLeftColor: isCritical ? "var(--accent-primary)" : undefined }}>
                       <div className="flex-1">
                         <div className="flex items-center gap-2"><span className="text-[14px] font-semibold text-[var(--text-primary)]">{change.name}</span>{isCritical && <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[rgba(212,134,10,0.1)] text-[var(--accent-primary)]">Critical Path</span>}</div>
                         <div className="flex gap-3 mt-1 text-[12px]">

@@ -316,6 +316,8 @@ function MusicPlayer({ projectActive = false }: { projectActive?: boolean }) {
     audio.addEventListener("error", () => {
       if (loadTimeoutRef.current) { clearTimeout(loadTimeoutRef.current); loadTimeoutRef.current = null; }
       setBuffering(false);
+      // Ignore errors when no real audio src has been set (src defaults to page URL)
+      if (!audio.src || !audio.src.includes("/audio/")) return;
       const errCode = audio.error?.code;
       const errMsg = audio.error?.message || "unknown";
       console.error(`[MusicPlayer] Track error (code=${errCode}): ${errMsg} — src: ${audio.src}`);
