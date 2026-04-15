@@ -998,9 +998,12 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       if (!model || model === "Demo_Model") {
         const derivedModel = projectId.replace("tutorial_", "Tutorial_").split("_").map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join("_");
         if (derivedModel.startsWith("Tutorial_")) {
-          setModel(derivedModel);
-          // Also re-trigger the backend seed in case it wasn't seeded yet
-          api.apiFetch(`/api/tutorial/seed?industry=${projectId.split("_").slice(2).join("_")}&size=${projectId.split("_")[1]}`).catch((e) => { console.error("[API]", e); });
+          // Seed the backend FIRST, then set the model so modules don't fetch before data exists
+          const industry = projectId.split("_").slice(2).join("_");
+          const size = projectId.split("_")[1];
+          api.apiFetch(`/api/tutorial/seed?industry=${industry}&size=${size}`)
+            .then(() => setModel(derivedModel))
+            .catch(() => setModel(derivedModel)); // Set model even if seed fails (data might already exist)
         }
       }
     }
