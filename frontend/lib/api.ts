@@ -329,6 +329,58 @@ export async function getSkillsAdjacency(modelId: string): Promise<SkillsAdjacen
   return fetchJSON<SkillsAdjacencyResponse>(`/api/skills/adjacency/${encodeURIComponent(modelId)}`, { adjacencies: [], clusters: [] });
 }
 
+// ─── Skills Engine (new) ────────────────────────────────
+export async function getSkillsLibrary(category?: string, trend?: string, importance?: string): Promise<Record<string, unknown>> {
+  const p = new URLSearchParams();
+  if (category) p.set("category", category);
+  if (trend) p.set("trend", trend);
+  if (importance) p.set("importance", importance);
+  return fetchJSON<Record<string, unknown>>(`/api/skills?${p}`, { skills: [], total: 0 });
+}
+export async function getSkillDetail(skillId: string): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/skills/${encodeURIComponent(skillId)}`, {});
+}
+export async function createSkill(data: Record<string, unknown>): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/skills", {}, { method: "POST", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify(data) });
+}
+export async function getSkillsTaxonomy(): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/skills/taxonomy", { taxonomy: [] });
+}
+export async function getSkillsMappings(sourceType?: string, skillId?: string): Promise<Record<string, unknown>> {
+  const p = new URLSearchParams();
+  if (sourceType) p.set("source_type", sourceType);
+  if (skillId) p.set("skill_id", skillId);
+  return fetchJSON<Record<string, unknown>>(`/api/skills/mappings?${p}`, { mappings: [] });
+}
+export async function createSkillMapping(data: Record<string, unknown>): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/skills/mappings", {}, { method: "POST", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify(data) });
+}
+export async function getSkillsGraph(category?: string): Promise<Record<string, unknown>> {
+  const p = category ? `?category=${category}` : "";
+  return fetchJSON<Record<string, unknown>>(`/api/skills/graph${p}`, { nodes: [], edges: [] });
+}
+export async function getSkillsGraphClusters(): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/skills/graph/clusters", {});
+}
+export async function getSkillsGaps(scope?: string, scopeId?: string): Promise<Record<string, unknown>> {
+  const p = new URLSearchParams();
+  if (scope) p.set("scope", scope);
+  if (scopeId) p.set("scope_id", scopeId);
+  return fetchJSON<Record<string, unknown>>(`/api/skills/gaps?${p}`, { critical_gaps: [], moderate_gaps: [], coverage_score: 0, heatmap: {} });
+}
+export async function getSkillsDemandForecast(horizon?: number): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/skills/demand-forecast?horizon=${horizon || 12}`, { rising_skills: [], declining_skills: [], stable_skills: [] });
+}
+export async function getSkillsAutomationRisk(): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/skills/automation-risk", { skills: [] });
+}
+export async function getSkillsEvents(limit?: number): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/skills/events?limit=${limit || 50}`, { events: [] });
+}
+export async function inferSkills(jobTitle: string, tasks?: string[], description?: string): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/skills/infer", {}, { method: "POST", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify({ job_title: jobTitle, tasks, description }) });
+}
+
 // ─── Build/Buy/Borrow/Automate ──────────────────────────
 export async function getBBBA(modelId: string, f?: Filters): Promise<BBBAResponse> {
   const q = f ? `?${filterParams(f)}` : "";

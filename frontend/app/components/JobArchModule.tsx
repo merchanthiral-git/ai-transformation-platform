@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import * as api from "../../lib/api";
 import type { Filters } from "../../lib/api";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, CartesianGrid } from "recharts";
@@ -171,70 +171,160 @@ function OrgChartBuilder({ employees, jobs }: { employees: Employee[]; jobs: Job
     return d <= 3 ? "var(--warning)" : d <= 8 ? "var(--success)" : d <= 12 ? "var(--warning)" : "var(--risk)";
   };
 
-  // ── Node card ──
-  const renderCard = (node: OrgNode, depth: number) => {
-    const funcColor = ORG_FUNC_COLORS[node.function] || "#888";
-    const hasChildren = node.children.length > 0;
-    const isExpanded = expandedIds.has(node.id);
-    const isSelected = selectedId === node.id;
-    const isHovered = hoveredId === node.id;
-    const initials = node.name.split(" ").map(w => w[0]).join("").slice(0, 2);
-    const onPath = breadcrumb.some(b => b.id === node.id);
-    const dimmed = selectedId && !onPath && breadcrumb.length > 0 && depth > 0;
+  // ── Canvas state ──
+  const NODE_W = 210, NODE_H = 84, H_GAP = 28, V_GAP = 72, CORNER_R = 10;
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStart = useRef({ x: 0, y: 0, px: 0, py: 0 });
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const didAutoFit = useRef(false);
 
-    return <div key={node.id} style={{ opacity: dimmed ? 0.3 : 1, transition: "opacity 0.2s" }}>
-      <div
-        className="relative cursor-pointer group"
-        onClick={() => { if (hasChildren) toggleExpand(node.id); setSelectedId(node.id); }}
-        onMouseEnter={() => setHoveredId(node.id)}
-        onMouseLeave={() => setHoveredId(null)}
-      >
-        <div className="rounded-2xl border transition-all" style={{
-          width: 220, minHeight: 72, padding: "10px 14px",
-          background: isSelected ? "rgba(212,134,10,0.08)" : "rgba(26,35,64,0.75)",
-          backdropFilter: "blur(16px)",
-          borderColor: isSelected ? "var(--accent-primary)" : `${funcColor}30`,
-          borderWidth: isSelected ? 2 : 1,
-          boxShadow: isSelected ? "0 0 20px rgba(224,144,64,0.2)" : isHovered ? "0 4px 16px rgba(0,0,0,0.3)" : "0 2px 8px rgba(0,0,0,0.15)",
-          transform: isHovered ? "translateY(-2px)" : "none",
-        }}>
-          <div className="absolute bottom-0 left-3 right-3 h-[2px] rounded-t" style={{ background: funcColor }} />
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0" style={{ background: `linear-gradient(135deg, ${funcColor}, ${funcColor}90)`, boxShadow: `0 2px 6px ${funcColor}30` }}>{initials}</div>
-            <div className="flex-1 min-w-0">
-              <div className="text-[13px] font-bold text-[var(--text-primary)] truncate leading-tight">{node.name}</div>
-              <div className="text-[11px] text-[var(--text-muted)] truncate">{node.title}</div>
-              <div className="flex items-center gap-1.5 mt-1">
-                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: `${funcColor}15`, color: funcColor }}>{node.function.length > 12 ? node.function.slice(0, 10) + "…" : node.function}</span>
-                {node.level && <span className="text-[9px] font-bold px-1 py-0.5 rounded bg-[rgba(255,255,255,0.06)] text-[var(--text-muted)]">{node.level}</span>}
-              </div>
-            </div>
-            {hasChildren && <div className="flex flex-col items-center shrink-0">
-              <span className="text-[11px] font-bold" style={{ color: funcColor }}>{node.headcount - 1}</span>
-              <span className="text-[8px] text-[var(--text-muted)]">below</span>
-              <span className="text-[14px] transition-transform" style={{ color: "var(--text-muted)", transform: isExpanded ? "rotate(180deg)" : "none" }}>▾</span>
-            </div>}
-          </div>
-          {/* Hover tooltip */}
-          {isHovered && <div className="mt-2 pt-2 border-t border-[rgba(255,255,255,0.06)] text-[11px] text-[var(--text-muted)] space-y-0.5" style={{ animation: "fadeIn 0.15s ease" }}>
-            <div>{node.children.length} direct · {node.headcount - 1} total</div>
-            <div className="flex gap-2"><span style={{ color: spanColor(node) }}>Span: {node.children.length}</span><span>Perf: {node.performance || "—"}</span></div>
-            {node.flightRisk === "High" && <div className="text-[var(--risk)] font-semibold">⚠ Flight Risk</div>}
-          </div>}
-        </div>
-      </div>
-      {/* Children — expanded with animation */}
-      {hasChildren && isExpanded && (nodeDepth[node.id] || 0) - viewFromLayer < MAX_VISIBLE_DEPTH - 1 && <div className="ml-8 mt-1 pl-4 border-l border-[rgba(255,255,255,0.08)]" style={{ animation: "slideDown 0.2s ease" }}>
-        {node.children.map(c => renderCard(c, depth + 1))}
-      </div>}
-      {/* Truncation message when at max depth */}
-      {hasChildren && isExpanded && (nodeDepth[node.id] || 0) - viewFromLayer >= MAX_VISIBLE_DEPTH - 1 && <div className="ml-8 mt-1 pl-4 border-l border-[rgba(255,255,255,0.05)]">
-        <div className="text-[12px] text-[var(--text-muted)] py-2 pl-2 italic">
-          {node.children.length} reports — click to drill deeper or use the layer filter
-        </div>
-      </div>}
-    </div>;
-  };
+  // Auto-expand root nodes to show 2 levels by default
+  useEffect(() => {
+    if (orgTree.length > 0 && expandedIds.size === 0) {
+      const initial = new Set<string>();
+      orgTree.forEach(r => initial.add(r.id));
+      setExpandedIds(initial);
+    }
+  }, [orgTree]);
+
+  // ── Tree layout algorithm ──
+  const layout = useMemo(() => {
+    const positions: Record<string, { x: number; y: number; cx: number }> = {};
+    const edges: { parentId: string; childIds: string[] }[] = [];
+    const visChildren = (n: OrgNode): OrgNode[] =>
+      expandedIds.has(n.id) && (nodeDepth[n.id] || 0) - viewFromLayer < MAX_VISIBLE_DEPTH - 1
+        ? n.children : [];
+
+    // Phase 1: compute subtree widths bottom-up
+    const wCache: Record<string, number> = {};
+    const subtreeW = (n: OrgNode): number => {
+      if (wCache[n.id] != null) return wCache[n.id];
+      const kids = visChildren(n);
+      if (kids.length === 0) { wCache[n.id] = NODE_W; return NODE_W; }
+      const w = kids.reduce((s, c) => s + subtreeW(c), 0) + H_GAP * (kids.length - 1);
+      wCache[n.id] = Math.max(NODE_W, w);
+      return wCache[n.id];
+    };
+
+    // Phase 2: assign positions top-down
+    const place = (n: OrgNode, left: number, depth: number) => {
+      const w = subtreeW(n);
+      const cx = left + w / 2;
+      positions[n.id] = { x: cx - NODE_W / 2, y: depth * (NODE_H + V_GAP), cx };
+      const kids = visChildren(n);
+      if (kids.length > 0) {
+        edges.push({ parentId: n.id, childIds: kids.map(c => c.id) });
+        let childLeft = left;
+        kids.forEach(c => { place(c, childLeft, depth + 1); childLeft += subtreeW(c) + H_GAP; });
+      }
+    };
+
+    let left = 0;
+    filteredRoots.forEach(root => { place(root, left, 0); left += subtreeW(root) + H_GAP * 3; });
+
+    // Bounds
+    const all = Object.values(positions);
+    const bounds = all.length > 0 ? {
+      minX: Math.min(...all.map(p => p.x)) - 60,
+      minY: Math.min(...all.map(p => p.y)) - 40,
+      maxX: Math.max(...all.map(p => p.x + NODE_W)) + 60,
+      maxY: Math.max(...all.map(p => p.y + NODE_H)) + 60,
+    } : { minX: 0, minY: 0, maxX: 800, maxY: 600 };
+
+    return { positions, edges, bounds, w: bounds.maxX - bounds.minX, h: bounds.maxY - bounds.minY };
+  }, [filteredRoots, expandedIds, nodeDepth, viewFromLayer]);
+
+  // ── SVG connector paths ──
+  const connectorPaths = useMemo(() => {
+    const paths: string[] = [];
+    layout.edges.forEach(({ parentId, childIds }) => {
+      const pp = layout.positions[parentId];
+      if (!pp) return;
+      const children = childIds.map(id => layout.positions[id]).filter(Boolean);
+      if (children.length === 0) return;
+      const fromX = pp.cx, fromY = pp.y + NODE_H;
+      const midY = fromY + V_GAP / 2;
+
+      // Vertical stub from parent bottom
+      paths.push(`M ${fromX} ${fromY} L ${fromX} ${midY}`);
+
+      if (children.length === 1 && Math.abs(children[0].cx - fromX) < 1) {
+        // Single centered child — straight line
+        paths.push(`M ${fromX} ${midY} L ${children[0].cx} ${children[0].y}`);
+      } else {
+        // Horizontal bus line
+        const lx = Math.min(...children.map(c => c.cx));
+        const rx = Math.max(...children.map(c => c.cx));
+        paths.push(`M ${lx} ${midY} L ${rx} ${midY}`);
+        // Drop to each child
+        children.forEach(cp => paths.push(`M ${cp.cx} ${midY} L ${cp.cx} ${cp.y}`));
+      }
+    });
+    return paths.join(" ");
+  }, [layout]);
+
+  // ── Fit to screen ──
+  const fitToScreen = useCallback(() => {
+    if (!canvasRef.current) return;
+    const { width: cw, height: ch } = canvasRef.current.getBoundingClientRect();
+    const { w: tw, h: th, bounds } = layout;
+    if (tw === 0 || th === 0) return;
+    const scale = Math.min(cw / tw, ch / th, 1.5) * 0.88;
+    setZoom(scale);
+    setPan({
+      x: cw / 2 - (bounds.minX + tw / 2) * scale,
+      y: 30 - bounds.minY * scale,
+    });
+  }, [layout]);
+
+  // Auto-fit on first meaningful layout
+  useEffect(() => {
+    if (Object.keys(layout.positions).length > 0 && !didAutoFit.current) {
+      didAutoFit.current = true;
+      setTimeout(fitToScreen, 50);
+    }
+  }, [layout, fitToScreen]);
+
+  // ── Canvas interaction handlers ──
+  const onCanvasMouseDown = useCallback((e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest(".org-node-card")) return;
+    setIsDragging(true);
+    dragStart.current = { x: e.clientX, y: e.clientY, px: pan.x, py: pan.y };
+    e.preventDefault();
+  }, [pan]);
+
+  const onCanvasMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!isDragging) return;
+    setPan({
+      x: dragStart.current.px + (e.clientX - dragStart.current.x),
+      y: dragStart.current.py + (e.clientY - dragStart.current.y),
+    });
+  }, [isDragging]);
+
+  const onCanvasMouseUp = useCallback(() => setIsDragging(false), []);
+
+  const onCanvasWheel = useCallback((e: WheelEvent) => {
+    e.preventDefault();
+    const d = -e.deltaY * 0.001;
+    const nz = Math.min(2.5, Math.max(0.12, zoom + d));
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (rect) {
+      const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+      const s = nz / zoom;
+      setPan({ x: mx - (mx - pan.x) * s, y: my - (my - pan.y) * s });
+    }
+    setZoom(nz);
+  }, [zoom, pan]);
+
+  // Attach wheel listener (non-passive for preventDefault)
+  useEffect(() => {
+    const el = canvasRef.current;
+    if (!el) return;
+    el.addEventListener("wheel", onCanvasWheel as unknown as EventListener, { passive: false });
+    return () => el.removeEventListener("wheel", onCanvasWheel as unknown as EventListener);
+  }, [onCanvasWheel]);
 
   if (!employees.length) return <div className="text-center py-20"><div className="text-[40px] mb-3">🏢</div><div className="text-[15px] font-semibold text-[var(--text-primary)] mb-1">No Employee Data</div><div className="text-[14px] text-[var(--text-muted)]">Upload workforce data with Manager ID fields to generate the org chart.</div></div>;
 
@@ -261,7 +351,8 @@ function OrgChartBuilder({ employees, jobs }: { employees: Employee[]; jobs: Job
       </select>
       {/* Quick actions */}
       <div className="flex gap-1 ml-auto">
-        <button onClick={() => { setExpandedIds(new Set()); setSelectedId(null); setViewFromLayer(0); }} className="px-2 py-1 rounded text-[12px] text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--accent-primary)]">Reset</button>
+        <button onClick={fitToScreen} className="px-2 py-1 rounded text-[12px] text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--accent-primary)] transition-colors">Fit</button>
+        <button onClick={() => { setExpandedIds(new Set()); setSelectedId(null); setViewFromLayer(0); didAutoFit.current = false; }} className="px-2 py-1 rounded text-[12px] text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--accent-primary)]">Reset</button>
       </div>
     </div>
 
@@ -274,13 +365,84 @@ function OrgChartBuilder({ employees, jobs }: { employees: Employee[]; jobs: Job
       </React.Fragment>)}
     </div>}
 
-    {/* ── Main content: Tree + Detail panel ── */}
-    <div className="flex gap-4" style={{ minHeight: 500 }}>
-      {/* Tree view */}
-      <div className="flex-1 rounded-xl border border-[var(--border)] p-4 overflow-auto" style={{ background: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.015) 1px, transparent 0)", backgroundSize: "20px 20px", maxHeight: "calc(100vh - 300px)" }}>
-        {filteredRoots.length === 0 && <div className="text-center py-12 text-[var(--text-muted)]">No employees match the current filters</div>}
-        <div className="space-y-1">
-          {filteredRoots.map(node => renderCard(node, 0))}
+    {/* ── Canvas + Detail panel ── */}
+    <div className="flex gap-4" style={{ minHeight: 550 }}>
+      {/* Pannable / zoomable canvas */}
+      <div
+        ref={canvasRef}
+        className="flex-1 rounded-xl border border-[var(--border)] overflow-hidden relative select-none"
+        style={{ cursor: isDragging ? "grabbing" : "grab", background: "var(--surface-1)", maxHeight: "calc(100vh - 280px)", minHeight: 500 }}
+        onMouseDown={onCanvasMouseDown}
+        onMouseMove={onCanvasMouseMove}
+        onMouseUp={onCanvasMouseUp}
+        onMouseLeave={onCanvasMouseUp}
+      >
+        {/* Dot grid background */}
+        <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.035) 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
+
+        {/* Transform container — all nodes and lines live here */}
+        <div style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: "0 0", position: "absolute", top: 0, left: 0, willChange: "transform" }}>
+          {/* SVG connector lines */}
+          <svg className="absolute top-0 left-0 pointer-events-none" style={{ width: layout.bounds.maxX + 200, height: layout.bounds.maxY + 200, overflow: "visible" }}>
+            <path d={connectorPaths} fill="none" stroke="rgba(148,163,194,0.28)" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+
+          {/* Node cards */}
+          {Object.entries(layout.positions).map(([id, pos]) => {
+            const node = nodeById[id];
+            if (!node) return null;
+            const funcColor = ORG_FUNC_COLORS[node.function] || "#888";
+            const hasChildren = node.children.length > 0;
+            const isExpanded = expandedIds.has(id);
+            const isSelected = selectedId === id;
+            const isHovered = hoveredId === id;
+            const onPath = breadcrumb.some(b => b.id === id);
+            const dimmed = selectedId && !onPath && breadcrumb.length > 0;
+            const initials = node.name.split(" ").map(w => w[0]).join("").slice(0, 2);
+
+            return <div key={id} className="org-node-card absolute" style={{ left: pos.x, top: pos.y, width: NODE_W, height: NODE_H, opacity: dimmed ? 0.18 : 1, transition: "opacity 0.2s, transform 0.15s", transform: isHovered ? "translateY(-2px)" : "none", zIndex: isSelected ? 10 : isHovered ? 5 : 1 }}>
+              <div
+                className="w-full h-full rounded-lg border cursor-pointer"
+                onClick={e => { e.stopPropagation(); if (hasChildren) toggleExpand(id); setSelectedId(id); }}
+                onMouseEnter={() => setHoveredId(id)}
+                onMouseLeave={() => setHoveredId(null)}
+                style={{
+                  background: isSelected ? "rgba(212,134,10,0.12)" : "rgba(20,28,50,0.92)",
+                  borderColor: isSelected ? "var(--accent-primary)" : `${funcColor}35`,
+                  borderLeftWidth: 3, borderLeftColor: funcColor,
+                  boxShadow: isSelected ? "0 0 24px rgba(224,144,64,0.2), 0 4px 16px rgba(0,0,0,0.4)" : isHovered ? "0 8px 24px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05)" : "0 2px 8px rgba(0,0,0,0.25)",
+                  backdropFilter: "blur(12px)",
+                }}
+              >
+                <div className="flex items-center gap-2.5 px-3 h-full">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0" style={{ background: `linear-gradient(135deg, ${funcColor}, ${funcColor}90)`, boxShadow: `0 2px 6px ${funcColor}30` }}>{initials}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[13px] font-bold text-[var(--text-primary)] truncate leading-tight">{node.name}</div>
+                    <div className="text-[11px] text-[var(--text-muted)] truncate">{node.title}</div>
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: `${funcColor}15`, color: funcColor }}>{node.function.length > 12 ? node.function.slice(0, 10) + "…" : node.function}</span>
+                      {node.level && <span className="text-[9px] font-bold px-1 py-0.5 rounded bg-[rgba(255,255,255,0.06)] text-[var(--text-muted)]">{node.level}</span>}
+                    </div>
+                  </div>
+                  {hasChildren && <div className="flex flex-col items-center shrink-0">
+                    <span className="text-[10px] font-bold" style={{ color: funcColor }}>{node.headcount - 1}</span>
+                    <span className="text-[14px] transition-transform" style={{ color: "var(--text-muted)", transform: isExpanded ? "rotate(180deg)" : "none" }}>▾</span>
+                  </div>}
+                </div>
+              </div>
+            </div>;
+          })}
+
+          {filteredRoots.length === 0 && <div className="absolute" style={{ top: 80, left: 100 }}><div className="text-[var(--text-muted)] text-center py-12">No employees match the current filters</div></div>}
+        </div>
+
+        {/* Zoom controls — bottom-left */}
+        <div className="absolute bottom-3 left-3 flex items-center gap-1 rounded-lg p-1 z-20 border border-[var(--border)]" style={{ background: "rgba(20,28,50,0.85)", backdropFilter: "blur(12px)" }}>
+          <button onClick={() => { const nz = Math.min(2.5, zoom + 0.15); setPan(p => ({ x: p.x * (nz / zoom), y: p.y * (nz / zoom) })); setZoom(nz); }} className="w-7 h-7 flex items-center justify-center rounded text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--hover)] text-[16px] font-bold">+</button>
+          <span className="text-[11px] text-[var(--text-muted)] px-1 min-w-[36px] text-center font-data">{Math.round(zoom * 100)}%</span>
+          <button onClick={() => { const nz = Math.max(0.12, zoom - 0.15); setPan(p => ({ x: p.x * (nz / zoom), y: p.y * (nz / zoom) })); setZoom(nz); }} className="w-7 h-7 flex items-center justify-center rounded text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--hover)] text-[16px] font-bold">−</button>
+          <div className="w-px h-4 bg-[var(--border)] mx-0.5" />
+          <button onClick={fitToScreen} className="w-7 h-7 flex items-center justify-center rounded text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--hover)] text-[12px]" title="Fit to screen">⊞</button>
         </div>
       </div>
 
@@ -321,7 +483,8 @@ function OrgChartBuilder({ employees, jobs }: { employees: Employee[]; jobs: Job
     <div className="flex gap-2 flex-wrap mt-3">{Array.from(new Set(employees.map(e => e.function))).sort().map(f => <span key={f} className="flex items-center gap-1 text-[12px]"><span className="w-2.5 h-2.5 rounded-full" style={{ background: ORG_FUNC_COLORS[f] || "#888" }} /><span style={{ color: ORG_FUNC_COLORS[f] || "#888" }}>{f}</span></span>)}</div>
 
     {/* Animations */}
-    <style>{`@keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }`}</style>
+    <style>{`@keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }`}</style>
   </div>;
 }
 

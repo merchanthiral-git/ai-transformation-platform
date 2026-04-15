@@ -47,7 +47,7 @@ const ModuleLoadingSkeleton = () => <div style={{ minHeight: "calc(100vh - 120px
 const AiOpportunityScan = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.AiOpportunityScan })), { ssr: false, loading: ModuleLoadingSkeleton });
 const AIReadiness = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.AIReadiness })), { ssr: false, loading: ModuleLoadingSkeleton });
 const ManagerCapability = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.ManagerCapability })), { ssr: false, loading: ModuleLoadingSkeleton });
-const SkillsTalent = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.SkillsTalent })), { ssr: false, loading: ModuleLoadingSkeleton });
+const SkillsTalent = dynamic(() => import("../../components/SkillsEngine").then(m => ({ default: m.SkillsEngine })), { ssr: false, loading: ModuleLoadingSkeleton });
 const ChangeReadiness = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.ChangeReadiness })), { ssr: false, loading: ModuleLoadingSkeleton });
 const ManagerDevelopment = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.ManagerDevelopment })), { ssr: false, loading: ModuleLoadingSkeleton });
 const AiRecommendationsEngine = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.AiRecommendationsEngine })), { ssr: false, loading: ModuleLoadingSkeleton });

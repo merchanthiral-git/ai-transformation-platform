@@ -44,6 +44,10 @@ from app.routes_ai import router as ai_router
 from app.routes_analytics import router as analytics_router
 from app.routes_tutorial import router as tutorial_router
 from app.routes_export_ext import router as export_ext_router
+try:
+    from app.routes_skills import router as skills_router
+except ImportError:
+    skills_router = None
 
 app = FastAPI(title="AI Transformation Platform API", version="4.0")
 
@@ -113,6 +117,8 @@ app.include_router(ai_router)
 app.include_router(analytics_router)
 app.include_router(tutorial_router)
 app.include_router(export_ext_router)
+if skills_router:
+    app.include_router(skills_router)
 
 # Agent system
 from app.routes_agents import router as agents_router

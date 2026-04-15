@@ -157,7 +157,7 @@ async def ai_health():
 
 
 @router.post("/api/ai/generate")
-async def ai_generate(payload: dict, request: Request):
+async def ai_generate(request: Request):
     """Proxy AI requests through Claude with retry, rate limiting, and cooldown."""
     if not ANTHROPIC_API_KEY or ANTHROPIC_API_KEY == "your_key_here":
         return {"text": f"[AI unavailable] {NO_KEY_MSG}", "error": True, "remaining": 0}
@@ -166,6 +166,11 @@ async def ai_generate(payload: dict, request: Request):
     allowed, remaining = _check_rate_limit(user_id)
     if not allowed:
         return {"text": f"[Rate limit reached] You've used all {RATE_LIMIT_PER_DAY} AI requests for today.", "error": True, "remaining": 0}
+
+    try:
+        payload = await request.json()
+    except Exception:
+        return {"text": "[Error] Invalid request body.", "error": True, "remaining": remaining}
 
     system_prompt = payload.get("system", "")
     user_message = payload.get("message", "")

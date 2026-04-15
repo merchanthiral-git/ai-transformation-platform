@@ -103,6 +103,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
   const cA = useMemo(() => odsAgg(currentData), [currentData]);
   const fA = useMemo(() => odsAgg(sc?.departments || []), [sc]);
   const [selDept, setSelDept] = useState(0);
+  const [layerScope, setLayerScope] = useState("all");
 
   const DChip = ({ a, b, inv }: { a: number; b: number; inv?: boolean }) => {
     const diff = b - a; const pos = inv ? diff < 0 : diff > 0; const neg = inv ? diff > 0 : diff < 0;
@@ -212,7 +213,6 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
 
     {view === "layers" && (() => {
       // Aggregate level distribution across current & future
-      const [layerScope, setLayerScope] = React.useState("all");
       const srcCurrent = layerScope === "all" ? currentData : currentData.filter(d => d.name === layerScope);
       const srcFuture = layerScope === "all" ? (sc.departments || []) : (sc.departments || []).filter((d: ReturnType<typeof odsGenDept>[0]) => d.name === layerScope);
       const curLevels = ODS_LEVELS.map(l => ({ level: l, count: srcCurrent.reduce((s, d) => s + (d.levelDist?.[l] || 0), 0) }));
