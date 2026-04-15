@@ -340,7 +340,7 @@ def _seed_tutorial_store(industry="technology", size_tier="mid"):
     # ═══════════════════════════════════════════════════
     # INDUSTRY-SPECIFIC TITLE MAPPING
     # ═══════════════════════════════════════════════════
-    from app.config.industry_titles import get_title_for_level, get_all_titles_for_industry
+    from app.config.industry_titles import get_title_for_level, get_all_titles_for_industry, get_csuite_title
     industry_titles = get_all_titles_for_industry(industry)
 
     # ═══════════════════════════════════════════════════
@@ -1357,8 +1357,12 @@ def _seed_tutorial_store(industry="technology", size_tier="mid"):
             base_title = _pick_title_for_level(track, level, base_func, blueprints, renames, industry)
 
             # Industry-specific display title derived from level code
-            industry_display_title = get_title_for_level(level, industry, size_tier)
-            # Combine with function context for specificity (e.g., "Senior Engineer - Engineering")
+            # For C-suite levels (E3, E4 in large-cap), use function-specific titles
+            if level in ("E3",) or (level == "E4" and size_tier == "large"):
+                industry_display_title = get_csuite_title(real_func, level, industry, size_tier)
+            else:
+                industry_display_title = get_title_for_level(level, industry, size_tier)
+            # Combine with function context for specificity (e.g., "Senior Analyst, Engineering")
             real_title = industry_display_title
             # For generic titles that don't convey function, append function context
             if real_title in ("Analyst", "Senior Analyst", "Specialist", "Associate", "Consultant") and real_func:

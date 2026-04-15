@@ -150,15 +150,48 @@ function OrgChartBuilder({ employees, jobs }: { employees: Employee[]; jobs: Job
     return nodesAtLayer;
   }, [orgTree, viewFromLayer]);
 
-  // Filter by function
+  // Filter by function — show ONLY people in that function as a standalone subtree
   const filteredRoots = useMemo(() => {
     if (funcFilter === "All") return rootNodes;
-    const filterFunc = (n: OrgNode): OrgNode | null => {
-      const filteredChildren = n.children.map(filterFunc).filter(Boolean) as OrgNode[];
-      if (n.function === funcFilter || filteredChildren.length > 0) return { ...n, children: filteredChildren };
-      return null;
+
+    // Collect all nodes in the selected function
+    const inFunc = new Set<string>();
+    const collectAll = (n: OrgNode) => { if (n.function === funcFilter) inFunc.add(n.id); n.children.forEach(collectAll); };
+    rootNodes.forEach(collectAll);
+
+    if (inFunc.size === 0) return [];
+
+    // Rebuild subtree: only include nodes in the function, re-parent to highest-ranking
+    const RANK: Record<string, number> = { E5:100,E4:90,E3:80,E2:70,E1:60,M6:58,M5:55,M4:50,M3:40,M2:30,M1:20,P8:18,P7:17,P6:16,P5:15,P4:14,P3:13,P2:12,P1:11,T8:18,T7:17,T6:16,T5:15,T4:14,T3:13,T2:12,T1:11,S6:10,S5:9,S4:8,S3:7,S2:6,S1:5 };
+
+    // Clone only nodes in the function, strip out children not in the function
+    const cloneFiltered = (n: OrgNode): OrgNode | null => {
+      if (!inFunc.has(n.id)) {
+        // This node is outside function — but recurse to find function nodes below
+        const pulled: OrgNode[] = [];
+        n.children.forEach(c => { const r = cloneFiltered(c); if (r) pulled.push(r); });
+        return pulled.length === 1 ? pulled[0] : pulled.length > 1 ? { ...n, children: pulled, headcount: pulled.reduce((s, c) => s + c.headcount, 0) + 1 } : null;
+      }
+      const filteredKids = n.children.map(cloneFiltered).filter(Boolean) as OrgNode[];
+      const hc = filteredKids.reduce((s, c) => s + c.headcount, 0) + 1;
+      return { ...n, children: filteredKids, headcount: hc };
     };
-    return rootNodes.map(filterFunc).filter(Boolean) as OrgNode[];
+
+    // Find top-level function nodes (highest rank in the function)
+    const funcNodes: OrgNode[] = [];
+    rootNodes.forEach(r => { const result = cloneFiltered(r); if (result) funcNodes.push(result); });
+
+    // If we pulled nodes through non-function parents, flatten to just the function entries
+    const flatten = (nodes: OrgNode[]): OrgNode[] => {
+      const result: OrgNode[] = [];
+      for (const n of nodes) {
+        if (inFunc.has(n.id)) { result.push(n); }
+        else { result.push(...flatten(n.children)); }
+      }
+      return result;
+    };
+
+    return flatten(funcNodes);
   }, [rootNodes, funcFilter]);
 
   // Breadcrumb path for selected employee

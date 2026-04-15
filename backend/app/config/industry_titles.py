@@ -245,3 +245,63 @@ def get_all_titles_for_industry(industry: str) -> dict:
     """Get the complete title map for an industry."""
     mapped_industry = INDUSTRY_ALIASES.get(industry, industry)
     return INDUSTRY_TITLES.get(mapped_industry, GENERIC_TITLES)
+
+
+# Function → C-Suite title mapping
+CSUITE_BY_FUNCTION = {
+    "Finance": "CFO", "Treasury": "CFO",
+    "Engineering": "CTO", "Technology": "CTO", "IT & Infrastructure": "CIO",
+    "IT & Digital": "CIO", "IT & Cyber": "CIO", "IT Services": "CIO",
+    "HR & People": "CHRO", "HR": "CHRO", "Human Resources": "CHRO",
+    "Legal": "General Counsel", "Legal & Regulatory": "General Counsel",
+    "Legal & Compliance": "CLO",
+    "Sales & Marketing": "CRO", "Marketing": "CMO",
+    "Wealth Management": "Head of Wealth Management",
+    "Product": "CPO", "Merchandising": "Chief Merchant",
+    "Data & Analytics": "CDO", "Risk Management": "CRO",
+    "Security": "CISO", "Cybersecurity": "CISO",
+    "Operations": "COO", "Supply Chain": "COO",
+    "Clinical Operations": "CNO", "Patient Services": "Chief Patient Officer",
+    "Health Informatics": "CMIO",
+    "Production": "COO", "Quality Control": "CQO",
+    "Compliance": "CCO", "Quality & Safety": "Chief Quality Officer",
+    "EHS": "Chief Safety Officer", "HSE": "Chief Safety Officer",
+    "Store Operations": "COO",
+    "Strategy & Consulting": "Chief Strategy Officer",
+    "Mission Systems": "CTO", "Engineering Systems": "CTO",
+    "E-Commerce Tech": "CTO", "Reservoir Engineering": "CTO",
+    "Loss Prevention": "VP Loss Prevention",
+    "Revenue Cycle": "CRO", "Land & Commercial": "Chief Commercial Officer",
+    "Business Development": "Chief Growth Officer",
+}
+
+
+def get_csuite_title(function: str, level: str, industry: str, size_tier: str = "mid") -> str:
+    """Get function-specific C-suite title for E3/E4 levels.
+
+    E3 should always return a function-specific executive title (CFO, CTO, etc.)
+    E4 in large-cap returns function-specific C-suite titles too.
+    """
+    if level not in ("E3", "E4"):
+        return get_title_for_level(level, industry, size_tier)
+
+    # For E4 in small/mid, it's always CEO (single person)
+    if level == "E4" and size_tier in ("small", "mid"):
+        return "CEO"
+
+    # For E5, always CEO
+    if level == "E5":
+        return "CEO"
+
+    # Look up function-specific title
+    csuite_title = CSUITE_BY_FUNCTION.get(function)
+    if csuite_title:
+        return csuite_title
+
+    # Fallback: "Chief {Function} Officer" or generic
+    if function:
+        # Clean up function name for title
+        clean = function.replace("&", "and").replace("  ", " ").strip()
+        return f"Chief {clean} Officer"
+
+    return get_title_for_level(level, industry, size_tier)
