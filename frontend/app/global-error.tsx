@@ -11,6 +11,19 @@ export default function GlobalError({
 }) {
   useEffect(() => {
     console.error("[GlobalError]", error);
+    // Auto-recover from stale chunk errors after a deploy
+    const isChunkError = error.message?.includes("Loading chunk") ||
+      error.message?.includes("Failed to load chunk") ||
+      error.message?.includes("Failed to fetch dynamically imported module") ||
+      error.message?.includes("ChunkLoadError");
+    if (isChunkError) {
+      const reloaded = sessionStorage.getItem("chunk-reload");
+      if (!reloaded) {
+        sessionStorage.setItem("chunk-reload", "1");
+        window.location.reload();
+        return;
+      }
+    }
   }, [error]);
   return (
     <html>
