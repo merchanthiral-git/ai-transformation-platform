@@ -2,10 +2,12 @@
  * Real-time collaboration client.
  * Connects to the backend Socket.IO server and provides hooks for
  * presence, editing indicators, state broadcast, and activity feed.
+ *
+ * DISABLED by default. Set NEXT_PUBLIC_COLLAB_ENABLED=true to activate.
+ * When disabled, all exports are no-ops so consuming components don't crash.
  */
 
 import { useEffect, useRef, useCallback, useState } from "react";
-import { io, Socket } from "socket.io-client";
 
 // ── Types ──
 
@@ -39,19 +41,40 @@ export interface RemoteChange {
   detail?: string;
 }
 
-// ── Singleton socket ──
+// ── Feature gate ──
 
-let _socket: Socket | null = null;
+const COLLAB_ENABLED = process.env.NEXT_PUBLIC_COLLAB_ENABLED === "true";
 
-function getSocket(): Socket {
+// ── Singleton socket (lazy, only if enabled) ──
+
+let _socket: import("socket.io-client").Socket | null = null;
+let _failedPermanently = false;
+
+async function getSocket(): Promise<import("socket.io-client").Socket | null> {
+  if (!COLLAB_ENABLED || _failedPermanently) return null;
+
   if (!_socket) {
+    // Dynamic import — socket.io-client is only loaded when collaboration is enabled
+    const { io } = await import("socket.io-client");
     _socket = io({
       path: "/ws/socket.io",
       transports: ["websocket", "polling"],
       autoConnect: false,
       reconnection: true,
-      reconnectionAttempts: 10,
-      reconnectionDelay: 2000,
+      reconnectionAttempts: 3,
+      reconnectionDelay: 5000,
+    });
+
+    // After exhausting retries, stop permanently to avoid console spam
+    let errorCount = 0;
+    _socket.on("connect_error", () => {
+      errorCount++;
+      if (errorCount >= 3) {
+        console.warn("[Collab] Server unavailable, running in offline mode");
+        _failedPermanently = true;
+        _socket?.disconnect();
+        _socket = null;
+      }
     });
   }
   return _socket;
@@ -71,85 +94,81 @@ export function useCollaboration(opts: {
   const [presence, setPresence] = useState<CollabUser[]>([]);
   const [activity, setActivity] = useState<ActivityEntry[]>([]);
   const [connected, setConnected] = useState(false);
-  const socketRef = useRef<Socket | null>(null);
+  const socketRef = useRef<import("socket.io-client").Socket | null>(null);
   const onRemoteChangeRef = useRef(onRemoteChange);
   onRemoteChangeRef.current = onRemoteChange;
   const joinedRef = useRef(false);
 
   // Connect and join
   useEffect(() => {
-    if (!projectId || !userId) return;
+    if (!projectId || !userId || !COLLAB_ENABLED || _failedPermanently) return;
 
-    const socket = getSocket();
-    socketRef.current = socket;
+    let cancelled = false;
 
-    const onConnect = () => {
-      setConnected(true);
-      if (!joinedRef.current) {
-        socket.emit("join_project", {
-          user_id: userId,
-          username,
-          display_name: displayName,
-          project_id: projectId,
-        });
-        joinedRef.current = true;
+    getSocket().then((socket) => {
+      if (cancelled || !socket) return;
+      socketRef.current = socket;
+
+      const onConnect = () => {
+        setConnected(true);
+        if (!joinedRef.current) {
+          socket.emit("join_project", {
+            user_id: userId,
+            username,
+            display_name: displayName,
+            project_id: projectId,
+          });
+          joinedRef.current = true;
+        }
+      };
+
+      const onDisconnect = (reason: string) => {
+        setConnected(false);
+        joinedRef.current = false;
+        if (reason === "io server disconnect" || reason === "transport close") {
+          console.warn("[Collab] Disconnected:", reason);
+        }
+      };
+
+      const onPresence = (users: CollabUser[]) => {
+        setPresence(users.filter(u => u.user_id !== userId));
+      };
+
+      const onActivityFeed = (entries: ActivityEntry[]) => {
+        setActivity(entries);
+      };
+
+      const onActivityUpdate = (entry: ActivityEntry) => {
+        setActivity(prev => [...prev.slice(-49), entry]);
+      };
+
+      const onRemoteChangeEvt = (change: RemoteChange) => {
+        onRemoteChangeRef.current?.(change);
+      };
+
+      socket.on("connect", onConnect);
+      socket.on("disconnect", onDisconnect);
+      socket.on("presence", onPresence);
+      socket.on("activity_feed", onActivityFeed);
+      socket.on("activity_update", onActivityUpdate);
+      socket.on("remote_change", onRemoteChangeEvt);
+
+      if (!socket.connected) {
+        socket.connect();
+      } else {
+        onConnect();
       }
-    };
-
-    const onDisconnect = (reason: string) => {
-      setConnected(false);
-      joinedRef.current = false;
-      if (reason === "io server disconnect" || reason === "transport close") {
-        console.warn("[Collab] Disconnected:", reason);
-      }
-    };
-
-    const onConnectError = (err: Error) => {
-      console.error("[Collab] Connection error:", err.message);
-      setConnected(false);
-    };
-
-    const onPresence = (users: CollabUser[]) => {
-      setPresence(users.filter(u => u.user_id !== userId));
-    };
-
-    const onActivityFeed = (entries: ActivityEntry[]) => {
-      setActivity(entries);
-    };
-
-    const onActivityUpdate = (entry: ActivityEntry) => {
-      setActivity(prev => [...prev.slice(-49), entry]);
-    };
-
-    const onRemoteChangeEvt = (change: RemoteChange) => {
-      onRemoteChangeRef.current?.(change);
-    };
-
-    socket.on("connect", onConnect);
-    socket.on("disconnect", onDisconnect);
-    socket.on("connect_error", onConnectError);
-    socket.on("presence", onPresence);
-    socket.on("activity_feed", onActivityFeed);
-    socket.on("activity_update", onActivityUpdate);
-    socket.on("remote_change", onRemoteChangeEvt);
-
-    if (!socket.connected) {
-      socket.connect();
-    } else {
-      onConnect();
-    }
+    });
 
     return () => {
-      socket.emit("leave_project", { project_id: projectId });
-      joinedRef.current = false;
-      socket.off("connect", onConnect);
-      socket.off("disconnect", onDisconnect);
-      socket.off("connect_error", onConnectError);
-      socket.off("presence", onPresence);
-      socket.off("activity_feed", onActivityFeed);
-      socket.off("activity_update", onActivityUpdate);
-      socket.off("remote_change", onRemoteChangeEvt);
-      socket.disconnect();
+      cancelled = true;
+      const socket = socketRef.current;
+      if (socket) {
+        socket.emit("leave_project", { project_id: projectId });
+        joinedRef.current = false;
+        socket.removeAllListeners();
+        socket.disconnect();
+      }
     };
   }, [projectId, userId, username, displayName]);
 
@@ -159,7 +178,7 @@ export function useCollaboration(opts: {
     socketRef.current.emit("tab_change", { tab: currentTab });
   }, [currentTab]);
 
-  // ── Actions ──
+  // ── Actions (no-ops when disconnected) ──
 
   const broadcastChange = useCallback((kind: string, summary: string, detail?: string) => {
     socketRef.current?.emit("state_change", { kind, summary, detail });
