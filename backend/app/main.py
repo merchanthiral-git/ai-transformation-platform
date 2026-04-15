@@ -49,6 +49,10 @@ try:
 except ImportError:
     skills_router = None
 try:
+    from app.routes_job_content import router as job_content_router
+except ImportError:
+    job_content_router = None
+try:
     from app.routes_notes import router as notes_router
 except ImportError:
     notes_router = None
@@ -125,6 +129,8 @@ if skills_router:
     app.include_router(skills_router)
 if notes_router:
     app.include_router(notes_router)
+if job_content_router:
+    app.include_router(job_content_router)
 
 # Agent system
 from app.routes_agents import router as agents_router

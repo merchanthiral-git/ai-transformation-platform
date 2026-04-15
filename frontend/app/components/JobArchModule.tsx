@@ -11,6 +11,7 @@ import {
   ErrorBoundary, AiJobSuggestButton, AiJobSuggestion, ExpandableChart,
 } from "./shared";
 import { ArchitectureMapTab } from "./ArchitectureMapTab";
+import { JobContentAuthoring } from "./design/JobContentAuthoring";
 
 /* ═══════════════════════════════════════════════════════════════
    TYPES
@@ -1572,6 +1573,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
       { id: "intelligence", label: "🧠 Intelligence" },
       { id: "rolenet", label: "🕸️ Role Network" },
       { id: "compare", label: "🔍 Compare" },
+      { id: "content", label: "✍️ Job Content" },
     ]} active={tab} onChange={setTab} />
 
     {/* ═══ CATALOGUE TAB ═══ */}
@@ -1963,6 +1965,8 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
         </div>
       </Card>}
     </div>}
+
+    {tab === "content" && <div className="animate-tab-enter"><JobContentAuthoring model={model} f={f} /></div>}
 
     <NextStepBar currentModuleId="jobarch" onNavigate={onNavigate || onBack} />
   </div>;

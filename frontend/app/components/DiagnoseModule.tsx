@@ -47,6 +47,7 @@ import {
    ═══════════════════════════════════════════════════════════════ */
 export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext }) {
   const [sub, setSub] = useState("ai");
+  const [spanView, setSpanView] = useState<"dist" | "level" | "outlier">("dist");
   const [data, loading] = useApiData(() => { if (sub === "ai") return api.getAIPriority(model, f); if (sub === "skills") return api.getSkillAnalysis(model, f); if (sub === "org") return api.getOrgDiagnostics(model, f); return api.getDataQuality(model); }, [sub, model, f.func, f.jf, f.sf, f.cl]);
 
   const scanTitle = viewCtx?.mode === "employee" ? "AI Impact on My Role" : viewCtx?.mode === "job" ? `AI Impact — ${viewCtx.job}` : "AI Opportunity Scan";
@@ -79,7 +80,196 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
       </div>}
       <div className="grid grid-cols-12 gap-4"><div className="col-span-7"><Card title="Top AI Priority Tasks"><DataTable data={top10} /></Card></div><div className="col-span-5"><Card title="Impact by Workstream"><BarViz data={((data?.workstream_impact ?? []) as Record<string, unknown>[])} labelKey="Workstream" valueKey="Time Impact" color="var(--accent-scenario)" /></Card></div></div></div>; })()}
     {sub === "skills" && <div className="grid grid-cols-2 gap-4"><Card title="Current Skills"><BarViz data={((data?.current ?? []) as Record<string, unknown>[])} labelKey="Skill" valueKey="Weight" color="var(--success)" /></Card><Card title="Skill Gap"><DataTable data={((data?.gap ?? []) as Record<string, unknown>[])} cols={["Skill", "Current", "Future", "Delta"]} /></Card></div>}
-    {sub === "org" && (() => { if (data && (data as Record<string, unknown>).empty) return <Empty text="Upload org or workforce data" icon="🏢" />; const k = (data?.kpis ?? { total: 0, managers: 0, ics: 0, avg_span: 0, max_span: 0, layers: 0 }) as OrgDiagnosticsKpis; return <div><div className="grid grid-cols-6 gap-3 mb-5"><KpiCard label="Headcount" value={k.total ?? 0} /><KpiCard label="Managers" value={k.managers ?? 0} /><KpiCard label="ICs" value={k.ics ?? 0} /><KpiCard label="Avg Span" value={k.avg_span ?? 0} accent /><KpiCard label="Max Span" value={k.max_span ?? 0} /><KpiCard label="Layers" value={k.layers ?? 0} /></div><div className="grid grid-cols-2 gap-4"><Card title="Span of Control"><BarViz data={((data?.span_top15 ?? []) as Record<string, unknown>[])} labelKey="Label" valueKey="Direct Reports" color="var(--warning)" /></Card><Card title="Layer Distribution"><BarViz data={((data?.layer_distribution ?? []) as Record<string, unknown>[])} labelKey="name" valueKey="value" /></Card></div></div>; })()}
+    {sub === "org" && (() => {
+      if (data && (data as Record<string, unknown>).empty) return <Empty text="Upload org or workforce data" icon="🏢" />;
+      const k = (data?.kpis ?? { total: 0, managers: 0, ics: 0, avg_span: 0, max_span: 0, layers: 0 }) as OrgDiagnosticsKpis;
+      const rawLayers = ((data?.layer_distribution ?? []) as { name: string; value: number }[]);
+      const rawSpan = ((data?.span_top15 ?? []) as Record<string, unknown>[]);
+      const managers = ((data?.managers ?? []) as Record<string, unknown>[]);
+
+      // ── Layer Distribution: sort by track order, color by track ──
+      const TRACK_ORDER = ["S","P","T","M","E"];
+      const TRACK_COLORS: Record<string, string> = { S: "#8B7355", P: "#3B82F6", T: "#8B5CF6", M: "#F59E0B", E: "#EF4444" };
+      const TRACK_LABELS: Record<string, string> = { S: "Support", P: "Professional", T: "Technical", M: "Management", E: "Executive" };
+      const sortedLayers = [...rawLayers].sort((a, b) => {
+        const tA = TRACK_ORDER.indexOf(a.name[0]) * 100 + parseInt(a.name.slice(1) || "0");
+        const tB = TRACK_ORDER.indexOf(b.name[0]) * 100 + parseInt(b.name.slice(1) || "0");
+        return tA - tB;
+      });
+      const maxLayerVal = Math.max(1, ...sortedLayers.map(l => l.value));
+
+      // ── Span of Control: build distribution histogram ──
+      const spanBuckets = [
+        { label: "1-3", min: 1, max: 3 }, { label: "4-6", min: 4, max: 6 },
+        { label: "7-9", min: 7, max: 9 }, { label: "10-12", min: 10, max: 12 },
+        { label: "13-15", min: 13, max: 15 }, { label: "16+", min: 16, max: 999 },
+      ];
+      // Extract span counts from span_top15 and managers data
+      const allSpans: number[] = [];
+      for (const m of (managers.length > 0 ? managers : rawSpan)) {
+        const dr = Number(m["Direct Reports"] || m["direct_reports"] || m["span"] || 0);
+        if (dr > 0) allSpans.push(dr);
+      }
+      const spanDist = spanBuckets.map(b => ({
+        ...b,
+        count: allSpans.filter(s => s >= b.min && s <= b.max).length,
+        healthy: b.min >= 5 && b.max <= 10,
+      }));
+      const maxSpanCount = Math.max(1, ...spanDist.map(d => d.count));
+      const totalMgrs = allSpans.length;
+      const healthyCount = allSpans.filter(s => s >= 5 && s <= 10).length;
+      const narrowCount = allSpans.filter(s => s < 5).length;
+      const wideCount = allSpans.filter(s => s > 12).length;
+      const healthyPct = totalMgrs > 0 ? Math.round(healthyCount / totalMgrs * 100) : 0;
+
+      // Span by level (Option B)
+      const spanByLevel: { level: string; avg: number; min: number; max: number; count: number }[] = [];
+      if (managers.length > 0) {
+        const byLev: Record<string, number[]> = {};
+        for (const m of managers) {
+          const lev = String(m["Career Level"] || m["level"] || "");
+          const dr = Number(m["Direct Reports"] || m["direct_reports"] || m["span"] || 0);
+          if (lev && dr > 0) { if (!byLev[lev]) byLev[lev] = []; byLev[lev].push(dr); }
+        }
+        const mLevOrder = ["M1","M2","M3","M4","M5","M6","E1","E2","E3","E4","E5"];
+        for (const lev of mLevOrder) {
+          const spans = byLev[lev];
+          if (spans && spans.length > 0) {
+            spanByLevel.push({ level: lev, avg: Math.round(spans.reduce((s, v) => s + v, 0) / spans.length * 10) / 10, min: Math.min(...spans), max: Math.max(...spans), count: spans.length });
+          }
+        }
+      }
+
+      // Outliers (Option C)
+      const outliers = (managers.length > 0 ? managers : rawSpan)
+        .filter(m => { const dr = Number(m["Direct Reports"] || m["direct_reports"] || m["span"] || 0); return dr > 12 || (dr > 0 && dr < 3); })
+        .map(m => ({ name: String(m["Label"] || m["Employee Name"] || m["name"] || ""), title: String(m["Job Title"] || m["title"] || ""), level: String(m["Career Level"] || m["level"] || ""), dept: String(m["Function ID"] || m["function"] || m["Department"] || ""), span: Number(m["Direct Reports"] || m["direct_reports"] || m["span"] || 0) }))
+        .sort((a, b) => b.span - a.span)
+        .slice(0, 20);
+
+      return <div>
+        <div className="grid grid-cols-6 gap-3 mb-5">
+          <KpiCard label="Headcount" value={k.total ?? 0} />
+          <KpiCard label="Managers" value={k.managers ?? 0} />
+          <KpiCard label="ICs" value={k.ics ?? 0} />
+          <KpiCard label="Avg Span" value={k.avg_span ?? 0} accent />
+          <KpiCard label="Max Span" value={k.max_span ?? 0} />
+          <KpiCard label="Layers" value={k.layers ?? 0} />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          {/* ═══ LAYER DISTRIBUTION — Vertical column chart ═══ */}
+          <Card title="Level Distribution">
+            {sortedLayers.length === 0 ? <div className="text-[var(--text-muted)] text-center py-8">No level data</div> : <>
+              {/* Track group labels */}
+              <div className="flex items-end gap-px" style={{ height: 200 }}>
+                {sortedLayers.map(l => {
+                  const pct = (l.value / maxLayerVal) * 100;
+                  const track = l.name[0];
+                  const color = TRACK_COLORS[track] || "var(--accent-primary)";
+                  return <div key={l.name} className="flex-1 flex flex-col items-center justify-end h-full" style={{ minWidth: 0 }}>
+                    <div className="text-[10px] font-data text-[var(--text-muted)] mb-1">{l.value > 0 ? l.value.toLocaleString() : ""}</div>
+                    <div className="w-full rounded-t-sm transition-all" style={{ height: `${Math.max(pct, 2)}%`, background: color, opacity: 0.8, minHeight: l.value > 0 ? 4 : 0 }} />
+                  </div>;
+                })}
+              </div>
+              {/* X-axis level labels */}
+              <div className="flex gap-px mt-1 border-t border-[var(--border)]">
+                {sortedLayers.map(l => <div key={l.name} className="flex-1 text-center text-[9px] font-data text-[var(--text-muted)] pt-1" style={{ minWidth: 0 }}>{l.name}</div>)}
+              </div>
+              {/* Track group indicators */}
+              <div className="flex gap-px mt-1">
+                {(() => {
+                  const groups: { track: string; count: number }[] = [];
+                  let prev = "";
+                  for (const l of sortedLayers) {
+                    const t = l.name[0];
+                    if (t !== prev) { groups.push({ track: t, count: 1 }); prev = t; }
+                    else { groups[groups.length - 1].count++; }
+                  }
+                  return groups.map(g => <div key={g.track} className="text-center text-[10px] font-bold uppercase tracking-wider py-0.5 rounded-sm" style={{ flex: g.count, color: TRACK_COLORS[g.track], background: `${TRACK_COLORS[g.track]}10` }}>{TRACK_LABELS[g.track]}</div>);
+                })()}
+              </div>
+              {/* Legend */}
+              <div className="flex gap-3 mt-2 justify-center flex-wrap">{TRACK_ORDER.filter(t => sortedLayers.some(l => l.name.startsWith(t))).map(t => <span key={t} className="flex items-center gap-1 text-[10px]"><span className="w-2.5 h-2.5 rounded-sm" style={{ background: TRACK_COLORS[t] }} /><span style={{ color: TRACK_COLORS[t] }}>{TRACK_LABELS[t]}</span></span>)}</div>
+            </>}
+          </Card>
+
+          {/* ═══ SPAN OF CONTROL — Distribution with view toggle ═══ */}
+          <Card title="Span of Control">
+            {/* View toggle */}
+            <div className="flex gap-1 mb-3">
+              {([["dist", "Distribution"], ["level", "By Level"], ["outlier", "Outliers"]] as const).map(([id, label]) =>
+                <button key={id} onClick={() => setSpanView(id)} className="px-2 py-0.5 rounded text-[11px] font-semibold transition-colors" style={{ background: spanView === id ? "var(--accent-primary)" : "var(--surface-2)", color: spanView === id ? "#fff" : "var(--text-muted)", border: `1px solid ${spanView === id ? "var(--accent-primary)" : "var(--border)"}` }}>{label}</button>
+              )}
+            </div>
+
+            {/* Option A: Distribution histogram */}
+            {spanView === "dist" && <>
+              {totalMgrs === 0 ? <div className="text-[var(--text-muted)] text-center py-8">No manager data</div> : <>
+                <div className="flex items-end gap-2" style={{ height: 140 }}>
+                  {spanDist.map(b => {
+                    const pct = (b.count / maxSpanCount) * 100;
+                    const isHealthy = b.min >= 5 && b.max <= 10;
+                    const isNarrow = b.max < 5;
+                    const color = isHealthy ? "var(--success)" : isNarrow ? "#3B82F6" : "var(--risk)";
+                    return <div key={b.label} className="flex-1 flex flex-col items-center justify-end h-full">
+                      <div className="text-[11px] font-data font-bold mb-1" style={{ color }}>{b.count || ""}</div>
+                      <div className="w-full rounded-t-sm" style={{ height: `${Math.max(pct, 2)}%`, background: color, opacity: 0.75, minHeight: b.count > 0 ? 4 : 0 }} />
+                    </div>;
+                  })}
+                </div>
+                <div className="flex gap-2 mt-1 border-t border-[var(--border)]">
+                  {spanDist.map(b => <div key={b.label} className="flex-1 text-center text-[11px] font-data text-[var(--text-muted)] pt-1">{b.label}</div>)}
+                </div>
+                {/* Healthy range indicator */}
+                <div className="mt-2 text-[12px] text-[var(--text-muted)] text-center">
+                  <span className="text-[var(--success)] font-semibold">{healthyPct}%</span> in healthy range (5-10) · <span className="text-[#3B82F6] font-semibold">{totalMgrs > 0 ? Math.round(narrowCount / totalMgrs * 100) : 0}%</span> narrow (&lt;5) · <span className="text-[var(--risk)] font-semibold">{totalMgrs > 0 ? Math.round(wideCount / totalMgrs * 100) : 0}%</span> wide (&gt;12)
+                </div>
+              </>}
+            </>}
+
+            {/* Option B: Span by management level */}
+            {spanView === "level" && <>
+              {spanByLevel.length === 0 ? <div className="text-[var(--text-muted)] text-center py-8">No level data</div> : <div className="space-y-1.5">
+                {/* Target range band */}
+                <div className="text-[11px] text-[var(--text-muted)] mb-2">Target range: <span className="text-[var(--success)] font-semibold">5-10</span> direct reports</div>
+                {spanByLevel.map(sl => {
+                  const inRange = sl.avg >= 5 && sl.avg <= 10;
+                  const color = inRange ? "var(--success)" : sl.avg < 5 ? "#3B82F6" : "var(--risk)";
+                  return <div key={sl.level} className="flex items-center gap-2">
+                    <span className="text-[12px] font-data text-[var(--text-muted)] w-7">{sl.level}</span>
+                    <div className="flex-1 h-4 bg-[var(--surface-2)] rounded-full overflow-hidden relative">
+                      {/* Target range indicator */}
+                      <div className="absolute h-full rounded-full opacity-10" style={{ left: `${5 / 20 * 100}%`, width: `${5 / 20 * 100}%`, background: "var(--success)" }} />
+                      <div className="h-full rounded-full transition-all relative z-10" style={{ width: `${Math.min(sl.avg / 20 * 100, 100)}%`, background: color }} />
+                    </div>
+                    <span className="text-[12px] font-data font-semibold w-8 text-right" style={{ color }}>{sl.avg}</span>
+                    <span className="text-[10px] text-[var(--text-muted)] w-14">{sl.min}-{sl.max}</span>
+                  </div>;
+                })}
+              </div>}
+            </>}
+
+            {/* Option C: Outliers */}
+            {spanView === "outlier" && <>
+              {outliers.length === 0 ? <div className="text-[var(--text-muted)] text-center py-8">No outliers detected</div> : <>
+                <div className="text-[12px] text-[var(--text-muted)] mb-2">
+                  <span className="text-[var(--risk)] font-semibold">{allSpans.filter(s => s > 12).length}</span> overextended (&gt;12) · <span className="text-[#3B82F6] font-semibold">{allSpans.filter(s => s > 0 && s < 3).length}</span> too narrow (&lt;3)
+                </div>
+                <div className="space-y-1 max-h-[180px] overflow-y-auto">{outliers.map((o, i) => <div key={i} className="flex items-center gap-2 text-[12px] py-1 border-b border-[var(--border)]">
+                  <span className="w-2 h-2 rounded-full shrink-0" style={{ background: o.span > 12 ? "var(--risk)" : "#3B82F6" }} />
+                  <span className="text-[var(--text-primary)] font-semibold truncate flex-1">{o.name}</span>
+                  <span className="text-[var(--text-muted)] truncate" style={{ maxWidth: 80 }}>{o.dept}</span>
+                  <span className="text-[var(--text-muted)] w-6">{o.level}</span>
+                  <span className="font-data font-bold w-6 text-right" style={{ color: o.span > 12 ? "var(--risk)" : "#3B82F6" }}>{o.span}</span>
+                </div>)}</div>
+              </>}
+            </>}
+          </Card>
+        </div>
+      </div>;
+    })()}
     {sub === "dq" && (() => { const s = (data?.summary ?? { ready: 0, missing: 0, total_issues: 0, avg_completeness: 0 }) as DataQualitySummary; return <div><div className="grid grid-cols-4 gap-3 mb-5"><KpiCard label="Ready" value={`${s.ready ?? 0}/7`} accent /><KpiCard label="Missing" value={s.missing ?? 0} /><KpiCard label="Issues" value={s.total_issues ?? 0} /><KpiCard label="Completeness" value={`${s.avg_completeness ?? 0}%`} /></div><div className="grid grid-cols-2 gap-4"><Card title="Readiness"><DataTable data={((data?.readiness ?? []) as Record<string, unknown>[])} cols={["Dataset", "Status", "Rows", "Issues", "Completeness"]} /></Card><Card title="Upload Log"><DataTable data={((data?.upload_log ?? []) as Record<string, unknown>[])} /></Card></div></div>; })()}
     <AiInsightCard title="✨ AI Diagnosis Summary" contextData={JSON.stringify({ summary: (data as Record<string,unknown>)?.summary, sub }).slice(0, 2000)} systemPrompt="You are an organizational diagnostics consultant. Provide 3 key findings and recommended focus areas. Use specific numbers. No markdown." />
     <NextStepBar currentModuleId="scan" onNavigate={onNavigate || onBack} />

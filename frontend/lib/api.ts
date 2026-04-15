@@ -412,6 +412,55 @@ export async function getReorgImpact(scenarioId: string): Promise<Record<string,
   return fetchJSON<Record<string, unknown>>(`/api/reorg/impact/${scenarioId}`, {});
 }
 
+// ─── Job Content Authoring ──────────────────────────────
+export async function getJobContentTaxonomy(): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/job-content/taxonomy", { tree: [], flat: [], total: 0 });
+}
+export async function createJobContentNode(data: Record<string, unknown>): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/job-content/taxonomy", {}, { method: "POST", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify(data) });
+}
+export async function updateJobContentNode(nodeId: string, data: Record<string, unknown>): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/job-content/taxonomy/${nodeId}`, {}, { method: "PUT", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify(data) });
+}
+export async function deleteJobContentNode(nodeId: string): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/job-content/taxonomy/${nodeId}`, {}, { method: "DELETE", headers: getAuthHeaders() });
+}
+export async function getJobContentThemes(subFamilyId: string): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/job-content/themes/${subFamilyId}`, { themes: [], count: 0 });
+}
+export async function createJobContentTheme(data: Record<string, unknown>): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/job-content/themes", {}, { method: "POST", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify(data) });
+}
+export async function applyDefaultThemes(subFamilyId: string, archetype?: string): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/job-content/themes/defaults", {}, { method: "POST", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify({ sub_family_id: subFamilyId, archetype: archetype || "default" }) });
+}
+export async function getJobContentVerbs(subFamilyId: string, track?: string): Promise<Record<string, unknown>> {
+  const p = track ? `?track=${track}` : "";
+  return fetchJSON<Record<string, unknown>>(`/api/job-content/verbs/${subFamilyId}${p}`, { verbs: [] });
+}
+export async function applyDefaultVerbs(subFamilyId: string, track: string): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/job-content/verbs/defaults", {}, { method: "POST", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify({ sub_family_id: subFamilyId, track }) });
+}
+export async function getJobContent(subFamilyId: string, track?: string, level?: string): Promise<Record<string, unknown>> {
+  const p = new URLSearchParams(); if (track) p.set("track", track); if (level) p.set("level", level);
+  return fetchJSON<Record<string, unknown>>(`/api/job-content/content/${subFamilyId}?${p}`, { content: [], count: 0 });
+}
+export async function saveJobContentBulk(items: Record<string, unknown>[]): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/job-content/content/bulk", {}, { method: "POST", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify({ items }) });
+}
+export async function buildJobContentPrompt(data: Record<string, unknown>): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/job-content/build-prompt", {}, { method: "POST", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify(data) });
+}
+export async function generateJobContent(data: Record<string, unknown>): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/job-content/generate", {}, { method: "POST", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify(data) });
+}
+export async function getJobContentComposed(subFamilyId: string, track: string, level: string): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/job-content/composed/${subFamilyId}/${track}/${level}`, {});
+}
+export async function saveJobContentTemplate(data: Record<string, unknown>): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/job-content/templates", {}, { method: "POST", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify(data) });
+}
+
 // ─── Build/Buy/Borrow/Automate ──────────────────────────
 export async function getBBBA(modelId: string, f?: Filters): Promise<BBBAResponse> {
   const q = f ? `?${filterParams(f)}` : "";
