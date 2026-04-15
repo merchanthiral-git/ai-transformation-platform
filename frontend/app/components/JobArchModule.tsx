@@ -151,48 +151,61 @@ function OrgChartBuilder({ employees, jobs }: { employees: Employee[]; jobs: Job
     return nodesAtLayer;
   }, [orgTree, viewFromLayer]);
 
-  // Filter by function — show ONLY people in that function as a standalone subtree
+  // Filter by function — rebuild a HIERARCHICAL subtree for only that function
   const filteredRoots = useMemo(() => {
     if (funcFilter === "All") return rootNodes;
 
-    // Collect all nodes in the selected function
-    const inFunc = new Set<string>();
-    const collectAll = (n: OrgNode) => { if (n.function === funcFilter) inFunc.add(n.id); n.children.forEach(collectAll); };
-    rootNodes.forEach(collectAll);
+    // Step 1: Collect every node in the full tree into a flat lookup
+    const allById: Record<string, OrgNode> = {};
+    const walk = (n: OrgNode) => { allById[n.id] = n; n.children.forEach(walk); };
+    rootNodes.forEach(walk);
 
-    if (inFunc.size === 0) return [];
+    // Step 2: Find all nodes belonging to the selected function
+    const funcMembers = Object.values(allById).filter(n => n.function === funcFilter);
+    if (funcMembers.length === 0) return [];
+    const funcIds = new Set(funcMembers.map(n => n.id));
 
-    // Rebuild subtree: only include nodes in the function, re-parent to highest-ranking
+    // Step 3: Rebuild tree among function members only.
+    // For each function member, find their closest ANCESTOR who is also in the function.
+    // This preserves the hierarchical reporting chain while skipping non-function intermediaries.
+    const clones: Record<string, OrgNode> = {};
+    for (const n of funcMembers) {
+      clones[n.id] = { ...n, children: [], headcount: 1 };
+    }
+
+    const roots: OrgNode[] = [];
+    for (const n of funcMembers) {
+      // Walk up the original tree to find the nearest function ancestor
+      let foundParent = false;
+      let cur = allById[n.managerId];
+      while (cur) {
+        if (funcIds.has(cur.id)) {
+          // This ancestor is in the function — attach as child
+          clones[cur.id].children.push(clones[n.id]);
+          foundParent = true;
+          break;
+        }
+        cur = allById[cur.managerId];
+      }
+      if (!foundParent) {
+        // No function ancestor — this is a root of the function subtree
+        roots.push(clones[n.id]);
+      }
+    }
+
+    // Step 4: Sort children by headcount (matching unfiltered behavior) and recount
+    const recount = (n: OrgNode): number => {
+      n.children.sort((a, b) => b.headcount - a.headcount);
+      n.headcount = n.children.reduce((s, c) => s + recount(c), 0) + 1;
+      return n.headcount;
+    };
+    roots.forEach(recount);
+
+    // Sort roots by rank so the highest-ranking person is first
     const RANK: Record<string, number> = { E5:100,E4:90,E3:80,E2:70,E1:60,M6:58,M5:55,M4:50,M3:40,M2:30,M1:20,P8:18,P7:17,P6:16,P5:15,P4:14,P3:13,P2:12,P1:11,T8:18,T7:17,T6:16,T5:15,T4:14,T3:13,T2:12,T1:11,S6:10,S5:9,S4:8,S3:7,S2:6,S1:5 };
+    roots.sort((a, b) => (RANK[b.level] || 0) - (RANK[a.level] || 0));
 
-    // Clone only nodes in the function, strip out children not in the function
-    const cloneFiltered = (n: OrgNode): OrgNode | null => {
-      if (!inFunc.has(n.id)) {
-        // This node is outside function — but recurse to find function nodes below
-        const pulled: OrgNode[] = [];
-        n.children.forEach(c => { const r = cloneFiltered(c); if (r) pulled.push(r); });
-        return pulled.length === 1 ? pulled[0] : pulled.length > 1 ? { ...n, children: pulled, headcount: pulled.reduce((s, c) => s + c.headcount, 0) + 1 } : null;
-      }
-      const filteredKids = n.children.map(cloneFiltered).filter(Boolean) as OrgNode[];
-      const hc = filteredKids.reduce((s, c) => s + c.headcount, 0) + 1;
-      return { ...n, children: filteredKids, headcount: hc };
-    };
-
-    // Find top-level function nodes (highest rank in the function)
-    const funcNodes: OrgNode[] = [];
-    rootNodes.forEach(r => { const result = cloneFiltered(r); if (result) funcNodes.push(result); });
-
-    // If we pulled nodes through non-function parents, flatten to just the function entries
-    const flatten = (nodes: OrgNode[]): OrgNode[] => {
-      const result: OrgNode[] = [];
-      for (const n of nodes) {
-        if (inFunc.has(n.id)) { result.push(n); }
-        else { result.push(...flatten(n.children)); }
-      }
-      return result;
-    };
-
-    return flatten(funcNodes);
+    return roots;
   }, [rootNodes, funcFilter]);
 
   // Breadcrumb path for selected employee
