@@ -141,6 +141,16 @@ export async function uploadFiles(files: FileList): Promise<UploadResponse> {
   });
 }
 
+// ─── Upload Preview & Validation ────────────────────────
+export async function previewUpload(files: FileList): Promise<Record<string, unknown>> {
+  const formData = new FormData();
+  Array.from(files).forEach(f => formData.append("files", f));
+  return fetchJSON<Record<string, unknown>>("/api/upload/preview", { files: [] }, { method: "POST", body: formData });
+}
+export async function getValidationReport(modelId: string): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/upload/validation/${encodeURIComponent(modelId)}`, {});
+}
+
 export async function resetData(): Promise<ResetResponse> {
   return fetchJSON<ResetResponse>("/api/reset", { ok: true }, { method: "POST" });
 }
@@ -461,6 +471,63 @@ export async function saveJobContentTemplate(data: Record<string, unknown>): Pro
   return fetchJSON<Record<string, unknown>>("/api/job-content/templates", {}, { method: "POST", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify(data) });
 }
 
+// Phase management
+export async function getJobContentPhases(): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/job-content/phases", { phases: {} });
+}
+export async function updateJobContentPhase(phaseId: string, status: string): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/job-content/phases/${phaseId}`, {}, { method: "PUT", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify({ status }) });
+}
+
+// Definitions
+export async function getJobContentDefinition(nodeId: string): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/job-content/definitions/${nodeId}`, {});
+}
+export async function updateJobContentDefinition(nodeId: string, data: Record<string, unknown>): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/job-content/definitions/${nodeId}`, {}, { method: "PUT", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify(data) });
+}
+export async function listJobContentDefinitions(): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/job-content/definitions", { definitions: [] });
+}
+export async function draftJobContentDefinition(nodeId: string, field: string): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/job-content/definitions/${nodeId}/draft`, {}, { method: "POST", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify({ field }) });
+}
+export async function checkSiblingOverlap(nodeIds: string[]): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/job-content/definitions/check-overlap", {}, { method: "POST", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify({ node_ids: nodeIds }) });
+}
+export async function checkUpwardCoherence(familyId: string): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/job-content/definitions/check-coherence", {}, { method: "POST", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify({ family_id: familyId }) });
+}
+
+// Leveling
+export async function getJobContentLeveling(): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/job-content/leveling", { tracks: [] });
+}
+export async function updateJobContentLeveling(data: Record<string, unknown>): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/job-content/leveling", {}, { method: "PUT", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify(data) });
+}
+export async function draftLevelingFramework(industry: string, orgSize: string, tracks: string[]): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/job-content/leveling/draft", {}, { method: "POST", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify({ industry, org_size: orgSize, tracks }) });
+}
+
+// Discovery
+export async function normalizeTitles(titles: string[]): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/job-content/discovery/normalize", {}, { method: "POST", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify({ titles }) });
+}
+
+// Architecture balance
+export async function getArchitectureBalance(): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/job-content/architecture/balance", {});
+}
+
+// Feedback
+export async function listJobContentFeedback(): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/job-content/feedback", { feedback: [] });
+}
+export async function addJobContentFeedback(data: Record<string, unknown>): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/job-content/feedback", {}, { method: "POST", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify(data) });
+}
+
 // ─── Build/Buy/Borrow/Automate ──────────────────────────
 export async function getBBBA(modelId: string, f?: Filters): Promise<BBBAResponse> {
   const q = f ? `?${filterParams(f)}` : "";
@@ -601,4 +668,33 @@ export async function getSkillsMapExportBySkill(): Promise<Record<string, unknow
 }
 export async function getSkillsMapExportSummary(): Promise<Record<string, unknown>> {
   return fetchJSON<Record<string, unknown>>("/api/skills-map/export/summary", {});
+}
+
+// ─── Platform Concierge ─────────────────────────────────
+export async function getConciergeTools(): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/concierge/tools", { tools: [], dimensions: [] });
+}
+export async function getAssessmentQuestions(depth?: string): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/concierge/assessment/questions?depth=${depth || "comprehensive"}`, { questions: [] });
+}
+export async function submitAssessment(data: Record<string, unknown>): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/concierge/assessment", {}, { method: "POST", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify(data) });
+}
+export async function getAssessment(projectId: string): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/concierge/assessment/${projectId}`, {});
+}
+export async function generateRoadmap(data: Record<string, unknown>): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/concierge/generate-roadmap", {}, { method: "POST", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify(data) });
+}
+export async function getConciergeRoadmap(projectId: string): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/concierge/roadmap/${projectId}`, {});
+}
+export async function askConcierge(message: string, currentPage?: string, scores?: Record<string, number>, completedTools?: string[]): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>("/api/concierge/ask", {}, { method: "POST", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify({ message, current_page: currentPage, assessment_scores: scores, completed_tools: completedTools }) });
+}
+export async function getConciergeProgress(projectId: string): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/concierge/progress/${projectId}`, {});
+}
+export async function updateToolProgress(projectId: string, toolId: string, status: string): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(`/api/concierge/progress/${projectId}/tool/${toolId}`, {}, { method: "PUT", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify({ status }) });
 }

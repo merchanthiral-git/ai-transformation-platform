@@ -59,7 +59,7 @@ export function TransformationDashboard({ data, jobStates, simState, viewCtx }: 
   }, 0);
 
   const hasProgress = Number(k.employees || 0) > 0 || totalJobs > 0;
-  if (!hasProgress) return null;
+  if (!hasProgress) return <div className="mb-6"><Empty icon="🎯" text="Welcome to Your Transformation Dashboard" subtitle="Upload your workforce data to see headcount, org health, AI readiness, and skills metrics populate this dashboard." /></div>;
 
   // Phase summaries (5 phases)
   const p1Complete = Number(k.employees || 0) > 0;

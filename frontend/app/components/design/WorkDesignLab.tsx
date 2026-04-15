@@ -473,7 +473,7 @@ Rules:
           </button>;
         })}
       </div>
-      {!jobs.length && <Empty text="No jobs found — upload Work Design data with Job Titles" icon="📭" />}
+      {!jobs.length && <Empty icon="✏️" text="Select a Job to Begin Work Design" subtitle="Choose a role from the job selector above, or upload task data to start deconstructing and redesigning roles." />}
 
       {/* Progress */}
       {jobs.length > 0 && <div className="mt-6 text-center text-[15px] text-[var(--text-muted)]">{completedJobs.length}/{jobs.length} jobs finalized · {inProgressJobs.length} in progress</div>}

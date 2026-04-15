@@ -160,6 +160,14 @@ app.include_router(nlq_router)
 from app.routes_flight_recorder import router as flight_recorder_router
 app.include_router(flight_recorder_router)
 
+# Platform Concierge
+try:
+    from app.routes_concierge import router as concierge_router
+except ImportError:
+    concierge_router = None
+if concierge_router:
+    app.include_router(concierge_router)
+
 # AI Provider abstraction
 from app.ai_providers import call_ai_sync, get_ai_status
 
@@ -419,6 +427,212 @@ def list_models(request: Request):
         import traceback
         traceback.print_exc()
         raise HTTPException(500, detail=str(e))
+
+
+@app.post("/api/upload/preview")
+async def upload_preview(request: Request, files: list[UploadFile] = File(...)):
+    """Preview uploaded file without ingesting. Returns sheet previews, column mapping suggestions, and validation results."""
+    from app.schemas_definitions import SCHEMAS, COMMON_ALIASES
+    from app.helpers import normalize_column_names
+    from app.store import _load_excel_or_csv, classify_dataframe
+
+    results = []
+
+    for f in files:
+        ext = Path(f.filename or "").suffix.lower()
+        if ext not in ALLOWED_EXTENSIONS:
+            results.append({"file": f.filename, "error": f"Unsupported file type: {ext}"})
+            continue
+
+        content = await f.read()
+        size = len(content)
+
+        if size > MAX_FILE_SIZE_BYTES:
+            results.append({"file": f.filename, "error": f"File too large: {size / 1024 / 1024:.1f}MB (max {MAX_FILE_SIZE_MB}MB)"})
+            continue
+
+        # Load sheets
+        try:
+            sheets = _load_excel_or_csv(content, f.filename or "upload")
+        except Exception as e:
+            results.append({"file": f.filename, "error": f"Failed to parse: {str(e)[:200]}"})
+            continue
+
+        file_result = {
+            "file": f.filename,
+            "size_bytes": size,
+            "size_label": f"{size / 1024:.0f}KB" if size < 1024 * 1024 else f"{size / 1024 / 1024:.1f}MB",
+            "sheet_count": len(sheets),
+            "sheets": [],
+        }
+
+        for sheet_name, df in sheets.items():
+            if df.empty:
+                continue
+
+            # Auto-detect dataset type
+            dtype = classify_dataframe(df, sheet_name)
+
+            # Get schema for this type
+            schema = SCHEMAS.get(dtype, {})
+            expected_cols = schema.get("all", [])
+            required_cols = schema.get("required", [])
+
+            # Build column mapping suggestions
+            normalized = normalize_column_names(df.copy())
+            actual_cols = list(normalized.columns)
+
+            mappings = []
+            mapped_targets: set[str] = set()
+
+            for col in actual_cols:
+                col_str = str(col).strip()
+                # Try exact match
+                if col_str in expected_cols:
+                    mappings.append({"source": col_str, "target": col_str, "confidence": 1.0, "status": "exact_match"})
+                    mapped_targets.add(col_str)
+                # Try alias match
+                elif col_str in COMMON_ALIASES and COMMON_ALIASES[col_str] in expected_cols:
+                    target = COMMON_ALIASES[col_str]
+                    mappings.append({"source": col_str, "target": target, "confidence": 0.9, "status": "alias_match"})
+                    mapped_targets.add(target)
+                # Try case-insensitive match
+                else:
+                    match = None
+                    for exp in expected_cols:
+                        if col_str.lower().replace("_", " ").replace("-", " ") == exp.lower().replace("_", " ").replace("-", " "):
+                            match = exp
+                            break
+                    if match and match not in mapped_targets:
+                        mappings.append({"source": col_str, "target": match, "confidence": 0.85, "status": "fuzzy_match"})
+                        mapped_targets.add(match)
+                    else:
+                        mappings.append({"source": col_str, "target": None, "confidence": 0, "status": "unmapped"})
+
+            # Check for missing required columns
+            missing_required = [c for c in required_cols if c not in mapped_targets]
+
+            # Validation checks
+            validation: dict = {
+                "row_count": len(df),
+                "column_count": len(df.columns),
+                "errors": [],
+                "warnings": [],
+            }
+
+            # Missing required columns -> errors
+            for col in missing_required:
+                validation["errors"].append({"type": "missing_required", "column": col, "message": f"Required column '{col}' is not mapped"})
+
+            # Blank cells per mapped column
+            for m in mappings:
+                if m["target"] and m["source"] in df.columns:
+                    blanks = int(df[m["source"]].isna().sum() + (df[m["source"]].astype(str).str.strip() == "").sum())
+                    if blanks > 0:
+                        pct = round(blanks / len(df) * 100, 1)
+                        severity = "error" if m["target"] in required_cols and pct > 50 else "warning"
+                        if severity == "error":
+                            validation["errors"].append({"type": "blank_required", "column": m["target"], "count": blanks, "percentage": pct, "message": f"'{m['target']}' has {blanks} blank values ({pct}%)"})
+                        else:
+                            validation["warnings"].append({"type": "blank_values", "column": m["target"], "count": blanks, "percentage": pct, "message": f"'{m['target']}' has {blanks} blank values ({pct}%)"})
+
+            # Duplicate IDs
+            id_cols = [m["source"] for m in mappings if m["target"] in ("Employee ID", "Job Code", "Task ID") and m["source"] in df.columns]
+            for id_col in id_cols:
+                dupes = int(df[id_col].dropna().duplicated().sum())
+                if dupes > 0:
+                    validation["warnings"].append({"type": "duplicates", "column": id_col, "count": dupes, "message": f"'{id_col}' has {dupes} duplicate values"})
+
+            # Orphan manager IDs
+            emp_id_src = next((m["source"] for m in mappings if m["target"] == "Employee ID"), None)
+            mgr_id_src = next((m["source"] for m in mappings if m["target"] == "Manager ID"), None)
+            if emp_id_src and mgr_id_src and emp_id_src in df.columns and mgr_id_src in df.columns:
+                emp_ids = set(df[emp_id_src].dropna().astype(str))
+                mgr_ids = set(df[mgr_id_src].dropna().astype(str)) - {"", "nan", "None"}
+                orphans = mgr_ids - emp_ids
+                if orphans:
+                    validation["warnings"].append({"type": "orphan_managers", "count": len(orphans), "message": f"{len(orphans)} Manager IDs reference employees not in the dataset"})
+
+            # Preview rows (first 5)
+            preview_rows = []
+            for _, row in df.head(5).iterrows():
+                preview_rows.append({str(c): str(v) if pd.notna(v) else "" for c, v in row.items()})
+
+            # Detection confidence
+            unmapped = len([m for m in mappings if m["status"] == "unmapped"])
+            mapped = len([m for m in mappings if m["status"] != "unmapped"])
+            detection_confidence = round(mapped / max(len(mappings), 1) * 100)
+
+            sheet_result = {
+                "sheet_name": sheet_name,
+                "detected_type": dtype,
+                "detection_confidence": detection_confidence,
+                "detection_label": f"This looks like {dtype.replace('_', ' ').title()} data ({detection_confidence}% match)" if dtype != "unknown" else "Could not auto-detect dataset type",
+                "row_count": len(df),
+                "columns": actual_cols,
+                "expected_columns": expected_cols,
+                "required_columns": required_cols,
+                "mappings": mappings,
+                "missing_required": missing_required,
+                "unmapped_count": unmapped,
+                "preview": preview_rows,
+                "validation": validation,
+                "can_import": len(validation["errors"]) == 0,
+            }
+            file_result["sheets"].append(sheet_result)
+
+        results.append(file_result)
+
+    return _safe({"files": results})
+
+
+@app.post("/api/upload/import")
+async def upload_import(request: Request):
+    """Import a previously previewed file with confirmed column mappings."""
+    body = await request.json()
+    # This endpoint accepts the file_id and mapping overrides
+    # For now, delegate to the existing upload flow
+    # The frontend will re-upload with mappings confirmed
+    return _safe({"status": "ok"})
+
+
+@app.get("/api/upload/validation/{model_id}")
+async def get_validation_report(model_id: str, request: Request):
+    """Get the validation report for the most recent upload."""
+    from app.schemas_definitions import SCHEMAS
+    uid = _user_id(request)
+    model_id = store.resolve_model_id(model_id, user_id=uid)
+    if model_id not in store.datasets:
+        return _safe({"model_id": model_id, "status": "not_found"})
+
+    bundle = store.datasets[model_id]
+    report: dict = {"model_id": model_id, "datasets": {}}
+
+    for dtype in ["workforce", "job_catalog", "work_design", "org_design", "operating_model", "change_management"]:
+        df = bundle.get(dtype)
+        if df is not None and not df.empty:
+            schema = SCHEMAS.get(dtype, {})
+            required = schema.get("required", [])
+
+            issues = []
+            for col in required:
+                if col not in df.columns:
+                    issues.append({"severity": "error", "message": f"Missing required column: {col}"})
+                else:
+                    blanks = int(df[col].isna().sum())
+                    if blanks > 0:
+                        issues.append({"severity": "warning", "message": f"{col}: {blanks} blank values ({round(blanks / len(df) * 100, 1)}%)"})
+
+            report["datasets"][dtype] = {
+                "rows": len(df),
+                "columns": len(df.columns),
+                "required_present": len([c for c in required if c in df.columns]),
+                "required_total": len(required),
+                "issues": issues,
+                "status": "error" if any(i["severity"] == "error" for i in issues) else "warning" if issues else "clean",
+            }
+
+    return _safe(report)
 
 
 @app.post("/api/upload")

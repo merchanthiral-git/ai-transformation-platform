@@ -155,9 +155,9 @@ export function FlightRecorder({ projectId, projectName, onBack }: { projectId: 
       {loading && <div className="text-center py-12 text-[var(--text-muted)]">Loading timeline...</div>}
 
       {!loading && events.length === 0 && <div className="text-center py-16">
-        <div className="text-4xl mb-3 opacity-30">🛫</div>
-        <div className="text-[16px] font-semibold text-[var(--text-primary)] mb-1">No events recorded yet</div>
-        <div className="text-[14px] text-[var(--text-muted)]">Events are recorded automatically as you use the platform — run an analysis, save a scenario, or upload data to start your decision history.</div>
+        <div className="text-4xl mb-3">✈️</div>
+        <div className="text-[16px] font-semibold text-[var(--text-primary)] mb-2">No Activity Recorded Yet</div>
+        <div className="text-[14px] text-[var(--text-muted)] max-w-md mx-auto">As you work through the platform — uploading data, running analyses, making design decisions — every action is logged here automatically.</div>
       </div>}
 
       {grouped.map(group => <div key={group.label} className="mb-6">

@@ -112,6 +112,7 @@ export const MODULES = [
   { id: "mgrcap", icon: "👔", title: "Manager Capability", desc: "Assess manager readiness and identify champions", color: "#A855F7", phase: "diagnose", views: ["org","custom"] },
   { id: "recommendations", icon: "🤖", title: "AI Recommendations", desc: "AI-generated transformation recommendations ranked by impact", color: "#E09040", phase: "diagnose", views: ["org","job","custom"] },
   { id: "skills", icon: "🧠", title: "Skills & Talent", desc: "Inventory, gap analysis, and adjacency mapping", color: "#D97706", phase: "diagnose", views: ["org","job","employee","custom"], empTitle: "My Skills", jobTitle: "Role Skills", empDesc: "Your skill profile and development gaps", jobDesc: "Skills required for this role" },
+  { id: "skillsmap", icon: "🗺️", title: "Skills Map Engine", desc: "O*NET-powered skills library, job matching, and mapping", color: "#0891B2", phase: "diagnose", views: ["org","job","custom"], jobTitle: "Role Skills Map", jobDesc: "O*NET skill profile for this role" },
   { id: "bbba", icon: "🔀", title: "Build/Buy/Borrow/Auto", desc: "Talent sourcing strategy per redesigned role", color: "#B8602A", phase: "design", views: ["org","custom"] },
   { id: "headcount", icon: "👥", title: "Headcount Planning", desc: "Current to future workforce waterfall", color: "#8B5CF6", phase: "design", views: ["org","custom"] },
   { id: "design", icon: "✏️", title: "Work Design Lab", desc: "Redesign tasks, roles, and time allocation job by job", color: "#10B981", phase: "design", views: ["org","job","custom"] },

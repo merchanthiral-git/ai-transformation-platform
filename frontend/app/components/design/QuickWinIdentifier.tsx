@@ -105,6 +105,6 @@ export function QuickWinIdentifier({ model, f, onBack, onNavigate, jobStates }: 
       </tbody></table></div>
     </Card>
 
-    {scored.length === 0 && !loading && <Empty text="Upload Work Design data to identify quick-win AI automation opportunities. The identifier scores every task by ROI and implementation effort." icon="⚡" />}
+    {scored.length === 0 && !loading && <Empty icon="⚡" text="Quick Wins Require AI Scan Data" subtitle="Run the AI Opportunity Scan first to identify high-impact, low-effort automation opportunities." action="Go to Diagnose" onAction={() => onNavigate?.("diagnose")} />}
   </div>;
 }

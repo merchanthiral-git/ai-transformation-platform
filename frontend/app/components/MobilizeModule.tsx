@@ -127,7 +127,7 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
       {hasFilters && <span className="text-[12px] text-[var(--text-muted)]">Showing {fmt(filtered.length)} of {fmt(allPathways.length)}</span>}
     </div>
 
-    {allPathways.length === 0 && !loading && <Card><Empty text="Upload workforce data to generate reskilling pathways" icon="📚" /></Card>}
+    {allPathways.length === 0 && !loading && <Card><Empty icon="📚" text="No Reskilling Pathways Generated" subtitle="Upload workforce data with skills and roles to generate personalized reskilling pathways for impacted employees." action="Go to Diagnose" onAction={() => onNavigate?.("diagnose")} /></Card>}
 
     {/* Two-panel layout */}
     {allPathways.length > 0 && <div className="flex gap-4" style={{ height: "calc(100vh - 380px)", minHeight: 500 }}>
@@ -354,7 +354,7 @@ export function TalentMarketplace({ model, f, onBack, onNavigate, viewCtx }: { m
         <button onClick={() => setShortlisted(prev => { const l = prev[m.target_role]||[]; return {...prev, [m.target_role]: isSl ? l.filter(e=>e!==c.employee) : [...l, c.employee]}; })} className="mt-1 text-[14px] font-semibold w-full py-1 rounded text-center" style={{background:isSl?"rgba(16,185,129,0.1)":"var(--surface-1)",color:isSl?"var(--success)":"var(--text-muted)",border:`1px solid ${isSl?"var(--success)":"var(--border)"}`}}>{isSl?"★ Shortlisted":"☆ Shortlist"}</button>
       </div>; })}</div>
     </Card>)}
-    {marketplace.length === 0 && !loading && <Card><Empty text="Complete Skills Adjacency Map to populate the marketplace" icon="🏪" /></Card>}
+    {marketplace.length === 0 && !loading && <Card><Empty icon="🏪" text="Talent Marketplace Not Yet Populated" subtitle="Complete the Skills Adjacency Map in the Design phase to populate the internal talent marketplace with role-matching candidates." action="Go to Design" onAction={() => onNavigate?.("design")} /></Card>}
 
     {/* Score Methodology */}
     <Card title="How Composite Scores Work">
@@ -664,7 +664,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
         </div>)}</div>
         <div className="flex gap-0">{waves.map(([name], i) => <div key={name} className="flex-1 h-2 first:rounded-l last:rounded-r" style={{ background: COLORS[i % COLORS.length] }} />)}</div>
         <div className="flex justify-between mt-1 text-[15px] text-[var(--text-muted)]"><span>Start</span><span>End</span></div>
-      </Card>}<div className="grid grid-cols-12 gap-4"><div className="col-span-7"><Card title="Change Plan"><DataTable data={((d?.roadmap ?? []) as Record<string, unknown>[])} /></Card></div><div className="col-span-5"><Card title="Priority"><DonutViz data={Object.entries(pd).map(([n, v]) => ({ name: n, value: v }))} /></Card><Card title="Waves"><BarViz data={Object.entries(wd).map(([n, v]) => ({ Wave: n, Count: v }))} labelKey="Wave" valueKey="Count" color="var(--warning)" /></Card></div></div></div>; })() : <div><Empty text="Build a roadmap using the AI button above, or go to the Risk Register tab to manage risks" icon="🚀" /></div>}
+      </Card>}<div className="grid grid-cols-12 gap-4"><div className="col-span-7"><Card title="Change Plan"><DataTable data={((d?.roadmap ?? []) as Record<string, unknown>[])} /></Card></div><div className="col-span-5"><Card title="Priority"><DonutViz data={Object.entries(pd).map(([n, v]) => ({ name: n, value: v }))} /></Card><Card title="Waves"><BarViz data={Object.entries(wd).map(([n, v]) => ({ Wave: n, Count: v }))} labelKey="Wave" valueKey="Count" color="var(--warning)" /></Card></div></div></div>; })() : <div><Empty icon="🚀" text="Change Roadmap Not Yet Generated" subtitle="Complete the Design and Simulate phases first. The roadmap sequences your transformation initiatives with realistic timelines." action="Go to Simulate" onAction={() => onNavigate?.("simulate")} /></div>}
     {/* ═══ INTERACTIVE GANTT CHART ═══ */}
     {sub === "gantt" && <div>
       <Card title={ganttEdited ? "Custom Transformation Roadmap" : "Transformation Gantt Chart"}>

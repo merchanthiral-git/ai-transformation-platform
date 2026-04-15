@@ -23,7 +23,7 @@ export function HeadcountPlanning({ model, f, onBack, onNavigate, jobStates, vie
     <PageHeader icon="👥" title="Headcount Planning" subtitle="Current to future workforce evolution" onBack={onBack} moduleId="headcount" />
     {model && <div className="flex justify-end mb-2"><ModuleExportButton model={model} module="headcount" label="Headcount Plan" /></div>}
     {loading && <LoadingBar />}
-    {!loading && Number(wf.starting_headcount || 0) === 0 && <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-2xl p-8 text-center"><div className="text-3xl mb-3 opacity-40">👥</div><h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">Upload Data for Headcount Planning</h3><p className="text-[15px] text-[var(--text-secondary)]">Complete BBBA to generate headcount waterfall.</p></div>}
+    {!loading && Number(wf.starting_headcount || 0) === 0 && <Empty icon="👥" text="Headcount Planning Requires Work Design Data" subtitle="Complete role redesign in the Work Design Lab to generate headcount projections." action="Go to Work Design Lab" onAction={() => onNavigate?.("design")} />}
     <div className="grid grid-cols-5 gap-3 mb-5">
       <KpiCard label="Current HC" value={Number(wf.starting_headcount || 0)} /><KpiCard label="Eliminations" value={Number(wf.eliminations || 0)} /><KpiCard label="New Hires" value={Number(wf.new_hires || 0)} accent /><KpiCard label="Target HC" value={Number(wf.target_headcount || 0)} accent /><KpiCard label="Net Change" value={`${Number(wf.net_change_pct || 0)}%`} />
     </div>

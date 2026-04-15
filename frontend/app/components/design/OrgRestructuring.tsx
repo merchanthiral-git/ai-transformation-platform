@@ -431,7 +431,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
   if (!wfData || wfData.length === 0) return (
     <div style={{ padding: 32 }}>
       <PageHeader icon="🔄" title="Org Restructuring" subtitle="Reshape your organization" onBack={onBack} />
-      <Empty icon="🔄" text="No Workforce Data — Upload workforce data with Manager IDs to use the Org Restructuring tool" />
+      <Empty icon="🔄" text="Org Restructuring Requires Workforce Data" subtitle="Upload workforce data with employee names, titles, and manager IDs to use the restructuring tool." action="Go to Overview" onAction={() => onNavigate?.("dashboard")} />
     </div>
   );
 

@@ -34,6 +34,8 @@ import {
   ExpandableChart,
   type ViewContext,
   type JobDesignState,
+  MethodologyTrigger,
+  ConfidenceBadge,
 } from "./shared";
 import { SkeletonKpiRow, SkeletonTable, SkeletonChart } from "./ui-primitives";
 import {
@@ -62,7 +64,7 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
     {sub === "ai" && (() => { const s = (data?.summary ?? { tasks_scored: 0, quick_wins: 0, total_time_impact: 0, avg_risk: 0 }) as AIPrioritySummary; const top10 = (data?.top10 ?? []) as Record<string, unknown>[]; const quickWins = top10.filter(t => String(t["AI Impact"] || t.ai_impact || "").toLowerCase() === "high" && (Number(t["Current Time Spent %"] || t.time_pct || 0) >= 10) && String(t["Logic"] || t.logic || "").toLowerCase() === "deterministic"); return <div><div className="grid grid-cols-4 gap-3 mb-5"><KpiCard label="Tasks Scored" value={s.tasks_scored ?? 0} /><KpiCard label="Quick Wins" value={quickWins.length || (s.quick_wins ?? 0)} accent /><KpiCard label="Time Impact" value={`${s.total_time_impact ?? 0}h/wk`} /><KpiCard label="Avg Risk" value={s.avg_risk ?? 0} /></div>
       {/* Quick Wins Panel */}
       {quickWins.length > 0 && <div className="bg-gradient-to-r from-[rgba(16,185,129,0.06)] to-transparent border border-[rgba(16,185,129,0.15)] rounded-xl p-5 mb-4">
-        <div className="flex items-center gap-2 mb-3"><span className="text-lg">⚡</span><span className="text-[14px] font-bold text-[var(--success)]">Quick Wins — Automate Now</span><Badge color="green">{quickWins.length} tasks</Badge></div>
+        <div className="flex items-center gap-2 mb-3"><span className="text-lg">⚡</span><span className="text-[14px] font-bold text-[var(--success)]">Quick Wins — Automate Now</span><Badge color="green">{quickWins.length} tasks</Badge><ConfidenceBadge score={Math.min(1, (s.tasks_scored || 0) / Math.max(quickWins.length * 3, 1))} dataPoints={s.tasks_scored || 0} /></div>
         <div className="text-[15px] text-[var(--text-secondary)] mb-3">These tasks are High AI Impact + Deterministic logic + ≥10% of work time. They can be automated with minimal risk and maximum ROI.</div>
         <div className="space-y-2">{quickWins.slice(0, 6).map((t, i) => {
           const taskName = String(t["Task Name"] || t.task || "");
@@ -1637,7 +1639,10 @@ export function OrgHealthScorecard({ model, f, onBack, onNavigate, viewCtx }: { 
     <div className="grid grid-cols-3 gap-4 mb-5">
       {metrics.map(m => <div key={m.id} onClick={() => setExpandedMetric(expandedMetric === m.id ? null : m.id)} className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl p-4 cursor-pointer card-hover hover:border-[var(--accent-primary)]/40 transition-all">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider">{m.label}</span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider">{m.label}</span>
+            <MethodologyTrigger methodologyId={m.id === "span" ? "span_of_control" : m.id === "ai_readiness" ? "ai_readiness" : m.id === "high_ai" ? "ai_impact" : "org_health"} />
+          </div>
           <div className="w-3 h-3 rounded-full" style={{ background: statusColor(m.status) }} />
         </div>
         <div className="text-[22px] font-extrabold font-data text-[var(--text-primary)] mb-1">{m.value}</div>

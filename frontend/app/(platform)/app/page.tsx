@@ -25,7 +25,7 @@ import {
   useKeyboardShortcuts, KeyboardShortcutsPanel, ShortcutDef,
   CommandPalette, CmdAction,
   AnnotationLayer, AnnotationPanel, Annotation,
-  AiCoPilot, StoryEngine,
+  AiCoPilot, StoryEngine, Breadcrumb,
 } from "../../components/shared";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -48,6 +48,7 @@ const AiOpportunityScan = dynamic(() => import("../../components/DiagnoseModule"
 const AIReadiness = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.AIReadiness })), { ssr: false, loading: ModuleLoadingSkeleton });
 const ManagerCapability = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.ManagerCapability })), { ssr: false, loading: ModuleLoadingSkeleton });
 const SkillsTalent = dynamic(() => import("../../components/SkillsEngine").then(m => ({ default: m.SkillsEngine })), { ssr: false, loading: ModuleLoadingSkeleton });
+const SkillsMapEngine = dynamic(() => import("../../components/design/SkillsMapEngine").then(m => ({ default: m.SkillsMapEngine })), { ssr: false, loading: ModuleLoadingSkeleton });
 const ChangeReadiness = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.ChangeReadiness })), { ssr: false, loading: ModuleLoadingSkeleton });
 const ManagerDevelopment = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.ManagerDevelopment })), { ssr: false, loading: ModuleLoadingSkeleton });
 const AiRecommendationsEngine = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.AiRecommendationsEngine })), { ssr: false, loading: ModuleLoadingSkeleton });
@@ -1792,6 +1793,17 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
           </div>
         </div>
       )}
+      {/* Breadcrumb navigation */}
+      {page !== "home" && !presentMode && (() => {
+        const mod = MODULES.find(m => m.id === page);
+        const phase = PHASES.find(p => p.modules?.some((mid: string) => mid === page));
+        const segments: { label: string; id?: string }[] = [{ label: "Home", id: "home" }];
+        if (phase) segments.push({ label: phase.label, id: phase.modules?.[0] || "" });
+        if (mod) segments.push({ label: mod.title });
+        if (job && viewCtx.mode === "job") segments.push({ label: job });
+        if (viewCtx.mode === "employee" && viewCtx.employee) segments.push({ label: viewCtx.employee });
+        return <div className="px-7 pt-3"><Breadcrumb segments={segments} onNavigate={navigate} /></div>;
+      })()}
       <AnnotationLayer annotations={annotations} moduleId={page} annotateMode={annotateMode} onAdd={a => setAnnotations(prev => [...prev, a])} onUpdate={a => setAnnotations(prev => prev.map(x => x.id === a.id ? a : x))} onDelete={id => setAnnotations(prev => prev.filter(x => x.id !== id))}>
       <AnimatePresence mode="popLayout">
       <motion.div key={page} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15, ease: "easeOut" }} style={{ minHeight: "calc(100vh - 48px)" }}>
@@ -1821,6 +1833,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       {page === "marketplace" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><TalentMarketplace model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "skillnet" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><SkillsNetwork model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "skills" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><SkillsTalent model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} jobStates={jobStates} /></ErrorBoundary>}
+      {page === "skillsmap" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><SkillsMapEngine model={model} f={f} onBack={goHome} onNavigate={navigate} /></ErrorBoundary>}
       {page === "design" && model && viewCtx.mode !== "employee" && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><WorkDesignLab model={model} f={f} job={viewCtx.mode === "job" ? viewCtx.job || job : job} jobs={jobs} onBack={goHome} jobStates={jobStates} setJobState={setJobState} onSelectJob={setJob} /></ErrorBoundary>}
       {page === "simulate" && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ImpactSimulator onBack={goHome} onNavigate={navigate} model={model} viewCtx={viewCtx} f={f} jobStates={jobStates} simState={simState} setSimState={setSimState} /></ErrorBoundary>}
       {page === "build" && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><OrgDesignStudio onBack={goHome} viewCtx={viewCtx} model={model} f={f} odsState={odsState} setOdsState={setOdsState} jobStates={jobStates} /></ErrorBoundary>}

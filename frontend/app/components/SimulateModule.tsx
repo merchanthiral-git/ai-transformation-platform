@@ -411,7 +411,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
   </div>;
 
   // Empty state when no data
-  if (!model) return <div className="px-7 py-6"><div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-2xl p-8 text-center"><div className="text-3xl mb-3 opacity-40">⚡</div><h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">Upload Data to Simulate</h3><p className="text-[15px] text-[var(--text-secondary)]">Upload workforce data and complete at least one job in the Work Design Lab to model transformation scenarios.</p></div></div>;
+  if (!model) return <div className="px-7 py-6"><Empty icon="⚡" text="No Scenarios Created Yet" subtitle="Run the Work Design Lab first to generate task-level data, then model transformation scenarios here." action="Go to Work Design Lab" onAction={() => onNavigate?.("design")} /></div>;
 
   return <div>
     <ContextStrip items={[realJobs ? `${realJobs.length} roles from Work Design Lab` : "Using demo data — complete Work Design Lab for real numbers", Object.values(jobStates).filter(s => s.finalized).length > 0 ? `${Object.values(jobStates).filter(s => s.finalized).length} jobs finalized` : ""].filter(Boolean)} />
@@ -1361,7 +1361,7 @@ function NegotiateTab({ projectId, model, savedScenarios, setSavedScenarios }: {
 
     {/* No data state */}
     {!model && <Card>
-      <Empty text="Upload workforce data to enable scenario negotiation" icon="📊" />
+      <Empty icon="📊" text="No Data for Scenario Negotiation" subtitle="Upload workforce data and complete the Work Design Lab to enable scenario negotiation." />
     </Card>}
   </div>;
 }

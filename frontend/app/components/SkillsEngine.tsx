@@ -312,7 +312,7 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
           )}
 
           {/* Skills table */}
-          {libraryLoading ? <LoadingSkeleton rows={8} /> : !filteredSkills.length ? <Empty text="No skills found. Adjust filters or use AI Suggest to infer skills." /> : (
+          {libraryLoading ? <LoadingSkeleton rows={8} /> : !filteredSkills.length ? <Empty icon="🧠" text="No Skills Found" subtitle="Adjust filters or use AI Suggest to infer skills from your workforce data." /> : (
             <div className="relative">
               <Card>
                 <div className="scroll-shadow rounded-lg border border-[var(--border)]">
@@ -416,7 +416,7 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
             </div>
           </Card>
 
-          {mappingsLoading ? <LoadingSkeleton rows={6} /> : !mappings.length ? <Empty text="No skill mappings found. Map skills to jobs in the Job Architecture module." /> : (
+          {mappingsLoading ? <LoadingSkeleton rows={6} /> : !mappings.length ? <Empty icon="🔗" text="No Skill Mappings Found" subtitle="Map skills to jobs in the Job Architecture module to see how skills distribute across roles." /> : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
               {mappings.slice(0, 20).map((m: Record<string, unknown>, i: number) => {
                 const items = (m.skills || m.jobs || []) as Record<string, unknown>[];
@@ -482,7 +482,7 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
           </Card>
 
           <Card title="Skill Proficiency Matrix">
-            {libraryLoading ? <LoadingSkeleton rows={6} /> : !skills.length ? <Empty text="No skills loaded." /> : (
+            {libraryLoading ? <LoadingSkeleton rows={6} /> : !skills.length ? <Empty icon="📊" text="No Proficiency Data Available" subtitle="Load skills via the Library tab and map them to jobs to see proficiency distributions." /> : (
               <div className="scroll-shadow rounded-lg border border-[var(--border)]">
                 <table className="w-full text-left" style={{ minWidth: 700 }}>
                   <thead><tr className="bg-[var(--surface-2)]">
@@ -541,7 +541,7 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
             </div>
           </Card>
 
-          {graphLoading ? <LoadingSkeleton rows={8} /> : !layoutGraph.nodes.length ? <Empty text="No graph data available. Add skills and mappings to build the network." /> : (
+          {graphLoading ? <LoadingSkeleton rows={8} /> : !layoutGraph.nodes.length ? <Empty icon="🕸️" text="Skills Graph Needs Data" subtitle="Add skills to the Library and create mappings to build the interactive skills network visualization." /> : (
             <div className="grid grid-cols-[1fr_260px] gap-3">
               {/* SVG Graph Canvas */}
               <Card>
@@ -676,7 +676,7 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
                             <span className="text-[15px] text-[var(--text-primary)]">{String(g.name || g.skill || "")}</span>
                             <Badge color="var(--risk)">Critical</Badge>
                           </div>
-                        )) : <Empty text="No critical gaps." />}
+                        )) : <Empty icon="✅" text="No Critical Gaps Detected" subtitle="Your workforce currently meets critical skill requirements. Re-analyze as roles evolve." />}
                       </Card>
                       <Card title="Moderate Gaps">
                         {moderate.length ? moderate.map((g, i) => (
@@ -684,7 +684,7 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
                             <span className="text-[15px] text-[var(--text-primary)]">{String(g.name || g.skill || "")}</span>
                             <Badge color="var(--warning)">Moderate</Badge>
                           </div>
-                        )) : <Empty text="No moderate gaps." />}
+                        )) : <Empty icon="📋" text="No Moderate Gaps Found" subtitle="Moderate skill gaps appear when there is a partial mismatch between supply and demand." />}
                       </Card>
                     </div>
                   </>
@@ -712,10 +712,10 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
                 return (
                   <div className="grid grid-cols-2 gap-3">
                     <Card title="Rising Skills">
-                      {rising.length ? <BarViz data={rising.map(s => ({ name: String(s.name || s.skill || ""), value: Number(s.growth || s.score || 0) }))} color="var(--success)" /> : <Empty text="No rising skills data." />}
+                      {rising.length ? <BarViz data={rising.map(s => ({ name: String(s.name || s.skill || ""), value: Number(s.growth || s.score || 0) }))} color="var(--success)" /> : <Empty icon="📈" text="No Rising Skills Data" subtitle="Demand forecasting requires workforce data with skill trends over time." />}
                     </Card>
                     <Card title="Declining Skills">
-                      {declining.length ? <BarViz data={declining.map(s => ({ name: String(s.name || s.skill || ""), value: Number(s.decline || s.score || 0) }))} color="var(--risk)" /> : <Empty text="No declining skills data." />}
+                      {declining.length ? <BarViz data={declining.map(s => ({ name: String(s.name || s.skill || ""), value: Number(s.decline || s.score || 0) }))} color="var(--risk)" /> : <Empty icon="📉" text="No Declining Skills Data" subtitle="Declining skills are identified by analyzing automation impact across task portfolios." />}
                     </Card>
                     {(atRisk.length > 0 || emerging.length > 0) && (
                       <>
@@ -729,14 +729,14 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
                                 </div>
                               ))}
                             </div>
-                          ) : <Empty text="No at-risk skills." />}
+                          ) : <Empty icon="⚠️" text="No At-Risk Skills Identified" subtitle="At-risk skills are flagged when automation probability exceeds skill demand growth." />}
                         </Card>
                         <Card title="Emerging Skills">
                           {emerging.length ? (
                             <div className="flex flex-wrap gap-2">
                               {emerging.map((s, i) => <Badge key={i} color="var(--success)">{String(s.name || s.skill || "")}</Badge>)}
                             </div>
-                          ) : <Empty text="No emerging skills data." />}
+                          ) : <Empty icon="🌱" text="No Emerging Skills Data" subtitle="Emerging skills are identified from industry trend analysis and AI capability mapping." />}
                         </Card>
                       </>
                     )}
@@ -749,7 +749,7 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
           {/* Adjacency */}
           {intelTab === "adjacency" && (
             <Card title="Skill Adjacency Analysis">
-              {libraryLoading ? <LoadingSkeleton rows={5} /> : !skills.length ? <Empty text="Load skills to see adjacency analysis." /> : (
+              {libraryLoading ? <LoadingSkeleton rows={5} /> : !skills.length ? <Empty icon="🔄" text="Adjacency Analysis Requires Skills" subtitle="Load skills via the Library tab to see which skills are transferable across roles." /> : (
                 <div className="space-y-3">
                   <p className="text-[15px] text-[var(--text-secondary)]">Employees with Skill X who are close to acquiring Skill Y based on shared foundations and transferability scores.</p>
                   <div className="scroll-shadow rounded-lg border border-[var(--border)]">
@@ -787,7 +787,7 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
               <Card title="Automation Risk vs. Strategic Importance">
                 {autoRiskLoading ? <LoadingSkeleton rows={6} /> : (() => {
                   const riskSkills = (autoRiskData?.skills as Record<string, unknown>[]) || [];
-                  if (!riskSkills.length) return <Empty text="No automation risk data available." />;
+                  if (!riskSkills.length) return <Empty icon="🤖" text="No Automation Risk Data" subtitle="Upload workforce data with task portfolios to assess which skills face the highest automation exposure." />;
                   const W = 700, H = 500, PAD = 60;
                   return (
                     <div>
@@ -871,7 +871,7 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
           </Card>
 
           <Card title="Event Log">
-            {eventsLoading ? <LoadingSkeleton rows={5} /> : !events.length ? <Empty text="No integration events recorded yet." /> : (
+            {eventsLoading ? <LoadingSkeleton rows={5} /> : !events.length ? <Empty icon="🔌" text="No Integration Events Recorded" subtitle="Integration events appear as skills data flows between modules — Job Architecture, Work Design, Reskilling, and more." /> : (
               <DataTable
                 data={events.map((e: Record<string, unknown>) => ({
                   Timestamp: String(e.timestamp || e.created_at || ""),
@@ -926,7 +926,7 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
                   </div>
                 ))}
               </div>
-            ) : <Empty text="No pending skill approvals. Use AI Suggest in the Library tab to generate candidates." />}
+            ) : <Empty icon="✅" text="No Pending Skill Approvals" subtitle="Use AI Suggest in the Library tab to generate skill candidates that will appear here for governance review." />}
           </Card>
 
           {/* Data quality dashboard */}

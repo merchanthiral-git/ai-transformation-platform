@@ -48,6 +48,11 @@ export function ExportReport({ model, f, onBack, onNavigate, jobStates, simState
   const wf = data?.headcount_waterfall ?? { net_change: 0 };
   const mgr = data?.manager_summary ?? { champions: 0 };
 
+  if (!model && !data) return <div>
+    <PageHeader icon="📋" title="Export & Report" subtitle="Consolidated transformation report generator" onBack={onBack} moduleId="export" />
+    <Empty icon="📋" text="No Data Available for Export" subtitle="Complete at least one analysis module (Diagnose, Design, or Simulate) to generate exportable deliverables." action="Go to Overview" onAction={() => onNavigate?.("dashboard")} />
+  </div>;
+
   return <div>
     <ContextStrip items={["Generate your board-ready transformation report. All module data is summarized below."]} />
     <PageHeader icon="📋" title="Export & Report" subtitle="Consolidated transformation report generator" onBack={onBack} moduleId="export" />

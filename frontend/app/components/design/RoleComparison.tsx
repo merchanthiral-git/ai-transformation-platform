@@ -95,6 +95,6 @@ export function RoleComparison({ model, f, onBack, jobs, jobStates }: { model: s
       })}
     </div>}
 
-    {selectedJobs.length === 0 && <Empty text="Select roles above to compare their current state, AI impact, and redesign outcomes side by side." icon="⚖️" />}
+    {selectedJobs.length === 0 && <Empty icon="⚖️" text="Select Roles to Compare" subtitle="Choose 2-4 roles from the Job Architecture to see a side-by-side comparison of levels, skills, and AI impact." />}
   </div>;
 }
