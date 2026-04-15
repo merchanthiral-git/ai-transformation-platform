@@ -59,7 +59,7 @@ export function OmBlock({ label, colorClass = "core", highlight, wide, note }: {
   </div>;
 }
 
-export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanvas, onModelChange }: { onBack: () => void; model?: string; f?: Filters; projectId?: string; onNavigateCanvas?: () => void; onModelChange?: (modelId: string) => void }) {
+export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanvas, onModelChange }: { onBack: () => void; model?: string; f?: Filters; projectId?: string; onNavigateCanvas?: () => void; onModelChange?: (modelId: string) => void }) {
   const [omData] = useApiData(() => model ? api.getOperatingModel(model, f || { func: "All", jf: "All", sf: "All", cl: "All" }) : Promise.resolve(null), [model]);
   const hasUploadedOM = omData && (omData as Record<string, unknown>).layers && Object.keys((omData as Record<string, unknown>).layers as object).length > 0;
   const [sandboxLoading, setSandboxLoading] = useState<string|null>(null);
@@ -573,21 +573,25 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
     } else { setOmSearchResults([]); }
   }, [debouncedOmSearch, omIndustries]);
   const fnD = OM_FUNCTIONS[fn]; const archD = OM_ARCHETYPES[arch];
-  // Governance: archetype base + governance tightness modifier
-  const govExtra = gov === "tight" ? ["Audit & Oversight Committee","Policy Enforcement"] : gov === "light" ? [] : ["Governance Coordination"];
-  const govLayer = [...archD.gov, ...govExtra];
-  // Operating model modifier on shared layer
-  const modelShared = opModel === "centralized" ? "Global Shared Services Center" : opModel === "decentralized" ? "Local Delivery Teams" : opModel === "federated" ? "Federated Centers of Expertise" : "Hub Center + Embedded Spokes";
-  // Core: function capabilities + archetype suffix
-  const coreLayer = fnD.core.map(c => archD.coreSuffix ? `${c}${archD.coreSuffix}` : c);
-  // Shared: blend function shared + archetype shared themes
-  const sharedLayer = [...(fnD.shared || []), modelShared, ...archD.sharedTheme.filter(s => !(fnD.shared || []).some(fs => fs.toLowerCase().includes(s.toLowerCase().split(" ")[0])))].slice(0, 6);
-  // Enabling: archetype-specific enabling (overrides function default)
-  const enableLayer = archD.enableTheme;
-  // Interface: archetype-specific interface
-  const interfaceLayer = archD.interfaceTheme;
-  const teams = [...coreLayer, ...sharedLayer, ...enableLayer, ...interfaceLayer];
-  const getAiTier = (t: string) => { const l = t.toLowerCase();
+  // Memoize derived layer computations — these build arrays every render
+  const { govLayer, coreLayer, sharedLayer, enableLayer, interfaceLayer, teams } = useMemo(() => {
+    // Governance: archetype base + governance tightness modifier
+    const govExtra = gov === "tight" ? ["Audit & Oversight Committee","Policy Enforcement"] : gov === "light" ? [] : ["Governance Coordination"];
+    const govLayer = [...archD.gov, ...govExtra];
+    // Operating model modifier on shared layer
+    const modelShared = opModel === "centralized" ? "Global Shared Services Center" : opModel === "decentralized" ? "Local Delivery Teams" : opModel === "federated" ? "Federated Centers of Expertise" : "Hub Center + Embedded Spokes";
+    // Core: function capabilities + archetype suffix
+    const coreLayer = fnD.core.map(c => archD.coreSuffix ? `${c}${archD.coreSuffix}` : c);
+    // Shared: blend function shared + archetype shared themes
+    const sharedLayer = [...(fnD.shared || []), modelShared, ...archD.sharedTheme.filter(s => !(fnD.shared || []).some(fs => fs.toLowerCase().includes(s.toLowerCase().split(" ")[0])))].slice(0, 6);
+    // Enabling: archetype-specific enabling (overrides function default)
+    const enableLayer = archD.enableTheme;
+    // Interface: archetype-specific interface
+    const interfaceLayer = archD.interfaceTheme;
+    const teams = [...coreLayer, ...sharedLayer, ...enableLayer, ...interfaceLayer];
+    return { govLayer, coreLayer, sharedLayer, enableLayer, interfaceLayer, teams };
+  }, [fn, arch, gov, opModel, fnD, archD]);
+  const getAiTier = useCallback((t: string) => { const l = t.toLowerCase();
     // Platform archetype pushes everything more toward AI
     const platformBoost = arch === "platform" ? 15 : arch === "network" ? 5 : 0;
     // Centralized model favors more automation
@@ -595,20 +599,23 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
     if (l.includes("analytics") || l.includes("data") || l.includes("reporting") || l.includes("qa") || l.includes("audit")) { const p = Math.min(70 + platformBoost + modelBoost, 95); return { tier: "AI-First" as const, color: "var(--purple)", pct: p }; }
     if (l.includes("ops") || l.includes("admin") || l.includes("procurement") || l.includes("processing") || l.includes("payable") || l.includes("receivable")) { const p = Math.min(45 + platformBoost + modelBoost, 85); return { tier: "AI-Augmented" as const, color: "var(--accent-primary)", pct: p }; }
     if (l.includes("strategy") || l.includes("leadership") || l.includes("relations") || l.includes("counsel") || l.includes("culture")) { const p = Math.max(15 + platformBoost + modelBoost, 5); return { tier: "Human-Led" as const, color: "var(--success)", pct: p }; }
-    const p = Math.min(35 + platformBoost + modelBoost, 80); return { tier: "Hybrid" as const, color: "#F97316", pct: p }; };
-  const getSM = (t: string) => { if (sharedLayer.some(s => s.toLowerCase().includes(t.toLowerCase().split(" ")[0]))) return "Shared"; return "Embedded"; };
-  const activeCoreLayer = aiBlueprint?.core || coreLayer.map(c => c.replace(archD.coreSuffix, ""));
-  const activeSharedLayer = aiBlueprint?.shared || sharedLayer;
-  const activeEnableLayer = aiBlueprint?.enabling || enableLayer;
-  const activeInterfaceLayer = aiBlueprint?.interface || interfaceLayer;
-  const activeGovLayer = aiBlueprint?.governance || govLayer;
-  const allCaps = [...activeGovLayer.map(g => ({name:g,layer:"Governance"})), ...activeCoreLayer.map(c => ({name:c,layer:"Core"})), ...activeSharedLayer.map(s => ({name:s,layer:"Shared"})), ...activeEnableLayer.map(e => ({name:e,layer:"Enabling"})), ...activeInterfaceLayer.map(i => ({name:i,layer:"Interface"}))];
-  const layerColors: Record<string,string> = { Governance: "var(--risk)", Core: "var(--accent-primary)", Shared: "var(--success)", Enabling: "var(--purple)", Interface: "var(--warning)" };
-  // Capability names for strategy mapping
-  const stratCapabilities = [...activeCoreLayer.map(c => c.replace(archD.coreSuffix, "")), ...activeSharedLayer, ...activeEnableLayer];
+    const p = Math.min(35 + platformBoost + modelBoost, 80); return { tier: "Hybrid" as const, color: "#F97316", pct: p }; }, [arch, opModel]);
+  const getSM = useCallback((t: string) => { if (sharedLayer.some(s => s.toLowerCase().includes(t.toLowerCase().split(" ")[0]))) return "Shared"; return "Embedded"; }, [sharedLayer]);
+  const { activeCoreLayer, activeSharedLayer, activeEnableLayer, activeInterfaceLayer, activeGovLayer, allCaps, stratCapabilities } = useMemo(() => {
+    const activeCoreLayer = aiBlueprint?.core || coreLayer.map(c => c.replace(archD.coreSuffix, ""));
+    const activeSharedLayer = aiBlueprint?.shared || sharedLayer;
+    const activeEnableLayer = aiBlueprint?.enabling || enableLayer;
+    const activeInterfaceLayer = aiBlueprint?.interface || interfaceLayer;
+    const activeGovLayer = aiBlueprint?.governance || govLayer;
+    const allCaps = [...activeGovLayer.map(g => ({name:g,layer:"Governance"})), ...activeCoreLayer.map(c => ({name:c,layer:"Core"})), ...activeSharedLayer.map(s => ({name:s,layer:"Shared"})), ...activeEnableLayer.map(e => ({name:e,layer:"Enabling"})), ...activeInterfaceLayer.map(i => ({name:i,layer:"Interface"}))];
+    // Capability names for strategy mapping
+    const stratCapabilities = [...activeCoreLayer.map(c => c.replace(archD.coreSuffix, "")), ...activeSharedLayer, ...activeEnableLayer];
+    return { activeCoreLayer, activeSharedLayer, activeEnableLayer, activeInterfaceLayer, activeGovLayer, allCaps, stratCapabilities };
+  }, [aiBlueprint, coreLayer, sharedLayer, enableLayer, interfaceLayer, govLayer, archD.coreSuffix]);
+  const layerColors: Record<string,string> = useMemo(() => ({ Governance: "var(--risk)", Core: "var(--accent-primary)", Shared: "var(--success)", Enabling: "var(--purple)", Interface: "var(--warning)" }), []);
 
   // ── Step navigator structure ──
-  const OM_PHASES = [
+  const OM_PHASES = useMemo(() => [
     { id: "1", label: "Strategic Intent", icon: "🎯", color: "var(--accent-primary)", steps: [
       { id: "1.1", label: "Strategic Priorities", desc: "Vision, priorities & design principles" },
       { id: "1.2", label: "Business Model & Value Chain", desc: "How you create and capture value" },
@@ -631,10 +638,10 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
       { id: "4.3", label: "Transition Plan", desc: "Waves, dependencies & sign-off" },
       { id: "4.4", label: "Model Governance", desc: "Ownership, reviews & versioning" },
     ]},
-  ];
+  ], []);
 
   // Step completion logic
-  const stepComplete = (id: string): boolean => {
+  const stepComplete = useCallback((id: string): boolean => {
     switch (id) {
       case "1.1": return stratPriorities.length >= 1 && Object.values(stratDesignPrinciples).some(v => v.value !== 50);
       case "1.2": return Object.values(stratBizModel).some(arr => arr.length > 0);
@@ -652,8 +659,8 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
       case "4.4": return mgovOwners.some(o => o.name.length > 0);
       default: return false;
     }
-  };
-  const stepInProgress = (id: string): boolean => {
+  }, [stratPriorities, stratDesignPrinciples, stratBizModel, maturityScores, svcDeliveryMap, procProcesses, techSystems, govDecisions, govRapid, arch, opModel, cultureCurrent, changeLoad, finCosts, perfKpis, transChanges, mgovOwners]);
+  const stepInProgress = useCallback((id: string): boolean => {
     if (stepComplete(id)) return false;
     switch (id) {
       case "1.1": return stratPriorities.length > 0 || stratVision.length > 0;
@@ -668,10 +675,13 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
       case "4.3": return transChanges.length > 0;
       default: return false;
     }
-  };
-  const completedSteps = OM_PHASES.flatMap(p => p.steps).filter(s => stepComplete(s.id)).length;
-  const totalSteps = OM_PHASES.flatMap(p => p.steps).length;
-  const completionPct = Math.round((completedSteps / totalSteps) * 100);
+  }, [stepComplete, stratPriorities, stratVision, stratBizModel, maturityScores, targetScores, svcDeliveryMap, procProcesses, techSystems, govDecisions, cultureCurrent, cultureTarget, perfKpis, transChanges]);
+  const { completedSteps, totalSteps, completionPct } = useMemo(() => {
+    const completedSteps = OM_PHASES.flatMap(p => p.steps).filter(s => stepComplete(s.id)).length;
+    const totalSteps = OM_PHASES.flatMap(p => p.steps).length;
+    const completionPct = Math.round((completedSteps / totalSteps) * 100);
+    return { completedSteps, totalSteps, completionPct };
+  }, [OM_PHASES, stepComplete]);
 
   return <div>
     <PageHeader icon="🧬" title="Operating Model Lab" subtitle="Build a complete Target Operating Model — guided step by step" onBack={onBack} moduleId="opmodel" />
@@ -3943,4 +3953,4 @@ export function OperatingModelLab({ onBack, model, f, projectId, onNavigateCanva
     </div>{/* end flex layout */}
   </div>;
 
-}
+});

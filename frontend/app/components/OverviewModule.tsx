@@ -104,7 +104,7 @@ export function TransformationDashboard({ data, jobStates, simState, viewCtx }: 
         </div>;
       })}
     </div>
-    <div className="grid grid-cols-6 gap-2">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
       {kpis.map(k => <div key={k.label} className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl px-3 py-3 text-center">
         <div className="text-[16px] mb-1">{k.icon}</div>
         <div className="text-[18px] font-extrabold" style={{ color: k.color }}>{typeof k.value === "object" && k.value !== null ? String(k.value) : k.value}</div>
@@ -511,7 +511,7 @@ export function TransformationExecDashboard({ model, f, onBack, onNavigate, deci
     </div>
 
     {/* Cross-module transformation progress — computed from live state */}
-    {transformationSummary && (transformationSummary.designedJobCount > 0 || transformationSummary.decisionCount > 0) && <div className="grid grid-cols-6 gap-3 mb-6">
+    {transformationSummary && (transformationSummary.designedJobCount > 0 || transformationSummary.decisionCount > 0) && <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
       {[
         { label: "Jobs Designed", value: `${transformationSummary.designedJobCount}/${transformationSummary.totalJobCount}`, color: "var(--success)" },
         { label: "Tasks Analyzed", value: String(transformationSummary.totalTasks), color: "var(--accent-primary)" },
@@ -564,7 +564,7 @@ export function TransformationExecDashboard({ model, f, onBack, onNavigate, deci
 
     {/* Quick navigation to modules */}
     <Card title="Deep Dive Into Any Module">
-      <div className="grid grid-cols-6 gap-2">{[
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">{[
         { id: "snapshot", icon: "📊", label: "Snapshot" },
         { id: "skills", icon: "🧠", label: "Skills" },
         { id: "design", icon: "✏️", label: "Work Design" },
@@ -901,7 +901,7 @@ export function WorkforceSnapshot({ model, f, onBack, onNavigate, viewCtx }: { m
   // Job view: show job profile
   if (viewCtx?.mode === "job" && viewCtx.job) return <div>
     <PageHeader icon="💼" title={viewCtx.job} subtitle="Job Profile & Analysis" onBack={onBack} moduleId="snapshot" />
-    <div className="grid grid-cols-6 gap-3 mb-5">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-5">
       <KpiCard label="Incumbents" value={k.employees as number ?? 0} accent /><KpiCard label="AI Impact" value={`${k.high_ai_pct ?? 0}%`} accent /><KpiCard label="Tasks" value={k.tasks_mapped as number ?? 0} /><KpiCard label="Function" value={String(fd[0]?.name ?? "—")} /><KpiCard label="Readiness" value={`${k.readiness_score ?? 0}/100`} /><KpiCard label="Roles" value={k.roles as number ?? 0} />
     </div>
     <Card title="AI Impact Distribution">{ad.length ? <DonutViz data={ad.map(d => ({ name: String(d.name), value: Number(d.value) }))} /> : <Empty text="Complete Work Design to see AI impact" icon="🤖" />}</Card>
@@ -951,7 +951,7 @@ export function WorkforceSnapshot({ model, f, onBack, onNavigate, viewCtx }: { m
         <a href="/api/template/snapshot" download className="px-4 py-2 rounded-lg text-[15px] font-semibold border border-[var(--accent-primary)] text-[var(--accent-primary)]">⬇ Download Template</a>
       </div>
     </div>}
-    <div className="grid grid-cols-6 gap-3 mb-5">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-5">
       <KpiCard label="Employees" value={Number(k.employees) || 0} accent /><KpiCard label="Roles" value={Number(k.roles) || 0} /><KpiCard label="Tasks" value={Number(k.tasks_mapped ?? k.tasks) || 0} /><KpiCard label="Avg Span" value={Number(k.avg_span) || 0} /><KpiCard label="High AI %" value={`${k.high_ai_pct ?? 0}%`} accent /><KpiCard label="Readiness" value={`${k.readiness_score ?? 0}/100`} delta={String(k.readiness_tier ?? "")} />
     </div>
     {/* Upload Intelligence Panel — auto-generated insights */}

@@ -5,10 +5,28 @@ import uuid
 from io import BytesIO, StringIO
 from collections import defaultdict
 
+from functools import lru_cache
+import hashlib
+
 from app.schemas_definitions import SCHEMAS, DATASET_HINTS, COMMON_ALIASES
 from app.helpers import (normalize_column_names, dedupe_columns, apply_aliases,
                            get_series, ensure_model_id, apply_filters, empty_bundle,
                            safe_value_counts, build_filter_dimension_source)
+
+_build_cache: dict[str, tuple[float, object]] = {}
+_CACHE_TTL = 30  # seconds
+
+def _cached_build(key: str, builder, *args):
+    """Cache expensive build operations for 30 seconds."""
+    import time
+    now = time.time()
+    if key in _build_cache:
+        ts, result = _build_cache[key]
+        if now - ts < _CACHE_TTL:
+            return result
+    result = builder(*args)
+    _build_cache[key] = (now, result)
+    return result
 
 
 class DataStore:
@@ -487,12 +505,12 @@ class DataStore:
             return {k: pd.DataFrame() for k in SCHEMAS}
         bundle = self.get_bundle(model_id)
         wf_raw = bundle["workforce"].copy()
-        jc_raw = self.build_internal_job_catalog(model_id)
+        jc_raw = _cached_build(f"job_catalog:{model_id}", self.build_internal_job_catalog, model_id)
         mk_raw = bundle["market_data"].copy()
         op_raw = bundle["operating_model"].copy()
         wd_raw = bundle["work_design"].copy()
         ch_raw = bundle["change_management"].copy()
-        org_raw = self.build_org_source(model_id).copy()
+        org_raw = _cached_build(f"org_source:{model_id}", self.build_org_source, model_id)
 
         if wd_raw.empty:
             wd_raw = _build_fallback_work_design(model_id, wf_raw, jc_raw)
@@ -657,7 +675,7 @@ def enrich_work_design_defaults(df, scenario="Balanced"):
     rmap = scenario_map.get(scenario, scenario_map["Balanced"])
     zero = pd.to_numeric(get_series(t, "Time Saved %"), errors="coerce").fillna(0).eq(0)
     if zero.any():
-        t.loc[zero, "Time Saved %"] = t.loc[zero, "AI Impact"].apply(lambda x: float(rmap.get(str(x).strip(), 10)))
+        t.loc[zero, "Time Saved %"] = t.loc[zero, "AI Impact"].astype(str).str.strip().map(rmap).fillna(10).astype(float)
         t["Time Saved %"] = t[["Time Saved %", "Current Time Spent %"]].min(axis=1)
     return t
 
@@ -1065,7 +1083,7 @@ def build_transformation_recommendations(job_df, reconstruction_df, redeployment
 
     # Workstream priority
     rollup = build_reconstruction_rollup(reconstruction_df)
-    if not rollup.empty:
+    if not rollup.empty and len(rollup) > 0:
         top = rollup.iloc[0]
         recs.append(f"Prioritize the {top['Workstream']} workstream first — it releases the most capacity at {top['Released %']}%.")
 
@@ -1087,7 +1105,7 @@ def build_transformation_recommendations(job_df, reconstruction_df, redeployment
 
     # Skill protection
     curr_skills, _ = build_skill_analysis(job_df)
-    if not curr_skills.empty:
+    if not curr_skills.empty and len(curr_skills) > 0:
         top_skill = curr_skills.iloc[0]["Skill"]
         recs.append(f"Protect and deepen {top_skill} as a core capability while shifting lower-value effort out of the role.")
 
@@ -1389,7 +1407,7 @@ def build_operating_model_analysis(data):
         dominant = "shared services" if shared >= embedded else "embedded teams"
         insights.append(f"Current structure leans toward {dominant} ({shared} shared vs {embedded} embedded HC).")
         scopes = structure_df.groupby("Scope", as_index=False)["HC"].sum().sort_values("HC", ascending=False)
-        if not scopes.empty:
+        if not scopes.empty and len(scopes) > 0:
             insights.append(f"{scopes.iloc[0]['Scope']} scope has the greatest footprint.")
     lagging = [r["Pillar"] for r in maturity_rows if r["Current"] <= 2]
     if lagging:
@@ -1486,7 +1504,7 @@ def build_compensation_analysis(data):
             mk_match = mk[get_series(mk, "Survey Job Title").astype(str).str.strip() == title]
             if mk_match.empty:
                 mk_match = mk[get_series(mk, "Job Match Key").astype(str).str.contains(title, case=False, na=False)]
-            if mk_match.empty:
+            if mk_match.empty or len(mk_match) == 0:
                 continue
 
             row = mk_match.iloc[0]

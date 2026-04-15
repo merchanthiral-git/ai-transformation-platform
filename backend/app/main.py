@@ -160,6 +160,10 @@ app.include_router(nlq_router)
 from app.routes_flight_recorder import router as flight_recorder_router
 app.include_router(flight_recorder_router)
 
+# Decision persistence
+from app.routes_decisions import router as decisions_router
+app.include_router(decisions_router)
+
 # Platform Concierge
 try:
     from app.routes_concierge import router as concierge_router

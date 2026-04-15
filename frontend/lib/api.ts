@@ -55,7 +55,12 @@ export function apiFetch(url: string, init?: RequestInit): Promise<Response> {
   });
 }
 
+/** Tracks whether the last fetchJSON call was an error — exposed to useApiData */
+let _lastFetchError: { path: string; status: number; message: string } | null = null;
+export function getLastFetchError() { return _lastFetchError; }
+
 async function fetchJSON<T>(path: string, fallback: T, options?: RequestInit): Promise<T> {
+  _lastFetchError = null;
   try {
     const res = await fetch(path, {
       ...options,
@@ -65,11 +70,11 @@ async function fetchJSON<T>(path: string, fallback: T, options?: RequestInit): P
       },
     });
     if (res.status === 401) {
-      // Token expired or invalid — clear token, let app detect and show login
       localStorage.removeItem("auth_token");
       localStorage.removeItem("auth_user");
       console.warn("[API] Session expired — token cleared");
       if (_apiToast) _apiToast("Your session has expired — please sign in again");
+      _lastFetchError = { path, status: 401, message: "Session expired" };
       return fallback;
     }
     if (!res.ok) {
@@ -85,6 +90,7 @@ async function fetchJSON<T>(path: string, fallback: T, options?: RequestInit): P
           : `Couldn't complete this request — ${msg.slice(0, 80)}`;
         _apiToast(friendly);
       }
+      _lastFetchError = { path, status: res.status, message: msg };
       return fallback;
     }
     const json = await res.json();
@@ -94,6 +100,7 @@ async function fetchJSON<T>(path: string, fallback: T, options?: RequestInit): P
     if (_apiToast) {
       _apiToast("Can't reach the server — check that the backend is running and try again");
     }
+    _lastFetchError = { path, status: 0, message: String(err) };
     return fallback;
   }
 }
@@ -307,6 +314,14 @@ export async function saveOMConfig(config: Record<string, unknown>): Promise<OMC
 export async function getReadiness(modelId: string, f: Filters): Promise<ReadinessResponse> {
   return fetchJSON<ReadinessResponse>(`/api/simulate/readiness?model_id=${encodeURIComponent(modelId)}&${filterParams(f)}`, {
     score: 0, total: 0, tier: "", dimensions: {}, dims: {},
+  });
+}
+
+export function simulateCustom(modelId: string, params: { adoption_rate: number; timeline_months: number; investment: number }) {
+  return fetchJSON<Record<string, unknown>>(`/api/simulate/custom?model_id=${encodeURIComponent(modelId)}`, null, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(params),
   });
 }
 
@@ -697,4 +712,18 @@ export async function getConciergeProgress(projectId: string): Promise<Record<st
 }
 export async function updateToolProgress(projectId: string, toolId: string, status: string): Promise<Record<string, unknown>> {
   return fetchJSON<Record<string, unknown>>(`/api/concierge/progress/${projectId}/tool/${toolId}`, {}, { method: "PUT", headers: { "Content-Type": "application/json", ...getAuthHeaders() }, body: JSON.stringify({ status }) });
+}
+
+// ─── Decision Persistence ──────────────────────────────
+export function logDecisionToBackend(modelId: string, module: string, action: string, detail: string, metadata: Record<string, unknown> = {}) {
+  return fetchJSON(`/api/decisions/${encodeURIComponent(modelId)}`, {}, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ module, action, detail, metadata }) });
+}
+export function getDecisions(modelId: string) {
+  return fetchJSON(`/api/decisions/${encodeURIComponent(modelId)}`, { decisions: [] });
+}
+export function lockScenario(modelId: string, scenarioName: string, scenarioData: Record<string, unknown>) {
+  return fetchJSON(`/api/decisions/${encodeURIComponent(modelId)}/scenario`, {}, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ scenario_name: scenarioName, scenario_data: scenarioData }) });
+}
+export function getLockedScenario(modelId: string) {
+  return fetchJSON(`/api/decisions/${encodeURIComponent(modelId)}/scenario`, null);
 }

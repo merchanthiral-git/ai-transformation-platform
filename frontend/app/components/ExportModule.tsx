@@ -16,30 +16,32 @@ export function ExportReport({ model, f, onBack, onNavigate, jobStates, simState
   const [data, setData] = useState<ExportSummaryResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [genStatus, setGenStatus] = useState("");
   const [generated, setGenerated] = useState(false);
 
   const [error, setError] = useState(false);
   useEffect(() => { if (!model) return; setLoading(true); setError(false); api.getExportSummary(model, f).then(d => { setData(d); setLoading(false); }).catch(() => { setLoading(false); setError(true); }); }, [model, f.func, f.jf, f.sf, f.cl]);
 
   const generateDocx = async () => {
-    setGenerating(true);
+    setGenerating(true); setGenStatus("Preparing Word document...");
     try {
       const resp = await api.apiFetch(`/api/export/docx/${model}`);
-      if (resp.ok) { const blob = await resp.blob(); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `AI_Transformation_Report.docx`; a.click(); URL.revokeObjectURL(url); setGenerated(true); showToast("📋 Word document downloaded"); }
+      if (resp.ok) { setGenStatus("Downloading..."); const blob = await resp.blob(); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `AI_Transformation_Report.docx`; a.click(); URL.revokeObjectURL(url); setGenerated(true); showToast("Word document downloaded successfully"); }
       else { showToast("Couldn't export — check that the backend is running"); }
     } catch { showToast("The export service isn't responding — try again shortly"); }
-    setGenerating(false);
+    setGenerating(false); setGenStatus("");
   };
   const generateAiNarrative = async () => {
-    setGenerating(true);
+    setGenerating(true); setGenStatus("Analyzing data and generating AI narrative...");
     const ctx = JSON.stringify(data).slice(0, 3000);
     const designCtx = jobStates ? Object.entries(jobStates).filter(([,s]) => s.deconSubmitted).map(([role, s]) => `${role}: ${s.redeployRows?.length || 0} tasks redesigned`).join(", ") : "";
     const scenarioCtx = simState ? `Active scenario: ${simState.scenario}${simState.custom ? ` (${simState.custAdopt}% adoption)` : ""}` : "";
     const riskCtx = riskRegister ? `${riskRegister.filter(r => r.status === "Open").length} open risks` : "";
     const extraCtx = [designCtx, scenarioCtx, riskCtx].filter(Boolean).join(". ");
+    setGenStatus("Writing 12-section board report — this may take 30-60 seconds...");
     const report = await callAI("Write a board-ready AI Transformation Report.", `Generate from: ${ctx}. Additional context: ${extraCtx}. 12 sections: Exec Summary, Discovery, Skills, BBBA, Headcount, Readiness, Managers, Change, Reskilling, Investment, Risks, Next Steps.`);
-    if (report) { const blob = new Blob([report], { type: "text/plain" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "AI_Narrative_Report.txt"; a.click(); URL.revokeObjectURL(url); showToast("☕ AI narrative downloaded"); }
-    setGenerating(false);
+    if (report) { setGenStatus("Formatting report..."); const blob = new Blob([report], { type: "text/plain" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "AI_Narrative_Report.txt"; a.click(); URL.revokeObjectURL(url); showToast("AI narrative report downloaded successfully"); }
+    setGenerating(false); setGenStatus("");
   };
 
   const bbba = data?.bbba_summary ?? { build: 0, buy: 0, total_investment: 0 };
@@ -57,6 +59,11 @@ export function ExportReport({ model, f, onBack, onNavigate, jobStates, simState
     <ContextStrip items={["Generate your board-ready transformation report. All module data is summarized below."]} />
     <PageHeader icon="📋" title="Export & Report" subtitle="Consolidated transformation report generator" onBack={onBack} moduleId="export" />
     {loading && <LoadingBar />}
+    {generating && genStatus && <div className="bg-[var(--surface-2)] rounded-xl p-4 mb-4 border border-[var(--accent-primary)]/20 flex items-center gap-3">
+      <div className="w-5 h-5 border-2 border-[var(--accent-primary)] border-t-transparent rounded-full animate-spin shrink-0" />
+      <div className="flex-1 text-[15px] text-[var(--text-secondary)]">{genStatus}</div>
+      <button onClick={() => { setGenerating(false); setGenStatus(""); }} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--risk)]">Cancel</button>
+    </div>}
     {error && <div className="bg-[var(--surface-2)] rounded-xl p-4 mb-4 border border-[var(--risk)]/20 flex items-center gap-3">
       <span className="text-lg">⚠️</span>
       <div className="flex-1"><div className="text-[15px] font-semibold text-[var(--risk)]">Backend unavailable</div><div className="text-[15px] text-[var(--text-muted)]">Export data could not be loaded. Downloads still work if the backend comes back online.</div></div>
@@ -120,7 +127,7 @@ export function ExportReport({ model, f, onBack, onNavigate, jobStates, simState
           <div className="text-3xl mb-2">📝</div>
           <div className="text-[15px] font-bold text-[var(--text-primary)] font-heading mb-1">Word Report</div>
           <div className="text-[15px] text-[var(--text-muted)] mb-3">12-section narrative with data tables</div>
-          <button onClick={generateDocx} disabled={generating} className="px-5 py-2 rounded-xl text-[15px] font-semibold text-white disabled:opacity-50" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>{generating ? "..." : "Download .docx"}</button>
+          <button onClick={generateDocx} disabled={generating} className="px-5 py-2 rounded-xl text-[15px] font-semibold text-white disabled:opacity-50" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>{generating ? "Generating..." : "Download .docx"}</button>
         </div>
 
         {/* AI Narrative */}
@@ -128,7 +135,7 @@ export function ExportReport({ model, f, onBack, onNavigate, jobStates, simState
           <div className="text-3xl mb-2">☕</div>
           <div className="text-[15px] font-bold text-[var(--text-primary)] font-heading mb-1">AI Narrative</div>
           <div className="text-[15px] text-[var(--text-muted)] mb-3">Claude-generated board-ready narrative</div>
-          <button onClick={generateAiNarrative} disabled={generating} className="px-5 py-2 rounded-xl text-[15px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 hover:bg-[var(--accent-primary)]/5">{generating ? "..." : "Generate .txt"}</button>
+          <button onClick={generateAiNarrative} disabled={generating} className="px-5 py-2 rounded-xl text-[15px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 hover:bg-[var(--accent-primary)]/5">{generating ? "Writing..." : "Generate .txt"}</button>
         </div>
 
         {/* Excel Workbook */}
@@ -162,7 +169,7 @@ export function ExportReport({ model, f, onBack, onNavigate, jobStates, simState
               else showToast("Couldn't generate the PowerPoint — try again");
             } catch { showToast("The export service isn't responding — try again shortly"); }
             setGenerating(false);
-          }} disabled={generating} className="px-4 py-2 rounded-xl text-[15px] font-semibold text-white shrink-0 disabled:opacity-50" style={{ background: "linear-gradient(135deg, var(--amber), var(--teal))" }}>{generating ? "..." : "Download .pptx"}</button>
+          }} disabled={generating} className="px-4 py-2 rounded-xl text-[15px] font-semibold text-white shrink-0 disabled:opacity-50" style={{ background: "linear-gradient(135deg, var(--amber), var(--teal))" }}>{generating ? "Generating..." : "Download .pptx"}</button>
         </div>
 
         {/* PDF Executive Summary */}
@@ -180,7 +187,7 @@ export function ExportReport({ model, f, onBack, onNavigate, jobStates, simState
               else showToast("Couldn't generate the PDF — try again");
             } catch { showToast("The export service isn't responding — try again shortly"); }
             setGenerating(false);
-          }} disabled={generating} className="px-4 py-2 rounded-xl text-[15px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 hover:bg-[var(--accent-primary)]/5 shrink-0 disabled:opacity-50">{generating ? "..." : "Download .pdf"}</button>
+          }} disabled={generating} className="px-4 py-2 rounded-xl text-[15px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 hover:bg-[var(--accent-primary)]/5 shrink-0 disabled:opacity-50">{generating ? "Generating..." : "Download .pdf"}</button>
         </div>
       </div>
     </Card>

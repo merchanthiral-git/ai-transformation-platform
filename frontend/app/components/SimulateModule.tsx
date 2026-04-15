@@ -261,6 +261,10 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
   const [pulseLog, setPulseLog] = usePersisted<{ date: string; person: string; sentiment: number; concern: string }[]>(`${model}_pulse_log`, []);
   const [scenarioName, setScenarioName] = useState("");
 
+  // Custom sensitivity analysis state
+  const [custResult, setCustResult] = useState<Record<string, unknown> | null>(null);
+  const [custLoading, setCustLoading] = useState(false);
+
   // Use persisted state
   const scenario = simState.scenario;
   const custom = simState.custom;
@@ -426,14 +430,78 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
         <button onClick={() => update({ custom: true })} className="px-4 py-2 rounded-lg text-[15px] font-semibold transition-all" style={{ border: custom ? "2px solid var(--amber)" : "1px solid var(--border)", background: custom ? "rgba(217,119,6,0.08)" : "transparent", color: custom ? "var(--amber)" : "var(--text-muted)" }}>+ Custom</button>
       </div>
 
-      {/* Custom builder */}
-      {custom && <div className="bg-[var(--surface-1)] border border-[var(--teal)] rounded-xl p-5 mb-4">
-        <h3 className="text-[15px] font-bold font-heading mb-3 text-[var(--teal)]">Custom Scenario Builder</h3>
-        <div className="grid grid-cols-3 gap-6">
-          <div><div className="flex justify-between mb-1"><span className="text-[15px]">Adoption</span><span className="text-[15px] font-bold text-[var(--teal)]">{custAdopt}%</span></div><input type="range" min={10} max={100} value={custAdopt} onChange={e => update({ custAdopt: +e.target.value })} className="w-full" /></div>
-          <div><div className="flex justify-between mb-1"><span className="text-[15px]">Timeline</span><span className="text-[15px] font-bold text-[var(--teal)]">{custTimeline}mo</span></div><input type="range" min={3} max={24} value={custTimeline} onChange={e => update({ custTimeline: +e.target.value })} className="w-full" /></div>
-          <div><div className="flex justify-between mb-1"><span className="text-[15px]">Per-Role Investment</span><span className="text-[15px] font-bold text-[var(--teal)]">${investment.toLocaleString()}</span></div><input type="range" min={10000} max={200000} step={5000} value={investment} onChange={e => update({ investment: +e.target.value })} className="w-full" /></div>
+      {/* Custom Scenario Builder with Sensitivity Analysis */}
+      {custom && <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)] rounded-xl p-5 mb-4" style={{ boxShadow: "0 0 0 1px rgba(212,134,10,0.15)" }}>
+        <h3 className="text-[16px] font-bold font-heading mb-4 text-[var(--accent-primary)]">Custom Scenario Builder</h3>
+        <div className="grid grid-cols-3 gap-6 mb-4">
+          <div>
+            <div className="flex justify-between mb-1"><span className="text-[14px] text-[var(--text-secondary)]">Adoption Rate</span><span className="text-[15px] font-bold text-[var(--accent-primary)]">{custAdopt}%</span></div>
+            <input type="range" min={0} max={100} value={custAdopt} onChange={e => update({ custAdopt: +e.target.value })} className="w-full accent-[var(--accent-primary)]" style={{ accentColor: "var(--accent-primary)" }} />
+            <div className="flex justify-between text-[11px] text-[var(--text-muted)] mt-0.5"><span>0%</span><span>50%</span><span>100%</span></div>
+          </div>
+          <div>
+            <div className="flex justify-between mb-1"><span className="text-[14px] text-[var(--text-secondary)]">Timeline</span><span className="text-[15px] font-bold text-[var(--accent-primary)]">{custTimeline} months</span></div>
+            <input type="range" min={6} max={36} value={custTimeline} onChange={e => update({ custTimeline: +e.target.value })} className="w-full" style={{ accentColor: "var(--accent-primary)" }} />
+            <div className="flex justify-between text-[11px] text-[var(--text-muted)] mt-0.5"><span>6mo</span><span>18mo</span><span>36mo</span></div>
+          </div>
+          <div>
+            <div className="flex justify-between mb-1"><span className="text-[14px] text-[var(--text-secondary)]">Total Investment</span><span className="text-[15px] font-bold text-[var(--accent-primary)]">${(investment).toLocaleString()}</span></div>
+            <input type="range" min={100000} max={5000000} step={50000} value={investment} onChange={e => update({ investment: +e.target.value })} className="w-full" style={{ accentColor: "var(--accent-primary)" }} />
+            <div className="flex justify-between text-[11px] text-[var(--text-muted)] mt-0.5"><span>$100K</span><span>$2.5M</span><span>$5M</span></div>
+          </div>
         </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={async () => {
+              setCustLoading(true);
+              setCustResult(null);
+              try {
+                const res = await api.simulateCustom(model, { adoption_rate: custAdopt, timeline_months: custTimeline, investment });
+                setCustResult(res);
+              } catch (e) { console.error("[SimulateModule] custom scenario error", e); }
+              setCustLoading(false);
+            }}
+            disabled={custLoading}
+            className="px-5 py-2.5 rounded-xl text-[15px] font-bold text-white transition-all disabled:opacity-50"
+            style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", boxShadow: "0 2px 8px rgba(212,134,10,0.25)" }}
+          >
+            {custLoading ? "Calculating..." : "Run Sensitivity Analysis"}
+          </button>
+          {custResult && <span className="text-[13px] text-[var(--text-muted)]">Scenario: {String(custResult.scenario_name || "")}</span>}
+        </div>
+
+        {/* Sensitivity Analysis Results */}
+        {custResult && <div className="mt-5 space-y-4">
+          {/* KPI Cards */}
+          <div className="grid grid-cols-4 gap-3">
+            <KpiCard label="Annual Savings" value={fmtNum(Number(custResult.annual_savings || 0))} accent />
+            <KpiCard label="Payback Period" value={`${custResult.payback_months}mo`} />
+            <KpiCard label="3-Year ROI" value={`${custResult.three_year_roi}%`} accent />
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-3 text-center">
+              <div className="text-[11px] text-[var(--text-muted)] uppercase tracking-wider mb-1">Risk Level</div>
+              <Badge color={custResult.risk_level === "low" ? "green" : custResult.risk_level === "medium" ? "amber" : "red"}>
+                {String(custResult.risk_level || "").charAt(0).toUpperCase() + String(custResult.risk_level || "").slice(1)}
+              </Badge>
+            </div>
+          </div>
+
+          {/* Adoption Curve Chart */}
+          {Array.isArray(custResult.adoption_curve) && (custResult.adoption_curve as { quarter: string; adoption_pct: number }[]).length > 0 && (
+            <Card title="Projected Adoption Curve">
+              <div style={{ width: "100%", height: 220 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={custResult.adoption_curve as { quarter: string; adoption_pct: number }[]}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                    <XAxis dataKey="quarter" tick={{ fill: "var(--text-muted)", fontSize: 13 }} />
+                    <YAxis tick={{ fill: "var(--text-muted)", fontSize: 13 }} domain={[0, 100]} tickFormatter={v => `${v}%`} />
+                    <Tooltip formatter={(v: number) => [`${v}%`, "Adoption"]} contentStyle={{ background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 12, fontSize: 14 }} />
+                    <Bar dataKey="adoption_pct" fill="var(--accent-primary)" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </Card>
+          )}
+        </div>}
       </div>}
 
       {/* ═══ PERSISTENT KPI STRIP ═══ */}

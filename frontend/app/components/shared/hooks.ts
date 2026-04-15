@@ -126,21 +126,57 @@ export function useDebounce<T>(value: T, delay: number): T {
   return debounced;
 }
 
-export function useApiData(fetcher: () => Promise<Record<string, unknown> | null>, deps: unknown[]): [Record<string, unknown> | null, boolean] {
+// Request dedup cache — prevents identical concurrent fetches
+const _apiCache: Record<string, { promise: Promise<unknown>; ts: number }> = {};
+const API_CACHE_TTL = 5000; // 5s dedup window
+
+export function useApiData(fetcher: () => Promise<Record<string, unknown> | null>, deps: unknown[]): [Record<string, unknown> | null, boolean, string | null] {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fetcherRef = useRef(fetcher);
+  fetcherRef.current = fetcher; // always points to latest fetcher — fixes stale closure
+
   useEffect(() => {
     let cancelled = false;
-    // Only show loading after 300ms — prevents flash for fast loads
+    setError(null);
     timerRef.current = setTimeout(() => { if (!cancelled) setLoading(true); }, 300);
-    fetcher().then((d: unknown) => {
-      if (!cancelled) { setData(d as Record<string, unknown> | null); setLoading(false); if (timerRef.current) clearTimeout(timerRef.current); }
-    }).catch((err) => { console.error("[useApiData]", err); if (!cancelled) { setLoading(false); if (timerRef.current) clearTimeout(timerRef.current); } });
+
+    // Use the ref to always call the latest fetcher
+    const cacheKey = JSON.stringify(deps);
+    const cached = _apiCache[cacheKey];
+    const now = Date.now();
+    const promise = (cached && now - cached.ts < API_CACHE_TTL)
+      ? cached.promise
+      : fetcherRef.current();
+
+    if (!cached || now - cached.ts >= API_CACHE_TTL) {
+      _apiCache[cacheKey] = { promise, ts: now };
+    }
+
+    promise.then((d: unknown) => {
+      if (!cancelled) {
+        setData(d as Record<string, unknown> | null);
+        setLoading(false);
+        // Check if the API layer flagged an error
+        const { getLastFetchError } = require("../../../lib/api");
+        const lastErr = getLastFetchError();
+        if (lastErr) setError(lastErr.message);
+        if (timerRef.current) clearTimeout(timerRef.current);
+      }
+    }).catch((err: unknown) => {
+      console.error("[useApiData]", err);
+      if (!cancelled) {
+        setError(String(err));
+        setLoading(false);
+        if (timerRef.current) clearTimeout(timerRef.current);
+      }
+    });
     return () => { cancelled = true; if (timerRef.current) clearTimeout(timerRef.current); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
-  return [data, loading];
+  return [data, loading, error];
 }
 
 // Global Decision Log — tracks all decisions across modules

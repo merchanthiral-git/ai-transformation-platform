@@ -1,6 +1,6 @@
-"""Simulate routes — scenario comparison, readiness assessment."""
+"""Simulate routes — scenario comparison, readiness assessment, custom sensitivity analysis."""
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Body
 
 from app.store import store, sync_work_design, enrich_work_design_defaults, compute_readiness_score
 from app.helpers import get_series
@@ -40,3 +40,37 @@ def get_readiness(model_id: str, fn: str = Query("All", alias="func"), jf: str =
         "dimensions": {str(k): int(v) for k, v in dims.items()},
         "dims": {str(k): int(v) for k, v in dims.items()},
     })
+
+
+@router.post("/simulate/custom")
+async def custom_scenario(model_id: str = Query(...), body: dict = Body(...)):
+    """Build a custom scenario from user parameters with sensitivity analysis."""
+    adoption_rate = body.get("adoption_rate", 50)  # 0-100
+    timeline_months = body.get("timeline_months", 18)  # 6-36
+    investment = body.get("investment", 500000)  # dollar amount
+    scope = body.get("scope", "all")  # "all" or list of functions
+
+    # Simple sensitivity model
+    base_savings_pct = adoption_rate * 0.4  # higher adoption = more savings
+    timeline_factor = min(timeline_months / 18, 1.5)  # longer timeline = higher eventual savings
+    roi_multiplier = base_savings_pct * timeline_factor / 100
+
+    annual_savings = investment * roi_multiplier * 2.5
+    payback_months = round(investment / max(annual_savings / 12, 1))
+    three_year_roi = round((annual_savings * 3 - investment) / max(investment, 1) * 100)
+
+    # Adoption curve (quarterly)
+    quarters = list(range(1, int(timeline_months / 3) + 1))
+    adoption_curve = [min(adoption_rate, round(adoption_rate * (1 - 0.7 ** q))) for q in quarters]
+
+    return {
+        "scenario_name": f"Custom ({adoption_rate}% adoption, {timeline_months}mo)",
+        "adoption_rate": adoption_rate,
+        "timeline_months": timeline_months,
+        "investment": investment,
+        "annual_savings": round(annual_savings),
+        "payback_months": min(payback_months, 60),
+        "three_year_roi": three_year_roi,
+        "adoption_curve": [{"quarter": f"Q{q}", "adoption_pct": a} for q, a in zip(quarters, adoption_curve)],
+        "risk_level": "low" if adoption_rate < 40 else "medium" if adoption_rate < 70 else "high",
+    }
