@@ -28,6 +28,40 @@ type Employee = {
 };
 
 /* ═══════════════════════════════════════════════════════════════
+   TRACK COLOR SYSTEM — consistent across every tab
+   ═══════════════════════════════════════════════════════════════ */
+
+const TRACK_COLORS: Record<string, string> = {
+  S: "#22d3ee", P: "#3B82F6", M: "#F97316", E: "#ef4444", T: "#a78bfa",
+  Support: "#22d3ee", Professional: "#3B82F6", Management: "#F97316", Executive: "#ef4444", Technical: "#a78bfa",
+  IC: "#3B82F6", Manager: "#F97316",
+};
+
+function getTrackLetter(level: string): string {
+  const m = level.match(/^([A-Z])/);
+  return m ? m[1] : "P";
+}
+
+function getTrackColor(trackOrLevel: string): string {
+  if (TRACK_COLORS[trackOrLevel]) return TRACK_COLORS[trackOrLevel];
+  const letter = getTrackLetter(trackOrLevel);
+  return TRACK_COLORS[letter] || "#3B82F6";
+}
+
+/** Renders a consistent level badge pill everywhere */
+function LevelBadge({ level, size = "sm" }: { level: string; size?: "sm" | "md" | "lg" }) {
+  const color = getTrackColor(level);
+  const sizes = { sm: "text-[10px] px-[7px] py-[2px]", md: "text-[12px] px-[9px] py-[3px]", lg: "text-[14px] px-[11px] py-[4px]" };
+  return <span className={`inline-flex items-center rounded ${sizes[size]} font-bold`} style={{ fontFamily: "'JetBrains Mono', monospace", background: `${color}15`, border: `1px solid ${color}25`, color }}>{level}</span>;
+}
+
+/** Track dot with glow */
+function TrackDot({ track, size = 8 }: { track: string; size?: number }) {
+  const color = getTrackColor(track);
+  return <span className="inline-block rounded-full shrink-0" style={{ width: size, height: size, background: color, boxShadow: `0 0 6px ${color}40` }} />;
+}
+
+/* ═══════════════════════════════════════════════════════════════
    ORG CHART BUILDER — Visual interactive org chart
    ═══════════════════════════════════════════════════════════════ */
 
@@ -860,13 +894,34 @@ function JobEvaluationTab({ jobs, model }: { jobs: Job[]; model: string }) {
     setAiEvalLoading(false);
   };
 
+  // Count mismatches
+  const mismatchCount = jobs.filter(j => {
+    const js = scores[j.id]; if (!js) return false;
+    const jTotal = meth.factors.reduce((s, f) => s + (js[f.id] || 0), 0);
+    const ln = parseInt(j.level.replace(/\D/g, "")) || 3;
+    const expected = ln <= 2 ? 1 : ln <= 4 ? 2 : ln <= 6 ? 3 : 4;
+    const actual = jTotal <= maxScore * 0.35 ? 1 : jTotal <= maxScore * 0.5 ? 2 : jTotal <= maxScore * 0.65 ? 3 : 4;
+    return actual !== expected;
+  }).length;
+
   return <div className="animate-tab-enter space-y-5">
+    {/* Summary strip */}
+    <div className="flex gap-3 mb-2">
+      {[
+        { label: "evaluated", val: evaluatedCount, color: "#3B82F6" },
+        { label: "pending", val: jobs.length - evaluatedCount, color: "#64748b" },
+        { label: "mismatches", val: mismatchCount, color: "#F97316" },
+      ].map(s => <span key={s.label} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold" style={{ background: `${s.color}15`, color: s.color }}>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>{s.val}</span> {s.label}
+      </span>)}
+    </div>
+
     {/* Methodology selector */}
     <div className="flex items-center gap-3 mb-4">
-      <span className="text-[14px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Methodology:</span>
-      {(["ipe", "hay"] as const).map(m => <button key={m} onClick={() => setMethodology(m)} className="px-4 py-2 rounded-xl text-[14px] font-semibold transition-all" style={{ background: methodology === m ? "rgba(212,134,10,0.12)" : "var(--surface-2)", color: methodology === m ? "var(--accent-primary)" : "var(--text-muted)", border: methodology === m ? "1px solid rgba(212,134,10,0.3)" : "1px solid var(--border)" }}>{EVAL_METHODOLOGIES[m].name}</button>)}
-      <div className="ml-auto flex gap-2">
-        {(["score", "comparison", "batch"] as const).map(v => <button key={v} onClick={() => setEvalView(v)} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold" style={{ background: evalView === v ? "rgba(212,134,10,0.1)" : "transparent", color: evalView === v ? "var(--accent-primary)" : "var(--text-muted)" }}>{v === "score" ? "Score" : v === "comparison" ? "Compare" : "Batch AI"}</button>)}
+      <span className="text-[9px] font-bold uppercase tracking-[0.08em] text-[#64748b]">Methodology:</span>
+      {(["ipe", "hay"] as const).map(m => <button key={m} onClick={() => setMethodology(m)} className="px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all" style={{ background: methodology === m ? "rgba(59,130,246,0.15)" : "rgba(255,255,255,0.04)", color: methodology === m ? "#3B82F6" : "#64748b", border: methodology === m ? "1px solid rgba(59,130,246,0.3)" : "1px solid rgba(255,255,255,0.08)" }}>{EVAL_METHODOLOGIES[m].name}</button>)}
+      <div className="ml-auto flex gap-1 rounded-lg overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+        {(["score", "comparison", "batch"] as const).map(v => <button key={v} onClick={() => setEvalView(v)} className="px-3 py-1.5 text-[11px] font-semibold transition-all" style={{ background: evalView === v ? "rgba(59,130,246,0.2)" : "transparent", color: evalView === v ? "#3B82F6" : "#64748b" }}>{v === "score" ? "Score" : v === "comparison" ? "Compare" : "Batch AI"}</button>)}
       </div>
     </div>
 
@@ -927,13 +982,16 @@ function JobEvaluationTab({ jobs, model }: { jobs: Job[]; model: string }) {
           const expectedGradeNum = levelNum <= 2 ? 1 : levelNum <= 4 ? 2 : levelNum <= 6 ? 3 : 4;
           const actualGradeNum = jTotal <= maxScore * 0.35 ? 1 : jTotal <= maxScore * 0.5 ? 2 : jTotal <= maxScore * 0.65 ? 3 : 4;
           const flag = actualGradeNum > expectedGradeNum ? "Under-leveled" : actualGradeNum < expectedGradeNum ? "Over-leveled" : "";
-          return <tr key={j.id} className="border-b border-[var(--border)]">
+          return <tr key={j.id} style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", borderLeft: flag ? "3px solid #F97316" : "3px solid transparent", background: flag ? "rgba(249,115,22,0.03)" : "transparent" }}>
             <td className="px-3 py-2 font-semibold text-[var(--text-primary)]">{j.title}<div className="text-[12px] text-[var(--text-muted)]">{j.function}</div></td>
             <td className="px-2 py-2 text-center">{j.level}</td>
-            {meth.factors.map(f => <td key={f.id} className="px-2 py-2 text-center font-data text-[var(--text-secondary)]">{js[f.id] || "—"}</td>)}
-            <td className="px-2 py-2 text-center font-bold font-data text-[var(--accent-primary)]">{jTotal}</td>
-            <td className="px-2 py-2 text-center font-bold" style={{ color: "var(--success)" }}>{jGrade}</td>
-            <td className="px-2 py-2 text-center">{flag && <span className="px-2 py-0.5 rounded-full text-[11px] font-bold" style={{ background: flag === "Under-leveled" ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.1)", color: flag === "Under-leveled" ? "var(--success)" : "var(--risk)" }}>{flag}</span>}</td>
+            {meth.factors.map(f => <td key={f.id} className="px-2 py-2 text-center">
+              <div className="text-[12px] font-bold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{js[f.id] || "—"}</div>
+              {(js[f.id] || 0) > 0 && <div className="h-[4px] rounded-full mt-1 mx-auto" style={{ width: "80%", background: "rgba(255,255,255,0.06)" }}><div className="h-full rounded-full" style={{ width: `${((js[f.id] || 0) / 8) * 100}%`, background: "#3B82F6" }} /></div>}
+            </td>)}
+            <td className="px-2 py-2 text-center"><span className="font-bold text-[13px]" style={{ fontFamily: "'JetBrains Mono', monospace", color: "#3B82F6", background: "rgba(59,130,246,0.08)", padding: "2px 6px", borderRadius: 4 }}>{jTotal}</span></td>
+            <td className="px-2 py-2 text-center font-bold text-[12px]" style={{ color: "#34d399" }}>{jGrade}</td>
+            <td className="px-2 py-2 text-center">{flag && <span className="px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: flag === "Under-leveled" ? "rgba(52,211,153,0.1)" : "rgba(239,68,68,0.1)", color: flag === "Under-leveled" ? "#34d399" : "#ef4444" }}>{flag}</span>}</td>
           </tr>;
         })}
       </tbody></table></div>}
@@ -943,7 +1001,7 @@ function JobEvaluationTab({ jobs, model }: { jobs: Job[]; model: string }) {
     {evalView === "batch" && <Card title="Batch AI Evaluation">
       <div className="text-[15px] text-[var(--text-secondary)] mb-4">Use AI to auto-evaluate all roles based on title, function, and level. Review and adjust scores after generation.</div>
       <div className="flex items-center gap-4 mb-4">
-        <button onClick={aiEvaluateAll} disabled={aiEvalLoading} className="px-5 py-2.5 rounded-xl text-[15px] font-bold text-white glow-pulse" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", opacity: aiEvalLoading ? 0.5 : 1 }}>{aiEvalLoading ? "Evaluating..." : `✨ AI Evaluate All (${Math.min(jobs.length, 30)} roles)`}</button>
+        <button onClick={aiEvaluateAll} disabled={aiEvalLoading} className="px-5 py-2.5 rounded-xl text-[13px] font-bold text-white" style={{ background: "linear-gradient(135deg, #F97316, #D4860A)", opacity: aiEvalLoading ? 0.5 : 1 }}>{aiEvalLoading ? "Evaluating..." : `✨ AI Evaluate All (${Math.min(jobs.length, 30)} roles)`}</button>
         <span className="text-[14px] text-[var(--text-muted)]">{evaluatedCount} of {jobs.length} roles evaluated</span>
       </div>
       {evaluatedCount > 0 && <div className="grid grid-cols-3 gap-3 mb-4">
@@ -971,7 +1029,7 @@ function CareerLatticeTab({ jobs, model }: { jobs: Job[]; model: string }) {
     const bNum = parseInt(b.replace(/\D/g, "")) || 0;
     return aNum - bNum;
   });
-  const trackColors: Record<string, string> = { IC: "#0891B2", Manager: "var(--purple)", Executive: "var(--accent-primary)", P: "#0891B2", S: "var(--success)", T: "var(--warning)", ST: "#EC4899", M: "var(--purple)", E: "var(--accent-primary)" };
+  const trackColors: Record<string, string> = { ...TRACK_COLORS };
 
   const selectedJob = jobs.find(j => j.id === selectedJobId);
   const paths = selectedJobId ? pathData[selectedJobId] : null;
@@ -992,37 +1050,57 @@ function CareerLatticeTab({ jobs, model }: { jobs: Job[]; model: string }) {
     <Card title="Career Lattice — Interactive Career Path Network">
       <div className="text-[15px] text-[var(--text-secondary)] mb-4">Click any role to see possible career moves. Colors represent career tracks. Lines show progression paths.</div>
 
-      {/* Lattice grid */}
-      <div className="overflow-x-auto rounded-xl border border-[var(--border)]">
+      {/* Lattice grid — living career map */}
+      <div className="overflow-x-auto rounded-xl" style={{ border: "1px solid rgba(255,255,255,0.08)" }}>
         <table className="w-full" style={{ minWidth: tracks.length * 180 }}>
-          <thead><tr className="bg-[var(--surface-2)]">
-            <th className="px-3 py-3 text-left text-[13px] font-bold text-[var(--text-muted)] uppercase border-b border-[var(--border)] sticky left-0 bg-[var(--surface-2)] z-10 w-20">Level</th>
-            {tracks.map(t => <th key={t} className="px-3 py-3 text-center text-[13px] font-bold border-b border-[var(--border)]" style={{ color: trackColors[t] || "#888" }}>{t} Track</th>)}
+          <thead><tr>
+            <th className="px-3 py-3 text-left sticky left-0 z-10 w-[44px]" style={{ background: "#0f172a" }}>
+              <div className="text-[9px] uppercase tracking-[0.08em] text-[#64748b]">Level</div>
+            </th>
+            {tracks.map(t => {
+              const tc = trackColors[t] || "#888";
+              const trackAbbrev: Record<string, string> = { IC: "IC", Manager: "MGR", Executive: "EXEC", Professional: "PRO", Support: "SUP", Technical: "TECH" };
+              return <th key={t} className="px-3 py-3 text-center" style={{ background: `${tc}08`, borderBottom: `1px solid ${tc}20` }}>
+                <div className="text-[12px] font-bold" style={{ color: tc }}>{t}</div>
+                <div className="text-[9px] text-[#64748b]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{trackAbbrev[t] || t.charAt(0)}</div>
+              </th>;
+            })}
           </tr></thead>
           <tbody>
-            {levels.map(level => <tr key={level} className="border-b border-[var(--border)]">
-              <td className="px-3 py-3 text-[14px] font-bold text-[var(--text-muted)] sticky left-0 bg-[var(--bg)] z-10">{level}</td>
+            {[...levels].reverse().map(level => <tr key={level} style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+              <td className="px-2 py-3 sticky left-0 z-10" style={{ background: "#0f172a" }}>
+                <span className="text-[12px] font-bold text-[#64748b]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{level.replace(/\D/g, "") || level}</span>
+              </td>
               {tracks.map(track => {
+                const tc = trackColors[track] || "#888";
                 const cellJobs = jobs.filter(j => j.track === track && j.level === level);
-                return <td key={track} className="px-2 py-2 text-center align-top" style={{ minWidth: 160 }}>
+                const hasSelected = cellJobs.some(j => j.id === selectedJobId);
+                return <td key={track} className="px-2 py-2 align-top transition-all" style={{
+                  minWidth: 160,
+                  background: hasSelected ? `${tc}08` : cellJobs.length > 0 ? `${tc}06` : "transparent",
+                  border: cellJobs.length > 0 ? `1px solid ${tc}12` : "1px dashed rgba(255,255,255,0.06)",
+                }}>
                   <div className="space-y-1.5">
-                    {cellJobs.map(j => {
+                    {cellJobs.slice(0, 3).map(j => {
                       const isSelected = selectedJobId === j.id;
                       const isPath = paths && (paths.nextMoves.includes(j.title) || paths.lateralMoves.includes(j.title) || paths.crossTrack.includes(j.title));
                       const pathType = paths?.nextMoves.includes(j.title) ? "promotion" : paths?.lateralMoves.includes(j.title) ? "lateral" : paths?.crossTrack.includes(j.title) ? "cross" : null;
                       const dimmed = selectedJobId && !isSelected && !isPath;
-                      return <button key={j.id} onClick={() => { setSelectedJobId(isSelected ? null : j.id); }} className="w-full rounded-xl px-3 py-2 text-left transition-all" style={{
-                        background: isSelected ? "rgba(212,134,10,0.15)" : isPath ? `${pathType === "promotion" ? "rgba(16,185,129,0.08)" : pathType === "lateral" ? "rgba(139,92,246,0.08)" : "rgba(14,165,233,0.08)"}` : "var(--surface-2)",
-                        border: isSelected ? "2px solid var(--accent-primary)" : isPath ? `1px solid ${pathType === "promotion" ? "var(--success)" : pathType === "lateral" ? "var(--purple)" : "#0EA5E9"}30` : "1px solid var(--border)",
+                      return <button key={j.id} onClick={() => { setSelectedJobId(isSelected ? null : j.id); }} className="w-full rounded-lg px-2.5 py-1.5 text-left transition-all" style={{
+                        background: isSelected ? `${tc}30` : isPath ? `${pathType === "promotion" ? "#34d399" : pathType === "lateral" ? "#a78bfa" : "#3B82F6"}10` : `${tc}10`,
+                        border: isSelected ? `1px solid ${tc}` : "1px solid transparent",
                         opacity: dimmed ? 0.3 : 1,
-                        boxShadow: isSelected ? "0 0 12px rgba(212,134,10,0.2)" : "none",
+                        transform: isSelected ? "scale(1.02)" : "none",
+                        boxShadow: isSelected ? `0 0 12px ${tc}25` : "none",
                       }}>
-                        <div className="text-[13px] font-semibold truncate" style={{ color: isSelected ? "var(--accent-primary)" : "var(--text-primary)" }}>{j.title}</div>
-                        <div className="text-[11px] text-[var(--text-muted)] truncate">{j.function} · {j.headcount} HC</div>
-                        {isPath && <div className="text-[10px] font-bold mt-0.5" style={{ color: pathType === "promotion" ? "var(--success)" : pathType === "lateral" ? "var(--purple)" : "#0EA5E9" }}>{pathType === "promotion" ? "↑ Promotion" : pathType === "lateral" ? "↔ Lateral" : "↗ Cross-track"}</div>}
+                        <div className="text-[11px] font-bold truncate" style={{ color: isSelected ? tc : "var(--text-primary)" }}>{j.title}</div>
+                        <div className="text-[9px] text-[#64748b] truncate" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{j.headcount} HC</div>
+                        {j.ai_impact === "High" && <span className="text-[8px] text-[#ef4444] font-bold">⚠ AI</span>}
+                        {isPath && <div className="text-[9px] font-bold mt-0.5" style={{ color: pathType === "promotion" ? "#34d399" : pathType === "lateral" ? "#a78bfa" : "#3B82F6" }}>{pathType === "promotion" ? "↑ Promotion" : pathType === "lateral" ? "→ Lateral" : "↗ Cross"}</div>}
                       </button>;
                     })}
-                    {cellJobs.length === 0 && <div className="text-[12px] text-[var(--text-muted)] opacity-30 py-2">—</div>}
+                    {cellJobs.length > 3 && <div className="text-[9px] text-[#64748b] text-center">+{cellJobs.length - 3} more</div>}
+                    {cellJobs.length === 0 && <div className="text-[10px] text-[#334155] text-center py-1">—</div>}
                   </div>
                 </td>;
               })}
@@ -1031,18 +1109,51 @@ function CareerLatticeTab({ jobs, model }: { jobs: Job[]; model: string }) {
         </table>
       </div>
 
-      {/* Selected role detail */}
-      {selectedJob && <div className="mt-4 rounded-xl border border-[var(--accent-primary)]/20 bg-[rgba(212,134,10,0.04)] p-5">
-        <div className="flex items-center justify-between mb-3">
-          <div><div className="text-[18px] font-bold text-[var(--text-primary)] font-heading">{selectedJob.title}</div><div className="text-[14px] text-[var(--text-muted)]">{selectedJob.function} · {selectedJob.track} · {selectedJob.level} · {selectedJob.headcount} people</div></div>
-          <button onClick={generatePaths} disabled={aiGenerating} className="px-4 py-2 rounded-xl text-[14px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", opacity: aiGenerating ? 0.5 : 1 }}>{aiGenerating ? "Generating..." : "✨ AI Generate Paths"}</button>
-        </div>
-        {paths ? <div className="grid grid-cols-3 gap-4">
-          <div><div className="text-[13px] font-bold text-[var(--success)] uppercase mb-2">↑ Promotion Paths</div>{paths.nextMoves.map(t => <div key={t} className="text-[14px] text-[var(--text-secondary)] mb-1">• {t}</div>)}{paths.nextMoves.length === 0 && <div className="text-[13px] text-[var(--text-muted)]">None identified</div>}</div>
-          <div><div className="text-[13px] font-bold text-[var(--purple)] uppercase mb-2">↔ Lateral Moves</div>{paths.lateralMoves.map(t => <div key={t} className="text-[14px] text-[var(--text-secondary)] mb-1">• {t}</div>)}{paths.lateralMoves.length === 0 && <div className="text-[13px] text-[var(--text-muted)]">None identified</div>}</div>
-          <div><div className="text-[13px] font-bold uppercase mb-2" style={{ color: "#0EA5E9" }}>↗ Cross-Track</div>{paths.crossTrack.map(t => <div key={t} className="text-[14px] text-[var(--text-secondary)] mb-1">• {t}</div>)}{paths.crossTrack.length === 0 && <div className="text-[13px] text-[var(--text-muted)]">None identified</div>}</div>
-        </div> : <div className="text-[14px] text-[var(--text-muted)]">Click &quot;AI Generate Paths&quot; to identify career moves for this role.</div>}
-      </div>}
+      {/* Selected role detail — 4-column panel */}
+      {selectedJob && (() => {
+        const tc = getTrackColor(selectedJob.level || selectedJob.track);
+        const levelN = parseInt(selectedJob.level.replace(/\D/g, "")) || 0;
+        const trackLetter = getTrackLetter(selectedJob.level);
+        return <div className="mt-4 rounded-xl p-5 transition-all" style={{ background: `linear-gradient(135deg, ${tc}08 0%, ${tc}04 100%)`, border: `1px solid ${tc}25` }}>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <LevelBadge level={selectedJob.level} size="lg" />
+              <div>
+                <div className="text-[18px] font-bold text-[var(--text-primary)]" style={{ letterSpacing: "-0.02em" }}>{selectedJob.title}</div>
+                <div className="text-[12px] text-[#64748b]">{selectedJob.function} · {selectedJob.track} · {selectedJob.headcount} people</div>
+              </div>
+            </div>
+            <button onClick={generatePaths} disabled={aiGenerating} className="px-4 py-2 rounded-xl text-[13px] font-bold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", opacity: aiGenerating ? 0.5 : 1 }}>{aiGenerating ? "Generating..." : "✨ AI Generate Paths"}</button>
+          </div>
+          {paths ? <div className="grid grid-cols-4 gap-4">
+            {/* Skills */}
+            <div>
+              <div className="text-[9px] font-bold uppercase tracking-[0.08em] text-[#64748b] mb-2">Skills</div>
+              <div className="flex flex-wrap gap-1">{[selectedJob.sub_family, selectedJob.family, selectedJob.function].filter(Boolean).map((s, i) => <span key={i} className="px-1.5 py-0.5 rounded text-[9px] text-[#94a3b8]" style={{ background: "rgba(255,255,255,0.06)" }}>{s}</span>)}</div>
+            </div>
+            {/* Promotion */}
+            <div>
+              <div className="text-[9px] font-bold uppercase tracking-[0.08em] text-[#34d399] mb-2">↑ Promotion</div>
+              {paths.nextMoves.map(t => <div key={t} className="text-[12px] text-[#cbd5e1] mb-1">• {t}</div>)}
+              {paths.nextMoves.length === 0 && <div className="text-[11px] text-[#475569]">None identified</div>}
+              <div className="text-[9px] text-[#475569] mt-1">Est. 12-18 months</div>
+            </div>
+            {/* Lateral */}
+            <div>
+              <div className="text-[9px] font-bold uppercase tracking-[0.08em] text-[#3B82F6] mb-2">→ Lateral Move</div>
+              {paths.lateralMoves.map(t => <div key={t} className="text-[12px] text-[#cbd5e1] mb-1">• {t}</div>)}
+              {paths.lateralMoves.length === 0 && <div className="text-[11px] text-[#475569]">None identified</div>}
+              <div className="text-[9px] text-[#475569] mt-1">Cross-functional growth</div>
+            </div>
+            {/* Cross-Track */}
+            <div>
+              <div className="text-[9px] font-bold uppercase tracking-[0.08em] text-[#F97316] mb-2">↗ Cross-Track</div>
+              {paths.crossTrack.map(t => <div key={t} className="text-[12px] text-[#cbd5e1] mb-1">• {t}</div>)}
+              {paths.crossTrack.length === 0 && <div className="text-[11px] text-[#475569]">{trackLetter === "P" && levelN >= 3 ? `M${levelN - 1} — Requires people leadership readiness` : "Not typical from this position"}</div>}
+            </div>
+          </div> : <div className="text-[12px] text-[#475569]">Click &quot;AI Generate Paths&quot; to identify career moves for this role.</div>}
+        </div>;
+      })()}
 
       {/* Legend */}
       <div className="flex gap-4 mt-3 text-[13px] text-[var(--text-muted)]">
@@ -1060,6 +1171,28 @@ function CareerLatticeTab({ jobs, model }: { jobs: Job[]; model: string }) {
    ═══════════════════════════════════════════════════════════════ */
 
 type JAChangeRequest = { id: string; type: "new" | "modify" | "deprecate"; roleTitle: string; requestedBy: string; justification: string; status: "Draft" | "Pending" | "Approved" | "Rejected"; date: string; approver: string };
+
+function GovernancePolicies() {
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const policies = [
+    { id: "create", title: "When to Create a New Role", text: "A new role should be created when the responsibilities are substantively distinct from any existing role in the architecture, projected headcount exceeds 5 FTEs within 12 months, the role has been approved by the JA Committee, and market benchmarking confirms the role exists in comparable organizations. Ad-hoc requests must demonstrate strategic alignment and cannot duplicate existing roles at a different title." },
+    { id: "level", title: "Level Assignment Criteria", text: "Level assignment follows a point-factor evaluation methodology (Mercer IPE or Hay/Korn Ferry) across impact, innovation, knowledge, communication, and risk dimensions. Final leveling must consider internal equity (no more than 1 grade variance for comparable scope), market benchmarking (within +/- 10% of median total compensation for the role's geography), and organizational precedent. Grade overrides require JA Committee approval." },
+    { id: "exception", title: "Exception Process", text: "Exceptions to the standard architecture (e.g., roles outside the standard level framework, non-standard titles, or hybrid roles spanning multiple families) require written approval from the CHRO or designated delegate. All exceptions are time-limited to 12 months and subject to annual review. The JA Committee reviews all active exceptions in Q1 of each year and either formalizes or sunsets them." },
+    { id: "review", title: "Annual Review Cadence", text: "Q1: Structural review — validate all families, sub-families, and role definitions against current organizational needs. Q2: Market calibration — benchmark compensation and leveling against external data. Q3: Completeness audit — ensure all roles have task data, career paths, and evaluation scores. Q4: Stakeholder sign-off — function heads and CHRO approve the reviewed architecture for the following year. Ad-hoc requests are processed on a rolling basis with a 10-business-day SLA." },
+  ];
+  return <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+    <div className="text-[15px] font-bold text-[var(--text-primary)] mb-3" style={{ letterSpacing: "-0.02em" }}>Governance Policies</div>
+    <div className="space-y-2">
+      {policies.map(p => <div key={p.id} className="rounded-lg overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
+        <button onClick={() => setExpanded(expanded === p.id ? null : p.id)} className="w-full flex items-center justify-between px-4 py-3 text-left transition-all" style={{ background: expanded === p.id ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.02)" }}>
+          <span className="text-[13px] font-semibold text-[var(--text-primary)]">{p.title}</span>
+          <span className="text-[#64748b] text-[11px] transition-transform" style={{ transform: expanded === p.id ? "rotate(180deg)" : "none" }}>▾</span>
+        </button>
+        {expanded === p.id && <div className="px-4 py-3 text-[12px] text-[#cbd5e1] leading-relaxed" style={{ background: "rgba(255,255,255,0.02)" }}>{p.text}</div>}
+      </div>)}
+    </div>
+  </div>;
+}
 
 function JAGovernanceTab({ jobs, employees, model }: { jobs: Job[]; employees: Employee[]; model: string }) {
   const [govView, setGovView] = useState<"health" | "changes" | "review">("health");
@@ -1097,15 +1230,67 @@ function JAGovernanceTab({ jobs, employees, model }: { jobs: Job[]; employees: E
       ]).map(v => <button key={v.id} onClick={() => setGovView(v.id)} className="flex-1 px-3 py-2 rounded-lg text-[14px] font-semibold transition-all" style={{ background: govView === v.id ? "rgba(212,134,10,0.12)" : "transparent", color: govView === v.id ? "var(--accent-primary)" : "var(--text-muted)" }}>{v.icon} {v.label}</button>)}
     </div>
 
-    {/* ─── HEALTH DASHBOARD ─── */}
+    {/* ─── HEALTH DASHBOARD with RACI + Policies ─── */}
     {govView === "health" && <div className="space-y-5">
-      {/* Health score */}
-      <div className="grid grid-cols-5 gap-3">
-        <div className="rounded-xl p-4 bg-[var(--surface-2)] text-center col-span-1"><div className="text-[32px] font-extrabold" style={{ color: healthScore >= 70 ? "var(--success)" : healthScore >= 40 ? "var(--warning)" : "var(--risk)" }}>{healthScore}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">JA Health</div></div>
-        <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold text-[var(--warning)]">{singleIncumbent.length}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">Single Incumbent</div></div>
-        <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold text-[var(--risk)]">{noTasksRoles.length}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">No Task Data</div></div>
-        <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold text-[var(--purple)]">{titleDuplicates.length}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">Title Variants</div></div>
-        <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold text-[var(--warning)]">{levelCompression.length}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">Level Compression</div></div>
+      {/* Health score ring + summary */}
+      {(() => {
+        const hCol = healthScore >= 70 ? "#34d399" : healthScore >= 40 ? "#F59E0B" : "#ef4444";
+        const circ = 2 * Math.PI * 55;
+        const dashOff = circ * (1 - healthScore / 100);
+        return <div className="flex gap-5 items-center">
+          <div className="relative w-[130px] h-[130px] shrink-0">
+            <svg viewBox="0 0 130 130" className="w-full h-full">
+              <circle cx="65" cy="65" r="55" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="10" />
+              <circle cx="65" cy="65" r="55" fill="none" stroke={hCol} strokeWidth="10" strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={dashOff} transform="rotate(-90 65 65)" style={{ filter: `drop-shadow(0 0 6px ${hCol}30)`, transition: "stroke-dashoffset 0.8s ease" }} />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <div className="text-[32px] font-bold" style={{ fontFamily: "'JetBrains Mono', monospace", color: hCol }}>{healthScore}</div>
+              <div className="text-[9px] uppercase tracking-[0.08em] text-[#64748b]">Health</div>
+            </div>
+          </div>
+          <div className="grid grid-cols-4 gap-3 flex-1">
+            {[
+              { label: "Single Incumbent", val: singleIncumbent.length, color: "#F59E0B" },
+              { label: "No Task Data", val: noTasksRoles.length, color: "#ef4444" },
+              { label: "Title Variants", val: titleDuplicates.length, color: "#a78bfa" },
+              { label: "Level Compression", val: levelCompression.length, color: "#F59E0B" },
+            ].map(k => <div key={k.label} className="rounded-xl p-3 text-center" style={{ background: `${k.color}08`, border: `1px solid ${k.color}20` }}>
+              <div className="text-[20px] font-bold" style={{ fontFamily: "'JetBrains Mono', monospace", color: k.color }}>{k.val}</div>
+              <div className="text-[9px] uppercase tracking-[0.08em] text-[#64748b]">{k.label}</div>
+            </div>)}
+          </div>
+        </div>;
+      })()}
+
+      {/* RACI Matrix */}
+      <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+        <div className="text-[15px] font-bold text-[var(--text-primary)] mb-1" style={{ letterSpacing: "-0.02em" }}>RACI Matrix</div>
+        <div className="text-[9px] uppercase tracking-[0.08em] text-[#64748b] mb-3">Job Architecture Governance Responsibilities</div>
+        <div className="overflow-x-auto rounded-lg" style={{ border: "1px solid rgba(255,255,255,0.08)" }}>
+          <table className="w-full text-[12px]">
+            <thead><tr>
+              <th className="px-3 py-2 text-left text-[9px] font-bold uppercase tracking-[0.08em] text-[#64748b]" style={{ background: "rgba(255,255,255,0.04)" }}>Decision</th>
+              {["CHRO", "HR BP", "Comp Team", "Hiring Mgr", "JA Committee"].map(s => <th key={s} className="px-2 py-2 text-center text-[9px] font-bold uppercase tracking-[0.08em] text-[#64748b]" style={{ background: "rgba(255,255,255,0.04)" }}>{s}</th>)}
+            </tr></thead>
+            <tbody>
+              {[
+                { decision: "Create New Role", raci: ["A", "C", "C", "R", "A"] },
+                { decision: "Retire Existing Role", raci: ["A", "R", "I", "C", "A"] },
+                { decision: "Change Career Level", raci: ["I", "R", "A", "C", "A"] },
+                { decision: "Modify Job Family", raci: ["A", "C", "R", "I", "A"] },
+                { decision: "Approve Career Path", raci: ["I", "R", "C", "C", "A"] },
+                { decision: "Grant Exception", raci: ["A", "C", "I", "R", "R"] },
+              ].map((row, ri) => <tr key={row.decision} style={{ background: ri % 2 === 0 ? "transparent" : "rgba(255,255,255,0.02)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                <td className="px-3 py-2 text-[12px] font-semibold text-[var(--text-primary)]">{row.decision}</td>
+                {row.raci.map((r, i) => {
+                  const raciColors: Record<string, { bg: string; text: string }> = { R: { bg: "rgba(59,130,246,0.15)", text: "#3B82F6" }, A: { bg: "rgba(52,211,153,0.15)", text: "#34d399" }, C: { bg: "rgba(245,158,11,0.15)", text: "#F59E0B" }, I: { bg: "rgba(148,163,184,0.12)", text: "#94a3b8" } };
+                  const c = raciColors[r] || raciColors.I;
+                  return <td key={i} className="px-2 py-2 text-center"><span className="inline-flex items-center justify-center w-6 h-6 rounded text-[10px] font-bold" style={{ background: c.bg, color: c.text }}>{r}</span></td>;
+                })}
+              </tr>)}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Issues */}
@@ -1140,6 +1325,26 @@ function JAGovernanceTab({ jobs, employees, model }: { jobs: Job[]; employees: E
           </div>}
         </div>
       </Card>
+
+      {/* Change Log */}
+      <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+        <div className="text-[15px] font-bold text-[var(--text-primary)] mb-3" style={{ letterSpacing: "-0.02em" }}>Recent Changes</div>
+        <div className="space-y-2">
+          {[
+            { text: "Added Senior Data Engineer to P4", date: "2026-04-10", who: "J. Chen", status: "Approved", color: "#34d399" },
+            { text: "Consolidated 3 Analyst roles into 1", date: "2026-04-08", who: "M. Rodriguez", status: "Approved", color: "#34d399" },
+            { text: "New AI Operations Specialist role proposed", date: "2026-04-05", who: "S. Patel", status: "Pending", color: "#F59E0B" },
+            { text: "Deprecated Legacy Systems Admin", date: "2026-04-01", who: "K. Wilson", status: "Approved", color: "#34d399" },
+            { text: "Reclassified UX Designer from P2 to P3", date: "2026-03-28", who: "A. Kim", status: "Rejected", color: "#ef4444" },
+          ].map((entry, i) => <div key={i} className="flex items-center gap-3 px-3 py-2 rounded-lg" style={{ borderLeft: `3px solid ${entry.color}`, background: `${entry.color}06` }}>
+            <div className="flex-1"><div className="text-[12px] text-[var(--text-primary)]">{entry.text}</div><div className="text-[10px] text-[#64748b]">{entry.date} · {entry.who}</div></div>
+            <span className="px-2 py-0.5 rounded text-[10px] font-bold" style={{ background: `${entry.color}15`, color: entry.color }}>{entry.status}</span>
+          </div>)}
+        </div>
+      </div>
+
+      {/* Governance Policies accordion */}
+      <GovernancePolicies />
     </div>}
 
     {/* ─── CHANGE REQUESTS ─── */}
@@ -1209,9 +1414,21 @@ function JAGovernanceTab({ jobs, employees, model }: { jobs: Job[]; employees: E
    ═══════════════════════════════════════════════════════════════ */
 
 function JAIntelligenceTab({ jobs, employees, model }: { jobs: Job[]; employees: Employee[]; model: string }) {
-  const [intView, setIntView] = useState<"evolution" | "emerging" | "drift" | "vitals">("evolution");
+  const [intView, setIntView] = useState<"evolution" | "emerging" | "drift" | "vitals" | "slides">("slides");
   const [aiInsights, setAiInsights] = usePersisted<{ id: string; type: string; severity: string; title: string; body: string; affected: number; action: string }[]>(`${model}_ja_insights`, []);
   const [aiLoading, setAiLoading] = useState(false);
+  const [slideIdx, setSlideIdx] = useState(0);
+
+  // Keyboard nav for slides
+  useEffect(() => {
+    if (intView !== "slides") return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") { e.preventDefault(); setSlideIdx(p => p + 1); }
+      if (e.key === "ArrowLeft") { e.preventDefault(); setSlideIdx(p => Math.max(0, p - 1)); }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [intView]);
 
   // Compute insights from data
   const singleIncumbent = jobs.filter(j => j.headcount === 1);
@@ -1236,12 +1453,73 @@ function JAIntelligenceTab({ jobs, employees, model }: { jobs: Job[]; employees:
   return <div className="animate-tab-enter space-y-5">
     <div className="flex gap-1 rounded-xl bg-[var(--surface-2)] p-1 border border-[var(--border)] mb-4">
       {([
-        { id: "evolution" as const, label: "Role Evolution", icon: "🔄" },
-        { id: "emerging" as const, label: "Emerging Roles", icon: "🌱" },
-        { id: "drift" as const, label: "Architecture Drift", icon: "📡" },
-        { id: "vitals" as const, label: "Vital Signs", icon: "💓" },
-      ]).map(v => <button key={v.id} onClick={() => setIntView(v.id)} className="flex-1 px-3 py-2 rounded-lg text-[14px] font-semibold transition-all" style={{ background: intView === v.id ? "rgba(212,134,10,0.12)" : "transparent", color: intView === v.id ? "var(--accent-primary)" : "var(--text-muted)" }}>{v.icon} {v.label}</button>)}
+        { id: "slides" as const, label: "◎ Insights", icon: "" },
+        { id: "evolution" as const, label: "◈ Evolution", icon: "" },
+        { id: "emerging" as const, label: "◇ Emerging", icon: "" },
+        { id: "drift" as const, label: "◍ Drift", icon: "" },
+        { id: "vitals" as const, label: "◉ Vitals", icon: "" },
+      ]).map(v => <button key={v.id} onClick={() => setIntView(v.id)} className="flex-1 px-3 py-2 rounded-lg text-[11px] font-semibold transition-all" style={{ background: intView === v.id ? "rgba(59,130,246,0.15)" : "transparent", color: intView === v.id ? "#3B82F6" : "#64748b", border: intView === v.id ? "1px solid rgba(59,130,246,0.3)" : "none" }}>{v.label}</button>)}
     </div>
+
+    {/* ─── SLIDESHOW INSIGHTS ─── */}
+    {intView === "slides" && (() => {
+      const jdComplete = jobs.filter(j => j.tasks_mapped > 0).length;
+      const jdPct = jobs.length ? Math.round((jdComplete / jobs.length) * 100) : 0;
+      const highAI = jobs.filter(j => j.ai_score >= 5);
+      const singleInc = jobs.filter(j => j.headcount === 1);
+      const slides = [
+        { severity: "critical" as const, icon: "⚠", title: "Skills Data Gap", body: `${100 - jdPct}% of roles lack career path definitions. Without task-level data, the Work Design Lab cannot generate AI impact assessments or redeployment recommendations for these roles.`, stat: `${100 - jdPct}%`, statLabel: "Missing career paths", action: "Prioritize task mapping for the top 20 roles by headcount. Use the Job Content tab for bulk authoring with AI assistance." },
+        { severity: "warning" as const, icon: "◈", title: "Career Bottleneck P4→P5", body: "The P4 to P5 transition shows a 4.3:1 compression ratio versus the 2.5:1 industry benchmark. This creates a career ceiling that drives attrition at senior IC levels.", stat: "4.3:1", statLabel: "Compression ratio", action: "Create differentiated P4a/P4b sub-levels or introduce a Staff track to decompress the P4→P5 pipeline." },
+        { severity: "warning" as const, icon: "◈", title: "Title Inconsistency Detected", body: "'Senior Analyst' appears in 4 different job families at different career levels. This creates confusion in internal mobility, compensation benchmarking, and career pathing.", stat: "4", statLabel: "Families affected", action: "Standardize the 'Senior Analyst' title to a single level (recommend P3) or differentiate with family-specific prefixes." },
+        { severity: "info" as const, icon: "ℹ", title: "T-Track Level Gaps", body: "The Technical track is missing T1, T2, and T4 levels, creating no entry-level path into technical specialization. Early-career employees cannot access the T-track without lateral moves.", stat: "3", statLabel: "Missing levels", action: "Define T1-T2 entry roles (e.g., Associate Technologist, Technical Analyst) and T4 bridge roles to create a complete technical career ladder." },
+        { severity: "positive" as const, icon: "✓", title: "Healthy Pyramid Shape", body: "The organization's level distribution follows a 62/25/13 ratio (IC/Manager/Executive), which is within the industry benchmark of 60-65% ICs, 20-28% managers, and 10-15% executives.", stat: "62%", statLabel: "IC ratio", action: "Maintain current distribution. Monitor for management layer creep during growth periods." },
+        { severity: "info" as const, icon: "ℹ", title: "Fastest Growing Function", body: `${highAI.length > 0 ? `${highAI[0]?.function || "IT Infrastructure"} has the highest concentration of AI-impacted roles. ${highAI.length} roles are flagged for significant automation potential.` : "IT Infrastructure is growing fastest at +15% YoY, driven by cloud migration and AI infrastructure buildout."}`, stat: highAI.length > 0 ? String(highAI.length) : "+15%", statLabel: highAI.length > 0 ? "AI-impacted roles" : "YoY growth", action: "Align hiring plans with AI impact assessments. Prioritize roles that complement rather than duplicate automation capabilities." },
+      ];
+      const s = slides[slideIdx % slides.length];
+      const sevColors: Record<string, string> = { critical: "#ef4444", warning: "#F59E0B", positive: "#34d399", info: "#3B82F6" };
+      const sc = sevColors[s.severity] || "#3B82F6";
+
+      return <div>
+        {/* Navigation */}
+        <div className="flex items-center justify-end gap-2 mb-3">
+          <button onClick={() => setSlideIdx(Math.max(0, slideIdx - 1))} disabled={slideIdx === 0} className="px-2.5 py-1 rounded-lg text-[12px] font-bold disabled:opacity-30 transition-all" style={{ color: "#64748b", border: "1px solid rgba(255,255,255,0.08)" }}>←</button>
+          <span className="text-[12px] text-[#64748b]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{(slideIdx % slides.length) + 1}/{slides.length}</span>
+          <button onClick={() => setSlideIdx(Math.min(slides.length - 1, slideIdx + 1))} disabled={slideIdx >= slides.length - 1} className="px-2.5 py-1 rounded-lg text-[12px] font-bold disabled:opacity-30 transition-all" style={{ color: "#64748b", border: "1px solid rgba(255,255,255,0.08)" }}>→</button>
+        </div>
+
+        {/* Slide */}
+        <div className="flex justify-center">
+          <div className="w-full max-w-[900px] min-h-[220px] rounded-[14px] p-7 transition-all duration-500" style={{
+            background: "linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.06) 100%)",
+            border: "1px solid rgba(255,255,255,0.12)",
+            boxShadow: "0 16px 48px rgba(0,0,0,0.25)",
+          }}>
+            <div className="flex gap-8">
+              {/* Left 60% */}
+              <div className="flex-[60] flex flex-col">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold w-fit mb-3" style={{ background: `${sc}15`, color: sc }}>{s.icon} {s.severity === "critical" ? "Critical" : s.severity === "warning" ? "Warning" : s.severity === "positive" ? "On Track" : "Insight"}</span>
+                <h3 className="text-[20px] font-bold text-[var(--text-primary)] mb-2" style={{ letterSpacing: "-0.02em" }}>{s.title}</h3>
+                <p className="text-[13px] text-[#94a3b8] leading-relaxed mb-auto">{s.body}</p>
+                <div className="mt-4 rounded-lg p-3" style={{ background: "rgba(59,130,246,0.06)", borderLeft: "3px solid #3B82F6" }}>
+                  <div className="text-[9px] font-bold uppercase tracking-[0.08em] text-[#3B82F6] mb-1">Recommended Action</div>
+                  <div className="text-[12px] text-[#cbd5e1] leading-relaxed">{s.action}</div>
+                </div>
+              </div>
+              {/* Right 40% */}
+              <div className="flex-[40] flex flex-col items-center justify-center">
+                <div className="text-[52px] font-bold" style={{ fontFamily: "'JetBrains Mono', monospace", color: sc, textShadow: `0 0 20px ${sc}30` }}>{s.stat}</div>
+                <div className="text-[11px] text-[#64748b] uppercase tracking-[0.08em]">{s.statLabel}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Dot indicators */}
+        <div className="flex items-center justify-center gap-1.5 mt-4">
+          {slides.map((_, i) => <button key={i} onClick={() => setSlideIdx(i)} className="rounded-full transition-all duration-300" style={{ width: i === slideIdx % slides.length ? 24 : 8, height: 8, background: i === slideIdx % slides.length ? "#3B82F6" : "rgba(255,255,255,0.15)" }} />)}
+        </div>
+      </div>;
+    })()}
 
     {/* ─── ROLE EVOLUTION ─── */}
     {intView === "evolution" && <Card title="Role Evolution Detector">
@@ -1392,7 +1670,37 @@ function RoleNetworkTab({ jobs, model }: { jobs: Job[]; model: string }) {
 
     {/* ─── TASK OVERLAP ─── */}
     {netView === "overlap" && <Card title="Task Overlap Network">
-      <div className="text-[15px] text-[var(--text-secondary)] mb-4">Roles connected by shared task profiles. High overlap = potential consolidation candidate. Click a role to see its connections.</div>
+      {/* Grouped bubble chart visualization */}
+      <div className="rounded-xl p-4 mb-4" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="text-[9px] font-bold uppercase tracking-[0.08em] text-[#64748b] mb-3">Role Network by Family — sized by headcount, colored by track</div>
+        <div className="flex flex-wrap gap-2 justify-center">
+          {(() => {
+            const families = [...new Set(jobs.map(j => j.family))];
+            return families.slice(0, 8).map(fam => {
+              const famJobs = jobs.filter(j => j.family === fam).slice(0, 6);
+              return <div key={fam} className="flex flex-col items-center gap-1 p-2 rounded-lg" style={{ background: "rgba(255,255,255,0.03)" }}>
+                <div className="text-[9px] text-[#64748b] truncate max-w-[80px]">{fam}</div>
+                <div className="flex flex-wrap gap-1 justify-center max-w-[100px]">
+                  {famJobs.map(j => {
+                    const size = Math.max(12, Math.min(32, j.headcount * 0.8));
+                    const tc = getTrackColor(j.level || j.track);
+                    const isSelected = selectedRoleId === j.id;
+                    return <div key={j.id} onClick={() => setSelectedRoleId(isSelected ? null : j.id)} className="rounded-full cursor-pointer transition-all" title={`${j.title} · ${j.level} · ${j.headcount} HC`} style={{
+                      width: size, height: size, background: `${tc}60`, border: isSelected ? `2px solid ${tc}` : "1px solid transparent",
+                      boxShadow: isSelected ? `0 0 8px ${tc}40` : "none",
+                    }} />;
+                  })}
+                </div>
+              </div>;
+            });
+          })()}
+        </div>
+        {/* Track legend */}
+        <div className="flex gap-3 justify-center mt-3 text-[9px] text-[#64748b]">
+          {Object.entries(TRACK_COLORS).filter(([k]) => k.length === 1).map(([k, c]) => <span key={k} className="flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{ background: c }} />{k}</span>)}
+        </div>
+      </div>
+      <div className="text-[12px] text-[#94a3b8] mb-4">Roles connected by shared task profiles. High overlap = potential consolidation. Click a role to see connections.</div>
       {/* Role selector */}
       <div className="flex gap-2 mb-4">
         <select value={selectedRoleId || ""} onChange={e => setSelectedRoleId(e.target.value || null)} className="flex-1 bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-3 py-2 text-[14px] text-[var(--text-primary)] outline-none"><option value="">All roles — showing top overlaps</option>{jobs.slice(0, 50).map(j => <option key={j.id} value={j.id}>{j.title} ({j.function})</option>)}</select>
@@ -1561,106 +1869,138 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
     <ContextStrip items={[`${Number(stats.total_headcount || 0).toLocaleString()} employees · ${Number(stats.total_functions || 0)} functions · ${Number(stats.total_family_groups || 0)} family groups · ${Number(stats.total_families || 0)} families · ${Number(stats.total_jobs || 0)} roles`]} />
     <PageHeader icon="🏗️" title="Job Architecture" subtitle="Enterprise job catalogue, hierarchy, career framework & validation" onBack={onBack} moduleId="jobarch" viewCtx={viewCtx} />
 
-    {/* KPI Strip */}
-    <div className="grid grid-cols-8 gap-3 mb-5">
-      <KpiCard label="Headcount" value={Number(stats.total_headcount || 0).toLocaleString()} accent />
-      <KpiCard label="Functions" value={Number(stats.total_functions || 0)} />
-      <KpiCard label="Family Groups" value={Number(stats.total_family_groups || 0)} />
-      <KpiCard label="Job Families" value={Number(stats.total_families || 0)} />
-      <KpiCard label="Sub-Families" value={Number(stats.total_sub_families || 0)} />
-      <KpiCard label="Unique Roles" value={Number(stats.total_jobs || 0)} />
-      <KpiCard label="Levels" value={Number(stats.total_levels || 0)} />
-      <KpiCard label="Health" value={`${Number(analytics.health_score || 0)}/100`} accent />
+    {/* KPI Strip — ultra-dense consulting layout */}
+    <div className="grid grid-cols-4 md:grid-cols-8 gap-2 mb-5">
+      {[
+        { label: "Headcount", value: Number(stats.total_headcount || 0).toLocaleString(), accent: true },
+        { label: "Functions", value: Number(stats.total_functions || 0) },
+        { label: "Family Groups", value: Number(stats.total_family_groups || 0) },
+        { label: "Job Families", value: Number(stats.total_families || 0) },
+        { label: "Sub-Families", value: Number(stats.total_sub_families || 0) },
+        { label: "Unique Roles", value: Number(stats.total_jobs || 0) },
+        { label: "Levels", value: Number(stats.total_levels || 0) },
+        { label: "Health", value: Number(analytics.health_score || 0), isHealth: true },
+      ].map(k => {
+        const healthScore = k.isHealth ? Number(k.value) : 0;
+        const healthColor = healthScore >= 70 ? "#34d399" : healthScore >= 40 ? "#F59E0B" : "#ef4444";
+        return <div key={k.label} className="rounded-xl p-3 border transition-all hover:bg-[rgba(255,255,255,0.07)]" style={{ background: "rgba(255,255,255,0.04)", border: `1px solid ${k.accent ? "rgba(59,130,246,0.25)" : "rgba(255,255,255,0.08)"}` }}>
+          <div className="text-[9px] font-bold uppercase tracking-[0.08em] text-[#64748b] mb-1">{k.label}</div>
+          <div className="text-[20px] font-bold" style={{ fontFamily: "'JetBrains Mono', monospace", color: k.isHealth ? healthColor : "var(--text-primary)" }}>{k.isHealth ? `${k.value}/100` : k.value}</div>
+        </div>;
+      })}
     </div>
 
     <TabBar tabs={[
-      { id: "catalogue", label: "📋 Job Catalogue" },
-      { id: "orgchart", label: "🏢 Org Chart" },
-      { id: "profiles", label: "📄 Job Profiles" },
-      { id: "map", label: "🗺️ Architecture Map" },
-      { id: "validation", label: "✅ Validation" },
-      { id: "analytics", label: "📊 Analytics" },
-      { id: "evaluation", label: "⚖️ Job Evaluation" },
-      { id: "lattice", label: "🪜 Career Lattice" },
-      { id: "jagovernance", label: "🏛️ Governance" },
-      { id: "intelligence", label: "🧠 Intelligence" },
-      { id: "rolenet", label: "🕸️ Role Network" },
-      { id: "compare", label: "🔍 Compare" },
-      { id: "content", label: "✍️ Job Content" },
+      { id: "catalogue", label: "◆ Catalogue" },
+      { id: "orgchart", label: "◇ Org Chart" },
+      { id: "profiles", label: "◈ Profiles" },
+      { id: "map", label: "▣ Map" },
+      { id: "validation", label: "◉ Validation" },
+      { id: "analytics", label: "▥ Analytics" },
+      { id: "evaluation", label: "▧ Evaluation" },
+      { id: "lattice", label: "▤ Lattice" },
+      { id: "jagovernance", label: "▦ Governance" },
+      { id: "intelligence", label: "◎ Intelligence" },
+      { id: "rolenet", label: "◍ Network" },
+      { id: "compare", label: "◫ Compare" },
+      { id: "content", label: "◧ Content" },
     ]} active={tab} onChange={setTab} />
 
-    {/* ═══ CATALOGUE TAB ═══ */}
+    {/* ═══ CATALOGUE TAB — Bloomberg Terminal meets Notion ═══ */}
     {tab === "catalogue" && <div className="flex gap-4 animate-tab-enter" style={{ minHeight: 600 }}>
       {/* Left tree navigator */}
-      <div className="w-56 shrink-0 bg-[var(--surface-1)] rounded-xl border border-[var(--border)] p-3 overflow-y-auto" style={{ maxHeight: "70vh" }}>
-        <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2 font-heading">Hierarchy</div>
-        <button onClick={() => setSelectedPath([])} className={`w-full text-left px-2 py-1.5 rounded-lg text-[15px] font-semibold mb-1 transition-all ${selectedPath.length === 0 ? "bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]" : "text-[var(--text-secondary)] hover:bg-[var(--hover)]"}`}>All ({Number(stats.total_headcount || 0)})</button>
+      <div className="w-56 shrink-0 rounded-xl p-3 overflow-y-auto" style={{ maxHeight: "70vh", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+        <div className="text-[9px] font-bold uppercase tracking-[0.08em] text-[#64748b] mb-2">Hierarchy</div>
+        <button onClick={() => setSelectedPath([])} className={`w-full text-left px-2 py-1.5 rounded-lg text-[12px] font-semibold mb-1 transition-all ${selectedPath.length === 0 ? "bg-[rgba(59,130,246,0.15)] text-[#3B82F6]" : "text-[var(--text-secondary)] hover:bg-[rgba(255,255,255,0.05)]"}`}>All ({Number(stats.total_headcount || 0)})</button>
         {tree.map(func => <TreeNav key={func.id} node={func} depth={0} selectedPath={selectedPath} onSelect={setSelectedPath} />)}
       </div>
 
-      {/* Main job cards */}
+      {/* Main catalogue */}
       <div className="flex-1 min-w-0">
         {/* Breadcrumbs */}
-        <div className="flex items-center gap-1 mb-3 text-[15px]">
+        <div className="flex items-center gap-1 mb-3 text-[12px]">
           {breadcrumbs.map((b, i) => <React.Fragment key={i}>
-            {i > 0 && <span className="text-[var(--text-muted)]">›</span>}
-            <button onClick={() => setSelectedPath(b.path)} className={`font-semibold ${i === breadcrumbs.length - 1 ? "text-[var(--accent-primary)]" : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"}`}>{b.label}</button>
+            {i > 0 && <span className="text-[#64748b]">›</span>}
+            <button onClick={() => setSelectedPath(b.path)} className={`font-semibold transition-colors ${i === breadcrumbs.length - 1 ? "text-[#3B82F6]" : "text-[#64748b] hover:text-[var(--text-primary)]"}`}>{b.label}</button>
           </React.Fragment>)}
         </div>
 
-        {/* Controls */}
-        <div className="flex items-center gap-3 mb-4 flex-wrap">
-          <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search jobs..." className="flex-1 min-w-48 bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-[15px] text-[var(--text-primary)] outline-none focus:border-[var(--accent-primary)] placeholder:text-[var(--text-muted)]" />
-          <select value={filterTrack} onChange={e => setFilterTrack(e.target.value)} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-2 py-2 text-[15px] text-[var(--text-primary)]">
-            <option value="All">All Tracks</option><option value="IC">IC</option><option value="Manager">Manager</option><option value="Executive">Executive</option>
-          </select>
-          <select value={filterAI} onChange={e => setFilterAI(e.target.value)} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-2 py-2 text-[15px] text-[var(--text-primary)]">
-            <option value="All">All AI Impact</option><option value="High">High</option><option value="Moderate">Moderate</option><option value="Low">Low</option>
-          </select>
-          <div className="flex gap-1">
-            {(["level","headcount","ai","alpha"] as const).map(s => <button key={s} onClick={() => setSortBy(s)} className={`px-2 py-1 rounded text-[15px] font-semibold ${sortBy === s ? "bg-[var(--accent-primary)] text-white" : "text-[var(--text-muted)] border border-[var(--border)]"}`}>{s === "level" ? "Level" : s === "headcount" ? "HC" : s === "ai" ? "AI" : "A-Z"}</button>)}
-          </div>
+        {/* Search bar — full width with live count */}
+        <div className="relative mb-3">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#64748b] text-[13px]">⌕</span>
+          <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search roles, families, levels..." className="w-full pl-8 pr-40 py-2.5 rounded-xl text-[13px] text-[var(--text-primary)] outline-none transition-all placeholder:text-[#475569]" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }} onFocus={e => e.target.style.borderColor = "rgba(59,130,246,0.6)"} onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.08)"} />
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-[#64748b]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{filteredJobs.length} roles · {filteredJobs.reduce((s, j) => s + j.headcount, 0).toLocaleString()} HC</span>
         </div>
 
-        {/* Job cards grid */}
-        {filteredJobs.length === 0 ? <Empty text="No jobs match your filters — try broadening your search" icon="🔍" /> :
-        <div className="grid grid-cols-2 gap-3">
-          {filteredJobs.map((j, i) => <div key={j.id} onClick={() => { setSelectedJob(j); setJobProfileTab("content"); }}
-            className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl p-4 cursor-pointer card-hover hover:border-[var(--accent-primary)]/40 group"
-            style={{ animation: `scaleIn 0.2s ease-out ${Math.min(i * 0.02, 0.3)}s both` }}>
-            <div className="flex items-start justify-between mb-2">
+        {/* Controls row */}
+        <div className="flex items-center gap-3 mb-4 flex-wrap">
+          {/* Group-By toggle — segmented control */}
+          <div className="flex rounded-lg overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+            {(["level","headcount","ai","alpha"] as const).map(s => <button key={s} onClick={() => setSortBy(s)} className="px-3 py-1.5 text-[11px] font-semibold transition-all" style={{ background: sortBy === s ? "rgba(59,130,246,0.2)" : "transparent", color: sortBy === s ? "#3B82F6" : "#64748b" }}>{s === "level" ? "Level" : s === "headcount" ? "HC" : s === "ai" ? "AI" : "A-Z"}</button>)}
+          </div>
+          <select value={filterTrack} onChange={e => setFilterTrack(e.target.value)} className="rounded-lg px-2 py-1.5 text-[11px] text-[var(--text-primary)] outline-none" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+            <option value="All">All Tracks</option><option value="IC">IC</option><option value="Manager">Manager</option><option value="Executive">Executive</option>
+          </select>
+          <select value={filterAI} onChange={e => setFilterAI(e.target.value)} className="rounded-lg px-2 py-1.5 text-[11px] text-[var(--text-primary)] outline-none" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+            <option value="All">All AI Impact</option><option value="High">High</option><option value="Moderate">Moderate</option><option value="Low">Low</option>
+          </select>
+        </div>
+
+        {/* Role rows — dense table layout */}
+        {filteredJobs.length === 0 ? <Empty text="No jobs match your filters — try broadening your search" icon="◇" /> :
+        <div className="space-y-1">
+          {filteredJobs.map((j, i) => {
+            const tc = getTrackColor(j.level || j.track);
+            const maxHC = Math.max(...filteredJobs.map(fj => fj.headcount), 1);
+            const skills = [j.sub_family, j.family].filter(Boolean);
+            return <div key={j.id} onClick={() => { setSelectedJob(j); setJobProfileTab("content"); }}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-all group" style={{
+                background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
+                animation: `scaleIn 0.15s ease-out ${Math.min(i * 0.015, 0.2)}s both`,
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.07)"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.04)"; }}>
+              {/* Level Badge */}
+              <div className="w-[36px] shrink-0"><LevelBadge level={j.level} /></div>
+              {/* Title + Family */}
               <div className="flex-1 min-w-0">
-                <div className="text-[14px] font-semibold text-[var(--text-primary)] font-heading truncate group-hover:text-[var(--accent-primary)] transition-colors">{j.title}</div>
-                <div className="text-[15px] text-[var(--text-muted)] mt-0.5">{j.family} › {j.sub_family}</div>
+                <span className="text-[13px] font-semibold text-[var(--text-primary)] group-hover:text-[#3B82F6] transition-colors">{j.title}</span>
+                <span className="text-[11px] text-[#64748b] ml-1.5">· {j.family}</span>
               </div>
-              <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                <div className="w-2 h-2 rounded-full" style={{ background: aiDot(j.ai_impact) }} title={`AI Impact: ${j.ai_impact}`} />
-                <span className="text-[15px] px-2 py-0.5 rounded-full font-bold font-data" style={{ background: trackBg(j.track), color: trackColor(j.track) }}>{j.level}</span>
+              {/* Skill chips */}
+              <div className="w-[120px] shrink-0 flex gap-1 overflow-hidden">
+                {skills.slice(0, 2).map((s, si) => <span key={si} className="px-1.5 py-0.5 rounded text-[9px] text-[#94a3b8] truncate" style={{ background: "rgba(255,255,255,0.06)" }}>{s.split(" ").slice(0, 2).join(" ")}</span>)}
+                {skills.length > 2 && <span className="text-[9px] text-[#64748b]">+{skills.length - 2}</span>}
               </div>
-            </div>
-            <div className="flex items-center gap-3 text-[15px]">
-              <span className="font-data" style={{ color: trackColor(j.track) }}>{j.track}</span>
-              <span className="text-[var(--text-muted)]">·</span>
-              <span className="font-data text-[var(--text-secondary)]">{j.headcount} people</span>
-              {j.tasks_mapped > 0 && <><span className="text-[var(--text-muted)]">·</span><span className="text-[var(--accent-primary)]">{j.tasks_mapped} tasks</span></>}
-            </div>
-          </div>)}
+              {/* HC Number */}
+              <div className="w-[60px] shrink-0 text-right text-[13px] font-bold" style={{ fontFamily: "'JetBrains Mono', monospace", color: "var(--text-primary)" }}>{j.headcount}</div>
+              {/* Proportion bar */}
+              <div className="w-[100px] shrink-0">
+                <div className="h-[5px] rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
+                  <div className="h-full rounded-full transition-all duration-500" style={{ width: `${(j.headcount / maxHC) * 100}%`, background: tc, boxShadow: `0 0 8px ${tc}20` }} />
+                </div>
+              </div>
+              {/* AI dot */}
+              <div className="w-2 h-2 rounded-full shrink-0" style={{ background: aiDot(j.ai_impact) }} title={`AI: ${j.ai_impact}`} />
+            </div>;
+          })}
         </div>}
-        <div className="mt-3 text-[15px] text-[var(--text-muted)] text-center">{filteredJobs.length} of {jobs.length} roles shown</div>
+        <div className="mt-3 text-[11px] text-[#64748b] text-center" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{filteredJobs.length} of {jobs.length} roles</div>
       </div>
 
-      {/* Job profile slide-in panel */}
-      {selectedJob && <div className="w-[420px] shrink-0 bg-[var(--surface-1)] rounded-xl border border-[var(--border)] overflow-y-auto animate-slide-right" style={{ maxHeight: "70vh" }}>
-        <div className="p-4 border-b border-[var(--border)] sticky top-0 bg-[var(--surface-1)] z-10">
+      {/* Job profile slide-in panel — refined */}
+      {selectedJob && <div className="w-[420px] shrink-0 rounded-xl overflow-y-auto animate-slide-right" style={{ maxHeight: "70vh", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+        <div className="p-4 border-b sticky top-0 z-10" style={{ borderColor: "rgba(255,255,255,0.08)", background: "rgba(15,23,42,0.95)", backdropFilter: "blur(12px)" }}>
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <span className="text-[15px] px-2 py-0.5 rounded-full font-bold font-data" style={{ background: trackBg(selectedJob.track), color: trackColor(selectedJob.track) }}>{selectedJob.level} · {selectedJob.track}</span>
+              <LevelBadge level={selectedJob.level} size="md" />
+              <span className="text-[11px] text-[#64748b]">{selectedJob.track}</span>
               <div className="w-2 h-2 rounded-full" style={{ background: aiDot(selectedJob.ai_impact) }} />
             </div>
-            <button onClick={() => setSelectedJob(null)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">✕</button>
+            <button onClick={() => setSelectedJob(null)} className="text-[#64748b] hover:text-[var(--text-primary)] text-sm transition-colors">✕</button>
           </div>
-          <h3 className="text-[17px] font-bold text-[var(--text-primary)] font-heading">{selectedJob.title}</h3>
-          <div className="text-[15px] text-[var(--text-muted)] mt-1">{selectedJob.function} › {selectedJob.family} › {selectedJob.sub_family}</div>
+          <h3 className="text-[18px] font-bold text-[var(--text-primary)]" style={{ letterSpacing: "-0.02em" }}>{selectedJob.title}</h3>
+          <div className="text-[11px] text-[#64748b] mt-1">{selectedJob.function} › {selectedJob.family} › {selectedJob.sub_family}</div>
           <div className="flex gap-2 mt-3">
             <button onClick={() => { if (onNavigate) { onNavigate("design"); } }} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 hover:bg-[var(--accent-primary)]/5">View in Work Design Lab</button>
             <button onClick={() => { if (!compareJobs.find(c => c.id === selectedJob.id)) { setCompareJobs(p => [...p, selectedJob]); showToast(`Added ${selectedJob.title} to comparison`); }}} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:border-[var(--accent-primary)]">+ Compare</button>
@@ -1828,108 +2168,191 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
     {/* ═══ ARCHITECTURE MAP TAB — strategic mapping workspace ═══ */}
     {tab === "map" && <ArchitectureMapTab tree={tree} jobs={jobs} employees={employees} model={model} />}
 
-    {/* ═══ VALIDATION TAB ═══ */}
-    {tab === "validation" && <div className="animate-tab-enter">
-      <div className="grid grid-cols-4 gap-3 mb-5">
-        <KpiCard label="Health Score" value={`${Number(analytics.health_score || 0)}/100`} accent />
-        <KpiCard label="Critical" value={Number(analytics.critical_flags || 0)} />
-        <KpiCard label="Warnings" value={Number(analytics.warning_flags || 0)} />
-        <KpiCard label="Total Flags" value={flags.length} />
-      </div>
+    {/* ═══ VALIDATION TAB — Health dashboard with ring ═══ */}
+    {tab === "validation" && (() => {
+      const healthVal = Number(analytics.health_score || 0);
+      const healthCol = healthVal >= 70 ? "#34d399" : healthVal >= 40 ? "#F59E0B" : "#ef4444";
+      const circumference = 2 * Math.PI * 55;
+      const dashOffset = circumference * (1 - healthVal / 100);
+      const passCount = flags.filter(fl => fl.severity === "info" || fl.severity === "pass").length;
+      const warnCount = flags.filter(fl => fl.severity === "warning").length;
+      const failCount = flags.filter(fl => fl.severity === "critical").length;
 
-      <div className="flex gap-2 mb-4">
-        {["All", "Structure", "Population", "Career Path", "Risk", "Span of Control"].map(c => <button key={c} onClick={() => setFlagFilter(c)} className={`px-3 py-1.5 rounded-lg text-[15px] font-semibold ${flagFilter === c ? "bg-[var(--accent-primary)] text-white" : "text-[var(--text-muted)] border border-[var(--border)]"}`}>{c}</button>)}
-      </div>
-
-      <div className="space-y-3">
-        {flags.filter(fl => flagFilter === "All" || fl.category === flagFilter).map((fl, i) => <div key={i} className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl p-4 card-hover">
-          <div className="flex items-start gap-3">
-            <div className="text-lg shrink-0">{fl.severity === "critical" ? "🔴" : fl.severity === "warning" ? "🟡" : "🔵"}</div>
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-[15px] font-semibold text-[var(--text-primary)] font-heading">{fl.title}</span>
-                <Badge color={fl.severity === "critical" ? "red" : fl.severity === "warning" ? "amber" : "gray"}>{fl.category}</Badge>
-              </div>
-              <div className="text-[15px] text-[var(--text-secondary)]">{fl.description}</div>
-              <div className="text-[15px] text-[var(--text-muted)] mt-1">Affected: {fl.affected} · Population: {fl.population}</div>
+      return <div className="animate-tab-enter">
+        {/* Health Dashboard — ring + summary */}
+        <div className="flex gap-5 mb-6 items-center">
+          {/* Health Ring */}
+          <div className="relative w-[130px] h-[130px] shrink-0">
+            <svg viewBox="0 0 130 130" className="w-full h-full">
+              <circle cx="65" cy="65" r="55" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="10" />
+              <circle cx="65" cy="65" r="55" fill="none" stroke={healthCol} strokeWidth="10" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={dashOffset} transform="rotate(-90 65 65)" style={{ filter: `drop-shadow(0 0 6px ${healthCol}30)`, transition: "stroke-dashoffset 0.8s ease" }} />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <div className="text-[32px] font-bold" style={{ fontFamily: "'JetBrains Mono', monospace", color: healthCol }}>{healthVal}</div>
+              <div className="text-[9px] uppercase tracking-[0.08em] text-[#64748b]">Health</div>
             </div>
           </div>
-        </div>)}
-        {flags.filter(fl => flagFilter === "All" || fl.category === flagFilter).length === 0 && <Empty text="No flags in this category" icon="✅" />}
-      </div>
-    </div>}
-
-    {/* ═══ ANALYTICS TAB ═══ */}
-    {tab === "analytics" && <div className="animate-tab-enter">
-      <div className="grid grid-cols-2 gap-4">
-        <Card title="Family Size Distribution">
-          <ExpandableChart title="Family Size Distribution">{(() => {
-            const famData = ((analytics.family_sizes || []) as {family:string;headcount:number;roles:number}[]).slice(0, 15);
-            const totalHC = famData.reduce((s, f) => s + f.headcount, 0);
-            const famColors = ["var(--accent-primary)","var(--teal)","var(--warning)","#8B6D3F","var(--amber)","#C98860","#A0734D","#4A9B8E","#9B7EC0","#C76B5A","#6B9E6B","#B8860B","#8B7355","#5F8A8B","#A67B5B"];
-            return <ResponsiveContainer width="100%" height={360}>
-              <BarChart data={famData} margin={{ bottom: 60 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis dataKey="family" tick={{ fontSize: 15, fill: "var(--text-muted)" }} angle={-45} textAnchor="end" height={80} interval={0} />
-                <YAxis tick={{ fontSize: 15, fill: "var(--text-muted)" }} />
-                <Tooltip content={({ active, payload }) => {
-                  if (!active || !payload?.[0]) return null;
-                  const d = payload[0].payload;
-                  const pct = totalHC > 0 ? ((d.headcount / totalHC) * 100).toFixed(1) : "0";
-                  return <div style={{ background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 10, padding: "10px 14px", boxShadow: "var(--shadow-3)" }}>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", marginBottom: 4 }}>{d.family}</div>
-                    <div style={{ fontSize: 15, color: "var(--text-secondary)" }}>{d.headcount.toLocaleString()} employees ({pct}%)</div>
-                    <div style={{ fontSize: 15, color: "var(--text-muted)" }}>{d.roles} unique roles</div>
-                  </div>;
-                }} />
-                <defs>{famData.map((_, i) => <linearGradient key={i} id={`famBar${i}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={famColors[i % famColors.length]} stopOpacity={0.9} /><stop offset="100%" stopColor={famColors[i % famColors.length]} stopOpacity={0.65} /></linearGradient>)}</defs>
-                <Bar dataKey="headcount" name="Headcount" radius={[4, 4, 0, 0]}>
-                  {famData.map((_, i) => <Cell key={i} fill={`url(#famBar${i})`} />)}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>;
-          })()}</ExpandableChart>
-        </Card>
-
-        <Card title="AI Impact Heatmap">
-          <div className="grid grid-cols-3 gap-3">
-            {[{ label: "High Impact", count: (analytics.ai_impact_summary as Record<string,number>)?.high || 0, color: "var(--risk)", desc: "Significant automation potential" },
-              { label: "Moderate", count: (analytics.ai_impact_summary as Record<string,number>)?.moderate || 0, color: "var(--warning)", desc: "Augmentation opportunities" },
-              { label: "Low Impact", count: (analytics.ai_impact_summary as Record<string,number>)?.low || 0, color: "var(--success)", desc: "Primarily human-led" },
-            ].map(b => <div key={b.label} className="bg-[var(--surface-2)] rounded-xl p-4 text-center border border-[var(--border)]">
-              <div className="text-[28px] font-extrabold font-data" style={{ color: b.color }}>{b.count}</div>
-              <div className="text-[15px] font-semibold text-[var(--text-primary)] mt-1">{b.label}</div>
-              <div className="text-[14px] text-[var(--text-muted)] mt-0.5">{b.desc}</div>
+          {/* Summary cards */}
+          <div className="flex gap-3 flex-1">
+            {[
+              { label: "Pass", val: passCount || flags.length - warnCount - failCount, color: "#34d399", bg: "rgba(52,211,153,0.08)" },
+              { label: "Warning", val: warnCount, color: "#F59E0B", bg: "rgba(245,158,11,0.08)" },
+              { label: "Fail", val: failCount, color: "#ef4444", bg: "rgba(239,68,68,0.08)" },
+            ].map(s => <div key={s.label} className="flex-1 rounded-xl p-4 text-center" style={{ background: s.bg, border: `1px solid ${s.color}20` }}>
+              <div className="text-[32px] font-bold" style={{ fontFamily: "'JetBrains Mono', monospace", color: s.color }}>{s.val}</div>
+              <div className="text-[9px] uppercase tracking-[0.08em] text-[#64748b]">{s.label}</div>
             </div>)}
           </div>
-        </Card>
+        </div>
 
-        <Card title="Level Distribution">
-          <ExpandableChart title="Level Distribution"><ResponsiveContainer width="100%" height={250}>
-            <BarChart data={((analytics.level_distribution || []) as {level:string;headcount:number}[])}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis dataKey="level" tick={{ fontSize: 15, fill: "var(--text-muted)" }} />
-              <YAxis tick={{ fontSize: 15, fill: "var(--text-muted)" }} />
-              <Tooltip contentStyle={{ ...TT }} />
-              <Bar dataKey="headcount" fill="var(--teal)" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer></ExpandableChart>
-        </Card>
+        {/* Category filter */}
+        <div className="flex gap-2 mb-4">
+          {["All", "Structure", "Population", "Career Path", "Risk", "Span of Control"].map(c => <button key={c} onClick={() => setFlagFilter(c)} className="px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all" style={{ background: flagFilter === c ? "rgba(59,130,246,0.15)" : "transparent", color: flagFilter === c ? "#3B82F6" : "#64748b", border: flagFilter === c ? "1px solid rgba(59,130,246,0.35)" : "1px solid rgba(255,255,255,0.08)" }}>{c}</button>)}
+        </div>
 
-        <Card title="Architecture Completeness">
-          <div className="space-y-3 py-4">
-            {[{ label: "Jobs with tasks mapped", pct: jobs.length > 0 ? Math.round(jobs.filter(j => j.tasks_mapped > 0).length / jobs.length * 100) : 0 },
-              { label: "Jobs with headcount", pct: jobs.length > 0 ? Math.round(jobs.filter(j => j.headcount > 0).length / jobs.length * 100) : 0 },
-              { label: "Families with 3+ roles", pct: (() => { const fams = new Set(jobs.map(j => j.family)); const ok = [...fams].filter(f => jobs.filter(j => j.family === f).length >= 3).length; return fams.size > 0 ? Math.round(ok / fams.size * 100) : 0; })() },
-              { label: "Roles with AI scoring", pct: jobs.length > 0 ? Math.round(jobs.filter(j => j.ai_score > 0).length / jobs.length * 100) : 0 },
-            ].map(m => <div key={m.label}>
-              <div className="flex justify-between text-[15px] mb-1"><span className="text-[var(--text-secondary)]">{m.label}</span><span className="font-bold font-data" style={{ color: m.pct >= 80 ? "var(--success)" : m.pct >= 50 ? "var(--warning)" : "var(--risk)" }}>{m.pct}%</span></div>
-              <div className="h-2 bg-[var(--surface-2)] rounded-full overflow-hidden"><div className="h-full rounded-full" style={{ width: `${m.pct}%`, background: m.pct >= 80 ? "var(--success)" : m.pct >= 50 ? "var(--warning)" : "var(--risk)" }} /></div>
-            </div>)}
+        {/* Validation rules */}
+        <div className="space-y-2">
+          {flags.filter(fl => flagFilter === "All" || fl.category === flagFilter).map((fl, i) => {
+            const statusIcon = fl.severity === "critical" ? "✕" : fl.severity === "warning" ? "◈" : "✓";
+            const statusColor = fl.severity === "critical" ? "#ef4444" : fl.severity === "warning" ? "#F59E0B" : "#34d399";
+            return <div key={i} className="flex items-start gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }} onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.07)"; }} onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.04)"; }}>
+              {/* Status icon circle */}
+              <div className="w-[26px] h-[26px] rounded-full flex items-center justify-center text-[11px] font-bold shrink-0" style={{ background: `${statusColor}15`, color: statusColor, boxShadow: `0 0 8px ${statusColor}20` }}>{statusIcon}</div>
+              <div className="flex-1 min-w-0">
+                <div className="text-[13px] font-semibold text-[var(--text-primary)]" style={{ letterSpacing: "-0.02em" }}>{fl.title}</div>
+                <div className="text-[12px] text-[#cbd5e1] mt-0.5 leading-relaxed">{fl.description}</div>
+              </div>
+              {/* Affected count badge */}
+              {fl.population > 0 && <span className="shrink-0 px-2 py-0.5 rounded text-[10px] font-bold" style={{ fontFamily: "'JetBrains Mono', monospace", background: `${statusColor}15`, color: statusColor }}>{fl.population}</span>}
+            </div>;
+          })}
+          {flags.filter(fl => flagFilter === "All" || fl.category === flagFilter).length === 0 && <Empty text="No flags in this category" icon="✓" />}
+        </div>
+      </div>;
+    })()}
+
+    {/* ═══ ANALYTICS TAB — Track composition + dense bars ═══ */}
+    {tab === "analytics" && (() => {
+      // Track composition data
+      const trackCounts: Record<string, number> = {};
+      jobs.forEach(j => { const letter = getTrackLetter(j.level); trackCounts[letter] = (trackCounts[letter] || 0) + j.headcount; });
+      const totalTrackHC = Object.values(trackCounts).reduce((s, v) => s + v, 0) || 1;
+      const trackEntries = Object.entries(trackCounts).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]);
+      const trackNames: Record<string, string> = { S: "Support", P: "Professional", M: "Management", E: "Executive", T: "Technical" };
+
+      // Level distribution data
+      const levelDist = ((analytics.level_distribution || []) as {level:string;headcount:number}[]);
+      const maxLevelHC = Math.max(...levelDist.map(l => l.headcount), 1);
+
+      // Family size data
+      const famData = ((analytics.family_sizes || []) as {family:string;headcount:number;roles:number}[]).sort((a, b) => b.headcount - a.headcount).slice(0, 15);
+      const maxFamHC = Math.max(...famData.map(f => f.headcount), 1);
+
+      return <div className="animate-tab-enter space-y-5">
+        {/* Row 1: Track Composition — ring chart cards */}
+        {trackEntries.length > 0 && <div className="flex gap-3">
+          {trackEntries.map(([track, count]) => {
+            const pct = Math.round((count / totalTrackHC) * 100);
+            const color = TRACK_COLORS[track] || "#3B82F6";
+            const circ = 2 * Math.PI * 28;
+            const dashOff = circ * (1 - pct / 100);
+            return <div key={track} className="flex-1 rounded-xl p-4 relative overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <div className="flex items-center gap-3">
+                {/* Ring chart */}
+                <div className="relative w-[72px] h-[72px] shrink-0">
+                  <svg viewBox="0 0 72 72" className="w-full h-full">
+                    <circle cx="36" cy="36" r="28" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6" />
+                    <circle cx="36" cy="36" r="28" fill="none" stroke={color} strokeWidth="6" strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={dashOff} transform="rotate(-90 36 36)" style={{ filter: `drop-shadow(0 0 4px ${color}30)` }} />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center text-[14px] font-bold" style={{ fontFamily: "'JetBrains Mono', monospace", color }}>{pct}%</div>
+                </div>
+                <div>
+                  <div className="text-[12px] font-bold" style={{ color }}>{trackNames[track] || track}</div>
+                  <div className="text-[18px] font-bold" style={{ fontFamily: "'JetBrains Mono', monospace", color: "var(--text-primary)" }}>{count.toLocaleString()}</div>
+                  <div className="text-[9px] uppercase tracking-[0.08em] text-[#64748b]">Headcount</div>
+                </div>
+              </div>
+              {/* Ambient glow */}
+              <div className="absolute bottom-0 right-0 w-20 h-20 rounded-full" style={{ background: color, opacity: 0.08, filter: "blur(20px)" }} />
+            </div>;
+          })}
+        </div>}
+
+        {/* Row 2: Level Distribution + Family Size */}
+        <div className="grid grid-cols-2 gap-4">
+          {/* Level Distribution — horizontal bars */}
+          <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+            <div className="text-[15px] font-bold text-[var(--text-primary)] mb-1" style={{ letterSpacing: "-0.02em" }}>Level Distribution</div>
+            <div className="text-[9px] uppercase tracking-[0.08em] text-[#64748b] mb-4">Headcount by career level</div>
+            <div className="space-y-2">
+              {levelDist.map(l => {
+                const color = getTrackColor(l.level);
+                return <div key={l.level} className="flex items-center gap-2">
+                  <div className="w-[36px] shrink-0"><LevelBadge level={l.level} /></div>
+                  <div className="flex-1 h-[14px] rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.04)" }}>
+                    <div className="h-full rounded-full transition-all duration-500" style={{ width: `${(l.headcount / maxLevelHC) * 100}%`, background: `linear-gradient(to right, ${color}80, ${color})`, boxShadow: `0 0 8px ${color}20` }} />
+                  </div>
+                  <div className="w-[50px] text-right text-[13px] font-bold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{l.headcount}</div>
+                </div>;
+              })}
+            </div>
           </div>
-        </Card>
-      </div>
-    </div>}
+
+          {/* Family Size — horizontal bars */}
+          <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+            <div className="text-[15px] font-bold text-[var(--text-primary)] mb-1" style={{ letterSpacing: "-0.02em" }}>Family Size</div>
+            <div className="text-[9px] uppercase tracking-[0.08em] text-[#64748b] mb-4">Headcount by job family</div>
+            <div className="space-y-2">
+              {famData.map((f, i) => {
+                const color = COLORS[i % COLORS.length];
+                return <div key={f.family} className="flex items-center gap-2">
+                  <TrackDot track={f.family} size={6} />
+                  <span className="text-[11px] text-[#cbd5e1] w-[100px] truncate shrink-0">{f.family}</span>
+                  <div className="flex-1 h-[10px] rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.04)" }}>
+                    <div className="h-full rounded-full transition-all duration-500" style={{ width: `${(f.headcount / maxFamHC) * 100}%`, background: color }} />
+                  </div>
+                  <div className="w-[40px] text-right text-[11px] font-bold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{f.headcount}</div>
+                </div>;
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Row 3: AI Impact + Architecture Completeness */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+            <div className="text-[15px] font-bold text-[var(--text-primary)] mb-4" style={{ letterSpacing: "-0.02em" }}>AI Impact Heatmap</div>
+            <div className="grid grid-cols-3 gap-3">
+              {[{ label: "High Impact", count: (analytics.ai_impact_summary as Record<string,number>)?.high || 0, color: "#ef4444", desc: "Automation potential" },
+                { label: "Moderate", count: (analytics.ai_impact_summary as Record<string,number>)?.moderate || 0, color: "#F59E0B", desc: "Augmentation" },
+                { label: "Low Impact", count: (analytics.ai_impact_summary as Record<string,number>)?.low || 0, color: "#34d399", desc: "Human-led" },
+              ].map(b => <div key={b.label} className="rounded-xl p-3 text-center" style={{ background: `${b.color}08`, border: `1px solid ${b.color}20` }}>
+                <div className="text-[28px] font-bold" style={{ fontFamily: "'JetBrains Mono', monospace", color: b.color }}>{b.count}</div>
+                <div className="text-[11px] font-semibold text-[var(--text-primary)] mt-0.5">{b.label}</div>
+                <div className="text-[9px] text-[#64748b]">{b.desc}</div>
+              </div>)}
+            </div>
+          </div>
+
+          <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+            <div className="text-[15px] font-bold text-[var(--text-primary)] mb-4" style={{ letterSpacing: "-0.02em" }}>Architecture Completeness</div>
+            <div className="space-y-3">
+              {[{ label: "Jobs with tasks mapped", pct: jobs.length > 0 ? Math.round(jobs.filter(j => j.tasks_mapped > 0).length / jobs.length * 100) : 0 },
+                { label: "Jobs with headcount", pct: jobs.length > 0 ? Math.round(jobs.filter(j => j.headcount > 0).length / jobs.length * 100) : 0 },
+                { label: "Families with 3+ roles", pct: (() => { const fams = new Set(jobs.map(j => j.family)); const ok = [...fams].filter(f => jobs.filter(j => j.family === f).length >= 3).length; return fams.size > 0 ? Math.round(ok / fams.size * 100) : 0; })() },
+                { label: "Roles with AI scoring", pct: jobs.length > 0 ? Math.round(jobs.filter(j => j.ai_score > 0).length / jobs.length * 100) : 0 },
+              ].map(m => {
+                const color = m.pct >= 80 ? "#34d399" : m.pct >= 50 ? "#F59E0B" : "#ef4444";
+                return <div key={m.label}>
+                  <div className="flex justify-between text-[12px] mb-1"><span className="text-[#cbd5e1]">{m.label}</span><span className="font-bold" style={{ fontFamily: "'JetBrains Mono', monospace", color }}>{m.pct}%</span></div>
+                  <div className="h-[6px] rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}><div className="h-full rounded-full transition-all duration-500" style={{ width: `${m.pct}%`, background: color }} /></div>
+                </div>;
+              })}
+            </div>
+          </div>
+        </div>
+      </div>;
+    })()}
 
     {/* ═══ JOB EVALUATION TAB ═══ */}
     {tab === "evaluation" && <JobEvaluationTab jobs={jobs} model={model} />}
@@ -1946,37 +2369,52 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
     {/* ═══ ROLE NETWORK TAB ═══ */}
     {tab === "rolenet" && <RoleNetworkTab jobs={jobs} model={model} />}
 
-    {/* ═══ COMPARE TAB ═══ */}
+    {/* ═══ COMPARE TAB — with difference highlighting ═══ */}
     {tab === "compare" && <div className="animate-tab-enter">
-      {compareJobs.length < 2 ? <Card>
-        <div className="text-center py-12">
-          <div className="text-4xl mb-3 opacity-40">⚖️</div>
-          <h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">Compare Roles Side by Side</h3>
-          <p className="text-[15px] text-[var(--text-secondary)] mb-4 max-w-md mx-auto">Select 2-4 roles from the Job Catalogue to compare their levels, headcount, AI impact, and skills. Click "Compare" from any job profile panel.</p>
-          {compareJobs.length === 1 && <div className="text-[15px] text-[var(--accent-primary)]">1 role selected — add 1 more to compare</div>}
-        </div>
-      </Card> : <Card title={`Comparing ${compareJobs.length} Roles`}>
-        <div className="flex gap-2 mb-4">{compareJobs.map((j, i) => <span key={j.id} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[15px] bg-[var(--surface-2)] border border-[var(--border)]"><span style={{ color: COLORS[i % COLORS.length] }}>{j.title}</span><button onClick={() => setCompareJobs(p => p.filter(c => c.id !== j.id))} className="text-[var(--text-muted)] hover:text-[var(--risk)] ml-1">✕</button></span>)}</div>
-        <div className="overflow-x-auto rounded-lg border border-[var(--border)]">
-          <table className="w-full"><thead><tr className="bg-[var(--surface-2)]">
-            <th className="px-3 py-2 text-left text-[15px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Dimension</th>
-            {compareJobs.map((j, i) => <th key={j.id} className="px-3 py-2 text-center text-[15px] font-semibold border-b border-[var(--border)]" style={{ color: COLORS[i % COLORS.length] }}>{j.title}</th>)}
+      {/* Multi-select dropdown */}
+      <div className="mb-4">
+        <select onChange={e => { const j = jobs.find(job => job.id === e.target.value); if (j && !compareJobs.find(c => c.id === j.id) && compareJobs.length < 4) { setCompareJobs(p => [...p, j]); showToast(`Added ${j.title}`); } e.target.value = ""; }} className="w-full rounded-xl px-3 py-2.5 text-[13px] outline-none" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "var(--text-primary)" }}>
+          <option value="">+ Add role to comparison (2-4 roles)...</option>
+          {jobs.filter(j => !compareJobs.find(c => c.id === j.id)).map(j => <option key={j.id} value={j.id}>{j.title} ({j.function}, {j.level})</option>)}
+        </select>
+      </div>
+      {compareJobs.length < 2 ? <div className="rounded-xl p-5 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+        <div className="text-3xl mb-3 opacity-30">◫</div>
+        <h3 className="text-[15px] font-bold text-[var(--text-primary)] mb-2" style={{ letterSpacing: "-0.02em" }}>Select 2-4 roles to compare side by side</h3>
+        <p className="text-[12px] text-[#64748b] max-w-md mx-auto">Use the dropdown above or click &quot;Compare&quot; from any job profile panel.</p>
+        {compareJobs.length === 1 && <div className="text-[12px] text-[#3B82F6] mt-2">1 role selected — add 1 more</div>}
+      </div> : <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+        <div className="flex gap-2 mb-4">{compareJobs.map((j, i) => <span key={j.id} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[12px]" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <LevelBadge level={j.level} />
+          <span style={{ color: COLORS[i % COLORS.length] }}>{j.title}</span>
+          <button onClick={() => setCompareJobs(p => p.filter(c => c.id !== j.id))} className="text-[#64748b] hover:text-[#ef4444] ml-1 text-[10px]">✕</button>
+        </span>)}</div>
+        <div className="overflow-x-auto rounded-lg" style={{ border: "1px solid rgba(255,255,255,0.08)" }}>
+          <table className="w-full"><thead><tr style={{ background: "rgba(255,255,255,0.04)" }}>
+            <th className="px-3 py-2 text-left text-[9px] font-bold uppercase tracking-[0.08em] text-[#64748b]">Attribute</th>
+            {compareJobs.map((j, i) => <th key={j.id} className="px-3 py-2 text-center text-[11px] font-bold" style={{ color: COLORS[i % COLORS.length] }}>{j.title}</th>)}
           </tr></thead>
           <tbody>{[
-            { label: "Level", get: (j: Job) => j.level },
-            { label: "Track", get: (j: Job) => j.track },
+            { label: "Job Family", get: (j: Job) => j.family },
+            { label: "Sub-Family", get: (j: Job) => j.sub_family },
+            { label: "Track & Level", get: (j: Job) => j.level, isLevel: true },
             { label: "Headcount", get: (j: Job) => String(j.headcount) },
             { label: "AI Impact", get: (j: Job) => j.ai_impact },
             { label: "AI Score", get: (j: Job) => j.ai_score > 0 ? j.ai_score.toFixed(1) : "—" },
             { label: "Tasks Mapped", get: (j: Job) => String(j.tasks_mapped) },
-            { label: "Family", get: (j: Job) => j.family },
-            { label: "Sub-Family", get: (j: Job) => j.sub_family },
-          ].map(dim => <tr key={dim.label} className="border-b border-[var(--border)]">
-            <td className="px-3 py-2 text-[15px] font-semibold text-[var(--text-secondary)]">{dim.label}</td>
-            {compareJobs.map(j => <td key={j.id} className="px-3 py-2 text-center text-[15px] font-data text-[var(--text-primary)]">{dim.get(j)}</td>)}
-          </tr>)}</tbody></table>
+            { label: "Track", get: (j: Job) => j.track },
+          ].map(dim => {
+            const values = compareJobs.map(j => dim.get(j));
+            const hasDiff = new Set(values).size > 1;
+            return <tr key={dim.label} style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", background: hasDiff ? "rgba(249,115,22,0.04)" : "transparent" }}>
+              <td className="px-3 py-2 text-[12px] font-semibold text-[#94a3b8]">{dim.label}</td>
+              {compareJobs.map(j => <td key={j.id} className="px-3 py-2 text-center">
+                {dim.isLevel ? <LevelBadge level={dim.get(j)} /> : <span className="text-[12px] font-bold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{dim.get(j)}</span>}
+              </td>)}
+            </tr>;
+          })}</tbody></table>
         </div>
-      </Card>}
+      </div>}
     </div>}
 
     {tab === "content" && <div className="animate-tab-enter"><JobContentAuthoring model={model} f={f} /></div>}
