@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import * as api from "../../../lib/api";
 import type { Filters } from "../../../lib/api";
 import { fmt } from "../../../lib/formatters";
@@ -111,6 +111,35 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
   const [selDept, setSelDept] = useState(0);
   const [layerScope, setLayerScope] = useState("all");
 
+  // Upgrade 1: What-If Simulator state
+  const [simTargetSpan, setSimTargetSpan] = useState(7);
+  const [simMaxLayers, setSimMaxLayers] = useState(5);
+
+  // Upgrade 2: Scenario Builder drawer state
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [customPreset, setCustomPreset] = useState<string>("Optimized");
+  const [customSpanMin, setCustomSpanMin] = useState(6);
+  const [customSpanMax, setCustomSpanMax] = useState(8);
+  const [customMaxLayers, setCustomMaxLayers] = useState(5);
+  const [customMinFte, setCustomMinFte] = useState(80);
+  const [customCostCeiling, setCustomCostCeiling] = useState(200);
+  const [customMgrRatioCap, setCustomMgrRatioCap] = useState(12);
+  const [customLabel, setCustomLabel] = useState<string | null>(null);
+
+  // Upgrade 3: Insights slideshow state
+  const [insightSlide, setInsightSlide] = useState(0);
+
+  // Keyboard navigation for insights slideshow
+  useEffect(() => {
+    if (view !== "insights") return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); setInsightSlide(prev => prev + 1); }
+      if (e.key === "ArrowLeft") { e.preventDefault(); setInsightSlide(prev => Math.max(0, prev - 1)); }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [view]);
+
   const DChip = ({ a, b, inv }: { a: number; b: number; inv?: boolean }) => {
     const diff = b - a; const pos = inv ? diff < 0 : diff > 0; const neg = inv ? diff > 0 : diff < 0;
     const c = pos ? "var(--success)" : neg ? "var(--risk)" : "var(--text-muted)";
@@ -177,12 +206,25 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
     <PageHeader icon="🏗️" title="Org Design Studio" subtitle="Current → Future State Modeling · Multi-Scenario Engine" onBack={onBack} moduleId="build" />
     {hasRealData ? <div className="bg-[rgba(16,185,129,0.08)] border border-[var(--success)]/30 rounded-lg px-4 py-2 mb-4 text-[15px] text-[var(--success)]">✓ Using your uploaded workforce data to model departments</div> : <div className="bg-[rgba(245,158,11,0.08)] border border-[var(--warning)]/30 rounded-lg px-4 py-2 mb-4 text-[15px] text-[var(--warning)]">Using generated sample data — upload workforce data for your real org structure</div>}
 
-    {/* Scenario selector — dropdown to save space */}
+    {/* Scenario selector — dropdown with Customize button */}
     <div className="flex gap-3 mb-4 items-center">
       <span className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Scenario:</span>
       <select value={activeScenario} onChange={e => setActiveScenario(Number(e.target.value))} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-[15px] font-semibold text-[var(--text-primary)] outline-none focus:border-[var(--accent-primary)] min-w-[180px]">
-        {scenarios.map((s, i) => <option key={s.id} value={i}>{s.label} — {odsAgg(s.departments).hc} HC, {fmtNum(odsAgg(s.departments).cost)}</option>)}
+        {scenarios.map((s, i) => <option key={s.id} value={i}>{customLabel && i === activeScenario ? customLabel : `${s.label} — ${odsAgg(s.departments).hc} HC, ${fmtNum(odsAgg(s.departments).cost)}`}</option>)}
       </select>
+      <button onClick={() => {
+        // Pre-fill drawer from current scenario
+        const presets: Record<string, { spanMin: number; spanMax: number; maxL: number; minFte: number; costCeil: number; mgrCap: number }> = {
+          "Optimized": { spanMin: 6, spanMax: 8, maxL: 5, minFte: 80, costCeil: 200, mgrCap: 12 },
+          "Aggressive": { spanMin: 8, spanMax: 10, maxL: 4, minFte: 90, costCeil: 175, mgrCap: 10 },
+          "Conservative": { spanMin: 5, spanMax: 7, maxL: 6, minFte: 70, costCeil: 225, mgrCap: 15 },
+        };
+        const p = presets[sc.label] || presets["Optimized"];
+        setCustomPreset(sc.label);
+        setCustomSpanMin(p.spanMin); setCustomSpanMax(p.spanMax); setCustomMaxLayers(p.maxL);
+        setCustomMinFte(p.minFte); setCustomCostCeiling(p.costCeil); setCustomMgrRatioCap(p.mgrCap);
+        setDrawerOpen(true);
+      }} className="px-3 py-2 rounded-lg text-[15px] font-semibold border border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--accent-primary)] flex items-center gap-1.5" title="Customize scenario">⚙ Customize</button>
       <button onClick={async () => {
         setAiOdsLoading(true);
         try {
@@ -190,8 +232,154 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
           const aiText1 = await callAI("Return ONLY a valid JSON array of strings.", `Analyze this org structure and give 4-5 specific restructuring recommendations. Current state: ${context}. Return ONLY a JSON array of strings.`);
           setAiOdsInsights(JSON.parse(aiText1.replace(/```json\n?/g,"").replace(/```\n?/g,"").trim()));
       } catch (e) { console.error("[DesignModule] AI ODS insights error", e); } setAiOdsLoading(false); }} disabled={aiOdsLoading} className="px-3 py-2 rounded-lg text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", opacity: aiOdsLoading ? 0.5 : 1 }}>{aiOdsLoading ? "Analyzing..." : "✨ AI Recommendations"}</button>
-      <button onClick={() => { realDataBuilt.current = false; const c = odsGenDept(); setCurrentData(c); setScenarios([odsGenScenario(c, "Optimized", 0.5, 0), odsGenScenario(c, "Aggressive", 0.9, 1), odsGenScenario(c, "Conservative", 0.25, 2)]); }} className="px-3 py-2 rounded-lg text-[15px] font-semibold border border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--accent-primary)]">↻ Reset</button>
+      <button onClick={() => { setCustomLabel(null); realDataBuilt.current = false; const c = odsGenDept(); setCurrentData(c); setScenarios([odsGenScenario(c, "Optimized", 0.5, 0), odsGenScenario(c, "Aggressive", 0.9, 1), odsGenScenario(c, "Conservative", 0.25, 2)]); }} className="px-3 py-2 rounded-lg text-[15px] font-semibold border border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--accent-primary)]">↻ Reset</button>
     </div>
+
+    {/* Scenario Builder Drawer Overlay */}
+    {drawerOpen && (() => {
+      const presets: Record<string, { spanMin: number; spanMax: number; maxL: number; minFte: number; costCeil: number; mgrCap: number; desc: string }> = {
+        "Optimized": { spanMin: 6, spanMax: 8, maxL: 5, minFte: 80, costCeil: 200, mgrCap: 12, desc: "Span 6-8:1, Max 5 layers, Min 80% FTE" },
+        "Aggressive": { spanMin: 8, spanMax: 10, maxL: 4, minFte: 90, costCeil: 175, mgrCap: 10, desc: "Span 8-10:1, Max 4 layers, Min 90% FTE" },
+        "Conservative": { spanMin: 5, spanMax: 7, maxL: 6, minFte: 70, costCeil: 225, mgrCap: 15, desc: "Span 5-7:1, Max 6 layers, Min 70% FTE" },
+      };
+      // Compute custom scenario impact preview
+      const customHc = (() => {
+        let totalHc = 0;
+        currentData.forEach(d => {
+          const targetSpan = (customSpanMin + customSpanMax) / 2;
+          const ics = d.ics;
+          const mgrs = Math.max(2, Math.round(ics / targetSpan));
+          totalHc += mgrs + ics;
+        });
+        return totalHc;
+      })();
+      const customCost = (() => {
+        let total = 0;
+        currentData.forEach(d => {
+          if (d.levelDist) Object.entries(d.levelDist).forEach(([l, n]) => { total += n * (ODS_AVG_COMP[l] || 85000); });
+        });
+        // Adjust proportionally by HC change
+        return total * (customHc / Math.max(cA.hc, 1));
+      })();
+      const costExceeds = customCost / 1e6 > customCostCeiling;
+
+      const SliderRow = ({ label, value, min, max, step, onChange, suffix }: { label: string; value: number; min: number; max: number; step: number; onChange: (v: number) => void; suffix?: string }) => (
+        <div className="mb-3">
+          <div className="flex justify-between text-[13px] mb-1">
+            <span className="text-[var(--text-muted)] font-semibold">{label}</span>
+            <span className="text-[var(--text-primary)] font-bold">{suffix === "$" ? `$${value}M` : `${value}${suffix || ""}`}</span>
+          </div>
+          <input type="range" min={min} max={max} step={step} value={value} onChange={e => { onChange(Number(e.target.value)); setCustomPreset(""); }} className="w-full h-2 rounded-full appearance-none cursor-pointer" style={{ background: `linear-gradient(to right, #3B82F6 ${((value - min) / (max - min)) * 100}%, rgba(59,130,246,0.15) ${((value - min) / (max - min)) * 100}%)` }} />
+        </div>
+      );
+
+      return <>
+        {/* Backdrop */}
+        <div className="fixed inset-0 bg-black/40 z-40 transition-opacity duration-300" onClick={() => setDrawerOpen(false)} />
+        {/* Drawer */}
+        <div className="fixed top-0 right-0 h-full w-[400px] z-50 bg-[#0f172a] border-l border-[var(--border)] shadow-2xl overflow-y-auto transition-transform duration-300" style={{ boxShadow: "0 0 60px rgba(0,0,0,0.5)" }}>
+          <div className="p-6">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-2">
+              <div>
+                <div className="text-[18px] font-bold text-[var(--text-primary)]">Scenario Builder</div>
+                <div className="text-[13px] text-[var(--text-muted)]">Presets are starting points — customize every lever to build your scenario</div>
+              </div>
+              <button onClick={() => setDrawerOpen(false)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-xl font-bold px-2">×</button>
+            </div>
+
+            {/* UX Guidance */}
+            <div className="rounded-lg bg-[rgba(59,130,246,0.06)] border border-[rgba(59,130,246,0.15)] p-3 mb-5 text-[12px] text-[var(--text-secondary)] leading-relaxed">
+              Every org design scenario is driven by a set of structural levers. Choose a preset to start, then adjust any lever to see how it changes the outcome. The impact preview at the bottom updates as you move each slider.
+            </div>
+
+            {/* Step 1 — Presets */}
+            <div className="mb-5">
+              <div className="text-[12px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Step 1 — Choose a Starting Point</div>
+              <div className="grid grid-cols-3 gap-2">
+                {Object.entries(presets).map(([name, p]) => (
+                  <button key={name} onClick={() => {
+                    setCustomPreset(name);
+                    setCustomSpanMin(p.spanMin); setCustomSpanMax(p.spanMax); setCustomMaxLayers(p.maxL);
+                    setCustomMinFte(p.minFte); setCustomCostCeiling(p.costCeil); setCustomMgrRatioCap(p.mgrCap);
+                  }} className="rounded-lg p-3 text-left transition-all duration-200" style={{
+                    background: customPreset === name ? "rgba(59,130,246,0.1)" : "var(--surface-2)",
+                    border: customPreset === name ? "2px solid #3B82F6" : "2px solid var(--border)",
+                  }}>
+                    <div className="text-[13px] font-bold text-[var(--text-primary)] mb-0.5">{name}</div>
+                    <div className="text-[10px] text-[var(--text-muted)] leading-tight">{p.desc}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Step 2 — Fine-Tune */}
+            <div className="mb-5">
+              <div className="text-[12px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-3">Step 2 — Fine-Tune Your Levers</div>
+              <SliderRow label="Target Span Range (Min)" value={customSpanMin} min={3} max={10} step={0.5} onChange={setCustomSpanMin} />
+              <SliderRow label="Target Span Range (Max)" value={customSpanMax} min={4} max={12} step={0.5} onChange={setCustomSpanMax} />
+              <SliderRow label="Max Layers" value={customMaxLayers} min={3} max={8} step={1} onChange={setCustomMaxLayers} />
+              <SliderRow label="Min FTE Ratio" value={customMinFte} min={60} max={100} step={5} onChange={setCustomMinFte} suffix="%" />
+              <SliderRow label="Cost Ceiling" value={customCostCeiling} min={150} max={250} step={5} onChange={setCustomCostCeiling} suffix="$" />
+              <SliderRow label="Manager Ratio Cap" value={customMgrRatioCap} min={8} max={20} step={1} onChange={setCustomMgrRatioCap} suffix="%" />
+            </div>
+
+            {/* Step 3 — Review Impact (sticky-ish at bottom) */}
+            <div className="rounded-xl bg-[var(--surface-2)] border border-[var(--border)] p-4 mb-4">
+              <div className="text-[12px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-3">Step 3 — Review Impact</div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-[14px]">
+                  <span className="text-[var(--text-muted)]">Total HC (scenario)</span>
+                  <span className="font-bold text-[var(--text-primary)]">{fmt(customHc)}</span>
+                </div>
+                <div className="flex justify-between text-[14px]">
+                  <span className="text-[var(--text-muted)]">Est. Cost (scenario)</span>
+                  <span className="font-bold" style={{ color: costExceeds ? "var(--risk)" : "var(--success)" }}>{fmtNum(customCost)}</span>
+                </div>
+                <div className="flex justify-between text-[14px]">
+                  <span className="text-[var(--text-muted)]">Delta HC vs current</span>
+                  <span className="font-bold" style={{ color: customHc < cA.hc ? "var(--success)" : customHc > cA.hc ? "var(--risk)" : "var(--text-muted)" }}>{customHc - cA.hc >= 0 ? "+" : ""}{customHc - cA.hc}</span>
+                </div>
+              </div>
+              {costExceeds && <div className="mt-2 text-[12px] text-[var(--risk)] font-semibold">⚠ Cost exceeds ceiling of ${customCostCeiling}M</div>}
+            </div>
+
+            <div className="flex gap-3">
+              <button onClick={() => {
+                // Apply custom scenario: regenerate with adjusted intensity
+                const targetSpan = (customSpanMin + customSpanMax) / 2;
+                const intensity = targetSpan >= 8 ? 0.9 : targetSpan >= 6 ? 0.5 : 0.25;
+                const customSc = odsGenScenario(currentData, customPreset || "Custom", intensity, activeScenario);
+                // Override scenario parameters based on custom levers
+                customSc.departments = customSc.departments.map((d, i) => {
+                  const base = currentData[i];
+                  const mgrs = Math.max(2, Math.round(base.ics / targetSpan));
+                  const hc = mgrs + base.ics;
+                  const layers = Math.min(customMaxLayers, base.layers);
+                  const fteRatio = Math.max(customMinFte / 100, d.fteRatio);
+                  return { ...d, headcount: hc, managers: mgrs, ics: base.ics, layers, avgSpan: Math.round((base.ics / mgrs) * 10) / 10, fteRatio: Math.round(fteRatio * 1000) / 1000 };
+                });
+                const newScenarios = [...scenarios];
+                newScenarios[activeScenario] = customSc;
+                setScenarios(newScenarios);
+                const agg = odsAgg(customSc.departments);
+                setCustomLabel(`Custom — ${agg.hc} HC, ${fmtNum(agg.cost)}`);
+                setDrawerOpen(false);
+              }} className="flex-1 px-4 py-2.5 rounded-lg text-[14px] font-bold text-white transition-all" style={{ background: "#3B82F6" }}>
+                Apply Scenario
+              </button>
+              <button onClick={() => {
+                const p = presets[customPreset] || presets["Optimized"];
+                setCustomSpanMin(p.spanMin); setCustomSpanMax(p.spanMax); setCustomMaxLayers(p.maxL);
+                setCustomMinFte(p.minFte); setCustomCostCeiling(p.costCeil); setCustomMgrRatioCap(p.mgrCap);
+              }} className="px-4 py-2.5 rounded-lg text-[14px] font-semibold border border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--text-secondary)] transition-all">
+                Reset to Preset
+              </button>
+            </div>
+          </div>
+        </div>
+      </>;
+    })()}
 
     {/* View tabs */}
     <TabBar tabs={[{ id: "overview", label: "Overview" }, { id: "soc", label: "Span Detail" }, { id: "layers", label: "Layers" }, { id: "cost", label: "Cost Model" }, { id: "roles", label: "Role Migration" }, { id: "drill", label: "Dept Drill-Down" }, { id: "compare", label: "Compare All" }, { id: "insights", label: "Insights" }, { id: "benchmarks", label: "📖 Benchmarks" }]} active={view} onChange={setView} />
@@ -299,8 +487,58 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       </Card>;
     })()}
 
-    {/* Dept Drill-Down — expanded */}
-    {view === "drill" && <div>
+    {/* Dept Drill-Down — expanded with What-If Simulator */}
+    {view === "drill" && (() => {
+      const dept = currentData[selDept];
+      const deptFuture = sc.departments[selDept];
+      const deptCost = Object.entries(dept?.levelDist || {}).reduce((s, [l, n]) => s + n * (ODS_AVG_COMP[l] || 85000), 0);
+      const deptFutureCost = Object.entries(deptFuture?.levelDist || {}).reduce((s, [l, n]) => s + n * (ODS_AVG_COMP[l] || 85000), 0);
+
+      // What-If Simulation calculations
+      const simDept = dept ? (() => {
+        const curSpan = dept.avgSpan || 1;
+        const curLayers = dept.layers || 1;
+        const curMgrs = dept.managers || 1;
+        const curIcs = dept.ics || 0;
+        const curHc = dept.headcount || 0;
+        // Simulate: adjust managers to hit target span, constrain layers
+        const simMgrs = Math.max(2, Math.round(curIcs / simTargetSpan));
+        const simHc = simMgrs + curIcs;
+        const simLayers = Math.min(simMaxLayers, curLayers);
+        const layerDelta = curLayers - simLayers;
+        // If reducing layers, reduce managers further
+        const layerMgrReduction = layerDelta > 0 ? Math.floor(simMgrs * (layerDelta * 0.12)) : 0;
+        const finalMgrs = Math.max(2, simMgrs - layerMgrReduction);
+        const finalHc = finalMgrs + curIcs;
+        const hcDelta = finalHc - curHc;
+        const costDelta = hcDelta * (ODS_AVG_COMP["M3"] || 120000);
+        const costPct = deptCost > 0 ? (costDelta / deptCost) * 100 : 0;
+        const finalSpan = curIcs / Math.max(finalMgrs, 1);
+        return { hc: finalHc, mgrs: finalMgrs, layers: simLayers, span: Math.round(finalSpan * 10) / 10, hcDelta, costDelta, costPct, layerDelta };
+      })() : { hc: 0, mgrs: 0, layers: 0, span: 0, hcDelta: 0, costDelta: 0, costPct: 0, layerDelta: 0 };
+
+      // Shape Assessment
+      const shapeAssessment = dept ? (() => {
+        const ld = dept.levelDist || {};
+        const execCount = ODS_LEVELS.filter(l => l.startsWith("E")).reduce((s, l) => s + (ld[l] || 0), 0);
+        const mgrCount = ODS_LEVELS.filter(l => l.startsWith("M")).reduce((s, l) => s + (ld[l] || 0), 0);
+        const icCount = dept.headcount - execCount - mgrCount;
+        const top = execCount; const mid = mgrCount; const bottom = icCount;
+        const total = top + mid + bottom || 1;
+        const topPct = top / total; const midPct = mid / total; const bottomPct = bottom / total;
+        let shape: string, color: string, desc: string;
+        if (bottomPct > 0.55 && topPct < 0.15) { shape = "Pyramid"; color = "#34d399"; desc = "Healthy distribution — strong leverage model"; }
+        else if (midPct > 0.4) { shape = "Diamond"; color = "#F59E0B"; desc = "Bloated middle management — review mid-level consolidation"; }
+        else if (topPct > 0.25) { shape = "Top-Heavy"; color = "#F97316"; desc = "High senior concentration — review management overhead"; }
+        else if (Math.abs(topPct - bottomPct) < 0.15) { shape = "Column"; color = "#F97316"; desc = "Uniform distribution — lacks leverage, review career architecture"; }
+        else { shape = "Flat"; color = "#3B82F6"; desc = "Broad base with minimal hierarchy — verify coaching capacity"; }
+        return { shape, color, desc, top, mid, bottom, topPct, midPct, bottomPct };
+      })() : { shape: "—", color: "#888", desc: "", top: 0, mid: 0, bottom: 0, topPct: 0, midPct: 0, bottomPct: 0 };
+
+      // Benchmark check helper
+      const benchColor = (val: number, min: number, max: number) => val >= min && val <= max ? "#34d399" : "#F97316";
+
+      return <div>
         <Card title="Department Deep Dive">
           <div className="flex items-center gap-2 mb-5">
             <span className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Department:</span>
@@ -308,26 +546,130 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
               {currentData.map((d, i) => <option key={d.name} value={i}>{d.name} — {d.headcount} HC</option>)}
             </select>
           </div>
+          {/* KPI cards with Current → Simulated when sliders are non-default */}
           <div className="grid grid-cols-3 lg:grid-cols-6 gap-3 mb-5">
-            <OdsKpi label="Headcount" current={currentData[selDept]?.headcount || 0} future={sc.departments[selDept]?.headcount || 0} inv /><OdsKpi label="Avg Span" current={currentData[selDept]?.avgSpan || 0} future={sc.departments[selDept]?.avgSpan || 0} /><OdsKpi label="Layers" current={currentData[selDept]?.layers || 0} future={sc.departments[selDept]?.layers || 0} inv /><OdsKpi label="Managers" current={currentData[selDept]?.managers || 0} future={sc.departments[selDept]?.managers || 0} inv /><OdsKpi label="FTE Ratio %" current={(currentData[selDept]?.fteRatio || 0) * 100} future={(sc.departments[selDept]?.fteRatio || currentData[selDept]?.fteRatio || 0) * 100} /><OdsKpi label="Est. Cost ($M)" current={Object.entries(currentData[selDept]?.levelDist || {}).reduce((s, [l, n]) => s + n * (ODS_AVG_COMP[l] || 85000), 0) / 1e6} future={Object.entries(sc.departments[selDept]?.levelDist || {}).reduce((s, [l, n]) => s + n * (ODS_AVG_COMP[l] || 85000), 0) / 1e6} inv />
+            <OdsKpi label="Headcount" current={dept?.headcount || 0} future={simDept.hc} inv />
+            <OdsKpi label="Avg Span" current={dept?.avgSpan || 0} future={simDept.span} />
+            <OdsKpi label="Layers" current={dept?.layers || 0} future={simDept.layers} inv />
+            <OdsKpi label="Managers" current={dept?.managers || 0} future={simDept.mgrs} inv />
+            <OdsKpi label="FTE Ratio %" current={(dept?.fteRatio || 0) * 100} future={(deptFuture?.fteRatio || dept?.fteRatio || 0) * 100} />
+            <OdsKpi label="Est. Cost ($M)" current={deptCost / 1e6} future={(deptCost + simDept.costDelta) / 1e6} inv />
           </div>
         </Card>
-        <Card title={`Level Distribution — ${currentData[selDept]?.name || ""}`}>
-          <div className="grid grid-cols-6 gap-3">{ODS_LEVELS.map(l => { const cN = currentData[selDept]?.levelDist?.[l] || 0; const fN = sc.departments[selDept]?.levelDist?.[l] || 0; const comp = ODS_AVG_COMP[l] || 85000; return <div key={l} className="bg-[var(--surface-2)] rounded-xl p-4 border border-[var(--border)]">
-            <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-3">{l}</div>
-            <div className="flex justify-between text-[16px] font-extrabold mb-1"><span className="text-[var(--accent-primary)]">{cN}</span><span className="text-[var(--text-muted)]">→</span><span className="text-[var(--success)]">{fN}</span></div>
-            <DChip a={cN} b={fN} inv />
-            <div className="mt-2 pt-2 border-t border-[var(--border)]"><div className="text-[14px] text-[var(--text-muted)]">Avg comp: {fmtNum(comp)}</div><div className="text-[14px] text-[var(--text-muted)]">Cost: {fmtNum((cN * comp))}</div></div>
-          </div>; })}</div>
-        </Card>
-        <Card title={`${currentData[selDept]?.name || ""} — Workforce Composition`}>
-          <div className="grid grid-cols-3 gap-4">
-            <div className="rounded-xl p-4 bg-[var(--surface-2)] border border-[var(--border)]"><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-2">FTE vs Contractors</div><div className="flex gap-3 mb-2"><div><div className="text-xl font-extrabold text-[var(--accent-primary)]">{currentData[selDept]?.ftes || 0}</div><div className="text-[15px] text-[var(--text-muted)]">Full-Time</div></div><div><div className="text-xl font-extrabold text-[var(--warning)]">{currentData[selDept]?.contractors || 0}</div><div className="text-[15px] text-[var(--text-muted)]">Contractors</div></div></div><HBar value={currentData[selDept]?.ftes || 0} max={currentData[selDept]?.headcount || 1} color="var(--accent-primary)" /></div>
-            <div className="rounded-xl p-4 bg-[var(--surface-2)] border border-[var(--border)]"><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-2">Manager to IC Ratio</div><div className="text-xl font-extrabold text-[var(--text-primary)] mb-1">1 : {((currentData[selDept]?.ics || 0) / Math.max(currentData[selDept]?.managers || 1, 1)).toFixed(1)}</div><div className="text-[15px] text-[var(--text-muted)]">{currentData[selDept]?.managers || 0} managers overseeing {currentData[selDept]?.ics || 0} individual contributors</div></div>
-            <div className="rounded-xl p-4 bg-[var(--surface-2)] border border-[var(--border)]"><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-2">Dept Share</div><div className="text-xl font-extrabold text-[var(--text-primary)] mb-1">{cA.hc > 0 ? Math.round((currentData[selDept]?.headcount || 0) / cA.hc * 100) : 0}%</div><div className="text-[15px] text-[var(--text-muted)]">{currentData[selDept]?.headcount || 0} of {cA.hc} total headcount</div><HBar value={currentData[selDept]?.headcount || 0} max={cA.hc || 1} color="var(--purple)" /></div>
+
+        {/* Main content area with simulator side panel */}
+        <div className="flex gap-4">
+          {/* Left: Level Distribution + Workforce Composition */}
+          <div className="flex-1 min-w-0">
+            <Card title={`Level Distribution — ${dept?.name || ""}`}>
+              <div className="grid grid-cols-6 gap-3">{ODS_LEVELS.map(l => { const cN = dept?.levelDist?.[l] || 0; const fN = deptFuture?.levelDist?.[l] || 0; const comp = ODS_AVG_COMP[l] || 85000; return <div key={l} className="bg-[var(--surface-2)] rounded-xl p-4 border border-[var(--border)]">
+                <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-3">{l}</div>
+                <div className="flex justify-between text-[16px] font-extrabold mb-1"><span className="text-[var(--accent-primary)]">{cN}</span><span className="text-[var(--text-muted)]">→</span><span className="text-[var(--success)]">{fN}</span></div>
+                <DChip a={cN} b={fN} inv />
+                <div className="mt-2 pt-2 border-t border-[var(--border)]"><div className="text-[14px] text-[var(--text-muted)]">Avg comp: {fmtNum(comp)}</div><div className="text-[14px] text-[var(--text-muted)]">Cost: {fmtNum((cN * comp))}</div></div>
+              </div>; })}</div>
+            </Card>
+            <Card title={`${dept?.name || ""} — Workforce Composition`}>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="rounded-xl p-4 bg-[var(--surface-2)] border border-[var(--border)]"><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-2">FTE vs Contractors</div><div className="flex gap-3 mb-2"><div><div className="text-xl font-extrabold text-[var(--accent-primary)]">{dept?.ftes || 0}</div><div className="text-[15px] text-[var(--text-muted)]">Full-Time</div></div><div><div className="text-xl font-extrabold text-[var(--warning)]">{dept?.contractors || 0}</div><div className="text-[15px] text-[var(--text-muted)]">Contractors</div></div></div><HBar value={dept?.ftes || 0} max={dept?.headcount || 1} color="var(--accent-primary)" /></div>
+                <div className="rounded-xl p-4 bg-[var(--surface-2)] border border-[var(--border)]"><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-2">Manager to IC Ratio</div><div className="text-xl font-extrabold text-[var(--text-primary)] mb-1">1 : {((dept?.ics || 0) / Math.max(dept?.managers || 1, 1)).toFixed(1)}</div><div className="text-[15px] text-[var(--text-muted)]">{dept?.managers || 0} managers overseeing {dept?.ics || 0} individual contributors</div></div>
+                <div className="rounded-xl p-4 bg-[var(--surface-2)] border border-[var(--border)]"><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-2">Dept Share</div><div className="text-xl font-extrabold text-[var(--text-primary)] mb-1">{cA.hc > 0 ? Math.round((dept?.headcount || 0) / cA.hc * 100) : 0}%</div><div className="text-[15px] text-[var(--text-muted)]">{dept?.headcount || 0} of {cA.hc} total headcount</div><HBar value={dept?.headcount || 0} max={cA.hc || 1} color="var(--purple)" /></div>
+              </div>
+            </Card>
           </div>
-        </Card>
-      </div>}
+
+          {/* Right: What-If Simulator side panel */}
+          <div className="w-[320px] shrink-0 space-y-4">
+            {/* What-If Simulator */}
+            <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-1)] p-5" style={{ boxShadow: "var(--shadow-1)" }}>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-lg">🔬</span>
+                <span className="text-[15px] font-bold text-[var(--text-primary)]">What-If Simulator</span>
+              </div>
+              <div className="text-[12px] text-[var(--text-muted)] mb-4">Drag the sliders to reshape {dept?.name || "this department"} and see the impact in real-time.</div>
+
+              {/* Target Span slider */}
+              <div className="mb-4">
+                <div className="flex justify-between text-[13px] mb-1">
+                  <span className="text-[var(--text-muted)] font-semibold">Target Span</span>
+                  <span className="text-[var(--text-primary)] font-bold">{simTargetSpan}:1</span>
+                </div>
+                <input type="range" min={3} max={12} step={0.5} value={simTargetSpan} onChange={e => setSimTargetSpan(Number(e.target.value))} className="w-full h-2 rounded-full appearance-none cursor-pointer" style={{ background: `linear-gradient(to right, #3B82F6 ${((simTargetSpan - 3) / 9) * 100}%, rgba(59,130,246,0.15) ${((simTargetSpan - 3) / 9) * 100}%)` }} />
+                <div className="flex justify-between text-[11px] text-[var(--text-muted)] mt-0.5"><span>3</span><span>12</span></div>
+              </div>
+
+              {/* Max Layers slider */}
+              <div className="mb-4">
+                <div className="flex justify-between text-[13px] mb-1">
+                  <span className="text-[var(--text-muted)] font-semibold">Max Layers</span>
+                  <span className="text-[var(--text-primary)] font-bold">{simMaxLayers}</span>
+                </div>
+                <input type="range" min={2} max={8} step={1} value={simMaxLayers} onChange={e => setSimMaxLayers(Number(e.target.value))} className="w-full h-2 rounded-full appearance-none cursor-pointer" style={{ background: `linear-gradient(to right, #3B82F6 ${((simMaxLayers - 2) / 6) * 100}%, rgba(59,130,246,0.15) ${((simMaxLayers - 2) / 6) * 100}%)` }} />
+                <div className="flex justify-between text-[11px] text-[var(--text-muted)] mt-0.5"><span>2</span><span>8</span></div>
+              </div>
+
+              {/* Simulated Impact box */}
+              <div className="rounded-xl bg-[var(--surface-2)] border border-[var(--border)] p-3 space-y-2">
+                <div className="text-[12px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Simulated Impact</div>
+                {[
+                  { label: "HC Change", value: `${simDept.hcDelta >= 0 ? "+" : ""}${simDept.hcDelta}`, good: simDept.hcDelta <= 0 },
+                  { label: "Cost Impact", value: `${simDept.costPct >= 0 ? "+" : ""}${simDept.costPct.toFixed(1)}%`, good: simDept.costPct <= 0 },
+                  { label: "New Span", value: `${simDept.span}:1`, good: simDept.span >= 6 && simDept.span <= 8 },
+                  { label: "Layer Delta", value: `${simDept.layerDelta > 0 ? "-" : simDept.layerDelta < 0 ? "+" : ""}${Math.abs(simDept.layerDelta)}`, good: simDept.layerDelta >= 0 },
+                ].map(r => <div key={r.label} className="flex justify-between items-center text-[13px]">
+                  <span className="text-[var(--text-muted)]">{r.label}</span>
+                  <span className="font-bold" style={{ color: r.good ? "#34d399" : "#F97316" }}>{r.value}</span>
+                </div>)}
+              </div>
+            </div>
+
+            {/* Shape Assessment */}
+            <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-1)] p-5" style={{ boxShadow: "var(--shadow-1)" }}>
+              <div className="text-[12px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-3">Shape Assessment</div>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="px-2.5 py-1 rounded-full text-[13px] font-bold" style={{ background: `${shapeAssessment.color}20`, color: shapeAssessment.color }}>{shapeAssessment.shape}</span>
+              </div>
+              {/* Mini shape visualization */}
+              <div className="space-y-1.5 mb-3">
+                {[
+                  { label: "Senior", pct: shapeAssessment.topPct, count: shapeAssessment.top },
+                  { label: "Mid", pct: shapeAssessment.midPct, count: shapeAssessment.mid },
+                  { label: "IC", pct: shapeAssessment.bottomPct, count: shapeAssessment.bottom },
+                ].map(tier => <div key={tier.label} className="flex items-center gap-2">
+                  <span className="text-[11px] text-[var(--text-muted)] w-10 text-right">{tier.label}</span>
+                  <div className="flex-1 h-3 rounded-full overflow-hidden" style={{ background: `${shapeAssessment.color}12` }}>
+                    <div className="h-full rounded-full transition-all duration-300" style={{ width: `${Math.max(tier.pct * 100, 4)}%`, background: shapeAssessment.color }} />
+                  </div>
+                  <span className="text-[11px] text-[var(--text-muted)] w-6">{tier.count}</span>
+                </div>)}
+              </div>
+              <div className="text-[12px] text-[var(--text-secondary)] leading-relaxed">{shapeAssessment.desc}</div>
+            </div>
+
+            {/* vs. Industry Benchmark */}
+            <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-1)] p-5" style={{ boxShadow: "var(--shadow-1)" }}>
+              <div className="text-[12px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-3">vs. Industry Benchmark</div>
+              <div className="space-y-3">
+                {[
+                  { label: "Span of Control", current: dept?.avgSpan || 0, benchmark: "6-8:1", min: 6, max: 8 },
+                  { label: "Layer Count", current: dept?.layers || 0, benchmark: "4-5", min: 4, max: 5 },
+                  { label: "Manager Ratio", current: dept ? Math.round((dept.managers / Math.max(dept.headcount, 1)) * 100) : 0, benchmark: "10-12%", min: 10, max: 12 },
+                ].map(row => <div key={row.label} className="flex items-center justify-between text-[13px]">
+                  <div>
+                    <div className="text-[var(--text-muted)] font-semibold">{row.label}</div>
+                    <div className="text-[11px] text-[var(--text-muted)]">Benchmark: {row.benchmark}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-bold" style={{ color: benchColor(row.current, row.min, row.max) }}>{row.current}{row.label === "Manager Ratio" ? "%" : row.label === "Span of Control" ? ":1" : ""}</div>
+                    <div className="text-[11px]" style={{ color: benchColor(row.current, row.min, row.max) }}>{row.current >= row.min && row.current <= row.max ? "✓ In range" : "⚠ Out of range"}</div>
+                  </div>
+                </div>)}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>;
+    })()}
 
     {/* Scenario Compare — all scenarios side by side */}
     {view === "compare" && <Card title="Multi-Scenario Comparison">
@@ -372,12 +714,190 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       insights.push({ type: "info", title: `${sc.label} Scenario Summary`, body: `This scenario changes headcount from ${fmt(cA.hc)} → ${fmt(fA.hc)} (${fmt(fA.hc - cA.hc, "delta")}), adjusts average span from ${fmt(cA.avgS)} → ${fmt(fA.avgS)}, and shifts cost from ${fmtNum(cA.cost)} → ${fmtNum(fA.cost)}. The primary lever is ${fA.avgL < cA.avgL ? "layer compression" : fA.hc < cA.hc ? "headcount reduction" : "span optimization"}.`, color: "var(--accent-primary)" });
 
       if (!insights.length) insights.push({ type: "info", title: "No Major Flags", body: "Current scenario changes are within normal ranges.", color: "var(--accent-primary)" });
+
+      // Add recommendation and headline to each insight for the slideshow
+      const enrichedInsights = insights.map(ins => {
+        let severity: string, severityIcon: string, severityColor: string;
+        if (ins.type === "alert") { severity = "Critical"; severityIcon = "⚠"; severityColor = "var(--risk)"; }
+        else if (ins.type === "warning") { severity = "Warning"; severityIcon = "◈"; severityColor = "var(--warning)"; }
+        else if (ins.type === "positive") { severity = "On Track"; severityIcon = "✓"; severityColor = "var(--success)"; }
+        else if (ins.title.includes("Summary")) { severity = "Summary"; severityIcon = "◎"; severityColor = "#6b7280"; }
+        else { severity = "Insight"; severityIcon = "ℹ"; severityColor = "#3B82F6"; }
+
+        // Extract a headline from the body (first sentence)
+        const headline = ins.body.split(". ")[0] + ".";
+        const bodyRest = ins.body.split(". ").slice(1).join(". ");
+
+        // Generate recommendation based on type
+        let recommendation = "";
+        if (ins.title.includes("Over-Layered")) recommendation = "Consolidate one management layer in flagged functions. Target 6-8:1 span ratio through attrition or redeployment.";
+        else if (ins.title.includes("Overextended")) recommendation = "Add team leads or split teams to bring spans below 10:1 for effective coaching and development.";
+        else if (ins.title.includes("Healthy")) recommendation = "Preserve current structure. Use these functions as benchmarks for restructuring other departments.";
+        else if (ins.title.includes("Layers Removed")) recommendation = "Implement de-layering through attrition cycles. Reassign decision rights to remaining layers.";
+        else if (ins.title.includes("Manager Ratio")) recommendation = "Review manager-to-IC ratios across all departments. Standardize toward 1:8 target.";
+        else if (ins.title.includes("Savings")) recommendation = "Phase savings realization over 12-18 months to minimize disruption. Reinvest 20% in upskilling.";
+        else if (ins.title.includes("Cost Increase")) recommendation = "Validate that cost increases map to strategic capabilities. Tag each new role to a revenue or efficiency outcome.";
+        else if (ins.title.includes("Concentration")) recommendation = "Assess single-point-of-failure risk. Consider functional splits if concentration exceeds 30%.";
+        else if (ins.title.includes("IC-to-Manager")) recommendation = "Standardize IC-to-Manager ratios across comparable functions to improve equity and clarity.";
+        else if (ins.title.includes("Contractor")) recommendation = "Convert critical contractor roles to FTE. Prioritize roles with institutional knowledge requirements.";
+        else if (ins.title.includes("Summary")) recommendation = "Review all scenario parameters before stakeholder presentation. Validate key assumptions with department heads.";
+        else recommendation = "Review and validate these findings with relevant department heads before taking action.";
+
+        return { ...ins, severity, severityIcon, severityColor, headline, bodyRest, recommendation };
+      });
+
+      const currentInsight = enrichedInsights[insightSlide] || enrichedInsights[0];
+      const totalSlides = enrichedInsights.length;
+      const clampedSlide = Math.min(insightSlide, totalSlides - 1);
+
+      // Visualization renderer for right column
+      const renderViz = (ins: typeof currentInsight) => {
+        if (ins.title.includes("Over-Layered") || ins.title.includes("Overextended") || ins.title.includes("Healthy")) {
+          // Horizontal comparison bars (current vs benchmark range)
+          const depts = ins.title.includes("Healthy") ? currentData.filter(d => d.avgSpan >= 6 && d.avgSpan <= 10).slice(0, 5) : ins.title.includes("Over-Layered") ? currentData.filter(d => d.avgSpan < 5).slice(0, 5) : currentData.filter(d => d.avgSpan > 12).slice(0, 5);
+          return <div className="space-y-2 mt-4">{depts.map(d => <div key={d.name}>
+            <div className="flex justify-between text-[11px] text-[var(--text-muted)] mb-0.5"><span>{d.name}</span><span>{d.avgSpan}:1</span></div>
+            <div className="relative h-4 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
+              <div className="absolute top-0 h-full rounded-full transition-all" style={{ width: `${Math.min((d.avgSpan / 15) * 100, 100)}%`, background: d.avgSpan >= 6 && d.avgSpan <= 8 ? "#34d399" : "#F97316" }} />
+              {/* Benchmark range marker */}
+              <div className="absolute top-0 h-full border-l-2 border-r-2 border-dashed" style={{ left: `${(6 / 15) * 100}%`, width: `${((8 - 6) / 15) * 100}%`, borderColor: "rgba(52,211,153,0.4)" }} />
+            </div>
+          </div>)}</div>;
+        }
+        if (ins.title.includes("Layers Removed")) {
+          // Small bar chart showing layers removed per dept
+          return <div className="space-y-1.5 mt-4">{currentData.filter((d, i) => sc.departments[i]?.layers < d.layers).slice(0, 6).map((d, i) => {
+            const removed = d.layers - (sc.departments[currentData.indexOf(d)]?.layers || d.layers);
+            return <div key={d.name} className="flex items-center gap-2">
+              <span className="text-[10px] text-[var(--text-muted)] w-16 text-right truncate">{d.name.split(" ")[0]}</span>
+              <div className="flex-1 h-3 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
+                <div className="h-full rounded-full" style={{ width: `${(removed / 3) * 100}%`, background: "#34d399" }} />
+              </div>
+              <span className="text-[10px] font-bold text-[var(--success)]">-{removed}</span>
+            </div>;
+          })}</div>;
+        }
+        if (ins.title.includes("Concentration")) {
+          // Mini treemap showing dept headcount proportions
+          return <div className="grid grid-cols-3 gap-1 mt-4">{[...currentData].sort((a, b) => b.headcount - a.headcount).slice(0, 6).map((d, i) => {
+            const pct = Math.round(d.headcount / Math.max(cA.hc, 1) * 100);
+            return <div key={d.name} className="rounded-lg p-2 text-center" style={{ background: `${COLORS[i % COLORS.length]}15` }}>
+              <div className="text-[10px] text-[var(--text-muted)] truncate">{d.name.split(" ")[0]}</div>
+              <div className="text-[14px] font-bold" style={{ color: COLORS[i % COLORS.length] }}>{pct}%</div>
+            </div>;
+          })}</div>;
+        }
+        if (ins.title.includes("IC-to-Manager")) {
+          // Horizontal bar chart with department IC:Manager ratios
+          return <div className="space-y-1.5 mt-4">{[...currentData].sort((a, b) => (b.ics / Math.max(b.managers, 1)) - (a.ics / Math.max(a.managers, 1))).slice(0, 6).map(d => {
+            const ratio = d.ics / Math.max(d.managers, 1);
+            const inRange = ratio >= 6 && ratio <= 8;
+            return <div key={d.name} className="flex items-center gap-2">
+              <span className="text-[10px] text-[var(--text-muted)] w-14 text-right truncate">{d.name.split(" ")[0]}</span>
+              <div className="flex-1 h-3 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
+                <div className="h-full rounded-full" style={{ width: `${Math.min((ratio / 15) * 100, 100)}%`, background: inRange ? "#34d399" : "#F97316" }} />
+              </div>
+              <span className="text-[10px] font-bold" style={{ color: inRange ? "#34d399" : "#F97316" }}>{ratio.toFixed(1)}</span>
+            </div>;
+          })}</div>;
+        }
+        if (ins.title.includes("Contractor") || ins.title.includes("FTE")) {
+          // Dot plot per department showing FTE % vs 80% threshold
+          return <div className="space-y-2 mt-4">{currentData.filter(d => d.fteRatio < 0.95).slice(0, 6).map(d => {
+            const pct = Math.round(d.fteRatio * 100);
+            return <div key={d.name}>
+              <div className="flex justify-between text-[10px] text-[var(--text-muted)] mb-0.5"><span>{d.name.split(" ")[0]}</span><span>{pct}%</span></div>
+              <div className="relative h-3 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
+                <div className="h-full rounded-full" style={{ width: `${pct}%`, background: pct >= 80 ? "#34d399" : "#F97316" }} />
+                {/* 80% threshold line */}
+                <div className="absolute top-0 h-full w-0.5 bg-red-400/50" style={{ left: "80%" }} />
+              </div>
+            </div>;
+          })}</div>;
+        }
+        if (ins.title.includes("Summary")) {
+          // Three large "from → to" metrics
+          return <div className="space-y-3 mt-4">
+            {[
+              { label: "Headcount", from: fmt(cA.hc), to: fmt(fA.hc) },
+              { label: "Avg Span", from: fmt(cA.avgS), to: fmt(fA.avgS) },
+              { label: "Est. Cost", from: fmtNum(cA.cost), to: fmtNum(fA.cost) },
+            ].map(m => <div key={m.label} className="text-center">
+              <div className="text-[10px] text-[var(--text-muted)] uppercase mb-0.5">{m.label}</div>
+              <div className="text-[16px] font-bold">
+                <span className="text-[var(--accent-primary)]">{m.from}</span>
+                <span className="text-[var(--text-muted)] mx-1">→</span>
+                <span className="text-[var(--success)]">{m.to}</span>
+              </div>
+            </div>)}
+          </div>;
+        }
+        // Default: cost bar
+        return <div className="mt-4 text-center text-[11px] text-[var(--text-muted)]">Structural analysis metric</div>;
+      };
+
       return <div>
-        <div className="text-[15px] text-[var(--text-secondary)] mb-4">{insights.length} insights generated from structural analysis of {currentData.length} departments, {fmt(cA.hc)} employees, comparing current state to {sc.label} scenario.</div>
-        <div className="space-y-3">{insights.map((ins, i) => <div key={i} className="rounded-xl p-5 border" style={{ background: `${ins.color}08`, borderTopColor: `${ins.color}20`, borderRightColor: `${ins.color}20`, borderBottomColor: `${ins.color}20`, borderLeftWidth: 4, borderLeftColor: ins.color }}>
-          <div className="flex items-center justify-between mb-1"><div className="text-[14px] font-bold" style={{ color: ins.color }}>{ins.title}</div>{ins.metric && <span className="px-2 py-0.5 rounded-full text-[15px] font-bold" style={{ background: `${ins.color}15`, color: ins.color }}>{ins.metric}</span>}</div>
-          <div className="text-[15px] text-[var(--text-secondary)] leading-relaxed">{ins.body}</div>
-        </div>)}</div>
+        <div className="text-[15px] text-[var(--text-secondary)] mb-4">{totalSlides} insights generated from structural analysis of {currentData.length} departments, {fmt(cA.hc)} employees</div>
+
+        {/* Navigation controls */}
+        <div className="flex items-center justify-end gap-2 mb-3">
+          <button onClick={() => setInsightSlide(Math.max(0, clampedSlide - 1))} disabled={clampedSlide === 0} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold border border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--accent-primary)] disabled:opacity-30 transition-all">←</button>
+          <span className="text-[14px] text-[var(--text-muted)] font-semibold px-2">{clampedSlide + 1} / {totalSlides}</span>
+          <button onClick={() => setInsightSlide(Math.min(totalSlides - 1, clampedSlide + 1))} disabled={clampedSlide === totalSlides - 1} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold border border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--accent-primary)] disabled:opacity-30 transition-all">→</button>
+        </div>
+
+        {/* Slide */}
+        <div className="flex justify-center">
+          <div className="w-full max-w-[900px] min-h-[380px] rounded-2xl border border-[var(--border)] p-8 transition-all duration-500" style={{
+            background: "linear-gradient(135deg, #131b2e 0%, #1a2340 50%, #131b2e 100%)",
+            boxShadow: "0 24px 48px rgba(0,0,0,0.25)",
+          }}>
+            {currentInsight && <div className="flex gap-8 h-full" key={clampedSlide}>
+              {/* Left Column (55%) */}
+              <div className="flex-[55] flex flex-col">
+                {/* Severity badge */}
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[12px] font-bold w-fit mb-4" style={{ background: `${currentInsight.severityColor}15`, color: currentInsight.severityColor }}>
+                  {currentInsight.severityIcon} {currentInsight.severity}
+                </span>
+                {/* Title */}
+                <h2 className="text-[22px] font-bold text-[var(--text-primary)] mb-2 leading-tight">{currentInsight.title}</h2>
+                {/* Headline */}
+                <p className="text-[14px] text-[var(--text-secondary)] mb-3 leading-relaxed">{currentInsight.headline}</p>
+                {/* Body */}
+                <p className="text-[12px] text-[var(--text-muted)] mb-auto leading-relaxed">{currentInsight.bodyRest}</p>
+                {/* Recommendation box */}
+                <div className="mt-4 rounded-lg p-3 border-l-3" style={{ background: "rgba(59,130,246,0.06)", borderLeft: "3px solid #3B82F6" }}>
+                  <div className="text-[10px] font-bold text-[#3B82F6] uppercase tracking-wider mb-1">Recommendation</div>
+                  <div className="text-[12px] text-[var(--text-secondary)] leading-relaxed">{currentInsight.recommendation}</div>
+                </div>
+              </div>
+
+              {/* Right Column (45%) */}
+              <div className="flex-[45] flex flex-col items-center">
+                {/* Large stat number */}
+                {currentInsight.metric && <>
+                  <div className="text-[52px] font-extrabold mt-4" style={{ color: currentInsight.severityColor }}>{currentInsight.metric}</div>
+                  <div className="text-[12px] text-[var(--text-muted)] uppercase tracking-wider mb-2">{currentInsight.title.split(":")[0]}</div>
+                </>}
+                {/* Contextual visualization */}
+                <div className="w-full px-2">
+                  {renderViz(currentInsight)}
+                </div>
+              </div>
+            </div>}
+          </div>
+        </div>
+
+        {/* Dot indicators */}
+        <div className="flex items-center justify-center gap-1.5 mt-4">
+          {enrichedInsights.map((_, i) => (
+            <button key={i} onClick={() => setInsightSlide(i)} className="rounded-full transition-all duration-300" style={{
+              width: i === clampedSlide ? 24 : 8,
+              height: 8,
+              background: i === clampedSlide ? "#3B82F6" : "rgba(255,255,255,0.15)",
+            }} />
+          ))}
+        </div>
       </div>;
     })()}
 
