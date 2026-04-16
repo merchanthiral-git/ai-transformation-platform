@@ -307,28 +307,7 @@ export function SkillsMapEngine({ model, f, onBack, onNavigate }: {
   const confirmedCount = Object.keys(confirmedMatches).length;
   const mappedCount = Object.values(mappedJobs).filter(j => j.status === "Complete").length;
 
-  // ── Render ──
-  return React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 0, minHeight: "100%" } },
-    React.createElement(PageHeader, {
-      icon: "\uD83D\uDDFA\uFE0F", title: "O*NET Skills Map Engine",
-      subtitle: "Browse skills, match jobs to O*NET, and build skill profiles",
-      onBack,
-    }),
-    React.createElement("div", { style: { padding: "0 0 8px" } },
-      React.createElement(TabBar, { tabs: TABS, active: activeTab, onChange: setActiveTab }),
-    ),
-    React.createElement("div", { style: { flex: 1, padding: "0 0 24px" } },
-      activeTab === "library" ? renderLibrary() :
-      activeTab === "matcher" ? renderMatcher() :
-      activeTab === "mapper" ? renderMapper() :
-      renderExport()
-    ),
-  );
-
-  // ═══════════════════════════════════════════════════
-  // TAB 1: Skills Library
-  // ═══════════════════════════════════════════════════
-  // ── Occupation browsing helpers ──
+  // ── Occupation browsing helpers (must be before return) ──
   const majorGroups = useMemo(() => {
     const groups: Record<string, { code: string; name: string; count: number }> = {};
     for (const o of occupations) {
@@ -364,6 +343,27 @@ export function SkillsMapEngine({ model, f, onBack, onNavigate }: {
   const JZ_LABELS: Record<string, string> = { "1": "Little or No Preparation", "2": "Some Preparation", "3": "Medium Preparation", "4": "Considerable Preparation", "5": "Extensive Preparation" };
   const JZ_COLORS: Record<string, string> = { "1": "#10B981", "2": "#3B82F6", "3": "#F59E0B", "4": "#EF4444", "5": "#8B5CF6" };
 
+  // ── Render ──
+  return React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 0, minHeight: "100%" } },
+    React.createElement(PageHeader, {
+      icon: "\uD83D\uDDFA\uFE0F", title: "O*NET Skills Map Engine",
+      subtitle: "Browse skills, match jobs to O*NET, and build skill profiles",
+      onBack,
+    }),
+    React.createElement("div", { style: { padding: "0 0 8px" } },
+      React.createElement(TabBar, { tabs: TABS, active: activeTab, onChange: setActiveTab }),
+    ),
+    React.createElement("div", { style: { flex: 1, padding: "0 0 24px" } },
+      activeTab === "library" ? renderLibrary() :
+      activeTab === "matcher" ? renderMatcher() :
+      activeTab === "mapper" ? renderMapper() :
+      renderExport()
+    ),
+  );
+
+  // ═══════════════════════════════════════════════════
+  // TAB 1: Skills Library
+  // ═══════════════════════════════════════════════════
   function renderLibrary() {
     return React.createElement("div", { style: { display: "flex", gap: 16, minHeight: 600 } },
       // ═══ LEFT PANEL — Filter & Browse ═══

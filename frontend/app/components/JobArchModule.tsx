@@ -1240,7 +1240,7 @@ function JAGovernanceTab({ jobs, employees, model }: { jobs: Job[]; employees: E
         const dashOff = circ * (1 - healthScore / 100);
         return <div className="flex gap-5 items-center">
           <div>
-            <div className={`relative w-[130px] h-[130px] shrink-0${healthScore < 50 ? " health-pulse" : ""}`}>
+            <div className={`relative w-[130px] h-[130px] shrink-0`}>
               <svg viewBox="0 0 130 130" className="w-full h-full">
                 <circle cx="65" cy="65" r="55" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="10" />
                 <circle cx="65" cy="65" r="55" fill="none" stroke={hCol} strokeWidth="10" strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={dashOff} transform="rotate(-90 65 65)" style={{ filter: `drop-shadow(0 0 6px ${hCol}30)`, transition: "stroke-dashoffset 0.8s ease" }} />
@@ -1888,7 +1888,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
         const healthScore = k.isHealth ? Number(k.value) : 0;
         const healthColor = healthScore >= 70 ? "#34d399" : healthScore >= 50 ? "#F59E0B" : "#ef4444";
         const healthVerdict = healthScore >= 90 ? "Excellent" : healthScore >= 70 ? "Solid — minor gaps" : healthScore >= 50 ? "Needs work — structural risks present" : "Critical — architecture unreliable";
-        return <div key={k.label} className={`rounded-xl p-3 border transition-all hover:bg-[rgba(255,255,255,0.07)]${k.isHealth && healthScore < 50 ? " health-pulse" : ""}`} style={{ background: "rgba(255,255,255,0.04)", border: `1px solid ${k.accent ? "rgba(59,130,246,0.25)" : "rgba(255,255,255,0.08)"}` }}>
+        return <div key={k.label} className={`rounded-xl p-3 border transition-all hover:bg-[rgba(255,255,255,0.07)]`} style={{ background: "rgba(255,255,255,0.04)", border: `1px solid ${k.accent ? "rgba(59,130,246,0.25)" : "rgba(255,255,255,0.08)"}` }}>
           <div className="text-[9px] font-bold uppercase tracking-[0.08em] text-[#64748b] mb-1">{k.label}</div>
           <div className="text-[20px] font-bold" style={{ fontFamily: "'JetBrains Mono', monospace", color: k.isHealth ? healthColor : "var(--text-primary)" }}>{k.isHealth ? `${k.value}/100` : k.value}</div>
           {k.isHealth && <div className="text-[9px] mt-0.5" style={{ color: healthColor }}>{healthVerdict}</div>}
@@ -2189,7 +2189,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
         {/* Health Dashboard — ring + summary */}
         <div className="flex gap-5 mb-6 items-center">
           {/* Health Ring */}
-          <div className={`relative w-[130px] h-[130px] shrink-0${healthVal < 50 ? " health-pulse" : ""}`}>
+          <div className={`relative w-[130px] h-[130px] shrink-0`}>
             <svg viewBox="0 0 130 130" className="w-full h-full">
               <circle cx="65" cy="65" r="55" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="10" />
               <circle cx="65" cy="65" r="55" fill="none" stroke={healthCol} strokeWidth="10" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={dashOffset} transform="rotate(-90 65 65)" style={{ filter: `drop-shadow(0 0 6px ${healthCol}30)`, transition: "stroke-dashoffset 0.8s ease" }} />
@@ -2427,8 +2427,6 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
 
     {tab === "content" && <div className="animate-tab-enter"><JobContentAuthoring model={model} f={f} /></div>}
 
-    <style>{`.health-pulse { animation: healthPulse 2s ease-in-out infinite; }
-    @keyframes healthPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }`}</style>
     <NextStepBar currentModuleId="jobarch" onNavigate={onNavigate || onBack} />
   </div>;
 }

@@ -479,18 +479,18 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode; 
 export function KpiCard({ label, value, accent, delta }: { label: string; value: string | number; accent?: boolean; delta?: string }) {
   const numVal = typeof value === "number" ? value : parseFloat(String(value).replace(/[^0-9.-]/g, ""));
   const isNum = !isNaN(numVal) && typeof value === "number";
-  return <motion.div className={`border rounded-xl px-5 py-4 ${accent ? "border-l-[3px] border-l-[var(--accent-primary)] border-[var(--border)]" : "border-[var(--border)]"}`} style={{ background: "rgba(255,255,255,0.04)", boxShadow: "var(--shadow-1)" }} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }} whileHover={{ y: -2, boxShadow: "var(--shadow-3)" }}>
-    <div className="text-[14px] font-semibold text-[var(--text-muted)] uppercase tracking-[0.5px] mb-1.5 font-heading"><GlossaryTip term={label}>{label}</GlossaryTip></div>
+  return <div className={`border rounded-xl px-5 py-4 card-hover ${accent ? "border-l-[3px] border-l-[var(--accent-primary)] border-[var(--border)]" : "border-[var(--border)]"}`} style={{ background: "rgba(255,255,255,0.04)", boxShadow: "var(--shadow-1)" }}>
+    <div className="text-[13px] font-semibold text-[var(--text-muted)] uppercase tracking-[0.5px] mb-1.5 font-heading"><GlossaryTip term={label}>{label}</GlossaryTip></div>
     <div className="text-[24px] text-[var(--text-primary)] tracking-tight font-data" style={{ fontFamily: "'JetBrains Mono', var(--font-data)", fontWeight: 700 }}>{isNum ? <AnimatedNumber value={numVal} /> : (typeof value === "string" || typeof value === "number" ? value : String(value ?? "\u2014"))}</div>
-    {delta && <div className="text-[14px] font-semibold text-[var(--success)] mt-1.5">{delta}</div>}
-  </motion.div>;
+    {delta && <div className="text-[13px] font-semibold text-[var(--success)] mt-1.5">{delta}</div>}
+  </div>;
 }
 
 export function Card({ children, title }: { children: React.ReactNode; title?: React.ReactNode }) {
-  return <motion.div className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl mb-5" style={{ padding: "var(--card-padding)", boxShadow: "var(--shadow-1)" }} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}>
-    {title && <h3 className="text-[18px] font-semibold text-[var(--text-primary)] pb-3 mb-4 font-heading" style={{ borderBottom: '1px solid transparent', borderImage: 'linear-gradient(to right, rgba(255,255,255,0.08), transparent) 1' }}>{title}</h3>}
+  return <div className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl mb-5" style={{ padding: "var(--card-padding)", boxShadow: "var(--shadow-1)" }}>
+    {title && <h3 className="text-[17px] font-semibold text-[var(--text-primary)] pb-3 mb-4 font-heading" style={{ borderBottom: '1px solid transparent', borderImage: 'linear-gradient(to right, rgba(255,255,255,0.08), transparent) 1' }}>{title}</h3>}
     {children}
-  </motion.div>;
+  </div>;
 }
 
 export function Empty({ text, icon = "📭", action, onAction, subtitle, secondaryAction, onSecondaryAction }: { text: string; icon?: string; action?: string; onAction?: () => void; subtitle?: string; secondaryAction?: string; onSecondaryAction?: () => void }) {

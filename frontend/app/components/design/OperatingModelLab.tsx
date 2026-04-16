@@ -97,7 +97,11 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
   const [opModel, setOpModel] = useState("centralized");
   const [gov, setGov] = useState("balanced");
   const [omView, setOmView] = useState("1.1");
+  const [showWelcome, setShowWelcome] = useState(true);
+  const [showTemplates, setShowTemplates] = useState(false);
   const [showTomSummary, setShowTomSummary] = useState(false);
+  const [showPattern, setShowPattern] = useState(true);
+  const [showCommittee, setShowCommittee] = useState(false);
   const [maturityScores, setMaturityScores] = usePersisted<Record<string, number>>(`${fn}_${arch}_maturity`, {});
   const [targetScores, setTargetScores] = usePersisted<Record<string, number>>(`${fn}_${arch}_target`, {});
   const defaultRapid = ({"finance":["Budget Approval","Investment Decisions","Audit Findings","Revenue Recognition","Tax Strategy","Vendor Selection","Financial Close","Capital Allocation"],"technology":["Architecture Decisions","Security Policies","Vendor/Tool Selection","Release Approvals","Data Governance","AI/ML Deployment","Infrastructure Changes","Tech Debt Priorities"],"hr":["Hiring Decisions","Comp Adjustments","Policy Changes","L&D Investment","Performance Ratings","Org Design","DEI Initiatives","Succession Planning"],"legal":["Litigation Strategy","Regulatory Response","Contract Approval","Policy Updates","Risk Acceptance","IP Decisions","Compliance Programs","Investigations"],"investments":["Investment Thesis","Deal Approval","Portfolio Rebalancing","Risk Limits","Valuation Methods","Exit Decisions","LP Communications","Fund Terms"],"operations":["Supply Chain Changes","Quality Standards","Vendor Selection","Process Redesign","Safety Protocols","Capacity Planning","Outsourcing","Technology Adoption"],"marketing":["Brand Guidelines","Campaign Approval","Budget Allocation","Channel Strategy","Pricing Input","Agency Selection","Content Standards","Market Entry"],"product":["Roadmap Priorities","Architecture Decisions","Feature Launch","Tech Stack","Design Standards","Quality Gates","Resource Allocation","Deprecation"]}[fn] || "Strategy,Budget,Talent,Technology,AI Implementation,Process Changes,Vendor Selection,Risk Management".split(",")).map((d: string) => ({d, r:["D","A","R","P"]}));
@@ -131,6 +135,23 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
     { id: "talent", label: "Talent & Culture", icon: "🧑‍🤝‍🧑", desc: "Attract, develop, and retain top talent" },
     { id: "digital", label: "Digital / AI Transformation", icon: "🤖", desc: "Leverage technology and AI for competitive advantage" },
   ];
+  const STARTER_TEMPLATES: { id: string; label: string; desc: string; priorities: string[]; arch: string; opModel: string; gov: string }[] = [
+    { id: "tech_growth", label: "Tech Company Growth Stage", desc: "Digital-first, platform architecture, light governance", priorities: ["digital", "innovation", "talent"], arch: "platform", opModel: "federated", gov: "light" },
+    { id: "fortune500", label: "Mature Fortune 500", desc: "Cost-optimized, matrix org, balanced governance", priorities: ["cost", "risk", "ops"], arch: "matrix", opModel: "federated", gov: "balanced" },
+    { id: "pe_backed", label: "PE-Backed Transformation", desc: "Cost-focused, centralized shared services, tight governance", priorities: ["cost", "revenue", "digital"], arch: "functional", opModel: "centralized", gov: "tight" },
+    { id: "consumer", label: "Consumer Brand", desc: "Customer-centric, divisional by market, balanced governance", priorities: ["cx", "innovation", "revenue"], arch: "divisional", opModel: "federated", gov: "balanced" },
+    { id: "industrial", label: "Energy / Industrial", desc: "Ops-focused, functional structure, tight governance", priorities: ["ops", "risk", "cost"], arch: "functional", opModel: "hub_spoke", gov: "tight" },
+  ];
+  const PRIORITY_WHY: Record<string, string> = {
+    revenue: "Typically leads to growth-oriented structures with market-facing teams empowered for speed.",
+    cost: "Typically leads to more shared services, process standardization, and tighter governance.",
+    innovation: "Typically leads to autonomous teams, higher R&D investment, and lighter governance.",
+    cx: "Typically leads to customer-centric org design with journey-based team structures.",
+    ops: "Typically leads to centralized process ownership and continuous improvement programs.",
+    risk: "Typically leads to stronger controls, three-lines-of-defense, and compliance-heavy governance.",
+    talent: "Typically leads to investment in L&D, flatter structures, and culture-first decision making.",
+    digital: "Typically leads to platform-based architectures and cross-functional digital teams.",
+  };
   const [stratPriorities, setStratPriorities] = usePersisted<string[]>(`${projectId}_strat_priorities`, []);
   const [stratDesignPrinciples, setStratDesignPrinciples] = usePersisted<Record<string, { value: number; rationale: string }>>(`${projectId}_strat_design_principles`, {
     centralize: { value: 50, rationale: "" }, standardize: { value: 50, rationale: "" },
@@ -686,17 +707,102 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
   return <div>
     <PageHeader icon="🧬" title="Operating Model Lab" subtitle="Build a complete Target Operating Model — guided step by step" onBack={onBack} moduleId="opmodel" />
 
-    {/* Progress bar + TOM button */}
-    <div className="flex items-center gap-4 mb-4">
-      <div className="flex-1">
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-[13px] font-semibold text-[var(--text-primary)]">Operating Model: {completionPct}% complete — {completedSteps} of {totalSteps} steps configured</span>
-          <div className="flex items-center gap-2">
-            <button onClick={() => onNavigateCanvas && onNavigateCanvas()} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--accent-primary)] transition-all">⬡ Design Canvas</button>
-            <button onClick={() => setShowTomSummary(true)} className="px-4 py-1.5 rounded-lg text-[13px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>📋 View Target Operating Model</button>
-          </div>
+    {showWelcome && <div style={{ display: "flex", gap: 12, alignItems: "flex-start", padding: "12px 16px", marginBottom: 16, background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.15)", borderLeft: "3px solid #3B82F6", borderRadius: 12 }}>
+      <span style={{ fontSize: 20, flexShrink: 0, marginTop: 2 }}>💡</span>
+      <div style={{ flex: 1 }}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", marginBottom: 4 }}>Welcome to the Operating Model Lab</div>
+        <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6 }}>This 14-step guided process helps you design your organization's target operating model — how you'll structure capabilities, make decisions, and deliver services. Each step builds on the previous ones. Most organizations complete this in 3-5 sessions (~2 hours total). You can save progress and return anytime.</div>
+      </div>
+      <button onClick={() => setShowWelcome(false)} style={{ fontSize: 17, color: "var(--text-muted)", background: "none", border: "none", cursor: "pointer", padding: 4, flexShrink: 0 }}>×</button>
+    </div>}
+
+    {/* ═══ COCKPIT HEADER ═══ */}
+    <div style={{ display: "flex", gap: 24, alignItems: "center", padding: "16px 20px", marginBottom: 16, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16 }}>
+      {/* LEFT: Progress ring */}
+      <div style={{ position: "relative", width: 88, height: 88, flexShrink: 0 }}>
+        <svg viewBox="0 0 88 88" style={{ width: 88, height: 88, transform: "rotate(-90deg)" }}>
+          <circle cx="44" cy="44" r="38" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6" />
+          <circle cx="44" cy="44" r="38" fill="none" stroke={completionPct >= 70 ? "#10B981" : completionPct >= 30 ? "#3B82F6" : "#64748b"} strokeWidth="6" strokeLinecap="round" strokeDasharray={`${2 * Math.PI * 38}`} strokeDashoffset={`${2 * Math.PI * 38 * (1 - completionPct / 100)}`} style={{ transition: "stroke-dashoffset 0.6s ease-out", filter: `drop-shadow(0 0 6px ${completionPct >= 70 ? "rgba(16,185,129,0.3)" : "rgba(59,130,246,0.3)"})` }} />
+        </svg>
+        <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 20, fontWeight: 700, color: "var(--text-primary)" }}>{completedSteps}/{totalSteps}</span>
+          <span style={{ fontSize: 9, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.08em" }}>steps</span>
         </div>
-        <div className="h-2 bg-[var(--surface-2)] rounded-full overflow-hidden"><div className="h-full rounded-full transition-all" style={{ width: `${completionPct}%`, background: completionPct >= 70 ? "var(--success)" : completionPct >= 30 ? "var(--accent-primary)" : "var(--text-muted)" }} /></div>
+      </div>
+
+      {/* MIDDLE: DNA Strip + synthesis */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        {/* 14-segment DNA strip */}
+        <div style={{ display: "flex", gap: 3, marginBottom: 8 }}>
+          {OM_PHASES.flatMap(p => p.steps).map((step, i) => {
+            const done = stepComplete(step.id);
+            const active = omView === step.id;
+            const color = done ? "#10B981" : active ? "#3B82F6" : "#1e293b";
+            return <div key={step.id} title={step.label} style={{ flex: 1, height: 6, borderRadius: 3, background: color, transition: "background 0.3s", cursor: "pointer", border: active ? "1px solid #3B82F6" : "1px solid transparent" }} onClick={() => setOmView(step.id)} />;
+          })}
+        </div>
+        {/* Synthesis line */}
+        <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.5 }}>
+          {stratPriorities.length > 0
+            ? `Your model is shaping up as a ${OM_ARCHETYPES[arch]?.label || arch} ${opModel.replace("_", "-")} with ${gov} governance${stratPriorities.length >= 2 ? `, optimized for ${STRAT_PRIORITIES_ALL.find(p => p.id === stratPriorities[0])?.label || ""} and ${STRAT_PRIORITIES_ALL.find(p => p.id === stratPriorities[1])?.label || ""}` : ""}.`
+            : "Configure your strategic priorities to see your operating model take shape."}
+        </div>
+        {/* Action buttons */}
+        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+          <button onClick={() => onNavigateCanvas && onNavigateCanvas()} style={{ padding: "5px 12px", borderRadius: 8, fontSize: 12, fontWeight: 600, color: "#64748b", background: "transparent", border: "1px solid rgba(255,255,255,0.08)", cursor: "pointer" }}>Design Canvas</button>
+          <button onClick={() => setShowTomSummary(true)} style={{ padding: "5px 12px", borderRadius: 8, fontSize: 12, fontWeight: 600, color: "#fff", background: "var(--accent-primary)", border: "none", cursor: "pointer" }}>View Target Operating Model</button>
+          <button onClick={() => setShowCommittee(!showCommittee)} style={{ padding: "5px 12px", borderRadius: 8, fontSize: 12, fontWeight: 600, color: showCommittee ? "#fff" : "#64748b", background: showCommittee ? "#8B5CF6" : "transparent", border: "1px solid " + (showCommittee ? "#8B5CF6" : "rgba(255,255,255,0.08)"), cursor: "pointer" }}>Committee Review</button>
+        </div>
+      </div>
+
+      {/* RIGHT: Model Fingerprint Radar */}
+      <div style={{ width: 140, height: 140, flexShrink: 0, position: "relative" }}>
+        <svg viewBox="0 0 140 140" style={{ width: "100%", height: "100%" }}>
+          {/* Radar grid */}
+          {[20, 40, 60].map(r => <circle key={r} cx="70" cy="70" r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" />)}
+          {/* Axis lines + labels */}
+          {(() => {
+            const axes = [
+              { label: "Decentral", key: "centralize", invert: true },
+              { label: "Standard", key: "standardize", invert: false },
+              { label: "Build", key: "buildBuy", invert: true },
+              { label: "Speed", key: "controlSpeed", invert: false },
+              { label: "Specialist", key: "specialistGen", invert: true },
+            ];
+            const angleStep = (2 * Math.PI) / axes.length;
+            const startAngle = -Math.PI / 2;
+            return <>
+              {axes.map((ax, i) => {
+                const angle = startAngle + i * angleStep;
+                const ex = 70 + 60 * Math.cos(angle);
+                const ey = 70 + 60 * Math.sin(angle);
+                const lx = 70 + 68 * Math.cos(angle);
+                const ly = 70 + 68 * Math.sin(angle);
+                return <g key={ax.key}>
+                  <line x1="70" y1="70" x2={ex} y2={ey} stroke="rgba(255,255,255,0.08)" strokeWidth="0.5" />
+                  <text x={lx} y={ly} textAnchor="middle" dominantBaseline="middle" fill="#64748b" fontSize="7" fontWeight="600">{ax.label}</text>
+                </g>;
+              })}
+              {/* Data polygon */}
+              <polygon points={axes.map((ax, i) => {
+                const angle = startAngle + i * angleStep;
+                const raw = (stratDesignPrinciples[ax.key]?.value ?? 50) / 100;
+                const val = ax.invert ? 1 - raw : raw;
+                const r = 10 + val * 50;
+                return `${70 + r * Math.cos(angle)},${70 + r * Math.sin(angle)}`;
+              }).join(" ")} fill="rgba(59,130,246,0.15)" stroke="#3B82F6" strokeWidth="1.5" style={{ transition: "all 0.6s ease-out" }} />
+              {/* Data dots */}
+              {axes.map((ax, i) => {
+                const angle = startAngle + i * angleStep;
+                const raw = (stratDesignPrinciples[ax.key]?.value ?? 50) / 100;
+                const val = ax.invert ? 1 - raw : raw;
+                const r = 10 + val * 50;
+                return <circle key={ax.key + "_dot"} cx={70 + r * Math.cos(angle)} cy={70 + r * Math.sin(angle)} r="3" fill="#3B82F6" style={{ transition: "all 0.6s ease-out" }} />;
+              })}
+            </>;
+          })()}
+        </svg>
+        <div style={{ position: "absolute", bottom: -4, left: 0, right: 0, textAlign: "center", fontSize: 9, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em" }}>Model Fingerprint</div>
       </div>
     </div>
 
@@ -773,7 +879,10 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
       {/* ── LEFT: Step Navigator ── */}
       <div className="w-[240px] shrink-0 sticky top-4 self-start space-y-1 max-h-[calc(100vh-120px)] overflow-y-auto pr-1">
         {/* Industry Setup */}
-        <button onClick={() => setOmView("setup")} className="w-full text-left px-3 py-2 rounded-lg text-[13px] font-semibold transition-all mb-2" style={{ background: omView === "setup" ? "rgba(212,134,10,0.1)" : "var(--surface-2)", color: omView === "setup" ? "var(--accent-primary)" : "var(--text-muted)", border: omView === "setup" ? "1px solid rgba(212,134,10,0.3)" : "1px solid var(--border)" }}>⚙️ Industry Setup</button>
+        <button onClick={() => setOmView("setup")} className="w-full text-left px-3 py-2 rounded-lg text-[13px] font-semibold transition-all mb-2" style={{ background: omView === "setup" ? "rgba(59,130,246,0.08)" : "var(--surface-2)", color: omView === "setup" ? "#3B82F6" : "var(--text-muted)", border: omView === "setup" ? "1px solid rgba(59,130,246,0.3)" : "1px solid var(--border)", borderLeft: omView === "setup" ? "3px solid #3B82F6" : undefined }}>
+          <div>⚙️ Industry Setup <span className="text-[10px] text-[var(--text-muted)]">~10 min</span></div>
+          <div className="text-[11px] text-[var(--text-muted)] font-normal mt-0.5">Function, archetype & model selection</div>
+        </button>
         {OM_PHASES.map(phase => {
           const phaseComplete = phase.steps.every(s => stepComplete(s.id));
           const phaseStarted = phase.steps.some(s => stepComplete(s.id) || stepInProgress(s.id));
@@ -789,14 +898,19 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
                 const isActive = omView === step.id;
                 const complete = stepComplete(step.id);
                 const inProg = stepInProgress(step.id);
+                const stepTime = (step.id === "3.2" || step.id === "4.1") ? "~15 min" : "~10 min";
                 return <button key={step.id} onClick={() => setOmView(step.id)} className="w-full text-left px-2.5 py-2 rounded-lg transition-all group" style={{
-                  background: isActive ? `${phase.color}12` : "transparent",
-                  border: isActive ? `1px solid ${phase.color}40` : "1px solid transparent",
+                  background: isActive ? "rgba(59,130,246,0.08)" : "transparent",
+                  border: isActive ? "1px solid rgba(59,130,246,0.3)" : "1px solid transparent",
+                  borderLeft: isActive ? "3px solid #3B82F6" : "3px solid transparent",
                 }}>
                   <div className="flex items-center gap-2">
                     <span className="text-[12px] shrink-0" style={{ color: complete ? "var(--success)" : inProg ? phase.color : "var(--text-muted)" }}>{complete ? "🟢" : inProg ? "🟡" : "⚪"}</span>
                     <div className="flex-1 min-w-0">
-                      <div className="text-[13px] font-semibold truncate" style={{ color: isActive ? phase.color : "var(--text-primary)" }}>{step.id} {step.label}</div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-[13px] font-semibold truncate" style={{ color: isActive ? "#3B82F6" : "var(--text-primary)" }}>{step.id} {step.label}</span>
+                        <span className="text-[10px] text-[var(--text-muted)] shrink-0">{stepTime}</span>
+                      </div>
                       <div className="text-[11px] text-[var(--text-muted)] truncate">{step.desc}</div>
                     </div>
                   </div>
@@ -805,6 +919,11 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
             </div>
           </div>;
         })}
+        <div style={{ height: 1, background: "var(--border)", margin: "8px 0" }} />
+        <button onClick={() => setOmView("ledger")} style={{ width: "100%", textAlign: "left", padding: "8px 12px", borderRadius: 8, cursor: "pointer", background: omView === "ledger" ? "rgba(212,134,10,0.08)" : "transparent", border: omView === "ledger" ? "none" : "none", borderLeft: omView === "ledger" ? "3px solid #D4860A" : "3px solid transparent", transition: "all 0.15s" }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: omView === "ledger" ? "#D4860A" : "var(--text-secondary)" }}>Decisions Ledger</div>
+          <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>Your operating model in your own words</div>
+        </button>
       </div>
 
       {/* ── RIGHT: Content Area ── */}
@@ -815,6 +934,25 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
           <button onClick={() => setOmView("1.1")} className="text-[12px] text-[var(--text-muted)] hover:text-[var(--accent-primary)]">Edit</button>
         </div>}
 
+        {/* Golden Thread — narrative context from prior choices */}
+        {(() => {
+          const parts: string[] = [];
+          if (stratPriorities.length > 0) parts.push(`prioritizing ${stratPriorities.map(id => STRAT_PRIORITIES_ALL.find(p => p.id === id)?.label || id).join(", ")}`);
+          if (arch !== "functional") parts.push(`using a ${OM_ARCHETYPES[arch]?.label || arch} archetype`);
+          if (opModel !== "centralized") parts.push(`with ${opModel.replace("_", "-")} operations`);
+          if (gov !== "balanced") parts.push(`under ${gov} governance`);
+          const princParts: string[] = [];
+          if ((stratDesignPrinciples.centralize?.value ?? 50) > 65) princParts.push("centralized");
+          else if ((stratDesignPrinciples.centralize?.value ?? 50) < 35) princParts.push("decentralized");
+          if ((stratDesignPrinciples.standardize?.value ?? 50) > 65) princParts.push("standardized");
+          if (princParts.length) parts.push(`leaning ${princParts.join(" and ")}`);
+          if (parts.length === 0) return null;
+          return <div style={{ padding: "8px 16px", marginBottom: 16, background: "rgba(212,134,10,0.04)", border: "1px solid rgba(212,134,10,0.1)", borderRadius: 8, fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.6 }}>
+            <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#D4860A", marginRight: 8 }}>Your Golden Thread</span>
+            You are building an operating model {parts.join(", ")}.
+          </div>;
+        })()}
+
         {/* ── SETUP: Industry Configurator ── */}
         {omView === "setup" && <div className="animate-tab-enter space-y-5">
           <Card title="Industry Setup — Pre-populate Your Operating Model">
@@ -824,6 +962,19 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
               <div className="text-[14px] font-bold text-[var(--text-primary)] mb-2">Quick Start — Load a Company Template</div>
               <div className="flex gap-2 flex-wrap mb-3">{Object.entries({...OM_COMPANIES,...aiCompanies}).map(([k,c]) => { const co = c as Record<string,string>; return <button key={k} onClick={() => seedCompanySandbox(k, co)} disabled={sandboxLoading===k} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold transition-all" style={{ background: sandboxLoading===k ? "rgba(224,144,64,0.2)" : "var(--surface-2)", color: sandboxLoading===k ? "var(--accent-primary)" : "var(--text-muted)", border: "1px solid var(--border)" }}>{sandboxLoading===k ? "⏳ " : ""}{co.name||k}</button>; })}</div>
               <div className="flex gap-2"><input value={aiCompanyInput} onChange={e => setAiCompanyInput(e.target.value)} placeholder="Or type any company name..." className="flex-1 bg-[var(--bg)] border border-[var(--border)] rounded-lg px-3 py-2 text-[14px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]" onKeyDown={e => { if (e.key==="Enter") generateCompanyModel(); }} /><button onClick={generateCompanyModel} disabled={aiCompanyGenerating} className="px-4 py-2 rounded-lg text-[14px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>{aiCompanyGenerating ? "..." : "☕ Generate"}</button></div>
+            </div>
+            {/* Starter Templates */}
+            <div className="mb-4">
+              <button onClick={() => setShowTemplates(!showTemplates)} style={{ padding: "7px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600, background: "rgba(59,130,246,0.1)", color: "#3B82F6", border: "1px solid rgba(59,130,246,0.2)", cursor: "pointer" }}>Use a Starter Template</button>
+              {showTemplates && <div style={{ marginTop: 8, padding: 12, background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 12, boxShadow: "0 8px 24px rgba(0,0,0,0.2)" }}>
+                <div style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 8 }}>Templates pre-fill the first 5 steps based on industry patterns. Adjust to match your organization.</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {STARTER_TEMPLATES.map(t => <button key={t.id} onClick={() => { setArch(t.arch); setOpModel(t.opModel); setGov(t.gov); setStratPriorities(t.priorities); setShowTemplates(false); showToast(`Template applied: ${t.label}`); }} style={{ padding: "10px 14px", borderRadius: 8, background: "var(--surface-2)", border: "1px solid var(--border)", cursor: "pointer", textAlign: "left" as const }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)" }}>{t.label}</div>
+                    <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>{t.desc}</div>
+                  </button>)}
+                </div>
+              </div>}
             </div>
             {/* Architecture presets */}
             <div className="grid grid-cols-3 gap-3 mb-4">
@@ -846,11 +997,16 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
           {/* ─── 1. STRATEGIC PRIORITIES ─── */}
           <Card title="Strategic Priorities — Select & Rank Your Top 3">
             <div className="text-[15px] text-[var(--text-secondary)] mb-4">Choose your organization{"'"}s top 3 strategic priorities and rank them. These priorities anchor every recommendation across the operating model.</div>
+            <div style={{ display: "flex", gap: 12, padding: "12px 16px", marginBottom: 16, background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.15)", borderLeft: "3px solid #3B82F6", borderRadius: 12 }}>
+              <span style={{ fontSize: 15, flexShrink: 0 }}>ℹ</span>
+              <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6 }}>Your top 3 priorities become the lens through which every operating model decision is evaluated. Most Fortune 500 organizations pick 2-3 from: Cost Optimization, Digital Transformation, and Operational Excellence. Consumer-facing companies often add Customer Experience. Choose based on what your board and CEO talk about most.</div>
+            </div>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               {STRAT_PRIORITIES_ALL.map(p => {
                 const rank = stratPriorities.indexOf(p.id);
                 const isSelected = rank >= 0;
-                const rankColors = ["var(--accent-primary)", "var(--teal)", "var(--teal)"];
+                const isFull = stratPriorities.length >= 3;
+                const rankColors = ["#3B82F6", "#3B82F6", "#3B82F6"];
                 return <button key={p.id} onClick={() => {
                   setStratPriorities(prev => {
                     if (isSelected) return prev.filter(x => x !== p.id);
@@ -858,13 +1014,15 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
                     return [...prev, p.id];
                   });
                 }} className="relative rounded-xl p-4 text-left transition-all hover:-translate-y-0.5" style={{
-                  background: isSelected ? `${rankColors[rank] || "var(--teal)"}12` : "var(--surface-2)",
-                  border: isSelected ? `2px solid ${rankColors[rank] || "var(--teal)"}` : "1px solid var(--border)",
+                  background: isSelected ? `rgba(59,130,246,0.08)` : "var(--surface-2)",
+                  border: isSelected ? `2px solid #3B82F6` : "1px solid var(--border)",
+                  opacity: !isSelected && isFull ? 0.7 : 1,
                 }}>
-                  {isSelected && <div className="absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center text-[14px] font-extrabold text-white" style={{ background: rankColors[rank] }}>#{rank + 1}</div>}
+                  {isSelected && <div className="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center text-[15px] font-extrabold text-white" style={{ background: "#3B82F6" }}>{rank + 1}</div>}
                   <div className="text-2xl mb-2">{p.icon}</div>
-                  <div className="text-[15px] font-bold" style={{ color: isSelected ? rankColors[rank] : "var(--text-primary)" }}>{p.label}</div>
+                  <div className="text-[15px] font-bold" style={{ color: isSelected ? "#3B82F6" : "var(--text-primary)" }}>{p.label}</div>
                   <div className="text-[13px] text-[var(--text-muted)] mt-1 leading-snug">{p.desc}</div>
+                  {PRIORITY_WHY[p.id] && <div className="text-[12px] mt-1.5 leading-snug" style={{ color: "var(--text-muted)", fontStyle: "italic", opacity: 0.8 }}>{PRIORITY_WHY[p.id]}</div>}
                 </button>;
               })}
             </div>
@@ -894,6 +1052,20 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
                 });
               }}><span className="text-[14px]">{i > 0 ? "↑" : "↓"}</span> {p?.icon} {p?.label}</button>;
             })}</div>}
+            {stratPriorities.length >= 2 && <div style={{ marginTop: 16, padding: "16px 20px", background: "rgba(59,130,246,0.04)", border: "1px solid rgba(59,130,246,0.12)", borderRadius: 12 }}>
+              <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#3B82F6", marginBottom: 8 }}>Downstream Impact Preview</div>
+              <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 12 }}>Because you prioritized {stratPriorities.map(id => STRAT_PRIORITIES_ALL.find(p => p.id === id)?.label).filter(Boolean).join(", ")}:</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {stratPriorities.includes("cost") && <button onClick={() => setOmView("2.2")} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 12px", borderRadius: 8, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", cursor: "pointer", fontSize: 12, color: "var(--text-secondary)", textAlign: "left" as const }}>{"\u2192"} Step 2.2 Service Delivery will lean toward shared services and outsourcing</button>}
+                {stratPriorities.includes("ops") && <button onClick={() => setOmView("2.3")} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 12px", borderRadius: 8, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", cursor: "pointer", fontSize: 12, color: "var(--text-secondary)", textAlign: "left" as const }}>{"\u2192"} Step 2.3 Process Architecture will emphasize standardization and automation</button>}
+                {stratPriorities.includes("digital") && <button onClick={() => setOmView("setup")} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 12px", borderRadius: 8, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", cursor: "pointer", fontSize: 12, color: "var(--text-secondary)", textAlign: "left" as const }}>{"\u2192"} Architecture will favor platform-based models with API-first design</button>}
+                {stratPriorities.includes("innovation") && <button onClick={() => setOmView("setup")} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 12px", borderRadius: 8, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", cursor: "pointer", fontSize: 12, color: "var(--text-secondary)", textAlign: "left" as const }}>{"\u2192"} Organization will favor network/squad structures with lighter governance</button>}
+                {stratPriorities.includes("risk") && <button onClick={() => setOmView("3.2")} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 12px", borderRadius: 8, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", cursor: "pointer", fontSize: 12, color: "var(--text-secondary)", textAlign: "left" as const }}>{"\u2192"} Governance will emphasize three-lines-of-defense and tight controls</button>}
+                {stratPriorities.includes("cx") && <button onClick={() => setOmView("setup")} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 12px", borderRadius: 8, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", cursor: "pointer", fontSize: 12, color: "var(--text-secondary)", textAlign: "left" as const }}>{"\u2192"} Organization will favor customer-journey-based team structures</button>}
+                {stratPriorities.includes("revenue") && <button onClick={() => setOmView("4.1")} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 12px", borderRadius: 8, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", cursor: "pointer", fontSize: 12, color: "var(--text-secondary)", textAlign: "left" as const }}>{"\u2192"} Financial Model will target revenue-enabling investments over cost cuts</button>}
+                {stratPriorities.includes("talent") && <button onClick={() => setOmView("3.2")} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 12px", borderRadius: 8, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", cursor: "pointer", fontSize: 12, color: "var(--text-secondary)", textAlign: "left" as const }}>{"\u2192"} Organization & Culture will emphasize L&D investment and flatter structures</button>}
+              </div>
+            </div>}
           </Card>
 
           {/* ─── 2. DESIGN PRINCIPLES ─── */}
@@ -913,22 +1085,89 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
                 const setRat = (r: string) => setStratDesignPrinciples(prev => ({ ...prev, [p.key]: { ...prev[p.key], rationale: r, value: prev[p.key]?.value ?? 50 } }));
                 const leanLabel = val < 35 ? p.left : val > 65 ? p.right : "Balanced";
                 const leanColor = val < 35 ? "var(--purple)" : val > 65 ? "var(--accent-primary)" : "var(--text-muted)";
+                const sliderDescs: Record<string, string[]> = {
+                  centralize: [
+                    "Each business unit operates independently with full local autonomy. Highest agility, lowest consistency.",
+                    "Business units have significant autonomy within a loose central framework.",
+                    "A mix of central guidance and local autonomy. Most common for federated organizations.",
+                    "Central team sets most standards; local teams execute with some flexibility.",
+                    "All decisions and operations consolidated. Highest consistency, lowest agility.",
+                  ],
+                  standardize: [
+                    "Every team customizes processes for local needs. Maximum flexibility, minimal reuse.",
+                    "Local teams lead with some shared templates and guidelines.",
+                    "Core processes standardized, edge cases customized. Balance of efficiency and fit.",
+                    "Strong global standards with limited local exceptions.",
+                    "One way of doing things everywhere. Maximum efficiency, minimum local flexibility.",
+                  ],
+                  buildBuy: [
+                    "Everything built internally. Maximum control, highest cost and time investment.",
+                    "Mostly in-house with selective partnerships for non-core needs.",
+                    "Balanced mix of internal capability and external partnerships.",
+                    "Strategic partnerships for most capabilities; in-house for differentiators only.",
+                    "Fully outsourced / partner-led. Fastest to market, least internal control.",
+                  ],
+                  controlSpeed: [
+                    "Minimal approvals, teams fully empowered. Fastest execution, highest risk tolerance.",
+                    "Light governance with post-hoc review. Teams move fast with guardrails.",
+                    "Balanced approval process. Key decisions governed, routine work empowered.",
+                    "Structured governance with clear escalation paths and checkpoints.",
+                    "Rigorous multi-layer approval for all decisions. Lowest risk, slowest execution.",
+                  ],
+                  specialistGen: [
+                    "Broad generalist roles. Maximum flexibility, cross-functional movement encouraged.",
+                    "Mostly generalist with some specialist depth in critical areas.",
+                    "Balanced: T-shaped professionals with breadth and selective depth.",
+                    "Deep specialization expected, with some cross-training opportunities.",
+                    "Narrow, deep expertise. Maximum depth, minimum role flexibility.",
+                  ],
+                };
+                const descIdx = val <= 20 ? 0 : val <= 40 ? 1 : val <= 60 ? 2 : val <= 80 ? 3 : 4;
+                const sliderDesc = sliderDescs[p.key]?.[descIdx] || "";
+                const placeholderMap: Record<string, string> = {
+                  centralize: "Example: We centralize back-office functions because scale economies outweigh local customization needs...",
+                  standardize: "Example: We standardize core processes to reduce duplication while allowing regional teams to adapt customer-facing workflows...",
+                  buildBuy: "Example: We build in-house where it creates competitive advantage and partner for commodity capabilities...",
+                  controlSpeed: "Example: We lean toward speed because our market moves fast and first-mover advantage matters more than perfection...",
+                  specialistGen: "Example: We favor specialists in technical roles but generalists in leadership to ensure cross-functional thinking...",
+                };
                 return <div key={p.key} className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2"><span className="text-lg">{p.leftIcon}</span><span className="text-[15px] font-bold text-[var(--text-primary)]">{p.left}</span></div>
                     <div className="px-3 py-1 rounded-full text-[14px] font-bold" style={{ background: `${leanColor}15`, color: leanColor }}>{leanLabel}</div>
                     <div className="flex items-center gap-2"><span className="text-[15px] font-bold text-[var(--text-primary)]">{p.right}</span><span className="text-lg">{p.rightIcon}</span></div>
                   </div>
-                  <div className="flex items-center gap-3 mb-2">
+                  <div className="flex items-center gap-3 mb-1">
                     <span className="text-[13px] text-[var(--text-muted)] w-20 text-right shrink-0">{p.leftDesc.split(",")[0]}</span>
                     <input type="range" min={0} max={100} value={val} onChange={e => setVal(Number(e.target.value))}
                       className="flex-1 h-2 rounded-full appearance-none cursor-pointer"
                       style={{ background: `linear-gradient(to right, "var(--purple)" 0%, "var(--text-muted)" 50%, "var(--accent-primary)" 100%)` }} />
                     <span className="text-[13px] text-[var(--text-muted)] w-20 shrink-0">{p.rightDesc.split(",")[0]}</span>
                   </div>
+                  {sliderDesc && <div className="text-[12px] text-[var(--text-muted)] mb-2 px-1 leading-relaxed italic">{sliderDesc}</div>}
+                  <div className="text-[11px] mb-2 px-1" style={{ color: "rgba(34,197,94,0.7)" }}>Most commonly chosen: Balanced (67% of orgs)</div>
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <span className="text-[13px] font-semibold text-[var(--text-secondary)]">WHY THIS CHOICE?</span>
+                    {rationale.trim().length > 0 && <span style={{ color: "#22C55E", fontSize: 14 }}>&#10003;</span>}
+                  </div>
                   <input type="text" value={rationale} onChange={e => setRat(e.target.value)}
-                    placeholder={`Rationale: "We ${p.right.toLowerCase()} because..."`}
+                    placeholder={placeholderMap[p.key] || `Example: We ${p.right.toLowerCase()} because...`}
                     className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-[14px] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none mt-1" />
+                  {p.key === "centralize" && <details style={{ marginTop: 8, marginBottom: 16 }}>
+                    <summary style={{ fontSize: 12, color: "#60a5fa", cursor: "pointer", fontWeight: 600, userSelect: "none" }}>Deep Thinking — 3 min read</summary>
+                    <div style={{ padding: "12px 16px", marginTop: 8, background: "rgba(96,165,250,0.04)", border: "1px solid rgba(96,165,250,0.1)", borderRadius: 12, fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.8 }}>
+                      <p style={{ marginBottom: 12 }}>The centralization question is the oldest debate in organizational design. It&apos;s rarely binary. The real question is: which capabilities benefit from scale (centralize), and which benefit from proximity to the customer (decentralize)?</p>
+                      <p style={{ marginBottom: 12 }}>The failure mode most organizations make is symmetry — applying the same answer to every function. Finance often centralizes well. Sales rarely does. Technology splits along a seam: infrastructure central, product engineering distributed.</p>
+                      <p style={{ marginBottom: 0 }}>The strongest models explicitly define this disaggregation rather than picking one global answer. Ask yourself: &quot;For each of our 8-10 major capabilities, where does value come from — scale or proximity?&quot; The answer is your centralization blueprint.</p>
+                    </div>
+                  </details>}
+                  {p.key === "standardize" && <details style={{ marginTop: 8, marginBottom: 16 }}>
+                    <summary style={{ fontSize: 12, color: "#60a5fa", cursor: "pointer", fontWeight: 600, userSelect: "none" }}>Deep Thinking — 2 min read</summary>
+                    <div style={{ padding: "12px 16px", marginTop: 8, background: "rgba(96,165,250,0.04)", border: "1px solid rgba(96,165,250,0.1)", borderRadius: 12, fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.8 }}>
+                      <p style={{ marginBottom: 12 }}>Standardization is about trading local optimization for global efficiency. The insight most organizations miss: you don&apos;t standardize processes — you standardize outcomes. The best-performing organizations define &quot;what good looks like&quot; centrally, but let local teams find their own path to get there.</p>
+                      <p style={{ marginBottom: 0 }}>A useful heuristic: standardize anything a customer never sees (back-office, compliance, reporting), customize anything they do see (product, service delivery, pricing). This gives you efficiency where it matters and differentiation where it counts.</p>
+                    </div>
+                  </details>}
                 </div>;
               })}
             </div>
@@ -1319,7 +1558,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
           </div>
         </Card>}
 
-        {omView === "2.1" && <Card title="Capability Maturity Assessment">
+        {omView === "2.1" && <Card title={<div>Capability Maturity Assessment<div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2, fontWeight: 400 }}>What your organization needs to be good at</div></div>}>
           {(() => { const scores = Object.values(maturityScores).filter(v => v > 0); const avg = scores.length ? (scores.reduce((a,b) => a+b, 0) / scores.length).toFixed(1) : "—"; const tScores = Object.values(targetScores).filter(v => v > 0); const tAvg = tScores.length ? (tScores.reduce((a,b) => a+b, 0) / tScores.length).toFixed(1) : "—"; return <div className="flex gap-4 mb-4">{[{label:"Current Avg",val:avg,color:"var(--accent-primary)"},{label:"Target Avg",val:tAvg,color:"var(--success)"},{label:"Capabilities Rated",val:`${scores.length}/${allCaps.length}`,color:"var(--text-secondary)"},{label:"Gap",val:scores.length && tScores.length ? (Number(tAvg)-Number(avg)).toFixed(1) : "—",color:"var(--warning)"}].map(k => <div key={k.label} className="flex-1 rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[17px] font-extrabold" style={{color:k.color}}>{k.val}</div><div className="text-[14px] text-[var(--text-muted)] uppercase">{k.label}</div></div>)}</div>; })()}
           <div className="text-[15px] text-[var(--text-secondary)] mb-3">Rate current state (left) and target state (right) for each capability.</div>
           <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full"><thead><tr className="bg-[var(--surface-2)]"><th className="px-3 py-2 text-left text-[15px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Capability</th><th className="px-2 py-2 text-center text-[15px] font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Layer</th>{[1,2,3,4,5].map(n => <th key={n} className="px-2 py-2 text-center text-[15px] border-b border-[var(--border)] text-[var(--text-muted)]">{n}</th>)}<th className="px-1 py-2 text-center text-[14px] border-b border-[var(--border)] text-[var(--text-muted)]">|</th>{[1,2,3,4,5].map(n => <th key={`t${n}`} className="px-2 py-2 text-center text-[15px] border-b border-[var(--border)] text-[var(--success)]">{n}</th>)}<th className="px-2 py-2 text-center text-[15px] border-b border-[var(--border)] text-[var(--text-muted)]">AI</th></tr></thead>
@@ -1344,7 +1583,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
           </div>
 
           {/* ─── 1. DELIVERY MODEL MATRIX ─── */}
-          {svcView === "matrix" && <Card title="Delivery Model Matrix — Current vs. Target State">
+          {svcView === "matrix" && <Card title={<div>Delivery Model Matrix — Current vs. Target State<div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2, fontWeight: 400 }}>How services reach the business</div></div>}>
             <div className="text-[15px] text-[var(--text-secondary)] mb-4">For each function/capability, set the current and target delivery model. Shifts are color-coded.</div>
             {/* Filter & summary */}
             <div className="flex items-center justify-between mb-4">
@@ -1660,7 +1899,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
           </div>
 
           {/* ─── 1. DECISION CATALOGUE ─── */}
-          {govView === "catalogue" && <Card title="Decision Catalogue">
+          {govView === "catalogue" && <Card title={<div>Decision Catalogue<div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2, fontWeight: 400 }}>Who decides what, and how fast</div></div>}>
             <div className="text-[15px] text-[var(--text-secondary)] mb-4">Inventory of key organizational decisions. Click any cell to edit inline.</div>
             {/* Filters */}
             <div className="flex gap-2 flex-wrap mb-4">
@@ -2030,7 +2269,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
           </div>
 
           {/* ─── 1. E2E PROCESS MAP ─── */}
-          {procView === "map" && <Card title="End-to-End Process Map">
+          {procView === "map" && <Card title={<div>End-to-End Process Map<div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2, fontWeight: 400 }}>How work flows end-to-end</div></div>}>
             <div className="text-[15px] text-[var(--text-secondary)] mb-4">Core enterprise processes spanning multiple functions. Click any process to see detailed steps.</div>
             {/* Summary KPIs */}
             <div className="grid grid-cols-4 gap-3 mb-4">
@@ -2819,7 +3058,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
           </Card>}
 
           {/* ─── 4. CHANGE CAPACITY ASSESSMENT ─── */}
-          {pcView === "capacity" && <Card title="Change Capacity Assessment">
+          {pcView === "capacity" && <Card title={<div>Change Capacity Assessment<div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2, fontWeight: 400 }}>Whether the organization can absorb more change</div></div>}>
             <div className="text-[15px] text-[var(--text-secondary)] mb-4">Assess your organization{"'"}s ability to absorb transformation. Overloading change capacity is the #1 reason transformations fail.</div>
             <div className="grid grid-cols-2 gap-5">
               {/* Left: inputs */}
@@ -2946,7 +3185,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
           </div>
 
           {/* ─── 1. ACTIVITY-BASED COSTING ─── */}
-          {finView === "abc" && <Card title="Activity-Based Costing — Current vs. Target ($K)">
+          {finView === "abc" && <Card title={<div>Activity-Based Costing — Current vs. Target ($K)<div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2, fontWeight: 400 }}>What each capability costs to deliver</div></div>}>
             <div className="text-[16px] text-[var(--text-secondary)] mb-5" style={{ fontFamily: "'Outfit', sans-serif" }}>Cost components per function in thousands ($K). Click any cell to edit.</div>
             {(() => {
               const totalCur = FIN_FUNCS.reduce((s, f) => { const c = finCosts[f]; return s + (c?.people||0) + (c?.technology||0) + (c?.outsourcing||0) + (c?.facilities||0); }, 0);
@@ -3273,7 +3512,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
           </div>
 
           {/* ─── 1. BALANCED SCORECARD ─── */}
-          {perfView === "scorecard" && <Card title="Balanced Scorecard Dashboard">
+          {perfView === "scorecard" && <Card title={<div>Balanced Scorecard Dashboard<div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2, fontWeight: 400 }}>Connecting strategy to measurable outcomes</div></div>}>
             <div className="text-[15px] text-[var(--text-secondary)] mb-4">KPIs across 4 perspectives. Click RAG status to cycle. Linked to your strategic priorities from the Strategy tab.</div>
             {/* Summary */}
             {(() => {
@@ -3949,7 +4188,150 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
           </Card>}
         </div>}
 
+        {omView === "ledger" && <div style={{ maxWidth: 800, margin: "0 auto" }}>
+          <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", marginBottom: 24 }}>Operating Model Charter</div>
+
+          {/* Title */}
+          <h2 style={{ fontSize: 24, fontWeight: 300, color: "var(--text-primary)", marginBottom: 8, lineHeight: 1.3 }}>Our organization&apos;s operating model, in our own words</h2>
+          <div style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 32 }}>Auto-generated from your {completedSteps} completed steps &middot; {new Date().toLocaleDateString()}</div>
+
+          {/* Section 1: Strategic Intent */}
+          <div style={{ marginBottom: 32 }}>
+            <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#3B82F6", marginBottom: 8 }}>Section 1: Strategic Intent</div>
+            <p style={{ fontSize: 15, color: "var(--text-secondary)", lineHeight: 1.8 }}>
+              {stratPriorities.length > 0
+                ? `We have chosen ${stratPriorities.map(id => STRAT_PRIORITIES_ALL.find(p => p.id === id)?.label || id).join(", ")} as our top strategic priorities${stratVision ? `. Our vision: "${stratVision.slice(0, 200)}"` : ""}. These priorities will guide every downstream operating model decision.`
+                : "Strategic priorities have not yet been configured."}
+            </p>
+            {Object.entries(stratDesignPrinciples).some(([, v]) => v.rationale) && <p style={{ fontSize: 15, color: "var(--text-secondary)", lineHeight: 1.8, marginTop: 8 }}>
+              Our design principles emphasize{" "}
+              {(stratDesignPrinciples.centralize?.value ?? 50) > 60 ? "centralized operations" : (stratDesignPrinciples.centralize?.value ?? 50) < 40 ? "decentralized autonomy" : "balanced centralization"}
+              {" and "}
+              {(stratDesignPrinciples.standardize?.value ?? 50) > 60 ? "standardized processes" : (stratDesignPrinciples.standardize?.value ?? 50) < 40 ? "customized approaches" : "a balance of standardization and customization"}.
+              {stratDesignPrinciples.centralize?.rationale ? ` Rationale: ${stratDesignPrinciples.centralize.rationale.slice(0, 150)}.` : ""}
+            </p>}
+          </div>
+
+          {/* Section 2: Architecture */}
+          <div style={{ marginBottom: 32 }}>
+            <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#3B82F6", marginBottom: 8 }}>Section 2: Architecture &amp; Capabilities</div>
+            <p style={{ fontSize: 15, color: "var(--text-secondary)", lineHeight: 1.8 }}>
+              We are building a <strong>{OM_ARCHETYPES[arch]?.label || arch}</strong> organization with a <strong>{opModel.replace("_", "-")}</strong> operating model and <strong>{gov}</strong> governance. {OM_ARCHETYPES[arch]?.desc || ""}
+            </p>
+            {Object.keys(svcDeliveryMap).length > 0 && <p style={{ fontSize: 15, color: "var(--text-secondary)", lineHeight: 1.8, marginTop: 8 }}>
+              Service delivery is configured across {Object.keys(svcDeliveryMap).length} functions, with delivery models including {Array.from(new Set(Object.values(svcDeliveryMap).map(v => v.target || v.current))).join(", ")}.
+            </p>}
+          </div>
+
+          {/* Section 3: Governance */}
+          <div style={{ marginBottom: 32 }}>
+            <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#3B82F6", marginBottom: 8 }}>Section 3: Governance &amp; Decisions</div>
+            <p style={{ fontSize: 15, color: "var(--text-secondary)", lineHeight: 1.8 }}>
+              Our governance framework includes {govDecisions.length} catalogued decisions across {govForums.length} governance forums.
+              {govDecisions.filter(d => d.clarity === "Undefined").length > 0 ? ` ${govDecisions.filter(d => d.clarity === "Undefined").length} decisions still need clarity assigned.` : " All decisions have clear ownership."}
+            </p>
+          </div>
+
+          {/* Section 4: Financial */}
+          <div style={{ marginBottom: 32 }}>
+            <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#3B82F6", marginBottom: 8 }}>Section 4: Financial &amp; Implementation</div>
+            <p style={{ fontSize: 15, color: "var(--text-secondary)", lineHeight: 1.8 }}>
+              {perfKpis.length > 0 ? `${perfKpis.length} KPIs are being tracked to measure operating model effectiveness.` : "KPIs have not yet been configured."}
+              {" "}{transChanges.length > 0 ? `${transChanges.length} changes are planned across the implementation waves.` : "Implementation planning has not yet begun."}
+            </p>
+          </div>
+
+          {/* Export button */}
+          <div style={{ display: "flex", gap: 12, paddingTop: 24, borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+            <button onClick={() => {
+              const text = `OPERATING MODEL CHARTER\n${"=".repeat(40)}\nGenerated: ${new Date().toLocaleDateString()}\n\nSECTION 1: STRATEGIC INTENT\n${stratPriorities.length > 0 ? `Priorities: ${stratPriorities.map(id => STRAT_PRIORITIES_ALL.find(p => p.id === id)?.label || id).join(", ")}` : "Not configured"}\n${stratVision ? `Vision: ${stratVision}` : ""}\n\nSECTION 2: ARCHITECTURE\nArchetype: ${OM_ARCHETYPES[arch]?.label || arch}\nModel: ${opModel.replace("_", "-")}\nGovernance: ${gov}\n\nSECTION 3: GOVERNANCE\n${govDecisions.length} decisions catalogued\n${govForums.length} governance forums\n\nSECTION 4: IMPLEMENTATION\n${perfKpis.length} KPIs tracked\n${transChanges.length} changes planned`;
+              navigator.clipboard.writeText(text);
+              showToast("Operating Model Charter copied to clipboard");
+            }} style={{ padding: "8px 20px", borderRadius: 8, fontSize: 13, fontWeight: 600, background: "var(--accent-primary)", color: "#fff", border: "none", cursor: "pointer" }}>Copy as Charter</button>
+            <button onClick={() => showToast("PDF export coming soon")} style={{ padding: "8px 20px", borderRadius: 8, fontSize: 13, fontWeight: 600, background: "transparent", color: "#64748b", border: "1px solid rgba(255,255,255,0.08)", cursor: "pointer" }}>Export as PDF</button>
+          </div>
+        </div>}
+
       </div>{/* end content area */}
+
+      {/* Committee Review modal */}
+      {showCommittee && <div className="fixed inset-0 bg-black/60 z-[9998] flex items-center justify-center p-4" onClick={() => setShowCommittee(false)}>
+        <div className="bg-[var(--bg)] rounded-2xl border border-[var(--border)] max-w-[900px] w-full max-h-[85vh] overflow-y-auto p-8" onClick={e => e.stopPropagation()}>
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <div style={{ fontSize: 20, fontWeight: 700, color: "var(--text-primary)" }}>Committee Review</div>
+              <div style={{ fontSize: 13, color: "var(--text-muted)" }}>Pressure-test your operating model from 5 executive perspectives</div>
+            </div>
+            <button onClick={() => setShowCommittee(false)} style={{ fontSize: 20, color: "var(--text-muted)", background: "none", border: "none", cursor: "pointer" }}>×</button>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            {[
+              { role: "CEO", icon: "👤", color: "#3B82F6", questions: [
+                `Does this ${OM_ARCHETYPES[arch]?.label} model support our growth ambitions?`,
+                stratPriorities.includes("revenue") ? "How will this accelerate revenue growth?" : "Is this model flexible enough for our next 3 years?",
+                `Can we attract the talent we need under ${gov} governance?`,
+              ]},
+              { role: "CFO", icon: "💰", color: "#10B981", questions: [
+                `What's the total cost to implement this ${opModel.replace("_", "-")} model?`,
+                (stratDesignPrinciples.centralize?.value ?? 50) > 60 ? "Will centralization deliver the 15-20% savings we expect?" : "Are we leaving cost efficiencies on the table with this level of decentralization?",
+                "What's the break-even timeline on restructuring costs?",
+              ]},
+              { role: "CHRO", icon: "👥", color: "#8B5CF6", questions: [
+                `Can our people adapt to a ${OM_ARCHETYPES[arch]?.label} structure?`,
+                gov === "tight" ? "Will tight governance stifle our culture of innovation?" : "Do we have the leadership bench for distributed decision-making?",
+                "What's the change management plan for the first 6 months?",
+              ]},
+              { role: "CIO/CTO", icon: "⚙️", color: "#F97316", questions: [
+                arch === "platform" ? "Do we have the platform engineering capacity to build this?" : "Is our tech architecture compatible with this operating model?",
+                "How will we handle the data integration across functions?",
+                (stratDesignPrinciples.standardize?.value ?? 50) > 60 ? "Can we standardize technology platforms fast enough?" : "How do we prevent tool proliferation with decentralized tech decisions?",
+              ]},
+              { role: "COO", icon: "🔧", color: "#EF4444", questions: [
+                `How long will the transition to ${opModel.replace("_", "-")} take?`,
+                "What's the operational disruption risk during the transition?",
+                `Have we pressure-tested this model against our top 3 processes?`,
+              ]},
+            ].map(exec => <div key={exec.role} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 12, padding: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                <span style={{ fontSize: 20 }}>{exec.icon}</span>
+                <span style={{ fontSize: 15, fontWeight: 700, color: exec.color }}>{exec.role}</span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {exec.questions.map((q, i) => <div key={i} style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.5, padding: "8px 12px", background: "rgba(255,255,255,0.02)", borderRadius: 8, borderLeft: `2px solid ${exec.color}30` }}>"{q}"</div>)}
+              </div>
+            </div>)}
+          </div>
+        </div>
+      </div>}
+
+      {/* Pattern matching intelligence */}
+      {completedSteps >= 5 && showPattern && (() => {
+        const patterns: { name: string; match: boolean; desc: string; strengths: string[]; examples: string[] }[] = [
+          { name: "Federated Platform", match: opModel === "federated" && (stratDesignPrinciples.centralize?.value ?? 50) >= 40 && (stratDesignPrinciples.centralize?.value ?? 50) <= 65, desc: "Central platform enables local teams. Standards set centrally, execution distributed.", strengths: ["Scale + agility balance", "Reusable platforms", "Clear accountability"], examples: ["Unilever", "Microsoft", "Spotify"] },
+          { name: "Shared Services Hub", match: opModel === "centralized" && (stratDesignPrinciples.standardize?.value ?? 50) > 60, desc: "Consolidated shared services drive cost efficiency. One way of working globally.", strengths: ["Cost reduction 15-25%", "Process consistency", "Scale economies"], examples: ["P&G", "IBM", "Accenture"] },
+          { name: "Agile Network", match: arch === "network" || (gov === "light" && stratPriorities.includes("innovation")), desc: "Fluid, mission-based teams form around problems. Minimal hierarchy.", strengths: ["Speed to market", "Innovation", "Talent attraction"], examples: ["Spotify (squads)", "Valve", "Netflix"] },
+          { name: "Digital-Native", match: arch === "platform" && stratPriorities.includes("digital"), desc: "Platform-first with APIs, self-service, and data-driven decision making.", strengths: ["Technical scalability", "Developer velocity", "Data leverage"], examples: ["Amazon", "Google", "Stripe"] },
+          { name: "Traditional Multinational", match: arch === "matrix" && gov === "tight", desc: "Matrix organization with strong regional/functional dual reporting.", strengths: ["Global scale", "Local responsiveness", "Risk controls"], examples: ["Siemens", "Nestlé", "HSBC"] },
+        ];
+        const detected = patterns.find(p => p.match) || patterns[0];
+        return <div style={{ position: "fixed", bottom: 24, right: 24, width: 340, zIndex: 40, background: "var(--surface-1)", border: "1px solid rgba(96,165,250,0.2)", borderRadius: 16, padding: 20, boxShadow: "0 24px 64px rgba(0,0,0,0.4)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+            <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#60a5fa" }}>Pattern Detected</div>
+            <button onClick={() => setShowPattern(false)} style={{ fontSize: 15, color: "#64748b", background: "none", border: "none", cursor: "pointer" }}>×</button>
+          </div>
+          <div style={{ fontSize: 17, fontWeight: 700, color: "var(--text-primary)", marginBottom: 4 }}>{detected.name}</div>
+          <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: 12 }}>{detected.desc}</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 12 }}>
+            {detected.strengths.map(s => <span key={s} style={{ padding: "2px 8px", borderRadius: 6, fontSize: 11, background: "rgba(16,185,129,0.08)", color: "#10B981", fontWeight: 600 }}>{s}</span>)}
+          </div>
+          <div style={{ fontSize: 11, color: "#64748b", marginBottom: 12 }}>Similar to: {detected.examples.join(", ")}</div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={() => setShowPattern(false)} style={{ flex: 1, padding: "6px 12px", borderRadius: 8, fontSize: 12, fontWeight: 600, background: "rgba(59,130,246,0.1)", color: "#3B82F6", border: "1px solid rgba(59,130,246,0.2)", cursor: "pointer" }}>Yes, continue</button>
+            <button onClick={() => { setShowPattern(false); showToast("Try adjusting your design principles and archetype to explore alternatives"); }} style={{ flex: 1, padding: "6px 12px", borderRadius: 8, fontSize: 12, fontWeight: 600, background: "transparent", color: "#64748b", border: "1px solid rgba(255,255,255,0.08)", cursor: "pointer" }}>Show alternatives</button>
+          </div>
+        </div>;
+      })()}
+
     </div>{/* end flex layout */}
   </div>;
 

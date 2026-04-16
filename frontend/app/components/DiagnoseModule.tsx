@@ -1799,6 +1799,11 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
   const [data, setData] = useState<RoleClustersResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [expandedCluster, setExpandedCluster] = useState<number | null>(null);
+  const [viewMode, setViewMode] = useState<"list" | "matrix">("list");
+  const [deptFilter, setDeptFilter] = useState("All");
+  const [overlapFilter, setOverlapFilter] = useState(0);
+  const [savingsFilter, setSavingsFilter] = useState(0);
+  const [reviewed, setReviewed] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     if (!model) return;
@@ -1811,96 +1816,220 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
   const summary = data?.summary ?? {};
   const pairs = data?.pairs ?? [];
 
-  const funcColors: Record<string, string> = { Technology: "#0891B2", Finance: "var(--accent-primary)", HR: "var(--purple)", Operations: "var(--warning)", Marketing: "#EC4899", Legal: "var(--risk)", Sales: "#6366F1", Product: "var(--success)" };
+  const MONO = "'JetBrains Mono', 'IBM Plex Mono', monospace";
+  const TRACK_COLORS: Record<string, string> = { E: "#ef4444", M: "#F97316", P: "#3B82F6", S: "#22d3ee", T: "#a78bfa" };
+  const funcColors: Record<string, string> = { Technology: "#0891B2", Finance: "#D4860A", HR: "#8B5CF6", Operations: "#F59E0B", Marketing: "#EC4899", Legal: "#EF4444", Sales: "#6366F1", Product: "#10B981" };
+
+  const overlapColor = (pct: number) => pct >= 90 ? "#34d399" : pct >= 70 ? "#10B981" : pct >= 50 ? "#F59E0B" : pct >= 30 ? "#F97316" : "#64748b";
+
+  // Derive per-cluster savings from opportunities
+  const clusterSavings = useMemo(() => {
+    const map: Record<number, number> = {};
+    clusters.forEach((c, i) => {
+      const matchingOpps = opportunities.filter(o => c.roles.includes(o.role_a) || c.roles.includes(o.role_b));
+      map[i] = matchingOpps.reduce((s, o) => s + (o.estimated_savings || 0), 0);
+    });
+    return map;
+  }, [clusters, opportunities]);
+
+  // Find the matching opportunity for a cluster
+  const clusterOpportunity = (c: typeof clusters[0]) => opportunities.find(o => c.roles.includes(o.role_a) && c.roles.includes(o.role_b));
+
+  // All unique departments
+  const departments = useMemo(() => Array.from(new Set(clusters.map(c => c.function).filter(Boolean))).sort(), [clusters]);
+
+  // Sort by savings desc, then apply filters
+  const sortedClusters = useMemo(() => {
+    let list = clusters.map((c, i) => ({ ...c, _idx: i, _savings: clusterSavings[i] || 0 }));
+    if (deptFilter !== "All") list = list.filter(c => c.function === deptFilter);
+    if (overlapFilter > 0) list = list.filter(c => c.avg_overlap >= overlapFilter);
+    if (savingsFilter > 0) list = list.filter(c => c._savings >= savingsFilter);
+    return list.sort((a, b) => b._savings - a._savings || b.avg_overlap - a.avg_overlap);
+  }, [clusters, clusterSavings, deptFilter, overlapFilter, savingsFilter]);
+
+  const totalSavings = Object.values(clusterSavings).reduce((s, v) => s + v, 0);
+  const totalAffected = clusters.reduce((s, c) => s + c.headcount, 0);
+  const consolidationCount = Number(summary.consolidation_opportunities || opportunities.length || 0);
+  const topModest = clusters.length > 0 && totalSavings > 0 && (totalSavings / clusters.length) < 100000;
 
   return <div>
-    <ContextStrip items={[clusters.length > 0 ? `${Number(summary.total_clusters || clusters.length)} clusters · ${Number(summary.consolidation_opportunities || 0)} consolidation opportunities · ${Number(summary.roles_affected || 0)} roles affected` : "Analyzing role similarity..."]} />
-    <PageHeader icon="🔗" title="Role Clustering" subtitle="Identify similar roles, consolidation candidates, and redundancies" onBack={onBack} moduleId="clusters" viewCtx={viewCtx} />
+    <ContextStrip items={[clusters.length > 0 ? `${Number(summary.total_clusters || clusters.length)} clusters · ${consolidationCount} consolidation opportunities · ${Number(summary.roles_affected || 0)} roles affected` : "Analyzing role similarity..."]} />
+    <PageHeader icon="🔗" title="Role Clustering" subtitle="Identify redundancy, consolidation candidates, and structural simplification opportunities" onBack={onBack} moduleId="clusters" viewCtx={viewCtx} />
     {loading && <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={5} /><SkeletonTable rows={5} cols={4} /></div></>}
 
-    {clusters.length === 0 && !loading && <Empty text="No clusters found. Upload work design data with task characteristics." icon="🔗" />}
+    {clusters.length === 0 && !loading && <Empty text="No consolidation opportunities detected. This means your job architecture has minimal redundancy — a sign of good structural design." icon="🔗" subtitle="Upload work design data with task characteristics to enable clustering analysis." />}
 
-    {/* KPIs */}
-    {clusters.length > 0 && <div className="grid grid-cols-5 gap-3 mb-5">
-      <KpiCard label="Clusters" value={Number(summary.total_clusters || clusters.length)} />
-      <KpiCard label="Consolidation Opps" value={Number(summary.consolidation_opportunities || 0)} accent />
-      <KpiCard label="Potential Savings" value={fmtNum(Number(summary.potential_savings || 0))} />
-      <KpiCard label="Roles Affected" value={`${Number(summary.roles_affected || 0)}/${Number(summary.total_roles || 0)}`} />
-      <KpiCard label="Highest Overlap" value={pairs.length > 0 ? `${pairs[0].similarity}%` : "—"} />
-    </div>}
+    {clusters.length > 0 && <>
+      {/* KPIs */}
+      <div className="grid grid-cols-5 gap-3 mb-4">
+        <KpiCard label="Clusters" value={Number(summary.total_clusters || clusters.length)} />
+        <KpiCard label="Consolidation Opps" value={consolidationCount} accent />
+        <KpiCard label="Potential Savings" value={fmtNum(totalSavings || Number(summary.potential_savings || 0))} />
+        <KpiCard label="Roles Affected" value={`${Number(summary.roles_affected || 0)}/${Number(summary.total_roles || 0)}`} />
+        <KpiCard label="Highest Overlap" value={pairs.length > 0 ? `${pairs[0].similarity}%` : "—"} />
+      </div>
 
-    {/* Cluster cards */}
-    <div className="space-y-4 mb-6">
-      {clusters.map((c, i) => {
-        const isExpanded = expandedCluster === i;
-        const funcColor = funcColors[c.function] || "var(--text-muted)";
-        return <div key={i} className="rounded-2xl border overflow-hidden" style={{ background: "var(--surface-1)", borderColor: c.consolidation_candidate ? "rgba(239,68,68,0.3)" : "var(--border)", boxShadow: "var(--shadow-1)" }}>
-          <button onClick={() => setExpandedCluster(isExpanded ? null : i)} className="w-full px-5 py-4 text-left flex items-center justify-between transition-all hover:bg-[var(--hover)]">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center text-[15px] font-bold text-white shrink-0" style={{ background: funcColor }}>{c.size}</div>
-              <div>
-                <div className="text-[16px] font-bold text-[var(--text-primary)] font-heading">{c.name}</div>
-                <div className="text-[13px] text-[var(--text-muted)]">{c.headcount} employees · {c.roles.length} roles</div>
+      {/* Synthesis paragraph */}
+      <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.7, marginBottom: 20, padding: "12px 16px", background: "rgba(255,255,255,0.04)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.08)" }}>
+        Analysis identified <span style={{ fontWeight: 700, color: "var(--text-primary)", fontFamily: MONO }}>{consolidationCount}</span> consolidation opportunities across <span style={{ fontWeight: 700, color: "var(--text-primary)", fontFamily: MONO }}>{departments.length}</span> departments. Acting on the top {Math.min(3, consolidationCount)} would save approximately <span style={{ fontWeight: 700, color: "#10B981", fontFamily: MONO }}>{fmtNum(totalSavings * 0.6 || Number(summary.potential_savings || 0) * 0.6)}</span> annually and affect <span style={{ fontWeight: 700, color: "var(--text-primary)", fontFamily: MONO }}>{totalAffected.toLocaleString()}</span> employees. Review the clusters below, prioritized by impact.
+        {topModest && <span style={{ display: "block", marginTop: 8, fontSize: 12, color: "var(--text-muted)", fontStyle: "italic" }}>Note: Consolidation opportunities in this organization are modest — consider focusing efforts on other diagnostic areas first.</span>}
+      </div>
+
+      {/* View toggle + filters */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
+        {/* View toggle */}
+        <div style={{ display: "inline-flex", background: "rgba(255,255,255,0.04)", borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", padding: 3 }}>
+          {(["list", "matrix"] as const).map(m => <button key={m} onClick={() => setViewMode(m)} style={{ padding: "5px 16px", borderRadius: 6, fontSize: 13, fontWeight: 600, border: "none", cursor: "pointer", background: viewMode === m ? "rgba(59,130,246,0.15)" : "transparent", color: viewMode === m ? "#3B82F6" : "#64748b", transition: "all 0.15s" }}>{m === "list" ? "List View" : "Matrix View"}</button>)}
+        </div>
+        {/* Department filter */}
+        <select value={deptFilter} onChange={e => setDeptFilter(e.target.value)} style={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 8, padding: "5px 12px", fontSize: 13, color: "var(--text-primary)", outline: "none" }}>
+          <option value="All">All Departments</option>
+          {departments.map(d => <option key={d} value={d}>{d}</option>)}
+        </select>
+        {/* Overlap threshold chips */}
+        <div style={{ display: "flex", gap: 4 }}>
+          {[{ label: "All", v: 0 }, { label: ">50%", v: 50 }, { label: ">70%", v: 70 }, { label: ">90%", v: 90 }].map(chip => <button key={chip.v} onClick={() => setOverlapFilter(chip.v)} style={{ padding: "4px 12px", borderRadius: 6, fontSize: 12, fontWeight: 600, border: "1px solid " + (overlapFilter === chip.v ? "rgba(59,130,246,0.4)" : "rgba(255,255,255,0.08)"), background: overlapFilter === chip.v ? "rgba(59,130,246,0.1)" : "transparent", color: overlapFilter === chip.v ? "#3B82F6" : "#64748b", cursor: "pointer" }}>Overlap {chip.label}</button>)}
+        </div>
+        {/* Savings threshold chips */}
+        <div style={{ display: "flex", gap: 4 }}>
+          {[{ label: "All", v: 0 }, { label: ">$1M", v: 1e6 }, { label: ">$5M", v: 5e6 }].map(chip => <button key={chip.v} onClick={() => setSavingsFilter(chip.v)} style={{ padding: "4px 12px", borderRadius: 6, fontSize: 12, fontWeight: 600, border: "1px solid " + (savingsFilter === chip.v ? "rgba(16,185,129,0.4)" : "rgba(255,255,255,0.08)"), background: savingsFilter === chip.v ? "rgba(16,185,129,0.1)" : "transparent", color: savingsFilter === chip.v ? "#10B981" : "#64748b", cursor: "pointer" }}>Savings {chip.label}</button>)}
+        </div>
+      </div>
+
+      {/* ═══ MATRIX VIEW — Scatter plot ═══ */}
+      {viewMode === "matrix" && <Card title="Consolidation Impact Matrix">
+        <div style={{ position: "relative", height: 400, border: "1px solid rgba(255,255,255,0.06)", borderRadius: 12, background: "rgba(255,255,255,0.02)", overflow: "hidden" }}>
+          {/* Axis labels */}
+          <div style={{ position: "absolute", bottom: 8, left: "50%", transform: "translateX(-50%)", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b" }}>Overlap %</div>
+          <div style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%) rotate(-90deg)", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b" }}>Savings ($M)</div>
+          {/* High-impact quadrant label */}
+          <div style={{ position: "absolute", top: 12, right: 16, fontSize: 11, fontWeight: 700, color: "#10B981", opacity: 0.6 }}>HIGH IMPACT</div>
+          {/* Quadrant lines */}
+          <div style={{ position: "absolute", left: "50%", top: 0, bottom: 0, width: 1, background: "rgba(255,255,255,0.06)" }} />
+          <div style={{ position: "absolute", top: "50%", left: 0, right: 0, height: 1, background: "rgba(255,255,255,0.06)" }} />
+          {/* Bubbles */}
+          {(() => {
+            const maxSav = Math.max(...sortedClusters.map(c => c._savings), 1);
+            const maxHC = Math.max(...sortedClusters.map(c => c.headcount), 1);
+            return sortedClusters.map((c, i) => {
+              const xPct = Math.min(c.avg_overlap, 100);
+              const yPct = maxSav > 0 ? (c._savings / maxSav) * 100 : 0;
+              const size = Math.max(20, Math.min(60, (c.headcount / maxHC) * 50 + 10));
+              const isHighImpact = c.avg_overlap >= 60 && c._savings >= maxSav * 0.4;
+              const fc = funcColors[c.function] || "#3B82F6";
+              return <button key={i} onClick={() => { setViewMode("list"); setExpandedCluster(c._idx); }} title={`${c.name}: ${c.avg_overlap}% overlap, ${fmtNum(c._savings)} savings, ${c.headcount} people`} style={{ position: "absolute", left: `${8 + xPct * 0.84}%`, bottom: `${8 + yPct * 0.84}%`, width: size, height: size, borderRadius: "50%", background: fc, opacity: isHighImpact ? 0.9 : 0.5, border: isHighImpact ? "2px solid #10B981" : "1px solid rgba(255,255,255,0.15)", cursor: "pointer", transition: "all 0.2s", transform: "translate(-50%, 50%)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 700, fontFamily: MONO, color: "#fff" }}>{c.roles.length}</button>;
+            });
+          })()}
+        </div>
+        <div style={{ display: "flex", gap: 16, marginTop: 12, justifyContent: "center" }}>
+          {Object.entries(funcColors).slice(0, 6).map(([name, color]) => <div key={name} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div style={{ width: 10, height: 10, borderRadius: "50%", background: color }} />
+            <span style={{ fontSize: 11, color: "#64748b" }}>{name}</span>
+          </div>)}
+        </div>
+      </Card>}
+
+      {/* ═══ LIST VIEW — Expandable cluster cards ═══ */}
+      {viewMode === "list" && <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 24 }}>
+        {sortedClusters.length === 0 && <div style={{ textAlign: "center", padding: 32, color: "#64748b", fontSize: 13 }}>No clusters match the current filters.</div>}
+        {sortedClusters.map((c) => {
+          const idx = c._idx;
+          const isExpanded = expandedCluster === idx;
+          const fc = funcColors[c.function] || "#3B82F6";
+          const savings = c._savings;
+          const opp = clusterOpportunity(c);
+          const isReviewed = reviewed.has(idx);
+          const dominantTrack = c.roles[0]?.charAt(0) || "P";
+          const trackColor = TRACK_COLORS[dominantTrack] || fc;
+
+          return <div key={idx} style={{ background: "var(--surface-1)", border: `1px solid ${isReviewed ? "rgba(16,185,129,0.2)" : "rgba(255,255,255,0.08)"}`, borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.08)", transition: "border-color 0.15s" }}>
+            {/* Collapsed header */}
+            <button onClick={() => setExpandedCluster(isExpanded ? null : idx)} style={{ width: "100%", padding: "14px 20px", textAlign: "left", display: "flex", alignItems: "center", gap: 16, background: "transparent", border: "none", cursor: "pointer", transition: "background 0.15s" }} onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.02)")} onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
+              {/* Role count badge */}
+              <div style={{ width: 44, height: 44, borderRadius: 12, background: trackColor, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: MONO, fontWeight: 700, fontSize: 17, color: "#fff", flexShrink: 0 }}>{c.roles.length}</div>
+
+              {/* Name + subtitle */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.name}</div>
+                <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>{c.headcount.toLocaleString()} employees · {c.roles.length} roles · {c.function}</div>
               </div>
-              {c.consolidation_candidate && <Badge color="red">Consolidation</Badge>}
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="text-right"><div className="text-[18px] font-extrabold font-data" style={{ color: c.avg_overlap >= 70 ? "var(--risk)" : c.avg_overlap >= 50 ? "var(--warning)" : "var(--success)" }}>{c.avg_overlap}%</div><div className="text-[11px] text-[var(--text-muted)]">overlap</div></div>
-              <span className="text-[var(--text-muted)]">{isExpanded ? "▾" : "▸"}</span>
-            </div>
-          </button>
-          {isExpanded && <div className="px-5 pb-4 border-t border-[var(--border)] pt-3 space-y-3">
-            {/* Roles in cluster */}
-            <div className="flex flex-wrap gap-2">{c.roles.map(r => <span key={r} className="px-3 py-1.5 rounded-xl text-[14px] font-semibold text-[var(--text-primary)]" style={{ background: `${funcColor}10`, border: `1px solid ${funcColor}25` }}>{r}</span>)}</div>
-            {/* Shared skills */}
-            {c.shared_skills.length > 0 && <div><span className="text-[13px] text-[var(--text-muted)]">Shared skills: </span>{c.shared_skills.map(s => <span key={s} className="text-[13px] text-[var(--text-secondary)] mr-2">{s}</span>)}</div>}
-            {/* Highest overlap pair */}
-            {c.highest_pair && <div className="rounded-xl p-3 border border-[var(--border)] bg-[var(--surface-2)]">
-              <div className="text-[13px] text-[var(--text-muted)] mb-1">Highest overlap within cluster:</div>
-              <div className="text-[15px] font-semibold text-[var(--text-primary)]">{c.highest_pair[0]} ↔ {c.highest_pair[1]}: <span className="font-data" style={{ color: "var(--risk)" }}>{c.highest_pair[2]}%</span></div>
+
+              {/* Stat pills */}
+              <div style={{ display: "flex", gap: 8, alignItems: "center", flexShrink: 0 }}>
+                <span style={{ padding: "3px 10px", borderRadius: 6, fontSize: 12, fontWeight: 700, fontFamily: MONO, background: `${overlapColor(c.avg_overlap)}15`, color: overlapColor(c.avg_overlap) }}>Overlap: {c.avg_overlap.toFixed(1)}%</span>
+                {savings > 0 && <span style={{ padding: "3px 10px", borderRadius: 6, fontSize: 12, fontWeight: 700, fontFamily: MONO, background: "rgba(16,185,129,0.1)", color: "#10B981" }}>Savings: {fmtNum(savings)}</span>}
+                <span style={{ padding: "3px 10px", borderRadius: 6, fontSize: 12, fontWeight: 600, background: "rgba(255,255,255,0.04)", color: "#64748b" }}>Affects: {c.headcount}</span>
+                {isReviewed && <span style={{ padding: "3px 8px", borderRadius: 6, fontSize: 11, fontWeight: 600, background: "rgba(16,185,129,0.1)", color: "#10B981" }}>Reviewed</span>}
+              </div>
+
+              {/* Chevron */}
+              <span style={{ fontSize: 15, color: "#64748b", flexShrink: 0, transition: "transform 0.2s", transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)" }}>▾</span>
+            </button>
+
+            {/* Expanded detail */}
+            {isExpanded && <div style={{ padding: "0 20px 20px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+              {/* Roles mini-table */}
+              <div style={{ marginTop: 16, marginBottom: 16 }}>
+                <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", marginBottom: 8 }}>Roles in this cluster</div>
+                <div style={{ borderRadius: 8, border: "1px solid rgba(255,255,255,0.06)", overflow: "hidden" }}>
+                  <table style={{ width: "100%", fontSize: 13, borderCollapse: "collapse" }}>
+                    <thead><tr style={{ background: "rgba(255,255,255,0.03)" }}>
+                      <th style={{ padding: "8px 12px", textAlign: "left", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>Role</th>
+                      <th style={{ padding: "8px 12px", textAlign: "center", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", borderBottom: "1px solid rgba(255,255,255,0.06)" }} title="Headcount">HC</th>
+                      <th style={{ padding: "8px 12px", textAlign: "center", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>Overlap</th>
+                      <th style={{ padding: "8px 12px", textAlign: "left", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>Shared Skills</th>
+                    </tr></thead>
+                    <tbody>{c.roles.map((r, ri) => {
+                      const rolePair = pairs.find(p => (p.role_a === r || p.role_b === r) && (c.roles.includes(p.role_a) && c.roles.includes(p.role_b)));
+                      const pairOverlap = rolePair?.similarity || c.avg_overlap;
+                      const isCandidate = opp && (opp.role_a === r || opp.role_b === r);
+                      return <tr key={r} style={{ borderBottom: ri < c.roles.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none", background: isCandidate ? "rgba(249,115,22,0.06)" : "transparent" }}>
+                        <td style={{ padding: "8px 12px", fontWeight: 600, color: "var(--text-primary)" }}>
+                          {isCandidate && <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: 3, background: "#F97316", marginRight: 8 }} />}
+                          {r}
+                        </td>
+                        <td style={{ padding: "8px 12px", textAlign: "center", fontFamily: MONO, fontWeight: 700, color: "var(--text-secondary)" }}>{Math.round(c.headcount / c.roles.length)}</td>
+                        <td style={{ padding: "8px 12px", textAlign: "center" }}><span style={{ fontFamily: MONO, fontWeight: 700, color: overlapColor(pairOverlap) }}>{pairOverlap.toFixed(1)}%</span></td>
+                        <td style={{ padding: "8px 12px", fontSize: 12, color: "#64748b" }}>{c.shared_skills.slice(0, 3).join(", ")}{c.shared_skills.length > 3 ? ` +${c.shared_skills.length - 3}` : ""}</td>
+                      </tr>;
+                    })}</tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Recommended action card */}
+              {opp && <div style={{ background: "rgba(59,130,246,0.04)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 12, padding: 16, marginBottom: 16 }}>
+                <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#3B82F6", marginBottom: 8 }}>Recommended Action</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", marginBottom: 8 }}>Consolidate <span style={{ color: "#F97316" }}>{opp.role_a}</span> and <span style={{ color: "#F97316" }}>{opp.role_b}</span> into a single unified role</div>
+                <div style={{ display: "flex", gap: 16, marginBottom: 12, flexWrap: "wrap" }}>
+                  <span style={{ fontSize: 12, color: "#64748b" }}>Estimated impact: <span style={{ fontFamily: MONO, fontWeight: 700, color: "#10B981" }}>-{fmtNum(opp.estimated_savings)}</span> cost</span>
+                  <span style={{ fontSize: 12, color: "#64748b" }}>Affects: <span style={{ fontFamily: MONO, fontWeight: 700, color: "var(--text-primary)" }}>{opp.headcount_affected}</span> people</span>
+                  <span style={{ fontSize: 12, color: "#64748b" }}>Risk: <span style={{ fontWeight: 700, color: opp.risk === "Low" ? "#10B981" : opp.risk === "High" ? "#EF4444" : "#F59E0B" }}>{opp.risk}</span></span>
+                </div>
+                <div style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: 12 }}>Both roles share {opp.similarity}% identical skill requirements and overlapping responsibilities across {c.shared_skills.slice(0, 4).join(", ")}. Current title differences appear to be legacy organizational structure that can be rationalized.</div>
+                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                  {onNavigate && <button onClick={() => onNavigate("build")} style={{ padding: "7px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600, background: "#3B82F6", color: "#fff", border: "none", cursor: "pointer" }}>Add to Design Scenario</button>}
+                  <button onClick={() => setReviewed(prev => { const s = new Set(prev); s.add(idx); return s; })} style={{ padding: "7px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600, background: "transparent", color: isReviewed ? "#10B981" : "#64748b", border: "1px solid rgba(255,255,255,0.08)", cursor: "pointer" }}>{isReviewed ? "Reviewed" : "Mark as Reviewed"}</button>
+                  {onNavigate && <button onClick={() => onNavigate("jobarch")} style={{ padding: "7px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600, background: "transparent", color: "#64748b", border: "none", cursor: "pointer" }}>View in Job Architecture Compare →</button>}
+                </div>
+              </div>}
+
+              {/* Highest overlap pair (when no opportunity exists) */}
+              {!opp && c.highest_pair && <div style={{ borderRadius: 12, padding: 12, border: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)", marginBottom: 16 }}>
+                <div style={{ fontSize: 11, color: "#64748b", marginBottom: 4 }}>Highest overlap within cluster:</div>
+                <div style={{ fontSize: 15, fontWeight: 600, color: "var(--text-primary)" }}>{c.highest_pair[0]} ↔ {c.highest_pair[1]}: <span style={{ fontFamily: MONO, fontWeight: 700, color: overlapColor(c.highest_pair[2]) }}>{c.highest_pair[2]}%</span></div>
+              </div>}
+
+              {/* Shared skills */}
+              {c.shared_skills.length > 0 && <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                <span style={{ fontSize: 11, color: "#64748b", alignSelf: "center" }}>Shared skills:</span>
+                {c.shared_skills.map(s => <span key={s} style={{ padding: "2px 8px", borderRadius: 6, fontSize: 12, background: "rgba(255,255,255,0.04)", color: "var(--text-secondary)", border: "1px solid rgba(255,255,255,0.06)" }}>{s}</span>)}
+              </div>}
             </div>}
-          </div>}
-        </div>;
-      })}
-    </div>
-
-    {/* Consolidation Opportunities */}
-    {opportunities.length > 0 && <Card title="Consolidation Opportunities">
-      <div className="text-[15px] text-[var(--text-secondary)] mb-4">Roles with highest similarity — potential for merging to reduce redundancy and save cost.</div>
-      <div className="space-y-3">{opportunities.filter(o => o.impact === "High" || o.impact === "Medium").map((o, i) => {
-        const impactColors: Record<string, string> = { High: "var(--risk)", Medium: "var(--warning)", Low: "var(--text-muted)" };
-        return <div key={i} className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <span className="text-[14px]">{o.impact === "High" ? "🔴" : "🟡"}</span>
-              <span className="text-[15px] font-bold text-[var(--text-primary)]">Merge: {o.role_a} + {o.role_b}</span>
-              <span className="text-[14px] font-data font-bold" style={{ color: impactColors[o.impact] }}>{o.similarity}% similar</span>
-            </div>
-            <Badge color={o.impact === "High" ? "red" : "amber"}>{o.impact} Impact</Badge>
-          </div>
-          <div className="grid grid-cols-3 gap-3 text-[14px]">
-            <div><span className="text-[var(--text-muted)]">Employees affected: </span><span className="font-bold">{o.headcount_affected}</span></div>
-            <div><span className="text-[var(--text-muted)]">Est. savings: </span><span className="font-bold text-[var(--success)]">{fmtNum(o.estimated_savings)}</span></div>
-            <div><span className="text-[var(--text-muted)]">Risk: </span><span className="font-bold" style={{ color: o.risk === "Low" ? "var(--success)" : "var(--warning)" }}>{o.risk}</span></div>
-          </div>
-        </div>;
-      })}</div>
-    </Card>}
-
-    {/* Top pairs */}
-    {pairs.length > 0 && <Card title="Role Similarity Pairs">
-      <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full text-[14px]"><thead><tr className="bg-[var(--surface-2)]">
-        <th className="px-3 py-2 text-left text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Role A</th>
-        <th className="px-2 py-2 text-center text-[12px] font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">↔</th>
-        <th className="px-3 py-2 text-left text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Role B</th>
-        <th className="px-3 py-2 text-center text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Similarity</th>
-      </tr></thead><tbody>{pairs.slice(0, 15).map((p, i) => <tr key={i} className="border-b border-[var(--border)]">
-        <td className="px-3 py-2 font-semibold text-[var(--text-primary)]">{p.role_a}</td>
-        <td className="px-2 py-2 text-center text-[var(--text-muted)]">↔</td>
-        <td className="px-3 py-2 font-semibold text-[var(--text-primary)]">{p.role_b}</td>
-        <td className="px-3 py-2 text-center"><span className="font-bold font-data" style={{ color: p.similarity >= 75 ? "var(--risk)" : p.similarity >= 60 ? "var(--warning)" : "var(--success)" }}>{p.similarity}%</span></td>
-      </tr>)}</tbody></table></div>
-    </Card>}
+          </div>;
+        })}
+      </div>}
+    </>}
 
     <NextStepBar currentModuleId="clusters" onNavigate={onNavigate || onBack} />
   </div>;
