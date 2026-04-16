@@ -121,7 +121,7 @@ function LayerRow({
             x={barStart + 8}
             y={curBarY + curBarH / 2}
             dominantBaseline="central"
-            style={{ fontSize: 12, fontWeight: 500, fill: "#fff" }}
+            style={{ fontSize: 12, fontWeight: 700, fill: "#fff", fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}
           >
             {curLabel}
           </text>
@@ -130,7 +130,7 @@ function LayerRow({
             x={curBarEnd + 6}
             y={curBarY + curBarH / 2}
             dominantBaseline="central"
-            style={{ fontSize: 12, fontWeight: 500, fill: "var(--text-muted, #7b8ba2)" }}
+            style={{ fontSize: 12, fontWeight: 700, fill: "var(--text-muted, #7b8ba2)", fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}
           >
             {curLabel}
           </text>
@@ -153,7 +153,7 @@ function LayerRow({
             x={barStart + 8}
             y={futBarY + futBarH / 2}
             dominantBaseline="central"
-            style={{ fontSize: 12, fontWeight: 500, fill: "#fff" }}
+            style={{ fontSize: 12, fontWeight: 700, fill: "#fff", fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}
           >
             {futLabel}
           </text>
@@ -162,7 +162,7 @@ function LayerRow({
             x={futBarEnd + 6}
             y={futBarY + futBarH / 2}
             dominantBaseline="central"
-            style={{ fontSize: 12, fontWeight: 500, fill: "var(--text-muted, #7b8ba2)" }}
+            style={{ fontSize: 12, fontWeight: 700, fill: "var(--text-muted, #7b8ba2)", fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}
           >
             {futLabel}
           </text>
@@ -193,7 +193,7 @@ function LayerRow({
             <text
               x={bracketX + bracketW + 10}
               y={bracketMid + 4}
-              style={{ fontSize: 13, fontWeight: 500, fill: deltaColor }}
+              style={{ fontSize: 13, fontWeight: 700, fill: deltaColor, fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}
             >
               {deltaLabel}
             </text>
@@ -314,7 +314,7 @@ export default function LayerDistributionChart({ data }: { data?: LayerData[] })
           <div style={{ fontSize: 11, color: "var(--text-muted, #7b8ba2)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
             Total Org
           </div>
-          <div style={{ fontSize: 18, fontWeight: 500, color: "var(--text-primary, #e8ecf4)" }}>
+          <div style={{ fontSize: 17, fontWeight: 700, color: "var(--text-primary, #e8ecf4)", fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}>
             {totalCur.toLocaleString()} → {totalFut.toLocaleString()}
           </div>
         </div>
@@ -329,7 +329,7 @@ export default function LayerDistributionChart({ data }: { data?: LayerData[] })
           <div style={{ fontSize: 11, color: "var(--text-muted, #7b8ba2)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
             Executive (E1-E5)
           </div>
-          <div style={{ fontSize: 18, fontWeight: 500, color: execDeltaPct < 0 ? RED : TEAL }}>
+          <div style={{ fontSize: 17, fontWeight: 700, color: execDeltaPct < 0 ? RED : TEAL, fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}>
             {execDeltaPct >= 0 ? "+" : ""}{execDeltaPct.toFixed(1)}%
           </div>
         </div>
@@ -344,7 +344,7 @@ export default function LayerDistributionChart({ data }: { data?: LayerData[] })
           <div style={{ fontSize: 11, color: "var(--text-muted, #7b8ba2)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
             Management (M1-M6)
           </div>
-          <div style={{ fontSize: 18, fontWeight: 500, color: mgtDeltaPct >= 0 ? TEAL : RED }}>
+          <div style={{ fontSize: 17, fontWeight: 700, color: mgtDeltaPct >= 0 ? TEAL : RED, fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}>
             {mgtDeltaPct >= 0 ? "+" : ""}{mgtDeltaPct.toFixed(1)}%
           </div>
         </div>

@@ -73,6 +73,28 @@ export const GLOSSARY: Record<string, { definition: string; action?: string }> =
     definition: "Degree to which executive leadership has committed to the transformation through governance, budgets, and communication.",
   },
 
+  // Architecture terms (Dim 5: Feynman translations)
+  "Compression Ratio": {
+    definition: "The ratio of people at one level to available positions at the next level up. 4.3:1 means 4.3 people competing for each next-level position.",
+    action: "Ratios above 4:1 indicate career bottlenecks — consider lateral paths or role redesign."
+  },
+  "FTE Ratio": {
+    definition: "Percentage of permanent full-time employees vs. total headcount including contractors. 75% means 25% contingent workforce.",
+    action: "Below 80% indicates contractor dependency — consider converting critical roles to FTE."
+  },
+  "IPE": {
+    definition: "International Position Evaluation — Mercer's globally standardized framework for sizing and leveling jobs based on impact, communication, innovation, knowledge, and risk.",
+  },
+  "Career Lattice": {
+    definition: "Non-linear career movement framework — lateral, diagonal, and upward moves across tracks. Unlike a ladder, a lattice shows every possible career move.",
+  },
+  "Broadbanding": {
+    definition: "Combining multiple narrow pay grades into fewer wide bands. Simplifies compensation structure and enables lateral career movement.",
+  },
+  "Dual-Track": {
+    definition: "Parallel individual contributor (IC) and management paths at senior levels, so technical experts can advance without managing people.",
+  },
+
   // Scoring bands
   "Ready Now": {
     definition: "Employees with sufficient skills and role alignment to adopt AI tools immediately with minimal additional training.",

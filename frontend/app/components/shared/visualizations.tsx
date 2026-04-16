@@ -67,7 +67,7 @@ export function BarViz({ data, labelKey = "name", valueKey = "value", color = "v
     return <div key={i} className="flex items-center gap-3">
       <div className="text-[15px] text-[var(--text-secondary)] text-right shrink-0 truncate" style={{ width: 120 }} title={label}>{truncLabel}</div>
       <div className="flex-1 h-5 bg-[var(--surface-2)] rounded overflow-hidden"><motion.div className="h-full rounded" initial={{ width: "0%" }} animate={{ width: `${Math.max((Math.abs(val) / maxVal) * 100, 2)}%` }} transition={{ duration: 0.6, delay: i * 0.05, ease: "easeOut" }} style={{ background: color, opacity: 0.85 }} /></div>
-      <div className="text-[15px] font-semibold text-[var(--text-primary)] shrink-0" style={{ minWidth: 32, textAlign: "right" }}>{val}</div>
+      <div className="text-[13px] text-[var(--text-primary)] shrink-0" style={{ minWidth: 32, textAlign: "right", fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace", fontWeight: 700 }}>{val.toLocaleString()}</div>
     </div>;
   })}</div>;
   return <ExpandableChart title={title}>{content}</ExpandableChart>;
@@ -77,7 +77,7 @@ export function DonutViz({ data, title }: { data: { name: string; value: number 
   if (!data?.length) return null;
   const content = <div className="flex items-center gap-6">
     <ResponsiveContainer width={120} height={120}><PieChart><Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={30} outerRadius={52} strokeWidth={0} animationDuration={800} animationEasing="ease-out">{data.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Pie><Tooltip contentStyle={TT as object} /></PieChart></ResponsiveContainer>
-    <div className="space-y-1">{data.map((d, i) => <div key={i} className="flex items-center gap-2 text-[15px]"><span className="w-2.5 h-2.5 rounded-full" style={{ background: COLORS[i % COLORS.length] }} /><span className="text-[var(--text-secondary)]">{d.name}</span><span className="font-semibold ml-auto">{d.value}</span></div>)}</div>
+    <div className="space-y-1">{data.map((d, i) => <div key={i} className="flex items-center gap-2 text-[13px]"><span className="w-2.5 h-2.5 rounded-full" style={{ background: COLORS[i % COLORS.length] }} /><span className="text-[var(--text-secondary)]">{d.name}</span><span className="ml-auto" style={{ fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace", fontWeight: 700 }}>{d.value.toLocaleString()}</span></div>)}</div>
   </div>;
   return <ExpandableChart title={title}>{content}</ExpandableChart>;
 }

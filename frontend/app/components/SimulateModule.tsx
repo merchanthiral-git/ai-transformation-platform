@@ -153,16 +153,17 @@ Paragraph 6 (RECOMMENDATION): Is this scenario right, and what are the specific 
             </div>
             <div className="flex gap-3">
               {[
-                { icon: "💰", label: `$${totals.savings.toLocaleString()}`, sub: "savings/yr", color: "var(--success)" },
+                { icon: "💰", label: `$${(totals.savings / 1000000).toFixed(1)}M`, sub: "savings/yr", color: "var(--success)" },
                 { icon: "📈", label: `${roi}x`, sub: "ROI", color: "var(--accent-primary)" },
                 { icon: "⏱️", label: `${breakEven}mo`, sub: "payback", color: "#0EA5E9" },
               ].map(b => <div key={b.sub} className="rounded-xl px-4 py-2.5 text-center" style={{ background: `${b.color}08`, border: `1px solid ${b.color}20` }}>
                 <div className="text-[11px] opacity-60">{b.icon}</div>
-                <div className="text-[18px] font-extrabold font-data" style={{ color: b.color }}>{b.label}</div>
+                <div className="text-[18px] font-extrabold" style={{ color: b.color, fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace", fontWeight: 700 }}>{b.label}</div>
                 <div className="text-[11px] text-[var(--text-muted)] uppercase">{b.sub}</div>
               </div>)}
             </div>
           </div>
+          <div style={{fontSize:11, color:'var(--text-muted)', marginTop:8, textAlign:'right'}}>Break-even: ~{breakEven} months at current implementation pace</div>
         </div>
 
         {/* ═══ THREE INSIGHT CARDS ═══ */}
@@ -170,7 +171,8 @@ Paragraph 6 (RECOMMENDATION): Is this scenario right, and what are the specific 
           <div className="rounded-xl p-4 border-l-3" style={{ borderLeft: "3px solid #0EA5E9", background: "var(--surface-1)", boxShadow: "var(--shadow-1)" }}>
             <div className="flex items-center gap-2 mb-2"><span className="text-[16px]">⚡</span><span className="text-[14px] font-bold text-[var(--text-primary)]">Impact</span></div>
             <div className="text-[14px] text-[var(--text-secondary)] leading-relaxed">{totals.rel.toLocaleString()} hrs/month freed across {activeJobs.length} roles</div>
-            <div className="text-[13px] text-[var(--text-muted)] mt-1">{totals.fte.toFixed(1)} FTE equivalents → strategic work</div>
+            <div className="text-[13px] text-[var(--text-muted)] mt-1" style={{fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace", fontWeight: 700}}>{totals.fte.toFixed(1)} FTE equivalents → strategic work</div>
+            <div style={{fontSize:11, color:'var(--text-muted)', marginTop:4}}>At current attrition, natural reduction covers ~{Math.min(100, Math.round(totals.fte * 8))}% of target</div>
           </div>
           <div className="rounded-xl p-4" style={{ borderLeft: "3px solid var(--accent-primary)", background: "var(--surface-1)", boxShadow: "var(--shadow-1)" }}>
             <div className="flex items-center gap-2 mb-2"><span className="text-[16px]">💰</span><span className="text-[14px] font-bold text-[var(--text-primary)]">Investment</span></div>
@@ -215,6 +217,9 @@ Paragraph 6 (RECOMMENDATION): Is this scenario right, and what are the specific 
             </button>
             <button onClick={copyToClipboard} className="px-3 py-2 rounded-xl text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--accent-primary)] hover:border-[var(--accent-primary)]/30 transition-all">
               📋 Copy
+            </button>
+            <button onClick={() => { const brief = `EXECUTIVE BRIEF: ${scenario} Scenario\n\nRoles: ${activeJobs.length} | Timeline: ${timeline}mo | Savings: $${(totals.savings / 1000000).toFixed(1)}M/yr | ROI: ${roi}x | Payback: ${breakEven}mo\n\n${narrative.split('\n\n')[0]}\n\nKey: ${totals.fte.toFixed(1)} FTE freed, ${totalPct}% capacity released, $${(Math.round(threeYearNet) / 1000000).toFixed(1)}M 3yr NPV`; navigator.clipboard.writeText(brief).then(() => showToast("Brief copied to clipboard")); }} className="px-3 py-2 rounded-xl text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--accent-primary)] hover:border-[var(--accent-primary)]/30 transition-all">
+              📄 Copy as Brief
             </button>
             <button onClick={() => setEditing(!editing)} className="px-3 py-2 rounded-xl text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--accent-primary)] transition-all">
               {editing ? "✓ Done" : "✏️ Edit"}
@@ -521,7 +526,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
       </div>
 
       {/* ═══ REDESIGNED SUB-TABS ═══ */}
-      <TabBar tabs={[{ id: "impact", label: "📊 Impact Model" }, { id: "financial", label: "💰 Financial Case" }, { id: "compare", label: "⚖️ Scenario Comparison" }, { id: "redeploy", label: "🔀 Redeployment" }, { id: "brief", label: "📋 Executive Brief" }]} active={scenSub} onChange={setScenSub} />
+      <TabBar tabs={[{ id: "impact", label: "📊 Impact Model" }, { id: "financial", label: "💰 Financial Case" }, { id: "compare", label: "⚖️ Compare Side-by-Side" }, { id: "redeploy", label: "🔀 Redeployment" }, { id: "brief", label: "📋 Executive Brief" }]} active={scenSub} onChange={setScenSub} />
 
       {/* ═══ TAB: IMPACT MODEL (merges role detail + waterfall + FTE) ═══ */}
       {scenSub === "impact" && <div className="space-y-5">
@@ -546,7 +551,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
         {/* FTE by Function — table */}
         <Card title={`Impact by Function — ${cfg.label} Scenario`}>
           <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full text-[14px]"><thead><tr className="bg-[var(--surface-2)]">
-            {["Function", "Roles", "Current Hrs", "Released", "Future", "FTE Impact", "% Saved"].map(h => <th key={h} className="px-3 py-2 text-left text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">{h}</th>)}
+            {["Function", "Roles", "Current Hrs", "Released", "Future", "FTE Impact", "% Saved"].map((h, i) => <th key={h} className="px-3 py-2 text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]" style={{ textAlign: i >= 2 ? 'right' : 'left' }}>{h}</th>)}
           </tr></thead><tbody>
             {(() => {
               const byDept: Record<string, typeof scenData> = {};
@@ -559,12 +564,12 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
                 const dPct = dCur > 0 ? Math.round(dRel/dCur*100) : 0;
                 return <tr key={dept} className="border-b border-[var(--border)]" style={{ borderLeft: `3px solid ${dPct > 30 ? "var(--risk)" : dPct > 15 ? "var(--warning)" : "var(--success)"}` }}>
                   <td className="px-3 py-2 font-semibold text-[var(--text-primary)]">{dept}</td>
-                  <td className="px-3 py-2 text-[var(--text-muted)]">{roles.length}</td>
-                  <td className="px-3 py-2 font-data text-[var(--text-secondary)]">{dCur.toLocaleString()}</td>
-                  <td className="px-3 py-2 font-data font-bold" style={{ color: "var(--risk)" }}>-{dRel.toLocaleString()}</td>
-                  <td className="px-3 py-2 font-data text-[var(--text-secondary)]">{dFut.toLocaleString()}</td>
-                  <td className="px-3 py-2 font-data font-bold" style={{ color: cfg.color }}>{dFte.toFixed(1)}</td>
-                  <td className="px-3 py-2"><Badge color={dPct > 30 ? "red" : dPct > 15 ? "amber" : "green"}>{dPct}%</Badge></td>
+                  <td className="px-3 py-2 text-[var(--text-muted)]" style={{ textAlign: 'right' }}>{roles.length}</td>
+                  <td className="px-3 py-2 text-[var(--text-secondary)]" style={{ textAlign: 'right', fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace", fontWeight: 700 }}>{dCur.toLocaleString()}</td>
+                  <td className="px-3 py-2" style={{ textAlign: 'right', fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace", fontWeight: 700, color: "var(--risk)" }}>-{dRel.toLocaleString()}</td>
+                  <td className="px-3 py-2 text-[var(--text-secondary)]" style={{ textAlign: 'right', fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace", fontWeight: 700 }}>{dFut.toLocaleString()}</td>
+                  <td className="px-3 py-2" style={{ textAlign: 'right', fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace", fontWeight: 700, color: cfg.color }}>{dFte.toFixed(1)}</td>
+                  <td className="px-3 py-2" style={{ textAlign: 'right' }}><Badge color={dPct > 30 ? "red" : dPct > 15 ? "amber" : "green"}>{dPct.toFixed(1)}%</Badge></td>
                 </tr>;
               });
             })()}
@@ -609,13 +614,13 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
         <Card title="Business Case Summary">
           <div className="grid grid-cols-6 gap-3">
             {[
-              { label: "Investment", val: `$${totalInv.toLocaleString()}`, color: "var(--warning)" },
-              { label: "Annual Savings", val: `$${totals.savings.toLocaleString()}`, color: "var(--success)" },
-              { label: "Net Year 1", val: `$${(totals.savings - totalInv).toLocaleString()}`, color: totals.savings - totalInv > 0 ? "var(--success)" : "var(--risk)" },
-              { label: "3-Year NPV", val: `$${Math.round(threeYearNet).toLocaleString()}`, color: "var(--success)" },
+              { label: "Investment", val: `$${(totalInv / 1000000).toFixed(1)}M`, color: "var(--warning)" },
+              { label: "Annual Savings", val: `$${(totals.savings / 1000000).toFixed(1)}M`, color: "var(--success)" },
+              { label: "Net Year 1", val: `$${((totals.savings - totalInv) / 1000000).toFixed(1)}M`, color: totals.savings - totalInv > 0 ? "var(--success)" : "var(--risk)" },
+              { label: "3-Year NPV", val: `$${(threeYearNet / 1000000).toFixed(1)}M`, color: "var(--success)" },
               { label: "Payback", val: `${breakEven}mo`, color: "#0EA5E9" },
-              { label: "ROI", val: `${totals.savings > 0 ? (totals.savings / Math.max(totalInv, 1)).toFixed(1) : "0"}x`, color: "var(--accent-primary)" },
-            ].map(k => <div key={k.label} className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[11px] text-[var(--text-muted)] uppercase mb-1">{k.label}</div><div className="text-[20px] font-extrabold font-data" style={{ color: k.color }}>{k.val}</div></div>)}
+              { label: "ROI", val: `${totals.savings > 0 ? (totals.savings / Math.max(totalInv, 1)).toFixed(1) : "0.0"}x`, color: "var(--accent-primary)" },
+            ].map(k => <div key={k.label} className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[11px] text-[var(--text-muted)] uppercase mb-1">{k.label}</div><div className="text-[20px] font-extrabold" style={{ color: k.color, fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace", fontWeight: 700 }}>{k.val}</div></div>)}
           </div>
         </Card>
       </div>}
@@ -1335,7 +1340,7 @@ function NegotiateTab({ projectId, model, savedScenarios, setSavedScenarios }: {
         <div className="flex items-center gap-2">
           <span className="text-[18px] font-bold" style={{ color: feasColor(result.feasibility) }}>{feasIcon(result.feasibility)}</span>
           <span className="text-[15px] font-bold" style={{ color: feasColor(result.feasibility) }}>{feasLabel(result.feasibility)}</span>
-          {result.confidence > 0 && <span className="ml-auto text-[11px] text-[var(--text-muted)]">Confidence: {Math.round(result.confidence * 100)}%</span>}
+          {result.confidence > 0 && <><span className="ml-auto text-[11px] text-[var(--text-muted)]" style={{fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace", fontWeight: 700}}>Confidence: {(result.confidence * 100).toFixed(1)}%</span><span style={{fontSize:10, color:'var(--text-muted)', background: result.confidence >= 0.7 ? 'rgba(16,185,129,0.08)' : result.confidence >= 0.4 ? 'rgba(59,130,246,0.08)' : 'rgba(245,158,11,0.08)', padding:'2px 6px', borderRadius:4, marginLeft:6}}>{result.confidence >= 0.7 ? 'high confidence' : result.confidence >= 0.4 ? 'moderate confidence' : 'low confidence'}</span></>}
         </div>
       </div>
 
@@ -1415,7 +1420,7 @@ function NegotiateTab({ projectId, model, savedScenarios, setSavedScenarios }: {
       {/* Section 3: Actions */}
       <div className="flex items-center gap-3">
         <button onClick={saveAsScenario} className="px-5 py-2.5 rounded-xl text-[14px] font-bold text-white" style={{ background: "linear-gradient(135deg, var(--success), #059669)" }}>Save as Scenario</button>
-        <button onClick={() => setResult(null)} className="px-5 py-2.5 rounded-xl text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--accent-primary)]">Re-negotiate</button>
+        <button onClick={() => setResult(null)} className="px-5 py-2.5 rounded-xl text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--accent-primary)]">Reset to Default</button>
       </div>
     </>}
 
@@ -1615,7 +1620,7 @@ function StressTestTab({ projectId, model }: { projectId: string; model: string 
             <div className="text-[15px] font-bold uppercase" style={{ color: sevColor(result.severity) }}>{result.severity}</div>
             <div className="text-[13px] text-[var(--text-secondary)]">{sevLabel(result.severity)}</div>
           </div>
-          {result.confidence > 0 && <span className="ml-auto text-[11px] text-[var(--text-muted)]">Confidence: {Math.round(result.confidence * 100)}%</span>}
+          {result.confidence > 0 && <><span className="ml-auto text-[11px] text-[var(--text-muted)]" style={{fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace", fontWeight: 700}}>Confidence: {(result.confidence * 100).toFixed(1)}%</span><span style={{fontSize:10, color:'var(--text-muted)', background: result.confidence >= 0.7 ? 'rgba(16,185,129,0.08)' : result.confidence >= 0.4 ? 'rgba(59,130,246,0.08)' : 'rgba(245,158,11,0.08)', padding:'2px 6px', borderRadius:4, marginLeft:6}}>{result.confidence >= 0.7 ? 'high confidence' : result.confidence >= 0.4 ? 'moderate confidence' : 'low confidence'}</span></>}
         </div>
         {result.shock_summary && <div className="text-[13px] text-[var(--text-secondary)] mt-2 italic">{result.shock_summary}</div>}
       </div>

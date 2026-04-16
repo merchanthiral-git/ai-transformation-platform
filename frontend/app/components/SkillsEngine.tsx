@@ -290,7 +290,7 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
               <div className="ml-auto flex items-center gap-2">
                 <input value={inferTitle} onChange={e => setInferTitle(e.target.value)} placeholder="Job title for AI inference..." className="bg-[var(--surface-2)] border border-[var(--border)] rounded-md px-3 py-1.5 text-[15px] text-[var(--text-primary)] outline-none w-52 placeholder:text-[var(--text-muted)]" />
                 <button onClick={handleInfer} disabled={inferring || !inferTitle.trim()} className="px-3 py-1.5 rounded-md text-[15px] font-semibold border border-[var(--accent-primary)] text-[var(--accent-primary)] hover:bg-[var(--accent-primary)] hover:text-white transition-colors disabled:opacity-40">
-                  {inferring ? "Inferring..." : "AI Suggest"}
+                  {inferring ? "Inferring..." : "Infer Skills via AI"}
                 </button>
               </div>
             </div>
@@ -336,7 +336,7 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
                           <td className="px-3 py-2">
                             <div className="flex items-center gap-2">
                               {pctBar(Number(s.automation_risk || 0), "var(--warning)")}
-                              <span className="text-[13px] text-[var(--text-muted)]">{Number(s.automation_risk || 0)}%</span>
+                              <span className="text-[13px] text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}>{Number(s.automation_risk || 0)}%</span>
                             </div>
                           </td>
                           <td className="px-3 py-2 text-[15px] text-[var(--text-secondary)]">{String(s.transferability || "Medium")}</td>
@@ -373,7 +373,7 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
                     {/* Adjacencies */}
                     {!!(detailData?.adjacencies) && (
                       <div>
-                        <h4 className="text-[15px] font-semibold text-[var(--text-primary)] mb-2">Adjacent Skills</h4>
+                        <h4 className="text-[15px] font-semibold text-[var(--text-primary)] mb-2">Adjacent Skills <span className="text-[12px] font-normal text-[var(--text-muted)]">(skill overlap between roles)</span></h4>
                         <div className="flex flex-wrap gap-1.5">
                           {(detailData.adjacencies as Record<string, unknown>[]).map((a, i) => (
                             <span key={i} className="px-2 py-0.5 text-[13px] rounded-md border border-[var(--border)] text-[var(--text-secondary)] bg-[var(--surface-2)]">{String(a.name || a)}</span>
@@ -472,7 +472,7 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
                 <div className="space-y-3">
                   <div className="flex items-center gap-4">
                     <span className="text-[15px] text-[var(--text-secondary)]">Proficiency data coverage:</span>
-                    <span className="text-[20px] font-bold text-[var(--accent-primary)]">{coverage}%</span>
+                    <span className="text-[20px] font-bold text-[var(--accent-primary)]" style={{ fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}>{coverage}%</span>
                     <span className="text-[13px] text-[var(--text-muted)]">({withProf} of {skills.length} skills)</span>
                   </div>
                   {pctBar(coverage, "var(--accent-primary)", 300)}
@@ -579,7 +579,7 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
                               fill={catColor(n.category)} stroke={matchesSearch ? "#fff" : "none"} strokeWidth={matchesSearch ? 2 : 0} />
                           )}
                           {(r > 10 || graphSelectedNode === n.id || matchesSearch) && (
-                            <text x={n.x} y={n.y + r + 14} textAnchor="middle" fill="var(--text-secondary)" fontSize={11} fontFamily="'Outfit', sans-serif">
+                            <text x={n.x} y={n.y + r + 14} textAnchor="middle" fill="var(--text-secondary)" fontSize={12} fontFamily="'Outfit', sans-serif">
                               {n.label.length > 18 ? n.label.slice(0, 16) + "\u2026" : n.label}
                             </text>
                           )}
@@ -591,7 +591,7 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
                   <div className="absolute bottom-3 right-3 flex flex-col gap-1">
                     <button onClick={() => setGraphTransform(p => ({ ...p, scale: Math.min(3, p.scale + 0.2) }))} className="w-7 h-7 rounded bg-[var(--surface-1)] border border-[var(--border)] text-[var(--text-primary)] text-[16px] flex items-center justify-center hover:border-[var(--accent-primary)]">+</button>
                     <button onClick={() => setGraphTransform(p => ({ ...p, scale: Math.max(0.3, p.scale - 0.2) }))} className="w-7 h-7 rounded bg-[var(--surface-1)] border border-[var(--border)] text-[var(--text-primary)] text-[16px] flex items-center justify-center hover:border-[var(--accent-primary)]">&minus;</button>
-                    <button onClick={() => setGraphTransform({ x: 0, y: 0, scale: 1 })} className="w-7 h-7 rounded bg-[var(--surface-1)] border border-[var(--border)] text-[var(--text-muted)] text-[11px] flex items-center justify-center hover:border-[var(--accent-primary)]">fit</button>
+                    <button onClick={() => setGraphTransform({ x: 0, y: 0, scale: 1 })} className="w-7 h-7 rounded bg-[var(--surface-1)] border border-[var(--border)] text-[var(--text-muted)] text-[12px] flex items-center justify-center hover:border-[var(--accent-primary)]">fit</button>
                   </div>
                 </div>
               </Card>
@@ -663,7 +663,7 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
                           {Object.entries(heatmap).map(([cat, val]) => (
                             <div key={cat} className="p-3 rounded-lg border border-[var(--border)] text-center" style={{ background: `${catColor(cat)}15` }}>
                               <div className="text-[13px] text-[var(--text-muted)] mb-1">{cat}</div>
-                              <div className="text-[22px] font-bold" style={{ color: catColor(cat) }}>{val}%</div>
+                              <div className="text-[20px] font-bold" style={{ color: catColor(cat), fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}>{val}%</div>
                             </div>
                           ))}
                         </div>
@@ -748,7 +748,7 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
 
           {/* Adjacency */}
           {intelTab === "adjacency" && (
-            <Card title="Skill Adjacency Analysis">
+            <Card title={<>Skill Adjacency Analysis <span className="text-[12px] font-normal text-[var(--text-muted)]">(skill overlap between roles)</span></>}>
               {libraryLoading ? <LoadingSkeleton rows={5} /> : !skills.length ? <Empty icon="🔄" text="Adjacency Analysis Requires Skills" subtitle="Load skills via the Library tab to see which skills are transferable across roles." /> : (
                 <div className="space-y-3">
                   <p className="text-[15px] text-[var(--text-secondary)]">Employees with Skill X who are close to acquiring Skill Y based on shared foundations and transferability scores.</p>
@@ -767,7 +767,7 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
                             <td className="px-3 py-2">
                               <div className="flex items-center gap-2">
                                 {pctBar(Number(s.proximity || Math.random() * 80 + 20), "var(--success)")}
-                                <span className="text-[13px] text-[var(--text-muted)]">{Math.round(Number(s.proximity || Math.random() * 80 + 20))}%</span>
+                                <span className="text-[13px] text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}>{Math.round(Number(s.proximity || Math.random() * 80 + 20))}%</span>
                               </div>
                             </td>
                             <td className="px-3 py-2"><Badge color={catColor(String(s.category || ""))}>{String(s.category || "")}</Badge></td>
@@ -820,7 +820,7 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
                               <g key={i}>
                                 <circle cx={px} cy={py} r={6} fill={catColor(String(s.category || "technical"))} opacity={0.8} />
                                 {riskSkills.length <= 20 && (
-                                  <text x={px} y={py - 10} textAnchor="middle" fill="var(--text-secondary)" fontSize={10}>
+                                  <text x={px} y={py - 10} textAnchor="middle" fill="var(--text-secondary)" fontSize={12}>
                                     {String(s.name || "").slice(0, 14)}
                                   </text>
                                 )}
@@ -857,7 +857,7 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
                     <g key={mod}>
                       <line x1={350} y1={155} x2={cx} y2={cy} stroke="var(--border)" strokeWidth={1.5} markerEnd="url(#arrowhead)" />
                       <rect x={cx - bw / 2} y={cy - bh / 2} width={bw} height={bh} rx={8} fill="var(--surface-2)" stroke="var(--border)" strokeWidth={1} />
-                      <text x={cx} y={cy + 4} textAnchor="middle" fill="var(--text-secondary)" fontSize={11} fontFamily="'Outfit', sans-serif">{mod}</text>
+                      <text x={cx} y={cy + 4} textAnchor="middle" fill="var(--text-secondary)" fontSize={12} fontFamily="'Outfit', sans-serif">{mod}</text>
                     </g>
                   );
                 })}
@@ -938,17 +938,17 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
               return (
                 <div className="grid grid-cols-3 gap-4">
                   <div className="p-4 rounded-xl border border-[var(--border)] bg-[var(--surface-2)] text-center">
-                    <div className="text-[28px] font-bold text-[var(--warning)]">{orphans}</div>
+                    <div className="text-[32px] font-bold text-[var(--warning)]" style={{ fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}>{orphans}</div>
                     <div className="text-[14px] text-[var(--text-muted)]">Orphan Skills</div>
                     <div className="text-[12px] text-[var(--text-muted)] mt-1">Not mapped to any job</div>
                   </div>
                   <div className="p-4 rounded-xl border border-[var(--border)] bg-[var(--surface-2)] text-center">
-                    <div className="text-[28px] font-bold text-[var(--risk)]">{stale}</div>
+                    <div className="text-[32px] font-bold text-[var(--risk)]" style={{ fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}>{stale}</div>
                     <div className="text-[14px] text-[var(--text-muted)]">Stale Mappings</div>
                     <div className="text-[12px] text-[var(--text-muted)] mt-1">Declining skills with low usage</div>
                   </div>
                   <div className="p-4 rounded-xl border border-[var(--border)] bg-[var(--surface-2)] text-center">
-                    <div className="text-[28px] font-bold" style={{ color: "var(--accent-primary)" }}>{missingAnchors}</div>
+                    <div className="text-[32px] font-bold" style={{ color: "var(--accent-primary)", fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}>{missingAnchors}</div>
                     <div className="text-[14px] text-[var(--text-muted)]">Missing Proficiency Anchors</div>
                     <div className="text-[12px] text-[var(--text-muted)] mt-1">No current proficiency data</div>
                   </div>

@@ -690,7 +690,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
     <div className="flex items-center gap-4 mb-4">
       <div className="flex-1">
         <div className="flex items-center justify-between mb-1">
-          <span className="text-[14px] font-semibold text-[var(--text-primary)]">Operating Model: {completionPct}% complete — {completedSteps} of {totalSteps} steps configured</span>
+          <span className="text-[13px] font-semibold text-[var(--text-primary)]">Operating Model: {completionPct}% complete — {completedSteps} of {totalSteps} steps configured</span>
           <div className="flex items-center gap-2">
             <button onClick={() => onNavigateCanvas && onNavigateCanvas()} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--accent-primary)] transition-all">⬡ Design Canvas</button>
             <button onClick={() => setShowTomSummary(true)} className="px-4 py-1.5 rounded-lg text-[13px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>📋 View Target Operating Model</button>
@@ -704,7 +704,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
     {showTomSummary && <div className="fixed inset-0 bg-black/60 z-[9999] flex items-center justify-center p-4" onClick={() => setShowTomSummary(false)}>
       <div className="bg-[var(--bg)] rounded-2xl border border-[var(--border)] max-w-[1200px] w-full max-h-[90vh] overflow-y-auto p-8" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-6">
-          <div><div className="text-[22px] font-extrabold text-[var(--text-primary)]">Target Operating Model — Summary</div><div className="text-[14px] text-[var(--text-muted)]">TOM-on-a-Page | Generated {new Date().toLocaleDateString()}</div></div>
+          <div><div className="text-[20px] font-extrabold text-[var(--text-primary)]">Target Operating Model — Summary</div><div className="text-[14px] text-[var(--text-muted)]">TOM-on-a-Page | Generated {new Date().toLocaleDateString()}</div></div>
           <button onClick={() => setShowTomSummary(false)} className="text-[20px] text-[var(--text-muted)] hover:text-[var(--text-primary)]">×</button>
         </div>
         <div className="grid grid-cols-3 gap-4">
@@ -878,7 +878,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
                   </React.Fragment>;
                 })}
               </div>
-              <button onClick={() => setStratPriorities([])} className="ml-auto text-[14px] text-[var(--text-muted)] hover:text-[var(--risk)]">Reset</button>
+              <button onClick={() => setStratPriorities([])} className="ml-auto text-[13px] text-[var(--text-muted)] hover:text-[var(--risk)]">Reset to Default</button>
             </div>}
             {stratPriorities.length > 0 && <div className="mt-3 rounded-lg bg-[rgba(212,134,10,0.06)] border border-[rgba(212,134,10,0.15)] px-4 py-3 text-[15px]" style={{ color: "var(--accent-primary)" }}>
               {stratPrioritySummary}
@@ -963,7 +963,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
                     <div className="flex flex-wrap gap-1">{differentiators.map(c => <span key={c} className="px-2 py-0.5 rounded-full text-[13px] font-semibold bg-[rgba(239,68,68,0.1)] text-[var(--risk)]">{c}</span>)}</div>
                   </div>}
                   {outsourceCandidates.length > 0 && <div className="rounded-xl bg-[var(--surface-2)] border border-[var(--border)] px-4 py-2">
-                    <div className="text-[14px] font-bold text-[var(--text-muted)] uppercase mb-1">Outsource / Simplify Candidates</div>
+                    <div className="text-[13px] font-semibold text-[var(--text-muted)] uppercase mb-1">Outsource / Simplify Candidates</div>
                     <div className="flex flex-wrap gap-1">{outsourceCandidates.map(c => <span key={c} className="px-2 py-0.5 rounded-full text-[13px] text-[var(--text-muted)] bg-[var(--bg)]">{c}</span>)}</div>
                   </div>}
                 </div>}
@@ -1292,7 +1292,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
                 await api.saveOMConfig({ model_id: model || "Demo_Model", industries: omIndustries, selected_units: omSelectedUnits, custom_units: omCustomUnits, renames: omRenames, scoped_units: omScopedUnits });
                 showToast("Operating model configuration saved");
               }} className="px-4 py-2 rounded-lg text-[15px] font-semibold bg-[var(--accent-primary)] text-white hover:opacity-90 transition-all">💾 Save Configuration</button>
-              <button onClick={() => { setOmSelectedUnits([]); setOmCustomUnits([]); setOmRenames({}); setOmScopedUnits({}); setOmIndustries([]); showToast("Configuration reset"); }} className="px-4 py-2 rounded-lg text-[15px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--risk)]">Reset</button>
+              <button onClick={() => { setOmSelectedUnits([]); setOmCustomUnits([]); setOmRenames({}); setOmScopedUnits({}); setOmIndustries([]); showToast("Configuration reset"); }} className="px-4 py-2 rounded-lg text-[15px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--risk)]">Reset to Default</button>
             </div>
           </Card>
         </div>}
@@ -1320,7 +1320,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
         </Card>}
 
         {omView === "2.1" && <Card title="Capability Maturity Assessment">
-          {(() => { const scores = Object.values(maturityScores).filter(v => v > 0); const avg = scores.length ? (scores.reduce((a,b) => a+b, 0) / scores.length).toFixed(1) : "—"; const tScores = Object.values(targetScores).filter(v => v > 0); const tAvg = tScores.length ? (tScores.reduce((a,b) => a+b, 0) / tScores.length).toFixed(1) : "—"; return <div className="flex gap-4 mb-4">{[{label:"Current Avg",val:avg,color:"var(--accent-primary)"},{label:"Target Avg",val:tAvg,color:"var(--success)"},{label:"Capabilities Rated",val:`${scores.length}/${allCaps.length}`,color:"var(--text-secondary)"},{label:"Gap",val:scores.length && tScores.length ? (Number(tAvg)-Number(avg)).toFixed(1) : "—",color:"var(--warning)"}].map(k => <div key={k.label} className="flex-1 rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[18px] font-extrabold" style={{color:k.color}}>{k.val}</div><div className="text-[14px] text-[var(--text-muted)] uppercase">{k.label}</div></div>)}</div>; })()}
+          {(() => { const scores = Object.values(maturityScores).filter(v => v > 0); const avg = scores.length ? (scores.reduce((a,b) => a+b, 0) / scores.length).toFixed(1) : "—"; const tScores = Object.values(targetScores).filter(v => v > 0); const tAvg = tScores.length ? (tScores.reduce((a,b) => a+b, 0) / tScores.length).toFixed(1) : "—"; return <div className="flex gap-4 mb-4">{[{label:"Current Avg",val:avg,color:"var(--accent-primary)"},{label:"Target Avg",val:tAvg,color:"var(--success)"},{label:"Capabilities Rated",val:`${scores.length}/${allCaps.length}`,color:"var(--text-secondary)"},{label:"Gap",val:scores.length && tScores.length ? (Number(tAvg)-Number(avg)).toFixed(1) : "—",color:"var(--warning)"}].map(k => <div key={k.label} className="flex-1 rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[17px] font-extrabold" style={{color:k.color}}>{k.val}</div><div className="text-[14px] text-[var(--text-muted)] uppercase">{k.label}</div></div>)}</div>; })()}
           <div className="text-[15px] text-[var(--text-secondary)] mb-3">Rate current state (left) and target state (right) for each capability.</div>
           <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full"><thead><tr className="bg-[var(--surface-2)]"><th className="px-3 py-2 text-left text-[15px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Capability</th><th className="px-2 py-2 text-center text-[15px] font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Layer</th>{[1,2,3,4,5].map(n => <th key={n} className="px-2 py-2 text-center text-[15px] border-b border-[var(--border)] text-[var(--text-muted)]">{n}</th>)}<th className="px-1 py-2 text-center text-[14px] border-b border-[var(--border)] text-[var(--text-muted)]">|</th>{[1,2,3,4,5].map(n => <th key={`t${n}`} className="px-2 py-2 text-center text-[15px] border-b border-[var(--border)] text-[var(--success)]">{n}</th>)}<th className="px-2 py-2 text-center text-[15px] border-b border-[var(--border)] text-[var(--text-muted)]">AI</th></tr></thead>
           <tbody>{allCaps.map(cap => { const sc = maturityScores[cap.name]||0; const ai = getAiTier(cap.name); return <tr key={cap.name} className="border-b border-[var(--border)]"><td className="px-3 py-1.5 text-[15px] font-semibold">{cap.name}</td><td className="px-2 py-1.5 text-center"><span className="text-[14px] px-1.5 py-0.5 rounded-full" style={{ background: `${layerColors[cap.layer]}12`, color: layerColors[cap.layer] }}>{cap.layer}</span></td>{[1,2,3,4,5].map(n => <td key={n} className="px-2 py-1.5 text-center"><button onClick={() => setMaturityScores(p => ({...p,[cap.name]: p[cap.name] === n ? 0 : n}))} className="w-6 h-6 rounded text-[15px] font-bold" style={{ background: sc>=n ? `${n<=2?"var(--risk)":n<=3?"var(--warning)":"var(--success)"}20` : "var(--surface-2)", color: sc>=n ? (n<=2?"var(--risk)":n<=3?"var(--warning)":"var(--success)") : "var(--text-muted)" }}>{n}</button></td>)}<td className="px-1 py-1.5 text-center text-[var(--border)]">│</td>{[1,2,3,4,5].map(n => <td key={`t${n}`} className="px-2 py-1.5 text-center"><button onClick={() => setTargetScores(p => ({...p,[cap.name]: p[cap.name] === n ? 0 : n}))} className="w-6 h-6 rounded text-[15px] font-bold" style={{ background: (targetScores[cap.name]||0)>=n ? `${n<=2?"var(--risk)":n<=3?"var(--warning)":"var(--success)"}20` : "var(--surface-2)", color: (targetScores[cap.name]||0)>=n ? (n<=2?"var(--risk)":n<=3?"var(--warning)":"var(--success)") : "var(--text-muted)" }}>{n}</button></td>)}<td className="px-2 py-1.5 text-center"><span className="text-[14px]" style={{ color: ai.color }}>{ai.tier}</span></td></tr>; })}</tbody></table></div>
@@ -1372,7 +1372,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
                 const delta = targetCount - currentCount;
                 return <div key={m} className="rounded-xl p-2.5 bg-[var(--surface-2)] text-center">
                   <div className="text-[13px] font-bold" style={{ color: SVC_MODEL_COLORS[m] }}>{m}</div>
-                  <div className="text-[16px] font-extrabold text-[var(--text-primary)]">{currentCount} → {targetCount}</div>
+                  <div className="text-[15px] font-extrabold text-[var(--text-primary)]">{currentCount} → {targetCount}</div>
                   {delta !== 0 && <div className="text-[13px] font-semibold" style={{ color: delta > 0 ? "var(--success)" : "var(--warning)" }}>{delta > 0 ? "+" : ""}{delta}</div>}
                 </div>;
               })}
@@ -1544,7 +1544,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
                 </tbody></table></div>
                 {/* 2x2 quadrant */}
                 {scoredFuncs.length > 0 && <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4">
-                  <div className="text-[14px] font-bold text-[var(--text-muted)] uppercase mb-3">Strategic Importance vs. Cost Savings — Outsource Decision Map</div>
+                  <div className="text-[13px] font-semibold text-[var(--text-muted)] uppercase mb-3">Strategic Importance vs. Cost Savings — Outsource Decision Map</div>
                   <div className="grid grid-cols-2 gap-0 border border-[var(--border)] rounded-lg overflow-hidden" style={{ minHeight: 200 }}>
                     {/* Quadrants: [High Strat / High Cost] [High Strat / Low Cost] [Low Strat / High Cost] [Low Strat / Low Cost] */}
                     {[
@@ -1687,7 +1687,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
                 { label: "Undefined Clarity", val: govDecisions.filter(d => d.clarity === "Undefined").length, color: "var(--risk)" },
                 { label: "Slow Decisions", val: govDecisions.filter(d => d.speed === "Slow").length, color: "var(--warning)" },
                 { label: "Strategic", val: govDecisions.filter(d => d.category === "Strategic").length, color: "var(--purple)" },
-              ].map(k => <div key={k.label} className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold" style={{ color: k.color }}>{k.val}</div><div className="text-[13px] text-[var(--text-muted)] uppercase">{k.label}</div></div>)}
+              ].map(k => <div key={k.label} className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold" style={{ color: k.color, fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}>{k.val}</div><div className="text-[13px] text-[var(--text-muted)] uppercase">{k.label}</div></div>)}
             </div>
             {/* Add form */}
             {govAddingDecision && <div className="rounded-xl border border-[var(--accent-primary)]/30 bg-[rgba(212,134,10,0.04)] p-4 mb-4 space-y-3">
@@ -1764,7 +1764,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
               Object.entries(dCounts).forEach(([role, count]) => { if (count > 5) issues.push({ dec: role, issue: `Decides on ${count} decisions — potential bottleneck`, severity: "warn" }); });
               if (issues.length === 0) return null;
               return <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-3 mb-4 space-y-1">
-                <div className="text-[14px] font-bold text-[var(--text-muted)] uppercase mb-1">Validation Issues ({issues.length})</div>
+                <div className="text-[13px] font-semibold text-[var(--text-muted)] uppercase mb-1">Validation Issues ({issues.length})</div>
                 {issues.slice(0, 8).map((iss, i) => <div key={i} className="flex items-center gap-2 text-[14px]">
                   <span style={{ color: iss.severity === "error" ? "var(--risk)" : "var(--warning)" }}>{iss.severity === "error" ? "✗" : "⚠"}</span>
                   <span className="font-semibold text-[var(--text-primary)]">{iss.dec}</span>
@@ -1825,7 +1825,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
             })()}
             {/* Governance hierarchy visualization */}
             <div className="mb-5">
-              <div className="text-[14px] font-bold text-[var(--text-muted)] uppercase mb-3">Governance Hierarchy</div>
+              <div className="text-[13px] font-semibold text-[var(--text-muted)] uppercase mb-3">Governance Hierarchy</div>
               <div className="space-y-3">
                 {(() => {
                   const topLevel = govForums.filter(f => !f.parentId);
@@ -1933,27 +1933,27 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
                 {/* Health score */}
                 <div className="grid grid-cols-4 gap-3">
                   <div className="rounded-xl p-4 bg-[var(--surface-2)] text-center col-span-1">
-                    <div className="text-[28px] font-extrabold" style={{ color: healthColor }}>{healthScore}</div>
+                    <div className="text-[24px] font-extrabold" style={{ color: healthColor, fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}>{healthScore}</div>
                     <div className="text-[13px] font-bold uppercase" style={{ color: healthColor }}>{healthLabel}</div>
                     <div className="text-[12px] text-[var(--text-muted)]">Governance Health</div>
                   </div>
                   <div className="rounded-xl p-4 bg-[var(--surface-2)] text-center">
-                    <div className="text-[22px] font-extrabold text-[var(--risk)]">{undefinedClarity.length}</div>
+                    <div className="text-[20px] font-extrabold text-[var(--risk)]">{undefinedClarity.length}</div>
                     <div className="text-[13px] text-[var(--text-muted)] uppercase">No Clear Owner</div>
                   </div>
                   <div className="rounded-xl p-4 bg-[var(--surface-2)] text-center">
-                    <div className="text-[22px] font-extrabold text-[var(--warning)]">{bottleneckPeople.length}</div>
+                    <div className="text-[20px] font-extrabold text-[var(--warning)]">{bottleneckPeople.length}</div>
                     <div className="text-[13px] text-[var(--text-muted)] uppercase">Bottleneck Roles</div>
                   </div>
                   <div className="rounded-xl p-4 bg-[var(--surface-2)] text-center">
-                    <div className="text-[22px] font-extrabold text-[var(--warning)]">{orphanedDecs.length}</div>
+                    <div className="text-[20px] font-extrabold text-[var(--warning)]">{orphanedDecs.length}</div>
                     <div className="text-[13px] text-[var(--text-muted)] uppercase">Orphaned Decisions</div>
                   </div>
                 </div>
 
                 {/* Bottleneck people heatmap */}
                 {bottleneckPeople.length > 0 && <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4">
-                  <div className="text-[14px] font-bold text-[var(--text-muted)] uppercase mb-3">Decision Bottleneck Roles</div>
+                  <div className="text-[13px] font-semibold text-[var(--text-muted)] uppercase mb-3">Decision Bottleneck Roles</div>
                   <div className="space-y-3">{bottleneckPeople.map(([role, data]) => {
                     const pct = Math.min(100, (data.count / govDecisions.length) * 100 * 3);
                     return <div key={role}>
@@ -1988,9 +1988,9 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
 
                 {/* Veto bottlenecks */}
                 {vetoBottlenecks.length > 0 && <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4">
-                  <div className="text-[14px] font-bold text-[var(--text-muted)] uppercase mb-2">Functions with Excessive Veto Points</div>
+                  <div className="text-[13px] font-semibold text-[var(--text-muted)] uppercase mb-2">Functions with Excessive Veto Points</div>
                   <div className="grid grid-cols-3 gap-3">{vetoBottlenecks.map(([func, count]) => <div key={func} className="rounded-lg p-3 bg-[var(--bg)] text-center">
-                    <div className="text-[18px] font-extrabold text-[var(--warning)]">{count}</div>
+                    <div className="text-[17px] font-extrabold text-[var(--warning)]">{count}</div>
                     <div className="text-[14px] text-[var(--text-primary)]">{func}</div>
                     <div className="text-[12px] text-[var(--text-muted)]">agree/veto gates</div>
                   </div>)}</div>
@@ -2131,7 +2131,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
                     const autoColors: Record<string, string> = { Manual: "var(--risk)", "Semi-Auto": "var(--warning)", Automated: "var(--success)" };
                     return <React.Fragment key={step.id}>
                       {si > 0 && <div className="flex items-center shrink-0 px-1">
-                        {step.isHandoff ? <div className="flex flex-col items-center"><span className="text-[14px] text-[var(--warning)]">⚡</span><span className="text-[10px] text-[var(--warning)] font-semibold">Handoff</span></div> : <span className="text-[var(--text-muted)]">→</span>}
+                        {step.isHandoff ? <div className="flex flex-col items-center"><span className="text-[14px] text-[var(--warning)]">⚡</span><span className="text-[9px] text-[var(--warning)] font-semibold">Handoff</span></div> : <span className="text-[var(--text-muted)]">→</span>}
                       </div>}
                       <div className="rounded-xl p-3 min-w-[140px] max-w-[160px] border-t-4" style={{ background: "var(--surface-2)", border: `1px solid ${funcColor}25`, borderTopColor: funcColor, borderTopWidth: 4 }}>
                         <div className="text-[14px] font-bold text-[var(--text-primary)] mb-1 leading-tight">{step.name}</div>
@@ -2275,10 +2275,10 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
               return <div className="space-y-5">
                 {/* KPIs */}
                 <div className="grid grid-cols-4 gap-3">
-                  <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[22px] font-extrabold text-[var(--text-primary)]">{analysis.reduce((s, a) => s + a.totalHandoffs, 0)}</div><div className="text-[13px] text-[var(--text-muted)] uppercase">Total Handoffs</div></div>
-                  <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[22px] font-extrabold text-[var(--warning)]">{totalCrossFunc}</div><div className="text-[13px] text-[var(--text-muted)] uppercase">Cross-Functional</div></div>
-                  <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[22px] font-extrabold text-[var(--risk)]">{highHandoff.length}</div><div className="text-[13px] text-[var(--text-muted)] uppercase">High Handoff (&gt;4)</div></div>
-                  <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[22px] font-extrabold text-[var(--risk)]">{unsupported.reduce((s, a) => s + a.noSystemHandoffs, 0)}</div><div className="text-[13px] text-[var(--text-muted)] uppercase">Unsupported Handoffs</div></div>
+                  <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold text-[var(--text-primary)]">{analysis.reduce((s, a) => s + a.totalHandoffs, 0)}</div><div className="text-[13px] text-[var(--text-muted)] uppercase">Total Handoffs</div></div>
+                  <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold text-[var(--warning)]">{totalCrossFunc}</div><div className="text-[13px] text-[var(--text-muted)] uppercase">Cross-Functional</div></div>
+                  <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold text-[var(--risk)]">{highHandoff.length}</div><div className="text-[13px] text-[var(--text-muted)] uppercase">High Handoff (&gt;4)</div></div>
+                  <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold text-[var(--risk)]">{unsupported.reduce((s, a) => s + a.noSystemHandoffs, 0)}</div><div className="text-[13px] text-[var(--text-muted)] uppercase">Unsupported Handoffs</div></div>
                 </div>
                 {/* Bottleneck heatmap */}
                 <div className="space-y-2">
@@ -2373,7 +2373,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
                 { label: "Maintain", val: techSystems.filter(s => s.status === "Maintain").length, color: "var(--accent-primary)" },
                 { label: "Migrate", val: techSystems.filter(s => s.status === "Migrate").length, color: "var(--warning)" },
                 { label: "Retire", val: techSystems.filter(s => s.status === "Retire").length, color: "var(--risk)" },
-              ].map(k => <div key={k.label} className="rounded-xl p-2.5 bg-[var(--surface-2)] text-center"><div className="text-[18px] font-extrabold" style={{ color: k.color }}>{k.val}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">{k.label}</div></div>)}
+              ].map(k => <div key={k.label} className="rounded-xl p-2.5 bg-[var(--surface-2)] text-center"><div className="text-[17px] font-extrabold" style={{ color: k.color }}>{k.val}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">{k.label}</div></div>)}
             </div>
             {/* Add form */}
             {techAddingSystem && <div className="rounded-xl border border-[var(--accent-primary)]/30 bg-[rgba(212,134,10,0.04)] p-4 mb-4 space-y-3">
@@ -2446,10 +2446,10 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
               return <>
                 {/* Summary */}
                 <div className="grid grid-cols-4 gap-2 mb-4">
-                  <div className="rounded-xl p-2.5 bg-[var(--surface-2)] text-center"><div className="text-[18px] font-extrabold text-[var(--success)]">{Object.values(coverage).filter(v => v.level === "covered").length}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">Well Covered</div></div>
-                  <div className="rounded-xl p-2.5 bg-[var(--surface-2)] text-center"><div className="text-[18px] font-extrabold text-[var(--warning)]">{Object.values(coverage).filter(v => v.level === "partial").length}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">Single System</div></div>
-                  <div className="rounded-xl p-2.5 bg-[var(--surface-2)] text-center"><div className="text-[18px] font-extrabold text-[var(--risk)]">{unsupported.length}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">Unsupported</div></div>
-                  <div className="rounded-xl p-2.5 bg-[var(--surface-2)] text-center"><div className="text-[18px] font-extrabold text-[var(--purple)]">{redundant.length}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">Redundant (3+)</div></div>
+                  <div className="rounded-xl p-2.5 bg-[var(--surface-2)] text-center"><div className="text-[17px] font-extrabold text-[var(--success)]">{Object.values(coverage).filter(v => v.level === "covered").length}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">Well Covered</div></div>
+                  <div className="rounded-xl p-2.5 bg-[var(--surface-2)] text-center"><div className="text-[17px] font-extrabold text-[var(--warning)]">{Object.values(coverage).filter(v => v.level === "partial").length}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">Single System</div></div>
+                  <div className="rounded-xl p-2.5 bg-[var(--surface-2)] text-center"><div className="text-[17px] font-extrabold text-[var(--risk)]">{unsupported.length}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">Unsupported</div></div>
+                  <div className="rounded-xl p-2.5 bg-[var(--surface-2)] text-center"><div className="text-[17px] font-extrabold text-[var(--purple)]">{redundant.length}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">Redundant (3+)</div></div>
                 </div>
                 {/* Matrix */}
                 <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full"><thead><tr className="bg-[var(--surface-2)]">
@@ -2502,9 +2502,9 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
               return <div className="space-y-5">
                 {/* Summary */}
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[22px] font-extrabold text-[var(--purple)]">{redundancies.length}</div><div className="text-[13px] text-[var(--text-muted)] uppercase">Redundant Categories</div></div>
-                  <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[22px] font-extrabold text-[var(--warning)]">{retireTargets.length}</div><div className="text-[13px] text-[var(--text-muted)] uppercase">Migrate/Retire</div></div>
-                  <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[22px] font-extrabold text-[var(--success)]">{potentialSavings > 0 ? fmtCostShort(potentialSavings) : "—"}</div><div className="text-[13px] text-[var(--text-muted)] uppercase">Potential Savings</div></div>
+                  <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold text-[var(--purple)]">{redundancies.length}</div><div className="text-[13px] text-[var(--text-muted)] uppercase">Redundant Categories</div></div>
+                  <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold text-[var(--warning)]">{retireTargets.length}</div><div className="text-[13px] text-[var(--text-muted)] uppercase">Migrate/Retire</div></div>
+                  <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold text-[var(--success)]">{potentialSavings > 0 ? fmtCostShort(potentialSavings) : "—"}</div><div className="text-[13px] text-[var(--text-muted)] uppercase">Potential Savings</div></div>
                 </div>
                 {/* Redundancy cards */}
                 {redundancies.map(([cat, syss]) => {
@@ -2569,7 +2569,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
                       return <React.Fragment key={`${proc.id}-${sys}-${i}`}>
                         {i > 0 && <div className="flex flex-col items-center shrink-0 px-1">
                           <span className="text-[14px]" style={{ color: isManual ? "var(--risk)" : "var(--success)" }}>{isManual ? "✋" : "→"}</span>
-                          <span className="text-[10px]" style={{ color: isManual ? "var(--risk)" : "var(--text-muted)" }}>{isManual ? "Manual" : "Auto"}</span>
+                          <span className="text-[9px]" style={{ color: isManual ? "var(--risk)" : "var(--text-muted)" }}>{isManual ? "Manual" : "Auto"}</span>
                         </div>}
                         <div className="rounded-lg px-3 py-2 shrink-0 text-center min-w-[100px]" style={{
                           background: matchedTech ? `${matchedTech.status === "Retire" ? "rgba(239,68,68,0.06)" : "var(--surface-2)"}` : "var(--bg)",
@@ -2605,7 +2605,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
               const notComp = techSystems.filter(s => s.apiReady === "Not Compatible").length;
               const readyPct = techSystems.length ? Math.round((ready / techSystems.length) * 100) : 0;
               return <div className="grid grid-cols-4 gap-3 mb-4">
-                <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[22px] font-extrabold" style={{ color: readyPct >= 60 ? "var(--success)" : readyPct >= 30 ? "var(--warning)" : "var(--risk)" }}>{readyPct}%</div><div className="text-[13px] text-[var(--text-muted)] uppercase">AI Ready</div></div>
+                <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold" style={{ color: readyPct >= 60 ? "var(--success)" : readyPct >= 30 ? "var(--warning)" : "var(--risk)" }}>{readyPct}%</div><div className="text-[13px] text-[var(--text-muted)] uppercase">AI Ready</div></div>
                 <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold text-[var(--success)]">{ready}</div><div className="text-[13px] text-[var(--text-muted)] uppercase">Ready</div></div>
                 <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold text-[var(--warning)]">{needsInv}</div><div className="text-[13px] text-[var(--text-muted)] uppercase">Needs Investment</div></div>
                 <div className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold text-[var(--risk)]">{notComp}</div><div className="text-[13px] text-[var(--text-muted)] uppercase">Not Compatible</div></div>
@@ -2734,7 +2734,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
             <div className="text-[15px] text-[var(--text-secondary)] mb-4">Define how each function works today and how they should work in the target operating model.</div>
             <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full text-[14px]"><thead><tr className="bg-[var(--surface-2)]">
               <th className="px-3 py-2 text-left text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Function</th>
-              {["Work Model", "Methodology", "Decision-Making", "Meeting Cadence", "Collaboration Tools"].map(h => <th key={h} className="px-1 py-2 text-center text-[11px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]" colSpan={2}>{h}<div className="flex justify-center gap-1 mt-0.5"><span className="text-[10px] text-[var(--accent-primary)]">Now</span><span className="text-[10px] text-[var(--success)]">Target</span></div></th>)}
+              {["Work Model", "Methodology", "Decision-Making", "Meeting Cadence", "Collaboration Tools"].map(h => <th key={h} className="px-1 py-2 text-center text-[11px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]" colSpan={2}>{h}<div className="flex justify-center gap-1 mt-0.5"><span className="text-[9px] text-[var(--accent-primary)]">Now</span><span className="text-[9px] text-[var(--success)]">Target</span></div></th>)}
             </tr></thead><tbody>
               {wowData.map((row, ri) => {
                 const update = (field: keyof Omit<WowRow, "func">, which: "current" | "target", val: string) => setWowData(prev => prev.map((r, i) => i === ri ? { ...r, [field]: { ...r[field], [which]: val } } : r));
@@ -2869,7 +2869,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
                     {/* Gauge */}
                     <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-6 text-center">
                       <div className="text-[14px] text-[var(--text-muted)] uppercase mb-2">Change Capacity Status</div>
-                      <div className="text-[36px] font-extrabold mb-1" style={{ color: statusColor }}>{status}</div>
+                      <div className="text-[32px] font-extrabold mb-1" style={{ color: statusColor }}>{status}</div>
                       <div className="h-4 bg-[var(--bg)] rounded-full overflow-hidden mx-auto max-w-[250px] mb-3">
                         <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(loadPct, 150)}%`, background: `linear-gradient(to right, "var(--success)", ${loadPct > 80 ? "var(--warning)" : "var(--success)"}, ${loadPct > 100 ? "var(--risk)" : "var(--success)"})` }} />
                       </div>
@@ -2886,7 +2886,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
                         { label: "Track Record", val: changeLoad.history, invert: false, desc: changeLoad.history >= 4 ? "Strong success history" : changeLoad.history >= 2 ? "Mixed results" : "Poor track record" },
                         { label: "Load", val: activeCount, invert: true, desc: `${activeCount} active initiative${activeCount !== 1 ? "s" : ""}`, raw: true },
                       ].map(d => <div key={d.label} className="rounded-xl p-3 bg-[var(--bg)] text-center">
-                        <div className="text-[18px] font-extrabold" style={{ color: d.raw ? (activeCount > capacity ? "var(--risk)" : "var(--success)") : (d.invert ? (d.val >= 4 ? "var(--risk)" : d.val >= 2 ? "var(--warning)" : "var(--success)") : (d.val >= 4 ? "var(--success)" : d.val >= 2 ? "var(--warning)" : "var(--risk)")) }}>{d.raw ? activeCount : d.val || "—"}</div>
+                        <div className="text-[17px] font-extrabold" style={{ color: d.raw ? (activeCount > capacity ? "var(--risk)" : "var(--success)") : (d.invert ? (d.val >= 4 ? "var(--risk)" : d.val >= 2 ? "var(--warning)" : "var(--success)") : (d.val >= 4 ? "var(--success)" : d.val >= 2 ? "var(--warning)" : "var(--risk)")) }}>{d.raw ? activeCount : d.val || "—"}</div>
                         <div className="text-[13px] font-semibold text-[var(--text-muted)] uppercase">{d.label}</div>
                         <div className="text-[12px] text-[var(--text-muted)]">{d.desc}</div>
                       </div>)}
@@ -2895,8 +2895,8 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
                     <div className="rounded-xl border border-[var(--accent-primary)]/20 bg-[rgba(212,134,10,0.04)] p-4">
                       <div className="text-[14px] font-bold text-[var(--accent-primary)] uppercase mb-2">Recommendation</div>
                       <div className="text-[14px] text-[var(--text-secondary)]">
-                        {loadPct > 120 ? `You are over capacity. Consider pausing or sequencing ${activeCount - capacity} initiative${activeCount - capacity > 1 ? "s" : ""}. Running too many changes simultaneously increases failure risk by 60%.` :
-                         loadPct > 80 ? "You are near capacity. Be cautious about adding new initiatives. Prioritize and sequence remaining changes carefully." :
+                        {loadPct > 120 ? `Organization appears over capacity. Consider pausing or sequencing ${activeCount - capacity} initiative${activeCount - capacity > 1 ? "s" : ""}. Running too many changes simultaneously increases failure risk by 60%.` :
+                         loadPct > 80 ? "Organization is approaching capacity. Consider prioritizing and sequencing remaining changes carefully before adding new initiatives." :
                          activeCount > 0 ? `You have room for ${capacity - activeCount} more concurrent initiative${capacity - activeCount > 1 ? "s" : ""}. Your change infrastructure can support additional transformation work.` :
                          "Enter your active change initiatives to assess capacity."}
                       </div>
@@ -2956,9 +2956,9 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
               return <>
                 {/* Glass KPI cards */}
                 <div className="grid grid-cols-3 gap-4 mb-6">
-                  <div className="kpi-glass"><div className="text-[24px] font-extrabold font-data text-[var(--text-primary)]" style={{ animation: "countUp 0.5s ease-out" }}>${fmtK(totalCur)}</div><div className="text-[13px] text-[var(--text-muted)] uppercase tracking-wider mt-1" style={{ fontFamily: "'Outfit', sans-serif" }}>Current Total</div></div>
-                  <div className="kpi-glass" style={{ background: "linear-gradient(135deg, rgba(14,165,233,0.08), rgba(19,27,46,0.9))" }}><div className="text-[24px] font-extrabold font-data" style={{ color: "#0EA5E9", animation: "countUp 0.5s ease-out" }}>${fmtK(totalTgt)}</div><div className="text-[13px] text-[var(--text-muted)] uppercase tracking-wider mt-1" style={{ fontFamily: "'Outfit', sans-serif" }}>Target Total</div></div>
-                  <div className="kpi-glass" style={{ background: `linear-gradient(135deg, ${delta <= 0 ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)"}, rgba(19,27,46,0.9))` }}><div className="flex items-center justify-center gap-2"><span className="text-[18px]">{delta <= 0 ? "↓" : "↑"}</span><span className="text-[24px] font-extrabold font-data" style={{ color: delta <= 0 ? "var(--success)" : "var(--risk)", animation: "countUp 0.5s ease-out" }}>${fmtK(Math.abs(delta))}</span></div><div className="text-[13px] text-[var(--text-muted)] uppercase tracking-wider mt-1" style={{ fontFamily: "'Outfit', sans-serif" }}>{delta <= 0 ? "Annual Savings" : "Additional Cost"}</div></div>
+                  <div className="kpi-glass"><div className="text-[24px] font-extrabold font-data text-[var(--text-primary)]" style={{ animation: "countUp 0.5s ease-out", fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace", fontWeight: 700 }}>${fmtK(totalCur)}</div><div className="text-[13px] text-[var(--text-muted)] uppercase tracking-wider mt-1" style={{ fontFamily: "'Outfit', sans-serif" }}>Current Total</div></div>
+                  <div className="kpi-glass" style={{ background: "linear-gradient(135deg, rgba(14,165,233,0.08), rgba(19,27,46,0.9))" }}><div className="text-[24px] font-extrabold font-data" style={{ color: "#0EA5E9", animation: "countUp 0.5s ease-out", fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace", fontWeight: 700 }}>${fmtK(totalTgt)}</div><div className="text-[13px] text-[var(--text-muted)] uppercase tracking-wider mt-1" style={{ fontFamily: "'Outfit', sans-serif" }}>Target Total</div></div>
+                  <div className="kpi-glass" style={{ background: `linear-gradient(135deg, ${delta <= 0 ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)"}, rgba(19,27,46,0.9))` }}><div className="flex items-center justify-center gap-2"><span className="text-[18px]">{delta <= 0 ? "↓" : "↑"}</span><span className="text-[24px] font-extrabold font-data" style={{ color: delta <= 0 ? "var(--success)" : "var(--risk)", animation: "countUp 0.5s ease-out", fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace", fontWeight: 700 }}>${fmtK(Math.abs(delta))}</span></div><div className="text-[13px] text-[var(--text-muted)] uppercase tracking-wider mt-1" style={{ fontFamily: "'Outfit', sans-serif" }}>{delta <= 0 ? "Annual Savings" : "Additional Cost"}</div></div>
                 </div>
                 {/* Premium table */}
                 <div className="overflow-x-auto rounded-2xl border border-[var(--border)]" style={{ boxShadow: "var(--shadow-2)" }}><table className="w-full"><thead><tr style={{ background: "linear-gradient(135deg, var(--surface-2), var(--surface-3))" }}>
@@ -2982,7 +2982,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
                       <td className="px-2 py-2 text-right">{inp("facilities")}</td><td className="px-2 py-2 text-right">{inp("facilitiesTgt", true)}</td>
                       <td className="px-3 py-3 text-right text-[16px] font-bold font-data text-[var(--text-primary)]">${fmtK(curTotal)}</td>
                       <td className="px-3 py-3 text-right text-[16px] font-bold font-data" style={{ color: "#0EA5E9" }}>${fmtK(tgtTotal)}</td>
-                      <td className="px-3 py-3 text-right"><span className="text-[16px] font-extrabold font-data px-2 py-0.5 rounded-lg" style={{ color: d <= 0 ? "var(--success)" : "var(--risk)", background: d <= 0 ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)" }}>{d <= 0 ? "" : "+"}{fmtK(d)}</span></td>
+                      <td className="px-3 py-3 text-right"><span className="text-[15px] font-extrabold font-data px-2 py-0.5 rounded-lg" style={{ color: d <= 0 ? "var(--success)" : "var(--risk)", background: d <= 0 ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)" }}>{d <= 0 ? "" : "+"}{fmtK(d)}</span></td>
                     </tr>;
                   })}
                 </tbody></table></div>
@@ -3017,8 +3017,8 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
                         <circle cx="50" cy="50" r={ringRadius} fill="none" stroke="var(--accent-primary)" strokeWidth="2" strokeDasharray={`2 ${ringCirc - 2}`} strokeDashoffset={ringCirc - (Math.min(100, benchPct / 1.5 * 100 / maxVal) / 100) * ringCirc} opacity="0.6" />
                       </svg>
                       <div className="absolute text-center" style={{ marginTop: -4 }}>
-                        <div className="text-[18px] font-extrabold font-data" style={{ color: gap > 0 ? "var(--risk)" : "var(--success)" }}>{gap > 0 ? "+" : ""}${Math.abs(gap)}</div>
-                        <div className="text-[10px] text-[var(--text-muted)] uppercase">gap</div>
+                        <div className="text-[17px] font-extrabold font-data" style={{ color: gap > 0 ? "var(--risk)" : "var(--success)" }}>{gap > 0 ? "+" : ""}${Math.abs(gap)}</div>
+                        <div className="text-[9px] text-[var(--text-muted)] uppercase">gap</div>
                       </div>
                     </div>
                     {/* Right: details */}
@@ -3154,8 +3154,8 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
                 <div className="grid grid-cols-2 gap-5">
                   {/* Current */}
                   <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4">
-                    <div className="text-[14px] font-bold text-[var(--text-muted)] uppercase mb-3">Current State</div>
-                    <div className="text-[28px] font-extrabold text-[var(--text-primary)] mb-3">${fmtK(curTotal)}<span className="text-[14px] text-[var(--text-muted)] font-normal ml-1">/year</span></div>
+                    <div className="text-[13px] font-semibold text-[var(--text-muted)] uppercase mb-3">Current State</div>
+                    <div className="text-[24px] font-extrabold text-[var(--text-primary)] mb-3">${fmtK(curTotal)}<span className="text-[14px] text-[var(--text-muted)] font-normal ml-1">/year</span></div>
                     {rows.map(r => <div key={r.label} className="mb-2">
                       <div className="flex justify-between text-[14px] mb-1"><span className="text-[var(--text-secondary)]">{r.label}</span><span className="font-semibold">${fmtK(r.cur)}</span></div>
                       <div className="h-2 bg-[var(--bg)] rounded-full overflow-hidden"><div className="h-full rounded-full" style={{ width: `${(r.cur / curTotal) * 100}%`, background: r.color }} /></div>
@@ -3164,7 +3164,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
                   {/* Target */}
                   <div className="rounded-xl border-2 border-[var(--accent-primary)]/30 bg-[var(--surface-2)] p-4">
                     <div className="text-[14px] font-bold text-[var(--accent-primary)] uppercase mb-3">Target State</div>
-                    <div className="text-[28px] font-extrabold text-[var(--accent-primary)] mb-3">${fmtK(tgtTotal)}<span className="text-[14px] text-[var(--text-muted)] font-normal ml-1">/year</span></div>
+                    <div className="text-[24px] font-extrabold text-[var(--accent-primary)] mb-3">${fmtK(tgtTotal)}<span className="text-[14px] text-[var(--text-muted)] font-normal ml-1">/year</span></div>
                     {rows.map(r => { const d = r.tgt - r.cur; return <div key={r.label} className="mb-2">
                       <div className="flex justify-between text-[14px] mb-1"><span className="text-[var(--text-secondary)]">{r.label}</span><span className="font-semibold">${fmtK(r.tgt)} <span className="text-[12px]" style={{ color: d <= 0 ? "var(--success)" : "var(--risk)" }}>({d <= 0 ? "" : "+"}{fmtK(d)})</span></span></div>
                       <div className="h-2 bg-[var(--bg)] rounded-full overflow-hidden"><div className="h-full rounded-full" style={{ width: `${(r.tgt / Math.max(curTotal, tgtTotal)) * 100}%`, background: r.color }} /></div>
@@ -3233,18 +3233,18 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
                 <div className="space-y-4">
                   <div className="text-[14px] font-bold text-[var(--text-muted)] uppercase">Business Case Summary</div>
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="rounded-xl p-4 bg-[var(--surface-2)] border border-[var(--border)] text-center"><div className="text-[22px] font-extrabold text-[var(--warning)]">${fmtK(investment)}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">Investment</div></div>
-                    <div className="rounded-xl p-4 bg-[var(--surface-2)] border border-[var(--border)] text-center"><div className="text-[22px] font-extrabold text-[var(--success)]">${fmtK(annualSavings)}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">Annual Savings</div></div>
-                    <div className="rounded-xl p-4 bg-[var(--surface-2)] border border-[var(--border)] text-center"><div className="text-[22px] font-extrabold text-[var(--accent-primary)]">{paybackMonths > 0 ? `${paybackMonths} mo` : "—"}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">Payback Period</div></div>
-                    <div className="rounded-xl p-4 bg-[var(--surface-2)] border border-[var(--border)] text-center"><div className="text-[22px] font-extrabold" style={{ color: roi > 0 ? "var(--success)" : "var(--risk)" }}>{roi}%</div><div className="text-[12px] text-[var(--text-muted)] uppercase">3-Year ROI</div></div>
+                    <div className="rounded-xl p-4 bg-[var(--surface-2)] border border-[var(--border)] text-center"><div className="text-[20px] font-extrabold text-[var(--warning)]">${fmtK(investment)}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">Investment</div></div>
+                    <div className="rounded-xl p-4 bg-[var(--surface-2)] border border-[var(--border)] text-center"><div className="text-[20px] font-extrabold text-[var(--success)]">${fmtK(annualSavings)}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">Annual Savings</div></div>
+                    <div className="rounded-xl p-4 bg-[var(--surface-2)] border border-[var(--border)] text-center"><div className="text-[20px] font-extrabold text-[var(--accent-primary)]">{paybackMonths > 0 ? `${paybackMonths} mo` : "—"}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">Payback Period</div></div>
+                    <div className="rounded-xl p-4 bg-[var(--surface-2)] border border-[var(--border)] text-center"><div className="text-[20px] font-extrabold" style={{ color: roi > 0 ? "var(--success)" : "var(--risk)" }}>{roi}%</div><div className="text-[12px] text-[var(--text-muted)] uppercase">3-Year ROI</div></div>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="rounded-xl p-4 border text-center" style={{ background: npv > 0 ? "rgba(16,185,129,0.06)" : "rgba(239,68,68,0.06)", borderColor: npv > 0 ? "rgba(16,185,129,0.2)" : "rgba(239,68,68,0.2)" }}>
-                      <div className="text-[22px] font-extrabold" style={{ color: npv > 0 ? "var(--success)" : "var(--risk)" }}>${fmtK(Math.round(npv))}</div>
+                      <div className="text-[20px] font-extrabold" style={{ color: npv > 0 ? "var(--success)" : "var(--risk)" }}>${fmtK(Math.round(npv))}</div>
                       <div className="text-[12px] text-[var(--text-muted)] uppercase">3-Year NPV</div>
                     </div>
                     <div className="rounded-xl p-4 bg-[var(--surface-2)] border border-[var(--border)] text-center">
-                      <div className="text-[22px] font-extrabold text-[var(--purple)]">{riskAdjustedRoi}%</div>
+                      <div className="text-[20px] font-extrabold text-[var(--purple)]">{riskAdjustedRoi}%</div>
                       <div className="text-[12px] text-[var(--text-muted)] uppercase">Risk-Adj. ROI (75%)</div>
                     </div>
                   </div>
@@ -3414,7 +3414,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
                 </div>
                 {/* Example pairs */}
                 <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4">
-                  <div className="text-[14px] font-bold text-[var(--text-muted)] uppercase mb-2">Example Leading → Lagging Pairs</div>
+                  <div className="text-[13px] font-semibold text-[var(--text-muted)] uppercase mb-2">Example Leading → Lagging Pairs</div>
                   <div className="space-y-1 text-[14px] text-[var(--text-secondary)]">
                     {[
                       ["Employee engagement score", "Voluntary attrition rate"],
@@ -3440,7 +3440,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
                 {hasData && <div className="grid grid-cols-2 gap-5 mb-4">
                   <div className="h-[260px]"><RadarViz data={PERF_HEALTH_DIMS.map(d => ({ subject: d.name, current: perfHealth[d.id] || 0, benchmark: 3.5, max: 5 }))} /></div>
                   <div className="flex flex-col justify-center">
-                    <div className="text-center mb-4"><div className="text-[42px] font-extrabold" style={{ color: avg >= 4 ? "var(--success)" : avg >= 3 ? "var(--warning)" : "var(--risk)" }}>{avg.toFixed(1)}</div><div className="text-[14px] text-[var(--text-muted)] uppercase">Overall OM Health</div><div className="text-[14px] font-semibold" style={{ color: avg >= 4 ? "var(--success)" : avg >= 3 ? "var(--accent-primary)" : "var(--risk)" }}>{avg >= 4 ? "Strong" : avg >= 3 ? "Developing" : avg >= 2 ? "Needs Attention" : "Critical"}</div></div>
+                    <div className="text-center mb-4"><div className="text-[32px] font-extrabold" style={{ color: avg >= 4 ? "var(--success)" : avg >= 3 ? "var(--warning)" : "var(--risk)" }}>{avg.toFixed(1)}</div><div className="text-[14px] text-[var(--text-muted)] uppercase">Overall OM Health</div><div className="text-[14px] font-semibold" style={{ color: avg >= 4 ? "var(--success)" : avg >= 3 ? "var(--accent-primary)" : "var(--risk)" }}>{avg >= 4 ? "Strong" : avg >= 3 ? "Developing" : avg >= 2 ? "Needs Attention" : "Critical"}</div></div>
                     <div className="grid grid-cols-2 gap-2">{PERF_HEALTH_DIMS.map(d => <div key={d.id} className="rounded-lg p-2 bg-[var(--bg)] text-center"><div className="text-[16px] font-bold" style={{ color: (perfHealth[d.id]||0) >= 4 ? "var(--success)" : (perfHealth[d.id]||0) >= 3 ? "var(--warning)" : "var(--risk)" }}>{perfHealth[d.id] || "—"}</div><div className="text-[11px] text-[var(--text-muted)]">{d.name}</div></div>)}</div>
                   </div>
                 </div>}
@@ -3494,11 +3494,11 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
               {(["Structure", "Process", "Technology", "People", "Governance"] as const).map(cat => {
                 const count = transChanges.filter(c => c.category === cat).length;
                 return <div key={cat} className="rounded-xl px-3 py-2 text-center" style={{ background: `${TRANS_CAT_COLORS[cat]}08`, border: `1px solid ${TRANS_CAT_COLORS[cat]}25` }}>
-                  <div className="text-[16px] font-extrabold" style={{ color: TRANS_CAT_COLORS[cat] }}>{count}</div>
+                  <div className="text-[15px] font-extrabold" style={{ color: TRANS_CAT_COLORS[cat] }}>{count}</div>
                   <div className="text-[12px] font-semibold" style={{ color: TRANS_CAT_COLORS[cat] }}>{cat}</div>
                 </div>;
               })}
-              <div className="rounded-xl px-3 py-2 bg-[var(--surface-2)] text-center ml-auto"><div className="text-[16px] font-extrabold text-[var(--text-primary)]">{transChanges.length}</div><div className="text-[12px] text-[var(--text-muted)]">Total</div></div>
+              <div className="rounded-xl px-3 py-2 bg-[var(--surface-2)] text-center ml-auto"><div className="text-[15px] font-extrabold text-[var(--text-primary)]">{transChanges.length}</div><div className="text-[12px] text-[var(--text-muted)]">Total</div></div>
             </div>
             {/* Change cards */}
             <div className="space-y-3">
@@ -3645,7 +3645,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
                     const isCritical = depth === criticalPath;
                     return <div key={change.id} className="rounded-lg border bg-[var(--surface-2)] p-3 flex items-center gap-3" style={{ borderTopColor: isCritical ? "var(--accent-primary)" : "var(--border)", borderRightColor: isCritical ? "var(--accent-primary)" : "var(--border)", borderBottomColor: isCritical ? "var(--accent-primary)" : "var(--border)", borderLeftWidth: isCritical ? 3 : 1, borderLeftColor: isCritical ? "var(--accent-primary)" : undefined }}>
                       <div className="flex-1">
-                        <div className="flex items-center gap-2"><span className="text-[14px] font-semibold text-[var(--text-primary)]">{change.name}</span>{isCritical && <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[rgba(212,134,10,0.1)] text-[var(--accent-primary)]">Critical Path</span>}</div>
+                        <div className="flex items-center gap-2"><span className="text-[14px] font-semibold text-[var(--text-primary)]">{change.name}</span>{isCritical && <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[rgba(212,134,10,0.1)] text-[var(--accent-primary)]">Critical Path</span>}</div>
                         <div className="flex gap-3 mt-1 text-[12px]">
                           {deps.length > 0 && <span className="text-[var(--text-muted)]">Needs: {deps.map(d => d.name).join(", ")}</span>}
                           {dependents.length > 0 && <span className="text-[var(--success)]">Enables: {dependents.map(d => d.name).join(", ")}</span>}
@@ -3703,7 +3703,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
               return <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4 mb-4">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[15px] font-bold text-[var(--text-primary)]">Approval Progress</span>
-                  <span className="text-[16px] font-extrabold" style={{ color: pct === 100 ? "var(--success)" : pct >= 50 ? "var(--warning)" : "var(--text-muted)" }}>{approved}/{total} approved</span>
+                  <span className="text-[15px] font-extrabold" style={{ color: pct === 100 ? "var(--success)" : pct >= 50 ? "var(--warning)" : "var(--text-muted)" }}>{approved}/{total} approved</span>
                 </div>
                 <div className="h-3 bg-[var(--bg)] rounded-full overflow-hidden"><div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: pct === 100 ? "var(--success)" : pct >= 50 ? "var(--warning)" : "var(--accent-primary)" }} /></div>
                 {pct === 100 && <div className="mt-2 text-[14px] text-[var(--success)] font-semibold">✓ All stakeholders have approved — ready for go-live</div>}
@@ -3836,7 +3836,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
             </div>
             {/* Review checklist */}
             <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4">
-              <div className="text-[14px] font-bold text-[var(--text-muted)] uppercase mb-3">Standard Review Checklist</div>
+              <div className="text-[13px] font-semibold text-[var(--text-muted)] uppercase mb-3">Standard Review Checklist</div>
               <div className="grid grid-cols-2 gap-2">{MGOV_REVIEW_CHECKLIST.map((q, i) => <div key={i} className="flex items-center gap-2 text-[14px] text-[var(--text-secondary)]"><span className="text-[var(--text-muted)]">☐</span>{q}</div>)}</div>
             </div>
             {/* Trigger conditions */}
@@ -3858,7 +3858,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
                 { label: "Under Review", val: mgovChangeReqs.filter(r => r.status === "Under Review").length, color: "var(--warning)" },
                 { label: "Approved", val: mgovChangeReqs.filter(r => r.status === "Approved" || r.status === "Implemented").length, color: "var(--success)" },
                 { label: "Rejected", val: mgovChangeReqs.filter(r => r.status === "Rejected").length, color: "var(--risk)" },
-              ].map(k => <div key={k.label} className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[18px] font-extrabold" style={{ color: k.color }}>{k.val}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">{k.label}</div></div>)}
+              ].map(k => <div key={k.label} className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[17px] font-extrabold" style={{ color: k.color }}>{k.val}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">{k.label}</div></div>)}
             </div>
             {/* Change log */}
             {mgovChangeReqs.length > 0 && <div className="overflow-x-auto rounded-lg border border-[var(--border)] mb-4"><table className="w-full text-[14px]"><thead><tr className="bg-[var(--surface-2)]">

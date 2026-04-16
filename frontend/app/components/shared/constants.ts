@@ -2,6 +2,44 @@ import { CDN_BASE, cb } from "../../../lib/cdn";
 
 export const COLORS = ["#D4860A","#C07030","#E8C547","#B8602A","#D97706","#F59E0B","#A0522D","#E09040"];
 
+/** Track colors — canonical source of truth (Dim 9: Vignelli) */
+export const TRACK_COLORS: Record<string, string> = {
+  S: "#22d3ee",  // Support — cyan
+  P: "#3B82F6",  // Professional — blue
+  M: "#F97316",  // Management — orange
+  E: "#ef4444",  // Executive — red
+  T: "#a78bfa",  // Technical — purple
+};
+
+/** Severity scale — emotional temperature (Dim 10: James Turrell) */
+export const SEVERITY_COLORS = {
+  critical: "#ef4444",  // hot red
+  warning: "#F97316",   // warm orange
+  info: "#3B82F6",      // cool blue
+  success: "#10B981",   // calm green
+} as const;
+
+/** Standardized spacing scale (Dim 9: Vignelli) — 4, 8, 12, 16, 20, 24, 32, 40, 48 */
+export const SPACING = [4, 8, 12, 16, 20, 24, 32, 40, 48] as const;
+
+/** Standardized border-radius (Dim 9: Vignelli) */
+export const RADIUS = {
+  badge: 4,
+  chip: 6,
+  button: 8,
+  input: 8,
+  card: 12,
+  modal: 16,
+} as const;
+
+/** Standardized transition durations (Dim 9: Vignelli) */
+export const DURATIONS = {
+  hover: '0.15s',
+  expand: '0.25s',
+  panel: '0.4s',
+  chart: '0.5s',
+} as const;
+
 export const TT: React.CSSProperties = { background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 15, color: "var(--text-primary)" };
 
 /* ─── Help System: MODULE_HELP ─── */

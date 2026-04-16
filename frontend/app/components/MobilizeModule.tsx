@@ -136,7 +136,7 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
       <div className="w-[40%] shrink-0 rounded-xl border border-[var(--border)] bg-[var(--surface-1)] flex flex-col overflow-hidden">
         <div className="px-3 py-2 border-b border-[var(--border)] text-[12px] text-[var(--text-muted)] font-bold uppercase tracking-wider flex items-center justify-between">
           <span>{fmt(filtered.length)} employees</span>
-          {model && <ModuleExportButton model={model} module="reskilling" label="Export" />}
+          {model && <ModuleExportButton model={model} module="reskilling" label="Export to Excel" />}
         </div>
         <div ref={listRef} className="flex-1 overflow-y-auto" onScroll={e => setScrollTop((e.target as HTMLDivElement).scrollTop)}>
           {filtered.length === 0 && <div className="text-center py-12"><div className="text-3xl mb-2 opacity-40">🔍</div><div className="text-[14px] text-[var(--text-muted)] mb-2">No employees match these filters</div><button onClick={clearFilters} className="text-[13px] text-[var(--accent-primary)] hover:underline">Clear all filters</button></div>}
@@ -150,7 +150,7 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
                   <div className="text-[11px] text-[var(--text-muted)] truncate">{p.current_role}{p.target_role !== p.current_role ? ` → ${p.target_role}` : ""}</div>
                 </div>
                 <span className="px-1.5 py-0.5 rounded text-[10px] font-bold shrink-0" style={{ background: priBg(p.priority), color: priColor(p.priority) }}>{p.priority}</span>
-                <div className="w-8 text-center shrink-0"><div className="text-[12px] font-bold" style={{ color: p.readiness_score >= 70 ? "var(--success)" : p.readiness_score >= 40 ? "var(--warning)" : "var(--risk)" }}>{p.readiness_score}</div><div className="text-[9px] text-[var(--text-muted)]">ready</div></div>
+                <div className="w-8 text-center shrink-0"><div className="text-[12px]" style={{ fontFamily:"'JetBrains Mono', 'IBM Plex Mono', monospace", fontWeight:700, color: p.readiness_score >= 70 ? "var(--success)" : p.readiness_score >= 40 ? "var(--warning)" : "var(--risk)" }}>{p.readiness_score}</div><div className="text-[9px] text-[var(--text-muted)]">ready</div></div>
                 <div className="w-10 text-right shrink-0 text-[11px] text-[var(--text-muted)]">{p.total_months > 0 ? `${p.total_months}mo` : "—"}</div>
               </div>;
             })}
@@ -169,7 +169,7 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
             {[{ label: "High Priority", count: fHigh, color: "var(--risk)" }, { label: "Medium Priority", count: fMed, color: "var(--warning)" }, { label: "Low Priority", count: fLow, color: "var(--success)" }].map(t => <div key={t.label} className="rounded-xl p-4 text-center border border-[var(--border)]">
               <div className="text-[12px] font-bold uppercase tracking-wider mb-1" style={{ color: t.color }}>{t.label}</div>
               <div className="text-[24px] font-extrabold text-[var(--text-primary)]">{fmt(t.count)}</div>
-              <div className="text-[11px] text-[var(--text-muted)]">{filtered.length > 0 ? Math.round(t.count / filtered.length * 100) : 0}%</div>
+              <div className="text-[11px] text-[var(--text-muted)]" style={{fontFamily:"'JetBrains Mono', 'IBM Plex Mono', monospace", fontWeight:700}}>{filtered.length > 0 ? (t.count / filtered.length * 100).toFixed(1) : "0.0"}%</div>
             </div>)}
           </div>
 
@@ -679,7 +679,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
           <div className="flex gap-2 ml-auto">
             <button onClick={() => { const id = `p${Date.now()}`; const colors = ["var(--accent-primary)","var(--warning)","var(--teal)","var(--amber)","var(--teal)","var(--purple)"]; setGanttPhases(prev => [...prev, { id, label: "New Phase", start: Math.max(0, ...prev.map(p => p.start + p.duration)), duration: 2, color: colors[prev.length % colors.length], activities: ["Define activities..."], status: "not_started" }]); }} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 hover:bg-[var(--accent-primary)]/5 transition-all">+ Add Phase</button>
             <button onClick={() => { const id = `m${Date.now()}`; setGanttMilestones(prev => [...prev, { id, label: "New Milestone", month: 6 }]); }} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:border-[var(--accent-primary)]/30 transition-all">+ Milestone</button>
-            {ganttEdited && <button onClick={() => setGanttPhases(defaultGanttPhases)} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">Reset</button>}
+            {ganttEdited && <button onClick={() => setGanttPhases(defaultGanttPhases)} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">Reset to Default</button>}
           </div>
         </div>
 
@@ -775,6 +775,8 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
       };
 
       return <div>
+        {/* Synthesis */}
+        <div style={{fontSize:13, color:'var(--text-secondary)', marginBottom:16, lineHeight:1.6}}>Across {workstreams.length} workstreams and {totalActs} activities, {completedActs} are complete ({overallPct}%). {atRiskActs > 0 ? `${atRiskActs} activit${atRiskActs === 1 ? "y is" : "ies are"} at risk or blocked.` : "No activities are currently at risk."} The highest-priority focus area is {workstreams.reduce((best, ws) => { const hp = ws.items.filter(a => a.priority === "High" && a.status !== "Complete").length; return hp > best.count ? { name: ws.name, count: hp } : best; }, { name: "—", count: 0 }).name}.</div>
         {/* Summary KPIs */}
         <div className="grid grid-cols-5 gap-3 mb-5">
           <KpiCard label="Workstreams" value={workstreams.length} /><KpiCard label="Activities" value={totalActs} /><KpiCard label="Complete" value={`${overallPct}%`} accent /><KpiCard label="At Risk" value={atRiskActs} /><KpiCard label="High Priority" value={workstreams.reduce((s, ws) => s + ws.items.filter(a => a.priority === "High").length, 0)} />
@@ -830,7 +832,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
     {sub === "adkar" && <div className="animate-tab-enter space-y-5">
       {/* Intro */}
       <div className="rounded-xl bg-[rgba(212,134,10,0.05)] border border-[rgba(212,134,10,0.15)] p-4">
-        <div className="text-[15px] font-bold text-[var(--accent-primary)] mb-2">ADKAR Change Management Framework</div>
+        <div className="text-[15px] font-bold text-[var(--accent-primary)] mb-2">ADKAR Change Management Framework<span style={{fontSize:10, color:'var(--text-muted)', marginLeft:4, cursor:'pointer'}}>Learn more</span></div>
         <div className="grid grid-cols-5 gap-2">
           {ADKAR_DIMS.map(dim => <div key={dim} className="rounded-lg p-2 text-center" style={{ background: `${ADKAR_COLORS[dim]}08`, border: `1px solid ${ADKAR_COLORS[dim]}20` }}>
             <div className="text-[16px] font-extrabold" style={{ color: ADKAR_COLORS[dim] }}>{dim[0]}</div>
@@ -940,7 +942,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
 
       {/* ─── ACTION PLAN ─── */}
       {adkarView === "actions" && <Card title="ADKAR Action Plan">
-        <div className="text-[15px] text-[var(--text-secondary)] mb-4">Prioritized actions based on barrier points. Resolve barriers in ADKAR sequence — you can{"'"}t skip ahead.</div>
+        <div className="text-[15px] text-[var(--text-secondary)] mb-4">Prioritized actions based on barrier points. Consider resolving barriers in ADKAR sequence for best results.</div>
         {/* Auto-generate from barrier points */}
         {(() => {
           const barriers = ADKAR_GROUPS.map(g => ({ group: g, barrier: getBarrierPoint(g), score: getBarrierPoint(g) ? getAdkarScore(g, getBarrierPoint(g)!).score : 5 })).filter(b => b.barrier).sort((a, b) => a.score - b.score);
@@ -1064,7 +1066,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
         } catch { /* ignore bad drag data */ }
       };
       return <div className="animate-tab-enter">
-        <Card title="Stakeholder Power/Interest Grid">
+        <Card title={<>Stakeholder Power/Interest Grid<span style={{fontSize:10, color:'var(--text-muted)', marginLeft:4, cursor:'pointer', fontWeight:400}}>Learn more</span></>}>
           <div className="text-[15px] text-[var(--text-secondary)] mb-4">Drag stakeholder cards between quadrants to reposition them. Changes are saved automatically.</div>
           <div className="grid grid-cols-2 gap-3">
             {quads.map(q => <div key={q.id} className="rounded-xl p-4 min-h-[160px] transition-all"
@@ -1146,7 +1148,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
                 <td className="px-2 py-2"><Badge color={r.category === "People" ? "amber" : r.category === "Technology" ? "indigo" : "gray"}>{r.category}</Badge></td>
                 <td className="px-2 py-2 text-center font-data">{r.prob}</td>
                 <td className="px-2 py-2 text-center font-data">{r.impact}</td>
-                <td className="px-2 py-2 text-center"><span className="font-bold font-data" style={{ color: riskColor(score) }}>{score}</span></td>
+                <td className="px-2 py-2 text-center"><span style={{ fontFamily:"'JetBrains Mono', 'IBM Plex Mono', monospace", fontWeight:700, color: riskColor(score) }}>{score}</span></td>
                 <td className="px-2 py-2 text-[var(--text-secondary)] text-[15px] max-w-[200px]">{r.mitigation}</td>
                 <td className="px-2 py-2 text-[var(--text-secondary)]">{r.owner}</td>
                 <td className="px-2 py-2"><span className="text-[15px] px-2 py-0.5 rounded-full font-semibold" style={{ color: r.status === "Mitigating" ? "var(--success)" : r.status === "Closed" ? "var(--text-muted)" : "var(--warning)", background: r.status === "Mitigating" ? "rgba(16,185,129,0.1)" : r.status === "Closed" ? "var(--surface-2)" : "rgba(245,158,11,0.1)" }}>{r.status}</span></td>

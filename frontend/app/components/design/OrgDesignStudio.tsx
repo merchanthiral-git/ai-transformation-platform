@@ -496,17 +496,14 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
 
       // What-If Simulation calculations
       const simDept = dept ? (() => {
-        const curSpan = dept.avgSpan || 1;
         const curLayers = dept.layers || 1;
         const curMgrs = dept.managers || 1;
         const curIcs = dept.ics || 0;
         const curHc = dept.headcount || 0;
-        // Simulate: adjust managers to hit target span, constrain layers
         const simMgrs = Math.max(2, Math.round(curIcs / simTargetSpan));
         const simHc = simMgrs + curIcs;
         const simLayers = Math.min(simMaxLayers, curLayers);
         const layerDelta = curLayers - simLayers;
-        // If reducing layers, reduce managers further
         const layerMgrReduction = layerDelta > 0 ? Math.floor(simMgrs * (layerDelta * 0.12)) : 0;
         const finalMgrs = Math.max(2, simMgrs - layerMgrReduction);
         const finalHc = finalMgrs + curIcs;
@@ -538,42 +535,201 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       // Benchmark check helper
       const benchColor = (val: number, min: number, max: number) => val >= min && val <= max ? "#34d399" : "#F97316";
 
+      // Track colors for pyramid bars
+      const DRILL_TRACK_COLORS: Record<string, string> = { E: "#ef4444", M: "#F97316", P: "#3B82F6", S: "#22d3ee", T: "#a78bfa" };
+      const DRILL_MONO = "'JetBrains Mono', 'IBM Plex Mono', monospace";
+
+      // Build pyramid data — only levels with at least 1 person in current or scenario
+      const pyramidLevels = ODS_LEVELS.map(l => {
+        const cN = dept?.levelDist?.[l] || 0;
+        const fN = deptFuture?.levelDist?.[l] || 0;
+        const comp = ODS_AVG_COMP[l] || 85000;
+        return { level: l, current: cN, scenario: fN, comp, totalCost: cN * comp, delta: fN - cN };
+      }).filter(lv => lv.current > 0 || lv.scenario > 0);
+
+      const maxPyramidHC = Math.max(...pyramidLevels.map(lv => Math.max(lv.current, lv.scenario)), 1);
+
+      // Cost concentration: top 3 levels by total cost
+      const costConcentration = [...pyramidLevels].sort((a, b) => b.totalCost - a.totalCost).slice(0, 3);
+      const totalDeptLevelCost = pyramidLevels.reduce((s, lv) => s + lv.totalCost, 0);
+
+      // KPI cards with scenario emphasis
+      const kpiData = [
+        { label: "Headcount", current: dept?.headcount || 0, scenario: simDept.hc, inv: true },
+        { label: "Avg Span", current: dept?.avgSpan || 0, scenario: simDept.span, inv: false },
+        { label: "Layers", current: dept?.layers || 0, scenario: simDept.layers, inv: true },
+        { label: "Managers", current: dept?.managers || 0, scenario: simDept.mgrs, inv: true },
+        { label: "FTE Ratio %", current: (dept?.fteRatio || 0) * 100, scenario: (deptFuture?.fteRatio || dept?.fteRatio || 0) * 100, inv: false },
+        { label: "Est. Cost ($M)", current: deptCost / 1e6, scenario: (deptCost + simDept.costDelta) / 1e6, inv: true },
+      ];
+
       return <div>
         <Card title="Department Deep Dive">
           <div className="flex items-center gap-2 mb-5">
-            <span className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Department:</span>
+            <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.08em", color: "#64748b" }}>Department:</span>
             <select value={selDept} onChange={e => setSelDept(Number(e.target.value))} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-[15px] font-semibold text-[var(--text-primary)] outline-none focus:border-[var(--accent-primary)] min-w-[200px]">
               {currentData.map((d, i) => <option key={d.name} value={i}>{d.name} — {d.headcount} HC</option>)}
             </select>
           </div>
-          {/* KPI cards with Current → Simulated when sliders are non-default */}
+          {/* KPI cards — Current → Scenario with scenario emphasized */}
           <div className="grid grid-cols-3 lg:grid-cols-6 gap-3 mb-5">
-            <OdsKpi label="Headcount" current={dept?.headcount || 0} future={simDept.hc} inv />
-            <OdsKpi label="Avg Span" current={dept?.avgSpan || 0} future={simDept.span} />
-            <OdsKpi label="Layers" current={dept?.layers || 0} future={simDept.layers} inv />
-            <OdsKpi label="Managers" current={dept?.managers || 0} future={simDept.mgrs} inv />
-            <OdsKpi label="FTE Ratio %" current={(dept?.fteRatio || 0) * 100} future={(deptFuture?.fteRatio || dept?.fteRatio || 0) * 100} />
-            <OdsKpi label="Est. Cost ($M)" current={deptCost / 1e6} future={(deptCost + simDept.costDelta) / 1e6} inv />
+            {kpiData.map(kpi => {
+              const diff = kpi.scenario - kpi.current;
+              const isGood = kpi.inv ? diff <= 0 : diff >= 0;
+              const changed = Math.abs(diff) > 0.01;
+              return <div key={kpi.label} style={{ background: "rgba(255,255,255,0.04)", borderRadius: 12, padding: "16px", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.08em", color: "#64748b", marginBottom: 8 }}>{kpi.label}</div>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+                  <span style={{ fontSize: 14, color: "#64748b", fontFamily: DRILL_MONO, fontWeight: 700 }}>{fmt(kpi.current)}</span>
+                  <span style={{ color: "#64748b", fontSize: 12 }}>→</span>
+                  <span style={{ fontSize: 24, fontWeight: 700, fontFamily: DRILL_MONO, color: changed ? (isGood ? "#34d399" : "#F97316") : "#e8ecf4" }}>{fmt(kpi.scenario)}</span>
+                </div>
+                {changed && <span style={{
+                  display: "inline-flex", alignItems: "center", gap: 3,
+                  marginTop: 4, padding: "2px 8px", borderRadius: 6,
+                  fontSize: 11, fontWeight: 700, fontFamily: DRILL_MONO,
+                  background: isGood ? "rgba(52,211,153,0.1)" : "rgba(249,115,22,0.1)",
+                  color: isGood ? "#34d399" : "#F97316",
+                }}>{diff > 0 ? "+" : ""}{fmt(diff)}</span>}
+              </div>;
+            })}
           </div>
         </Card>
 
         {/* Main content area with simulator side panel */}
         <div className="flex gap-4">
-          {/* Left: Level Distribution + Workforce Composition */}
+          {/* Left: Pyramid visualization */}
           <div className="flex-1 min-w-0">
             <Card title={`Level Distribution — ${dept?.name || ""}`}>
-              <div className="grid grid-cols-6 gap-3">{ODS_LEVELS.map(l => { const cN = dept?.levelDist?.[l] || 0; const fN = deptFuture?.levelDist?.[l] || 0; const comp = ODS_AVG_COMP[l] || 85000; return <div key={l} className="bg-[var(--surface-2)] rounded-xl p-4 border border-[var(--border)]">
-                <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-3">{l}</div>
-                <div className="flex justify-between text-[16px] font-extrabold mb-1"><span className="text-[var(--accent-primary)]">{cN}</span><span className="text-[var(--text-muted)]">→</span><span className="text-[var(--success)]">{fN}</span></div>
-                <DChip a={cN} b={fN} inv />
-                <div className="mt-2 pt-2 border-t border-[var(--border)]"><div className="text-[14px] text-[var(--text-muted)]">Avg comp: {fmtNum(comp)}</div><div className="text-[14px] text-[var(--text-muted)]">Cost: {fmtNum((cN * comp))}</div></div>
-              </div>; })}</div>
+              {/* Centered horizontal bar pyramid */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                {pyramidLevels.map(lv => {
+                  const trackChar = lv.level.charAt(0);
+                  const trackColor = DRILL_TRACK_COLORS[trackChar] || "#3B82F6";
+                  const currentWidth = (lv.current / maxPyramidHC) * 100;
+                  const scenarioWidth = (lv.scenario / maxPyramidHC) * 100;
+                  const maxBarPct = 70; // max bar width percentage
+
+                  return <div key={lv.level} style={{
+                    display: "grid", gridTemplateColumns: "60px 1fr 120px 60px",
+                    alignItems: "center", gap: 8, padding: "4px 0",
+                    transition: "background 0.15s ease-out",
+                  }}>
+                    {/* Level badge */}
+                    <div style={{
+                      display: "inline-flex", alignItems: "center", justifyContent: "center",
+                      padding: "3px 10px", borderRadius: 8,
+                      background: `${trackColor}15`, color: trackColor,
+                      fontSize: 12, fontWeight: 700, fontFamily: DRILL_MONO,
+                      letterSpacing: "0.03em", width: "fit-content",
+                    }}>
+                      {lv.level}
+                    </div>
+
+                    {/* Centered bar */}
+                    <div style={{ position: "relative", height: 28, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      {/* Current state — faded background bar */}
+                      <div style={{
+                        position: "absolute", height: 24, borderRadius: 6,
+                        width: `${(currentWidth / 100) * maxBarPct}%`,
+                        background: `${trackColor}25`,
+                        transition: "width 0.5s ease-out",
+                      }} />
+                      {/* Scenario state — solid bar overlaid */}
+                      <div style={{
+                        position: "absolute", height: 24, borderRadius: 6,
+                        width: `${(scenarioWidth / 100) * maxBarPct}%`,
+                        background: trackColor,
+                        opacity: 0.8,
+                        transition: "width 0.5s ease-out",
+                      }} />
+                      {/* HC count centered on bar */}
+                      <span style={{
+                        position: "relative", zIndex: 2,
+                        fontSize: 12, fontWeight: 700, fontFamily: DRILL_MONO,
+                        color: "rgba(255,255,255,0.9)",
+                        textShadow: "0 1px 3px rgba(0,0,0,0.5)",
+                      }}>
+                        {lv.current}
+                      </span>
+                    </div>
+
+                    {/* Cost info — muted mono */}
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ fontSize: 10, fontFamily: DRILL_MONO, fontWeight: 700, color: "#64748b" }}>
+                        ${Math.round(lv.comp / 1000)}K avg
+                      </div>
+                      <div style={{ fontSize: 10, fontFamily: DRILL_MONO, fontWeight: 700, color: "#64748b" }}>
+                        ${(lv.totalCost / 1e6).toFixed(1)}M total
+                      </div>
+                    </div>
+
+                    {/* Delta */}
+                    <div style={{ textAlign: "right" }}>
+                      {lv.delta !== 0 ? (
+                        <span style={{
+                          fontSize: 12, fontWeight: 700, fontFamily: DRILL_MONO,
+                          color: lv.delta < 0 ? "#34d399" : "#F97316",
+                        }}>
+                          {lv.delta > 0 ? "+" : ""}{lv.delta}
+                        </span>
+                      ) : (
+                        <span style={{ fontSize: 12, color: "#64748b" }}>—</span>
+                      )}
+                    </div>
+                  </div>;
+                })}
+              </div>
+
+              {/* Legend */}
+              <div style={{ display: "flex", gap: 16, marginTop: 12, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <div style={{ width: 16, height: 8, borderRadius: 3, background: "rgba(59,130,246,0.25)" }} />
+                  <span style={{ fontSize: 11, color: "#64748b" }}>Current</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <div style={{ width: 16, height: 8, borderRadius: 3, background: "rgba(59,130,246,0.8)" }} />
+                  <span style={{ fontSize: 11, color: "#64748b" }}>Scenario</span>
+                </div>
+              </div>
             </Card>
-            <Card title={`${dept?.name || ""} — Workforce Composition`}>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="rounded-xl p-4 bg-[var(--surface-2)] border border-[var(--border)]"><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-2">FTE vs Contractors</div><div className="flex gap-3 mb-2"><div><div className="text-xl font-extrabold text-[var(--accent-primary)]">{dept?.ftes || 0}</div><div className="text-[15px] text-[var(--text-muted)]">Full-Time</div></div><div><div className="text-xl font-extrabold text-[var(--warning)]">{dept?.contractors || 0}</div><div className="text-[15px] text-[var(--text-muted)]">Contractors</div></div></div><HBar value={dept?.ftes || 0} max={dept?.headcount || 1} color="var(--accent-primary)" /></div>
-                <div className="rounded-xl p-4 bg-[var(--surface-2)] border border-[var(--border)]"><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-2">Manager to IC Ratio</div><div className="text-xl font-extrabold text-[var(--text-primary)] mb-1">1 : {((dept?.ics || 0) / Math.max(dept?.managers || 1, 1)).toFixed(1)}</div><div className="text-[15px] text-[var(--text-muted)]">{dept?.managers || 0} managers overseeing {dept?.ics || 0} individual contributors</div></div>
-                <div className="rounded-xl p-4 bg-[var(--surface-2)] border border-[var(--border)]"><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-2">Dept Share</div><div className="text-xl font-extrabold text-[var(--text-primary)] mb-1">{cA.hc > 0 ? Math.round((dept?.headcount || 0) / cA.hc * 100) : 0}%</div><div className="text-[15px] text-[var(--text-muted)]">{dept?.headcount || 0} of {cA.hc} total headcount</div><HBar value={dept?.headcount || 0} max={cA.hc || 1} color="var(--purple)" /></div>
+
+            {/* Cost Concentration section */}
+            <Card title="Cost Concentration — Top 3 Levels">
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {costConcentration.map((lv, idx) => {
+                  const pct = totalDeptLevelCost > 0 ? (lv.totalCost / totalDeptLevelCost) * 100 : 0;
+                  const trackColor = DRILL_TRACK_COLORS[lv.level.charAt(0)] || "#3B82F6";
+                  return <div key={lv.level}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: "#64748b" }}>#{idx + 1}</span>
+                        <span style={{
+                          padding: "2px 8px", borderRadius: 6,
+                          background: `${trackColor}15`, color: trackColor,
+                          fontSize: 12, fontWeight: 700, fontFamily: DRILL_MONO,
+                        }}>{lv.level}</span>
+                        <span style={{ fontSize: 12, color: "#a3b1c6" }}>{lv.current} heads</span>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, fontFamily: DRILL_MONO, color: "#e8ecf4" }}>
+                          ${(lv.totalCost / 1e6).toFixed(1)}M
+                        </span>
+                        <span style={{ fontSize: 12, fontWeight: 700, fontFamily: DRILL_MONO, color: trackColor }}>
+                          {pct.toFixed(1)}%
+                        </span>
+                      </div>
+                    </div>
+                    <div style={{ height: 8, borderRadius: 4, background: "rgba(255,255,255,0.04)", overflow: "hidden" }}>
+                      <div style={{
+                        height: "100%", borderRadius: 4,
+                        width: `${pct}%`,
+                        background: trackColor, opacity: 0.7,
+                        transition: "width 0.5s ease-out",
+                      }} />
+                    </div>
+                  </div>;
+                })}
               </div>
             </Card>
           </div>
@@ -608,39 +764,39 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
                 <div className="flex justify-between text-[11px] text-[var(--text-muted)] mt-0.5"><span>2</span><span>8</span></div>
               </div>
 
-              {/* Simulated Impact box */}
+              {/* Simulated Impact box — colored values */}
               <div className="rounded-xl bg-[var(--surface-2)] border border-[var(--border)] p-3 space-y-2">
-                <div className="text-[12px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Simulated Impact</div>
+                <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.08em", color: "#64748b", marginBottom: 4 }}>Simulated Impact</div>
                 {[
-                  { label: "HC Change", value: `${simDept.hcDelta >= 0 ? "+" : ""}${simDept.hcDelta}`, good: simDept.hcDelta <= 0 },
+                  { label: "Headcount Change", value: `${simDept.hcDelta >= 0 ? "+" : ""}${simDept.hcDelta}`, good: simDept.hcDelta <= 0 },
                   { label: "Cost Impact", value: `${simDept.costPct >= 0 ? "+" : ""}${simDept.costPct.toFixed(1)}%`, good: simDept.costPct <= 0 },
                   { label: "New Span", value: `${simDept.span}:1`, good: simDept.span >= 6 && simDept.span <= 8 },
                   { label: "Layer Delta", value: `${simDept.layerDelta > 0 ? "-" : simDept.layerDelta < 0 ? "+" : ""}${Math.abs(simDept.layerDelta)}`, good: simDept.layerDelta >= 0 },
                 ].map(r => <div key={r.label} className="flex justify-between items-center text-[13px]">
                   <span className="text-[var(--text-muted)]">{r.label}</span>
-                  <span className="font-bold" style={{ color: r.good ? "#34d399" : "#F97316" }}>{r.value}</span>
+                  <span style={{ fontWeight: 700, fontFamily: DRILL_MONO, color: r.good ? "#34d399" : "#F97316" }}>{r.value}</span>
                 </div>)}
               </div>
             </div>
 
-            {/* Shape Assessment */}
+            {/* Shape Assessment — larger bars with counts */}
             <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-1)] p-5" style={{ boxShadow: "var(--shadow-1)" }}>
-              <div className="text-[12px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-3">Shape Assessment</div>
-              <div className="flex items-center gap-2 mb-3">
+              <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.08em", color: "#64748b", marginBottom: 12 }}>Shape Assessment</div>
+              <div className="flex items-center gap-2 mb-4">
                 <span className="px-2.5 py-1 rounded-full text-[13px] font-bold" style={{ background: `${shapeAssessment.color}20`, color: shapeAssessment.color }}>{shapeAssessment.shape}</span>
               </div>
-              {/* Mini shape visualization */}
-              <div className="space-y-1.5 mb-3">
+              {/* Larger shape visualization with counts */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 12 }}>
                 {[
                   { label: "Senior", pct: shapeAssessment.topPct, count: shapeAssessment.top },
                   { label: "Mid", pct: shapeAssessment.midPct, count: shapeAssessment.mid },
                   { label: "IC", pct: shapeAssessment.bottomPct, count: shapeAssessment.bottom },
-                ].map(tier => <div key={tier.label} className="flex items-center gap-2">
-                  <span className="text-[11px] text-[var(--text-muted)] w-10 text-right">{tier.label}</span>
-                  <div className="flex-1 h-3 rounded-full overflow-hidden" style={{ background: `${shapeAssessment.color}12` }}>
-                    <div className="h-full rounded-full transition-all duration-300" style={{ width: `${Math.max(tier.pct * 100, 4)}%`, background: shapeAssessment.color }} />
+                ].map(tier => <div key={tier.label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 11, color: "#64748b", width: 40, textAlign: "right" }}>{tier.label}</span>
+                  <div style={{ flex: 1, height: 16, borderRadius: 8, overflow: "hidden", background: `${shapeAssessment.color}12` }}>
+                    <div style={{ height: "100%", borderRadius: 8, transition: "width 0.3s ease-out", width: `${Math.max(tier.pct * 100, 6)}%`, background: shapeAssessment.color }} />
                   </div>
-                  <span className="text-[11px] text-[var(--text-muted)] w-6">{tier.count}</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, fontFamily: DRILL_MONO, color: "#e8ecf4", minWidth: 32, textAlign: "right" }}>{tier.count}</span>
                 </div>)}
               </div>
               <div className="text-[12px] text-[var(--text-secondary)] leading-relaxed">{shapeAssessment.desc}</div>
@@ -648,7 +804,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
 
             {/* vs. Industry Benchmark */}
             <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-1)] p-5" style={{ boxShadow: "var(--shadow-1)" }}>
-              <div className="text-[12px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-3">vs. Industry Benchmark</div>
+              <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.08em", color: "#64748b", marginBottom: 12 }}>vs. Industry Benchmark</div>
               <div className="space-y-3">
                 {[
                   { label: "Span of Control", current: dept?.avgSpan || 0, benchmark: "6-8:1", min: 6, max: 8 },
@@ -746,6 +902,22 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
         return { ...ins, severity, severityIcon, severityColor, headline, bodyRest, recommendation };
       });
 
+      // Sort: positive first, then info, then warnings, then critical — builds narrative tension
+      enrichedInsights.sort((a, b) => {
+        const order: Record<string, number> = { positive: 0, info: 1, warning: 2, alert: 3 };
+        return (order[a.type] ?? 1) - (order[b.type] ?? 1);
+      });
+
+      // Final action synthesis slide
+      enrichedInsights.push({
+        type: "info", title: "Your 3 Highest-Impact Actions",
+        body: `1. ${enrichedInsights.find(i => i.type === "alert" || i.type === "warning")?.recommendation || "Address structural issues first"}. 2. ${enrichedInsights.find(i => i.title.includes("Savings") || i.title.includes("Cost"))?.recommendation || "Review cost optimization opportunities"}. 3. ${enrichedInsights.find(i => i.title.includes("Span") || i.title.includes("Ratio"))?.recommendation || "Standardize management ratios across functions"}.`,
+        color: "#3B82F6", metric: "3", severity: "Action Plan", severityIcon: "\uD83C\uDFAF", severityColor: "#3B82F6",
+        headline: "Based on all insights, these three actions have the highest estimated ROI.",
+        bodyRest: "Prioritize in this order for maximum organizational impact.",
+        recommendation: "Present these to the executive team with supporting data from each insight slide."
+      });
+
       const currentInsight = enrichedInsights[insightSlide] || enrichedInsights[0];
       const totalSlides = enrichedInsights.length;
       const clampedSlide = Math.min(insightSlide, totalSlides - 1);
@@ -783,7 +955,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
             const pct = Math.round(d.headcount / Math.max(cA.hc, 1) * 100);
             return <div key={d.name} className="rounded-lg p-2 text-center" style={{ background: `${COLORS[i % COLORS.length]}15` }}>
               <div className="text-[10px] text-[var(--text-muted)] truncate">{d.name.split(" ")[0]}</div>
-              <div className="text-[14px] font-bold" style={{ color: COLORS[i % COLORS.length] }}>{pct}%</div>
+              <div className="text-[13px] font-bold" style={{ color: COLORS[i % COLORS.length] }}>{pct}%</div>
             </div>;
           })}</div>;
         }
@@ -824,7 +996,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
               { label: "Est. Cost", from: fmtNum(cA.cost), to: fmtNum(fA.cost) },
             ].map(m => <div key={m.label} className="text-center">
               <div className="text-[10px] text-[var(--text-muted)] uppercase mb-0.5">{m.label}</div>
-              <div className="text-[16px] font-bold">
+              <div className="text-[15px] font-bold">
                 <span className="text-[var(--accent-primary)]">{m.from}</span>
                 <span className="text-[var(--text-muted)] mx-1">→</span>
                 <span className="text-[var(--success)]">{m.to}</span>
@@ -841,9 +1013,9 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
 
         {/* Navigation controls */}
         <div className="flex items-center justify-end gap-2 mb-3">
-          <button onClick={() => setInsightSlide(Math.max(0, clampedSlide - 1))} disabled={clampedSlide === 0} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold border border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--accent-primary)] disabled:opacity-30 transition-all">←</button>
-          <span className="text-[14px] text-[var(--text-muted)] font-semibold px-2">{clampedSlide + 1} / {totalSlides}</span>
-          <button onClick={() => setInsightSlide(Math.min(totalSlides - 1, clampedSlide + 1))} disabled={clampedSlide === totalSlides - 1} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold border border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--accent-primary)] disabled:opacity-30 transition-all">→</button>
+          <button onClick={() => setInsightSlide(Math.max(0, clampedSlide - 1))} disabled={clampedSlide === 0} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold border border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--accent-primary)] disabled:opacity-30 transition-all">←</button>
+          <span className="text-[13px] text-[var(--text-muted)] font-semibold px-2">{clampedSlide + 1} / {totalSlides}</span>
+          <button onClick={() => setInsightSlide(Math.min(totalSlides - 1, clampedSlide + 1))} disabled={clampedSlide === totalSlides - 1} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold border border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--accent-primary)] disabled:opacity-30 transition-all">→</button>
         </div>
 
         {/* Slide */}
@@ -860,9 +1032,9 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
                   {currentInsight.severityIcon} {currentInsight.severity}
                 </span>
                 {/* Title */}
-                <h2 className="text-[22px] font-bold text-[var(--text-primary)] mb-2 leading-tight">{currentInsight.title}</h2>
+                <h2 className="text-[20px] font-bold text-[var(--text-primary)] mb-2 leading-tight">{currentInsight.title}</h2>
                 {/* Headline */}
-                <p className="text-[14px] text-[var(--text-secondary)] mb-3 leading-relaxed">{currentInsight.headline}</p>
+                <p className="text-[13px] text-[var(--text-secondary)] mb-3 leading-relaxed">{currentInsight.headline}</p>
                 {/* Body */}
                 <p className="text-[12px] text-[var(--text-muted)] mb-auto leading-relaxed">{currentInsight.bodyRest}</p>
                 {/* Recommendation box */}

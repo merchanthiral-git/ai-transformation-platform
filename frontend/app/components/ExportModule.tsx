@@ -87,8 +87,8 @@ export function ExportReport({ model, f, onBack, onNavigate, jobStates, simState
           { label: "Internal Fill", value: `${mp.internal_fill || 0} roles`, icon: "🏪" },
         ].map(k => <div key={k.label} className="bg-[var(--surface-2)] rounded-xl p-3 border border-[var(--border)] text-center transition-all hover:border-[var(--accent-primary)]/30 hover:translate-y-[-1px]">
           <div className="text-lg mb-1">{k.icon}</div>
-          <div className="text-[16px] font-extrabold text-[var(--text-primary)]">{String(k.value)}</div>
-          <div className="text-[14px] text-[var(--text-muted)] uppercase">{k.label}</div>
+          <div className="text-[17px] font-extrabold text-[var(--text-primary)]" style={{ fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}>{String(k.value)}</div>
+          <div className="text-[13px] text-[var(--text-muted)] uppercase">{k.label}</div>
         </div>)}
       </div>
     </Card>
@@ -98,23 +98,23 @@ export function ExportReport({ model, f, onBack, onNavigate, jobStates, simState
       <div className="grid grid-cols-4 gap-3 mb-2">
         <div className="bg-[var(--surface-2)] rounded-xl p-3 border border-[var(--border)] text-center">
           <div className="text-lg mb-1">✏️</div>
-          <div className="text-[16px] font-extrabold text-[var(--text-primary)]">{jobStates ? Object.values(jobStates).filter(s => s.deconSubmitted).length : 0}</div>
-          <div className="text-[14px] text-[var(--text-muted)] uppercase">Jobs Designed</div>
+          <div className="text-[17px] font-extrabold text-[var(--text-primary)]" style={{ fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}>{jobStates ? Object.values(jobStates).filter(s => s.deconSubmitted).length : 0}</div>
+          <div className="text-[13px] text-[var(--text-muted)] uppercase">Jobs Designed</div>
         </div>
         <div className="bg-[var(--surface-2)] rounded-xl p-3 border border-[var(--border)] text-center">
           <div className="text-lg mb-1">⚡</div>
-          <div className="text-[16px] font-extrabold text-[var(--text-primary)]">{simState?.scenario || "—"}</div>
-          <div className="text-[14px] text-[var(--text-muted)] uppercase">Active Scenario</div>
+          <div className="text-[17px] font-extrabold text-[var(--text-primary)]">{simState?.scenario || "—"}</div>
+          <div className="text-[13px] text-[var(--text-muted)] uppercase">Active Scenario</div>
         </div>
         <div className="bg-[var(--surface-2)] rounded-xl p-3 border border-[var(--border)] text-center">
           <div className="text-lg mb-1">📝</div>
-          <div className="text-[16px] font-extrabold text-[var(--text-primary)]">{decisionLog?.length || 0}</div>
-          <div className="text-[14px] text-[var(--text-muted)] uppercase">Decisions Logged</div>
+          <div className="text-[17px] font-extrabold text-[var(--text-primary)]" style={{ fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}>{decisionLog?.length || 0}</div>
+          <div className="text-[13px] text-[var(--text-muted)] uppercase">Decisions Logged</div>
         </div>
         <div className="bg-[var(--surface-2)] rounded-xl p-3 border border-[var(--border)] text-center">
           <div className="text-lg mb-1">⚠️</div>
-          <div className="text-[16px] font-extrabold text-[var(--text-primary)]">{riskRegister?.filter(r => r.status === "Open").length || 0}</div>
-          <div className="text-[14px] text-[var(--text-muted)] uppercase">Open Risks</div>
+          <div className="text-[17px] font-extrabold text-[var(--text-primary)]" style={{ fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}>{riskRegister?.filter(r => r.status === "Open").length || 0}</div>
+          <div className="text-[13px] text-[var(--text-muted)] uppercase">Open Risks</div>
         </div>
       </div>
     </Card>}
@@ -126,16 +126,16 @@ export function ExportReport({ model, f, onBack, onNavigate, jobStates, simState
         <div className="bg-[var(--surface-2)] rounded-xl p-5 border border-[var(--border)] text-center card-hover">
           <div className="text-3xl mb-2">📝</div>
           <div className="text-[15px] font-bold text-[var(--text-primary)] font-heading mb-1">Word Report</div>
-          <div className="text-[15px] text-[var(--text-muted)] mb-3">12-section narrative with data tables</div>
-          <button onClick={generateDocx} disabled={generating} className="px-5 py-2 rounded-xl text-[15px] font-semibold text-white disabled:opacity-50" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>{generating ? "Generating..." : "Download .docx"}</button>
+          <div className="text-[15px] text-[var(--text-muted)] mb-3">Board-ready 12-section narrative with data tables</div>
+          <button onClick={generateDocx} disabled={generating} className="px-5 py-2 rounded-xl text-[15px] font-semibold text-white disabled:opacity-50" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>{generating ? "Generating..." : "Export to .docx"}</button>
         </div>
 
         {/* AI Narrative */}
         <div className="bg-[var(--surface-2)] rounded-xl p-5 border border-[var(--border)] text-center card-hover">
           <div className="text-3xl mb-2">☕</div>
           <div className="text-[15px] font-bold text-[var(--text-primary)] font-heading mb-1">AI Narrative</div>
-          <div className="text-[15px] text-[var(--text-muted)] mb-3">Claude-generated board-ready narrative</div>
-          <button onClick={generateAiNarrative} disabled={generating} className="px-5 py-2 rounded-xl text-[15px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 hover:bg-[var(--accent-primary)]/5">{generating ? "Writing..." : "Generate .txt"}</button>
+          <div className="text-[15px] text-[var(--text-muted)] mb-3">Claude-generated board-ready narrative report</div>
+          <button onClick={generateAiNarrative} disabled={generating} className="px-5 py-2 rounded-xl text-[15px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 hover:bg-[var(--accent-primary)]/5">{generating ? "Writing..." : "Generate Board-Ready Report"}</button>
         </div>
 
         {/* Excel Workbook */}
@@ -308,7 +308,7 @@ Be specific with numbers from the data. Keep each item to 1-2 sentences max.`
         and projected impact from Simulate into a board-ready one-pager. Exportable as PDF.
       </p>
       <button onClick={generate} disabled={generating} className="px-6 py-3 rounded-2xl text-[14px] font-bold text-white transition-all hover:translate-y-[-2px] disabled:opacity-50" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", boxShadow: "var(--shadow-2)" }}>
-        {generating ? "Generating..." : "📊 Generate Executive Summary"}
+        {generating ? "Generating..." : "📊 Generate Board-Ready Summary"}
       </button>
     </div>}
 
@@ -337,8 +337,8 @@ Be specific with numbers from the data. Keep each item to 1-2 sentences max.`
             { label: "Net HC Δ", value: wf.net_change || 0 },
             { label: "Investment", value: fmtNum(bbba.total_investment || 0) },
           ].map(k => <div key={k.label} className="text-center bg-[var(--surface-1)] rounded-lg p-2 border border-[var(--border)]">
-            <div className="text-[14px] font-extrabold font-data text-[var(--accent-primary)]">{String(k.value)}</div>
-            <div className="text-[15px] text-[var(--text-muted)] uppercase">{k.label}</div>
+            <div className="text-[15px] font-extrabold text-[var(--accent-primary)]" style={{ fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}>{String(k.value)}</div>
+            <div className="text-[13px] text-[var(--text-muted)] uppercase">{k.label}</div>
           </div>)}
         </div>
 

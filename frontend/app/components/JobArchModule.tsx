@@ -811,10 +811,10 @@ function JobProfileLibrary({ jobs, model }: { jobs: Job[]; model: string }) {
         <div className="text-[14px] font-bold text-[var(--text-primary)] mb-1 truncate">{job.title}</div>
         <div className="text-[12px] text-[var(--text-muted)] mb-2">{job.function} · {job.level}</div>
         <div className="h-1.5 bg-[var(--bg)] rounded-full overflow-hidden"><div className="h-full rounded-full" style={{ width: `${pct}%`, background: pct >= 90 ? "var(--success)" : pct > 0 ? "var(--warning)" : "var(--text-muted)" }} /></div>
-        <div className="text-[11px] text-[var(--text-muted)] mt-1">{pct}% complete</div>
+        <div className="text-[11px] text-[var(--text-muted)] mt-1">{pct.toFixed(1)}% complete</div>
       </div>;
     })}</div> : <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full text-[14px]"><thead><tr className="bg-[var(--surface-2)]">
-      {["Title", "Function", "Family", "Level", "Track", "HC", "Status", "Complete", ""].map(h => <th key={h} className="px-2 py-2 text-left text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">{h}</th>)}
+      {["Title", "Function", "Family", "Level", "Track", "HC", "Status", "Complete", ""].map(h => <th key={h} className="px-2 py-2 text-left text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]" title={h === "HC" ? "Headcount" : undefined}>{h}</th>)}
     </tr></thead><tbody>
       {filteredJobs.map(job => {
         const badge = statusBadge(job.id);
@@ -839,7 +839,7 @@ function JobProfileLibrary({ jobs, model }: { jobs: Job[]; model: string }) {
    ═══════════════════════════════════════════════════════════════ */
 
 const EVAL_METHODOLOGIES = {
-  ipe: { name: "Mercer IPE-Style", factors: [
+  ipe: { name: "Mercer IPE", fullName: "International Position Evaluation", factors: [
     { id: "impact", name: "Impact", desc: "The degree to which the role impacts organizational outcomes", levels: ["Limited local impact", "Contributes to team results", "Impacts department outcomes", "Significant functional impact", "Shapes business unit direction", "Drives enterprise strategy", "Defines organizational direction", "Transforms industry/market"] },
     { id: "innovation", name: "Innovation", desc: "The level of creative thinking and problem-solving required", levels: ["Follows established procedures", "Minor improvements to processes", "Adapts methods to new situations", "Develops new approaches", "Creates novel solutions", "Innovates at organizational level", "Pioneers industry practices", "Redefines paradigms"] },
     { id: "knowledge", name: "Knowledge", desc: "The depth and breadth of expertise required", levels: ["Basic operational knowledge", "Working knowledge of discipline", "Solid functional expertise", "Deep specialist knowledge", "Multi-discipline mastery", "Strategic domain expertise", "Cross-functional authority", "Industry thought leadership"] },
@@ -919,7 +919,7 @@ function JobEvaluationTab({ jobs, model }: { jobs: Job[]; model: string }) {
     {/* Methodology selector */}
     <div className="flex items-center gap-3 mb-4">
       <span className="text-[9px] font-bold uppercase tracking-[0.08em] text-[#64748b]">Methodology:</span>
-      {(["ipe", "hay"] as const).map(m => <button key={m} onClick={() => setMethodology(m)} className="px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all" style={{ background: methodology === m ? "rgba(59,130,246,0.15)" : "rgba(255,255,255,0.04)", color: methodology === m ? "#3B82F6" : "#64748b", border: methodology === m ? "1px solid rgba(59,130,246,0.3)" : "1px solid rgba(255,255,255,0.08)" }}>{EVAL_METHODOLOGIES[m].name}</button>)}
+      {(["ipe", "hay"] as const).map(m => <button key={m} onClick={() => setMethodology(m)} className="px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all" style={{ background: methodology === m ? "rgba(59,130,246,0.15)" : "rgba(255,255,255,0.04)", color: methodology === m ? "#3B82F6" : "#64748b", border: methodology === m ? "1px solid rgba(59,130,246,0.3)" : "1px solid rgba(255,255,255,0.08)" }}>{EVAL_METHODOLOGIES[m].name}{m === "ipe" && <span style={{fontSize:10, color:'var(--text-muted)', marginLeft:4}}>(International Position Evaluation)</span>}</button>)}
       <div className="ml-auto flex gap-1 rounded-lg overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
         {(["score", "comparison", "batch"] as const).map(v => <button key={v} onClick={() => setEvalView(v)} className="px-3 py-1.5 text-[11px] font-semibold transition-all" style={{ background: evalView === v ? "rgba(59,130,246,0.2)" : "transparent", color: evalView === v ? "#3B82F6" : "#64748b" }}>{v === "score" ? "Score" : v === "comparison" ? "Compare" : "Batch AI"}</button>)}
       </div>
@@ -1094,7 +1094,7 @@ function CareerLatticeTab({ jobs, model }: { jobs: Job[]; model: string }) {
                         boxShadow: isSelected ? `0 0 12px ${tc}25` : "none",
                       }}>
                         <div className="text-[11px] font-bold truncate" style={{ color: isSelected ? tc : "var(--text-primary)" }}>{j.title}</div>
-                        <div className="text-[9px] text-[#64748b] truncate" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{j.headcount} HC</div>
+                        <div className="text-[9px] text-[#64748b] truncate" style={{ fontFamily: "'JetBrains Mono', monospace" }} title="Headcount">{j.headcount.toLocaleString()} HC</div>
                         {j.ai_impact === "High" && <span className="text-[8px] text-[#ef4444] font-bold">⚠ AI</span>}
                         {isPath && <div className="text-[9px] font-bold mt-0.5" style={{ color: pathType === "promotion" ? "#34d399" : pathType === "lateral" ? "#a78bfa" : "#3B82F6" }}>{pathType === "promotion" ? "↑ Promotion" : pathType === "lateral" ? "→ Lateral" : "↗ Cross"}</div>}
                       </button>;
@@ -1234,19 +1234,23 @@ function JAGovernanceTab({ jobs, employees, model }: { jobs: Job[]; employees: E
     {govView === "health" && <div className="space-y-5">
       {/* Health score ring + summary */}
       {(() => {
-        const hCol = healthScore >= 70 ? "#34d399" : healthScore >= 40 ? "#F59E0B" : "#ef4444";
+        const hCol = healthScore >= 70 ? "#34d399" : healthScore >= 50 ? "#F59E0B" : "#ef4444";
+        const hVerdict = healthScore >= 90 ? "Excellent" : healthScore >= 70 ? "Solid — minor gaps" : healthScore >= 50 ? "Needs work — structural risks present" : "Critical — architecture unreliable";
         const circ = 2 * Math.PI * 55;
         const dashOff = circ * (1 - healthScore / 100);
         return <div className="flex gap-5 items-center">
-          <div className="relative w-[130px] h-[130px] shrink-0">
-            <svg viewBox="0 0 130 130" className="w-full h-full">
-              <circle cx="65" cy="65" r="55" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="10" />
-              <circle cx="65" cy="65" r="55" fill="none" stroke={hCol} strokeWidth="10" strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={dashOff} transform="rotate(-90 65 65)" style={{ filter: `drop-shadow(0 0 6px ${hCol}30)`, transition: "stroke-dashoffset 0.8s ease" }} />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <div className="text-[32px] font-bold" style={{ fontFamily: "'JetBrains Mono', monospace", color: hCol }}>{healthScore}</div>
-              <div className="text-[9px] uppercase tracking-[0.08em] text-[#64748b]">Health</div>
+          <div>
+            <div className={`relative w-[130px] h-[130px] shrink-0${healthScore < 50 ? " health-pulse" : ""}`}>
+              <svg viewBox="0 0 130 130" className="w-full h-full">
+                <circle cx="65" cy="65" r="55" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="10" />
+                <circle cx="65" cy="65" r="55" fill="none" stroke={hCol} strokeWidth="10" strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={dashOff} transform="rotate(-90 65 65)" style={{ filter: `drop-shadow(0 0 6px ${hCol}30)`, transition: "stroke-dashoffset 0.8s ease" }} />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <div className="text-[32px] font-bold" style={{ fontFamily: "'JetBrains Mono', monospace", color: hCol }}>{healthScore}</div>
+                <div className="text-[9px] uppercase tracking-[0.08em] text-[#64748b]">Health</div>
+              </div>
             </div>
+            <div className="text-[10px] text-center mt-1" style={{ color: hCol, maxWidth: 130 }}>{hVerdict}</div>
           </div>
           <div className="grid grid-cols-4 gap-3 flex-1">
             {[
@@ -1469,7 +1473,7 @@ function JAIntelligenceTab({ jobs, employees, model }: { jobs: Job[]; employees:
       const singleInc = jobs.filter(j => j.headcount === 1);
       const slides = [
         { severity: "critical" as const, icon: "⚠", title: "Skills Data Gap", body: `${100 - jdPct}% of roles lack career path definitions. Without task-level data, the Work Design Lab cannot generate AI impact assessments or redeployment recommendations for these roles.`, stat: `${100 - jdPct}%`, statLabel: "Missing career paths", action: "Prioritize task mapping for the top 20 roles by headcount. Use the Job Content tab for bulk authoring with AI assistance." },
-        { severity: "warning" as const, icon: "◈", title: "Career Bottleneck P4→P5", body: "The P4 to P5 transition shows a 4.3:1 compression ratio versus the 2.5:1 industry benchmark. This creates a career ceiling that drives attrition at senior IC levels.", stat: "4.3:1", statLabel: "Compression ratio", action: "Create differentiated P4a/P4b sub-levels or introduce a Staff track to decompress the P4→P5 pipeline." },
+        { severity: "warning" as const, icon: "◈", title: "Career Bottleneck P4→P5", body: "The P4 to P5 transition shows a 4.3:1 compression ratio (4.3 people competing for every 1 position) versus the 2.5:1 industry benchmark. This creates a career ceiling that drives attrition at senior IC levels.", stat: "4.3:1", statLabel: "Compression ratio", action: "Create differentiated P4a/P4b sub-levels or introduce a Staff track to decompress the P4→P5 pipeline." },
         { severity: "warning" as const, icon: "◈", title: "Title Inconsistency Detected", body: "'Senior Analyst' appears in 4 different job families at different career levels. This creates confusion in internal mobility, compensation benchmarking, and career pathing.", stat: "4", statLabel: "Families affected", action: "Standardize the 'Senior Analyst' title to a single level (recommend P3) or differentiate with family-specific prefixes." },
         { severity: "info" as const, icon: "ℹ", title: "T-Track Level Gaps", body: "The Technical track is missing T1, T2, and T4 levels, creating no entry-level path into technical specialization. Early-career employees cannot access the T-track without lateral moves.", stat: "3", statLabel: "Missing levels", action: "Define T1-T2 entry roles (e.g., Associate Technologist, Technical Analyst) and T4 bridge roles to create a complete technical career ladder." },
         { severity: "positive" as const, icon: "✓", title: "Healthy Pyramid Shape", body: "The organization's level distribution follows a 62/25/13 ratio (IC/Manager/Executive), which is within the industry benchmark of 60-65% ICs, 20-28% managers, and 10-15% executives.", stat: "62%", statLabel: "IC ratio", action: "Maintain current distribution. Monitor for management layer creep during growth periods." },
@@ -1720,7 +1724,7 @@ function RoleNetworkTab({ jobs, model }: { jobs: Job[]; model: string }) {
               <div className="text-[12px] text-[var(--text-muted)]">{pair.a.function} · {pair.a.level} | {pair.b.function} · {pair.b.level}</div>
             </div>
             <div className="text-right shrink-0">
-              <div className="text-[16px] font-bold font-data" style={{ color: overlapColor }}>{pair.overlap}%</div>
+              <div className="text-[16px] font-bold font-data" style={{ color: overlapColor }}>{pair.overlap.toFixed(1)}%</div>
               <div className="text-[11px]" style={{ color: overlapColor }}>{overlapLabel}</div>
             </div>
           </div>;
@@ -1882,10 +1886,12 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
         { label: "Health", value: Number(analytics.health_score || 0), isHealth: true },
       ].map(k => {
         const healthScore = k.isHealth ? Number(k.value) : 0;
-        const healthColor = healthScore >= 70 ? "#34d399" : healthScore >= 40 ? "#F59E0B" : "#ef4444";
-        return <div key={k.label} className="rounded-xl p-3 border transition-all hover:bg-[rgba(255,255,255,0.07)]" style={{ background: "rgba(255,255,255,0.04)", border: `1px solid ${k.accent ? "rgba(59,130,246,0.25)" : "rgba(255,255,255,0.08)"}` }}>
+        const healthColor = healthScore >= 70 ? "#34d399" : healthScore >= 50 ? "#F59E0B" : "#ef4444";
+        const healthVerdict = healthScore >= 90 ? "Excellent" : healthScore >= 70 ? "Solid — minor gaps" : healthScore >= 50 ? "Needs work — structural risks present" : "Critical — architecture unreliable";
+        return <div key={k.label} className={`rounded-xl p-3 border transition-all hover:bg-[rgba(255,255,255,0.07)]${k.isHealth && healthScore < 50 ? " health-pulse" : ""}`} style={{ background: "rgba(255,255,255,0.04)", border: `1px solid ${k.accent ? "rgba(59,130,246,0.25)" : "rgba(255,255,255,0.08)"}` }}>
           <div className="text-[9px] font-bold uppercase tracking-[0.08em] text-[#64748b] mb-1">{k.label}</div>
           <div className="text-[20px] font-bold" style={{ fontFamily: "'JetBrains Mono', monospace", color: k.isHealth ? healthColor : "var(--text-primary)" }}>{k.isHealth ? `${k.value}/100` : k.value}</div>
+          {k.isHealth && <div className="text-[9px] mt-0.5" style={{ color: healthColor }}>{healthVerdict}</div>}
         </div>;
       })}
     </div>
@@ -1900,7 +1906,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
       { id: "evaluation", label: "▧ Evaluation" },
       { id: "lattice", label: "▤ Lattice" },
       { id: "jagovernance", label: "▦ Governance" },
-      { id: "intelligence", label: "◎ Intelligence" },
+      { id: "intelligence", label: "◎ Architecture Intelligence" },
       { id: "rolenet", label: "◍ Network" },
       { id: "compare", label: "◫ Compare" },
       { id: "content", label: "◧ Content" },
@@ -2030,7 +2036,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
             <div>
               <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-1">Key Statistics</div>
               <div className="grid grid-cols-2 gap-2">
-                <div className="bg-[var(--surface-2)] rounded-lg p-2 text-center"><div className="text-[14px] font-bold font-data text-[var(--text-primary)]">{selectedJob.headcount}</div><div className="text-[15px] text-[var(--text-muted)] uppercase">Headcount</div></div>
+                <div className="bg-[var(--surface-2)] rounded-lg p-2 text-center"><div className="text-[14px] font-bold font-data text-[var(--text-primary)]">{selectedJob.headcount.toLocaleString()}</div><div className="text-[15px] text-[var(--text-muted)] uppercase">Headcount</div></div>
                 <div className="bg-[var(--surface-2)] rounded-lg p-2 text-center"><div className="text-[14px] font-bold font-data text-[var(--text-primary)]">{aiData?.tasks.length || selectedJob.tasks_mapped}</div><div className="text-[15px] text-[var(--text-muted)] uppercase">Tasks Mapped</div></div>
               </div>
             </div>
@@ -2115,7 +2121,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
 
           {jobProfileTab === "ai" && <div className="space-y-4 pb-4 animate-tab-enter">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-16 h-16 rounded-xl flex items-center justify-center text-[22px] font-black font-data" style={{ background: `${aiDot(selectedJob.ai_impact)}15`, color: aiDot(selectedJob.ai_impact), border: `2px solid ${aiDot(selectedJob.ai_impact)}40` }}>{selectedJob.ai_score > 0 ? selectedJob.ai_score.toFixed(0) : "—"}</div>
+              <div className="w-16 h-16 rounded-xl flex items-center justify-center text-[22px] font-black font-data" style={{ background: `${aiDot(selectedJob.ai_impact)}15`, color: aiDot(selectedJob.ai_impact), border: `2px solid ${aiDot(selectedJob.ai_impact)}40` }}>{selectedJob.ai_score > 0 ? selectedJob.ai_score.toFixed(1) : "—"}</div>
               <div>
                 <div className="text-[14px] font-bold" style={{ color: aiDot(selectedJob.ai_impact) }}>{selectedJob.ai_impact} Impact</div>
                 <div className="text-[15px] text-[var(--text-muted)]">{selectedJob.tasks_mapped} tasks analyzed</div>
@@ -2171,7 +2177,8 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
     {/* ═══ VALIDATION TAB — Health dashboard with ring ═══ */}
     {tab === "validation" && (() => {
       const healthVal = Number(analytics.health_score || 0);
-      const healthCol = healthVal >= 70 ? "#34d399" : healthVal >= 40 ? "#F59E0B" : "#ef4444";
+      const healthCol = healthVal >= 70 ? "#34d399" : healthVal >= 50 ? "#F59E0B" : "#ef4444";
+      const healthVerdict = healthVal >= 90 ? "Excellent" : healthVal >= 70 ? "Solid — minor gaps" : healthVal >= 50 ? "Needs work — structural risks present" : "Critical — architecture unreliable";
       const circumference = 2 * Math.PI * 55;
       const dashOffset = circumference * (1 - healthVal / 100);
       const passCount = flags.filter(fl => fl.severity === "info" || fl.severity === "pass").length;
@@ -2182,7 +2189,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
         {/* Health Dashboard — ring + summary */}
         <div className="flex gap-5 mb-6 items-center">
           {/* Health Ring */}
-          <div className="relative w-[130px] h-[130px] shrink-0">
+          <div className={`relative w-[130px] h-[130px] shrink-0${healthVal < 50 ? " health-pulse" : ""}`}>
             <svg viewBox="0 0 130 130" className="w-full h-full">
               <circle cx="65" cy="65" r="55" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="10" />
               <circle cx="65" cy="65" r="55" fill="none" stroke={healthCol} strokeWidth="10" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={dashOffset} transform="rotate(-90 65 65)" style={{ filter: `drop-shadow(0 0 6px ${healthCol}30)`, transition: "stroke-dashoffset 0.8s ease" }} />
@@ -2192,6 +2199,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
               <div className="text-[9px] uppercase tracking-[0.08em] text-[#64748b]">Health</div>
             </div>
           </div>
+          <div className="text-[10px] text-center mt-1" style={{ color: healthCol, maxWidth: 130 }}>{healthVerdict}</div>
           {/* Summary cards */}
           <div className="flex gap-3 flex-1">
             {[
@@ -2419,6 +2427,8 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
 
     {tab === "content" && <div className="animate-tab-enter"><JobContentAuthoring model={model} f={f} /></div>}
 
+    <style>{`.health-pulse { animation: healthPulse 2s ease-in-out infinite; }
+    @keyframes healthPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }`}</style>
     <NextStepBar currentModuleId="jobarch" onNavigate={onNavigate || onBack} />
   </div>;
 }

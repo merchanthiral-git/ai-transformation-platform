@@ -479,16 +479,16 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode; 
 export function KpiCard({ label, value, accent, delta }: { label: string; value: string | number; accent?: boolean; delta?: string }) {
   const numVal = typeof value === "number" ? value : parseFloat(String(value).replace(/[^0-9.-]/g, ""));
   const isNum = !isNaN(numVal) && typeof value === "number";
-  return <motion.div className={`bg-[var(--surface-1)] border rounded-2xl px-5 py-4 ${accent ? "border-l-[3px] border-l-[var(--accent-primary)] border-[var(--border)]" : "border-[var(--border)]"}`} style={{ boxShadow: "var(--shadow-1)" }} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }} whileHover={{ y: -2, boxShadow: "var(--shadow-3)" }}>
+  return <motion.div className={`border rounded-xl px-5 py-4 ${accent ? "border-l-[3px] border-l-[var(--accent-primary)] border-[var(--border)]" : "border-[var(--border)]"}`} style={{ background: "rgba(255,255,255,0.04)", boxShadow: "var(--shadow-1)" }} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }} whileHover={{ y: -2, boxShadow: "var(--shadow-3)" }}>
     <div className="text-[14px] font-semibold text-[var(--text-muted)] uppercase tracking-[0.5px] mb-1.5 font-heading"><GlossaryTip term={label}>{label}</GlossaryTip></div>
-    <div className="text-[24px] font-extrabold text-[var(--text-primary)] tracking-tight font-data">{isNum ? <AnimatedNumber value={numVal} /> : (typeof value === "string" || typeof value === "number" ? value : String(value ?? "\u2014"))}</div>
+    <div className="text-[24px] text-[var(--text-primary)] tracking-tight font-data" style={{ fontFamily: "'JetBrains Mono', var(--font-data)", fontWeight: 700 }}>{isNum ? <AnimatedNumber value={numVal} /> : (typeof value === "string" || typeof value === "number" ? value : String(value ?? "\u2014"))}</div>
     {delta && <div className="text-[14px] font-semibold text-[var(--success)] mt-1.5">{delta}</div>}
   </motion.div>;
 }
 
-export function Card({ children, title }: { children: React.ReactNode; title?: string }) {
-  return <motion.div className="bg-[var(--surface-1)] border border-[var(--border)] rounded-2xl mb-5" style={{ padding: "var(--card-padding)", boxShadow: "var(--shadow-1)" }} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}>
-    {title && <h3 className="text-[18px] font-semibold text-[var(--text-primary)] pb-3 mb-4 border-b border-[var(--border)] font-heading">{title}</h3>}
+export function Card({ children, title }: { children: React.ReactNode; title?: React.ReactNode }) {
+  return <motion.div className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl mb-5" style={{ padding: "var(--card-padding)", boxShadow: "var(--shadow-1)" }} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}>
+    {title && <h3 className="text-[18px] font-semibold text-[var(--text-primary)] pb-3 mb-4 font-heading" style={{ borderBottom: '1px solid transparent', borderImage: 'linear-gradient(to right, rgba(255,255,255,0.08), transparent) 1' }}>{title}</h3>}
     {children}
   </motion.div>;
 }
@@ -510,7 +510,7 @@ export function Empty({ text, icon = "📭", action, onAction, subtitle, seconda
 
 export function Badge({ children, color = "gray" }: { children: React.ReactNode; color?: string }) {
   const s: Record<string, string> = { indigo: "bg-[rgba(212,134,10,0.15)] text-[var(--accent-primary)]", green: "bg-[rgba(16,185,129,0.15)] text-[var(--success)]", amber: "bg-[rgba(249,115,22,0.15)] text-[var(--warning)]", red: "bg-[rgba(239,68,68,0.15)] text-[var(--risk)]", purple: "bg-[rgba(139,92,246,0.15)] text-[var(--purple)]", gray: "bg-[rgba(163,177,198,0.12)] text-[var(--text-muted)]", teal: "bg-[rgba(14,165,233,0.15)] text-[#0EA5E9]" };
-  return <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[14px] font-semibold tracking-wide ${s[color] || s.gray}`}>{children}</span>;
+  return <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[14px] font-semibold tracking-wide ${s[color] || s.gray}`}>{children}</span>;
 }
 
 export function InsightPanel({ title, items, icon = "💡" }: { title: string; items: string[]; icon?: string }) {
@@ -576,7 +576,7 @@ export function NarrativePanel({ title, items }: { title: string; items: string[
 }
 
 export function TabBar({ tabs, active, onChange }: { tabs: { id: string; label: string }[]; active: string; onChange: (id: string) => void }) {
-  return <div className="flex border-b-2 border-[var(--border)] mb-6 gap-0 overflow-x-auto">{tabs.map(t => <button key={t.id} onClick={() => onChange(t.id)} className={`px-4 py-3 text-[15px] font-medium whitespace-nowrap -mb-[2px] border-b-2 transition-all btn-press ${active === t.id ? "text-[var(--accent-primary)] font-semibold border-[var(--accent-primary)]" : "text-[var(--text-muted)] border-transparent hover:text-[var(--text-secondary)] hover:border-[var(--border)]"}`}>{t.label}</button>)}</div>;
+  return <div className="flex mb-6 gap-1 overflow-x-auto">{tabs.map(t => <button key={t.id} onClick={() => onChange(t.id)} className={`px-4 py-2.5 text-[15px] font-medium whitespace-nowrap transition-all btn-press ${active === t.id ? "text-[var(--accent-primary)] font-semibold" : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"}`} style={active === t.id ? { background: 'rgba(212,134,10,0.08)', borderRadius: 8 } : undefined}>{t.label}</button>)}</div>;
 }
 
 export function SidebarSelect({ label, options, value, onChange }: { label?: string; options: string[]; value: string; onChange: (v: string) => void }) {
@@ -616,7 +616,7 @@ export function PageHeader({ icon, title, subtitle, onBack, moduleId, onUpload, 
     <div className="flex items-center justify-between flex-wrap gap-4">
       <div className="flex items-center gap-3">
         <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[var(--accent-primary)] to-[var(--teal)] flex items-center justify-center text-xl" style={{ boxShadow: "var(--shadow-1)" }}>{icon}</div>
-        <div><h1 className="text-[22px] font-extrabold text-[var(--text-primary)] tracking-tight font-heading">{title}</h1><p className="text-[16px] text-[var(--text-secondary)]">{subtitle}</p></div>
+        <div><h1 className="text-[22px] font-extrabold text-[var(--text-primary)] tracking-tight font-heading">{title}</h1><p className="text-[13px] text-[var(--text-secondary)]">{subtitle}</p></div>
         {moduleId && <InfoButton moduleId={moduleId} />}
       </div>
       <div className="flex items-center gap-2">

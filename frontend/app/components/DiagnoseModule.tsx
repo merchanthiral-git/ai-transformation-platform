@@ -198,7 +198,7 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
           </Card>
 
           {/* ═══ SPAN OF CONTROL — Distribution with view toggle ═══ */}
-          <Card title="Span of Control">
+          <Card title={<>Span of Control <span style={{fontSize:10, color:'var(--text-muted)', marginLeft:4}}>(each manager oversees ~N people)</span></>}>
             {/* View toggle */}
             <div className="flex gap-1 mb-3">
               {([["dist", "Distribution"], ["level", "By Level"], ["outlier", "Outliers"]] as const).map(([id, label]) =>
@@ -214,7 +214,7 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
                     const pct = (b.count / maxSpanCount) * 100;
                     const isHealthy = b.min >= 5 && b.max <= 10;
                     const isNarrow = b.max < 5;
-                    const color = isHealthy ? "var(--success)" : isNarrow ? "#3B82F6" : "var(--risk)";
+                    const color = isHealthy ? "var(--success)" : isNarrow ? "var(--warning)" : "var(--risk)";
                     return <div key={b.label} className="flex-1 flex flex-col items-center justify-end h-full">
                       <div className="text-[11px] font-data font-bold mb-1" style={{ color }}>{b.count || ""}</div>
                       <div className="w-full rounded-t-sm" style={{ height: `${Math.max(pct, 2)}%`, background: color, opacity: 0.75, minHeight: b.count > 0 ? 4 : 0 }} />
@@ -226,7 +226,7 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
                 </div>
                 {/* Healthy range indicator */}
                 <div className="mt-2 text-[12px] text-[var(--text-muted)] text-center">
-                  <span className="text-[var(--success)] font-semibold">{healthyPct}%</span> in healthy range (5-10) · <span className="text-[#3B82F6] font-semibold">{totalMgrs > 0 ? Math.round(narrowCount / totalMgrs * 100) : 0}%</span> narrow (&lt;5) · <span className="text-[var(--risk)] font-semibold">{totalMgrs > 0 ? Math.round(wideCount / totalMgrs * 100) : 0}%</span> wide (&gt;12)
+                  <span className="text-[var(--success)] font-semibold">{healthyPct}%</span> in healthy range (5-10) · <span className="text-[var(--warning)] font-semibold">{totalMgrs > 0 ? Math.round(narrowCount / totalMgrs * 100) : 0}%</span> narrow (&lt;5) · <span className="text-[var(--risk)] font-semibold">{totalMgrs > 0 ? Math.round(wideCount / totalMgrs * 100) : 0}%</span> wide (&gt;12)
                 </div>
               </>}
             </>}
@@ -260,11 +260,11 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
                   <span className="text-[var(--risk)] font-semibold">{allSpans.filter(s => s > 12).length}</span> overextended (&gt;12) · <span className="text-[#3B82F6] font-semibold">{allSpans.filter(s => s > 0 && s < 3).length}</span> too narrow (&lt;3)
                 </div>
                 <div className="space-y-1 max-h-[180px] overflow-y-auto">{outliers.map((o, i) => <div key={i} className="flex items-center gap-2 text-[12px] py-1 border-b border-[var(--border)]">
-                  <span className="w-2 h-2 rounded-full shrink-0" style={{ background: o.span > 12 ? "var(--risk)" : "#3B82F6" }} />
+                  <span className="w-2 h-2 rounded-full shrink-0" style={{ background: o.span > 12 ? "var(--risk)" : o.span < 5 ? "var(--warning)" : "#3B82F6" }} />
                   <span className="text-[var(--text-primary)] font-semibold truncate flex-1">{o.name}</span>
                   <span className="text-[var(--text-muted)] truncate" style={{ maxWidth: 80 }}>{o.dept}</span>
                   <span className="text-[var(--text-muted)] w-6">{o.level}</span>
-                  <span className="font-data font-bold w-6 text-right" style={{ color: o.span > 12 ? "var(--risk)" : "#3B82F6" }}>{o.span}</span>
+                  <span className="font-data font-bold w-6 text-right" style={{ color: o.span > 12 ? "var(--risk)" : o.span < 5 ? "var(--warning)" : "#3B82F6" }}>{o.span}</span>
                 </div>)}</div>
               </>}
             </>}
@@ -1640,12 +1640,12 @@ export function OrgHealthScorecard({ model, f, onBack, onNavigate, viewCtx }: { 
       {metrics.map(m => <div key={m.id} onClick={() => setExpandedMetric(expandedMetric === m.id ? null : m.id)} className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl p-4 cursor-pointer card-hover hover:border-[var(--accent-primary)]/40 transition-all">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-1.5">
-            <span className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider">{m.label}</span>
+            <span className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider">{m.label}{m.id === "span" && <span style={{fontSize:10, color:'var(--text-muted)', marginLeft:4, textTransform:'none'}}>(each manager oversees ~N people)</span>}</span>
             <MethodologyTrigger methodologyId={m.id === "span" ? "span_of_control" : m.id === "ai_readiness" ? "ai_readiness" : m.id === "high_ai" ? "ai_impact" : "org_health"} />
           </div>
           <div className="w-3 h-3 rounded-full" style={{ background: statusColor(m.status) }} />
         </div>
-        <div className="text-[22px] font-extrabold font-data text-[var(--text-primary)] mb-1">{m.value}</div>
+        <div className="text-[22px] font-extrabold font-data mb-1" style={{ color: m.status === "green" ? "var(--success)" : m.status === "amber" ? "var(--warning)" : "var(--risk)" }}>{m.value}</div>
         {/* Inline benchmark comparison */}
         {m.benchAvg > 0 && <div className="flex items-center gap-2 text-[15px] mb-1">
           <span className="text-[var(--text-muted)]">Industry avg:</span>

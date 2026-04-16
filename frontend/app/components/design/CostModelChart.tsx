@@ -29,8 +29,13 @@ const defaultData: LayerCostData[] = [
   { layer: "P3", currentHeadcount: 0, futureHeadcount: 0, avgComp: 115000 },
 ];
 
-const TEAL = "#1D9E75";
-const RED = "#E24B4A";
+const TRACK_COLORS: Record<string, string> = {
+  E: "#ef4444",
+  M: "#F97316",
+  P: "#3B82F6",
+  S: "#22d3ee",
+  T: "#a78bfa",
+};
 
 function formatCurrency(value: number): string {
   const abs = Math.abs(value);
@@ -54,27 +59,33 @@ interface ComputedRow {
   deltaPct: number;
 }
 
-function CostRow({
+const MONO = "'JetBrains Mono', 'IBM Plex Mono', monospace";
+
+function CostWaterfallRow({
   row,
-  maxAbsDelta,
+  maxCost,
+  totalCost,
   mode,
 }: {
   row: ComputedRow;
-  maxAbsDelta: number;
+  maxCost: number;
+  totalCost: number;
   mode: "absolute" | "perhead";
 }) {
   const [hovered, setHovered] = useState(false);
-  const barMaxWidth = 100;
-  const barWidth = maxAbsDelta > 0 ? (Math.abs(row.deltaCost) / maxAbsDelta) * barMaxWidth : 0;
-  const isGrowth = row.deltaCost > 0;
-  const barColor = row.deltaCost < 0 ? TEAL : row.deltaCost > 0 ? RED : "transparent";
-  const hcDelta = row.futureHeadcount - row.currentHeadcount;
+  const trackColor = TRACK_COLORS[row.layer.charAt(0)] || "#3B82F6";
+  const costPct = totalCost > 0 ? (row.currentCost / totalCost) * 100 : 0;
 
   const dispCurrent = mode === "absolute" ? formatCurrency(row.currentCost) : formatCurrency(row.avgComp);
   const dispFuture = mode === "absolute" ? formatCurrency(row.futureCost) : formatCurrency(row.futureAvgComp);
-  const dispDelta = mode === "absolute"
-    ? `${row.deltaCost <= 0 ? "" : "+"}${formatCurrency(row.deltaCost)}`
-    : `${row.futureAvgComp >= row.avgComp ? "+" : ""}${formatCurrency(row.futureAvgComp - row.avgComp)}`;
+
+  const currentBarWidth = maxCost > 0 ? (row.currentCost / maxCost) * 100 : 0;
+  const futureBarWidth = maxCost > 0 ? (row.futureCost / maxCost) * 100 : 0;
+
+  const delta = mode === "absolute" ? row.deltaCost : (row.futureAvgComp - row.avgComp);
+  const deltaSign = delta > 0 ? "+" : "";
+  const deltaColor = delta < 0 ? "#34d399" : delta > 0 ? "#F97316" : "#64748b";
+  const deltaArrow = delta < 0 ? "↓" : delta > 0 ? "↑" : "—";
 
   return (
     <div
@@ -82,108 +93,151 @@ function CostRow({
       onMouseLeave={() => setHovered(false)}
       style={{
         display: "grid",
-        gridTemplateColumns: "40px 120px 70px 80px 80px 80px 1fr",
+        gridTemplateColumns: "50px 100px 60px 1fr 80px 80px 70px 100px",
         alignItems: "center",
-        padding: "8px 12px",
-        borderRadius: 4,
-        background: hovered ? "var(--hover, rgba(255,255,255,0.03))" : "transparent",
-        transition: "background 0.15s ease",
+        padding: "10px 12px",
+        borderRadius: 8,
+        background: hovered ? "rgba(255,255,255,0.03)" : "transparent",
+        transition: "background 0.15s ease-out",
         position: "relative",
-        minHeight: 40,
+        minHeight: 48,
       }}
     >
-      {/* Layer */}
-      <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary, #e8ecf4)" }}>
+      {/* Layer badge */}
+      <div style={{
+        display: "inline-flex", alignItems: "center", justifyContent: "center",
+        padding: "3px 8px", borderRadius: 6,
+        background: `${trackColor}15`, color: trackColor,
+        fontSize: 12, fontWeight: 700, fontFamily: MONO,
+        letterSpacing: "0.03em",
+      }}>
         {row.layer}
       </div>
 
       {/* Headcount shift */}
-      <div style={{ fontSize: 13, fontFamily: "'IBM Plex Mono', monospace" }}>
-        <span style={{ color: "var(--text-primary, #e8ecf4)" }}>{row.currentHeadcount.toLocaleString()}</span>
-        <span style={{ color: "var(--text-muted, #7b8ba2)", margin: "0 4px" }}>&rarr;</span>
-        <span style={{ color: hcDelta < 0 ? RED : hcDelta > 0 ? TEAL : "var(--text-primary, #e8ecf4)" }}>
+      <div style={{ fontSize: 13, fontFamily: MONO, fontWeight: 700 }}>
+        <span style={{ color: "#e8ecf4" }}>{row.currentHeadcount.toLocaleString()}</span>
+        <span style={{ color: "#64748b", margin: "0 4px" }}>&rarr;</span>
+        <span style={{ color: row.futureHeadcount < row.currentHeadcount ? "#34d399" : row.futureHeadcount > row.currentHeadcount ? "#F97316" : "#e8ecf4" }}>
           {row.futureHeadcount.toLocaleString()}
         </span>
       </div>
 
       {/* Avg comp */}
-      <div style={{ fontSize: 12, color: "var(--text-muted, #7b8ba2)", fontFamily: "'IBM Plex Mono', monospace" }}>
+      <div style={{ fontSize: 11, color: "#64748b", fontFamily: MONO, fontWeight: 700 }}>
         {formatCurrency(row.avgComp)}
       </div>
 
-      {/* Current cost */}
-      <div style={{ fontSize: 13, color: "var(--text-primary, #e8ecf4)", fontFamily: "'IBM Plex Mono', monospace" }}>
+      {/* Cost waterfall bar */}
+      <div style={{ position: "relative", height: 24, display: "flex", alignItems: "center" }}>
+        {/* Current cost bar (background, 25% opacity) */}
+        <div style={{
+          position: "absolute", left: 0, top: 2, height: 20, borderRadius: 4,
+          width: `${currentBarWidth}%`,
+          background: `${trackColor}40`,
+          transition: "width 0.5s ease-out",
+        }} />
+        {/* Future cost bar (solid, overlaid) */}
+        <div style={{
+          position: "absolute", left: 0, top: 2, height: 20, borderRadius: 4,
+          width: `${futureBarWidth}%`,
+          background: trackColor,
+          opacity: 0.85,
+          transition: "width 0.5s ease-out",
+        }} />
+        {/* Cost labels on bars */}
+        {currentBarWidth > 15 && (
+          <div style={{
+            position: "absolute", left: 8, top: 4, fontSize: 10, fontFamily: MONO, fontWeight: 700,
+            color: "rgba(255,255,255,0.9)", zIndex: 2,
+          }}>
+            {dispCurrent}
+          </div>
+        )}
+      </div>
+
+      {/* Current $ */}
+      <div style={{ fontSize: 13, color: "#e8ecf4", fontFamily: MONO, fontWeight: 700, textAlign: "right" }}>
         {dispCurrent}
       </div>
 
-      {/* Future cost */}
-      <div style={{ fontSize: 13, color: "var(--text-primary, #e8ecf4)", fontFamily: "'IBM Plex Mono', monospace" }}>
+      {/* Future $ */}
+      <div style={{ fontSize: 13, color: "#e8ecf4", fontFamily: MONO, fontWeight: 700, textAlign: "right" }}>
         {dispFuture}
       </div>
 
-      {/* Delta */}
-      <div
-        style={{
-          fontSize: 13,
-          fontWeight: 500,
-          color: row.deltaCost < 0 ? TEAL : row.deltaCost > 0 ? RED : "var(--text-muted, #7b8ba2)",
-          fontFamily: "'IBM Plex Mono', monospace",
-        }}
-      >
-        {dispDelta}
+      {/* Delta with arrow */}
+      <div style={{
+        fontSize: 13, fontWeight: 700, fontFamily: MONO,
+        color: deltaColor, textAlign: "right",
+        display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 4,
+      }}>
+        <span style={{ fontSize: 14 }}>{deltaArrow}</span>
+        <span>{deltaSign}{formatCurrency(Math.abs(delta))}</span>
       </div>
 
-      {/* Delta bar */}
-      <div style={{ display: "flex", alignItems: "center", height: 14, position: "relative" }}>
-        <div style={{ position: "absolute", left: "50%", top: 0, bottom: 0, width: 1, background: "var(--border, #2a3350)" }} />
-        {row.deltaCost !== 0 && (
-          <div
-            style={{
-              position: "absolute",
-              height: 14,
-              borderRadius: 2,
-              background: barColor,
-              transition: "width 0.4s ease",
-              ...(isGrowth
-                ? { left: "50%", width: barWidth }
-                : { right: "50%", width: barWidth }),
-            }}
-          />
-        )}
+      {/* Impact: cost share progress bar */}
+      <div style={{ display: "flex", alignItems: "center", gap: 6, paddingLeft: 8 }}>
+        <div style={{
+          flex: 1, height: 6, borderRadius: 3,
+          background: "rgba(255,255,255,0.06)", overflow: "hidden",
+        }}>
+          <div style={{
+            height: "100%", borderRadius: 3,
+            width: `${Math.min(costPct, 100)}%`,
+            background: trackColor,
+            transition: "width 0.5s ease-out",
+          }} />
+        </div>
+        <span style={{ fontSize: 11, fontFamily: MONO, fontWeight: 700, color: "#64748b", minWidth: 36, textAlign: "right" }}>
+          {costPct.toFixed(1)}%
+        </span>
       </div>
 
       {/* Hover tooltip */}
       {hovered && mode === "absolute" && (
-        <div
-          style={{
-            position: "absolute",
-            top: "100%",
-            left: 40,
-            zIndex: 20,
-            background: "var(--surface-1, #131b2e)",
-            border: "1px solid var(--border, #2a3350)",
-            borderRadius: 8,
-            padding: "10px 14px",
-            fontSize: 12,
-            color: "var(--text-secondary, #a3b1c6)",
-            fontFamily: "'IBM Plex Mono', monospace",
-            lineHeight: 1.8,
-            boxShadow: "var(--shadow-3, 0 8px 24px rgba(0,0,0,0.12))",
-            whiteSpace: "nowrap",
-            pointerEvents: "none",
-          }}
-        >
-          <div>
-            Current: {row.currentHeadcount.toLocaleString()} heads &times; {formatCurrency(row.avgComp)} = {formatCurrency(row.currentCost)}
-          </div>
-          <div>
-            Future: {row.futureHeadcount.toLocaleString()} heads &times; {formatCurrency(row.futureAvgComp)} = {formatCurrency(row.futureCost)}
-          </div>
-          <div style={{ color: row.deltaCost < 0 ? TEAL : RED, fontWeight: 500 }}>
-            {row.deltaCost < 0 ? "Savings" : "Increase"}: {Math.abs(row.futureHeadcount - row.currentHeadcount).toLocaleString()} heads &times; {formatCurrency(row.futureAvgComp)} = {formatCurrency(Math.abs(row.deltaCost))}
+        <div style={{
+          position: "absolute", top: "100%", left: 50, zIndex: 20,
+          background: "#131b2e", border: "1px solid rgba(255,255,255,0.08)",
+          borderRadius: 12, padding: "12px 16px",
+          fontSize: 12, color: "#a3b1c6", fontFamily: MONO, fontWeight: 700,
+          lineHeight: 1.8, boxShadow: "0 8px 24px rgba(0,0,0,0.25)",
+          whiteSpace: "nowrap", pointerEvents: "none",
+        }}>
+          <div>Current: {row.currentHeadcount.toLocaleString()} heads &times; {formatCurrency(row.avgComp)} = {formatCurrency(row.currentCost)}</div>
+          <div>Future: {row.futureHeadcount.toLocaleString()} heads &times; {formatCurrency(row.futureAvgComp)} = {formatCurrency(row.futureCost)}</div>
+          <div style={{ color: row.deltaCost < 0 ? "#34d399" : "#F97316", fontWeight: 700 }}>
+            {row.deltaCost < 0 ? "Savings" : "Increase"}: {formatCurrency(Math.abs(row.deltaCost))}
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function SectionHeader({ label, subtotal }: { label: string; subtotal: string }) {
+  return (
+    <div style={{
+      display: "flex", alignItems: "center", gap: 12,
+      padding: "14px 12px 6px",
+    }}>
+      <span style={{
+        fontSize: 9, fontWeight: 700, letterSpacing: "0.08em",
+        textTransform: "uppercase", color: "#64748b",
+        whiteSpace: "nowrap",
+      }}>
+        {label}
+      </span>
+      <div style={{
+        flex: 1, height: 1,
+        background: "linear-gradient(to right, rgba(255,255,255,0.08), transparent)",
+      }} />
+      <span style={{
+        fontSize: 11, fontWeight: 700, fontFamily: MONO,
+        color: "#64748b", whiteSpace: "nowrap",
+      }}>
+        {subtotal}
+      </span>
     </div>
   );
 }
@@ -194,42 +248,101 @@ function SubtotalRow({ label, rows }: { label: string; rows: ComputedRow[] }) {
   const delta = futTotal - curTotal;
   const curHC = rows.reduce((s, r) => s + r.currentHeadcount, 0);
   const futHC = rows.reduce((s, r) => s + r.futureHeadcount, 0);
+  const deltaColor = delta < 0 ? "#34d399" : delta > 0 ? "#F97316" : "#64748b";
 
   return (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "40px 120px 70px 80px 80px 80px 1fr",
-        alignItems: "center",
-        padding: "8px 12px",
-        borderTop: "1px solid var(--border, #2a3350)",
-        fontWeight: 600,
-      }}
-    >
-      <div style={{ fontSize: 12, color: "var(--text-muted, #7b8ba2)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+    <div style={{
+      display: "grid",
+      gridTemplateColumns: "50px 100px 60px 1fr 80px 80px 70px 100px",
+      alignItems: "center",
+      padding: "10px 12px",
+      borderTop: "1px solid rgba(255,255,255,0.08)",
+      background: "rgba(255,255,255,0.02)",
+      fontWeight: 700,
+    }}>
+      <div style={{ fontSize: 11, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>
         {label}
       </div>
-      <div style={{ fontSize: 13, color: "var(--text-primary, #e8ecf4)", fontFamily: "'IBM Plex Mono', monospace" }}>
-        {curHC.toLocaleString()} <span style={{ color: "var(--text-muted, #7b8ba2)" }}>&rarr;</span> {futHC.toLocaleString()}
+      <div style={{ fontSize: 13, color: "#e8ecf4", fontFamily: MONO, fontWeight: 700 }}>
+        {curHC.toLocaleString()} <span style={{ color: "#64748b" }}>&rarr;</span> {futHC.toLocaleString()}
       </div>
       <div />
-      <div style={{ fontSize: 13, color: "var(--text-primary, #e8ecf4)", fontFamily: "'IBM Plex Mono', monospace" }}>
+      <div />
+      <div style={{ fontSize: 13, color: "#e8ecf4", fontFamily: MONO, fontWeight: 700, textAlign: "right" }}>
         {formatCurrency(curTotal)}
       </div>
-      <div style={{ fontSize: 13, color: "var(--text-primary, #e8ecf4)", fontFamily: "'IBM Plex Mono', monospace" }}>
+      <div style={{ fontSize: 13, color: "#e8ecf4", fontFamily: MONO, fontWeight: 700, textAlign: "right" }}>
         {formatCurrency(futTotal)}
       </div>
-      <div
-        style={{
-          fontSize: 13,
-          fontWeight: 600,
-          color: delta < 0 ? TEAL : delta > 0 ? RED : "var(--text-muted, #7b8ba2)",
-          fontFamily: "'IBM Plex Mono', monospace",
-        }}
-      >
+      <div style={{
+        fontSize: 13, fontWeight: 700, color: deltaColor,
+        fontFamily: MONO, textAlign: "right",
+      }}>
         {delta <= 0 ? "" : "+"}{formatCurrency(delta)}
       </div>
       <div />
+    </div>
+  );
+}
+
+function DonutChart({ segments, size = 140 }: { segments: { label: string; value: number; color: string }[]; size?: number }) {
+  const total = segments.reduce((s, seg) => s + seg.value, 0);
+  if (total === 0) return null;
+  const cx = size / 2;
+  const cy = size / 2;
+  const outerR = size / 2 - 4;
+  const innerR = outerR * 0.6;
+
+  let cumAngle = -Math.PI / 2;
+  const paths = segments.filter(s => s.value > 0).map((seg) => {
+    const angle = (seg.value / total) * 2 * Math.PI;
+    const startAngle = cumAngle;
+    const endAngle = cumAngle + angle;
+    cumAngle = endAngle;
+
+    const largeArc = angle > Math.PI ? 1 : 0;
+    const x1o = cx + outerR * Math.cos(startAngle);
+    const y1o = cy + outerR * Math.sin(startAngle);
+    const x2o = cx + outerR * Math.cos(endAngle);
+    const y2o = cy + outerR * Math.sin(endAngle);
+    const x1i = cx + innerR * Math.cos(endAngle);
+    const y1i = cy + innerR * Math.sin(endAngle);
+    const x2i = cx + innerR * Math.cos(startAngle);
+    const y2i = cy + innerR * Math.sin(startAngle);
+
+    const d = [
+      `M ${x1o} ${y1o}`,
+      `A ${outerR} ${outerR} 0 ${largeArc} 1 ${x2o} ${y2o}`,
+      `L ${x1i} ${y1i}`,
+      `A ${innerR} ${innerR} 0 ${largeArc} 0 ${x2i} ${y2i}`,
+      `Z`,
+    ].join(" ");
+
+    return <path key={seg.label} d={d} fill={seg.color} opacity={0.85} />;
+  });
+
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        {paths}
+        <text x={cx} y={cy - 6} textAnchor="middle" fill="#e8ecf4" fontSize={16} fontWeight={700} fontFamily={MONO}>
+          {formatCurrency(total)}
+        </text>
+        <text x={cx} y={cy + 10} textAnchor="middle" fill="#64748b" fontSize={9} fontWeight={600} letterSpacing="0.05em">
+          TOTAL COST
+        </text>
+      </svg>
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        {segments.filter(s => s.value > 0).map(seg => (
+          <div key={seg.label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 10, height: 10, borderRadius: 3, background: seg.color }} />
+            <span style={{ fontSize: 11, color: "#a3b1c6", fontWeight: 600 }}>{seg.label}</span>
+            <span style={{ fontSize: 11, fontFamily: MONO, fontWeight: 700, color: "#e8ecf4" }}>
+              {((seg.value / total) * 100).toFixed(1)}%
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -264,10 +377,12 @@ export default function CostModelChart({ data }: { data?: LayerCostData[] }) {
   const execRows = computed.filter((r) => r.layer.startsWith("E"));
   const mgtRows = computed.filter((r) => r.layer.startsWith("M"));
   const proRows = computed.filter((r) => r.layer.startsWith("P"));
-  const hasProRows = proRows.some((r) => r.futureHeadcount > 0);
+  const supRows = computed.filter((r) => r.layer.startsWith("S"));
+  const hasProRows = proRows.some((r) => r.currentHeadcount > 0 || r.futureHeadcount > 0);
+  const hasSupRows = supRows.some((r) => r.currentHeadcount > 0 || r.futureHeadcount > 0);
 
-  const maxAbsDelta = useMemo(
-    () => Math.max(...computed.map((r) => Math.abs(r.deltaCost)), 1),
+  const maxCost = useMemo(
+    () => Math.max(...computed.map((r) => Math.max(r.currentCost, r.futureCost)), 1),
     [computed]
   );
 
@@ -278,108 +393,133 @@ export default function CostModelChart({ data }: { data?: LayerCostData[] }) {
   const totalFutHC = computed.reduce((s, r) => s + r.futureHeadcount, 0);
   const costPerHeadCur = totalCurHC > 0 ? totalCurCost / totalCurHC : 0;
   const costPerHeadFut = totalFutHC > 0 ? totalFutCost / totalFutHC : 0;
+  const costShiftPct = totalCurCost > 0 ? ((totalFutCost - totalCurCost) / totalCurCost) * 100 : 0;
 
-  const cardStyle: React.CSSProperties = {
-    background: "var(--surface-2, #1a2340)",
-    borderRadius: 8,
-    padding: "12px 16px",
-    border: "1px solid var(--border, #2a3350)",
+  // Track cost totals for donut chart
+  const execCost = execRows.reduce((s, r) => s + r.currentCost, 0);
+  const mgtCost = mgtRows.reduce((s, r) => s + r.currentCost, 0);
+  const proCost = proRows.reduce((s, r) => s + r.currentCost, 0);
+  const supCost = supRows.reduce((s, r) => s + r.currentCost, 0);
+
+  const donutSegments = [
+    { label: "Executive", value: execCost, color: TRACK_COLORS.E },
+    { label: "Management", value: mgtCost, color: TRACK_COLORS.M },
+    { label: "Professional", value: proCost, color: TRACK_COLORS.P },
+    { label: "Support", value: supCost, color: TRACK_COLORS.S },
+  ];
+
+  const netColor = netSavings < 0 ? "#34d399" : netSavings > 0 ? "#F97316" : "#64748b";
+
+  const cardBase: React.CSSProperties = {
+    background: "rgba(255,255,255,0.04)",
+    borderRadius: 12,
+    padding: "16px 20px",
+    border: "1px solid rgba(255,255,255,0.08)",
   };
   const cardLabel: React.CSSProperties = {
-    fontSize: 11,
-    color: "var(--text-muted, #7b8ba2)",
-    textTransform: "uppercase",
-    letterSpacing: "0.05em",
-    marginBottom: 4,
+    fontSize: 9, fontWeight: 700, textTransform: "uppercase",
+    letterSpacing: "0.08em", color: "#64748b", marginBottom: 6,
   };
   const cardValue: React.CSSProperties = {
-    fontSize: 20,
-    fontWeight: 500,
-    color: "var(--text-primary, #e8ecf4)",
+    fontSize: 24, fontWeight: 700, fontFamily: MONO,
+    color: "#e8ecf4",
   };
 
   const headerCols: React.CSSProperties = {
     display: "grid",
-    gridTemplateColumns: "40px 120px 70px 80px 80px 80px 1fr",
-    padding: "6px 12px",
-    fontSize: 11,
-    fontWeight: 600,
-    textTransform: "uppercase",
-    letterSpacing: "0.05em",
-    color: "var(--text-muted, #7b8ba2)",
-    borderBottom: "1px solid var(--border, #2a3350)",
+    gridTemplateColumns: "50px 100px 60px 1fr 80px 80px 70px 100px",
+    padding: "8px 12px",
+    fontSize: 9, fontWeight: 700,
+    textTransform: "uppercase", letterSpacing: "0.08em",
+    color: "#64748b",
+    borderBottom: "1px solid rgba(255,255,255,0.08)",
+  };
+
+  const sectionSubtotal = (rows: ComputedRow[]) => {
+    const cur = rows.reduce((s, r) => s + r.currentCost, 0);
+    const fut = rows.reduce((s, r) => s + r.futureCost, 0);
+    const curHC = rows.reduce((s, r) => s + r.currentHeadcount, 0);
+    const futHC = rows.reduce((s, r) => s + r.futureHeadcount, 0);
+    return `${curHC.toLocaleString()} → ${futHC.toLocaleString()} HC · ${formatCurrency(cur)} → ${formatCurrency(fut)}`;
   };
 
   const renderSection = (title: string, rows: ComputedRow[], showSubtotal: boolean) => (
     <div>
-      <div
-        style={{
-          fontSize: 11,
-          fontWeight: 600,
-          letterSpacing: "0.08em",
-          textTransform: "uppercase",
-          color: "var(--text-muted, #7b8ba2)",
-          padding: "10px 12px 4px",
-        }}
-      >
-        {title}
-      </div>
+      <SectionHeader label={title} subtotal={sectionSubtotal(rows)} />
       {rows.map((r) => (
-        <CostRow key={r.layer} row={r} maxAbsDelta={maxAbsDelta} mode={mode} />
+        <CostWaterfallRow key={r.layer} row={r} maxCost={maxCost} totalCost={totalCurCost} mode={mode} />
       ))}
-      {showSubtotal && (
-        <SubtotalRow
-          label="Sub"
-          rows={rows}
-        />
-      )}
+      {showSubtotal && <SubtotalRow label="Sub" rows={rows} />}
     </div>
   );
 
   return (
     <div>
-      {/* Summary metric cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 20 }}>
-        <div style={cardStyle}>
-          <div style={cardLabel}>Current Total Cost</div>
-          <div style={cardValue}>{formatCurrency(totalCurCost)}</div>
-        </div>
-        <div style={cardStyle}>
-          <div style={cardLabel}>Future Total Cost</div>
-          <div style={cardValue}>{formatCurrency(totalFutCost)}</div>
-        </div>
-        <div style={cardStyle}>
-          <div style={cardLabel}>Net {netSavings <= 0 ? "Savings" : "Increase"}</div>
-          <div style={{ ...cardValue, color: netSavings <= 0 ? TEAL : RED }}>
-            {netSavings > 0 ? "+" : ""}{formatCurrency(netSavings)}
+      {/* Top summary cards + donut */}
+      <div style={{ display: "flex", gap: 16, marginBottom: 20, alignItems: "flex-start" }}>
+        {/* 5 stat cards */}
+        <div style={{ flex: 1, display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
+          <div style={cardBase}>
+            <div style={cardLabel}>Current Total Cost</div>
+            <div style={cardValue}>{formatCurrency(totalCurCost)}</div>
           </div>
-        </div>
-        <div style={cardStyle}>
-          <div style={cardLabel}>Cost Per Head (avg)</div>
-          <div style={cardValue}>
-            {formatCurrency(costPerHeadCur)}{" "}
-            <span style={{ color: "var(--text-muted, #7b8ba2)", fontSize: 14 }}>&rarr;</span>{" "}
-            {formatCurrency(costPerHeadFut)}
+          <div style={cardBase}>
+            <div style={cardLabel}>Future Total Cost</div>
+            <div style={cardValue}>{formatCurrency(totalFutCost)}</div>
+          </div>
+          <div style={cardBase}>
+            <div style={cardLabel}>Net {netSavings <= 0 ? "Savings" : "Increase"}</div>
+            <div style={{ ...cardValue, fontSize: 28, color: netColor }}>
+              {netSavings > 0 ? "+" : ""}{formatCurrency(netSavings)}
+            </div>
+          </div>
+          <div style={cardBase}>
+            <div style={cardLabel}>Cost Per Head (avg)</div>
+            <div style={cardValue}>
+              {formatCurrency(costPerHeadCur)}
+              <span style={{ color: "#64748b", fontSize: 14, margin: "0 4px" }}>&rarr;</span>
+              {formatCurrency(costPerHeadFut)}
+            </div>
+          </div>
+          <div style={cardBase}>
+            <div style={cardLabel}>Cost Shift %</div>
+            <div style={{ ...cardValue, color: netColor }}>
+              {costShiftPct >= 0 ? "+" : ""}{costShiftPct.toFixed(1)}%
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Toggle */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+      {/* Donut chart for cost distribution */}
+      {donutSegments.some(s => s.value > 0) && (
+        <div style={{
+          ...cardBase, marginBottom: 20, display: "flex", alignItems: "center",
+          justifyContent: "center", padding: "20px 32px",
+        }}>
+          <div>
+            <div style={cardLabel}>Cost Distribution by Track</div>
+            <DonutChart segments={donutSegments} size={140} />
+          </div>
+        </div>
+      )}
+
+      {/* Toggle — segmented pill control */}
+      <div style={{
+        display: "inline-flex", alignItems: "center",
+        background: "rgba(255,255,255,0.04)", borderRadius: 10,
+        border: "1px solid rgba(255,255,255,0.08)",
+        padding: 3, marginBottom: 16,
+      }}>
         {(["absolute", "perhead"] as const).map((m) => (
           <button
             key={m}
             onClick={() => setMode(m)}
             style={{
-              padding: "5px 14px",
-              borderRadius: 6,
-              fontSize: 13,
-              fontWeight: 500,
-              border: "1px solid var(--border, #2a3350)",
-              background: mode === m ? "var(--accent-primary, #D4860A)" : "transparent",
-              color: mode === m ? "#fff" : "var(--text-secondary, #a3b1c6)",
-              cursor: "pointer",
-              transition: "all 0.15s ease",
+              padding: "6px 18px", borderRadius: 8,
+              fontSize: 13, fontWeight: 600, border: "none",
+              background: mode === m ? "rgba(59,130,246,0.15)" : "transparent",
+              color: mode === m ? "#3B82F6" : "#64748b",
+              cursor: "pointer", transition: "all 0.15s ease-out",
             }}
           >
             {m === "absolute" ? "Absolute" : "Per Head"}
@@ -390,40 +530,31 @@ export default function CostModelChart({ data }: { data?: LayerCostData[] }) {
       {/* Column headers */}
       <div style={headerCols}>
         <div>Layer</div>
-        <div>HC Current &rarr; Future</div>
+        <div>HC Current → Future</div>
         <div>Avg Comp</div>
-        <div>{mode === "absolute" ? "Current $" : "Comp (C)"}</div>
-        <div>{mode === "absolute" ? "Future $" : "Comp (F)"}</div>
-        <div>Delta</div>
-        <div style={{ textAlign: "center" }}>Impact</div>
+        <div>Cost Waterfall</div>
+        <div style={{ textAlign: "right" }}>{mode === "absolute" ? "Current $" : "Comp (C)"}</div>
+        <div style={{ textAlign: "right" }}>{mode === "absolute" ? "Future $" : "Comp (F)"}</div>
+        <div style={{ textAlign: "right" }}>Delta</div>
+        <div style={{ textAlign: "center" }}>% of Total</div>
       </div>
 
       {/* Executive layers */}
       {execRows.length > 0 && renderSection("Executive layers", execRows, true)}
 
-      {/* Divider */}
-      <div style={{ height: 1, background: "var(--border, #2a3350)", margin: "4px 0" }} />
-
       {/* Management layers */}
       {mgtRows.length > 0 && renderSection("Management layers", mgtRows, true)}
 
-      {/* Professional layers (only if any have non-zero future) */}
-      {hasProRows && (
-        <>
-          <div style={{ height: 1, background: "var(--border, #2a3350)", margin: "4px 0" }} />
-          {renderSection("Professional layers", proRows.filter((r) => r.currentHeadcount > 0 || r.futureHeadcount > 0), true)}
-        </>
-      )}
+      {/* Professional layers */}
+      {hasProRows && renderSection("Professional layers", proRows.filter((r) => r.currentHeadcount > 0 || r.futureHeadcount > 0), true)}
+
+      {/* Support layers */}
+      {hasSupRows && renderSection("Support layers", supRows.filter((r) => r.currentHeadcount > 0 || r.futureHeadcount > 0), true)}
 
       {/* Methodology note */}
-      <div
-        style={{
-          fontSize: 12,
-          color: "var(--text-muted, #7b8ba2)",
-          marginTop: 16,
-          fontStyle: "italic",
-        }}
-      >
+      <div style={{
+        fontSize: 12, color: "#64748b", marginTop: 16, fontStyle: "italic",
+      }}>
         Cost = headcount &times; fully-loaded compensation (base + 25% benefits + overhead). Future cost reflects scenario adjustments.
       </div>
     </div>

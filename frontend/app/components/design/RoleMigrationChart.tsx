@@ -130,7 +130,8 @@ function DeptRow({
                 justifyContent: "center",
                 color: "#fff",
                 fontSize: 11,
-                fontWeight: 500,
+                fontWeight: 700,
+                fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace",
               }}
             >
               {seg.count}
@@ -381,7 +382,7 @@ export default function RoleMigrationChart({
                 {card.label}
               </span>
             </div>
-            <div style={{ fontSize: 22, fontWeight: 500, color: card.color }}>
+            <div style={{ fontSize: 20, fontWeight: 700, color: card.color, fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}>
               {card.value}
             </div>
           </div>
