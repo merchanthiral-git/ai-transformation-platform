@@ -894,15 +894,45 @@ export function AiEspressoPanel({ moduleId, contextData, isGlobal = false }: { m
   </div>;
 }
 
+/** Playground stick figure on a swing — animated SVG icon */
+function PlaygroundIcon() {
+  return <svg viewBox="0 0 32 32" width="28" height="28" fill="none" style={{ overflow: "visible" }}>
+    {/* Swing ropes */}
+    <line x1="10" y1="2" x2="16" y2="12" stroke="rgba(255,255,255,0.5)" strokeWidth="0.8" />
+    <line x1="22" y1="2" x2="16" y2="12" stroke="rgba(255,255,255,0.5)" strokeWidth="0.8" />
+    {/* Top bar */}
+    <line x1="6" y1="2" x2="26" y2="2" stroke="rgba(255,255,255,0.4)" strokeWidth="1" strokeLinecap="round" />
+    {/* Swing seat */}
+    <line x1="12" y1="17" x2="20" y2="17" stroke="#F97316" strokeWidth="1.5" strokeLinecap="round" />
+    {/* Figure group — swings */}
+    <g style={{ transformOrigin: "16px 2px", animation: "playgroundSwing 2.5s ease-in-out infinite alternate" }}>
+      {/* Head */}
+      <circle cx="16" cy="9" r="2.5" fill="#F97316" />
+      {/* Body */}
+      <line x1="16" y1="11.5" x2="16" y2="17" stroke="#F97316" strokeWidth="1.2" strokeLinecap="round" />
+      {/* Arms — holding ropes */}
+      <line x1="16" y1="13" x2="12" y2="10" stroke="#F97316" strokeWidth="1" strokeLinecap="round" />
+      <line x1="16" y1="13" x2="20" y2="10" stroke="#F97316" strokeWidth="1" strokeLinecap="round" />
+      {/* Legs — extended forward on swing */}
+      <line x1="16" y1="17" x2="12" y2="21" stroke="#F97316" strokeWidth="1" strokeLinecap="round" />
+      <line x1="16" y1="17" x2="20" y2="21" stroke="#F97316" strokeWidth="1" strokeLinecap="round" />
+    </g>
+    {/* Swing frame legs */}
+    <line x1="6" y1="2" x2="4" y2="28" stroke="rgba(255,255,255,0.3)" strokeWidth="0.8" />
+    <line x1="26" y1="2" x2="28" y2="28" stroke="rgba(255,255,255,0.3)" strokeWidth="0.8" />
+  </svg>;
+}
+
 export function AiEspressoButton({ moduleId, contextData, viewMode: vMode }: { moduleId: string; contextData?: string; viewMode?: string }) {
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<"module" | "global">("module");
   const moduleName = MODULES.find(m => m.id === moduleId)?.title || "Platform";
 
   return <>
-    {/* Floating espresso button */}
-    <button onClick={() => setOpen(!open)} className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-xl transition-all duration-300 hover:scale-105 group" style={{ background: open ? "var(--risk)" : "linear-gradient(135deg, var(--accent-primary), var(--teal))", boxShadow: open ? "0 8px 30px rgba(239,68,68,0.3)" : "0 8px 30px rgba(200,120,40,0.35)" }} title="AI Espresso">
-      {open ? "✕" : "☕"}
+    {/* Floating playground assistant button */}
+    <button onClick={() => setOpen(!open)} className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-2xl flex items-center justify-center shadow-xl transition-all duration-300 group" style={{ background: open ? "var(--risk)" : "linear-gradient(135deg, #F97316, var(--accent-primary))", boxShadow: open ? "0 8px 30px rgba(239,68,68,0.3)" : "0 8px 30px rgba(249,115,22,0.3)", transform: "scale(1)", }} onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.1)"; e.currentTarget.style.boxShadow = open ? "0 8px 30px rgba(239,68,68,0.4)" : "0 0 20px rgba(249,115,22,0.3)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = open ? "0 8px 30px rgba(239,68,68,0.3)" : "0 8px 30px rgba(249,115,22,0.3)"; }} title="Digital Playground Assistant">
+      {open ? <span style={{ fontSize: 20, color: "#fff" }}>✕</span> : <PlaygroundIcon />}
+      <style>{`@keyframes playgroundSwing { 0% { transform: rotate(-12deg); } 100% { transform: rotate(12deg); } }`}</style>
     </button>
 
     {/* Panel */}

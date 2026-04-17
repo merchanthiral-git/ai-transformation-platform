@@ -109,22 +109,42 @@ export function NLQBar({ projectId, modelId, currentModule }: { projectId: strin
 
   const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); runQuery(query); };
 
-  if (!modelId) return null;
+  const [focused, setFocused] = useState(false);
 
-  return <div ref={panelRef} className="relative z-30 mb-3">
-    {/* Search bar */}
+  if (!modelId) return <div className="relative z-30 mb-4">
+    <div style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", fontSize: 18, color: "rgba(59,130,246,0.3)", zIndex: 2, pointerEvents: "none" }}>⌕</div>
+    <input disabled placeholder="Upload data to enable AI search..." style={{ width: "100%", height: 48, paddingLeft: 40, paddingRight: 72, borderRadius: 12, fontSize: 13, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", color: "var(--text-muted)", outline: "none", cursor: "not-allowed", fontFamily: "'DM Sans', sans-serif" }} />
+  </div>;
+
+  return <div ref={panelRef} className="relative z-30 mb-4">
+    {/* Search bar — primary interactive element */}
     <form onSubmit={handleSubmit} className="relative">
+      <div style={{
+        position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", fontSize: 18, color: focused ? "#3B82F6" : "rgba(59,130,246,0.5)", transition: "color 0.15s", zIndex: 2, pointerEvents: "none",
+      }}>⌕</div>
       <input
         ref={inputRef}
         value={query}
         onChange={e => { setQuery(e.target.value); if (!e.target.value) setShowSuggestions(true); }}
-        onFocus={() => { if (!query && !showResults) setShowSuggestions(true); }}
+        onFocus={() => { setFocused(true); if (!query && !showResults) setShowSuggestions(true); }}
+        onBlur={() => setFocused(false)}
         placeholder="Ask anything about your workforce... e.g. 'Which functions have the highest AI risk?'"
-        className="input-interactive w-full bg-[var(--surface-1)] border border-[var(--border)] rounded-xl px-4 py-2.5 pr-20 text-[14px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] font-heading"
+        className="nlq-placeholder"
+        style={{
+          width: "100%", height: 48, paddingLeft: 40, paddingRight: 72, borderRadius: 12, fontSize: 13,
+          background: "rgba(255,255,255,0.05)",
+          border: focused ? "1px solid rgba(59,130,246,0.6)" : "1px solid rgba(255,255,255,0.10)",
+          boxShadow: focused ? "0 0 12px rgba(59,130,246,0.15)" : "none",
+          color: "var(--text-primary)", outline: "none",
+          transition: "border-color 0.15s, box-shadow 0.15s, background 0.15s",
+          fontFamily: "'DM Sans', sans-serif",
+        }}
+        onMouseEnter={e => { if (!focused) (e.target as HTMLInputElement).style.borderColor = "rgba(255,255,255,0.16)"; }}
+        onMouseLeave={e => { if (!focused) (e.target as HTMLInputElement).style.borderColor = "rgba(255,255,255,0.10)"; }}
       />
-      <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+      <div style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", display: "flex", alignItems: "center", gap: 8 }}>
         {loading && <div className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)] animate-pulse" /><div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)] animate-pulse" style={{ animationDelay: "0.15s" }} /><div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)] animate-pulse" style={{ animationDelay: "0.3s" }} /></div>}
-        {!loading && <span className="text-[11px] text-[var(--text-muted)] font-data px-1.5 py-0.5 rounded border border-[var(--border)] bg-[var(--surface-2)]">⌘K</span>}
+        {!loading && <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", padding: "2px 6px", borderRadius: 4, border: "1px solid var(--border)", background: "var(--surface-2)" }}>⌘K</span>}
       </div>
     </form>
 

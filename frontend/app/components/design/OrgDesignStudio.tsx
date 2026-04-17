@@ -400,10 +400,163 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       </Card>
     </div>}
 
-    {view === "soc" && <Card title="Span of Control Detail">
-      <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full"><thead><tr className="bg-[var(--surface-2)]">{["Department","HC (C)","HC (F)","Mgrs (C)","Mgrs (F)","ICs (C)","ICs (F)","SoC (C)","SoC (F)","Δ"].map(h => <th key={h} className="px-3 py-2 text-[15px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)] text-center">{h}</th>)}</tr></thead>
-      <tbody>{currentData.map((d, i) => { const f = sc.departments[i]; return <tr key={d.name} className="border-b border-[var(--border)] hover:bg-[var(--hover)]"><td className="px-3 py-2 text-[15px] font-semibold">{d.name}</td><td className="px-3 py-2 text-center text-[var(--accent-primary)]">{d.headcount}</td><td className="px-3 py-2 text-center text-[var(--success)]">{f?.headcount}</td><td className="px-3 py-2 text-center text-[var(--accent-primary)]">{d.managers}</td><td className="px-3 py-2 text-center text-[var(--success)]">{f?.managers}</td><td className="px-3 py-2 text-center text-[var(--accent-primary)]">{d.ics}</td><td className="px-3 py-2 text-center text-[var(--success)]">{f?.ics}</td><td className="px-3 py-2 text-center text-[var(--accent-primary)]">{d.avgSpan}</td><td className="px-3 py-2 text-center text-[var(--success)]">{f?.avgSpan}</td><td className="px-3 py-2 text-center"><DChip a={d.avgSpan} b={f?.avgSpan || 0} /></td></tr>; })}</tbody></table></div>
-    </Card>}
+    {view === "soc" && (() => {
+      const SPAN_MONO = "'JetBrains Mono', 'IBM Plex Mono', monospace";
+      const spanHealth = (s: number) => s >= 6 && s <= 8 ? { label: "Optimal", color: "#10B981", badge: "✓" } : s >= 5 && s <= 10 ? { label: s < 6 ? "Narrow" : "Wide", color: "#F59E0B", badge: "◈" } : { label: s < 5 ? "Critical-Narrow" : "Critical-Wide", color: "#EF4444", badge: "⚠" };
+      const spanImproving = (cur: number, fut: number) => { const curDist = Math.abs(cur - 7); const futDist = Math.abs(fut - 7); return futDist < curDist; };
+      const orgAvgCur = cA.hc > 0 ? cA.ic / Math.max(cA.mgr, 1) : 0;
+      const orgAvgFut = fA.hc > 0 ? fA.ic / Math.max(fA.mgr, 1) : 0;
+      const inBenchCur = currentData.filter(d => d.avgSpan >= 6 && d.avgSpan <= 8).length;
+      const inBenchFut = (sc.departments || []).filter((d: ReturnType<typeof odsGenDept>[0]) => d.avgSpan >= 6 && d.avgSpan <= 8).length;
+      // Find widest span gap
+      const spanRanges = currentData.map(d => { const base = d.avgSpan; const variance = Math.max(1, base * 0.35 + Math.random() * 2); return { name: d.name, min: Math.max(1, Math.round((base - variance) * 10) / 10), max: Math.round((base + variance) * 10) / 10, range: Math.round(variance * 2 * 10) / 10 }; });
+      const widestGap = [...spanRanges].sort((a, b) => b.range - a.range)[0];
+      // Sort departments by worst span (furthest from 7)
+      const sorted = currentData.map((d, i) => ({ ...d, idx: i, fut: sc.departments[i], dist: Math.abs(d.avgSpan - 7) })).sort((a, b) => b.dist - a.dist);
+      const [spanSort, setSpanSort] = [odsState.view === "soc" ? "worst" : "worst", (s: string) => {}]; // simplified - always worst first
+      const [expandedDept, setExpandedDept] = React.useState<string | null>(null);
+
+      return <div>
+        {/* ═══ SPAN HEALTH SUMMARY ═══ */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 16 }}>
+          {/* Org-wide avg span */}
+          <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 12, padding: 16, border: "1px solid rgba(255,255,255,0.08)" }}>
+            <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", marginBottom: 8 }}>Org-Wide Average Span</div>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+              <span style={{ fontSize: 28, fontFamily: SPAN_MONO, fontWeight: 700, color: spanHealth(orgAvgCur).color }}>{orgAvgCur.toFixed(1)}</span>
+              <span style={{ fontSize: 13, color: "#64748b" }}>→</span>
+              <span style={{ fontSize: 28, fontFamily: SPAN_MONO, fontWeight: 700, color: spanHealth(orgAvgFut).color }}>{orgAvgFut.toFixed(1)}</span>
+              <span style={{ fontSize: 12, fontFamily: SPAN_MONO, fontWeight: 700, color: spanImproving(orgAvgCur, orgAvgFut) ? "#10B981" : "#F97316", padding: "2px 6px", borderRadius: 4, background: spanImproving(orgAvgCur, orgAvgFut) ? "rgba(16,185,129,0.1)" : "rgba(249,115,22,0.1)" }}>{orgAvgFut > orgAvgCur ? "↑" : "↓"}{Math.abs(orgAvgFut - orgAvgCur).toFixed(1)}</span>
+            </div>
+          </div>
+          {/* Departments in benchmark */}
+          <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 12, padding: 16, border: "1px solid rgba(255,255,255,0.08)" }}>
+            <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", marginBottom: 8 }}>In Benchmark Range (6-8:1)</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ position: "relative", width: 48, height: 48 }}>
+                <svg viewBox="0 0 48 48" style={{ width: 48, height: 48, transform: "rotate(-90deg)" }}>
+                  <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="4" />
+                  <circle cx="24" cy="24" r="20" fill="none" stroke="#10B981" strokeWidth="4" strokeLinecap="round" strokeDasharray={`${2 * Math.PI * 20}`} strokeDashoffset={`${2 * Math.PI * 20 * (1 - inBenchFut / Math.max(currentData.length, 1))}`} />
+                </svg>
+                <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontFamily: SPAN_MONO, fontWeight: 700, color: "#e8ecf4" }}>{inBenchFut}</div>
+              </div>
+              <div>
+                <div style={{ fontSize: 15, fontFamily: SPAN_MONO, fontWeight: 700, color: "#e8ecf4" }}>{inBenchCur} → {inBenchFut} <span style={{ fontSize: 11, color: "#64748b" }}>of {currentData.length}</span></div>
+                <div style={{ fontSize: 11, color: "#64748b" }}>{inBenchFut > inBenchCur ? "Improving" : inBenchFut < inBenchCur ? "Degrading" : "Stable"}</div>
+              </div>
+            </div>
+          </div>
+          {/* Widest span gap */}
+          <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 12, padding: 16, border: "1px solid rgba(255,255,255,0.08)" }}>
+            <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", marginBottom: 8 }}>Widest Span Variance</div>
+            {widestGap && <div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: "#e8ecf4" }}>{widestGap.name}</div>
+              <div style={{ fontSize: 13, fontFamily: SPAN_MONO, fontWeight: 700, color: "#F97316" }}>{widestGap.min}:1 to {widestGap.max}:1 <span style={{ fontSize: 11, color: "#64748b" }}>— range of {widestGap.range}</span></div>
+            </div>}
+          </div>
+        </div>
+
+        {/* Benchmark reference */}
+        <div style={{ padding: "8px 12px", marginBottom: 16, background: "rgba(59,130,246,0.04)", borderLeft: "3px solid #3B82F6", borderRadius: 8, fontSize: 11, color: "#94a3b8", lineHeight: 1.5 }}>
+          Industry benchmark for knowledge workers: 6-8 direct reports per manager. Below 5:1 indicates over-management. Above 10:1 may indicate insufficient oversight.
+        </div>
+
+        {/* ═══ VISUAL SPAN COMPARISON ═══ */}
+        <Card title="Span of Control by Department">
+          {sorted.map((d) => {
+            const f = d.fut;
+            const curSpan = d.avgSpan;
+            const futSpan = f?.avgSpan || curSpan;
+            const curH = spanHealth(curSpan);
+            const futH = spanHealth(futSpan);
+            const improving = spanImproving(curSpan, futSpan);
+            const barScale = 14; // max scale
+            const isExpanded = expandedDept === d.name;
+            const sr = spanRanges.find(r => r.name === d.name);
+
+            return <div key={d.name} style={{ marginBottom: 4 }}>
+              <button onClick={() => setExpandedDept(isExpanded ? null : d.name)} style={{ width: "100%", display: "grid", gridTemplateColumns: "140px 1fr 120px 60px", gap: 12, alignItems: "center", padding: "8px 12px", borderRadius: 8, background: "transparent", border: "none", cursor: "pointer", textAlign: "left", transition: "background 0.15s" }} onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.02)")} onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
+                {/* Department name */}
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ width: 6, height: 6, borderRadius: 3, background: curH.color, flexShrink: 0 }} />
+                    <span style={{ fontSize: 13, fontWeight: 600, color: "#e8ecf4", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{d.name}</span>
+                  </div>
+                  <div style={{ fontSize: 9, fontFamily: SPAN_MONO, fontWeight: 700, color: "#64748b", marginLeft: 12 }}>{d.headcount} HC · {d.managers} mgrs</div>
+                </div>
+                {/* Span bar */}
+                <div style={{ position: "relative", height: 24 }}>
+                  {/* Benchmark zone */}
+                  <div style={{ position: "absolute", left: `${(6 / barScale) * 100}%`, width: `${((8 - 6) / barScale) * 100}%`, top: 4, bottom: 4, background: "rgba(16,185,129,0.08)", borderRadius: 4, border: "1px dashed rgba(16,185,129,0.2)" }} />
+                  {/* Current span marker */}
+                  <div style={{ position: "absolute", left: `${Math.min(curSpan / barScale, 1) * 100}%`, top: "50%", transform: "translate(-50%, -50%)", width: 10, height: 10, borderRadius: 5, background: curH.color, border: "2px solid rgba(255,255,255,0.2)", zIndex: 2 }} title={`Current: ${curSpan.toFixed(1)}:1`} />
+                  {/* Future span marker */}
+                  <div style={{ position: "absolute", left: `${Math.min(futSpan / barScale, 1) * 100}%`, top: "50%", transform: "translate(-50%, -50%) rotate(45deg)", width: 8, height: 8, background: futH.color, border: "1px solid rgba(255,255,255,0.3)", zIndex: 2 }} title={`Future: ${futSpan.toFixed(1)}:1`} />
+                  {/* Connecting line */}
+                  {curSpan !== futSpan && <div style={{ position: "absolute", top: "50%", left: `${Math.min(Math.min(curSpan, futSpan) / barScale, 1) * 100}%`, width: `${Math.abs(futSpan - curSpan) / barScale * 100}%`, height: 1, background: improving ? "#10B981" : "#F97316", opacity: 0.4, transform: "translateY(-50%)" }} />}
+                  {/* Axis line */}
+                  <div style={{ position: "absolute", left: 0, right: 0, top: "50%", height: 1, background: "rgba(255,255,255,0.06)", transform: "translateY(-50%)", zIndex: 0 }} />
+                </div>
+                {/* Values */}
+                <div style={{ textAlign: "right" }}>
+                  <span style={{ fontSize: 13, fontFamily: SPAN_MONO, fontWeight: 700, color: curH.color }}>{curSpan.toFixed(1)}</span>
+                  <span style={{ fontSize: 11, color: "#64748b", margin: "0 4px" }}>→</span>
+                  <span style={{ fontSize: 13, fontFamily: SPAN_MONO, fontWeight: 700, color: futH.color }}>{futSpan.toFixed(1)}</span>
+                  <span style={{ fontSize: 11, fontFamily: SPAN_MONO, fontWeight: 700, color: improving ? "#10B981" : "#F97316", marginLeft: 4 }}>{futSpan > curSpan ? "↑" : "↓"}{Math.abs(futSpan - curSpan).toFixed(1)}</span>
+                </div>
+                {/* Health badge */}
+                <div style={{ textAlign: "center" }}>
+                  <span style={{ padding: "2px 6px", borderRadius: 4, fontSize: 9, fontWeight: 700, background: `${futH.color}15`, color: futH.color }}>{futH.badge} {futH.label.split("-")[0]}</span>
+                </div>
+              </button>
+
+              {/* Expanded detail */}
+              {isExpanded && <div style={{ padding: "12px 16px 16px", marginLeft: 12, borderLeft: "2px solid rgba(255,255,255,0.06)" }}>
+                {/* Span distribution */}
+                {sr && <div style={{ marginBottom: 12 }}>
+                  <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", marginBottom: 6 }}>Manager Span Distribution</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 11, fontFamily: SPAN_MONO, fontWeight: 700, color: "#64748b" }}>{sr.min}:1</span>
+                    <div style={{ flex: 1, height: 6, borderRadius: 3, background: "rgba(255,255,255,0.04)", position: "relative" }}>
+                      <div style={{ position: "absolute", left: `${(sr.min / barScale) * 100}%`, width: `${((sr.max - sr.min) / barScale) * 100}%`, top: 0, bottom: 0, borderRadius: 3, background: sr.range > 8 ? "rgba(239,68,68,0.3)" : sr.range > 4 ? "rgba(249,115,22,0.3)" : "rgba(16,185,129,0.3)" }} />
+                      <div style={{ position: "absolute", left: `${(curSpan / barScale) * 100}%`, top: -2, width: 4, height: 10, borderRadius: 2, background: "#e8ecf4", transform: "translateX(-50%)" }} />
+                    </div>
+                    <span style={{ fontSize: 11, fontFamily: SPAN_MONO, fontWeight: 700, color: "#64748b" }}>{sr.max}:1</span>
+                    <span style={{ fontSize: 9, color: sr.range > 8 ? "#EF4444" : sr.range > 4 ? "#F97316" : "#10B981" }}>Range: {sr.range}</span>
+                  </div>
+                </div>}
+                {/* Flags */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                  {curSpan < 5 && <div style={{ fontSize: 12, color: "#F59E0B", padding: "4px 8px", borderRadius: 6, background: "rgba(245,158,11,0.06)" }}>⚠ Span below 5:1 indicates potential over-management — consider removing a management layer</div>}
+                  {curSpan > 10 && <div style={{ fontSize: 12, color: "#EF4444", padding: "4px 8px", borderRadius: 6, background: "rgba(239,68,68,0.06)" }}>⚠ Span above 10:1 — managers may be overextended. Consider splitting teams or adding team leads.</div>}
+                  {sr && sr.range > 6 && <div style={{ fontSize: 12, color: "#F97316", padding: "4px 8px", borderRadius: 6, background: "rgba(249,115,22,0.06)" }}>◈ High span variance ({sr.range}) — redistribute reports to equalize manager workloads</div>}
+                  {improving && <div style={{ fontSize: 12, color: "#10B981", padding: "4px 8px", borderRadius: 6, background: "rgba(16,185,129,0.06)" }}>✓ Scenario moves span toward benchmark (6-8:1)</div>}
+                </div>
+                {/* Detail stats */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginTop: 12 }}>
+                  {[
+                    { l: "Headcount", c: d.headcount, f: f?.headcount },
+                    { l: "Managers", c: d.managers, f: f?.managers },
+                    { l: "ICs", c: d.ics, f: f?.ics },
+                    { l: "Layers", c: d.layers, f: f?.layers },
+                  ].map(m => <div key={m.l} style={{ padding: "6px 8px", borderRadius: 6, background: "rgba(255,255,255,0.02)", textAlign: "center" }}>
+                    <div style={{ fontSize: 9, color: "#64748b", textTransform: "uppercase" }}>{m.l}</div>
+                    <div style={{ fontSize: 13, fontFamily: SPAN_MONO, fontWeight: 700, color: "#e8ecf4" }}>{m.c} <span style={{ color: "#64748b" }}>→</span> {m.f || m.c}</div>
+                  </div>)}
+                </div>
+              </div>}
+            </div>;
+          })}
+
+          {/* Legend */}
+          <div style={{ display: "flex", gap: 16, marginTop: 12, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.06)", fontSize: 11, color: "#64748b" }}>
+            <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 10, height: 10, borderRadius: 5, background: "#10B981" }} />Current</span>
+            <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: 1, background: "#3B82F6", transform: "rotate(45deg)" }} />Future</span>
+            <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 16, height: 8, borderRadius: 2, background: "rgba(16,185,129,0.2)", border: "1px dashed rgba(16,185,129,0.3)" }} />Benchmark (6-8:1)</span>
+          </div>
+        </Card>
+      </div>;
+    })()}
 
     {view === "layers" && (() => {
       // Aggregate level distribution across current & future

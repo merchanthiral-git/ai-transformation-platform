@@ -651,3 +651,17 @@ input[type="range"]:hover::-webkit-slider-runnable-track {
 @keyframes slideFadeOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(-12px); } }
 .insight-slide-in { animation: slideFadeIn 0.3s ease-out forwards; }
 .insight-slide-out { animation: slideFadeOut 0.15s ease-in forwards; }
+
+/* ═══ NLQ SEARCH BAR ═══ */
+/* Subtle placeholder shimmer — draws attention to the search bar */
+@keyframes nlqShimmer {
+  0%, 90%, 100% { background-position: -200% center; }
+  45% { background-position: 200% center; }
+}
+.nlq-placeholder::placeholder {
+  background: linear-gradient(90deg, var(--text-muted) 40%, rgba(59,130,246,0.4) 50%, var(--text-muted) 60%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: nlqShimmer 6s ease-in-out infinite;
+}

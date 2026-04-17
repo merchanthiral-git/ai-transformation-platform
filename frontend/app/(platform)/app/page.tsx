@@ -1809,7 +1809,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       <motion.div key={page} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15, ease: "easeOut" }} style={{ minHeight: "calc(100vh - 48px)" }}>
       {page === "home" && <LandingPage onNavigate={navigate} moduleStatus={moduleStatus} hasData={hasData} viewMode={viewMode} projectName={projectName} onBackToHub={onBackToHub} onBackToSplash={() => { setShowSplash(true); try { sessionStorage.removeItem(`${projectId}_splashSeen`); } catch (e) { console.error("[Storage]", e); } }} cardBackgrounds={cardBgs} phaseBackgrounds={phaseBgs} />}
       {page !== "home" && <div className="module-enter" style={{ padding: "var(--space-6) var(--space-8)", paddingBottom: 80 }}>
-      {model && <NLQBar projectId={projectId} modelId={model} currentModule={page} />}
+      <NLQBar projectId={projectId} modelId={model} currentModule={page} />
       {model && page !== "flightrecorder" && <AiObservationsPanel module={page} dataSummary={buildAiContext()} context={`Project: ${projectName}. Model: ${model}. Job: ${job || "All"}.`} filters={f} projectId={projectId} onNavigate={navigate} />}
       {page === "snapshot" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><WorkforceSnapshot model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {(page === "jobs" || page === "jobarch") && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><JobArchitectureModule model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
