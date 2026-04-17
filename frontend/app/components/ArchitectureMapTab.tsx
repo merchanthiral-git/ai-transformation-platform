@@ -812,164 +812,158 @@ export function ArchitectureMapTab({ tree, jobs, employees, model }: {
 
   const orgHC = tree.reduce((s, t) => s + t.headcount, 0);
 
-  return <div className="animate-tab-enter">
-    {/* ── COMPACT TREEMAP SUMMARY (top) ── */}
-    <div className="mb-4 bg-[var(--surface-1)] border border-[var(--border)] rounded-xl p-3">
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-[15px] font-bold text-[var(--text-muted)] uppercase font-heading">Architecture Overview</span>
-        <span className="text-[15px] font-data text-[var(--text-muted)]">{jobs.length} roles · {orgHC.toLocaleString()} people · {tree.length} functions</span>
+  return <div>
+    {/* ── ARCHITECTURE OVERVIEW BAR (dual — Current vs Proposed) ── */}
+    <div style={{ marginBottom: 16, background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 12, padding: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+        <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b" }}>Architecture Overview</span>
+        <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: "#64748b" }}>{jobs.length} roles · {orgHC.toLocaleString()} people · {tree.length} functions</span>
       </div>
-      <div className="flex gap-1.5" style={{ height: 48 }}>
-        {treemapData.map((d, i) => {
-          const pct = orgHC > 0 ? Math.max(d.size / orgHC * 100, 5) : 10;
-          return <div key={d.name} className="rounded-lg relative overflow-hidden group"
-            style={{ background: d.fill, flex: pct, minWidth: 0 }}
-            title={`${d.name}: ${d.size} people`}>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-white font-bold font-heading truncate px-1" style={{ fontSize: pct > 15 ? 11 : 9, textShadow: "0 1px 3px rgba(0,0,0,0.4)" }}>{d.name}</span>
-            </div>
-          </div>;
-        })}
+      {/* Current bar */}
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+        <span style={{ fontSize: 9, fontWeight: 600, color: "#64748b", width: 56, textAlign: "right" }}>Current</span>
+        <div style={{ flex: 1, display: "flex", gap: 2, height: 28 }}>
+          {treemapData.map(d => {
+            const pct = orgHC > 0 ? Math.max(d.size / orgHC * 100, 4) : 10;
+            return <div key={d.name} style={{ background: d.fill, flex: pct, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", position: "relative", cursor: "pointer" }} title={`${d.name}: ${d.size.toLocaleString()} people`}>
+              <span style={{ fontSize: pct > 12 ? 9 : 7, fontWeight: 700, color: "#fff", textShadow: "0 1px 2px rgba(0,0,0,0.5)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", padding: "0 2px" }}>{d.name}</span>
+            </div>;
+          })}
+        </div>
       </div>
+      {/* Future bar */}
+      {(() => {
+        const futureHC = futureTree.reduce((s, t) => s + t.headcount, 0) || orgHC;
+        const futureData = futureTree.filter(t => !t.sunset && t.headcount > 0).map((t, i) => ({ name: t.label, size: t.headcount, fill: TC[i % TC.length] }));
+        return <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontSize: 9, fontWeight: 600, color: "#64748b", width: 56, textAlign: "right" }}>Proposed</span>
+          <div style={{ flex: 1, display: "flex", gap: 2, height: 28 }}>
+            {futureData.length > 0 ? futureData.map(d => {
+              const pct = futureHC > 0 ? Math.max(d.size / futureHC * 100, 4) : 10;
+              return <div key={d.name} style={{ background: d.fill, flex: pct, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", opacity: 0.7 }} title={`${d.name}: ${d.size.toLocaleString()} proposed`}>
+                <span style={{ fontSize: pct > 12 ? 9 : 7, fontWeight: 700, color: "#fff", textShadow: "0 1px 2px rgba(0,0,0,0.5)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", padding: "0 2px" }}>{d.name}</span>
+              </div>;
+            }) : <div style={{ flex: 1, height: 28, borderRadius: 4, border: "1px dashed rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, color: "#64748b" }}>Design your future state in the right panel</div>}
+          </div>
+        </div>;
+      })()}
     </div>
 
     {/* ── TOOLBAR ── */}
-    <div className="flex items-center gap-3 mb-4 flex-wrap">
-      {/* Color metric selector */}
-      <div className="flex items-center gap-1.5">
-        <span className="text-[15px] text-[var(--text-muted)] font-semibold uppercase">Color by:</span>
-        {(["headcount", "ai_impact", "tenure_risk", "vacancy"] as ColorMetric[]).map(m => (
-          <button key={m} onClick={() => setColorMetric(m)}
-            className={`px-2 py-1 rounded text-[15px] font-semibold ${colorMetric === m ? "bg-[var(--accent-primary)] text-white" : "text-[var(--text-muted)] border border-[var(--border)]"}`}>
-            {m === "headcount" ? "Headcount" : m === "ai_impact" ? "AI Impact" : m === "tenure_risk" ? "Tenure" : "Vacancy"}
-          </button>
-        ))}
+    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+        <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b" }}>Color:</span>
+        {(["headcount", "ai_impact", "tenure_risk", "vacancy"] as ColorMetric[]).map(m => <button key={m} onClick={() => setColorMetric(m)} style={{ padding: "3px 8px", borderRadius: 6, fontSize: 11, fontWeight: 600, border: "1px solid " + (colorMetric === m ? "var(--accent-primary)" : "var(--border)"), background: colorMetric === m ? "var(--accent-primary)" : "transparent", color: colorMetric === m ? "#fff" : "#64748b", cursor: "pointer" }}>{m === "headcount" ? "HC" : m === "ai_impact" ? "AI" : m === "tenure_risk" ? "Tenure" : "Vacancy"}</button>)}
       </div>
-
-      <div className="flex-1" />
-
-      {/* Mapping mode */}
-      <button onClick={() => { setMappingMode(!mappingMode); setMappingFrom(null); }}
-        className={`px-3 py-1.5 rounded-lg text-[15px] font-semibold transition-all ${mappingMode ? "bg-blue-500 text-white" : "text-[var(--text-muted)] border border-[var(--border)] hover:border-blue-400"}`}>
-        {mappingMode ? (mappingFrom ? "Click a future state role..." : "Click a current state role...") : "Enter Mapping Mode"}
-      </button>
-
-      {/* Undo/Redo */}
-      <div className="flex gap-1">
-        <button onClick={undo} disabled={historyIdx <= 0}
-          className={`px-2 py-1 rounded text-[15px] font-semibold ${historyIdx > 0 ? "text-[var(--text-secondary)] border border-[var(--border)] hover:border-[var(--accent-primary)]" : "text-[var(--text-muted)] border border-[var(--border)] opacity-40 cursor-not-allowed"}`}>
-          Undo
-        </button>
-        <button onClick={redo} disabled={historyIdx >= history.length - 1}
-          className={`px-2 py-1 rounded text-[15px] font-semibold ${historyIdx < history.length - 1 ? "text-[var(--text-secondary)] border border-[var(--border)] hover:border-[var(--accent-primary)]" : "text-[var(--text-muted)] border border-[var(--border)] opacity-40 cursor-not-allowed"}`}>
-          Redo
-        </button>
-      </div>
-
-      {/* Reset */}
-      <button onClick={resetFuture} className="px-2 py-1 rounded text-[15px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:border-red-400 hover:text-red-400">
-        Reset
-      </button>
+      <div style={{ flex: 1 }} />
+      <button onClick={() => { setMappingMode(!mappingMode); setMappingFrom(null); }} style={{ padding: "4px 12px", borderRadius: 8, fontSize: 12, fontWeight: 600, background: mappingMode ? "#3B82F6" : "transparent", color: mappingMode ? "#fff" : "#64748b", border: mappingMode ? "none" : "1px solid var(--border)", cursor: "pointer" }}>{mappingMode ? (mappingFrom ? "Select future role..." : "Select current role...") : "Mapping Mode"}</button>
+      <button onClick={undo} disabled={historyIdx <= 0} style={{ padding: "4px 8px", borderRadius: 6, fontSize: 12, fontWeight: 600, color: historyIdx > 0 ? "#64748b" : "#334155", border: "1px solid var(--border)", background: "transparent", cursor: historyIdx > 0 ? "pointer" : "not-allowed" }}>Undo</button>
+      <button onClick={redo} disabled={historyIdx >= history.length - 1} style={{ padding: "4px 8px", borderRadius: 6, fontSize: 12, fontWeight: 600, color: historyIdx < history.length - 1 ? "#64748b" : "#334155", border: "1px solid var(--border)", background: "transparent", cursor: historyIdx < history.length - 1 ? "pointer" : "not-allowed" }}>Redo</button>
+      <button onClick={resetFuture} style={{ padding: "4px 8px", borderRadius: 6, fontSize: 12, fontWeight: 600, color: "#64748b", border: "1px solid var(--border)", background: "transparent", cursor: "pointer" }}>Reset</button>
     </div>
 
-    {/* ── MAIN WORKSPACE: Current State | Connectors | Future State ── */}
-    <div className="grid grid-cols-[1fr_180px_1fr] gap-3" style={{ minHeight: 500 }}>
+    {/* ── THREE-PANEL WORKSPACE ── */}
+    <div style={{ display: "grid", gridTemplateColumns: "35fr 15fr 50fr", gap: 8, minHeight: 500 }}>
 
-      {/* CURRENT STATE (left) */}
-      <div className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl p-3 overflow-y-auto" style={{ maxHeight: "65vh" }}
-        onClick={() => { if (mappingMode && currentSelected) handleMappingClick("current", currentSelected); }}>
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-[15px] font-bold text-[var(--text-muted)] uppercase font-heading">Current State</span>
-          <span className="text-[14px] font-data text-[var(--text-muted)]">{orgHC} people</span>
+      {/* LEFT: Current State (read-only) */}
+      <div style={{ background: "rgba(0,0,0,0.1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+        <div style={{ padding: "10px 12px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: "var(--text-primary)" }}>Current State</span>
+          <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: "#64748b" }}>{orgHC.toLocaleString()} people</span>
         </div>
-        {tree.length === 0 ? <Empty text="No architecture data" icon="📋" /> :
-          tree.map(func => <CurrentStateNode key={func.id} node={func} depth={0}
-            jobs={jobs} employees={employees} colorMetric={colorMetric}
-            expanded={currentExpanded}
-            onToggle={id => setCurrentExpanded(prev => { const next = new Set(prev); if (next.has(id)) next.delete(id); else next.add(id); return next; })}
-            selected={currentSelected}
-            onSelect={id => { setCurrentSelected(id); if (mappingMode) handleMappingClick("current", id); }}
-            onDrillEmployee={setEmployeeDrill} />)
-        }
+        <div style={{ flex: 1, overflowY: "auto", padding: 8, maxHeight: "60vh" }} onClick={() => { if (mappingMode && currentSelected) handleMappingClick("current", currentSelected); }}>
+          {tree.length === 0 ? <Empty text="No architecture data" icon="📋" /> :
+            tree.map(func => <CurrentStateNode key={func.id} node={func} depth={0}
+              jobs={jobs} employees={employees} colorMetric={colorMetric}
+              expanded={currentExpanded}
+              onToggle={id => setCurrentExpanded(prev => { const next = new Set(prev); if (next.has(id)) next.delete(id); else next.add(id); return next; })}
+              selected={currentSelected}
+              onSelect={id => { setCurrentSelected(id); if (mappingMode) handleMappingClick("current", id); }}
+              onDrillEmployee={setEmployeeDrill} />)}
+        </div>
       </div>
 
-      {/* MAPPING CONNECTORS (center) */}
-      <div className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl p-2 overflow-y-auto" style={{ maxHeight: "65vh" }}>
-        <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase font-heading mb-2 text-center">Mappings</div>
-        {mappingMode && <div className="text-[14px] text-center mb-2 px-2 py-1.5 rounded-lg bg-blue-500/10 text-blue-400 font-semibold">
-          {mappingFrom ? `From: ${mappingFrom}` : "Select current state role"}
-        </div>}
-        {mappings.length === 0 ? (
-          <div className="text-center py-8 text-[var(--text-muted)]">
-            <div className="text-xl mb-2 opacity-30">🔗</div>
-            <div className="text-[15px]">No mappings yet.</div>
-            <div className="text-[14px] mt-1">Use mapping mode to connect roles</div>
-          </div>
-        ) : (
-          <div className="space-y-0.5">
-            {mappings.map((m, i) => <MappingLine key={m.id} mapping={m} index={i} />)}
-          </div>
-        )}
-
-        {/* Mapping legend */}
-        <div className="mt-3 pt-2 border-t border-[var(--border)] space-y-1">
+      {/* CENTER: Mapping Panel */}
+      <div style={{ background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+        <div style={{ padding: "10px 8px", borderBottom: "1px solid rgba(255,255,255,0.06)", textAlign: "center" }}>
+          <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b" }}>Mapping</span>
+        </div>
+        {/* Mapping type buttons */}
+        <div style={{ padding: "8px 6px", display: "flex", flexDirection: "column", gap: 4 }}>
           {[
-            { color: "#4A9E6B", dash: false, label: "1:1 Continue" },
-            { color: "#3B82F6", dash: true, label: "1:Many Split" },
-            { color: "var(--warning)", dash: true, label: "Many:1 Merge" },
-            { color: "#4A9E6B", dash: false, label: "New Role", badge: "NEW" },
-            { color: "var(--risk)", dash: true, label: "Sunset", strike: true },
-          ].map(l => (
-            <div key={l.label} className="flex items-center gap-1.5 text-[15px] text-[var(--text-muted)]">
-              <div className="w-3 h-0.5 rounded" style={{ background: l.color, ...(l.dash ? { borderTop: `1px dashed ${l.color}`, background: "transparent" } : {}) }} />
-              <span className={l.strike ? "line-through" : ""}>{l.label}</span>
-            </div>
-          ))}
+            { type: "one-to-one", label: "1:1 Continue", color: "#3B82F6" },
+            { type: "one-to-many", label: "Split 1:Many", color: "#8B5CF6" },
+            { type: "many-to-one", label: "Merge Many:1", color: "#F97316" },
+            { type: "new", label: "New Role", color: "#10B981" },
+            { type: "sunset", label: "Sunset", color: "#EF4444" },
+          ].map(btn => <button key={btn.type} disabled={!mappingMode} style={{ padding: "5px 8px", borderRadius: 6, fontSize: 10, fontWeight: 600, border: `1px solid ${btn.color}30`, background: `${btn.color}08`, color: mappingMode ? btn.color : "#475569", cursor: mappingMode ? "pointer" : "not-allowed", opacity: mappingMode ? 1 : 0.5, transition: "all 0.15s" }}>{btn.label}</button>)}
+        </div>
+        {/* Existing mappings */}
+        <div style={{ flex: 1, overflowY: "auto", padding: "0 6px", maxHeight: "40vh" }}>
+          {mappings.length === 0 ? <div style={{ textAlign: "center", padding: 16, color: "#64748b", fontSize: 11 }}>No mappings yet</div> : <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>{mappings.map((m, i) => <MappingLine key={m.id} mapping={m} index={i} />)}</div>}
+        </div>
+        {/* Summary */}
+        <div style={{ padding: "8px 6px", borderTop: "1px solid rgba(255,255,255,0.06)", fontSize: 10, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: "#64748b", textAlign: "center" }}>
+          {mappings.length} mapped · {Math.max(0, jobs.length - mappings.length)} unmapped
         </div>
       </div>
 
-      {/* FUTURE STATE (right) */}
-      <div className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl p-3 overflow-y-auto" style={{ maxHeight: "65vh" }}
-        onClick={() => { if (mappingMode && futureSelected) handleMappingClick("future", futureSelected); }}>
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-[15px] font-bold text-[var(--text-muted)] uppercase font-heading">Future State</span>
-          <span className="text-[14px] font-data text-[var(--text-muted)]">Editable · Right-click for options</span>
+      {/* RIGHT: Future State (editable) */}
+      <div style={{ background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+        <div style={{ padding: "10px 12px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "var(--text-primary)" }}>Future State</span>
+            <span style={{ fontSize: 11, color: "#64748b", marginLeft: 8 }}>Editable · Right-click for options</span>
+          </div>
+          <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: "#64748b" }}>{countNodesRecursive(futureTree)} nodes</span>
         </div>
-        {futureTree.length === 0 ? <Empty text="Click Reset to initialize from current state" icon="🔧" /> :
-          futureTree.map(func => <FutureStateNode key={func.id} node={func} depth={0}
-            onRename={handleRename} onDelete={handleDelete}
-            onAddChild={handleAddChild} onSunset={handleSunset} onSplit={handleSplit}
-            selected={futureSelected}
-            onSelect={id => { setFutureSelected(id); if (mappingMode) handleMappingClick("future", id); }}
-            onDrop={handleFutureDrop}
-            onAiSuggest={(nodeId, data) => { setChangeLog(prev => [...prev, `AI auto-suggested ${data.tasks.length} tasks for "${findNodeById(futureTree, nodeId)?.label || nodeId}"`]); }} />)
-        }
+        <div style={{ flex: 1, overflowY: "auto", padding: 8, maxHeight: "60vh" }} onClick={() => { if (mappingMode && futureSelected) handleMappingClick("future", futureSelected); }}>
+          {futureTree.length === 0 ? <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", minHeight: 300, gap: 12, textAlign: "center" }}>
+            <div style={{ fontSize: 32, opacity: 0.3 }}>🏗️</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>Design your future architecture</div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button onClick={resetFuture} style={{ padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600, background: "#3B82F6", color: "#fff", border: "none", cursor: "pointer" }}>Copy Current State</button>
+              <button onClick={() => showToast("Start adding roles manually")} style={{ padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600, background: "transparent", color: "#64748b", border: "1px solid var(--border)", cursor: "pointer" }}>Start from Scratch</button>
+            </div>
+          </div> :
+            futureTree.map(func => <FutureStateNode key={func.id} node={func} depth={0}
+              onRename={handleRename} onDelete={handleDelete}
+              onAddChild={handleAddChild} onSunset={handleSunset} onSplit={handleSplit}
+              selected={futureSelected}
+              onSelect={id => { setFutureSelected(id); if (mappingMode) handleMappingClick("future", id); }}
+              onDrop={handleFutureDrop}
+              onAiSuggest={(nodeId, data) => { setChangeLog(prev => [...prev, `AI suggested for "${findNodeById(futureTree, nodeId)?.label || nodeId}"`]); }} />)}
+        </div>
+      </div>
+    </div>
+
+    {/* ── MAPPING PROGRESS SUMMARY ── */}
+    <div style={{ marginTop: 12, padding: "10px 16px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 12, display: "flex", alignItems: "center", gap: 24 }}>
+      <div style={{ flex: 1 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+          <span style={{ fontSize: 11, color: "#64748b" }}>Mapping Progress</span>
+          <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: "var(--text-primary)" }}>{mappings.length}/{jobs.length} roles ({jobs.length > 0 ? Math.round(mappings.length / jobs.length * 100) : 0}%)</span>
+        </div>
+        <div style={{ height: 4, borderRadius: 2, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}><div style={{ height: "100%", borderRadius: 2, background: "#3B82F6", transition: "width 0.3s", width: `${jobs.length > 0 ? (mappings.length / jobs.length * 100) : 0}%` }} /></div>
+      </div>
+      <div style={{ fontSize: 11, color: "#64748b" }}>
+        {(() => {
+          const futureHC = futureTree.reduce((s, t) => s + t.headcount, 0);
+          const delta = futureHC - orgHC;
+          return <>Net HC: <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: "var(--text-primary)" }}>{orgHC.toLocaleString()}</span> → <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: delta < 0 ? "#10B981" : delta > 0 ? "#F97316" : "var(--text-primary)" }}>{futureHC.toLocaleString()}</span> <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: delta < 0 ? "#10B981" : delta > 0 ? "#F97316" : "#64748b" }}>({delta >= 0 ? "+" : ""}{delta.toLocaleString()}, {orgHC > 0 ? (delta / orgHC * 100).toFixed(1) : 0}%)</span></>;
+        })()}
       </div>
     </div>
 
     {/* ── EMPLOYEE REMAPPING VIEW ── */}
-    {employeeDrill && (
-      <div className="mt-4">
-        <EmployeeTable
-          employees={drilledEmployees}
-          title={employeeDrill}
-          futureTree={futureTree}
-          onClose={() => setEmployeeDrill(null)}
-        />
-      </div>
-    )}
+    {employeeDrill && <div style={{ marginTop: 16 }}>
+      <EmployeeTable employees={drilledEmployees} title={employeeDrill} futureTree={futureTree} onClose={() => setEmployeeDrill(null)} />
+    </div>}
 
-    {/* ── IMPACT DASHBOARD (bottom, collapsible) ── */}
-    <ImpactDashboard
-      currentTree={tree} futureTree={futureTree} mappings={mappings}
-      jobs={jobs} employees={employees} changeLog={changeLog}
-      collapsed={dashboardCollapsed} onToggle={() => setDashboardCollapsed(!dashboardCollapsed)}
-    />
+    {/* ── IMPACT DASHBOARD ── */}
+    <ImpactDashboard currentTree={tree} futureTree={futureTree} mappings={mappings} jobs={jobs} employees={employees} changeLog={changeLog} collapsed={dashboardCollapsed} onToggle={() => setDashboardCollapsed(!dashboardCollapsed)} />
 
     {/* ── SAVE & COMPARE ── */}
-    <SaveComparePanel
-      model={model} futureTree={futureTree} mappings={mappings}
-      versions={versions} onRefreshVersions={refreshVersions} onLoadVersion={loadVersion}
-    />
+    <SaveComparePanel model={model} futureTree={futureTree} mappings={mappings} versions={versions} onRefreshVersions={refreshVersions} onLoadVersion={loadVersion} />
   </div>;
 }

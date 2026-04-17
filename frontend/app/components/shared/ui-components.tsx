@@ -479,10 +479,10 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode; 
 export function KpiCard({ label, value, accent, delta }: { label: string; value: string | number; accent?: boolean; delta?: string }) {
   const numVal = typeof value === "number" ? value : parseFloat(String(value).replace(/[^0-9.-]/g, ""));
   const isNum = !isNaN(numVal) && typeof value === "number";
-  return <div className={`border rounded-xl px-5 py-4 card-hover ${accent ? "border-l-[3px] border-l-[var(--accent-primary)] border-[var(--border)]" : "border-[var(--border)]"}`} style={{ background: "rgba(255,255,255,0.04)", boxShadow: "var(--shadow-1)" }}>
-    <div className="text-[13px] font-semibold text-[var(--text-muted)] uppercase tracking-[0.5px] mb-1.5 font-heading"><GlossaryTip term={label}>{label}</GlossaryTip></div>
-    <div className="text-[24px] text-[var(--text-primary)] tracking-tight font-data" style={{ fontFamily: "'JetBrains Mono', var(--font-data)", fontWeight: 700 }}>{isNum ? <AnimatedNumber value={numVal} /> : (typeof value === "string" || typeof value === "number" ? value : String(value ?? "\u2014"))}</div>
-    {delta && <div className="text-[13px] font-semibold text-[var(--success)] mt-1.5">{delta}</div>}
+  return <div className={`border rounded-xl card-hover ${accent ? "border-l-[3px] border-l-[var(--accent-primary)] border-[var(--border)]" : "border-[var(--border)]"}`} style={{ background: "rgba(255,255,255,0.04)", boxShadow: "var(--shadow-1)", padding: "var(--card-padding)", minWidth: 0 }}>
+    <div className="font-semibold text-[var(--text-muted)] uppercase tracking-[0.5px] mb-1.5 font-heading" style={{ fontSize: "clamp(10px, 0.85rem, 13px)" }}><GlossaryTip term={label}>{label}</GlossaryTip></div>
+    <div className="text-[var(--text-primary)] tracking-tight font-data" style={{ fontFamily: "'JetBrains Mono', var(--font-data)", fontWeight: 700, fontSize: "clamp(16px, 1.5rem, 24px)" }}>{isNum ? <AnimatedNumber value={numVal} /> : (typeof value === "string" || typeof value === "number" ? value : String(value ?? "\u2014"))}</div>
+    {delta && <div className="font-semibold text-[var(--success)] mt-1" style={{ fontSize: "clamp(10px, 0.85rem, 13px)" }}>{delta}</div>}
   </div>;
 }
 
@@ -576,7 +576,7 @@ export function NarrativePanel({ title, items }: { title: string; items: string[
 }
 
 export function TabBar({ tabs, active, onChange }: { tabs: { id: string; label: string }[]; active: string; onChange: (id: string) => void }) {
-  return <div className="flex mb-6 gap-1 overflow-x-auto">{tabs.map(t => <button key={t.id} onClick={() => onChange(t.id)} className={`px-4 py-2.5 text-[15px] font-medium whitespace-nowrap transition-all btn-press ${active === t.id ? "text-[var(--accent-primary)] font-semibold" : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"}`} style={active === t.id ? { background: 'rgba(212,134,10,0.08)', borderRadius: 8 } : undefined}>{t.label}</button>)}</div>;
+  return <div className="flex mb-6 gap-1 tab-scroll">{tabs.map(t => <button key={t.id} onClick={() => onChange(t.id)} className={`px-4 py-2.5 text-[15px] font-medium whitespace-nowrap transition-all btn-press ${active === t.id ? "text-[var(--accent-primary)] font-semibold" : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"}`} style={active === t.id ? { background: 'rgba(212,134,10,0.08)', borderRadius: 8 } : undefined}>{t.label}</button>)}</div>;
 }
 
 export function SidebarSelect({ label, options, value, onChange }: { label?: string; options: string[]; value: string; onChange: (v: string) => void }) {

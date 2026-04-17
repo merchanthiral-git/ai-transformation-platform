@@ -735,7 +735,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
           </div>
 
           {/* Right: What-If Simulator side panel */}
-          <div className="w-[320px] shrink-0 space-y-4">
+          <div className="shrink-0 space-y-4" style={{ width: "clamp(260px, 22vw, 320px)" }}>
             {/* What-If Simulator */}
             <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-1)] p-5" style={{ boxShadow: "var(--shadow-1)" }}>
               <div className="flex items-center gap-2 mb-2">

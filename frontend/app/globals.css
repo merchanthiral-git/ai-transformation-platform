@@ -156,6 +156,35 @@ select { cursor: pointer; }
   background-size: 200% 100%;
 }
 
+/* ═══ RESPONSIVE SCALING ═══ */
+
+/* Base font size — desktop default */
+html { font-size: 16px; }
+
+/* Scale down on smaller screens */
+@media (max-width: 1440px) {
+  html { font-size: 15px !important; }
+  :root { --card-padding: clamp(10px, 1.2vw, 16px); }
+}
+@media (max-width: 1280px) {
+  html { font-size: 14px !important; }
+  :root { --card-padding: clamp(8px, 1vw, 14px); }
+}
+@media (max-width: 1024px) {
+  html { font-size: 13px !important; }
+  :root { --card-padding: clamp(8px, 1vw, 12px); }
+}
+
+/* ═══ KPI STRIP RESPONSIVE ═══ */
+@media (max-width: 1440px) {
+  .grid-cols-8, [class*="md:grid-cols-8"], [class*="lg:grid-cols-8"] { grid-template-columns: repeat(4, 1fr) !important; }
+}
+@media (max-width: 1280px) {
+  .grid-cols-5 { grid-template-columns: repeat(3, 1fr) !important; }
+  .grid-cols-6, [class*="lg:grid-cols-6"] { grid-template-columns: repeat(3, 1fr) !important; }
+  .grid-cols-8, [class*="md:grid-cols-8"], [class*="lg:grid-cols-8"] { grid-template-columns: repeat(4, 1fr) !important; }
+}
+
 /* ═══ TABLET RESPONSIVE (1024px-1279px) ═══ */
 @media (max-width: 1279px) {
   :root { --sidebar-width: 56px !important; }
@@ -166,6 +195,12 @@ select { cursor: pointer; }
   .grid-cols-4 { grid-template-columns: 1fr 1fr !important; }
   .grid-cols-5 { grid-template-columns: 1fr 1fr 1fr !important; }
   .grid-cols-6 { grid-template-columns: 1fr 1fr 1fr !important; }
+  /* Reduce KPI card value sizes */
+  .font-data, .font-jetbrains { font-size: 0.95em; }
+  /* Two-column layouts stack to single column */
+  .grid-cols-2 { grid-template-columns: 1fr !important; }
+  /* Side panels become narrower */
+  [class*="w-[320px]"], [class*="w-[340px]"] { width: 240px !important; }
 }
 
 @media (max-width: 1023px) {
@@ -173,6 +208,74 @@ select { cursor: pointer; }
   aside { display: none !important; }
   .grid-cols-2 { grid-template-columns: 1fr !important; }
   .grid-cols-3 { grid-template-columns: 1fr !important; }
+  /* Flex layouts with side panels: stack vertically */
+  .flex.gap-4, .flex.gap-5 { flex-wrap: wrap; }
+  .flex.gap-4 > [class*="shrink-0"], .flex.gap-5 > [class*="shrink-0"] { width: 100% !important; }
+}
+
+/* ═══ TAB BAR RESPONSIVE ═══ */
+.tab-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  mask-image: linear-gradient(to right, transparent 0, black 24px, black calc(100% - 24px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0, black 24px, black calc(100% - 24px), transparent 100%);
+}
+.tab-scroll::-webkit-scrollbar { display: none; }
+@media (max-width: 1440px) {
+  .tab-scroll button { padding-left: 12px !important; padding-right: 12px !important; font-size: 13px !important; }
+}
+@media (max-width: 1280px) {
+  .tab-scroll button { padding-left: 8px !important; padding-right: 8px !important; font-size: 12px !important; }
+}
+
+/* ═══ TABLE RESPONSIVE ═══ */
+/* Tables scroll horizontally on small screens instead of breaking layout */
+.scroll-shadow, .overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+}
+@media (max-width: 1440px) {
+  /* Reduce table cell padding on smaller screens */
+  table td, table th { padding-left: 8px !important; padding-right: 8px !important; }
+}
+
+/* ═══ CARD GRID RESPONSIVE ═══ */
+/* Auto-fill card grids adapt column count to available width */
+.auto-card-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important; }
+@media (max-width: 1280px) {
+  .auto-card-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important; }
+}
+
+/* ═══ MODAL RESPONSIVE ═══ */
+/* Ensure modals and drawers never exceed viewport */
+.fixed[class*="inset-0"] > div[class*="max-w-"],
+.fixed[class*="inset-0"] > div[class*="w-full"],
+[class*="rounded-2xl"][class*="max-w-"] {
+  max-width: min(var(--modal-max-w, 800px), 90vw) !important;
+  max-height: min(80vh, calc(100vh - 80px)) !important;
+  overflow-y: auto;
+}
+/* Side drawers */
+@media (max-width: 1280px) {
+  .fixed[class*="right-0"][class*="w-[380px]"],
+  .fixed[class*="right-0"][class*="w-[400px]"],
+  .fixed[class*="right-0"][class*="w-[420px]"] { width: min(340px, 85vw) !important; }
+}
+
+/* ═══ FIXED-WIDTH LAYOUT OVERRIDES ═══ */
+@media (max-width: 1440px) {
+  [class*="w-[320px]"], [class*="w-[340px]"] { width: 280px !important; }
+}
+@media (max-width: 1280px) {
+  [class*="w-[320px]"], [class*="w-[340px]"] { width: 240px !important; }
+}
+
+/* ═══ HERO STAT RESPONSIVE ═══ */
+/* Large stat numbers scale with viewport */
+[class*="text-[24px]"], [class*="text-[32px]"] { font-size: clamp(18px, 2vw, 32px) !important; }
+@media (max-width: 1280px) {
+  [class*="text-[20px]"] { font-size: clamp(16px, 1.5vw, 20px) !important; }
 }
 
 
@@ -295,7 +398,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     background: var(--bg);
     color: var(--text-primary);
-    font-size: 14px;
+    /* font-size set by responsive @media rules above — 16/15/14/13px by breakpoint */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }

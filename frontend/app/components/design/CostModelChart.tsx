@@ -93,7 +93,7 @@ function CostWaterfallRow({
       onMouseLeave={() => setHovered(false)}
       style={{
         display: "grid",
-        gridTemplateColumns: "50px 100px 60px 1fr 80px 80px 70px 100px",
+        gridTemplateColumns: "clamp(36px,3.5vw,50px) clamp(70px,7vw,100px) clamp(44px,4vw,60px) 1fr clamp(56px,5.5vw,80px) clamp(56px,5.5vw,80px) clamp(50px,5vw,70px) clamp(70px,7vw,100px)",
         alignItems: "center",
         padding: "10px 12px",
         borderRadius: 8,
@@ -253,7 +253,7 @@ function SubtotalRow({ label, rows }: { label: string; rows: ComputedRow[] }) {
   return (
     <div style={{
       display: "grid",
-      gridTemplateColumns: "50px 100px 60px 1fr 80px 80px 70px 100px",
+      gridTemplateColumns: "clamp(36px,3.5vw,50px) clamp(70px,7vw,100px) clamp(44px,4vw,60px) 1fr clamp(56px,5.5vw,80px) clamp(56px,5.5vw,80px) clamp(50px,5vw,70px) clamp(70px,7vw,100px)",
       alignItems: "center",
       padding: "10px 12px",
       borderTop: "1px solid rgba(255,255,255,0.08)",
@@ -427,7 +427,7 @@ export default function CostModelChart({ data }: { data?: LayerCostData[] }) {
 
   const headerCols: React.CSSProperties = {
     display: "grid",
-    gridTemplateColumns: "50px 100px 60px 1fr 80px 80px 70px 100px",
+    gridTemplateColumns: "clamp(36px,3.5vw,50px) clamp(70px,7vw,100px) clamp(44px,4vw,60px) 1fr clamp(56px,5.5vw,80px) clamp(56px,5.5vw,80px) clamp(50px,5vw,70px) clamp(70px,7vw,100px)",
     padding: "8px 12px",
     fontSize: 9, fontWeight: 700,
     textTransform: "uppercase", letterSpacing: "0.08em",
@@ -458,7 +458,7 @@ export default function CostModelChart({ data }: { data?: LayerCostData[] }) {
       {/* Top summary cards + donut */}
       <div style={{ display: "flex", gap: 16, marginBottom: 20, alignItems: "flex-start" }}>
         {/* 5 stat cards */}
-        <div style={{ flex: 1, display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
+        <div style={{ flex: 1, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
           <div style={cardBase}>
             <div style={cardLabel}>Current Total Cost</div>
             <div style={cardValue}>{formatCurrency(totalCurCost)}</div>

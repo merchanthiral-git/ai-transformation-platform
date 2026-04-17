@@ -877,7 +877,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
     {/* ═══ MAIN LAYOUT: Step Navigator (left) + Content (right) ═══ */}
     <div className="flex gap-5">
       {/* ── LEFT: Step Navigator ── */}
-      <div className="w-[240px] shrink-0 sticky top-4 self-start space-y-1 max-h-[calc(100vh-120px)] overflow-y-auto pr-1">
+      <div className="shrink-0 sticky top-4 self-start space-y-1 max-h-[calc(100vh-120px)] overflow-y-auto pr-1" style={{ width: "clamp(200px, 16vw, 240px)" }}>
         {/* Industry Setup */}
         <button onClick={() => setOmView("setup")} className="w-full text-left px-3 py-2 rounded-lg text-[13px] font-semibold transition-all mb-2" style={{ background: omView === "setup" ? "rgba(59,130,246,0.08)" : "var(--surface-2)", color: omView === "setup" ? "#3B82F6" : "var(--text-muted)", border: omView === "setup" ? "1px solid rgba(59,130,246,0.3)" : "1px solid var(--border)", borderLeft: omView === "setup" ? "3px solid #3B82F6" : undefined }}>
           <div>⚙️ Industry Setup <span className="text-[10px] text-[var(--text-muted)]">~10 min</span></div>

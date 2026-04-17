@@ -771,7 +771,7 @@ export function JobContentAuthoring({ model, f }: { model: string; f: Filters })
   };
 
   const renderGenerate = () => (
-    <div style={{ display: "grid", gridTemplateColumns: "240px 1fr 320px", gap: 16, minHeight: 500 }}>
+    <div style={{ display: "grid", gridTemplateColumns: "clamp(180px, 15vw, 240px) 1fr clamp(240px, 20vw, 320px)", gap: 16, minHeight: 500 }}>
       {/* Left: Context summary */}
       <div style={{
         background: "var(--surface-1)", borderRadius: 12, padding: 16,
