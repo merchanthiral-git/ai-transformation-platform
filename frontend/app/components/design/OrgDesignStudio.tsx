@@ -111,6 +111,9 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
   const [selDept, setSelDept] = useState(0);
   const [layerScope, setLayerScope] = useState("all");
 
+  // Span Detail state (must be at top level — not inside conditional IIFE)
+  const [expandedDept, setExpandedDept] = useState<string | null>(null);
+
   // Upgrade 1: What-If Simulator state
   const [simTargetSpan, setSimTargetSpan] = useState(7);
   const [simMaxLayers, setSimMaxLayers] = useState(5);
@@ -413,8 +416,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       const widestGap = [...spanRanges].sort((a, b) => b.range - a.range)[0];
       // Sort departments by worst span (furthest from 7)
       const sorted = currentData.map((d, i) => ({ ...d, idx: i, fut: sc.departments[i], dist: Math.abs(d.avgSpan - 7) })).sort((a, b) => b.dist - a.dist);
-      const [spanSort, setSpanSort] = [odsState.view === "soc" ? "worst" : "worst", (s: string) => {}]; // simplified - always worst first
-      const [expandedDept, setExpandedDept] = React.useState<string | null>(null);
+      // expandedDept state is hoisted to component top level (rules of hooks)
 
       return <div>
         {/* ═══ SPAN HEALTH SUMMARY ═══ */}

@@ -413,15 +413,33 @@ def admin_list_users(user: UserDB = Depends(get_current_user), db: Session = Dep
     from datetime import datetime, timezone, timedelta
     now = datetime.now(timezone.utc)
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
-    active_today = sum(1 for u in users if u.last_login and u.last_login.replace(tzinfo=timezone.utc) >= today_start)
+    week_ago = now - timedelta(days=7)
+    month_ago = now - timedelta(days=30)
+
+    def _login_after(u, cutoff):
+        if not u.last_login:
+            return False
+        ll = u.last_login.replace(tzinfo=timezone.utc) if u.last_login.tzinfo is None else u.last_login
+        return ll >= cutoff
+
+    active_today = sum(1 for u in users if _login_after(u, today_start))
+    active_7d = sum(1 for u in users if _login_after(u, week_ago))
+    active_30d = sum(1 for u in users if _login_after(u, month_ago))
     total_projects = db.query(ProjectDB).count()
+
+    import os
+    db_url = os.environ.get("DATABASE_URL", "sqlite:///./app.db")
+    db_type = "postgresql" if "postgres" in db_url else "sqlite"
 
     return {
         "users": result,
         "stats": {
             "total_users": len(users),
             "active_today": active_today,
+            "active_7d": active_7d,
+            "active_30d": active_30d,
             "total_projects": total_projects,
+            "db_type": db_type,
         },
     }
 

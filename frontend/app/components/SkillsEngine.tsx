@@ -648,7 +648,7 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
                 const critical = (gapsData?.critical_gaps as Record<string, unknown>[]) || [];
                 const moderate = (gapsData?.moderate_gaps as Record<string, unknown>[]) || [];
                 const coverageScore = Number(gapsData?.coverage_score || 0);
-                const heatmap = (gapsData?.heatmap || {}) as Record<string, number>;
+                const heatmap = (gapsData?.heatmap || {}) as Record<string, unknown>;
                 return (
                   <>
                     <div className="grid grid-cols-3 gap-3">
@@ -660,12 +660,18 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
                     {Object.keys(heatmap).length > 0 && (
                       <Card title="Gap Heatmap by Category">
                         <div className="grid grid-cols-4 gap-3">
-                          {Object.entries(heatmap).map(([cat, val]) => (
-                            <div key={cat} className="p-3 rounded-lg border border-[var(--border)] text-center" style={{ background: `${catColor(cat)}15` }}>
+                          {Object.entries(heatmap).map(([cat, val]) => {
+                            // val may be a number or an object {total, met, coverage, color}
+                            const pct = typeof val === "object" && val !== null ? Number((val as Record<string, unknown>).coverage || 0) : Number(val || 0);
+                            const hColor = typeof val === "object" && val !== null ? String((val as Record<string, unknown>).color || catColor(cat)) : catColor(cat);
+                            const total = typeof val === "object" && val !== null ? Number((val as Record<string, unknown>).total || 0) : 0;
+                            const met = typeof val === "object" && val !== null ? Number((val as Record<string, unknown>).met || 0) : 0;
+                            return <div key={cat} className="p-3 rounded-lg border border-[var(--border)] text-center" style={{ background: `${hColor}15` }}>
                               <div className="text-[13px] text-[var(--text-muted)] mb-1">{cat}</div>
-                              <div className="text-[20px] font-bold" style={{ color: catColor(cat), fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}>{val}%</div>
-                            </div>
-                          ))}
+                              <div className="text-[20px] font-bold" style={{ color: hColor, fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}>{pct.toFixed(1)}%</div>
+                              {total > 0 && <div className="text-[9px] text-[var(--text-muted)] mt-1">{met}/{total} skills met</div>}
+                            </div>;
+                          })}
                         </div>
                       </Card>
                     )}

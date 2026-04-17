@@ -28,16 +28,23 @@ export default function AdminPage() {
   const [serverStats, setServerStats] = useState<{ users: Record<string, unknown>[]; stats: Record<string, number> } | null>(null);
   const [tab, setTab] = useState<"overview" | "modules" | "funnel" | "users">("overview");
 
+  const refreshUsers = () => {
+    authApi.adminGetUsers().then(d => setServerStats(d)).catch((e) => { console.error("[AdminPage] failed to fetch users", e); });
+  };
+
   useEffect(() => {
     const user = authApi.getStoredUser();
     const token = authApi.getToken();
     if (user && token && user.username === ADMIN_USERNAME) {
       setAuthorized(true);
       setMetrics(getLocalMetrics());
-      authApi.adminGetUsers().then(d => setServerStats(d)).catch((e) => { console.error("[AdminPage] failed to fetch users", e); });
+      refreshUsers();
+      // Auto-refresh every 30 seconds
+      const interval = setInterval(refreshUsers, 30000);
+      return () => clearInterval(interval);
     }
     setChecked(true);
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!checked) return null;
   if (!authorized) {
@@ -103,7 +110,7 @@ export default function AdminPage() {
         {tab === "overview" && <OverviewTab metrics={metrics} totalUsers={totalUsersServer} active7d={activeUsers7d} active30d={activeUsers30d} />}
         {tab === "modules" && <ModulesTab sortedModules={sortedModules} maxVisits={maxVisits} durations={metrics.moduleDurations} />}
         {tab === "funnel" && <FunnelTab steps={funnelSteps} funnel={metrics.funnel} maxFunnel={maxFunnel} />}
-        {tab === "users" && <UsersTab users={serverStats?.users || []} />}
+        {tab === "users" && <UsersTab users={serverStats?.users || []} onRefresh={refreshUsers} />}
       </div>
     </div>
   );
@@ -233,44 +240,55 @@ function FunnelTab({ steps, funnel, maxFunnel }: { steps: { key: string; label: 
 }
 
 // ── Users Tab ──
-function UsersTab({ users }: { users: Record<string, unknown>[] }) {
-  if (users.length === 0) {
-    return (
-      <div>
-        <h3 style={{ fontSize: 16, fontWeight: 700, color: "rgba(255,200,150,0.7)", marginBottom: 16 }}>Registered Users</h3>
-        <p style={{ color: "rgba(255,200,150,0.3)", fontSize: 14 }}>User data is loaded from the server. Make sure the backend is running.</p>
-      </div>
-    );
-  }
-
+function UsersTab({ users, onRefresh }: { users: Record<string, unknown>[]; onRefresh: () => void }) {
   return (
     <div>
-      <h3 style={{ fontSize: 16, fontWeight: 700, color: "rgba(255,200,150,0.7)", marginBottom: 16 }}>Registered Users ({users.length})</h3>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+        <h3 style={{ fontSize: 16, fontWeight: 700, color: "rgba(255,200,150,0.7)", margin: 0 }}>Registered Users ({users.length})</h3>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontSize: 11, color: "rgba(255,200,150,0.25)" }}>Auto-refreshes every 30s</span>
+          <button onClick={onRefresh} style={{ padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600, background: "rgba(255,200,150,0.06)", border: "1px solid rgba(255,200,150,0.12)", color: "rgba(255,200,150,0.5)", cursor: "pointer", fontFamily: "'Outfit', sans-serif" }}>↻ Refresh Now</button>
+        </div>
+      </div>
+
+      {/* Database warning */}
+      <div style={{ padding: "10px 14px", marginBottom: 16, borderRadius: 10, background: "rgba(249,115,22,0.06)", border: "1px solid rgba(249,115,22,0.15)", borderLeft: "3px solid #F97316", fontSize: 12, color: "rgba(255,200,150,0.5)", lineHeight: 1.6 }}>
+        <strong style={{ color: "#F97316" }}>Storage note:</strong> If DATABASE_URL is not set, the backend uses a local SQLite file (app.db). On Railway, this file is <strong>ephemeral</strong> — it resets on every deploy. Set DATABASE_URL to a PostgreSQL connection string for persistent user storage across deploys.
+      </div>
+
+      {users.length === 0 ? (
+        <p style={{ color: "rgba(255,200,150,0.3)", fontSize: 14 }}>No users found. The backend may be using a fresh SQLite database, or it&apos;s not running.</p>
+      ) : (
       <div style={{ overflowX: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
           <thead>
             <tr style={{ borderBottom: "1px solid rgba(255,200,150,0.1)" }}>
-              {["Username", "Display Name", "Email", "Type", "Last Login", "Created"].map(h => (
+              {["Username", "Display Name", "Email", "Projects", "Status", "Last Login", "Created"].map(h => (
                 <th key={h} style={{ textAlign: "left", padding: "10px 12px", color: "rgba(255,200,150,0.4)", fontWeight: 600, fontSize: 11, textTransform: "uppercase", letterSpacing: 1 }}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {users.map((u, i) => (
-              <tr key={i} style={{ borderBottom: "1px solid rgba(255,200,150,0.04)" }}>
+            {users.map((u, i) => {
+              const isActive = u.is_active !== false;
+              return (
+              <tr key={i} style={{ borderBottom: "1px solid rgba(255,200,150,0.04)", opacity: isActive ? 1 : 0.5 }}>
                 <td style={{ padding: "10px 12px", color: "var(--accent-primary)", fontWeight: 600 }}>{String(u.username || "")}</td>
                 <td style={{ padding: "10px 12px", color: "rgba(255,200,150,0.6)" }}>{String(u.display_name || "—")}</td>
-                <td style={{ padding: "10px 12px", color: "rgba(255,200,150,0.4)", fontFamily: "'IBM Plex Mono', monospace" }}>{String(u.email || "—")}</td>
+                <td style={{ padding: "10px 12px", color: "rgba(255,200,150,0.4)", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{String(u.email || "—")}</td>
+                <td style={{ padding: "10px 12px", fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: "rgba(255,200,150,0.6)" }}>{String(u.project_count ?? "—")}</td>
                 <td style={{ padding: "10px 12px" }}>
-                  <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 6, background: u.user_type === "consultant" ? "rgba(139,92,246,0.15)" : "rgba(16,185,129,0.15)", color: u.user_type === "consultant" ? "var(--purple)" : "var(--success)", fontWeight: 600 }}>{String(u.user_type || "—")}</span>
+                  <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 6, background: isActive ? "rgba(16,185,129,0.15)" : "rgba(239,68,68,0.15)", color: isActive ? "var(--success)" : "var(--risk)", fontWeight: 600 }}>{isActive ? "Active" : "Inactive"}</span>
                 </td>
-                <td style={{ padding: "10px 12px", color: "rgba(255,200,150,0.35)", fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>{u.last_login ? new Date(String(u.last_login)).toLocaleDateString() : "—"}</td>
-                <td style={{ padding: "10px 12px", color: "rgba(255,200,150,0.35)", fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>{u.created ? new Date(String(u.created)).toLocaleDateString() : "—"}</td>
+                <td style={{ padding: "10px 12px", color: "rgba(255,200,150,0.35)", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{u.last_login ? String(u.last_login) : "Never"}</td>
+                <td style={{ padding: "10px 12px", color: "rgba(255,200,150,0.35)", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{u.created_at ? String(u.created_at) : "—"}</td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>
+      )}
     </div>
   );
 }
