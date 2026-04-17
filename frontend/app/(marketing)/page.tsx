@@ -169,6 +169,8 @@ nav.scrolled { padding: 16px 56px; background: rgba(244,241,235,0.92); backdrop-
 .btn-primary:hover::after { transform: translateY(0); }
 .btn-ghost { padding: 18px 48px; background: transparent; color: var(--text-mid); border: 1px solid var(--rule); border-radius: 100px; font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; cursor: none; transition: all 0.3s; text-decoration: none; display: inline-block; }
 .btn-ghost:hover { color: var(--text); border-color: var(--text); }
+.btn-ghost-teal { padding: 18px 48px; background: transparent; color: #22d3ee; border: 1px solid #22d3ee; border-radius: 100px; font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; cursor: none; transition: all 0.3s; text-decoration: none; display: inline-block; }
+.btn-ghost-teal:hover { background: rgba(34,211,238,0.1); color: #22d3ee; border-color: #22d3ee; }
 @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
 .hero { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; align-items: center; padding: 140px 56px 100px; position: relative; overflow: hidden; gap: 60px; }
 .hero-left { position: relative; z-index: 2; }
@@ -434,7 +436,7 @@ footer { padding: 48px 56px; border-top: 1px solid var(--rule); display: flex; j
           <p className="hero-sub">The platform that tells you exactly what to do about it — from task-level automation to boardroom-ready decisions.</p>
           <div className="hero-actions">
             <Link href="/app" className="btn-primary" data-hover><span>See What&apos;s Possible</span></Link>
-            <a href="#our-story" className="btn-ghost" data-hover>The 90s Story</a>
+            <a href="/the-part-everyone-gets-wrong" className="btn-ghost-teal" data-hover>See Why We Get It</a>
           </div>
         </div>
         <div className="hero-right">

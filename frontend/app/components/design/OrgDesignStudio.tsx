@@ -392,16 +392,159 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       <div className="space-y-1.5">{aiOdsInsights.map((ins, i) => <div key={i} className="text-[15px] text-[var(--text-secondary)] pl-4 relative"><span className="absolute left-0 text-[#f0a050] font-bold">{i+1}.</span>{ins}</div>)}</div>
     </div>}
 
-    {view === "overview" && <div>
-      <div className="grid grid-cols-3 lg:grid-cols-6 gap-3 mb-5">
-        <OdsKpi label="Total Headcount" current={cA.hc} future={fA.hc} inv /><OdsKpi label="Avg Span" current={cA.avgS} future={fA.avgS} /><OdsKpi label="Avg Layers" current={cA.avgL} future={fA.avgL} inv /><OdsKpi label="Managers" current={cA.mgr} future={fA.mgr} inv /><OdsKpi label="ICs" current={cA.ic} future={fA.ic} /><OdsKpi label="Est. Cost ($M)" current={cA.cost / 1e6} future={fA.cost / 1e6} inv />
-      </div>
-      {/* Span by dept */}
-      <Card title="Span of Control by Department">
-        {(() => { const maxSpan = Math.max(...currentData.map(d => d.avgSpan), ...sc.departments.map(d => d.avgSpan)) * 1.15; return <div className="space-y-2">{currentData.map((d, i) => { const f = sc.departments[i]; return <div key={d.name} className="flex items-center gap-3"><div className="w-32 text-[15px] text-[var(--text-muted)] text-right shrink-0">{d.name}</div><div className="flex-1 space-y-1"><HBar value={d.avgSpan} max={maxSpan} color="var(--accent-primary)" /><HBar value={f?.avgSpan || 0} max={maxSpan} color="var(--success)" /></div><div className="w-16 shrink-0"><DChip a={d.avgSpan} b={f?.avgSpan || 0} /></div></div>; })}</div>; })()}
-        <div className="flex gap-4 mt-3 text-[15px] text-[var(--text-muted)]"><span className="flex items-center gap-1"><span className="w-3 h-1 rounded bg-[var(--accent-primary)]" />Current</span><span className="flex items-center gap-1"><span className="w-3 h-1 rounded bg-[var(--success)]" />{sc.label}</span></div>
-      </Card>
-    </div>}
+    {view === "overview" && (() => {
+      const OV_MONO = "'JetBrains Mono', 'IBM Plex Mono', monospace";
+      const spanHealth = (s: number) => s >= 6 && s <= 8 ? { label: "Optimal", color: "#10B981", badge: "✓" } : s >= 5 && s <= 10 ? { label: s < 6 ? "Narrow" : "Wide", color: "#F59E0B", badge: "◈" } : { label: s < 5 ? "Critically narrow" : "Critically wide", color: "#EF4444", badge: "⚠" };
+      const spanImproving = (cur: number, fut: number) => Math.abs(fut - 7) < Math.abs(cur - 7);
+      // Scenario impact score: 0-100 based on how much the scenario improves structure
+      const deptImprovements = currentData.filter((d, i) => spanImproving(d.avgSpan, sc.departments[i]?.avgSpan || d.avgSpan)).length;
+      const layerDelta = cA.avgL - fA.avgL;
+      const spanDelta = fA.avgS - cA.avgS;
+      const impactScore = Math.max(0, Math.min(100, Math.round(deptImprovements / Math.max(currentData.length, 1) * 40 + (layerDelta > 0 ? layerDelta * 15 : 0) + (spanDelta > 0 && cA.avgS < 6 ? spanDelta * 10 : 0) + 30)));
+      const impactColor = impactScore >= 70 ? "#10B981" : impactScore >= 40 ? "#F59E0B" : "#EF4444";
+      // Sorted departments by health (worst first)
+      const sortedDepts = currentData.map((d, i) => ({ ...d, idx: i, fut: sc.departments[i], health: spanHealth(d.avgSpan), futHealth: spanHealth(sc.departments[i]?.avgSpan || d.avgSpan), improving: spanImproving(d.avgSpan, sc.departments[i]?.avgSpan || d.avgSpan) })).sort((a, b) => { const aD = Math.abs(a.avgSpan - 7); const bD = Math.abs(b.avgSpan - 7); return bD - aD; });
+      // Top 3 actions
+      const actions: { title: string; desc: string; hc: number }[] = [];
+      const overLayered = sortedDepts.filter(d => d.layers > 4);
+      if (overLayered.length > 0) actions.push({ title: `De-layer ${overLayered[0].name}`, desc: `Reduce from ${overLayered[0].layers} to ${overLayered[0].fut?.layers || overLayered[0].layers - 1} layers. Impact: faster decision-making.`, hc: overLayered[0].headcount });
+      const narrowSpan = sortedDepts.filter(d => d.avgSpan < 5);
+      if (narrowSpan.length > 0) actions.push({ title: `Widen ${narrowSpan[0].name} span`, desc: `Current ${narrowSpan[0].avgSpan.toFixed(1)}:1 is below benchmark. Redistribute reports to reduce manager overhead.`, hc: narrowSpan[0].headcount });
+      const highMgrRatio = sortedDepts.filter(d => d.managers / Math.max(d.headcount, 1) > 0.15);
+      if (highMgrRatio.length > 0) actions.push({ title: `Address ${highMgrRatio[0].name} manager ratio`, desc: `${highMgrRatio[0].managers} managers for ${highMgrRatio[0].headcount} HC (${Math.round(highMgrRatio[0].managers / highMgrRatio[0].headcount * 100)}%) exceeds 12% target.`, hc: highMgrRatio[0].headcount });
+      if (actions.length === 0) actions.push({ title: "Review scenario parameters", desc: "All departments are within benchmark ranges. Consider testing an Aggressive scenario for further optimization.", hc: 0 });
+      const maxSpan = Math.max(...currentData.map(d => d.avgSpan), ...sc.departments.map(d => d.avgSpan), 12) * 1.1;
+
+      return <div>
+        {/* KPI strip with impact score */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 12, marginBottom: 20 }}>
+          {[
+            { label: "Total Headcount", current: cA.hc, future: fA.hc, inv: true },
+            { label: "Avg Span", current: cA.avgS, future: fA.avgS, inv: false },
+            { label: "Avg Layers", current: cA.avgL, future: fA.avgL, inv: true },
+            { label: "Managers", current: cA.mgr, future: fA.mgr, inv: true },
+            { label: "ICs", current: cA.ic, future: fA.ic, inv: false },
+            { label: "Est. Cost ($M)", current: cA.cost / 1e6, future: fA.cost / 1e6, inv: true },
+          ].map(k => {
+            const diff = k.future - k.current;
+            const isImproving = k.inv ? diff < 0 : diff > 0;
+            const isSignificant = Math.abs(diff) / Math.max(Math.abs(k.current), 1) > 0.05;
+            return <div key={k.label} style={{ background: "rgba(255,255,255,0.04)", borderRadius: 12, padding: 16, border: "1px solid rgba(255,255,255,0.08)", borderLeft: isSignificant ? `3px solid ${isImproving ? "#10B981" : "#F97316"}` : "1px solid rgba(255,255,255,0.08)" }}>
+              <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.08em", color: "#64748b", marginBottom: 8 }}>{k.label}</div>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+                <span style={{ fontSize: 13, fontFamily: OV_MONO, fontWeight: 700, color: "#64748b" }}>{fmt(k.current)}</span>
+                <span style={{ fontSize: 11, color: "#475569" }}>→</span>
+                <span style={{ fontSize: 20, fontFamily: OV_MONO, fontWeight: 700, color: "var(--text-primary)" }}>{fmt(k.future)}</span>
+              </div>
+              {diff !== 0 && <span style={{ display: "inline-flex", alignItems: "center", gap: 3, marginTop: 6, padding: "2px 8px", borderRadius: 6, fontSize: 12, fontFamily: OV_MONO, fontWeight: 700, background: isImproving ? "rgba(16,185,129,0.1)" : "rgba(249,115,22,0.1)", color: isImproving ? "#10B981" : "#F97316" }}>{diff > 0 ? "↑" : "↓"}{fmt(Math.abs(diff))}</span>}
+            </div>;
+          })}
+          {/* Impact Score card */}
+          <div style={{ background: `${impactColor}08`, borderRadius: 12, padding: 16, border: `1px solid ${impactColor}25`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.08em", color: "#64748b", marginBottom: 4 }}>Impact Score</div>
+            <div style={{ fontSize: 32, fontFamily: OV_MONO, fontWeight: 700, color: impactColor }}>{impactScore}</div>
+            <div style={{ fontSize: 9, color: impactColor, fontWeight: 600 }}>{impactScore >= 70 ? "Strong improvement" : impactScore >= 40 ? "Moderate change" : "Minimal impact"}</div>
+          </div>
+        </div>
+
+        {/* Scenario Impact Summary */}
+        <div style={{ padding: "16px 20px", marginBottom: 16, background: "rgba(59,130,246,0.04)", borderLeft: "3px solid #3B82F6", borderRadius: 12, border: "1px solid rgba(59,130,246,0.1)", fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.7 }}>
+          The <strong style={{ color: "var(--text-primary)" }}>{sc.label}</strong> scenario changes headcount from <span style={{ fontFamily: OV_MONO, fontWeight: 700, color: "var(--text-primary)" }}>{cA.hc.toLocaleString()}</span> → <span style={{ fontFamily: OV_MONO, fontWeight: 700, color: "var(--text-primary)" }}>{fA.hc.toLocaleString()}</span>{" "}
+          ({fA.hc - cA.hc >= 0 ? "+" : ""}{fA.hc - cA.hc}), {fA.avgL < cA.avgL ? <span style={{ color: "#10B981" }}>reduces average layers from {fmt(cA.avgL)} → {fmt(fA.avgL)} (-{fmt(cA.avgL - fA.avgL)})</span> : <span>maintains layers at {fmt(fA.avgL)}</span>},{" "}
+          and {fA.avgS > cA.avgS ? <span style={{ color: "#10B981" }}>widens average span from {fmt(cA.avgS)} → {fmt(fA.avgS)} (+{fmt(fA.avgS - cA.avgS)})</span> : <span>adjusts span to {fmt(fA.avgS)}</span>}.{" "}
+          <span style={{ fontFamily: OV_MONO, fontWeight: 700, color: "#10B981" }}>{deptImprovements}/{currentData.length}</span> departments move closer to the 6-8:1 benchmark.
+          {" "}Total cost {Math.abs(fA.cost - cA.cost) < cA.cost * 0.01 ? "remains neutral" : fA.cost < cA.cost ? <span style={{ color: "#10B981" }}>decreases by {fmtNum(cA.cost - fA.cost)}</span> : <span style={{ color: "#F97316" }}>increases by {fmtNum(fA.cost - cA.cost)}</span>} at <span style={{ fontFamily: OV_MONO, fontWeight: 700 }}>{fmtNum(fA.cost)}</span>.
+        </div>
+
+        {/* Span of Control by Department — improved bar chart */}
+        <Card title="Span of Control by Department">
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {sortedDepts.map(d => {
+              const f = d.fut;
+              const curSpan = d.avgSpan;
+              const futSpan = f?.avgSpan || curSpan;
+              const ch = d.health;
+              const fh = d.futHealth;
+              const barScale = maxSpan;
+              return <div key={d.name} style={{ display: "grid", gridTemplateColumns: "120px 1fr 60px 60px 50px", alignItems: "center", gap: 8, padding: "4px 0" }}>
+                {/* Department name + HC */}
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-secondary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{d.name}</div>
+                  <div style={{ fontSize: 9, fontFamily: OV_MONO, fontWeight: 700, color: "#64748b" }}>{d.headcount} HC</div>
+                </div>
+                {/* Dual bar with benchmark zone */}
+                <div style={{ position: "relative", height: 24 }}>
+                  {/* Benchmark zone (6-8) */}
+                  <div style={{ position: "absolute", left: `${(6 / barScale) * 100}%`, width: `${((8 - 6) / barScale) * 100}%`, top: 0, bottom: 0, background: "rgba(52,211,153,0.06)", borderRadius: 4, borderLeft: "1px dashed rgba(52,211,153,0.2)", borderRight: "1px dashed rgba(52,211,153,0.2)" }} />
+                  {/* Current bar (background) */}
+                  <div style={{ position: "absolute", top: 2, height: 9, borderRadius: 4, width: `${Math.min(curSpan / barScale * 100, 100)}%`, background: "rgba(212,134,10,0.3)", transition: "width 0.5s ease-out" }} />
+                  {/* Scenario bar (foreground) */}
+                  <div style={{ position: "absolute", top: 13, height: 9, borderRadius: 4, width: `${Math.min(futSpan / barScale * 100, 100)}%`, background: "rgba(16,185,129,0.6)", transition: "width 0.5s ease-out" }} />
+                </div>
+                {/* Current value */}
+                <div style={{ textAlign: "right", fontSize: 13, fontFamily: OV_MONO, fontWeight: 700, color: ch.color }}>{curSpan.toFixed(1)}</div>
+                {/* Future value */}
+                <div style={{ textAlign: "right", fontSize: 13, fontFamily: OV_MONO, fontWeight: 700, color: fh.color }}>{futSpan.toFixed(1)}</div>
+                {/* Delta + health */}
+                <div style={{ textAlign: "center" }}>
+                  {curSpan !== futSpan ? <span style={{ fontSize: 12, fontFamily: OV_MONO, fontWeight: 700, padding: "1px 6px", borderRadius: 4, background: d.improving ? "rgba(16,185,129,0.1)" : "rgba(249,115,22,0.1)", color: d.improving ? "#10B981" : "#F97316" }}>{futSpan > curSpan ? "↑" : "↓"}{Math.abs(futSpan - curSpan).toFixed(1)}</span> : <span style={{ fontSize: 11, color: "#475569" }}>—</span>}
+                </div>
+              </div>;
+            })}
+          </div>
+          {/* Legend */}
+          <div style={{ display: "flex", gap: 16, marginTop: 12, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.06)", fontSize: 11, color: "#64748b" }}>
+            <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 16, height: 6, borderRadius: 3, background: "rgba(212,134,10,0.3)" }} />Current</span>
+            <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 16, height: 6, borderRadius: 3, background: "rgba(16,185,129,0.6)" }} />{sc.label}</span>
+            <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 16, height: 8, borderRadius: 2, background: "rgba(52,211,153,0.08)", border: "1px dashed rgba(52,211,153,0.25)" }} />Benchmark (6-8:1)</span>
+          </div>
+        </Card>
+
+        {/* Top 3 Actions */}
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.08em", color: "#64748b", marginBottom: 12 }}>Priority Actions</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {actions.slice(0, 3).map((a, i) => <div key={i} style={{ display: "flex", gap: 12, padding: "12px 16px", borderRadius: 12, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderLeft: "3px solid #3B82F6" }}>
+              <span style={{ fontSize: 15, fontFamily: OV_MONO, fontWeight: 700, color: "#3B82F6", flexShrink: 0 }}>{i + 1}.</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)", marginBottom: 2 }}>{a.title}</div>
+                <div style={{ fontSize: 12, color: "#64748b", lineHeight: 1.5 }}>{a.desc}</div>
+              </div>
+              {a.hc > 0 && <span style={{ fontSize: 11, fontFamily: OV_MONO, fontWeight: 700, color: "#64748b", flexShrink: 0, alignSelf: "center" }}>{a.hc} HC</span>}
+            </div>)}
+          </div>
+        </div>
+
+        {/* Department Health Table */}
+        <Card title="Department Comparison">
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", fontSize: 13, borderCollapse: "collapse" }}>
+              <thead><tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+                {["Department", "HC", "Span (C→S)", "Layers (C→S)", "Mgr Ratio", "Health"].map(h => <th key={h} style={{ padding: "8px 12px", textAlign: h === "Department" ? "left" : "right", fontSize: 9, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.08em", color: "#64748b" }}>{h}</th>)}
+              </tr></thead>
+              <tbody>{sortedDepts.map((d, i) => {
+                const f = d.fut;
+                const mgrRatio = Math.round(d.managers / Math.max(d.headcount, 1) * 100);
+                return <tr key={d.name} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)", background: i % 2 ? "rgba(255,255,255,0.01)" : "transparent" }}>
+                  <td style={{ padding: "8px 12px", fontWeight: 600, color: "var(--text-primary)" }}>
+                    <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: 3, background: d.health.color, marginRight: 8 }} />{d.name}
+                  </td>
+                  <td style={{ padding: "8px 12px", textAlign: "right", fontFamily: OV_MONO, fontWeight: 700 }}>{d.headcount} <span style={{ color: "#475569" }}>→</span> {f?.headcount || d.headcount}</td>
+                  <td style={{ padding: "8px 12px", textAlign: "right" }}>
+                    <span style={{ fontFamily: OV_MONO, fontWeight: 700, color: d.health.color }}>{d.avgSpan.toFixed(1)}</span>
+                    <span style={{ color: "#475569", margin: "0 4px" }}>→</span>
+                    <span style={{ fontFamily: OV_MONO, fontWeight: 700, color: d.futHealth.color }}>{(f?.avgSpan || d.avgSpan).toFixed(1)}</span>
+                  </td>
+                  <td style={{ padding: "8px 12px", textAlign: "right", fontFamily: OV_MONO, fontWeight: 700 }}>{d.layers} <span style={{ color: "#475569" }}>→</span> {f?.layers || d.layers}</td>
+                  <td style={{ padding: "8px 12px", textAlign: "right", fontFamily: OV_MONO, fontWeight: 700, color: mgrRatio > 15 ? "#F97316" : mgrRatio > 12 ? "#F59E0B" : "#64748b" }}>{mgrRatio}%</td>
+                  <td style={{ padding: "8px 12px", textAlign: "right" }}><span style={{ padding: "2px 6px", borderRadius: 4, fontSize: 9, fontWeight: 700, background: `${d.futHealth.color}15`, color: d.futHealth.color }}>{d.futHealth.badge} {d.futHealth.label.split(" ")[0]}</span></td>
+                </tr>;
+              })}</tbody>
+            </table>
+          </div>
+        </Card>
+      </div>;
+    })()}
 
     {view === "soc" && (() => {
       const SPAN_MONO = "'JetBrains Mono', 'IBM Plex Mono', monospace";
