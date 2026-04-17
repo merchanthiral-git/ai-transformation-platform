@@ -177,6 +177,39 @@ except Exception as e:
     print(f"[Migration warning] {e}")
 
 
+# ── Seed admin user if not exists ─────────────────────────────
+def _seed_admin():
+    """Create the admin user on first startup if it doesn't exist."""
+    db = SessionLocal()
+    try:
+        existing = db.query(UserDB).filter(UserDB.username == "hiral").first()
+        if not existing:
+            admin = UserDB(
+                username="hiral",
+                email="merchanthiral@gmail.com",
+                display_name="Hiral",
+                password_hash=hash_password("Montreal1980!"),
+                is_active="true",
+                email_verified="true",
+                created_at=datetime.now(timezone.utc),
+            )
+            db.add(admin)
+            db.commit()
+            print("[Seed] Admin user 'hiral' created")
+        else:
+            print("[Seed] Admin user 'hiral' already exists — skipping")
+    except Exception as e:
+        print(f"[Seed warning] {e}")
+        db.rollback()
+    finally:
+        db.close()
+
+try:
+    _seed_admin()
+except Exception as e:
+    print(f"[Seed error] {e}")
+
+
 # ── Dependency — get DB session ─────────────────────────────────
 def get_db():
     db = SessionLocal()
