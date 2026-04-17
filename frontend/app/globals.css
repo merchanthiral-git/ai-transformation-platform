@@ -230,13 +230,17 @@ html { font-size: 16px; }
   .tab-scroll button { padding-left: 8px !important; padding-right: 8px !important; font-size: 12px !important; }
 }
 
-/* ═══ TABLE RESPONSIVE ═══ */
-/* Tables scroll horizontally on small screens instead of breaking layout */
-.scroll-shadow, .overflow-x-auto {
-  -webkit-overflow-scrolling: touch;
-}
+/* ═══ TABLE STYLING — RULE 1 ═══ */
+/* Universal table polish — sortable headers, alternating rows, hover, right-aligned numbers */
+.scroll-shadow, .overflow-x-auto { -webkit-overflow-scrolling: touch; }
+table thead th { cursor: pointer; user-select: none; white-space: nowrap; }
+table thead th:hover { color: var(--accent-primary) !important; }
+table tbody tr:nth-child(even) { background: rgba(255,255,255,0.01); }
+table tbody tr:hover { background: rgba(255,255,255,0.04) !important; }
+table tbody td { vertical-align: middle; }
+/* Right-align numeric cells — applied via .font-data or .font-jetbrains on <td> */
+table td.font-data, table td.font-jetbrains, table td[style*="fontFamily"] { text-align: right !important; }
 @media (max-width: 1440px) {
-  /* Reduce table cell padding on smaller screens */
   table td, table th { padding-left: 8px !important; padding-right: 8px !important; }
 }
 
