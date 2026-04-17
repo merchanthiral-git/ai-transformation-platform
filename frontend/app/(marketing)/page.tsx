@@ -169,8 +169,8 @@ nav.scrolled { padding: 16px 56px; background: rgba(244,241,235,0.92); backdrop-
 .btn-primary:hover::after { transform: translateY(0); }
 .btn-ghost { padding: 18px 48px; background: transparent; color: var(--text-mid); border: 1px solid var(--rule); border-radius: 100px; font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; cursor: none; transition: all 0.3s; text-decoration: none; display: inline-block; }
 .btn-ghost:hover { color: var(--text); border-color: var(--text); }
-.btn-ghost-teal { padding: 18px 48px; background: transparent; color: #22d3ee; border: 1px solid #22d3ee; border-radius: 100px; font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; cursor: none; transition: all 0.3s; text-decoration: none; display: inline-block; }
-.btn-ghost-teal:hover { background: rgba(34,211,238,0.1); color: #22d3ee; border-color: #22d3ee; }
+.btn-accent { padding: 18px 48px; background: var(--accent); color: #ffffff; border: none; border-radius: 100px; font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; cursor: none; transition: all 0.3s; text-decoration: none; display: inline-block; }
+.btn-accent:hover { background: #A3402A; color: #ffffff; }
 @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
 .hero { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; align-items: center; padding: 140px 56px 100px; position: relative; overflow: hidden; gap: 60px; }
 .hero-left { position: relative; z-index: 2; }
@@ -247,25 +247,20 @@ nav.scrolled { padding: 16px 56px; background: rgba(244,241,235,0.92); backdrop-
 .pain-header h2 { font-family: var(--serif); font-size: clamp(32px,4.5vw,56px); font-weight: 300; letter-spacing: -1px; margin-bottom: 16px; }
 .pain-header h2 em { font-style: italic; color: var(--accent); }
 .pain-header p { font-size: 17px; color: var(--text-mid); max-width: 520px; margin: 0 auto; line-height: 1.7; font-style: italic; }
-.pain-scroll { position: relative; padding: 0 48px; }
-.pain-track { display: flex; gap: 28px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; padding: 20px 0 40px; scrollbar-width: none; }
-.pain-track::-webkit-scrollbar { display: none; }
-.pain-card { flex: 0 0 340px; min-height: 520px; border-radius: 24px; padding: 36px 32px; position: relative; overflow: hidden; scroll-snap-align: start; transition: transform 0.4s ease, box-shadow 0.4s ease; display: flex; flex-direction: column; }
+.pain-scroll { padding: 0 48px; }
+.pain-track { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; padding: 20px 0 40px; }
+.pain-card { border-radius: 24px; padding: 36px 32px; position: relative; overflow: hidden; transition: transform 0.4s ease, box-shadow 0.4s ease; display: flex; flex-direction: column; }
 .pain-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(0,0,0,0.1); }
 .pain-card-num { font-family: var(--sans); font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 16px; }
 .pain-card h3 { font-family: var(--serif); font-size: 26px; font-weight: 400; letter-spacing: -0.5px; margin-bottom: 20px; }
 .pain-card p { font-size: 15px; line-height: 1.75; flex: 1; }
 .pain-card-illo { height: 160px; margin-bottom: 24px; display: flex; align-items: center; justify-content: center; }
 .pain-card-illo svg { width: 100%; height: 100%; }
-.pain-dot-row { display: flex; justify-content: center; gap: 12px; padding: 0 48px; margin-top: 8px; }
-.pain-dot { width: 10px; height: 10px; border-radius: 50%; background: #D6D1C8; border: 2px solid #D6D1C8; transition: all 0.3s; }
-.pain-dot.active { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 4px rgba(192,75,45,0.15); }
-.pain-card.playground { flex: 0 0 400px; min-height: 560px; }
-@keyframes playgroundPulse { 0%, 100% { box-shadow: 0 8px 32px rgba(212,134,10,0.15); } 50% { box-shadow: 0 12px 48px rgba(212,134,10,0.25); } }
-.pain-scroll-hint { position: absolute; top: 50%; right: 16px; transform: translateY(-50%); width: 40px; height: 40px; border-radius: 20px; background: rgba(0,0,0,0.04); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--text-light); pointer-events: none; animation: hintPulse 2s ease-in-out infinite; }
-@keyframes hintPulse { 0%, 100% { opacity: 0.4; transform: translateY(-50%) translateX(0); } 50% { opacity: 0.8; transform: translateY(-50%) translateX(4px); } }
-@media (max-width: 1000px) { .pain-card { flex: 0 0 300px; min-height: 480px; } .pain-card.playground { flex: 0 0 340px; } }
-@media (max-width: 600px) { .pain-track { flex-direction: column; overflow-x: visible; scroll-snap-type: none; padding: 0 24px 20px; gap: 20px; } .pain-card, .pain-card.playground { flex: none; width: 100%; min-height: auto; } .pain-scroll { padding: 0; } .pain-scroll-hint { display: none; } .pain-dot-row { display: none; } }
+.pain-card.playground { grid-column: 1 / -1; }
+.pain-dot-row { display: none; }
+.pain-scroll-hint { display: none; }
+@media (max-width: 1000px) { .pain-track { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .pain-track { grid-template-columns: 1fr; } .pain-scroll { padding: 0 24px; } }
 .pull-quote { padding: 180px 48px; text-align: center; }
 .pull-quote .big-quote { font-family: var(--serif); font-size: 140px; color: var(--rule); line-height: 0.5; margin-bottom: 36px; user-select: none; }
 .pull-quote blockquote { font-family: var(--serif); font-size: clamp(28px,4vw,52px); font-weight: 300; font-style: italic; line-height: 1.25; letter-spacing: -0.5px; max-width: 780px; margin: 0 auto 36px; }
@@ -436,7 +431,7 @@ footer { padding: 48px 56px; border-top: 1px solid var(--rule); display: flex; j
           <p className="hero-sub">The platform that tells you exactly what to do about it — from task-level automation to boardroom-ready decisions.</p>
           <div className="hero-actions">
             <Link href="/app" className="btn-primary" data-hover><span>See What&apos;s Possible</span></Link>
-            <a href="/the-part-everyone-gets-wrong" className="btn-ghost-teal" data-hover>See Why We Get It</a>
+            <a href="/the-part-everyone-gets-wrong" className="btn-accent" data-hover>From Stress to Recess</a>
           </div>
         </div>
         <div className="hero-right">
@@ -798,12 +793,6 @@ footer { padding: 48px 56px; border-top: 1px solid var(--rule); display: flex; j
             </div>
 
           </div>
-          <div className="pain-scroll-hint">&rarr;</div>
-        </div>
-        {/* Dot indicators */}
-        <div className="pain-dot-row">
-          {[0,1,2,3,4,5].map(i => <div key={i} className="pain-dot" />)}
-          <div className="pain-dot active" />
         </div>
       </section>
 
