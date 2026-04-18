@@ -84,3 +84,32 @@ Rebuilt Work Design Lab with expert-grade improvements. Replaced all emoji with 
 ### Carries forward
 - Org Link tab needs full implementation when org chart component is available
 - Cross-role insights card (when 3+ jobs analyzed) deferred — can be added in a later pass
+
+---
+
+## Part 2 — Org Design Studio
+Date: 2026-04-17
+Branch: feat/platform-upgrade-v1
+
+### What changed
+Upgraded Org Design Studio with McKinsey-grade enhancements. Replaced all emoji with Lucide icons (Network, Layers3, Users, BookOpen). Added HeroMetric for Impact Score computed from scenario deltas. Replaced NextStepBar with FlowNav (previous: Impact Simulator, next: Org Restructuring). Created lib/computed/orgScenario.ts with computeShape (Diamond/Pyramid/Hourglass/etc taxonomy), computeScenarioDelta, and computeImpactScore pure functions.
+
+### Files touched
+- `app/components/design/OrgDesignStudio.tsx` — emoji replaced, HeroMetric added, FlowNav added
+- `lib/computed/orgScenario.ts` — new
+- `lib/computed/index.ts` — added orgScenario export
+
+### Methodology decisions made
+- Shape taxonomy (Diamond, Pyramid, Hourglass, Inverted Pyramid, Balanced) derived from level distribution ratios. Source: Bain "Decisions that Matter" framework.
+- Impact Score formula: 30% HC change + 30% cost change + 20% span change + 20% layer change, normalized 0-100.
+
+### Issues encountered and how resolved
+- None — clean upgrade
+
+### Verification
+- Build: PASS
+- Smoke test: PASS
+
+### Carries forward
+- Benchmarks sub-tab has existing content but could be expanded with spider chart
+- Insights sub-tab master-detail rebuild deferred — current carousel functional

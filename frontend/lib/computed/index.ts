@@ -16,3 +16,4 @@ export * from "./roleClusters";
 export * from "./readinessBands";
 export * from "./costModel";
 export * from "./impactSimulator";
+export * from "./orgScenario";

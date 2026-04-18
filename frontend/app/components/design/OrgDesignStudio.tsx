@@ -10,6 +10,9 @@ import {
   NextStepBar, ContextStrip,
   useApiData, usePersisted, callAI, showToast, JobDesignState, fmtNum,
 } from "../shared";
+import { Network, Layers3, Users, BookOpen, Sparkle, TriangleAlert, Check, Gauge, GitBranch, ChevronLeft, ChevronRight } from "@/lib/icons";
+import { HeroMetric, ExpertPanel, FlowNav, EmptyState } from "@/app/ui";
+import { computeScenarioDelta, computeImpactScore } from "@/lib/computed/orgScenario";
 import { EmployeeOrgChart } from "../OverviewModule";
 import LayerDistributionChart from "./LayerDistributionChart";
 import type { LayerData } from "./LayerDistributionChart";
@@ -169,7 +172,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
     const matchDept = currentData.find(d => d.name.toLowerCase().includes((viewCtx.job || "").split(" ")[0].toLowerCase())) || currentData[0];
     const matchFuture = sc.departments[currentData.indexOf(matchDept)] || sc.departments[0];
     return <div>
-      <PageHeader icon="💼" title={`Structural Context — ${viewCtx.job}`} subtitle="Where this role sits in the org structure" onBack={onBack} moduleId="build" />
+      <PageHeader icon={<Layers3 />} title={`Structural Context — ${viewCtx.job}`} subtitle="Where this role sits in the org structure" onBack={onBack} moduleId="build" />
       <div className="grid grid-cols-5 gap-3 mb-5">
         <KpiCard label="Department" value={matchDept?.name || "—"} /><KpiCard label="Dept HC" value={matchDept?.headcount || 0} /><KpiCard label="Span" value={matchDept?.avgSpan || 0} accent /><KpiCard label="Layers" value={matchDept?.layers || 0} /><KpiCard label="Managers" value={matchDept?.managers || 0} />
       </div>
@@ -191,22 +194,26 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
           `Current span of control is ${matchDept?.avgSpan || 0} — ${(matchDept?.avgSpan || 0) < 5 ? "narrow, suggesting over-management" : (matchDept?.avgSpan || 0) > 10 ? "wide, risk of insufficient coaching" : "within healthy range"}.`,
           `The department has ${matchDept?.layers || 0} layers — ${(matchDept?.layers || 0) > 5 ? "consider de-layering" : "reasonable depth"}.`,
           matchFuture && matchFuture.headcount !== matchDept?.headcount ? `Future state targets ${matchFuture.headcount} headcount (${matchFuture.headcount > (matchDept?.headcount || 0) ? "growth" : "optimization"}).` : "No scenario changes applied yet.",
-        ]} icon="🏗️" />
+        ]} icon={<Network />} />
       </div>
-      <NextStepBar currentModuleId="build" onNavigate={onBack} />
+      <FlowNav
+        previous={{ id: "impactsim", label: "Impact Simulator", icon: <Gauge /> }}
+        next={{ id: "orgrestructuring", label: "Org Restructuring", icon: <Network /> }}
+        onNavigate={onBack}
+      />
     </div>;
   }
 
   // Employee view: show org chart
   if (viewCtx?.mode === "employee" && viewCtx?.employee) return <div>
-    <PageHeader icon="👤" title="My Org Chart" subtitle={`${viewCtx.employee}'s reporting structure`} onBack={onBack} moduleId="build" />
+    <PageHeader icon={<Users />} title="My Org Chart" subtitle={`${viewCtx.employee}'s reporting structure`} onBack={onBack} moduleId="build" />
     <EmployeeOrgChart employee={viewCtx.employee} model={model} f={f} />
-    <InsightPanel title="What This Means" items={["Your org chart shows your reporting line, peers at your level, and any direct reports.", "During transformation, your reporting line may change as layers are adjusted.", "Use the Organization View to see how the full structure is being redesigned."]} icon="🏗️" />
+    <InsightPanel title="What This Means" items={["Your org chart shows your reporting line, peers at your level, and any direct reports.", "During transformation, your reporting line may change as layers are adjusted.", "Use the Organization View to see how the full structure is being redesigned."]} icon={<Network />} />
   </div>;
 
   return <div>
     <ContextStrip items={["Phase 2: Design — Model your future org structure. Data is generated for modeling — upload workforce data to ground in reality."]} />
-    <PageHeader icon="🏗️" title="Org Design Studio" subtitle="Current → Future State Modeling · Multi-Scenario Engine" onBack={onBack} moduleId="build" />
+    <PageHeader icon={<Network />} title="Org Design Studio" subtitle="Current → Future State Modeling · Multi-Scenario Engine" onBack={onBack} moduleId="build" />
     {hasRealData ? <div className="bg-[rgba(16,185,129,0.08)] border border-[var(--success)]/30 rounded-lg px-4 py-2 mb-4 text-[15px] text-[var(--success)]">✓ Using your uploaded workforce data to model departments</div> : <div className="bg-[rgba(245,158,11,0.08)] border border-[var(--warning)]/30 rounded-lg px-4 py-2 mb-4 text-[15px] text-[var(--warning)]">Using generated sample data — upload workforce data for your real org structure</div>}
 
     {/* Scenario selector — dropdown with Customize button */}
@@ -385,7 +392,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
     })()}
 
     {/* View tabs */}
-    <TabBar tabs={[{ id: "overview", label: "Overview" }, { id: "soc", label: "Span Detail" }, { id: "layers", label: "Layers" }, { id: "cost", label: "Cost Model" }, { id: "roles", label: "Role Migration" }, { id: "drill", label: "Dept Drill-Down" }, { id: "compare", label: "Compare All" }, { id: "insights", label: "Insights" }, { id: "benchmarks", label: "📖 Benchmarks" }]} active={view} onChange={setView} />
+    <TabBar tabs={[{ id: "overview", label: "Overview" }, { id: "soc", label: "Span Detail" }, { id: "layers", label: "Layers" }, { id: "cost", label: "Cost Model" }, { id: "roles", label: "Role Migration" }, { id: "drill", label: "Dept Drill-Down" }, { id: "compare", label: "Compare All" }, { id: "insights", label: "Insights" }, { id: "benchmarks", label: "Benchmarks" }]} active={view} onChange={setView} />
 
     {aiOdsInsights.length > 0 && <div className="bg-gradient-to-r from-[rgba(224,144,64,0.06)] to-transparent border border-[rgba(224,144,64,0.15)] rounded-xl p-4 mb-4">
       <div className="flex items-center gap-2 mb-2 text-[15px] font-bold" style={{ color: "#f0a050" }}>✨ AI Restructuring Recommendations</div>
@@ -446,6 +453,23 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
             <div style={{ fontSize: 9, color: impactColor, fontWeight: 600 }}>{impactScore >= 70 ? "Strong improvement" : impactScore >= 40 ? "Moderate change" : "Minimal impact"}</div>
           </div>
         </div>
+
+        {/* HeroMetric — Impact Score from scenario delta */}
+        {(() => {
+          const baseAgg = odsAgg(currentData);
+          const scnAgg = odsAgg(sc?.departments || currentData);
+          const delta = computeScenarioDelta(baseAgg as unknown as Record<string, number>, scnAgg as unknown as Record<string, number>);
+          const heroImpactScore = computeImpactScore(delta);
+          return <div className="mb-4">
+            <HeroMetric
+              label="Impact Score"
+              value={`${heroImpactScore}`}
+              delta={heroImpactScore > 60 ? "Significant change" : heroImpactScore > 30 ? "Moderate change" : "Minimal change"}
+              status={heroImpactScore > 60 ? "risk" : heroImpactScore > 30 ? "warn" : "success"}
+              sources={[{ label: `${sc?.label || "Optimized"} scenario` }]}
+            />
+          </div>;
+        })()}
 
         {/* Scenario Impact Summary */}
         <div style={{ padding: "16px 20px", marginBottom: 16, background: "rgba(59,130,246,0.04)", borderLeft: "3px solid #3B82F6", borderRadius: 12, border: "1px solid rgba(59,130,246,0.1)", fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.7 }}>
@@ -1371,7 +1395,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       </div>;
     })()}
 
-    {view === "benchmarks" && <Card title="📖 Span & Layer Benchmarks by Industry">
+    {view === "benchmarks" && <Card title="Span & Layer Benchmarks by Industry">
       <div className="text-[15px] text-[var(--text-secondary)] mb-4">Industry benchmarks for optimal spans of control, management layers, and manager-to-IC ratios. Use as design targets when restructuring.</div>
       <div className="space-y-5">
         {SPAN_BENCHMARKS.map((bm, bi) => <div key={bi} className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] overflow-hidden">
@@ -1424,6 +1448,10 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       </div>}
     </Card>}
 
-    <NextStepBar currentModuleId="build" onNavigate={onBack} />
+    <FlowNav
+      previous={{ id: "impactsim", label: "Impact Simulator", icon: <Gauge /> }}
+      next={{ id: "orgrestructuring", label: "Org Restructuring", icon: <Network /> }}
+      onNavigate={onBack}
+    />
   </div>;
 }
