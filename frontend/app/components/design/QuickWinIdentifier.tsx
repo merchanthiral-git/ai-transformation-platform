@@ -3,9 +3,11 @@ import React, { useState, useMemo } from "react";
 import * as api from "../../../lib/api";
 import type { Filters } from "../../../lib/api";
 import {
-  KpiCard, Card, Empty, PageHeader, LoadingBar,
+  KpiCard, Card, PageHeader, LoadingBar,
   useApiData, JobDesignState,
 } from "../shared";
+import { Sparkle } from "@/lib/icons";
+import { EmptyState, FlowNav } from "@/app/ui";
 
 export function QuickWinIdentifier({ model, f, onBack, onNavigate, jobStates }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; jobStates?: Record<string, JobDesignState> }) {
   const [data, loading] = useApiData(() => api.getAIPriority(model, f), [model, f.func, f.jf, f.sf, f.cl]);
@@ -37,7 +39,7 @@ export function QuickWinIdentifier({ model, f, onBack, onNavigate, jobStates }: 
   const roiColor = (r: number) => r >= 20 ? "var(--success)" : r >= 10 ? "var(--accent-primary)" : "var(--text-muted)";
 
   return <div>
-    <PageHeader icon="⚡" title="Quick-Win Identifier" subtitle="Highest ROI, lowest effort AI transformation opportunities" onBack={onBack} moduleId="quickwins" />
+    <PageHeader icon={<Sparkle />} title="Quick-Win Identifier" subtitle="Highest ROI, lowest effort AI transformation opportunities" onBack={onBack} moduleId="quickwins" />
 
     {loading && <LoadingBar />}
 
@@ -55,7 +57,7 @@ export function QuickWinIdentifier({ model, f, onBack, onNavigate, jobStates }: 
     </div>
 
     {/* Quick Wins section */}
-    {quickWins.length > 0 && <Card title="⚡ Quick Wins — High Impact, Low Effort">
+    {quickWins.length > 0 && <Card title="Quick Wins — High Impact, Low Effort">
       <div className="text-[15px] text-[var(--text-secondary)] mb-3">These opportunities offer the best return for minimal implementation complexity. Start here.</div>
       <div className="grid grid-cols-2 gap-3">
         {quickWins.map((w, i) => <div key={i} className="rounded-xl p-4 bg-[var(--surface-2)] border border-[var(--border)] border-l-[3px] border-l-[var(--success)] transition-all hover:-translate-y-0.5">
@@ -74,7 +76,7 @@ export function QuickWinIdentifier({ model, f, onBack, onNavigate, jobStates }: 
     </Card>}
 
     {/* Strategic Bets */}
-    {strategicBets.length > 0 && <Card title="🎯 Strategic Bets — High Impact, Higher Effort">
+    {strategicBets.length > 0 && <Card title="Strategic Bets — High Impact, Higher Effort">
       <div className="space-y-2">
         {strategicBets.map((w, i) => <div key={i} className="flex items-center gap-4 p-3 rounded-lg bg-[var(--surface-2)] border border-[var(--border)]">
           <div className="flex-1"><div className="text-[15px] font-bold text-[var(--text-primary)]">{String(w["Task Name"] || w.task_name || "—")}</div><div className="text-[14px] text-[var(--text-muted)]">{String(w["Job Title"] || w.job_title || "—")}</div></div>
@@ -105,6 +107,8 @@ export function QuickWinIdentifier({ model, f, onBack, onNavigate, jobStates }: 
       </tbody></table></div>
     </Card>
 
-    {scored.length === 0 && !loading && <Empty icon="⚡" text="Quick Wins Require AI Scan Data" subtitle="Run the AI Opportunity Scan first to identify high-impact, low-effort automation opportunities." action="Go to Diagnose" onAction={() => onNavigate?.("diagnose")} />}
+    {scored.length === 0 && !loading && <EmptyState icon={<Sparkle />} headline="Quick Wins Require AI Scan Data" explanation="Run the AI Opportunity Scan first to identify high-impact, low-effort automation opportunities." primaryAction={{ label: "Go to Diagnose", onClick: () => onNavigate?.("diagnose") }} />}
+
+    <FlowNav previous={{ id: "headcount", label: "Headcount Planning" }} next={{ id: "oml", label: "Operating Model Lab" }} onNavigate={onNavigate || onBack} />
   </div>;
 }

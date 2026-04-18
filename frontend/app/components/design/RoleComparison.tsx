@@ -3,9 +3,11 @@ import React, { useState, useEffect } from "react";
 import * as api from "../../../lib/api";
 import type { Filters } from "../../../lib/api";
 import {
-  Card, Empty, Badge, PageHeader,
+  Card, Badge, PageHeader,
   useApiData, JobDesignState,
 } from "../shared";
+import { Layers3, X } from "@/lib/icons";
+import { EmptyState, FlowNav } from "@/app/ui";
 
 export function RoleComparison({ model, f, onBack, jobs, jobStates }: { model: string; f: Filters; onBack: () => void; jobs?: string[]; jobStates?: Record<string, JobDesignState> }) {
   const [data] = useApiData(() => api.getOverview(model, f), [model, f.func, f.jf, f.sf, f.cl]);
@@ -29,12 +31,12 @@ export function RoleComparison({ model, f, onBack, jobs, jobStates }: { model: s
   const getJobState = (j: string) => jobStates?.[j] || null;
 
   return <div>
-    <PageHeader icon="⚖️" title="Role Comparison" subtitle="Compare current vs. redesigned roles side-by-side" onBack={onBack} moduleId="rolecompare" />
+    <PageHeader icon={<Layers3 />} title="Role Comparison" subtitle="Compare current vs. redesigned roles side-by-side" onBack={onBack} moduleId="rolecompare" />
 
     {/* Job selector */}
     <Card title="Select Roles to Compare (max 4)">
       <div className="flex gap-2 flex-wrap mb-3">
-        {selectedJobs.map(j => <button key={j} onClick={() => toggleJob(j)} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold bg-[var(--accent-primary)]/15 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] cursor-pointer flex items-center gap-1">{j} <span className="opacity-50">✕</span></button>)}
+        {selectedJobs.map(j => <button key={j} onClick={() => toggleJob(j)} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold bg-[var(--accent-primary)]/15 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] cursor-pointer flex items-center gap-1">{j} <span className="opacity-50"><X size={12} /></span></button>)}
         {selectedJobs.length === 0 && <span className="text-[15px] text-[var(--text-muted)]">Select up to 4 jobs below</span>}
       </div>
       <div className="flex gap-1.5 flex-wrap">{availableJobs.slice(0, 30).map(j => <button key={j} onClick={() => toggleJob(j)} className="px-2 py-1 rounded text-[14px] font-semibold transition-all cursor-pointer" style={{ background: selectedJobs.includes(j) ? "rgba(212,134,10,0.15)" : "var(--surface-2)", color: selectedJobs.includes(j) ? "var(--accent-primary)" : "var(--text-muted)", border: `1px solid ${selectedJobs.includes(j) ? "rgba(212,134,10,0.3)" : "var(--border)"}` }}>{j}</button>)}</div>
@@ -95,6 +97,8 @@ export function RoleComparison({ model, f, onBack, jobs, jobStates }: { model: s
       })}
     </div>}
 
-    {selectedJobs.length === 0 && <Empty icon="⚖️" text="Select Roles to Compare" subtitle="Choose 2-4 roles from the Job Architecture to see a side-by-side comparison of levels, skills, and AI impact." />}
+    {selectedJobs.length === 0 && <EmptyState icon={<Layers3 />} headline="Select roles to compare" explanation="Choose 2-4 roles from the Job Architecture to see a side-by-side comparison of levels, skills, and AI impact." primaryAction={{ label: "Select roles above", onClick: () => {} }} />}
+
+    <FlowNav previous={{ id: "oml", label: "Operating Model Lab" }} next={{ id: "bbba", label: "Talent Strategy" }} onNavigate={onBack} />
   </div>;
 }

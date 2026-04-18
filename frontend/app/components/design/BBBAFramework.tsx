@@ -3,9 +3,11 @@ import React, { useState, useEffect } from "react";
 import * as api from "../../../lib/api";
 import type { Filters } from "../../../lib/api";
 import {
-  KpiCard, Card, DonutViz, NextStepBar, PageHeader, LoadingBar,
+  KpiCard, Card, DonutViz, PageHeader, LoadingBar,
   ModuleExportButton, usePersisted, logDec, fmtNum,
 } from "../shared";
+import { Shuffle, Check } from "@/lib/icons";
+import { EmptyState, FlowNav } from "@/app/ui";
 
 export function BBBAFramework({ model, f, onBack, onNavigate, jobStates, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; jobStates?: Record<string, import("./shared").JobDesignState>; viewCtx?: import("./shared").ViewContext }) {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
@@ -17,14 +19,13 @@ export function BBBAFramework({ model, f, onBack, onNavigate, jobStates, viewCtx
   const roles = (data?.roles || []) as { role: string; disposition: string; reason: string; strong_candidates: number; reskillable_candidates: number; cost_per_fte: number; fte_needed: number; total_cost: number; required_skills: string[]; timeline_months: number }[];
   const summary = (data?.summary || {}) as Record<string, unknown>;
   const dispColors: Record<string, string> = { Build: "var(--success)", Buy: "var(--accent-primary)", Borrow: "var(--warning)", Automate: "var(--purple)" };
-  const dispIcons: Record<string, string> = { Build: "🏗️", Buy: "🛒", Borrow: "🤝", Automate: "🤖" };
 
   // Strategy meta
   const strategies = [
-    { id: "Build", icon: "🎓", color: "var(--success)", label: "Train your existing people", pros: "Cheapest long-term, retains culture", cons: "Slowest (3-12mo)", best: "Skills adjacent to current", cost: "$", time: "🕐🕐🕐" },
-    { id: "Buy", icon: "🛒", color: "var(--accent-primary)", label: "Hire new talent externally", pros: "Exact skills immediately", cons: "Expensive, culture risk", best: "Skills don't exist internally", cost: "$$$", time: "🕐🕐" },
-    { id: "Borrow", icon: "🤝", color: "var(--warning)", label: "Use contractors or consultants", pros: "Fastest, no commitment", cons: "No knowledge transfer", best: "Temporary or specialized need", cost: "$$", time: "🕐" },
-    { id: "Automate", icon: "🤖", color: "var(--purple)", label: "Deploy AI or technology", pros: "Scales infinitely, low ongoing cost", cons: "Upfront investment, change mgmt", best: "Repetitive, rule-based tasks", cost: "$$ then $", time: "🕐🕐" },
+    { id: "Build", color: "var(--success)", label: "Train your existing people", pros: "Cheapest long-term, retains culture", cons: "Slowest (3-12mo)", best: "Skills adjacent to current", cost: "$", time: "3-12mo" },
+    { id: "Buy", color: "var(--accent-primary)", label: "Hire new talent externally", pros: "Exact skills immediately", cons: "Expensive, culture risk", best: "Skills don't exist internally", cost: "$$$", time: "2-6mo" },
+    { id: "Borrow", color: "var(--warning)", label: "Use contractors or consultants", pros: "Fastest, no commitment", cons: "No knowledge transfer", best: "Temporary or specialized need", cost: "$$", time: "1mo" },
+    { id: "Automate", color: "var(--purple)", label: "Deploy AI or technology", pros: "Scales infinitely, low ongoing cost", cons: "Upfront investment, change mgmt", best: "Repetitive, rule-based tasks", cost: "$$ then $", time: "2-4mo" },
   ];
   const [showStratInfo, setShowStratInfo] = useState(true);
   const getDisp = (role: string, orig: string) => overrides[role] || orig;
@@ -37,20 +38,20 @@ export function BBBAFramework({ model, f, onBack, onNavigate, jobStates, viewCtx
   const avgTimeline = roles.length ? Math.round(roles.reduce((s, r) => s + r.timeline_months, 0) / roles.length) : 0;
 
   return <div>
-    <PageHeader icon="🎯" title="Talent Strategy" subtitle="For each capability gap, decide the smartest way to close it" onBack={onBack} moduleId="bbba" />
+    <PageHeader icon={<Shuffle />} title="Talent Strategy" subtitle="For each capability gap, decide the smartest way to close it" onBack={onBack} moduleId="bbba" />
     {model && <div className="flex justify-end mb-2"><ModuleExportButton model={model} module="bbba" label="Talent Strategy" /></div>}
     {loading && <LoadingBar />}
-    {!loading && roles.length === 0 && <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-2xl p-10 text-center"><div className="text-4xl mb-3 opacity-40">🎯</div><h3 className="text-[18px] font-bold font-heading text-[var(--text-primary)] mb-2">Complete Skills Gap Analysis First</h3><p className="text-[16px] text-[var(--text-secondary)] max-w-md mx-auto mb-4">Every gap has four options — each with different costs, timelines, and risks. This tool helps you choose.</p><div className="flex gap-3 justify-center">{onNavigate && <><button onClick={() => onNavigate("design")} className="px-4 py-2 rounded-xl text-[14px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>Go to Work Design Lab →</button><button onClick={() => onNavigate("scan")} className="px-4 py-2 rounded-xl text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">Go to AI Scan →</button></>}</div></div>}
+    {!loading && roles.length === 0 && <EmptyState icon={<Shuffle />} headline="Complete Skills Gap Analysis First" explanation="Every gap has four options — each with different costs, timelines, and risks. This tool helps you choose." primaryAction={onNavigate ? { label: "Go to Work Design Lab", onClick: () => onNavigate("design") } : undefined} secondaryAction={onNavigate ? { label: "Go to AI Scan", onClick: () => onNavigate("scan") } : undefined} />}
 
     {/* ═══ STRATEGY EXPLAINER CARDS ═══ */}
     {roles.length > 0 && <div className="mb-5">
       <button onClick={() => setShowStratInfo(!showStratInfo)} className="text-[13px] text-[var(--text-muted)] mb-2 hover:text-[var(--accent-primary)]">{showStratInfo ? "▾ Hide" : "▸ Show"} strategy guide</button>
       {showStratInfo && <div className="grid grid-cols-4 gap-3">
         {strategies.map(s => <div key={s.id} className="rounded-xl p-4" style={{ borderLeft: `3px solid ${s.color}`, background: "var(--surface-1)", boxShadow: "var(--shadow-1)" }}>
-          <div className="flex items-center gap-2 mb-2"><span className="text-[20px]">{s.icon}</span><span className="text-[15px] font-bold" style={{ color: s.color }}>{s.id}</span></div>
+          <div className="flex items-center gap-2 mb-2"><span className="text-[15px] font-bold" style={{ color: s.color }}>{s.id}</span></div>
           <div className="text-[13px] text-[var(--text-secondary)] mb-2">{s.label}</div>
-          <div className="text-[12px] text-[var(--success)] mb-0.5">✓ {s.pros}</div>
-          <div className="text-[12px] text-[var(--risk)] mb-0.5">✗ {s.cons}</div>
+          <div className="text-[12px] text-[var(--success)] mb-0.5">+ {s.pros}</div>
+          <div className="text-[12px] text-[var(--risk)] mb-0.5">- {s.cons}</div>
           <div className="text-[12px] text-[var(--text-muted)] italic mt-1">Best when: {s.best}</div>
           <div className="flex justify-between mt-2 text-[11px] text-[var(--text-muted)]"><span>Cost: {s.cost}</span><span>{s.time}</span></div>
         </div>)}
@@ -69,8 +70,8 @@ export function BBBAFramework({ model, f, onBack, onNavigate, jobStates, viewCtx
               <span className="text-[12px] px-2 py-0.5 rounded-full bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] font-semibold">{r.fte_needed} FTE</span>
             </div>
             <div className="flex items-center gap-2 text-[13px] text-[var(--text-muted)]">
-              <span>✨ AI Recommends:</span>
-              <span className="font-bold" style={{ color: dispColors[r.disposition] }}>{dispIcons[r.disposition]} {r.disposition}</span>
+              <span>AI Recommends:</span>
+              <span className="font-bold" style={{ color: dispColors[r.disposition] }}>{r.disposition}</span>
             </div>
           </div>
           {/* Four strategy panels */}
@@ -85,9 +86,8 @@ export function BBBAFramework({ model, f, onBack, onNavigate, jobStates, viewCtx
                 borderTop: isSelected ? `3px solid ${s.color}` : "3px solid transparent",
               }}>
                 <div className="flex items-center gap-1.5 mb-2">
-                  <span className="text-[16px]">{s.icon}</span>
                   <span className="text-[14px] font-bold" style={{ color: isSelected ? s.color : "var(--text-primary)" }}>{s.id}</span>
-                  {isSelected && <span className="text-[12px] ml-auto" style={{ color: s.color }}>✓</span>}
+                  {isSelected && <Check size={12} className="ml-auto" style={{ color: s.color }} />}
                 </div>
                 <div className="text-[13px] text-[var(--text-secondary)] mb-1">{s.id === "Build" ? `Train ${r.strong_candidates + r.reskillable_candidates} people` : s.id === "Buy" ? `Hire ${r.fte_needed} new` : s.id === "Borrow" ? `Contract ${Math.max(1, Math.round(r.fte_needed * 0.7))}` : "Deploy AI tool"}</div>
                 <div className="text-[12px] text-[var(--text-muted)]">Cost: <span className="font-bold font-data">{fmtNum(costEst)}</span></div>
@@ -98,7 +98,7 @@ export function BBBAFramework({ model, f, onBack, onNavigate, jobStates, viewCtx
           </div>
           {/* Selected strategy detail */}
           <div className="px-5 py-3 text-[14px] text-[var(--text-secondary)] border-t border-[var(--border)]" style={{ background: `${dispColors[disp]}04` }}>
-            <span className="font-semibold" style={{ color: dispColors[disp] }}>{dispIcons[disp]} {disp}:</span> {r.reason}
+            <span className="font-semibold" style={{ color: dispColors[disp] }}>{disp}:</span> {r.reason}
             {r.required_skills.length > 0 && <span className="text-[var(--text-muted)]"> · Skills: {r.required_skills.slice(0, 3).join(", ")}</span>}
           </div>
         </div>;
@@ -132,14 +132,14 @@ export function BBBAFramework({ model, f, onBack, onNavigate, jobStates, viewCtx
         </div>
         {/* Insight */}
         {buildCount > buyCount * 1.5 && <div className="rounded-xl p-3 border-l-3" style={{ borderLeft: "3px solid var(--accent-primary)", background: "rgba(212,134,10,0.04)" }}>
-          <div className="text-[14px] text-[var(--text-secondary)]">💡 You{"'"}re investing heavily in BUILD ({Math.round(buildCount / Math.max(roles.length, 1) * 100)}%) — cost-effective but extends timeline by ~3 months vs. a BUY-heavy approach.</div>
+          <div className="text-[14px] text-[var(--text-secondary)]">You{"'"}re investing heavily in BUILD ({Math.round(buildCount / Math.max(roles.length, 1) * 100)}%) — cost-effective but extends timeline by ~3 months vs. a BUY-heavy approach.</div>
         </div>}
         {buyCount > buildCount && <div className="rounded-xl p-3 border-l-3" style={{ borderLeft: "3px solid var(--warning)", background: "rgba(245,158,11,0.04)" }}>
-          <div className="text-[14px] text-[var(--text-secondary)]">⚠️ BUY-heavy strategy ({Math.round(buyCount / Math.max(roles.length, 1) * 100)}%) is fast but expensive. Consider shifting 2-3 roles to BUILD where skill adjacency is high.</div>
+          <div className="text-[14px] text-[var(--text-secondary)]">BUY-heavy strategy ({Math.round(buyCount / Math.max(roles.length, 1) * 100)}%) is fast but expensive. Consider shifting 2-3 roles to BUILD where skill adjacency is high.</div>
         </div>}
       </Card>
     </div>}
 
-    <NextStepBar currentModuleId="bbba" onNavigate={onNavigate || onBack} />
+    <FlowNav previous={{ id: "rolecompare", label: "Role Comparison" }} next={{ id: "headcount", label: "Headcount Planning" }} onNavigate={onNavigate || onBack} />
   </div>;
 }

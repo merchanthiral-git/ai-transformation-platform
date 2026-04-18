@@ -3,9 +3,11 @@ import React, { useState, useEffect } from "react";
 import * as api from "../../../lib/api";
 import type { Filters } from "../../../lib/api";
 import {
-  KpiCard, Card, Empty, InsightPanel, DataTable, NextStepBar, PageHeader, LoadingBar,
+  KpiCard, Card, InsightPanel, DataTable, PageHeader, LoadingBar,
   ModuleExportButton, usePersisted, fmtNum,
 } from "../shared";
+import { TrendingUp } from "@/lib/icons";
+import { EmptyState, FlowNav } from "@/app/ui";
 
 export function HeadcountPlanning({ model, f, onBack, onNavigate, jobStates, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; jobStates?: Record<string, import("./shared").JobDesignState>; viewCtx?: import("./shared").ViewContext }) {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
@@ -20,10 +22,10 @@ export function HeadcountPlanning({ model, f, onBack, onNavigate, jobStates, vie
   const timeline = (data?.timeline || {}) as Record<string, string>;
 
   return <div>
-    <PageHeader icon="👥" title="Headcount Planning" subtitle="Current to future workforce evolution" onBack={onBack} moduleId="headcount" />
+    <PageHeader icon={<TrendingUp />} title="Headcount Planning" subtitle="Current to future workforce evolution" onBack={onBack} moduleId="headcount" />
     {model && <div className="flex justify-end mb-2"><ModuleExportButton model={model} module="headcount" label="Headcount Plan" /></div>}
     {loading && <LoadingBar />}
-    {!loading && Number(wf.starting_headcount || 0) === 0 && <Empty icon="👥" text="Headcount Planning Requires Work Design Data" subtitle="Complete role redesign in the Work Design Lab to generate headcount projections." action="Go to Work Design Lab" onAction={() => onNavigate?.("design")} />}
+    {!loading && Number(wf.starting_headcount || 0) === 0 && <EmptyState icon={<TrendingUp />} headline="Headcount plan not yet generated" explanation="This module composes Work Design Lab task decomposition and Org Design Studio scenarios into an 18-month workforce transition plan. Run Work Design Lab on your top 20 roles to unlock." primaryAction={{ label: "Go to Work Design Lab", onClick: () => onNavigate?.("design") }} secondaryAction={{ label: "Load demo dataset", onClick: () => {} }} />}
     <div className="grid grid-cols-5 gap-3 mb-5">
       <KpiCard label="Current HC" value={Number(wf.starting_headcount || 0)} /><KpiCard label="Eliminations" value={Number(wf.eliminations || 0)} /><KpiCard label="New Hires" value={Number(wf.new_hires || 0)} accent /><KpiCard label="Target HC" value={Number(wf.target_headcount || 0)} accent /><KpiCard label="Net Change" value={`${Number(wf.net_change_pct || 0)}%`} />
     </div>
@@ -88,8 +90,8 @@ export function HeadcountPlanning({ model, f, onBack, onNavigate, jobStates, vie
       `Natural attrition absorbs ${wf.natural_attrition || 0} of ${wf.eliminations || 0} eliminations — reducing forced displacement`,
       `Operations sees largest shift: most automatable tasks concentrated there`,
       `Phased over 18 months: redeployments first (months 1-6), then hiring (7-12), then transition (13-18)`,
-    ]} icon="👥" />
+    ]} icon={<TrendingUp />} />
 
-    <NextStepBar currentModuleId="headcount" onNavigate={onNavigate || onBack} />
+    <FlowNav previous={{ id: "bbba", label: "Talent Strategy" }} next={{ id: "quickwins", label: "Quick Win Identifier" }} onNavigate={onNavigate || onBack} />
   </div>;
 }

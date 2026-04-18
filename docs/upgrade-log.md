@@ -116,6 +116,28 @@ Upgraded Org Design Studio with McKinsey-grade enhancements. Replaced all emoji 
 
 ---
 
+## Parts 5-8 — Role Comparison, BBBA, Headcount Planning, Quick Win Identifier
+Date: 2026-04-17
+Branch: feat/platform-upgrade-v1
+
+### What changed
+Batch upgrade of 4 Design phase modules (all small files, 100-145 lines each):
+- **Role Comparison (Part 5):** Replaced emoji icon, Empty→EmptyState, added FlowNav
+- **BBBA/Talent Strategy (Part 6):** Replaced all emoji (13+ instances), removed dispIcons emoji object, replaced strategy card emoji, +/- for pros/cons, proper EmptyState, FlowNav
+- **Headcount Planning (Part 7):** Replaced emoji, Empty→EmptyState with demo load action, FlowNav
+- **Quick Win Identifier (Part 8):** Replaced emoji in titles and empty state, FlowNav
+
+### Files touched
+- `app/components/design/RoleComparison.tsx`
+- `app/components/design/BBBAFramework.tsx`
+- `app/components/design/HeadcountPlanning.tsx`
+- `app/components/design/QuickWinIdentifier.tsx`
+
+### Verification
+- Build: PASS
+
+---
+
 ## Part 3 — Org Restructuring
 Date: 2026-04-17
 Branch: feat/platform-upgrade-v1
