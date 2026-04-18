@@ -9,11 +9,13 @@ import {
   ViewContext, COLORS, TT, SIM_PRESETS, SIM_DIMS, SIM_JOBS, SIM_READINESS,
   KpiCard, Card, Empty, Badge, InsightPanel, NarrativePanel, DataTable,
   BarViz, DonutViz, RadarViz, TabBar, PageHeader, LoadingBar, LoadingSkeleton,
-  ModuleExportButton, NextStepBar, ContextStrip, InfoButton,
+  ModuleExportButton, ContextStrip, InfoButton,
   useApiData, usePersisted, callAI, showToast, logDec,
   exportToCSV, EmptyWithAction, JobDesignState, AiInsightCard, fmtNum, ExpandableChart
 } from "./shared";
 import { PersonalImpactCard } from "./OverviewModule";
+import { Gauge, BarChart3, Compass, TrendingUp } from "@/lib/icons";
+import { FlowNav } from "@/app/ui";
 import {
   AUTOMATION_THRESHOLD_LOW, AUTOMATION_THRESHOLD_HIGH,
   TIMELINE_ACCELERATION_FACTOR, ADOPTION_HIGH_THRESHOLD, ADOPTION_LOW_THRESHOLD,
@@ -357,7 +359,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
     const jobData = scenData.filter(j => j.role.toLowerCase().includes(viewCtx.job.toLowerCase()));
     const jd = jobData[0] || scenData[0];
     return <div>
-      <PageHeader icon="💼" title={`Role Scenario — ${viewCtx.job}`} subtitle={`Impact under ${cfg.label} scenario`} onBack={onBack} moduleId="simulate" />
+      <PageHeader icon={<Compass />} title={`Role Scenario — ${viewCtx.job}`} subtitle={`Impact under ${cfg.label} scenario`} onBack={onBack} moduleId="simulate" />
       <div className="grid grid-cols-5 gap-3 mb-5">
         <KpiCard label="Current Hours" value={`${jd?.currentHrs || 0}h/mo`} /><KpiCard label="Released" value={`${jd?.released || 0}h/mo`} accent /><KpiCard label="Future Hours" value={`${jd?.future || 0}h/mo`} /><KpiCard label="FTE Freed" value={jd?.fte || 0} accent /><KpiCard label="Time Saved" value={`${jd?.pctSaved || 0}%`} />
       </div>
@@ -378,7 +380,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
             `This is equivalent to ${jd?.fte || 0} FTEs worth of capacity.`,
             `${jd?.aiTasks || 0} tasks will be AI-augmented or automated.`,
             jd?.pctSaved && jd.pctSaved > 40 ? "This role is highly transformable — prioritize in Wave 1." : "Moderate transformation — schedule for Wave 2.",
-          ]} icon="⚡" />
+          ]} icon={<TrendingUp size={16} />} />
         </Card>
       </div>
   
@@ -396,13 +398,13 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
       })()}
     </Card>
 
-    <NextStepBar currentModuleId="simulate" onNavigate={onNavigate || onBack} />
+    <FlowNav previous={{ id: "jobarch", label: "Job Architecture" }} next={{ id: "plan", label: "Change Planner" }} onNavigate={onNavigate || onBack} />
     </div>;
   }
 
   // Employee view: personal impact
   if (viewCtx?.mode === "employee" && viewCtx?.employee) return <div>
-    <PageHeader icon="👤" title="How AI Affects Me" subtitle={`${viewCtx.employee}'s transformation impact`} onBack={onBack} moduleId="simulate" />
+    <PageHeader icon={<TrendingUp />} title="How AI Affects Me" subtitle={`${viewCtx.employee}'s transformation impact`} onBack={onBack} moduleId="simulate" />
     <PersonalImpactCard employee={viewCtx.employee} jobStates={jobStates} simState={simState} />
     <Card title="What Will Change">
       <div className="space-y-3">
@@ -416,15 +418,15 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
         </div>)}
       </div>
     </Card>
-    <NextStepBar currentModuleId="simulate" onNavigate={onNavigate || onBack} />
+    <FlowNav previous={{ id: "jobarch", label: "Job Architecture" }} next={{ id: "plan", label: "Change Planner" }} onNavigate={onNavigate || onBack} />
   </div>;
 
   // Empty state when no data
-  if (!model) return <div className="px-7 py-6"><Empty icon="⚡" text="No Scenarios Created Yet" subtitle="Run the Work Design Lab first to generate task-level data, then model transformation scenarios here." action="Go to Work Design Lab" onAction={() => onNavigate?.("design")} /></div>;
+  if (!model) return <div className="px-7 py-6"><Empty text="No Scenarios Created Yet" subtitle="Run the Work Design Lab first to generate task-level data, then model transformation scenarios here." action="Go to Work Design Lab" onAction={() => onNavigate?.("design")} /></div>;
 
   return <div>
     <ContextStrip items={[realJobs ? `${realJobs.length} roles from Work Design Lab` : "Using demo data — complete Work Design Lab for real numbers", Object.values(jobStates).filter(s => s.finalized).length > 0 ? `${Object.values(jobStates).filter(s => s.finalized).length} jobs finalized` : ""].filter(Boolean)} />
-    <PageHeader icon="⚡" title="Impact Simulator" subtitle="Model transformation scenarios and assess organizational AI readiness" onBack={onBack} moduleId="simulate" />
+    <PageHeader icon={<Gauge />} title="Impact Simulator" subtitle="Model transformation scenarios and assess organizational AI readiness" onBack={onBack} moduleId="simulate" />
     {realJobs ? <div className="bg-[rgba(16,185,129,0.08)] border border-[var(--success)]/30 rounded-lg px-4 py-2 mb-4 text-[15px] text-[var(--success)]">✓ Using your Work Design data — {realJobs.length} roles from your submitted jobs</div> : <div className="bg-[rgba(245,158,11,0.08)] border border-[var(--warning)]/30 rounded-lg px-4 py-2 mb-4 text-[15px] text-[var(--warning)]">Using demo data — complete jobs in the Work Design Lab to see your real numbers here</div>}
     <TabBar tabs={[{ id: "scenarios", label: "⚡ Scenarios" }, { id: "negotiate", label: "🤝 Negotiate" }, { id: "stresstest", label: "🔥 Stress Test" }, { id: "readiness", label: "◎ AI Readiness" }, { id: "mgrready", label: "👔 Manager Prep" }, { id: "questions", label: "❓ Question Sim" }, { id: "ripple", label: "🌊 Ripple Effect" }, { id: "teamtrack", label: "📋 Team Tracker" }]} active={tab} onChange={setTab} />
 
@@ -673,7 +675,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
           `AI automation removes ${totals.rel.toLocaleString()}h (${totalPct}% of capacity)`,
           `Role redesign adds ~${Math.round(totals.rel * 0.15).toLocaleString()}h of new strategic tasks`,
           `Net future capacity: ${totals.fut.toLocaleString()}h/mo — ${totals.fut < totals.cur ? "capacity freed for redeployment" : "capacity expanded"}`,
-        ]} icon="📊" />
+        ]} icon={<BarChart3 size={16} />} />
       </Card>}
 
       {/* FTE Impact Model */}
@@ -869,7 +871,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
           </div>; })}
         </div>
         {Object.values(redeployBuckets as Record<string, number>).reduce((s, v) => s + v, 0) !== 100 && <div className="text-[15px] text-[var(--risk)] mb-3">⚠ Buckets total {Object.values(redeployBuckets as Record<string, number>).reduce((s: number, v: number) => s + v, 0)}% — adjust to reach 100%</div>}
-        <InsightPanel title="Redeployment Guidance" items={["Default split is 25% across all four buckets — adjust based on your strategy.", "Higher-Value Work: redirect freed capacity to strategic activities.", "Innovation: fund experimentation and new capability development.", "Headcount Optimization: consider natural attrition before reduction."]} icon="🧭" />
+        <InsightPanel title="Redeployment Guidance" items={["Default split is 25% across all four buckets — adjust based on your strategy.", "Higher-Value Work: redirect freed capacity to strategic activities.", "Innovation: fund experimentation and new capability development.", "Headcount Optimization: consider natural attrition before reduction."]} icon={<Compass size={16} />} />
       </Card>}
 
       {/* Investment & ROI */}
@@ -1166,7 +1168,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
     {tab === "negotiate" && <NegotiateTab projectId={model} model={model} savedScenarios={savedScenarios} setSavedScenarios={setSavedScenarios} />}
     {tab === "stresstest" && <StressTestTab projectId={model} model={model} />}
 
-    <NextStepBar currentModuleId="simulate" onNavigate={onNavigate || onBack} />
+    <FlowNav previous={{ id: "jobarch", label: "Job Architecture" }} next={{ id: "plan", label: "Change Planner" }} onNavigate={onNavigate || onBack} />
   </div>;
 }
 
@@ -1434,7 +1436,7 @@ function NegotiateTab({ projectId, model, savedScenarios, setSavedScenarios }: {
 
     {/* No data state */}
     {!model && <Card>
-      <Empty icon="📊" text="No Data for Scenario Negotiation" subtitle="Upload workforce data and complete the Work Design Lab to enable scenario negotiation." />
+      <Empty text="No Data for Scenario Negotiation" subtitle="Upload workforce data and complete the Work Design Lab to enable scenario negotiation." />
     </Card>}
   </div>;
 }
@@ -1739,7 +1741,7 @@ function StressTestTab({ projectId, model }: { projectId: string; model: string 
       </div>
     </Card>}
 
-    {!model && <Card><Empty text="Upload workforce data to enable stress testing" icon="🔥" /></Card>}
+    {!model && <Card><Empty text="Upload workforce data to enable stress testing" /></Card>}
   </div>;
 }
 

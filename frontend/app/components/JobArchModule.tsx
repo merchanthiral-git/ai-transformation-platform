@@ -6,12 +6,14 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pi
 import {
   ViewContext, COLORS, TT,
   KpiCard, Card, Empty, Badge, InsightPanel, TabBar, PageHeader, LoadingBar, LoadingSkeleton,
-  NextStepBar, ContextStrip,
+  ContextStrip,
   useApiData, usePersisted, useDebounce, callAI, showToast,
   ErrorBoundary, AiJobSuggestButton, AiJobSuggestion, ExpandableChart,
 } from "./shared";
 import { ArchitectureMapTab } from "./ArchitectureMapTab";
 import { JobContentAuthoring } from "./design/JobContentAuthoring";
+import { Layers3, Network } from "@/lib/icons";
+import { FlowNav } from "@/app/ui";
 
 /* ═══════════════════════════════════════════════════════════════
    TYPES
@@ -2167,11 +2169,11 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
     return parts;
   }, [selectedPath]);
 
-  if (loading && !data) return <div className="module-enter"><PageHeader icon="🏗️" title="Job Architecture" subtitle={showLoader ? "Loading job architecture..." : "Enterprise job catalogue, hierarchy, and career framework"} onBack={onBack} />{showLoader && <><LoadingBar /><div className="grid grid-cols-3 gap-4"><LoadingSkeleton rows={8} /><LoadingSkeleton rows={8} /><LoadingSkeleton rows={8} /></div></>}</div>;
+  if (loading && !data) return <div className="module-enter"><PageHeader icon={<Layers3 />} title="Job Architecture" subtitle={showLoader ? "Loading job architecture..." : "Enterprise job catalogue, hierarchy, and career framework"} onBack={onBack} />{showLoader && <><LoadingBar /><div className="grid grid-cols-3 gap-4"><LoadingSkeleton rows={8} /><LoadingSkeleton rows={8} /><LoadingSkeleton rows={8} /></div></>}</div>;
 
   return <div>
     <ContextStrip items={[`${Number(stats.total_headcount || 0).toLocaleString()} employees · ${Number(stats.total_functions || 0)} functions · ${Number(stats.total_family_groups || 0)} family groups · ${Number(stats.total_families || 0)} families · ${Number(stats.total_jobs || 0)} roles`]} />
-    <PageHeader icon="🏗️" title="Job Architecture" subtitle="Enterprise job catalogue, hierarchy, career framework & validation" onBack={onBack} moduleId="jobarch" viewCtx={viewCtx} />
+    <PageHeader icon={<Layers3 />} title="Job Architecture" subtitle="Enterprise job catalogue, hierarchy, career framework & validation" onBack={onBack} moduleId="jobarch" viewCtx={viewCtx} />
 
     {/* KPI Strip — ultra-dense consulting layout */}
     <div className="grid grid-cols-4 md:grid-cols-8 gap-2 mb-5">
@@ -2253,7 +2255,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
         </div>
 
         {/* Role rows — dense table layout */}
-        {filteredJobs.length === 0 ? <Empty text="No jobs match your filters — try broadening your search" icon="◇" /> :
+        {filteredJobs.length === 0 ? <Empty text="No jobs match your filters — try broadening your search" /> :
         <div className="space-y-1">
           {filteredJobs.map((j, i) => {
             const tc = getTrackColor(j.level || j.track);
@@ -2443,7 +2445,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
               selectedJob.ai_impact === "High" ? "This role will be significantly redesigned — expect 40-50% task automation" : selectedJob.ai_impact === "Moderate" ? "This role will be augmented — AI tools enhance existing workflows" : "This role remains primarily human-led — focus on leveraging AI for efficiency gains",
               `${selectedJob.tasks_mapped} tasks have been mapped for this role`,
               "View in Work Design Lab for detailed task-level analysis",
-            ]} icon="🤖" />
+            ]} icon={<Network size={16} />} />
           </div>}
 
           {jobProfileTab === "kpis" && <div className="space-y-4 pb-4 animate-tab-enter">
@@ -2534,7 +2536,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
               {fl.population > 0 && <span className="shrink-0 px-2 py-0.5 rounded text-[10px] font-bold" style={{ fontFamily: "'JetBrains Mono', monospace", background: `${statusColor}15`, color: statusColor }}>{fl.population}</span>}
             </div>;
           })}
-          {flags.filter(fl => flagFilter === "All" || fl.category === flagFilter).length === 0 && <Empty text="No flags in this category" icon="✓" />}
+          {flags.filter(fl => flagFilter === "All" || fl.category === flagFilter).length === 0 && <Empty text="No flags in this category" />}
         </div>
       </div>;
     })()}
@@ -2727,7 +2729,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
 
     {tab === "content" && <div className="animate-tab-enter"><JobContentAuthoring model={model} f={f} /></div>}
 
-    <NextStepBar currentModuleId="jobarch" onNavigate={onNavigate || onBack} />
+    <FlowNav previous={{ id: "snapshot", label: "Workforce Snapshot" }} next={{ id: "design", label: "Work Design Lab" }} onNavigate={onNavigate || onBack} />
   </div>;
 }
 

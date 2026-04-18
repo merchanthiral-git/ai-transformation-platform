@@ -9,12 +9,14 @@ import {
   ViewContext, COLORS, TT,
   KpiCard, Card, Empty, Badge, InsightPanel, NarrativePanel, DataTable,
   BarViz, DonutViz, RadarViz, TabBar, PageHeader, LoadingBar, LoadingSkeleton,
-  ModuleExportButton, NextStepBar, ContextStrip, InfoButton,
+  ModuleExportButton, ContextStrip, InfoButton,
   useApiData, usePersisted, callAI, showToast, logDec,
   exportToCSV, EmptyWithAction, JobDesignState, fmtNum
 } from "./shared";
 import { SkeletonKpiRow, SkeletonTable } from "./ui-primitives";
 import { RISK_SCORE_HIGH, RISK_SCORE_MEDIUM } from "../../lib/constants/scoring";
+import { Rocket, Megaphone, GraduationCap, Store, Network, Users, BookOpen, GitBranch } from "@/lib/icons";
+import { FlowNav } from "@/app/ui";
 
 type Pathway = {
   employee: string; employee_id: string;
@@ -95,7 +97,7 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
   };
 
   return <div>
-    <PageHeader icon="📚" title={viewCtx?.mode === "employee" ? "My Learning Path" : "Reskilling Pathways"} subtitle="Per-employee learning plans · All employees in scope" onBack={onBack} moduleId="reskill" />
+    <PageHeader icon={<GraduationCap />} title={viewCtx?.mode === "employee" ? "My Learning Path" : "Reskilling Pathways"} subtitle="Per-employee learning plans · All employees in scope" onBack={onBack} moduleId="reskill" />
     {loading && <><LoadingBar /><div className="space-y-4 mt-4"><SkeletonKpiRow count={5} /><SkeletonTable rows={6} cols={5} /></div></>}
 
     {/* KPI Summary */}
@@ -127,7 +129,7 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
       {hasFilters && <span className="text-[12px] text-[var(--text-muted)]">Showing {fmt(filtered.length)} of {fmt(allPathways.length)}</span>}
     </div>
 
-    {allPathways.length === 0 && !loading && <Card><Empty icon="📚" text="No Reskilling Pathways Generated" subtitle="Upload workforce data with skills and roles to generate personalized reskilling pathways for impacted employees." action="Go to Diagnose" onAction={() => onNavigate?.("diagnose")} /></Card>}
+    {allPathways.length === 0 && !loading && <Card><Empty text="No Reskilling Pathways Generated" subtitle="Upload workforce data with skills and roles to generate personalized reskilling pathways for impacted employees." action="Go to Diagnose" onAction={() => onNavigate?.("diagnose")} /></Card>}
 
     {/* Two-panel layout */}
     {allPathways.length > 0 && <div className="flex gap-4" style={{ height: "calc(100vh - 380px)", minHeight: 500 }}>
@@ -292,7 +294,7 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
       </div>
     </div>}
 
-    <NextStepBar currentModuleId="reskill" onNavigate={onNavigate || onBack} />
+    <FlowNav previous={{ id: "simulate", label: "Impact Simulator" }} next={{ id: "marketplace", label: "Talent Marketplace" }} onNavigate={onNavigate || onBack} />
   </div>;
 }
 
@@ -329,7 +331,7 @@ export function TalentMarketplace({ model, f, onBack, onNavigate, viewCtx }: { m
   const summary = (data?.summary || {}) as Record<string, unknown>;
 
   return <div>
-    <PageHeader icon="🏪" title="Talent Marketplace" subtitle="Match internal candidates to redesigned roles" onBack={onBack} moduleId="marketplace" />
+    <PageHeader icon={<Store />} title="Talent Marketplace" subtitle="Match internal candidates to redesigned roles" onBack={onBack} moduleId="marketplace" />
     {model && <div className="flex justify-end mb-2"><ModuleExportButton model={model} module="marketplace" label="Marketplace Data" /></div>}
     {loading && <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={4} /><SkeletonTable rows={5} cols={4} /></div></>}
     <div className="grid grid-cols-4 gap-3 mb-5">
@@ -354,7 +356,7 @@ export function TalentMarketplace({ model, f, onBack, onNavigate, viewCtx }: { m
         <button onClick={() => setShortlisted(prev => { const l = prev[m.target_role]||[]; return {...prev, [m.target_role]: isSl ? l.filter(e=>e!==c.employee) : [...l, c.employee]}; })} className="mt-1 text-[14px] font-semibold w-full py-1 rounded text-center" style={{background:isSl?"rgba(16,185,129,0.1)":"var(--surface-1)",color:isSl?"var(--success)":"var(--text-muted)",border:`1px solid ${isSl?"var(--success)":"var(--border)"}`}}>{isSl?"★ Shortlisted":"☆ Shortlist"}</button>
       </div>; })}</div>
     </Card>)}
-    {marketplace.length === 0 && !loading && <Card><Empty icon="🏪" text="Talent Marketplace Not Yet Populated" subtitle="Complete the Skills Adjacency Map in the Design phase to populate the internal talent marketplace with role-matching candidates." action="Go to Design" onAction={() => onNavigate?.("design")} /></Card>}
+    {marketplace.length === 0 && !loading && <Card><Empty text="Talent Marketplace Not Yet Populated" subtitle="Complete the Skills Adjacency Map in the Design phase to populate the internal talent marketplace with role-matching candidates." action="Go to Design" onAction={() => onNavigate?.("design")} /></Card>}
 
     {/* Score Methodology */}
     <Card title="How Composite Scores Work">
@@ -379,7 +381,7 @@ export function TalentMarketplace({ model, f, onBack, onNavigate, viewCtx }: { m
       </div>
     </Card>}
 
-    <NextStepBar currentModuleId="marketplace" onNavigate={onNavigate || onBack} />
+    <FlowNav previous={{ id: "reskill", label: "Reskilling Pathways" }} next={{ id: "plan", label: "Change Planner" }} onNavigate={onNavigate || onBack} />
   </div>;
 }
 
@@ -527,7 +529,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
   const [data, cpLoading] = useApiData(() => sub === "road" ? api.getRoadmap(model, f) : api.getRisk(model, f), [sub, model, f.func, f.jf, f.sf, f.cl]);
   // Job view: filter to this role
   if (viewCtx?.mode === "job" && viewCtx?.job) return <div>
-    <PageHeader icon="💼" title={`Change Plan — ${viewCtx.job}`} subtitle="Initiatives affecting this role" onBack={onBack} moduleId="plan" />
+    <PageHeader icon={<Rocket />} title={`Change Plan — ${viewCtx.job}`} subtitle="Initiatives affecting this role" onBack={onBack} moduleId="plan" />
     <ContextStrip items={[`Showing change initiatives relevant to ${viewCtx.job}. Switch to Org View to see the full roadmap.`]} />
     <TabBar tabs={[{ id: "road", label: "Role Roadmap" }, { id: "risk", label: "Role Risks" }]} active={sub} onChange={setSub} />
     {sub === "road" ? (() => { const d = data as Record<string, unknown> | null; const roadmap = ((d?.roadmap ?? []) as Record<string, unknown>[]).filter(r => String(r["Job Title"] || r.initiative || "").toLowerCase().includes((viewCtx.job || "").toLowerCase().split(" ")[0])); return <div>
@@ -537,12 +539,12 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
     </div>; })() : (() => { const d = data as Record<string, unknown> | null; return <div>
       <Card title="Risks Affecting This Role"><DataTable data={((d?.high_risk_tasks ?? []) as Record<string, unknown>[]).filter(r => String(r["Job Title"] || r.Task || "").toLowerCase().includes((viewCtx.job || "").toLowerCase().split(" ")[0]))} /></Card>
     </div>; })()}
-    <NextStepBar currentModuleId="plan" onNavigate={onNavigate || onBack} />
+    <FlowNav previous={{ id: "simulate", label: "Impact Simulator" }} next={{ id: "reskill", label: "Reskilling Pathways" }} onNavigate={onNavigate || onBack} />
   </div>;
 
   // Employee view: personal change journey
   if (viewCtx?.mode === "employee" && viewCtx?.employee) return <div>
-    <PageHeader icon="👤" title="My Change Journey" subtitle={`What's changing for ${viewCtx.employee}`} onBack={onBack} moduleId="plan" />
+    <PageHeader icon={<Users />} title="My Change Journey" subtitle={`What's changing for ${viewCtx.employee}`} onBack={onBack} moduleId="plan" />
     <Card title="Your Transformation Timeline">
       <div className="space-y-4">
         {[{ wave: "Wave 1", time: "Month 1-3", title: "Awareness & Training", items: ["AI tool introduction workshops", "New process documentation shared", "Pilot group participation opportunity"], color: "var(--accent-primary)" },
@@ -554,13 +556,13 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
         </div>)}
       </div>
     </Card>
-    <InsightPanel title="Support Available" items={["Your manager will be your primary support during the transition.", "Change champions in each department can answer questions.", "Weekly office hours with the transformation team.", "Self-paced learning modules available on the company LMS."]} icon="🛡️" />
-    <NextStepBar currentModuleId="plan" onNavigate={onNavigate || onBack} />
+    <InsightPanel title="Support Available" items={["Your manager will be your primary support during the transition.", "Change champions in each department can answer questions.", "Weekly office hours with the transformation team.", "Self-paced learning modules available on the company LMS."]} icon={<Users size={16} />} />
+    <FlowNav previous={{ id: "simulate", label: "Impact Simulator" }} next={{ id: "reskill", label: "Reskilling Pathways" }} onNavigate={onNavigate || onBack} />
   </div>;
 
   return <div>
     <ContextStrip items={["Phase 3: Deliver — Your transformation roadmap. Auto-generates from Phase 2 decisions or upload your own change plan."]} />
-    <PageHeader icon="🚀" title="Change Planner" subtitle="Sequence initiatives and manage transformation risk" onBack={onBack} moduleId="plan" />
+    <PageHeader icon={<Rocket />} title="Change Planner" subtitle="Sequence initiatives and manage transformation risk" onBack={onBack} moduleId="plan" />
     <TabBar tabs={[{ id: "road", label: "Roadmap" }, { id: "gantt", label: "📅 Gantt" }, { id: "workstreams", label: "🔧 Workstreams" }, { id: "adkar", label: "🔄 ADKAR" }, { id: "stakeholders", label: "👥 Stakeholders" }, { id: "risks", label: "⚠️ Risk Register" }, { id: "comms", label: "📣 Comms Plan" }, { id: "playbook", label: "📖 Playbooks" }]} active={sub} onChange={setSub} />
     {sub === "road" && <div className="bg-gradient-to-r from-[rgba(224,144,64,0.06)] to-transparent border border-[rgba(224,144,64,0.15)] rounded-xl p-4 mb-4 flex items-center justify-between">
       <div><div className="text-[15px] font-bold text-[var(--text-primary)]">☕ AI can build your change roadmap</div><div className="text-[15px] text-[var(--text-muted)]">Generates initiatives, waves, owners, and risks from your transformation decisions</div></div>
@@ -664,7 +666,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
         </div>)}</div>
         <div className="flex gap-0">{waves.map(([name], i) => <div key={name} className="flex-1 h-2 first:rounded-l last:rounded-r" style={{ background: COLORS[i % COLORS.length] }} />)}</div>
         <div className="flex justify-between mt-1 text-[15px] text-[var(--text-muted)]"><span>Start</span><span>End</span></div>
-      </Card>}<div className="grid grid-cols-12 gap-4"><div className="col-span-7"><Card title="Change Plan"><DataTable data={((d?.roadmap ?? []) as Record<string, unknown>[])} /></Card></div><div className="col-span-5"><Card title="Priority"><DonutViz data={Object.entries(pd).map(([n, v]) => ({ name: n, value: v }))} /></Card><Card title="Waves"><BarViz data={Object.entries(wd).map(([n, v]) => ({ Wave: n, Count: v }))} labelKey="Wave" valueKey="Count" color="var(--warning)" /></Card></div></div></div>; })() : <div><Empty icon="🚀" text="Change Roadmap Not Yet Generated" subtitle="Complete the Design and Simulate phases first. The roadmap sequences your transformation initiatives with realistic timelines." action="Go to Simulate" onAction={() => onNavigate?.("simulate")} /></div>}
+      </Card>}<div className="grid grid-cols-12 gap-4"><div className="col-span-7"><Card title="Change Plan"><DataTable data={((d?.roadmap ?? []) as Record<string, unknown>[])} /></Card></div><div className="col-span-5"><Card title="Priority"><DonutViz data={Object.entries(pd).map(([n, v]) => ({ name: n, value: v }))} /></Card><Card title="Waves"><BarViz data={Object.entries(wd).map(([n, v]) => ({ Wave: n, Count: v }))} labelKey="Wave" valueKey="Count" color="var(--warning)" /></Card></div></div></div>; })() : <div><Empty text="Change Roadmap Not Yet Generated" subtitle="Complete the Design and Simulate phases first. The roadmap sequences your transformation initiatives with realistic timelines." action="Go to Simulate" onAction={() => onNavigate?.("simulate")} /></div>}
     {/* ═══ INTERACTIVE GANTT CHART ═══ */}
     {sub === "gantt" && <div>
       <Card title={ganttEdited ? "Custom Transformation Roadmap" : "Transformation Gantt Chart"}>
@@ -1193,7 +1195,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
         "Employee audience: lead with 'what changes for me' and available support",
         "Always pair bad news with a support plan — never communicate impact without a path forward",
         "Build in feedback loops — every communication should include a way to ask questions",
-      ]} icon="📣" />
+      ]} icon={<Megaphone size={16} />} />
     </div>}
 
     {sub === "playbook" && <div>
@@ -1222,7 +1224,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
         </div>
       </Card>
     </div>}
-    <NextStepBar currentModuleId="plan" onNavigate={onNavigate || onBack} />
+    <FlowNav previous={{ id: "simulate", label: "Impact Simulator" }} next={{ id: "reskill", label: "Reskilling Pathways" }} onNavigate={onNavigate || onBack} />
   </div>;
 }
 
@@ -1268,7 +1270,7 @@ export function TransformationStoryBuilder({ model, f, onBack, onNavigate, viewC
 
   return <div>
     <ContextStrip items={["Auto-generated executive narrative synthesizing all platform outputs"]} />
-    <PageHeader icon="📖" title="Transformation Story Builder" subtitle="Executive-ready narrative for board, all-hands, or investor presentations" onBack={onBack} moduleId="story" />
+    <PageHeader icon={<BookOpen />} title="Transformation Story Builder" subtitle="Executive-ready narrative for board, all-hands, or investor presentations" onBack={onBack} moduleId="story" />
 
     <div className="flex gap-2 mb-4">
       {([["board", "Board Presentation"], ["allhands", "All-Hands"], ["investor", "Investor Update"]] as const).map(([id, label]) => <button key={id} onClick={() => setTone(id)} className={`px-3 py-1.5 rounded-lg text-[15px] font-semibold ${tone === id ? "bg-[var(--accent-primary)] text-white" : "text-[var(--text-muted)] border border-[var(--border)]"}`}>{label}</button>)}
@@ -1295,7 +1297,7 @@ export function TransformationStoryBuilder({ model, f, onBack, onNavigate, viewC
       {edited && <div className="text-[15px] text-[var(--accent-primary)] mt-1">Edited — your changes will be preserved</div>}
     </Card>}
 
-    <NextStepBar currentModuleId="plan" onNavigate={onNavigate || onBack} />
+    <FlowNav previous={{ id: "simulate", label: "Impact Simulator" }} next={{ id: "reskill", label: "Reskilling Pathways" }} onNavigate={onNavigate || onBack} />
   </div>;
 }
 
@@ -1343,7 +1345,7 @@ export function ReadinessArchetypes({ model, f, onBack, onNavigate }: { model: s
 
   return <div>
     <ContextStrip items={["Consultant-grade workforce archetypes with targeted engagement playbooks"]} />
-    <PageHeader icon="🎭" title="Readiness Archetypes" subtitle="Qualitative workforce segmentation with engagement strategies" onBack={onBack} moduleId="archetypes" />
+    <PageHeader icon={<GitBranch />} title="Readiness Archetypes" subtitle="Qualitative workforce segmentation with engagement strategies" onBack={onBack} moduleId="archetypes" />
 
     {!hasArchetypeData && <div className="text-center py-16"><div className="text-4xl mb-3 opacity-40">🎭</div><h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">Complete Change Readiness First</h3><p className="text-[15px] text-[var(--text-secondary)] max-w-md mx-auto">Readiness Archetypes are derived from the Change Readiness assessment. Complete AI Readiness (Diagnose phase) → Change Readiness to populate the workforce segmentation data.</p></div>}
 
@@ -1367,9 +1369,9 @@ export function ReadinessArchetypes({ model, f, onBack, onNavigate }: { model: s
       "Goal: Move 80% of Eager Learners to Early Adopters within 3 months through focused upskilling",
       "Goal: Move 50% of At-Risk Anchors to Eager Learners within 6 months through career conversations and support",
       "Key lever: Manager capability — high-scoring managers accelerate archetype migration by 1.8x",
-    ]} icon="🎯" />
+    ]} icon={<GitBranch size={16} />} />
 
-    <NextStepBar currentModuleId="changeready" onNavigate={onNavigate || onBack} /></>}
+    <FlowNav previous={{ id: "plan", label: "Change Planner" }} next={{ id: "reskill", label: "Reskilling Pathways" }} onNavigate={onNavigate || onBack} /></>}
   </div>;
 }
 
@@ -1509,10 +1511,10 @@ export function SkillsNetwork({ model, f, onBack, onNavigate }: { model: string;
   const skillOptions = useMemo(() => (graph?.nodes || []).map(n => n.id).sort(), [graph]);
 
   return <div>
-    <PageHeader icon="🕸️" title="Skills Adjacency Network" subtitle="Interactive skill graph with shortest reskilling paths" onBack={onBack} moduleId="skillnet" />
+    <PageHeader icon={<Network />} title="Skills Adjacency Network" subtitle="Interactive skill graph with shortest reskilling paths" onBack={onBack} moduleId="skillnet" />
     {loading && <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={4} /><SkeletonTable rows={5} cols={3} /></div></>}
 
-    {graph?.error && <Card><Empty text={String((graph as Record<string, unknown>).message || "Add more skills data to unlock the network view")} icon="🕸️" /></Card>}
+    {graph?.error && <Card><Empty text={String((graph as Record<string, unknown>).message || "Add more skills data to unlock the network view")} /></Card>}
 
     {!loading && !graph?.error && graph && <div className="flex gap-4" style={{ height: "calc(100vh - 300px)", minHeight: 550 }}>
       {/* Left panel — controls & path finder */}
@@ -1646,9 +1648,9 @@ export function SkillsNetwork({ model, f, onBack, onNavigate }: { model: string;
       </div>
     </div>}
 
-    {!loading && !graph && <Card><Empty text="Upload workforce data with skills to build the adjacency network" icon="🕸️" /></Card>}
+    {!loading && !graph && <Card><Empty text="Upload workforce data with skills to build the adjacency network" /></Card>}
 
-    <NextStepBar currentModuleId="skillnet" onNavigate={onNavigate || onBack} />
+    <FlowNav previous={{ id: "plan", label: "Change Planner" }} next={{ id: "marketplace", label: "Talent Marketplace" }} onNavigate={onNavigate || onBack} />
   </div>;
 }
 

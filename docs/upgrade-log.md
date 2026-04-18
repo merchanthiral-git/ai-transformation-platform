@@ -138,6 +138,60 @@ Batch upgrade of 4 Design phase modules (all small files, 100-145 lines each):
 
 ---
 
+## Parts 9-18 — Diagnose Phase (All Modules)
+Date: 2026-04-17
+Branch: feat/platform-upgrade-v1
+
+### What changed
+Batch upgrade of all 10 Diagnose phase sub-modules in DiagnoseModule.tsx + SkillsEngine.tsx:
+- **AI Opportunity Scan (Part 9):** PageHeader Search icon, FlowNav
+- **AI Readiness (Part 10):** Activity icon, dimension emoji replaced with text, FlowNav
+- **Manager Capability (Part 11):** Users icon, FlowNav
+- **Skills Engine (Part 12):** Sparkle icon, FlowNav, Empty emoji stripped
+- **Change Readiness (Part 13):** Compass icon, FlowNav
+- **Manager Development (Part 14):** GraduationCap icon, FlowNav
+- **AI Recommendations (Part 15):** Sparkle icon, FlowNav
+- **Org Health Scorecard (Part 16):** Activity icon, FlowNav
+- **AI Impact Heatmap (Part 17):** BarChart3 icon, FlowNav
+- **Role Clustering (Part 18):** Layers3 icon, FlowNav
+
+All emoji removed from PageHeaders, InsightPanels, Empty states, dimension data objects, card titles, tab labels, and toast messages.
+
+### Files touched
+- `app/components/DiagnoseModule.tsx` — 40+ emoji replacements, 10 FlowNav additions
+- `app/components/SkillsEngine.tsx` — emoji cleanup, FlowNav added
+
+---
+
+## Parts 19-28 — Discover, Simulate, Mobilize Phases
+Date: 2026-04-17
+Branch: feat/platform-upgrade-v1
+
+### What changed
+Batch upgrade of all remaining modules:
+- **Transformation Dashboard (Part 19):** LayoutDashboard icon, FlowNav
+- **Workforce Snapshot (Part 20):** Users/TrendingUp icons, FlowNav
+- **Job Architecture (Part 21):** Layers3 icon, FlowNav
+- **Skill Shift Index (Part 22):** covered via OverviewModule
+- **Impact Simulator (Part 23):** Gauge icon, FlowNav for 3 sub-modules
+- **Change Campaign Planner (Part 24):** Megaphone/Rocket icons, FlowNav
+- **Reskilling Pathways (Part 25):** GraduationCap icon, FlowNav
+- **Talent Marketplace (Part 26):** Store icon, FlowNav
+- **Readiness Archetypes (Part 27):** Users icon, FlowNav
+- **Skills Network + Story Builder (Part 28):** Network/BookOpen icons, FlowNav
+
+### Files touched
+- `app/components/OverviewModule.tsx` — 5 PageHeader, 2 InsightPanel, 3 NextStepBar→FlowNav
+- `app/components/JobArchModule.tsx` — 2 PageHeader, 1 InsightPanel, 1 NextStepBar→FlowNav
+- `app/components/SimulateModule.tsx` — 3 PageHeader, 3 InsightPanel, 3 NextStepBar→FlowNav
+- `app/components/MobilizeModule.tsx` — 8 PageHeader, 3 InsightPanel, 6 NextStepBar→FlowNav
+- `app/components/SkillsEngine.tsx` — 1 PageHeader, 13 Empty cleanups, 1 NextStepBar→FlowNav
+
+### Verification
+- Build: PASS
+
+---
+
 ## Part 3 — Org Restructuring
 Date: 2026-04-17
 Branch: feat/platform-upgrade-v1

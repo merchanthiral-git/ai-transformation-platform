@@ -20,7 +20,6 @@ import {
   PageHeader,
   LoadingBar,
   ModuleExportButton,
-  NextStepBar,
   ContextStrip,
   useApiData,
   usePersisted,
@@ -37,6 +36,8 @@ import {
   MethodologyTrigger,
   ConfidenceBadge,
 } from "./shared";
+import { Activity, Sparkle, Search, Users, GraduationCap, Compass, BookOpen, TriangleAlert, Network, Gauge, TrendingUp, Layers3, BarChart3 } from "@/lib/icons";
+import { EmptyState, FlowNav, HeroMetric } from "@/app/ui";
 import { SkeletonKpiRow, SkeletonTable, SkeletonChart } from "./ui-primitives";
 import {
   AI_READINESS_HIGH, AI_READINESS_MEDIUM,
@@ -56,7 +57,7 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
   const scanSubtitle = viewCtx?.mode === "employee" ? `How AI will change ${viewCtx?.employee}'s tasks` : viewCtx?.mode === "job" ? `Tasks and AI scores for ${viewCtx.job}` : `Find where AI creates the most value${loading ? " · Loading..." : ""}`;
   return <div>
     <ContextStrip items={[viewCtx?.mode === "employee" ? "Showing AI impact on tasks in your role." : viewCtx?.mode === "job" ? `Filtered to ${viewCtx?.job} tasks only.` : "Phase 1: Discover — Find where AI creates the most value. This unlocks Phase 2: Design."]} />
-    <PageHeader icon={viewCtx?.mode === "employee" ? "👤" : "🔬"} title={scanTitle} subtitle={scanSubtitle} onBack={onBack} moduleId="scan" />
+    <PageHeader icon={viewCtx?.mode === "employee" ? <Users /> : <Search />} title={scanTitle} subtitle={scanSubtitle} onBack={onBack} moduleId="scan" />
     <TabBar tabs={[{ id: "ai", label: "AI Prioritization" }, { id: "skills", label: "Skill Gaps" }, { id: "org", label: "Org Diagnostics" }, { id: "dq", label: "Data Quality" }]} active={sub} onChange={setSub} />
 
     {loading && !data && <div className="space-y-4 mt-4"><SkeletonKpiRow count={4} /><SkeletonChart height={200} /><SkeletonTable rows={5} cols={4} /></div>}
@@ -83,7 +84,7 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
       <div className="grid grid-cols-12 gap-4"><div className="col-span-7"><Card title="Top AI Priority Tasks"><DataTable data={top10} /></Card></div><div className="col-span-5"><Card title="Impact by Workstream"><BarViz data={((data?.workstream_impact ?? []) as Record<string, unknown>[])} labelKey="Workstream" valueKey="Time Impact" color="var(--accent-scenario)" /></Card></div></div></div>; })()}
     {sub === "skills" && <div className="grid grid-cols-2 gap-4"><Card title="Current Skills"><BarViz data={((data?.current ?? []) as Record<string, unknown>[])} labelKey="Skill" valueKey="Weight" color="var(--success)" /></Card><Card title="Skill Gap"><DataTable data={((data?.gap ?? []) as Record<string, unknown>[])} cols={["Skill", "Current", "Future", "Delta"]} /></Card></div>}
     {sub === "org" && (() => {
-      if (data && (data as Record<string, unknown>).empty) return <Empty text="Upload org or workforce data" icon="🏢" />;
+      if (data && (data as Record<string, unknown>).empty) return <Empty text="Upload org or workforce data" icon={<Users size={20} />} />;
       const k = (data?.kpis ?? { total: 0, managers: 0, ics: 0, avg_span: 0, max_span: 0, layers: 0 }) as OrgDiagnosticsKpis;
       const rawLayers = ((data?.layer_distribution ?? []) as { name: string; value: number }[]);
       const rawSpan = ((data?.span_top15 ?? []) as Record<string, unknown>[]);
@@ -273,8 +274,12 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
       </div>;
     })()}
     {sub === "dq" && (() => { const s = (data?.summary ?? { ready: 0, missing: 0, total_issues: 0, avg_completeness: 0 }) as DataQualitySummary; return <div><div className="grid grid-cols-4 gap-3 mb-5"><KpiCard label="Ready" value={`${s.ready ?? 0}/7`} accent /><KpiCard label="Missing" value={s.missing ?? 0} /><KpiCard label="Issues" value={s.total_issues ?? 0} /><KpiCard label="Completeness" value={`${s.avg_completeness ?? 0}%`} /></div><div className="grid grid-cols-2 gap-4"><Card title="Readiness"><DataTable data={((data?.readiness ?? []) as Record<string, unknown>[])} cols={["Dataset", "Status", "Rows", "Issues", "Completeness"]} /></Card><Card title="Upload Log"><DataTable data={((data?.upload_log ?? []) as Record<string, unknown>[])} /></Card></div></div>; })()}
-    <AiInsightCard title="✨ AI Diagnosis Summary" contextData={JSON.stringify({ summary: (data as Record<string,unknown>)?.summary, sub }).slice(0, 2000)} systemPrompt="You are an organizational diagnostics consultant. Provide 3 key findings and recommended focus areas. Use specific numbers. No markdown." />
-    <NextStepBar currentModuleId="scan" onNavigate={onNavigate || onBack} />
+    <AiInsightCard title="AI Diagnosis Summary" contextData={JSON.stringify({ summary: (data as Record<string,unknown>)?.summary, sub }).slice(0, 2000)} systemPrompt="You are an organizational diagnostics consultant. Provide 3 key findings and recommended focus areas. Use specific numbers. No markdown." />
+    <FlowNav
+      previous={{ id: "snapshot", label: "Workforce Snapshot" }}
+      next={{ id: "heatmap", label: "AI Impact Heatmap" }}
+      onNavigate={onNavigate || onBack}
+    />
   </div>;
 }
 
@@ -348,10 +353,10 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
   const filteredSkills = skillFilter ? skills.filter(s => s.toLowerCase().includes(skillFilter.toLowerCase())) : skills;
 
   return <div>
-    <PageHeader icon="🧠" title="Skills & Talent" subtitle="Inventory, gap analysis, and adjacency mapping" onBack={onBack} moduleId="skills" />
+    <PageHeader icon={<Sparkle />} title="Skills & Talent" subtitle="Inventory, gap analysis, and adjacency mapping" onBack={onBack} moduleId="skills" />
     {model && <div className="flex justify-end mb-2"><ModuleExportButton model={model} module="skills_inventory" label="Skills Data" /></div>}
     {loading && <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={5} /><SkeletonTable rows={6} cols={5} /></div></>}
-    {!loading && employees.length === 0 && validationErrors.length === 0 && <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-2xl p-8 text-center"><div className="text-3xl mb-3 opacity-40">🧠</div><h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">No Skills Data Yet</h3><p className="text-[15px] text-[var(--text-secondary)]">Upload workforce data to see skills inventory, or select Demo_Model.</p></div>}
+    {!loading && employees.length === 0 && validationErrors.length === 0 && <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-2xl p-8 text-center"><div className="text-3xl mb-3 opacity-40 flex justify-center"><Sparkle size={32} /></div><h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">No Skills Data Yet</h3><p className="text-[15px] text-[var(--text-secondary)]">Upload workforce data to see skills inventory, or select Demo_Model.</p></div>}
 
     {/* Validation errors */}
     {validationErrors.map((err, i) => <div key={i} className="bg-[rgba(245,158,11,0.08)] border border-[var(--warning)]/30 rounded-lg px-4 py-2 mb-2 text-[15px] text-[var(--warning)]">⚠ {err}</div>)}
@@ -363,12 +368,12 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
 
     <TabBar tabs={[
       { id: "inventory", label: "Skills Inventory" },
-      { id: "gap", label: `Gap Analysis${!confirmed ? " 🔒" : ""}` },
-      { id: "adjacency", label: `Adjacency Map${!confirmed ? " 🔒" : ""}` },
+      { id: "gap", label: `Gap Analysis${!confirmed ? " (Locked)" : ""}` },
+      { id: "adjacency", label: `Adjacency Map${!confirmed ? " (Locked)" : ""}` },
       { id: "supply", label: "Supply & Demand" },
       { id: "careers", label: "Career Paths" },
       { id: "maturity", label: "Maturity" },
-      { id: "taxonomy", label: "📖 Taxonomy" },
+      { id: "taxonomy", label: "Taxonomy" },
     ]} active={tab} onChange={setTab} />
 
     {/* ═══ TAB 1: SKILLS INVENTORY ═══ */}
@@ -425,12 +430,12 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
         `${coverage}% of your workforce has skills data${coverage < 80 ? " — gap analysis will be incomplete for unassessed employees" : ""}`,
         clusters.Technical ? `Highest cluster: ${Object.entries(clusters).sort((a,b) => b[1].length - a[1].length)[0]?.[0] || "—"} (${Object.entries(clusters).sort((a,b) => b[1].length - a[1].length)[0]?.[1]?.length || 0} skills)` : "Upload skills data for cluster analysis",
         Object.keys(editedScores).length > 0 ? `You've made ${Object.keys(editedScores).length} manual edits to proficiency scores` : "Click cells to edit proficiency ratings",
-      ]} icon="🧠" />
+      ]} icon={<Sparkle size={15} />} />
     </div>}
 
     {/* ═══ TAB 2: GAP ANALYSIS ═══ */}
     {tab === "gap" && <div>
-      {!confirmed ? <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-2xl p-8 text-center"><div className="text-3xl mb-3 opacity-40">🔒</div><h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">Confirm Skills Inventory First</h3><p className="text-[15px] text-[var(--text-secondary)] mb-4">Go to the Inventory tab and click "Confirm Inventory" to unlock Gap Analysis.</p><button onClick={() => { setTab("inventory"); }} className="px-4 py-2 rounded-lg text-[15px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]">← Go to Inventory</button></div> : <>
+      {!confirmed ? <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-2xl p-8 text-center"><div className="text-3xl mb-3 opacity-40 flex justify-center"><TriangleAlert size={32} /></div><h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">Confirm Skills Inventory First</h3><p className="text-[15px] text-[var(--text-secondary)] mb-4">Go to the Inventory tab and click "Confirm Inventory" to unlock Gap Analysis.</p><button onClick={() => { setTab("inventory"); }} className="px-4 py-2 rounded-lg text-[15px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]">← Go to Inventory</button></div> : <>
       <div className="grid grid-cols-4 gap-3 mb-4">
         <KpiCard label="Total Skills" value={Number(gapSummary.total_skills || 0)} /><KpiCard label="Critical Gaps" value={Number(gapSummary.critical_gaps || 0)} accent /><KpiCard label="Avg Gap" value={String(Number(gapSummary.avg_gap || 0).toFixed(1))} /><KpiCard label="Largest Gap" value={String(gapSummary.largest_gap_skill || "—")} />
       </div>
@@ -476,7 +481,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
 
     {/* ═══ TAB 3: ADJACENCY MAP ═══ */}
     {tab === "adjacency" && <div>
-      {!confirmed ? <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-2xl p-8 text-center"><div className="text-3xl mb-3 opacity-40">🔒</div><h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">Confirm Skills Inventory First</h3><p className="text-[15px] text-[var(--text-secondary)]">Complete the inventory to unlock adjacency mapping.</p></div> : <>
+      {!confirmed ? <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-2xl p-8 text-center"><div className="text-3xl mb-3 opacity-40 flex justify-center"><TriangleAlert size={32} /></div><h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">Confirm Skills Inventory First</h3><p className="text-[15px] text-[var(--text-secondary)]">Complete the inventory to unlock adjacency mapping.</p></div> : <>
       <div className="grid grid-cols-4 gap-3 mb-4">
         <KpiCard label="Target Roles" value={Number(adjSummary.target_roles || 0)} /><KpiCard label="Fillable" value={Number(adjSummary.fillable_internally || 0)} accent /><KpiCard label="Need External" value={Number(adjSummary.need_external || 0)} /><KpiCard label="Best Match" value={`${Number(adjSummary.avg_best_adjacency || 0)}%`} />
       </div>
@@ -516,7 +521,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
 
     {/* ═══ TAB: SKILLS SUPPLY & DEMAND ═══ */}
     {tab === "supply" && <div>
-      {skills.length === 0 ? <Card title="Skills Supply vs. Demand"><Empty text="Complete Skills Inventory to see supply & demand analysis" icon="📊" /></Card> : (() => {
+      {skills.length === 0 ? <Card title="Skills Supply vs. Demand"><Empty text="Complete Skills Inventory to see supply & demand analysis" icon={<BarChart3 size={20} />} /></Card> : (() => {
         // Compute supply/demand as percentages with deterministic demand
         const supplyDemand = skills.slice(0, 20).map(skill => {
           const totalWithSkill = records.filter(r => r.skill === skill).length;
@@ -574,7 +579,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
           </Card>
 
           {/* Action panel */}
-          {(criticals.length > 0 || shortages.length > 0) && <Card title="📋 Recommended Talent Strategy">
+          {(criticals.length > 0 || shortages.length > 0) && <Card title="Recommended Talent Strategy">
             <div className="space-y-3">
               {criticals.map((sd, i) => <div key={sd.skill} className="rounded-xl p-4 border-l-3" style={{ borderLeft: "3px solid var(--risk)", background: "rgba(239,68,68,0.04)" }}>
                 <div className="flex items-center gap-2 mb-1"><span className="text-[14px] font-bold text-[var(--risk)]">Priority {i + 1} (URGENT)</span><Badge color="red">{sd.gapPct}% gap</Badge></div>
@@ -691,12 +696,12 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
     {/* ═══ TAB: SKILLS MATURITY ASSESSMENT ═══ */}
     {tab === "maturity" && (() => {
       const dims = [
-        { id: "language", label: "Skills Language", desc: "Shared taxonomy across the org", icon: "📖" },
-        { id: "data", label: "Skills Data", desc: "Skills mapped to people and jobs", icon: "📊" },
-        { id: "processes", label: "Skills in Talent Processes", desc: "Hiring, development, succession are skills-based", icon: "⚙️" },
-        { id: "technology", label: "Skills Technology", desc: "HR systems support skills tracking", icon: "💻" },
-        { id: "culture", label: "Skills Culture", desc: "Employees own their skill development", icon: "🌱" },
-        { id: "governance", label: "Skills Governance", desc: "Owner and update process established", icon: "🛡️" },
+        { id: "language", label: "Skills Language", desc: "Shared taxonomy across the org", icon: "Lang" },
+        { id: "data", label: "Skills Data", desc: "Skills mapped to people and jobs", icon: "Data" },
+        { id: "processes", label: "Skills in Talent Processes", desc: "Hiring, development, succession are skills-based", icon: "Proc" },
+        { id: "technology", label: "Skills Technology", desc: "HR systems support skills tracking", icon: "Tech" },
+        { id: "culture", label: "Skills Culture", desc: "Employees own their skill development", icon: "Cult" },
+        { id: "governance", label: "Skills Governance", desc: "Owner and update process established", icon: "Gov" },
       ];
       const scores = maturityScores; const setScores = setMaturityScores;
       const avg = Object.values(scores).length > 0 ? Object.values(scores).reduce((s, v) => s + v, 0) / Object.values(scores).length : 0;
@@ -731,7 +736,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
 
     {/* ═══ TAB 4: SKILLS TAXONOMY DICTIONARY ═══ */}
     {tab === "taxonomy" && <div>
-      <Card title="📖 Skills Taxonomy Dictionary">
+      <Card title="Skills Taxonomy Dictionary">
         <div className="text-[15px] text-[var(--text-secondary)] mb-4">Comprehensive skills framework organized by domain. Use as a reference when assessing your workforce or designing target-state skill profiles. Each skill includes 4 proficiency levels from novice to expert.</div>
         {SKILLS_TAXONOMY.map(domain => <div key={domain.domain} className="mb-5">
           <div className="flex items-center gap-2 mb-3 pb-2 border-b border-[var(--border)]">
@@ -757,7 +762,11 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
       </Card>
     </div>}
 
-    <NextStepBar currentModuleId="skills" onNavigate={onNavigate || onBack} />
+    <FlowNav
+      previous={{ id: "mgrcap", label: "Manager Capability" }}
+      next={{ id: "skillshift", label: "Skill Shift Index" }}
+      onNavigate={onNavigate || onBack}
+    />
   </div>;
 }
 
@@ -775,27 +784,27 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
 
   // Assessment state
   const ASSESS_DIMS = [
-    { id: "Data Literacy", icon: "📊", questions: [
+    { id: "Data Literacy", icon: "Data", questions: [
       { q: "How would you describe your organization's data infrastructure?", opts: ["Primarily spreadsheets and manual reports", "Some centralized databases, often siloed", "Data warehouse with standard reporting tools", "Modern data pipelines with self-service analytics", "Mature data mesh/fabric with real-time analytics"] },
       { q: "What percentage of business decisions are backed by data analysis?", opts: ["Less than 20% — mostly intuition-based", "20-40% — some teams use data regularly", "40-60% — standard for major decisions", "60-80% — data-driven culture established", "80%+ — nearly all decisions involve data"] },
       { q: "How comfortable is your average employee with data visualizations?", opts: ["Most struggle with basic charts", "Can read charts but not draw conclusions", "Comfortable with standard dashboards", "Can create their own analyses", "Fluent in advanced analytics"] },
     ]},
-    { id: "Tool Adoption", icon: "🤖", questions: [
+    { id: "Tool Adoption", icon: "Tools", questions: [
       { q: "What is the current state of AI/ML tool usage?", opts: ["No AI tools in use", "Experimenting with basic AI", "AI deployed in 1-2 functions", "AI integrated into multiple processes", "AI is core to our operating model"] },
       { q: "How well do your current systems integrate?", opts: ["Mostly standalone with manual transfer", "Some key systems integrated", "Core systems integrated via APIs", "Comprehensive real-time integration", "Fully integrated event-driven ecosystem"] },
       { q: "How quickly can IT deploy a new software tool?", opts: ["6+ months due to procurement", "3-6 months with standard processes", "1-3 months with agile practices", "2-4 weeks for cloud tools", "Days — rapid deployment framework"] },
     ]},
-    { id: "AI Awareness", icon: "🧠", questions: [
+    { id: "AI Awareness", icon: "Aware", questions: [
       { q: "How well does leadership understand AI capabilities?", opts: ["Limited — AI is a buzzword", "Basic awareness, no strategic thinking", "General understanding, exploring use cases", "Actively champions AI with clear vision", "Deep understanding, AI-first strategy"] },
       { q: "Does your organization have a formal AI strategy?", opts: ["No AI strategy exists", "Informal discussions only", "Strategy in development", "Formal strategy being executed", "AI integrated into business strategy"] },
       { q: "How aware are employees of AI's impact on their roles?", opts: ["Most don't think AI affects them", "Some awareness, mostly fear-based", "Moderate awareness, mixed sentiment", "Good awareness, proactive engagement", "Employees identify AI opportunities"] },
     ]},
-    { id: "AI Collaboration", icon: "🤝", questions: [
+    { id: "AI Collaboration", icon: "Collab", questions: [
       { q: "How do teams collaborate with AI tools?", opts: ["No collaboration with AI", "Individual experimentation only", "Some teams use AI in workflows", "AI-human collaboration is standard", "Teams designed around human-AI models"] },
       { q: "How open are employees to AI changing their work?", opts: ["Strong resistance — seen as threat", "Skeptical but willing to listen", "Cautiously optimistic", "Enthusiastic — seeking AI tools", "Employees driving adoption bottom-up"] },
       { q: "Do cross-functional teams collaborate on AI?", opts: ["No cross-functional AI work", "Occasional ad hoc projects", "Some formal AI teams exist", "AI center of excellence active", "AI embedded in every function"] },
     ]},
-    { id: "Change Openness", icon: "🔄", questions: [
+    { id: "Change Openness", icon: "Change", questions: [
       { q: "How would you describe your org's appetite for change?", opts: ["Change-averse — prefer stability", "Reluctant — change is slow", "Moderate — accept necessary change", "Adaptive — embrace change", "Change-seeking — proactively disrupt"] },
       { q: "How effective were past transformations?", opts: ["Most failed or stalled", "Mixed results", "Generally successful", "Strong track record", "Transformation is a core competency"] },
       { q: "Does your org have change management capability?", opts: ["No change management function", "Ad hoc support from HR/PMO", "Part-time change resources", "Dedicated team with methodology", "Enterprise change office, mature tools"] },
@@ -844,7 +853,7 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
     const pct = Math.round(((assessQ + 1) / totalQuestions) * 100);
 
     return <div>
-      <PageHeader icon="🎯" title="AI Readiness Assessment" subtitle={`${currentDim.icon} ${currentDim.id}`} onBack={() => setAssessActive(false)} moduleId="readiness" />
+      <PageHeader icon={<Activity />} title="AI Readiness Assessment" subtitle={`${currentDim.icon} ${currentDim.id}`} onBack={() => setAssessActive(false)} moduleId="readiness" />
       {/* Progress */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2"><span className="text-[14px] text-[var(--text-muted)]">Question {assessQ + 1} of {totalQuestions}</span><span className="text-[14px] font-bold text-[var(--accent-primary)] font-data">{pct}%</span></div>
@@ -880,14 +889,14 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
   }
 
   return <div>
-    <PageHeader icon="🎯" title={viewCtx?.mode === "employee" ? "My AI Readiness" : "AI Readiness Assessment"} subtitle="Individual and team readiness for transformation" onBack={onBack} moduleId="readiness" />
+    <PageHeader icon={<Activity />} title={viewCtx?.mode === "employee" ? "My AI Readiness" : "AI Readiness Assessment"} subtitle="Individual and team readiness for transformation" onBack={onBack} moduleId="readiness" />
     {model && <div className="flex justify-end mb-2"><ModuleExportButton model={model} module="readiness" label="Readiness Scores" /></div>}
     {loading && <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={4} /><SkeletonTable rows={5} cols={4} /></div></>}
 
     {/* ─── BEFORE ASSESSMENT — invitation card ─── */}
     {!loading && !hasData && !assessComplete && <div className="flex items-center justify-center py-12">
       <div className="max-w-lg text-center">
-        <div className="text-[64px] mb-4">🎯</div>
+        <div className="text-[64px] mb-4 flex justify-center"><Activity size={64} /></div>
         <h2 className="text-[28px] font-extrabold text-[var(--text-primary)] font-heading mb-3">What{"'"}s Your AI Readiness Score?</h2>
         <p className="text-[16px] text-[var(--text-muted)] mb-6">A 5-minute assessment across 5 dimensions to understand how prepared your organization is for AI transformation.</p>
         <button onClick={() => { setAssessActive(true); setAssessQ(0); }} className="px-8 py-3.5 rounded-2xl text-[17px] font-bold text-white glow-pulse" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", boxShadow: "var(--shadow-2)" }}>Take the Assessment →</button>
@@ -929,7 +938,7 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
           const timeline = Number(avg) < 2.5 ? "6-9 months" : Number(avg) < 3.5 ? "3-6 months" : "1-3 months";
           const dimInfo = ASSESS_DIMS.find(d => d.id === dim);
           return <div key={dim} className="flex items-center gap-3 p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)]">
-            <span className="text-[18px] shrink-0">{dimInfo?.icon || "📊"}</span>
+            <span className="text-[14px] font-semibold text-[var(--text-muted)] shrink-0">{dimInfo?.icon || "—"}</span>
             <div className="w-28 shrink-0"><div className="text-[14px] font-semibold text-[var(--text-primary)]">{dim}</div><div className="text-[13px] text-[var(--text-muted)]">{Number(avg).toFixed(1)}/5</div></div>
             <div className="flex-1"><div className="h-3 rounded-full bg-[var(--surface-3)] overflow-hidden"><div className="h-full rounded-full" style={{width:`${(Number(avg)/5)*100}%`,background: Number(avg) >= 3.5 ? "var(--success)" : Number(avg) >= 2.5 ? "var(--warning)" : "var(--risk)"}} /></div></div>
             <div className="text-right shrink-0"><div className="text-[14px] font-semibold" style={{color: Number(avg) >= 3.5 ? "var(--success)" : Number(avg) >= 2.5 ? "var(--warning)" : "var(--risk)"}}>{plan}</div><div className="text-[13px] text-[var(--text-muted)]">{timeline}</div></div>
@@ -937,7 +946,11 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
         })}</div>
       </Card>
 
-      <NextStepBar currentModuleId="readiness" onNavigate={onNavigate || onBack} />
+      <FlowNav
+        previous={{ id: "clusters", label: "Role Clustering" }}
+        next={{ id: "mgrcap", label: "Manager Capability" }}
+        onNavigate={onNavigate || onBack}
+      />
     </>}
   </div>;
 }
@@ -957,7 +970,7 @@ export function ManagerCapability({ model, f, onBack, onNavigate, viewCtx }: { m
   const dims = data?.dimensions ?? [];
   const summary = data?.summary ?? {};
   const catColors: Record<string, string> = { "Transformation Champion": "var(--success)", "Needs Development": "var(--warning)", "Flight Risk": "var(--risk)", "Adequate": "var(--text-muted)" };
-  const catIcons: Record<string, string> = { "Transformation Champion": "🏆", "Needs Development": "📘", "Flight Risk": "⚠️", "Adequate": "✓" };
+  const catIcons: Record<string, string> = { "Transformation Champion": "Champion", "Needs Development": "Dev", "Flight Risk": "Risk", "Adequate": "OK" };
   const [expandedCat, setExpandedCat] = useState<string | null>(null);
   const [expandedMgr, setExpandedMgr] = useState<string | null>(null);
 
@@ -967,13 +980,13 @@ export function ManagerCapability({ model, f, onBack, onNavigate, viewCtx }: { m
   const adeqCount = managers.length - champCount - devCount - riskCount;
 
   if (!loading && (!managers || managers.length === 0)) return <div>
-    <PageHeader icon="👔" title="Manager Capability" subtitle="Assess managers and identify transformation champions" onBack={onBack} moduleId="mgrcap" />
-    <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-2xl p-8 text-center"><div className="text-3xl mb-3 opacity-40">👔</div><h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">No Manager Data</h3><p className="text-[15px] text-[var(--text-secondary)]">Upload workforce data with org structure.</p></div>
+    <PageHeader icon={<Users />} title="Manager Capability" subtitle="Assess managers and identify transformation champions" onBack={onBack} moduleId="mgrcap" />
+    <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-2xl p-8 text-center"><div className="text-3xl mb-3 opacity-40"><Users /></div><h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">No Manager Data</h3><p className="text-[15px] text-[var(--text-secondary)]">Upload workforce data with org structure.</p></div>
   </div>;
 
   return <div>
     <ContextStrip items={["Assess managers who will lead teams through transformation. Every insight has an action path."]} />
-    <PageHeader icon="👔" title="Manager Capability" subtitle="Assess, act, and align managers for transformation" onBack={onBack} moduleId="mgrcap" />
+    <PageHeader icon={<Users />} title="Manager Capability" subtitle="Assess, act, and align managers for transformation" onBack={onBack} moduleId="mgrcap" />
     {loading && <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={6} /><SkeletonTable rows={5} cols={4} /></div></>}
 
     <div className="grid grid-cols-6 gap-3 mb-5">
@@ -1066,7 +1079,11 @@ export function ManagerCapability({ model, f, onBack, onNavigate, viewCtx }: { m
       </Card>
     </>}
 
-    <NextStepBar currentModuleId="mgrcap" onNavigate={onNavigate || onBack} />
+    <FlowNav
+      previous={{ id: "readiness", label: "AI Readiness" }}
+      next={{ id: "recommendations", label: "AI Recommendations" }}
+      onNavigate={onNavigate || onBack}
+    />
   </div>;
 }
 
@@ -1118,15 +1135,15 @@ export function ChangeReadiness({ model, f, onBack, onNavigate, viewCtx, simStat
 
   return <div>
     <ContextStrip items={["Plan, coordinate, and track change management campaigns across your transformation."]} />
-    <PageHeader icon="📋" title="Change Campaign Planner" subtitle="Plan activities, assign responsibilities, and track sentiment" onBack={onBack} moduleId="changeready" />
+    <PageHeader icon={<Compass />} title="Change Campaign Planner" subtitle="Plan activities, assign responsibilities, and track sentiment" onBack={onBack} moduleId="changeready" />
     {loading && <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={4} /><SkeletonTable rows={5} cols={5} /></div></>}
 
     <TabBar tabs={[
-      { id: "campaigns", label: "📊 Campaigns" },
-      { id: "activities", label: "📅 Activities" },
-      { id: "raci", label: "👥 RACI" },
-      { id: "messages", label: "📝 Messages" },
-      { id: "tracking", label: "📈 Tracking" },
+      { id: "campaigns", label: "Campaigns" },
+      { id: "activities", label: "Activities" },
+      { id: "raci", label: "RACI" },
+      { id: "messages", label: "Messages" },
+      { id: "tracking", label: "Tracking" },
     ]} active={crTab} onChange={t => setCrTab(t as typeof crTab)} />
 
     {/* ═══ TAB: CAMPAIGNS ═══ */}
@@ -1250,7 +1267,7 @@ export function ChangeReadiness({ model, f, onBack, onNavigate, viewCtx, simStat
       {/* Issue log */}
       <Card title="Issue Log">
         <div className="space-y-2 mb-3">{issues.map(iss => <div key={iss.id} className="flex items-center gap-3 p-3 rounded-lg bg-[var(--surface-2)] border border-[var(--border)]">
-          <span className="text-[14px]" style={{ color: iss.severity === "High" ? "var(--risk)" : iss.severity === "Medium" ? "var(--warning)" : "var(--text-muted)" }}>{iss.severity === "High" ? "🔴" : iss.severity === "Medium" ? "🟡" : "⚪"}</span>
+          <span className="text-[14px] font-bold" style={{ color: iss.severity === "High" ? "var(--risk)" : iss.severity === "Medium" ? "var(--warning)" : "var(--text-muted)" }}>{iss.severity}</span>
           <div className="flex-1 text-[14px] text-[var(--text-secondary)]">{iss.desc}</div>
           <span className="text-[13px] text-[var(--text-muted)]">{iss.owner}</span>
           <button onClick={() => setIssues(prev => prev.map(i => i.id === iss.id ? { ...i, status: i.status === "Open" ? "Resolved" : "Open" } : i))} className="px-2 py-0.5 rounded text-[12px] font-semibold" style={{ color: iss.status === "Open" ? "var(--risk)" : "var(--success)" }}>{iss.status}</button>
@@ -1270,7 +1287,11 @@ export function ChangeReadiness({ model, f, onBack, onNavigate, viewCtx, simStat
       </Card>
     </div>}
 
-    <NextStepBar currentModuleId="changeready" onNavigate={onNavigate || onBack} />
+    <FlowNav
+      previous={{ id: "skillshift", label: "Skill Shift Index" }}
+      next={{ id: "mgrdev", label: "Manager Development" }}
+      onNavigate={onNavigate || onBack}
+    />
   </div>;
 }
 
@@ -1287,17 +1308,17 @@ export function ManagerDevelopment({ model, f, onBack, onNavigate, viewCtx }: { 
   const tracks = data?.tracks ?? data?.plans ?? [];
   const summary = data?.summary ?? {};
   const catColors: Record<string, string> = { "Transformation Champion": "var(--success)", "Needs Development": "var(--warning)", "Flight Risk": "var(--risk)" };
-  const catIcons: Record<string, string> = { "Transformation Champion": "🏆", "Needs Development": "📘", "Flight Risk": "⚠️" };
+  const catIcons: Record<string, string> = { "Transformation Champion": "Champion", "Needs Development": "Dev", "Flight Risk": "Risk" };
 
   if (!loading && tracks.length === 0) return <div>
-    <PageHeader icon="🎓" title="Manager Development" subtitle="Targeted plans for people managers" onBack={onBack} moduleId="mgrdev" />
+    <PageHeader icon={<GraduationCap />} title="Manager Development" subtitle="Targeted plans for people managers" onBack={onBack} moduleId="mgrdev" />
     {model && <div className="flex justify-end mb-2"><ModuleExportButton model={model} module="manager_development" label="Manager Dev Plans" /></div>}
-    <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-2xl p-8 text-center"><div className="text-3xl mb-3 opacity-40">🎓</div><h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">Complete Manager Capability Assessment First</h3><p className="text-[15px] text-[var(--text-secondary)]">Manager development plans are generated from capability scores.</p></div>
+    <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-2xl p-8 text-center"><div className="text-3xl mb-3 opacity-40"><GraduationCap /></div><h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">Complete Manager Capability Assessment First</h3><p className="text-[15px] text-[var(--text-secondary)]">Manager development plans are generated from capability scores.</p></div>
   </div>;
 
   return <div>
     <ContextStrip items={["Phase 3: Deliver — Targeted development for managers. Champions lead change, Flight Risks need immediate engagement."]} />
-    <PageHeader icon="🎓" title="Manager Development Track" subtitle="Development plans and transformation roles" onBack={onBack} moduleId="mgrdev" />
+    <PageHeader icon={<GraduationCap />} title="Manager Development Track" subtitle="Development plans and transformation roles" onBack={onBack} moduleId="mgrdev" />
     {loading && <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={5} /><SkeletonTable rows={5} cols={4} /></div></>}
 
     <div className="grid grid-cols-5 gap-3 mb-5">
@@ -1347,7 +1368,7 @@ export function ManagerDevelopment({ model, f, onBack, onNavigate, viewCtx }: { 
       `${Number(summary.change_agents || 0)} managers ready to deploy as change agents immediately`,
       `${Number(summary.need_development || 0)} managers need ${Number(summary.avg_duration_weeks || 0)} weeks average development before they can lead transformation`,
       `Flight Risk managers should be engaged within 2 weeks — delay increases attrition probability`,
-    ]} icon="🎓" />
+    ]} icon={<GraduationCap size={15} />} />
 
     {/* 30/60/90 Day Milestones */}
     <Card title="Development Milestones — 30/60/90 Day Plan">
@@ -1367,14 +1388,18 @@ export function ManagerDevelopment({ model, f, onBack, onNavigate, viewCtx }: { 
       <div className="space-y-2">{tracks.filter(t => t.category === "Transformation Champion").map(champion => {
         const mentees = tracks.filter(t => t.category !== "Transformation Champion").slice(0, 2);
         return <div key={champion.manager} className="flex items-center gap-3 p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)]">
-          <div className="flex-1"><div className="text-[15px] font-bold text-[var(--success)]">🏆 {champion.manager}</div><div className="text-[14px] text-[var(--text-muted)]">Champion (Score: {champion.average_score})</div></div>
+          <div className="flex-1"><div className="text-[15px] font-bold text-[var(--success)]">{champion.manager}</div><div className="text-[14px] text-[var(--text-muted)]">Champion (Score: {champion.average_score})</div></div>
           <div className="text-[var(--text-muted)]">→</div>
           <div className="flex-1 space-y-1">{mentees.map(m => <div key={m.manager} className="text-[15px]"><span className="font-semibold" style={{color: m.category === "Flight Risk" ? "var(--risk)" : "var(--warning)"}}>{m.manager}</span> <span className="text-[var(--text-muted)]">({m.category}, {m.average_score})</span></div>)}</div>
         </div>;
       })}</div>
     </Card>}
 
-    <NextStepBar currentModuleId="mgrdev" onNavigate={onNavigate || onBack} />
+    <FlowNav
+      previous={{ id: "changeready", label: "Change Readiness" }}
+      next={{ id: "recommendations", label: "AI Recommendations" }}
+      onNavigate={onNavigate || onBack}
+    />
   </div>;
 }
 
@@ -1436,7 +1461,7 @@ Rank by impact score (0-100). Make recommendations specific to this org's data, 
         const parsed = JSON.parse(raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim());
         setRecs(Array.isArray(parsed) ? parsed : []);
         setGenerated(true);
-        showToast("🤖 AI recommendations generated");
+        showToast("AI recommendations generated");
       } catch {
         showToast("AI response wasn't in the expected format — try again");
       }
@@ -1456,18 +1481,18 @@ Rank by impact score (0-100). Make recommendations specific to this org's data, 
 
   return <div>
     <ContextStrip items={["AI-powered recommendations based on your workforce data, readiness scores, and task analysis."]} />
-    <PageHeader icon="🤖" title="AI Recommendations Engine" subtitle="Actionable transformation recommendations ranked by impact" onBack={onBack} moduleId="recommendations" viewCtx={viewCtx} />
+    <PageHeader icon={<Sparkle />} title="AI Recommendations Engine" subtitle="Actionable transformation recommendations ranked by impact" onBack={onBack} moduleId="recommendations" viewCtx={viewCtx} />
 
     {!generated && !loading && <Card>
       <div className="text-center py-12">
-        <div className="text-5xl mb-4">🤖</div>
+        <div className="text-5xl mb-4 flex justify-center"><Sparkle size={48} /></div>
         <h3 className="text-[18px] font-bold font-heading text-[var(--text-primary)] mb-2">Generate AI Recommendations</h3>
         <p className="text-[15px] text-[var(--text-secondary)] mb-6 max-w-lg mx-auto">
           AI will analyze your workforce data, AI readiness scores, and task-level impact analysis to generate
           ranked, actionable recommendations for your AI transformation journey.
         </p>
         <button onClick={generate} className="px-8 py-3 rounded-2xl text-[14px] font-bold text-white transition-all hover:translate-y-[-2px] hover:shadow-lg" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", boxShadow: "var(--shadow-2)" }}>
-          🤖 Generate Recommendations
+          Generate Recommendations
         </button>
       </div>
     </Card>}
@@ -1537,7 +1562,11 @@ Rank by impact score (0-100). Make recommendations specific to this org's data, 
 
     {generated && recs.length === 0 && <Empty text="No recommendations generated. Upload more workforce data and try again." />}
 
-    <NextStepBar currentModuleId="recommendations" onNavigate={onNavigate || onBack} />
+    <FlowNav
+      previous={{ id: "mgrdev", label: "Manager Development" }}
+      next={{ id: "skills", label: "Skills & Talent" }}
+      onNavigate={onNavigate || onBack}
+    />
   </div>;
 }
 
@@ -1616,7 +1645,7 @@ export function OrgHealthScorecard({ model, f, onBack, onNavigate, viewCtx }: { 
 
   return <div>
     <ContextStrip items={[`${metrics.filter(m => m.status === "green").length}/${metrics.length} metrics within benchmarks · vs. ${benchIndustryLabel} · Overall health: ${overallScore}%`]} />
-    <PageHeader icon="🏥" title="Org Health Scorecard" subtitle="Auto-calculated metrics with industry benchmarks" onBack={onBack} moduleId="orghealth" viewCtx={viewCtx} />
+    <PageHeader icon={<Activity />} title="Org Health Scorecard" subtitle="Auto-calculated metrics with industry benchmarks" onBack={onBack} moduleId="orghealth" viewCtx={viewCtx} />
 
     {empCount === 0 && <div className="mb-4 px-4 py-3 rounded-xl border border-[var(--warning)]/20 bg-[var(--warning)]/5"><span className="text-[15px] text-[var(--warning)] font-semibold">⚠ No workforce data loaded.</span><span className="text-[15px] text-[var(--text-secondary)] ml-2">Upload employee data to populate your org metrics. Industry benchmarks are shown below for reference.</span></div>}
 
@@ -1712,7 +1741,11 @@ export function OrgHealthScorecard({ model, f, onBack, onNavigate, viewCtx }: { 
       </Card>}
     </div>
 
-    <NextStepBar currentModuleId="snapshot" onNavigate={onNavigate || onBack} />
+    <FlowNav
+      previous={{ id: "dashboard", label: "Transformation Dashboard" }}
+      next={{ id: "heatmap", label: "AI Impact Heatmap" }}
+      onNavigate={onNavigate || onBack}
+    />
   </div>;
 }
 
@@ -1740,10 +1773,10 @@ export function AIImpactHeatmap({ model, f, onBack, onNavigate, viewCtx }: { mod
 
   return <div>
     <ContextStrip items={[`${cells.length} intersections analyzed · ${cells.filter(c => c.impact === "High").length} high-impact zones`]} />
-    <PageHeader icon="🔥" title="AI Impact Heatmap" subtitle="Automation potential by function and job family" onBack={onBack} moduleId="heatmap" viewCtx={viewCtx} />
+    <PageHeader icon={<BarChart3 />} title="AI Impact Heatmap" subtitle="Automation potential by function and job family" onBack={onBack} moduleId="heatmap" viewCtx={viewCtx} />
     {loading && <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={4} /><SkeletonTable rows={6} cols={6} /></div></>}
 
-    {cells.length === 0 && !loading && <Empty text="Upload work design data with Function and Job Family columns to generate the heatmap" icon="🔥" />}
+    {cells.length === 0 && !loading && <Empty text="Upload work design data with Function and Job Family columns to generate the heatmap" icon={<BarChart3 size={20} />} />}
 
     {cells.length > 0 && <div className="flex gap-4">
       <div className="flex-1 overflow-x-auto">
@@ -1787,7 +1820,11 @@ export function AIImpactHeatmap({ model, f, onBack, onNavigate, viewCtx }: { mod
       </div>}
     </div>}
 
-    <NextStepBar currentModuleId="scan" onNavigate={onNavigate || onBack} />
+    <FlowNav
+      previous={{ id: "orghealth", label: "Org Health Scorecard" }}
+      next={{ id: "clusters", label: "Role Clustering" }}
+      onNavigate={onNavigate || onBack}
+    />
   </div>;
 }
 
@@ -1854,10 +1891,10 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
 
   return <div>
     <ContextStrip items={[clusters.length > 0 ? `${Number(summary.total_clusters || clusters.length)} clusters · ${consolidationCount} consolidation opportunities · ${Number(summary.roles_affected || 0)} roles affected` : "Analyzing role similarity..."]} />
-    <PageHeader icon="🔗" title="Role Clustering" subtitle="Identify redundancy, consolidation candidates, and structural simplification opportunities" onBack={onBack} moduleId="clusters" viewCtx={viewCtx} />
+    <PageHeader icon={<Layers3 />} title="Role Clustering" subtitle="Identify redundancy, consolidation candidates, and structural simplification opportunities" onBack={onBack} moduleId="clusters" viewCtx={viewCtx} />
     {loading && <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={5} /><SkeletonTable rows={5} cols={4} /></div></>}
 
-    {clusters.length === 0 && !loading && <Empty text="No consolidation opportunities detected. This means your job architecture has minimal redundancy — a sign of good structural design." icon="🔗" subtitle="Upload work design data with task characteristics to enable clustering analysis." />}
+    {clusters.length === 0 && !loading && <Empty text="No consolidation opportunities detected. This means your job architecture has minimal redundancy — a sign of good structural design." icon={<Layers3 size={20} />} subtitle="Upload work design data with task characteristics to enable clustering analysis." />}
 
     {clusters.length > 0 && <>
       {/* KPIs */}
@@ -2031,6 +2068,10 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
       </div>}
     </>}
 
-    <NextStepBar currentModuleId="clusters" onNavigate={onNavigate || onBack} />
+    <FlowNav
+      previous={{ id: "heatmap", label: "AI Impact Heatmap" }}
+      next={{ id: "readiness", label: "AI Readiness" }}
+      onNavigate={onNavigate || onBack}
+    />
   </div>;
 }
