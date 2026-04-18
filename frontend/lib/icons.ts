@@ -79,4 +79,5 @@ export {
   ZoomOut,
   Save,
   Loader2,
+  Lock,
 } from "lucide-react";

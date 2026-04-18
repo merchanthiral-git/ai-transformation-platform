@@ -11,6 +11,16 @@ import {
   EmptyWithAction, JobDesignState, SIM_PRESETS,
   AiJobSuggestButton, fmtNum,
 } from "../shared";
+import {
+  Sparkle, PenLine, Search, Filter, ChevronLeft, ChevronRight,
+  Plus, X, Pencil, Check, BookOpen, Layers3, TrendingUp,
+  FileText, BarChart3, Lock,
+} from "@/lib/icons";
+import {
+  EmptyState,
+  ExpertPanel,
+  FlowNav,
+} from "@/app/ui";
 
 export const TASK_DICTIONARY: Record<string, { industry: string; tasks: { name: string; workstream: string; pct: number; type: string; logic: string; interaction: string; impact: string; skill1: string; skill2: string }[] }[]> = {
   "Financial Analyst": [
@@ -351,7 +361,7 @@ Rules:
       // Parse JSON — handle potential markdown wrapping
       const cleanText = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
       const tasks = JSON.parse(cleanText) as Record<string, unknown>[];
-      
+
       if (Array.isArray(tasks) && tasks.length > 0) {
         // Validate and normalize
         const normalized = tasks.map((t, i) => ({
@@ -368,7 +378,7 @@ Rules:
           "Primary Skill": String(t["Primary Skill"] || ""),
           "Secondary Skill": String(t["Secondary Skill"] || ""),
         }));
-        
+
         // Fix time allocation to sum to 100
         const total = normalized.reduce((s, t) => s + (t["Current Time Spent %"] as number), 0);
         if (total !== 100 && total > 0) {
@@ -384,15 +394,15 @@ Rules:
             }
           });
         }
-        
-        setJobState(job, { 
-          deconRows: normalized, 
-          initialized: true, 
-          deconSubmitted: false, 
-          redeploySubmitted: false, 
-          finalized: false, 
-          recon: null, 
-          redeployRows: [] 
+
+        setJobState(job, {
+          deconRows: normalized,
+          initialized: true,
+          deconSubmitted: false,
+          redeploySubmitted: false,
+          finalized: false,
+          recon: null,
+          redeployRows: []
         });
       }
     } catch (err) {
@@ -422,31 +432,67 @@ Rules:
   const inProgressJobs = jobs.filter(j => jobStates[j]?.deconSubmitted && !jobStates[j]?.finalized);
   const notStartedJobs = jobs.filter(j => !jobStates[j]?.deconSubmitted && !jobStates[j]?.finalized);
 
+  // ── Filter chip state ──
+  const [statusFilter, setStatusFilter] = useState<"all" | "not-analyzed" | "in-progress" | "complete">("all");
+
   // ── Step definitions for the guided workflow ──
   const steps = [
-    { id: "ctx", num: "①", label: "Context", done: js.initialized && js.deconRows.length > 0 },
-    { id: "decon", num: "②", label: "Deconstruction", done: js.deconSubmitted },
-    { id: "redeploy", num: "③", label: "Work Options", done: js.redeploySubmitted },
-    { id: "recon", num: "④", label: "Reconstruction", done: !!js.recon },
-    { id: "impact", num: "⑤", label: "Impact Summary", done: js.finalized },
+    { id: "ctx", label: "Context", done: js.initialized && js.deconRows.length > 0 },
+    { id: "decon", label: "Deconstruction", done: js.deconSubmitted },
+    { id: "redeploy", label: "Work Options", done: js.redeploySubmitted },
+    { id: "recon", label: "Reconstruction", done: !!js.recon },
+    { id: "impact", label: "Impact Summary", done: js.finalized },
+    { id: "orglink", label: "Org Link", done: false },
   ];
   const [jobSearch, setJobSearch] = useState("");
-  const filteredJobs = jobSearch ? jobs.filter(j => j.toLowerCase().includes(jobSearch.toLowerCase())) : jobs;
+
+  // Apply filters
+  const statusFilteredJobs = (() => {
+    let filtered = jobs;
+    if (statusFilter === "not-analyzed") filtered = filtered.filter(j => !jobStates[j]?.deconSubmitted && !jobStates[j]?.finalized);
+    else if (statusFilter === "in-progress") filtered = filtered.filter(j => jobStates[j]?.deconSubmitted && !jobStates[j]?.finalized);
+    else if (statusFilter === "complete") filtered = filtered.filter(j => jobStates[j]?.finalized);
+    return filtered;
+  })();
+  const filteredJobs = jobSearch ? statusFilteredJobs.filter(j => j.toLowerCase().includes(jobSearch.toLowerCase())) : statusFilteredJobs;
+
+  // Top 5 jobs sorted alphabetically (start here strip)
+  const topJobs = [...jobs].sort((a, b) => a.localeCompare(b)).slice(0, 5);
 
   // ── STEP 0: Job Selector (no job selected) ──
   if (!job) return <div style={{ background: "radial-gradient(ellipse at 50% 30%, rgba(212,134,10,0.04) 0%, transparent 60%)", minHeight: "calc(100vh - 48px)" }}>
-    <PageHeader icon="✏️" title="Work Design Lab" subtitle="Mercer Work Design methodology — select a job to begin analysis" onBack={onBack} moduleId="design" />
+    <PageHeader icon={<PenLine size={20} />} title="Work Design Lab" subtitle="Mercer Work Design methodology — select a job to begin analysis" onBack={onBack} moduleId="design" />
 
     <div className="max-w-3xl mx-auto px-6">
       <div className="text-center mb-8">
-        <div className="text-4xl mb-4">✏️</div>
+        <div className="flex justify-center mb-4"><PenLine size={32} className="text-[var(--accent-primary)]" /></div>
         <h2 className="text-[24px] font-bold font-heading text-[var(--text-primary)] mb-2">Select a Job to Analyze</h2>
         <p className="text-[14px] text-[var(--text-secondary)]">Pick a role from your organization to walk through the structured work redesign process.</p>
       </div>
 
-      {/* Search */}
-      <div className="flex gap-3 mb-6">
-        <input value={jobSearch} onChange={e => setJobSearch(e.target.value)} placeholder="Search jobs..." className="flex-1 bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-3 text-[14px] text-[var(--text-primary)] outline-none focus:border-[var(--accent-primary)]/40 placeholder:text-[var(--text-muted)]" />
+      {/* Start here — high impact strip */}
+      {topJobs.length > 0 && <div className="mb-6">
+        <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2 flex items-center gap-2"><TrendingUp size={14} /> Start here — high impact</div>
+        <div className="flex gap-2 flex-wrap">
+          {topJobs.map(j => <button key={j} onClick={() => onSelectJob(j)} className="px-3 py-2 rounded-lg border border-[var(--accent-primary)]/20 bg-[rgba(212,134,10,0.06)] text-[15px] font-semibold text-[var(--accent-primary)] transition-all hover:border-[var(--accent-primary)]/40 hover:translate-y-[-1px]">{j}</button>)}
+        </div>
+      </div>}
+
+      {/* Search + Filter chips */}
+      <div className="flex gap-3 mb-4">
+        <div className="flex-1 relative">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
+          <input value={jobSearch} onChange={e => setJobSearch(e.target.value)} placeholder="Search jobs..." className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl pl-9 pr-4 py-3 text-[14px] text-[var(--text-primary)] outline-none focus:border-[var(--accent-primary)]/40 placeholder:text-[var(--text-muted)]" />
+        </div>
+      </div>
+
+      {/* Filter chips */}
+      <div className="flex gap-2 mb-6 flex-wrap">
+        {(["all", "not-analyzed", "in-progress", "complete"] as const).map(s => {
+          const labels: Record<string, string> = { all: "All", "not-analyzed": "Not analyzed", "in-progress": "In progress", complete: "Complete" };
+          const isActive = statusFilter === s;
+          return <button key={s} onClick={() => setStatusFilter(s)} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold border transition-all" style={{ background: isActive ? "rgba(212,134,10,0.1)" : "var(--surface-2)", borderColor: isActive ? "var(--accent-primary)" : "var(--border)", color: isActive ? "var(--accent-primary)" : "var(--text-secondary)" }}><Filter size={12} className="inline mr-1" />{labels[s]}</button>;
+        })}
       </div>
 
       {/* Recently Analyzed */}
@@ -455,8 +501,8 @@ Rules:
         <div className="flex gap-2 flex-wrap">
           {[...inProgressJobs, ...completedJobs].slice(0, 6).map(j => {
             const st = jobStates[j]; const done = st?.finalized;
-            return <button key={j} onClick={() => onSelectJob(j)} className="px-3 py-2 rounded-lg border text-[15px] font-semibold transition-all hover:border-[var(--accent-primary)]/40" style={{ background: done ? "rgba(16,185,129,0.06)" : "rgba(212,134,10,0.06)", borderColor: done ? "rgba(16,185,129,0.2)" : "rgba(212,134,10,0.2)", color: done ? "var(--success)" : "var(--accent-primary)" }}>
-              {done ? "✓ " : "◐ "}{j}
+            return <button key={j} onClick={() => onSelectJob(j)} className="px-3 py-2 rounded-lg border text-[15px] font-semibold transition-all hover:border-[var(--accent-primary)]/40 flex items-center gap-1" style={{ background: done ? "rgba(16,185,129,0.06)" : "rgba(212,134,10,0.06)", borderColor: done ? "rgba(16,185,129,0.2)" : "rgba(212,134,10,0.2)", color: done ? "var(--success)" : "var(--accent-primary)" }}>
+              {done ? <Check size={14} /> : <span>&#9684;</span>}{j}
             </button>;
           })}
         </div>
@@ -473,7 +519,7 @@ Rules:
           </button>;
         })}
       </div>
-      {!jobs.length && <Empty icon="✏️" text="Select a Job to Begin Work Design" subtitle="Choose a role from the job selector above, or upload task data to start deconstructing and redesigning roles." />}
+      {!jobs.length && <EmptyState icon={<PenLine size={24} />} headline="No jobs to analyze" explanation="Upload a job catalog or load the Chesapeake Energy demo to explore the module with pre-scored roles." primaryAction={{ label: "Load demo dataset", onClick: onBack }} />}
 
       {/* Progress */}
       {jobs.length > 0 && <div className="mt-6 text-center text-[15px] text-[var(--text-muted)]">{completedJobs.length}/{jobs.length} jobs finalized · {inProgressJobs.length} in progress</div>}
@@ -484,15 +530,15 @@ Rules:
   return <div className="flex gap-0" style={{ minHeight: "calc(100vh - 48px)" }}>
     {/* Left: Step Navigator */}
     <div className="w-48 shrink-0 bg-[var(--surface-1)] border-r border-[var(--border)] py-5 px-3 flex flex-col">
-      <button onClick={() => onSelectJob("")} className="text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mb-4 transition-colors">← All Jobs</button>
+      <button onClick={() => onSelectJob("")} className="text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mb-4 transition-colors flex items-center gap-1"><ChevronLeft size={14} /> All Jobs</button>
       <div className="text-[15px] font-bold text-[var(--accent-primary)] uppercase tracking-wider mb-1 truncate">{job}</div>
-      <div className="text-[14px] text-[var(--text-muted)] mb-4">{meta.Function || "—"} · {meta["Career Level"] || "—"}</div>
+      <div className="text-[14px] text-[var(--text-muted)] mb-4">{meta.Function || "\u2014"} · {meta["Career Level"] || "\u2014"}</div>
       <div className="space-y-1 flex-1">
         {steps.map((s, si) => {
           const isActive = wdTab === s.id;
           const canGo = si === 0 || steps[si - 1].done;
           return <button key={s.id} onClick={() => canGo && setWdTab(s.id)} className="w-full text-left px-3 py-2 rounded-lg text-[15px] transition-all flex items-center gap-2" style={{ background: isActive ? "rgba(212,134,10,0.1)" : "transparent", color: isActive ? "var(--accent-primary)" : canGo ? "var(--text-secondary)" : "var(--text-muted)", cursor: canGo ? "pointer" : "not-allowed", opacity: canGo ? 1 : 0.4 }}>
-            <span className="w-5 h-5 rounded-full flex items-center justify-center text-[14px] font-bold shrink-0" style={{ background: s.done ? "var(--success)" : isActive ? "var(--accent-primary)" : "var(--surface-2)", color: s.done || isActive ? "#fff" : "var(--text-muted)", border: `1.5px solid ${s.done ? "var(--success)" : isActive ? "var(--accent-primary)" : "var(--border)"}` }}>{s.done ? "✓" : si + 1}</span>
+            <span className="w-5 h-5 rounded-full flex items-center justify-center text-[14px] font-bold shrink-0" style={{ background: s.done ? "var(--success)" : isActive ? "var(--accent-primary)" : "var(--surface-2)", color: s.done || isActive ? "#fff" : "var(--text-muted)", border: `1.5px solid ${s.done ? "var(--success)" : isActive ? "var(--accent-primary)" : "var(--border)"}` }}>{s.done ? <Check size={12} /> : si + 1}</span>
             <span className="font-semibold truncate">{s.label}</span>
           </button>;
         })}
@@ -510,7 +556,7 @@ Rules:
         <div className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl px-5 py-3 mb-4 flex items-center gap-4 flex-wrap">
           <span className="font-semibold text-[14px] text-[var(--accent-primary)]">{job}</span>
           <span className="text-[15px] text-[var(--text-secondary)]">{js.deconRows.length} tasks · {String(k.hours_week ?? 0)}h/wk · Scenario: {js.scenario}</span>
-          <div className="ml-auto flex items-center gap-2"><Badge color={js.deconSubmitted ? "green" : "gray"}>Decon {js.deconSubmitted ? "✓" : "○"}</Badge><Badge color={js.redeploySubmitted ? "green" : "gray"}>Redeploy {js.redeploySubmitted ? "✓" : "○"}</Badge><Badge color={js.finalized ? "green" : "gray"}>Final {js.finalized ? "✓" : "○"}</Badge></div>
+          <div className="ml-auto flex items-center gap-2"><Badge color={js.deconSubmitted ? "green" : "gray"}>Decon {js.deconSubmitted ? <Check size={12} className="inline" /> : <span className="inline-block w-2 h-2 rounded-full border border-current" />}</Badge><Badge color={js.redeploySubmitted ? "green" : "gray"}>Redeploy {js.redeploySubmitted ? <Check size={12} className="inline" /> : <span className="inline-block w-2 h-2 rounded-full border border-current" />}</Badge><Badge color={js.finalized ? "green" : "gray"}>Final {js.finalized ? <Check size={12} className="inline" /> : <span className="inline-block w-2 h-2 rounded-full border border-current" />}</Badge></div>
         </div>
 
       {wdTab === "ctx" && <div>
@@ -545,26 +591,31 @@ Rules:
               }
               setJobState(job, { deconRows: rows, initialized: true, deconSubmitted: false, redeploySubmitted: false, finalized: false, recon: null, redeployRows: [] });
               setWdTab("decon");
-              showToast(`✨ Pre-populated ${rows.length} tasks for ${job} — review and edit below`);
+              showToast(`Pre-populated ${rows.length} tasks for ${job} — review and edit below`);
             }} />
-            <button onClick={() => { generateTasks(); setWdTab("decon"); }} disabled={aiGenerating} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>{aiGenerating ? "Generating..." : "Quick Generate"}</button>
-            <button onClick={() => setWdTab("decon")} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold text-[var(--text-secondary)] bg-[var(--surface-2)] border border-[var(--border)]">Manual Entry →</button>
+            <button onClick={() => { generateTasks(); setWdTab("decon"); }} disabled={aiGenerating} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold text-white flex items-center gap-1" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>{aiGenerating ? "Generating..." : <><Sparkle size={14} /> Quick Generate</>}</button>
+            <button onClick={() => setWdTab("decon")} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold text-[var(--text-secondary)] bg-[var(--surface-2)] border border-[var(--border)]">Manual Entry <ChevronRight size={14} className="inline" /></button>
           </div>
         </div>}
-        <div className="grid grid-cols-6 gap-3 mb-5"><KpiCard label="Hours/Week" value={Number(k.hours_week ?? 0)} accent /><KpiCard label="Tasks" value={Number(k.tasks ?? 0)} /><KpiCard label="Workstreams" value={Number(k.workstreams ?? 0)} /><KpiCard label="Released" value={`${Number(k.released_hrs ?? 0)}h`} delta={`${Number(k.released_pct ?? 0)}%`} /><KpiCard label="Future Hrs" value={Number(k.future_hrs ?? 0)} /><KpiCard label="Evolution" value={String(k.evolution ?? "—")} /></div>
-        <div className="grid grid-cols-12 gap-4"><div className="col-span-5"><Card title="Role Summary"><div className="flex flex-wrap gap-1.5 mb-3">{Object.entries(meta).map(([x, v]) => <Badge key={x} color="indigo">{x}: {String(v)}</Badge>)}</div><p className="text-[15px] text-[var(--text-secondary)]">{String(ctx?.description ?? "No description.")}</p></Card></div><div className="col-span-4"><Card title="Time by Workstream"><BarViz data={ws} labelKey="Workstream" valueKey="Current Time Spent %" /></Card></div><div className="col-span-3"><Card title="Quick Profile"><DataTable data={ds} cols={["Metric", "Value"]} /></Card></div></div>
+        <div className="grid grid-cols-6 gap-3 mb-5"><KpiCard label="Hours/Week" value={Number(k.hours_week ?? 0)} accent /><KpiCard label="Tasks" value={Number(k.tasks ?? 0)} /><KpiCard label="Workstreams" value={Number(k.workstreams ?? 0)} /><KpiCard label="Released" value={`${Number(k.released_hrs ?? 0)}h`} delta={`${Number(k.released_pct ?? 0)}%`} /><KpiCard label="Future Hrs" value={Number(k.future_hrs ?? 0)} /><KpiCard label="Evolution" value={String(k.evolution ?? "\u2014")} /></div>
+        <div className="grid grid-cols-12 gap-4"><div className="col-span-5"><Card title="Role Summary"><div className="flex flex-wrap gap-1.5 mb-3">{Object.entries(meta).map(([x, v]) => <Badge key={x} color="indigo">{x}: {String(v)}</Badge>)}</div><p className="text-[15px] text-[var(--text-secondary)]">{String(ctx?.description ?? "No description.")}</p></Card></div><div className="col-span-4"><Card title="Time by Workstream"><BarViz data={ws} labelKey="Workstream" valueKey="Current Time Spent %" /></Card></div><div className="col-span-3"><Card title="Role attributes"><DataTable data={ds} cols={["Metric", "Value"]} /></Card></div></div>
       </div>}
 
       {wdTab === "decon" && <div>
+        {/* ExpertPanel for Deconstruction */}
+        <ExpertPanel title="Mercer Work Design Methodology" source="Mercer" variant="info">
+          Mercer Work Design decomposes each role into 15-30 discrete tasks. Each task is scored on AI impact, categorized, and assigned a disposition in the Reconstruction stage.
+        </ExpertPanel>
+        <div className="mb-4" />
         {/* AI generation prompt when no tasks */}
         {js.deconRows.length === 0 && !aiGenerating && <div className="bg-gradient-to-r from-[rgba(224,144,64,0.08)] to-[rgba(192,112,48,0.04)] border border-[rgba(224,144,64,0.2)] rounded-xl p-6 mb-4 text-center">
-          <div className="text-2xl mb-2">✨</div>
+          <div className="flex justify-center mb-2"><Sparkle size={24} className="text-[var(--accent-primary)]" /></div>
           <h3 className="text-[15px] font-bold font-heading text-[var(--text-primary)] mb-1">No tasks yet for {job}</h3>
           <p className="text-[15px] text-[var(--text-secondary)] mb-4 max-w-md mx-auto">Let AI generate a detailed task breakdown, or add tasks manually below.</p>
-          <button onClick={generateTasks} className="px-5 py-2.5 rounded-xl text-[14px] font-semibold text-white transition-all hover:opacity-90" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", boxShadow: "var(--shadow-2)" }}>✨ Auto-Generate Task Breakdown</button>
+          <button onClick={generateTasks} className="px-5 py-2.5 rounded-xl text-[14px] font-semibold text-white transition-all hover:opacity-90 inline-flex items-center gap-2" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", boxShadow: "var(--shadow-2)" }}><Sparkle size={14} /> Auto-Generate Task Breakdown</button>
         </div>}
         {aiGenerating && <div className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl p-6 mb-4 text-center animate-pulse">
-          <div className="text-2xl mb-2">🧠</div>
+          <div className="flex justify-center mb-2"><Sparkle size={24} className="text-[var(--accent-primary)]" /></div>
           <h3 className="text-[15px] font-bold font-heading text-[var(--text-primary)] mb-1">AI is analyzing the {job} role...</h3>
           <p className="text-[15px] text-[var(--text-secondary)]">Generating task breakdown with AI impact scores, time estimates, and skill requirements</p>
         </div>}
@@ -601,22 +652,22 @@ Rules:
             {deconTotal !== 100 && deconTotal > 0 && <div className="mt-2 text-[14px] font-semibold" style={{ color: "var(--risk)" }}>Total is {deconTotal}% — must equal 100% to proceed</div>}
           </div>;
         })()}
-        <div className="grid grid-cols-12 gap-4 mb-5"><div className="col-span-4"><Card title="AI Impact"><DonutViz data={aid} /></Card></div><div className="col-span-4"><Card title="AI Priority"><BarViz data={aip} labelKey="Task Name" valueKey="AI Priority" color="var(--accent-scenario)" /></Card></div><div className="col-span-4"><InsightPanel title="Validation" items={[deconTotal === 100 ? "✓ Time = 100%" : `✗ Time = ${deconTotal}%`, blankRequired === 0 ? "✓ All fields filled" : `✗ ${blankRequired} blank`, deconValid ? "✓ Ready to submit" : "○ Fix issues above"]} icon="📋" /></div></div>
+        <div className="grid grid-cols-12 gap-4 mb-5"><div className="col-span-4"><Card title="AI Impact"><DonutViz data={aid} /></Card></div><div className="col-span-4"><Card title="AI Priority"><BarViz data={aip} labelKey="Task Name" valueKey="AI Priority" color="var(--accent-scenario)" /></Card></div><div className="col-span-4"><InsightPanel title="Validation" items={[deconTotal === 100 ? "\u2713 Time = 100%" : `\u2717 Time = ${deconTotal}%`, blankRequired === 0 ? "\u2713 All fields filled" : `\u2717 ${blankRequired} blank`, deconValid ? "\u2713 Ready to submit" : "Pending: Fix issues above"]} icon={<FileText size={16} />} /></div></div>
         <Card title="Task Inventory — Editable">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[15px] text-[var(--text-muted)]">{js.deconRows.length} tasks · {totalEstHours}h/wk</span>
             <div className="flex gap-2">
-              <button onClick={generateTasks} disabled={aiGenerating || js.finalized} className={`px-3 py-1.5 rounded-md text-[15px] font-semibold transition-all ${aiGenerating ? "animate-pulse" : ""}`} style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", color: "#fff", opacity: aiGenerating || js.finalized ? 0.5 : 1 }}>{aiGenerating ? "✨ Generating..." : "✨ Auto-Generate Tasks"}</button>
-              {dictEntries.length > 0 && <button onClick={() => setShowTaskDict(d => !d)} className="px-3 py-1.5 rounded-md text-[15px] font-semibold bg-[rgba(139,92,246,0.1)] border border-[rgba(139,92,246,0.3)] text-[var(--purple)]" style={{ opacity: js.finalized ? 0.5 : 1 }}>📖 Dictionary ({dictEntries.length})</button>}
-              <button onClick={() => { const maxId = js.deconRows.reduce((m, r) => { const n = parseInt(String(r["Task ID"] || "T0").replace("T", ""), 10); return n > m ? n : m; }, 0); setJobState(job, { deconRows: [...js.deconRows, { "Task ID": `T${String(maxId + 1).padStart(3, "0")}`, "Task Name": "", Workstream: "", "AI Impact": "Low", "Est Hours/Week": 0, "Current Time Spent %": 0, "Time Saved %": 0, "Task Type": "Variable", Interaction: "Interactive", Logic: "Probabilistic", "Primary Skill": "", "Secondary Skill": "" }], deconSubmitted: false, redeploySubmitted: false, finalized: false, recon: null, redeployRows: [] }); }} className="px-3 py-1.5 bg-[var(--surface-3)] rounded-md text-[15px] font-semibold text-[var(--text-secondary)]">+ Add Task</button>
+              <button onClick={generateTasks} disabled={aiGenerating || js.finalized} className={`px-3 py-1.5 rounded-md text-[15px] font-semibold transition-all inline-flex items-center gap-1 ${aiGenerating ? "animate-pulse" : ""}`} style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", color: "#fff", opacity: aiGenerating || js.finalized ? 0.5 : 1 }}><Sparkle size={14} />{aiGenerating ? "Generating..." : "Auto-Generate Tasks"}</button>
+              {dictEntries.length > 0 && <button onClick={() => setShowTaskDict(d => !d)} className="px-3 py-1.5 rounded-md text-[15px] font-semibold bg-[rgba(139,92,246,0.1)] border border-[rgba(139,92,246,0.3)] text-[var(--purple)] inline-flex items-center gap-1" style={{ opacity: js.finalized ? 0.5 : 1 }}><BookOpen size={14} /> Dictionary ({dictEntries.length})</button>}
+              <button onClick={() => { const maxId = js.deconRows.reduce((m, r) => { const n = parseInt(String(r["Task ID"] || "T0").replace("T", ""), 10); return n > m ? n : m; }, 0); setJobState(job, { deconRows: [...js.deconRows, { "Task ID": `T${String(maxId + 1).padStart(3, "0")}`, "Task Name": "", Workstream: "", "AI Impact": "Low", "Est Hours/Week": 0, "Current Time Spent %": 0, "Time Saved %": 0, "Task Type": "Variable", Interaction: "Interactive", Logic: "Probabilistic", "Primary Skill": "", "Secondary Skill": "" }], deconSubmitted: false, redeploySubmitted: false, finalized: false, recon: null, redeployRows: [] }); }} className="px-3 py-1.5 bg-[var(--surface-3)] rounded-md text-[15px] font-semibold text-[var(--text-secondary)] inline-flex items-center gap-1"><Plus size={14} /> Add Task</button>
               <button disabled={!deconValid || js.finalized} onClick={() => { setJobState(job, { deconSubmitted: true, redeploySubmitted: false, finalized: false, recon: null, redeployRows: [] }); setWdTab("redeploy"); }} className={`px-3 py-1.5 rounded-md text-[15px] font-semibold ${!deconValid || js.finalized ? "bg-[var(--border)] text-[var(--text-muted)]" : "bg-[var(--accent-primary)] text-white hover:opacity-90"}`}>{js.deconSubmitted ? "Update" : "Submit"} Deconstruction</button>
             </div>
           </div>
           {/* Task Dictionary Panel */}
           {showTaskDict && dictEntries.length > 0 && <div className="mb-4 rounded-xl border border-[rgba(139,92,246,0.3)] bg-[rgba(139,92,246,0.04)] p-4">
             <div className="flex items-center justify-between mb-3">
-              <div className="text-[15px] font-bold text-[var(--purple)]">📖 Task Dictionary — {job}</div>
-              <button onClick={() => setShowTaskDict(false)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] cursor-pointer text-[15px]">✕</button>
+              <div className="text-[15px] font-bold text-[var(--purple)] flex items-center gap-2"><BookOpen size={16} /> Task Dictionary — {job}</div>
+              <button onClick={() => setShowTaskDict(false)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] cursor-pointer"><X size={16} /></button>
             </div>
             <div className="text-[15px] text-[var(--text-secondary)] mb-3">Pre-built task portfolios for this role. Click an industry variant to load its tasks. This replaces your current task inventory.</div>
             <div className="grid grid-cols-1 gap-2">
@@ -633,7 +684,7 @@ Rules:
                     }));
                     setJobState(job, { deconRows: newRows, initialized: true, deconSubmitted: false, redeploySubmitted: false, finalized: false, recon: null, redeployRows: [] });
                     setShowTaskDict(false);
-                    showToast(`📖 Loaded ${entry.tasks.length} tasks from ${entry.industry} dictionary`);
+                    showToast(`Loaded ${entry.tasks.length} tasks from ${entry.industry} dictionary`);
                   }} className="px-3 py-1 rounded-lg text-[15px] font-semibold bg-[var(--purple)]/15 border border-[var(--purple)]/30 text-[var(--purple)] cursor-pointer hover:bg-[var(--purple)]/25 transition-all">Load Tasks</button>
                 </div>
                 <div className="grid grid-cols-2 gap-1">{entry.tasks.map((t, ti) => <div key={ti} className="flex items-center gap-1.5 text-[14px] text-[var(--text-muted)]">
@@ -658,17 +709,17 @@ Rules:
               <td className="px-2 py-2 w-28"><SelectCell value={row.Interaction} onChange={v => updateDeconCell(idx, "Interaction", v)} options={["Independent","Interactive","Collaborative"]} /></td>
               <td className="px-2 py-2 w-28"><SelectCell value={row.Logic} onChange={v => updateDeconCell(idx, "Logic", v)} options={["Deterministic","Probabilistic","Judgment-heavy"]} /></td>
               <td className="px-2 py-2 min-w-[100px]"><EditableCell value={row["Primary Skill"]} onChange={v => updateDeconCell(idx, "Primary Skill", v)} /></td>
-              <td className="px-2 py-2 w-8"><button onClick={() => { const newRows = js.deconRows.filter((_, i) => i !== idx); setJobState(job, { deconRows: newRows, deconSubmitted: false, redeploySubmitted: false, finalized: false, recon: null, redeployRows: [] }); }} className="text-[var(--text-muted)] hover:text-[var(--risk)] text-[15px]">{"\u00D7"}</button></td>
+              <td className="px-2 py-2 w-8"><button onClick={() => { const newRows = js.deconRows.filter((_, i) => i !== idx); setJobState(job, { deconRows: newRows, deconSubmitted: false, redeploySubmitted: false, finalized: false, recon: null, redeployRows: [] }); }} className="text-[var(--text-muted)] hover:text-[var(--risk)] text-[15px]"><X size={14} /></button></td>
             </tr>; })}</tbody>
             <tfoot><tr className="bg-[var(--surface-2)]"><td className="px-2 py-2 text-[14px] font-bold text-[var(--text-muted)]" colSpan={2}>Total</td><td className="px-2 py-2 text-[15px] font-bold" style={{ color: deconTotal === 100 ? "var(--success)" : "var(--risk)" }}>{deconTotal}%</td><td className="px-2 py-2 text-[15px] font-bold text-[var(--text-muted)]">{(deconTotal * weeklyHours / 100).toFixed(1)}h</td><td colSpan={6} /></tr></tfoot>
           </table></div>
         </Card>
       </div>}
 
-      {wdTab === "redeploy" && <div>{!js.deconSubmitted ? <Empty text="Submit Deconstruction first" icon="🔒" /> : <>
+      {wdTab === "redeploy" && <div>{!js.deconSubmitted ? <EmptyState icon={<Lock size={24} />} headline="Deconstruction required" explanation="Complete task decomposition in the Deconstruction stage to unlock this step." primaryAction={{ label: "Go to Deconstruction", onClick: () => setWdTab("decon") }} /> : <>
         <div className="grid grid-cols-3 gap-4 mb-5">
           <Card title="Scenario"><SelectCell value={js.scenario} onChange={v => setJobState(job, { scenario: v, redeploySubmitted: false, recon: null })} options={["Conservative","Balanced","Aggressive"]} /></Card>
-          <InsightPanel title="Guidance" items={[`New Time total: ${redeployTotal}%`, "Adjust decisions and future time.", "Submit to see reconstruction."]} icon="🧭" />
+          <InsightPanel title="Guidance" items={[`New Time total: ${redeployTotal}%`, "Adjust decisions and future time.", "Submit to see reconstruction."]} icon={<Sparkle size={16} />} />
           <Card title="AI Assist"><button onClick={async () => {
             const newRows = js.redeployRows.map(row => {
               const impact = String(row["AI Impact"]);
@@ -684,7 +735,7 @@ Rules:
               return { ...row, Decision: decision, Technology: techMap[decision] || "Human-led" };
             });
             setJobState(job, { redeployRows: newRows, redeploySubmitted: false, finalized: false, recon: null });
-          }} disabled={js.finalized} className="w-full py-2 rounded-md text-[15px] font-semibold text-white mb-2" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>☕ Auto-Recommend</button><div className="text-[15px] text-[var(--text-muted)]">AI assigns Retain/Augment/Automate based on task characteristics</div></Card>
+          }} disabled={js.finalized} className="w-full py-2 rounded-md text-[15px] font-semibold text-white mb-2 inline-flex items-center justify-center gap-1" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}><Sparkle size={14} /> Auto-Recommend</button><div className="text-[15px] text-[var(--text-muted)]">AI assigns Retain/Augment/Automate based on task characteristics</div></Card>
           <Card title="Submit"><button disabled={!redeployValid || js.finalized} onClick={() => { setJobState(job, { redeploySubmitted: true, finalized: false, recon: null }); setWdTab("recon"); }} className={`w-full py-2 rounded-md text-[15px] font-semibold ${!redeployValid ? "bg-[var(--border)] text-[var(--text-muted)]" : "bg-[var(--accent-primary)] text-white"}`}>{js.redeploySubmitted ? "Update" : "Submit"} Redeployment</button></Card>
         </div>
         <Card title="Redeployment Plan — Editable">
@@ -692,10 +743,15 @@ Rules:
         </Card>
       </>}</div>}
 
-      {wdTab === "recon" && (() => { const r = js.recon; const ac = ((r?.action_counts ?? {}) as Record<string, number>); const wf = ((r?.waterfall ?? {}) as Record<string, number>); const detail = ((r?.reconstruction ?? []) as Record<string, unknown>[]); const rollup = ((r?.rollup ?? []) as Record<string, unknown>[]); const recs = ((r?.recommendations ?? []) as string[]); return !js.redeploySubmitted ? <Empty text="Submit Redeployment first" icon="🔒" /> : <div><div className="grid grid-cols-4 gap-3 mb-5"><KpiCard label="Automate" value={ac.Automate ?? 0} accent /><KpiCard label="Augment" value={ac.Augment ?? 0} /><KpiCard label="Redesign" value={ac.Redesign ?? 0} /><KpiCard label="Retain" value={ac.Retain ?? 0} /></div><div className="grid grid-cols-12 gap-4 mb-5"><div className="col-span-5"><Card title="Reconstruction Rollup">{rollup.length ? <DataTable data={rollup} /> : <Empty text="Building..." icon="🧱" />}</Card></div><div className="col-span-3"><Card title="Capacity Waterfall">{Object.keys(wf).length ? <div className="flex items-end gap-2 h-40">{Object.entries(wf).map(([n, v], i) => <div key={n} className="flex-1 flex flex-col items-center justify-end"><div className="text-[15px] font-semibold text-[var(--text-secondary)] mb-1">{Number(v).toFixed(1)}h</div><div className="w-full rounded-t" style={{ height: `${Math.max((Number(v) / Math.max(Number(wf.current) || 1, 1)) * 100, 4)}%`, background: COLORS[i % COLORS.length] }} /><div className="text-[15px] text-[var(--text-muted)] mt-1 truncate w-full text-center">{n}</div></div>)}</div> : <Empty text="Building..." icon="📊" />}</Card></div><div className="col-span-4"><InsightPanel title="Recommendations" items={recs.length ? recs : ["Building..."]} icon="🎯" /></div></div><Card title="Future-State Detail"><DataTable data={detail} /></Card><div className="mt-4 flex justify-end"><button disabled={!js.redeploySubmitted || js.finalized} onClick={() => setJobState(job, { finalized: true })} className={`px-4 py-2 rounded-md text-[15px] font-semibold ${js.finalized ? "bg-[var(--success)] text-white" : "bg-[var(--success)] text-white hover:opacity-90"}`}>{js.finalized ? "✓ Finalized" : "Finalize Work Design"}</button></div></div>; })()}
+      {wdTab === "recon" && (() => { const r = js.recon; const ac = ((r?.action_counts ?? {}) as Record<string, number>); const wf = ((r?.waterfall ?? {}) as Record<string, number>); const detail = ((r?.reconstruction ?? []) as Record<string, unknown>[]); const rollup = ((r?.rollup ?? []) as Record<string, unknown>[]); const recs = ((r?.recommendations ?? []) as string[]); return !js.redeploySubmitted ? <EmptyState icon={<Lock size={24} />} headline="Redeployment required" explanation="Complete the Work Options stage and submit your redeployment plan to unlock reconstruction." primaryAction={{ label: "Go to Work Options", onClick: () => setWdTab("redeploy") }} /> : <div><div className="grid grid-cols-4 gap-3 mb-5"><KpiCard label="Automate" value={ac.Automate ?? 0} accent /><KpiCard label="Augment" value={ac.Augment ?? 0} /><KpiCard label="Redesign" value={ac.Redesign ?? 0} /><KpiCard label="Retain" value={ac.Retain ?? 0} /></div><div className="grid grid-cols-12 gap-4 mb-5"><div className="col-span-5"><Card title="Reconstruction Rollup">{rollup.length ? <DataTable data={rollup} /> : <Empty text="Building..." icon={<Layers3 size={16} />} />}</Card></div><div className="col-span-3"><Card title="Capacity Waterfall">{Object.keys(wf).length ? <div className="flex items-end gap-2 h-40">{Object.entries(wf).map(([n, v], i) => <div key={n} className="flex-1 flex flex-col items-center justify-end"><div className="text-[15px] font-semibold text-[var(--text-secondary)] mb-1">{Number(v).toFixed(1)}h</div><div className="w-full rounded-t" style={{ height: `${Math.max((Number(v) / Math.max(Number(wf.current) || 1, 1)) * 100, 4)}%`, background: COLORS[i % COLORS.length] }} /><div className="text-[15px] text-[var(--text-muted)] mt-1 truncate w-full text-center">{n}</div></div>)}</div> : <Empty text="Building..." icon={<BarChart3 size={16} />} />}</Card></div><div className="col-span-4"><InsightPanel title="Recommendations" items={recs.length ? recs : ["Building..."]} icon={<TrendingUp size={16} />} /></div></div><Card title="Future-State Detail"><DataTable data={detail} /></Card><div className="mt-4 flex justify-end"><button disabled={!js.redeploySubmitted || js.finalized} onClick={() => setJobState(job, { finalized: true })} className={`px-4 py-2 rounded-md text-[15px] font-semibold inline-flex items-center gap-1 ${js.finalized ? "bg-[var(--success)] text-white" : "bg-[var(--success)] text-white hover:opacity-90"}`}>{js.finalized ? <><Check size={14} /> Finalized</> : "Finalize Work Design"}</button></div></div>; })()}
 
-      {wdTab === "impact" && (() => { const r = js.recon; const ins = ((r?.insights ?? []) as Record<string, unknown>[]); const vm = ((r?.value_model ?? {}) as Record<string, unknown>); return !js.redeploySubmitted ? <Empty text="Submit Redeployment to unlock" icon="🔒" /> : <div><div className="grid grid-cols-4 gap-3 mb-5"><KpiCard label="Current" value={r?.total_current_hrs as number ?? 0} /><KpiCard label="Future" value={r?.total_future_hrs as number ?? 0} /><KpiCard label="Released" value={((r?.total_current_hrs as number ?? 0) - (r?.total_future_hrs as number ?? 0)).toFixed(1)} accent /><KpiCard label="Evolution" value={String(r?.evolution ?? "—")} /></div><div className="grid grid-cols-2 gap-4"><Card title="Transformation Insights"><DataTable data={ins} cols={["Category", "Metric", "Value", "Interpretation"]} /></Card><Card title="Value Model">{Object.keys(vm).length ? <div className="space-y-2">{Object.entries(vm).map(([n, v]) => <div key={n} className="flex justify-between text-[15px]"><span className="text-[var(--text-secondary)]">{n}</span><span className="font-semibold">{String(v)}</span></div>)}</div> : <Empty text="Computing..." />}</Card></div></div>; })()}
-    <NextStepBar currentModuleId="design" onNavigate={onBack} />
+      {wdTab === "impact" && (() => { const r = js.recon; const ins = ((r?.insights ?? []) as Record<string, unknown>[]); const vm = ((r?.value_model ?? {}) as Record<string, unknown>); return !js.redeploySubmitted ? <EmptyState icon={<Lock size={24} />} headline="Redeployment required" explanation="Complete the Work Options stage and submit your redeployment plan to unlock the impact summary." primaryAction={{ label: "Go to Work Options", onClick: () => setWdTab("redeploy") }} /> : <div><div className="grid grid-cols-4 gap-3 mb-5"><KpiCard label="Current" value={r?.total_current_hrs as number ?? 0} /><KpiCard label="Future" value={r?.total_future_hrs as number ?? 0} /><KpiCard label="Released" value={((r?.total_current_hrs as number ?? 0) - (r?.total_future_hrs as number ?? 0)).toFixed(1)} accent /><KpiCard label="Evolution" value={String(r?.evolution ?? "\u2014")} /></div><div className="grid grid-cols-2 gap-4"><Card title="Transformation Insights"><DataTable data={ins} cols={["Category", "Metric", "Value", "Interpretation"]} /></Card><Card title="Value Model">{Object.keys(vm).length ? <div className="space-y-2">{Object.entries(vm).map(([n, v]) => <div key={n} className="flex justify-between text-[15px]"><span className="text-[var(--text-secondary)]">{n}</span><span className="font-semibold">{String(v)}</span></div>)}</div> : <Empty text="Computing..." />}</Card></div></div>; })()}
+
+      {wdTab === "orglink" && <div>
+        <EmptyState icon={<Layers3 size={24} />} headline="Org Link" explanation="This stage will connect your work design outputs to the Org Design Studio. Coming in a future update." primaryAction={{ label: "Back to Impact Summary", onClick: () => setWdTab("impact") }} />
+      </div>}
+
+    <FlowNav previous={{ id: "jobarch", label: "Job Architecture" }} next={{ id: "orgdesign", label: "Org Design Studio" }} onNavigate={onBack} />
       </div>
     </div>
   </div>;

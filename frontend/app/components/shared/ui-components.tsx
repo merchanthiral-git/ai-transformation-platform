@@ -493,7 +493,7 @@ export function Card({ children, title }: { children: React.ReactNode; title?: R
   </div>;
 }
 
-export function Empty({ text, icon = "📭", action, onAction, subtitle, secondaryAction, onSecondaryAction }: { text: string; icon?: string; action?: string; onAction?: () => void; subtitle?: string; secondaryAction?: string; onSecondaryAction?: () => void }) {
+export function Empty({ text, icon = "📭", action, onAction, subtitle, secondaryAction, onSecondaryAction }: { text: string; icon?: React.ReactNode; action?: string; onAction?: () => void; subtitle?: string; secondaryAction?: string; onSecondaryAction?: () => void }) {
   return <div className="text-center py-16 text-[var(--text-secondary)]">
     <div className="relative inline-block mb-4">
       <svg width="56" height="56" viewBox="0 0 56 56" fill="none" className="opacity-20 mx-auto"><circle cx="28" cy="28" r="24" stroke="var(--text-muted)" strokeWidth="1.5" strokeDasharray="4 4" /><circle cx="28" cy="28" r="12" stroke="var(--accent-primary)" strokeWidth="1" opacity="0.55" /></svg>
@@ -513,7 +513,7 @@ export function Badge({ children, color = "gray" }: { children: React.ReactNode;
   return <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[14px] font-semibold tracking-wide ${s[color] || s.gray}`}>{children}</span>;
 }
 
-export function InsightPanel({ title, items, icon = "💡" }: { title: string; items: string[]; icon?: string }) {
+export function InsightPanel({ title, items, icon = "💡" }: { title: string; items: string[]; icon?: React.ReactNode }) {
   return <Card><div className="flex items-center gap-2 text-[15px] font-bold mb-2">{icon} {title}</div><ul className="list-disc pl-4 space-y-1 text-[15px] text-[var(--text-secondary)] leading-relaxed">{items.map((t, i) => <li key={i}>{t}</li>)}</ul></Card>;
 }
 
@@ -605,7 +605,7 @@ export function exportToCSV(data: Record<string, unknown>[], filename: string) {
   trackExportGenerated("csv");
 }
 
-export function PageHeader({ icon, title, subtitle, onBack, moduleId, onUpload, viewCtx, onViewChange }: { icon: string; title: string; subtitle: string; onBack: () => void; moduleId?: string; onUpload?: (files: FileList) => void; viewCtx?: ViewContext; onViewChange?: () => void }) {
+export function PageHeader({ icon, title, subtitle, onBack, moduleId, onUpload, viewCtx, onViewChange }: { icon: React.ReactNode; title: string; subtitle: string; onBack: () => void; moduleId?: string; onUpload?: (files: FileList) => void; viewCtx?: ViewContext; onViewChange?: () => void }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const MODULE_DATA_LABELS: Record<string, string> = { snapshot: "Workforce", jobs: "Job Catalog", scan: "Work Design", design: "Work Design", simulate: "Work Design", build: "Org Design", plan: "Change Mgmt", opmodel: "Operating Model" };
   const dataLabel = moduleId ? MODULE_DATA_LABELS[moduleId] : null;

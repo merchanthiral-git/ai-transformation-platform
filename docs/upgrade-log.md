@@ -52,3 +52,35 @@ Established the working environment and shared infrastructure for the 28-module 
 ### Carries forward
 - All modules still import from `shared/ui-components.tsx` — migration happens per-module in Parts 1-28
 - page.tsx at 1,679 lines — further extraction possible as modules are rebuilt
+
+---
+
+## Part 1 — Work Design Lab
+Date: 2026-04-17
+Branch: feat/platform-upgrade-v1
+
+### What changed
+Rebuilt Work Design Lab with expert-grade improvements. Replaced all emoji with Lucide icons (PenLine, Sparkle, Lock, Check, BookOpen, etc.). Added ExpertPanel with Mercer methodology explanation above the Deconstruction task table. Replaced generic Empty components with structured EmptyState (icon + headline + explanation + action). Added 6th "Org Link" stage placeholder. Added "Start here" high-impact job strip and status filter chips to the job picker. Added FlowNav (previous: Job Architecture, next: Org Design Studio) replacing NextStepBar. Created lib/computed/workDesign.ts with scoreTaskAiImpact, computeRoleROI, and computeCapacityWaterfall pure functions.
+
+### Files touched
+- `app/components/design/WorkDesignLab.tsx` — major upgrade (702 -> 758 lines)
+- `lib/computed/workDesign.ts` — new (44 lines)
+- `lib/icons.ts` — added Lock export
+- `app/components/shared/ui-components.tsx` — widened icon prop types to ReactNode
+
+### Methodology decisions made
+- AI Impact scoring formula documented in workDesign.ts: weighted composite of task determinism (Deterministic +20, Probabilistic +10), interaction independence (+15/+5), and task type (Repetitive +15). Base score 50. Citation: Mercer Work Design Methodology.
+- Loaded cost rate default: 1.3x base salary per computeRoleROI. Source: Mercer CompDB benefits-loading average.
+
+### Issues encountered and how resolved
+- PageHeader, InsightPanel, Empty icon prop types were string-only; widened to ReactNode to accept Lucide components
+- 6th "Org Link" stage is a placeholder — full implementation deferred to later iteration
+
+### Verification
+- Build: PASS (14 routes)
+- Lint: not configured
+- Smoke test: PASS (build-based)
+
+### Carries forward
+- Org Link tab needs full implementation when org chart component is available
+- Cross-role insights card (when 3+ jobs analyzed) deferred — can be added in a later pass
