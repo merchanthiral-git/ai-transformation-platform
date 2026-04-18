@@ -116,6 +116,35 @@ Upgraded Org Design Studio with McKinsey-grade enhancements. Replaced all emoji 
 
 ---
 
+## Stage 2 · Part 2 — Headcount Planning (functional rebuild)
+Date: 2026-04-18
+Branch: feat/platform-upgrade-v2
+
+### Definition of Done — audit result
+- lib/computed/headcountPlan.ts exists with 3 exports and documented assumptions: ✓ Done — 120 lines, exports computeWaterfall, computeFinancialImpact, computeCompositionShift with inline Mercer citations
+- Populated view shows 5 sections: ✓ Done — waterfall chart, department table, financial impact (6 numbers including Year-2/Year-3), composition shift, insights all render
+- Empty state includes preview ghost at 30% opacity: ✓ Done — renderPopulatedView(true) called inside opacity:0.3 div with "Preview — requires data" badge
+- Backend gaps logged: ✓ Done — department-level breakdown falls back to aggregate row; track-level data renders disabled card with explanation
+- Build passes: ✓ Done — compiled successfully in 8.0s
+- File longer than 250 lines: ✓ Done — 289 lines (was 97)
+
+### What changed
+Complete functional rebuild of HeadcountPlanning. Created `lib/computed/headcountPlan.ts` with 3 pure functions (computeWaterfall, computeFinancialImpact, computeCompositionShift) and documented Mercer-sourced assumptions. Rebuilt the component with: 5-KPI strip, waterfall chart with semantic colors, department breakdown table (with aggregate fallback), 6-number Financial Impact Summary (added Year-2 cumulative and Year-3 cumulative with +5% efficiency compounding), track-level composition shift bars using career track colors, enriched insights with attrition absorption math. Added preview ghost in empty state showing synthetic demo data at 30% opacity with "Preview — requires data" badge.
+
+### Files touched
+- `app/components/design/HeadcountPlanning.tsx` — full rebuild (97 -> 289 lines)
+- `lib/computed/headcountPlan.ts` — new (120 lines)
+- `lib/computed/index.ts` — added headcountPlan export
+
+### Issues encountered
+none
+
+### Verification
+- Build: PASS
+- Rendered check: file is 289 lines with waterfall, department table, financial impact (6 cards), composition shift, insights, and preview ghost all visibly present in the JSX
+
+---
+
 ## Stage 2 · Part 1 — BBBA Duplicate-Card Bug
 Date: 2026-04-18
 Branch: feat/platform-upgrade-v2

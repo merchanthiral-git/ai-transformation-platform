@@ -17,3 +17,4 @@ export * from "./readinessBands";
 export * from "./costModel";
 export * from "./impactSimulator";
 export * from "./orgScenario";
+export * from "./headcountPlan";
