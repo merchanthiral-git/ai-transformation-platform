@@ -480,26 +480,97 @@ export function TransformationExecDashboard({ model, f, onBack, onNavigate, deci
 
   const nav = (id: string) => onNavigate ? onNavigate(id) : onBack();
 
+  // Hero narrative state — driven by engagement progress
+  const heroState = (() => {
+    const employees = Number(data?.total_employees || 0);
+    const readiness = Number(data?.org_readiness || 0);
+    const mgrs = Number(mgr.champions || 0);
+    const hasData = employees > 0;
+    const hasDiagnose = readiness > 0;
+    const hasDesign = Number(bbba.build || 0) > 0 || Number(bbba.buy || 0) > 0;
+    const hasMobilize = Number(reskill.total_investment || 0) > 0;
+
+    if (!hasData) return {
+      headline: "Upload workforce data to begin",
+      subtitle: "This platform analyzes your roles, tasks, skills, and manager cohorts to build a transformation plan. Start with a workforce file.",
+      action: { label: "Upload data", target: "upload" },
+    };
+    if (!hasDiagnose) return {
+      headline: `Baseline: ${employees.toLocaleString()} employees loaded`,
+      subtitle: "Run the Diagnose phase to establish AI Readiness, Manager Capability, and Skills gaps before committing to a Design scenario.",
+      action: { label: "Start with AI Readiness", target: "readiness" },
+    };
+    if (!hasDesign) return {
+      headline: `AI Readiness ${readiness}/5 · ${employees.toLocaleString()} employees`,
+      subtitle: "Diagnosis complete. Move to Design to model scenarios, decompose roles, and plan the workforce transition.",
+      action: { label: "Open Org Design Studio", target: "orgdesign" },
+    };
+    if (!hasMobilize) return {
+      headline: "Design scenarios ready — commit before Mobilize",
+      subtitle: "Scenario modeling is complete. Review the Impact Simulator, then launch change campaigns.",
+      action: { label: "See Impact Simulator", target: "simulate" },
+    };
+    return {
+      headline: "Transformation in flight",
+      subtitle: "Track campaign status, pulse trends, and open risks below.",
+      action: { label: "Open Change Campaign Planner", target: "change" },
+    };
+  })();
+
   return <div>
     <PageHeader icon={<LayoutDashboard />} title="Transformation Dashboard" subtitle="Track progress, investment, and risk across your entire transformation" onBack={onBack} moduleId="dashboard" />
     {loading && <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={4} /><SkeletonChart height={200} /></div></>}
 
+    {/* Hero block — dynamic narrative based on engagement state */}
+    {!loading && <div className="mb-8 p-8 rounded-2xl" style={{ background: "linear-gradient(135deg, var(--surface-2), var(--surface-1))", borderLeft: "4px solid var(--accent-primary)" }}>
+      <h1 className="text-[26px] font-bold mb-3 text-[var(--text-primary)]">{heroState.headline}</h1>
+      <p className="text-[15px] text-[var(--text-secondary)] mb-6 max-w-3xl leading-relaxed">{heroState.subtitle}</p>
+      <button onClick={() => nav(heroState.action.target)} className="px-6 py-3 rounded-xl font-semibold text-[14px]" style={{ background: "var(--accent-primary)", color: "white" }}>
+        {heroState.action.label} →
+      </button>
+    </div>}
+
+    {/* Three Pillars — Where we are / Where we're going / How we get there */}
+    {!loading && <div className="grid grid-cols-3 gap-4 mb-6">
+      <button onClick={() => nav("snapshot")} className="text-left rounded-2xl p-5 border border-[var(--border)] bg-[var(--surface-1)] transition-all hover:translate-y-[-2px] hover:border-[var(--accent-primary)]/40">
+        <div className="text-[12px] font-bold text-[var(--accent-primary)] uppercase tracking-wider mb-3">Where we are</div>
+        <div className="grid grid-cols-2 gap-3">
+          <div><div className="text-[18px] font-extrabold text-[var(--text-primary)] font-data">{data?.total_employees ? Number(data.total_employees).toLocaleString() : "—"}</div><div className="text-[12px] text-[var(--text-muted)]">Employees</div></div>
+          <div><div className="text-[18px] font-extrabold text-[var(--text-primary)] font-data">{data?.org_readiness ? `${data.org_readiness}/5` : "—"}</div><div className="text-[12px] text-[var(--text-muted)]">AI Readiness</div></div>
+        </div>
+      </button>
+      <button onClick={() => nav("orgdesign")} className="text-left rounded-2xl p-5 border border-[var(--border)] bg-[var(--surface-1)] transition-all hover:translate-y-[-2px] hover:border-[var(--accent-primary)]/40">
+        <div className="text-[12px] font-bold text-[var(--success)] uppercase tracking-wider mb-3">Where we are going</div>
+        <div className="grid grid-cols-2 gap-3">
+          <div><div className="text-[18px] font-extrabold text-[var(--text-primary)] font-data">{Number(bbba.build || 0) + Number(bbba.buy || 0) || "—"}</div><div className="text-[12px] text-[var(--text-muted)]">Roles changing</div></div>
+          <div><div className="text-[18px] font-extrabold text-[var(--text-primary)] font-data">{transformationSummary?.scenario ? transformationSummary.scenario.charAt(0).toUpperCase() + transformationSummary.scenario.slice(1) : "—"}</div><div className="text-[12px] text-[var(--text-muted)]">Scenario</div></div>
+        </div>
+      </button>
+      <button onClick={() => nav("simulate")} className="text-left rounded-2xl p-5 border border-[var(--border)] bg-[var(--surface-1)] transition-all hover:translate-y-[-2px] hover:border-[var(--accent-primary)]/40">
+        <div className="text-[12px] font-bold text-[var(--warning)] uppercase tracking-wider mb-3">How we get there</div>
+        <div className="grid grid-cols-2 gap-3">
+          <div><div className="text-[18px] font-extrabold text-[var(--text-primary)] font-data">{Number(bbba.total_investment) ? fmtNum(bbba.total_investment) : "—"}</div><div className="text-[12px] text-[var(--text-muted)]">Investment</div></div>
+          <div><div className="text-[18px] font-extrabold text-[var(--text-primary)] font-data">{riskRegister.filter(r => r.status !== "Closed").length || "—"}</div><div className="text-[12px] text-[var(--text-muted)]">Open risks</div></div>
+        </div>
+      </button>
+    </div>}
+
     {/* Phase summary cards */}
     <div className="grid grid-cols-3 gap-4 mb-6">
       {[
-        { phase: "Discover", icon: "🔍", color: "var(--accent-primary)", ready: true, items: [
+        { phase: "Discover", icon: "D", color: "var(--accent-primary)", ready: true, items: [
           { label: "Employees", value: data?.total_employees ? Number(data.total_employees).toLocaleString() : "—" },
           { label: "AI Readiness", value: data?.org_readiness ? `${data.org_readiness}/5` : "—" },
           { label: "Champions", value: typeof mgr.champions === "object" ? "—" : (mgr.champions || "—") },
           { label: "At Risk", value: typeof bands.at_risk === "object" ? "—" : (bands.at_risk || "—") },
         ]},
-        { phase: "Design", icon: "✏️", color: "var(--success)", ready: !!(bbba.build || bbba.buy || data?.skills_coverage), items: [
+        { phase: "Design", icon: "S", color: "var(--success)", ready: !!(bbba.build || bbba.buy || data?.skills_coverage), items: [
           { label: "Skills Coverage", value: data?.skills_coverage ? `${data.skills_coverage}%` : "—" },
           { label: "Critical Gaps", value: typeof data?.critical_gaps === "object" ? "—" : (data?.critical_gaps || "—") },
           { label: "Build Roles", value: typeof bbba.build === "object" ? "—" : (bbba.build || "—") },
           { label: "Buy Roles", value: typeof bbba.buy === "object" ? "—" : (bbba.buy || "—") },
         ]},
-        { phase: "Deliver", icon: "🚀", color: "var(--warning)", ready: !!(Number(reskill.total_investment) || Number(wf.net_change)), items: [
+        { phase: "Deliver", icon: "M", color: "var(--warning)", ready: !!(Number(reskill.total_investment) || Number(wf.net_change)), items: [
           { label: "High Risk %", value: data?.high_risk_pct && typeof data.high_risk_pct !== "object" ? `${data.high_risk_pct}%` : "—" },
           { label: "Internal Fill", value: typeof mp.internal_fill === "object" ? "—" : (mp.internal_fill || "—") },
           { label: "Reskill Cost", value: Number(reskill.total_investment) ? fmtNum(reskill.total_investment) : "—" },

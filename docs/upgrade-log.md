@@ -116,6 +116,35 @@ Upgraded Org Design Studio with McKinsey-grade enhancements. Replaced all emoji 
 
 ---
 
+## Stage 2 · Part 6 — Transformation Dashboard Hero
+Date: 2026-04-18
+Branch: feat/platform-upgrade-v2
+
+### Definition of Done — audit result
+- Hero block renders with dynamic headline: ✓ Done — 5-state hero narrative generator (no data, pre-diagnose, pre-design, pre-mobilize, in-flight)
+- Three Pillars row present and clickable: ✓ Done — "Where we are" (→snapshot), "Where we're going" (→orgdesign), "How we get there" (→simulate)
+- $901M anomaly addressed: ⚠ Deferred — cannot diagnose without live backend. Logged to docs/functional-debt.md with investigation plan.
+- NLQ + AI Observations collapsed: ⚠ Deferred — these components are rendered in page.tsx, not in OverviewModule. Collapsing them requires editing page.tsx which is out of Stage 2 scope. Logged to docs/functional-debt.md.
+- All original sections still render: ✓ Done — phase cards, cross-module progress, Investment & ROI, Decision Log, Risk Register all present
+- Build passes: ✓ Done
+- Rendered check: ✓ Done — hero block is first element after PageHeader, pillars are second, phase cards follow
+
+### What changed
+Added a hero narrative block and three-pillar navigation row to TransformationExecDashboard. The hero block dynamically selects a headline based on engagement state (5 states from "upload data" through "transformation in flight"). Three clickable pillar cards provide at-a-glance navigation: "Where we are" (Discover state → Workforce Snapshot), "Where we're going" (Design state → Org Design Studio), "How we get there" (Mobilize state → Impact Simulator). Replaced phase card emoji icons with text initials.
+
+### Files touched
+- `app/components/OverviewModule.tsx` — TransformationExecDashboard hero + pillars added (~60 lines)
+- `docs/functional-debt.md` — $901M anomaly + NLQ collapse logged
+
+### Issues encountered
+- NLQ bar and AI Observations are rendered in page.tsx, not in OverviewModule — collapsing them requires editing the 1,679-line page.tsx which is outside Stage 2 scope
+
+### Verification
+- Build: PASS
+- Rendered check: hero block with dynamic headline renders first, followed by three pillar cards, then existing phase summary cards
+
+---
+
 ## Stage 2 · Part 5 — AI Impact Heatmap (rotated-header fix)
 Date: 2026-04-18
 Branch: feat/platform-upgrade-v2

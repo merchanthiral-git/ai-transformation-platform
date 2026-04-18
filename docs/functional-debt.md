@@ -27,3 +27,9 @@ Part: Stage 2 Part 3
 Debt: Full PDF export of the recommendations is out of scope. "Copy as Markdown" is implemented as the interim.
 Proper fix: Add a PDF generation library (e.g. @react-pdf/renderer) and compose the structured output into a branded PDF.
 Impact if not fixed: Medium — consultant can copy Markdown and format externally.
+
+## Investment & ROI Summary $901M scale anomaly
+Part: Stage 2 Part 6
+Debt: The Transformation Dashboard shows "$901M Reskilling" in one screenshot. This may be a data-scale bug (backend returning raw numbers instead of thousands) or legitimate for an 8,000-employee org. Cannot diagnose without running the live backend.
+Proper fix: Inspect the API response for reskilling_summary.total_investment and confirm the unit scale. If it returns cents or raw values, apply division. If it returns a legitimate large number, add a confidence note.
+Impact if not fixed: Medium — could confuse consultants if the scale is wrong.
