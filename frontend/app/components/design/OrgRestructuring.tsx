@@ -6,9 +6,15 @@ import {
   ViewContext, COLORS,
   KpiCard, Card, Empty, Badge, InsightPanel,
   TabBar, PageHeader, LoadingSkeleton,
-  NextStepBar, ContextStrip,
+  ContextStrip,
   usePersisted, showToast, JobDesignState, fmtNum,
 } from "../shared";
+import {
+  Network, Users, Search, Filter, Plus, X, Check,
+  ChevronLeft, ChevronRight, Pencil, Trash2, GitBranch,
+  ArrowRight, Layers3, TriangleAlert, Gauge,
+} from "@/lib/icons";
+import { EmptyState, FlowNav, ExpertPanel, Badge as UIBadge } from "@/app/ui";
 
 /* ─── Types ─── */
 type ReorgNode = {
@@ -76,9 +82,7 @@ function flattenTree(node: ReorgNode): ReorgNode[] {
   return [node, ...node.children.flatMap(c => flattenTree(c))];
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   MAIN COMPONENT
-   ═══════════════════════════════════════════════════════════════ */
+/* ── Main Component ── */
 export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobStates }: {
   model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void;
   viewCtx?: ViewContext; jobStates?: Record<string, JobDesignState>;
@@ -207,7 +211,24 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
       .slice(0, 20);
   }, [managers, managerSearch]);
 
-  /* ── Build org tree ── */
+  /* ── Auto-select root manager (most total reports) on first load ── */
+  useEffect(() => {
+    if (!employees.length || selectedManager) return;
+    // Find root nodes: employees who have no managerId in the dataset
+    const employeeIds = new Set(employees.map(e => e.id));
+    const roots = employees.filter(e => !e.managerId || !employeeIds.has(e.managerId));
+    if (roots.length === 0) return;
+    // Pick the root with the most total reports (recursive headcount)
+    const countReports = (id: string): number => {
+      const directs = employees.filter(e => e.managerId === id);
+      return directs.reduce((sum, d) => sum + 1 + countReports(d.id), 0);
+    };
+    const best = roots.reduce((prev, curr) =>
+      countReports(curr.id) > countReports(prev.id) ? curr : prev,
+    );
+    setSelectedManager(best.id); setManagerSearch(best.name); setExpandedNodes(new Set([best.id]));
+  }, [employees]);
+
   const buildTree = useCallback((rootId: string): ReorgNode | null => {
     const emp = employees.find(e => e.id === rootId);
     if (!emp) return null;
@@ -222,12 +243,9 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
     return node;
   }, [employees]);
 
-  const currentTree = useMemo(() => {
-    if (!selectedManager) return null;
-    return buildTree(selectedManager);
-  }, [selectedManager, buildTree]);
+  const currentTree = useMemo(() => (!selectedManager ? null : buildTree(selectedManager)), [selectedManager, buildTree]);
 
-  /* ── Future tree (current + applied changes) ── */
+  /* ── Future tree ── */
   const futureTree = useMemo(() => {
     if (!currentTree) return null;
     const tree = cloneTree(currentTree);
@@ -327,11 +345,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
     showToast("New report added");
   }, []);
 
-  const handleStartEdit = useCallback((node: ReorgNode) => {
-    setEditingNode(node.id);
-    setEditTitle(node.title);
-    setEditLevel(node.level);
-  }, []);
+  const handleStartEdit = useCallback((node: ReorgNode) => { setEditingNode(node.id); setEditTitle(node.title); setEditLevel(node.level); }, []);
 
   const handleSaveEdit = useCallback((node: ReorgNode) => {
     if (editTitle !== node.title || editLevel !== node.level) {
@@ -360,11 +374,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
     showToast(`${node.name} moved`);
   }, [currentTree]);
 
-  const handleSaveNote = useCallback((_nodeId: string, text: string) => {
-    setNoteInput(null);
-    setNoteText("");
-    showToast("Note saved");
-  }, []);
+  const handleSaveNote = useCallback((_nodeId: string, _text: string) => { setNoteInput(null); setNoteText(""); showToast("Note saved"); }, []);
 
   const handleSaveScenario = useCallback(async () => {
     if (!scenarioName.trim()) { showToast("Enter a scenario name"); return; }
@@ -412,33 +422,31 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
 
   const addSkillToNote = useCallback(() => {
     if (!newSkillName.trim()) return;
-    setNewNote(prev => ({
-      ...prev,
-      skills: [...(prev.skills || []), { name: newSkillName.trim(), proficiency: newSkillProf }],
-    }));
-    setNewSkillName("");
-    setNewSkillProf(3);
+    setNewNote(prev => ({ ...prev, skills: [...(prev.skills || []), { name: newSkillName.trim(), proficiency: newSkillProf }] }));
+    setNewSkillName(""); setNewSkillProf(3);
   }, [newSkillName, newSkillProf]);
 
   /* ── Conditional returns (after all hooks) ── */
   if (loading) return (
     <div style={{ padding: 32 }}>
-      <PageHeader icon="🔄" title="Org Restructuring" subtitle="Loading workforce data..." onBack={onBack} />
+      <PageHeader icon={<Network size={20} />} title="Org Restructuring" subtitle="Loading workforce data..." onBack={onBack} />
       <LoadingSkeleton rows={6} />
     </div>
   );
 
   if (!wfData || wfData.length === 0) return (
     <div style={{ padding: 32 }}>
-      <PageHeader icon="🔄" title="Org Restructuring" subtitle="Reshape your organization" onBack={onBack} />
-      <Empty icon="🔄" text="Org Restructuring Requires Workforce Data" subtitle="Upload workforce data with employee names, titles, and manager IDs to use the restructuring tool." action="Go to Overview" onAction={() => onNavigate?.("dashboard")} />
+      <PageHeader icon={<Network size={20} />} title="Org Restructuring" subtitle="Reshape your organization" onBack={onBack} />
+      <EmptyState
+        icon={<Network size={28} />}
+        headline="Workforce data required"
+        explanation="Upload workforce data with employee names, titles, and manager IDs to use the restructuring tool."
+        primaryAction={{ label: "Go to Overview", icon: <ArrowRight size={14} />, onClick: () => onNavigate?.("dashboard") }}
+      />
     </div>
   );
 
-  /* ═══════════════════════════════════════════════════════════════
-     RENDERING HELPERS
-     ═══════════════════════════════════════════════════════════════ */
-
+  /* ── Rendering helpers ── */
   const statusBorder = (s: ReorgNode["status"]) => {
     switch (s) {
       case "added": return "var(--success)";
@@ -459,7 +467,6 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
     }
   };
 
-  /* ── Tree renderer ── */
   const renderTree = (node: ReorgNode, depth: number, editable: boolean, useFutureStatus = false) => {
     const expanded = expandedNodes.has(node.id);
     const hasChildren = node.children.length > 0;
@@ -486,24 +493,15 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
             opacity: isEliminated ? 0.5 : 1,
           }}
         >
-          {/* Chevron */}
-          <button
-            onClick={() => hasChildren && toggleExpand(node.id)}
-            className="w-5 h-5 flex items-center justify-center text-[var(--text-muted)] text-xs flex-shrink-0"
-            style={{ visibility: hasChildren ? "visible" : "hidden", cursor: hasChildren ? "pointer" : "default" }}
-          >
-            {expanded ? "▼" : "▶"}
+          <button onClick={() => hasChildren && toggleExpand(node.id)} className="w-5 h-5 flex items-center justify-center text-[var(--text-muted)] flex-shrink-0" style={{ visibility: hasChildren ? "visible" : "hidden", cursor: hasChildren ? "pointer" : "default" }}>
+            {expanded ? <ChevronLeft size={12} style={{ transform: "rotate(-90deg)" }} /> : <ChevronRight size={12} />}
           </button>
-
-          {/* Avatar */}
           <div
             className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
             style={{ background: `${trackColor(node.track)}22`, color: trackColor(node.track), border: `1.5px solid ${trackColor(node.track)}40` }}
           >
             {getInitials(node.name)}
           </div>
-
-          {/* Name & title */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <span
@@ -534,7 +532,6 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
             )}
           </div>
 
-          {/* Level badge */}
           <span
             className="text-xs font-mono font-bold px-2 py-0.5 rounded-full flex-shrink-0"
             style={{ color: trackColor(node.track), background: `${trackColor(node.track)}18` }}
@@ -542,24 +539,18 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
             {displayLevel}
           </span>
 
-          {/* Function */}
-          <span className="text-xs text-[var(--text-muted)] w-24 truncate text-right flex-shrink-0 hidden sm:block">
-            {node.function}
-          </span>
-
-          {/* Actions (editable only) */}
+          <span className="text-xs text-[var(--text-muted)] w-24 truncate text-right flex-shrink-0 hidden sm:block">{node.function}</span>
           {editable && !isEliminated && editingNode !== node.id && (
             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-              <button onClick={() => handleStartEdit(node)} title="Edit" className="w-6 h-6 flex items-center justify-center rounded hover:bg-[var(--surface-2)] text-xs">✏️</button>
-              <button onClick={() => handleEliminate(node)} title="Eliminate" className="w-6 h-6 flex items-center justify-center rounded hover:bg-[var(--surface-2)] text-xs">❌</button>
-              <button onClick={() => handleAddReport(node.id)} title="Add Report" className="w-6 h-6 flex items-center justify-center rounded hover:bg-[var(--surface-2)] text-xs">➕</button>
-              <button onClick={() => { setNoteInput(node.id); setNoteText(node.notes || ""); }} title="Notes" className="w-6 h-6 flex items-center justify-center rounded hover:bg-[var(--surface-2)] text-xs">📋</button>
-              <button onClick={() => { setMoveTarget(node.id); setMoveManagerId(""); }} title="Move" className="w-6 h-6 flex items-center justify-center rounded hover:bg-[var(--surface-2)] text-xs">↕️</button>
+              <button onClick={() => handleStartEdit(node)} title="Edit" className="w-6 h-6 flex items-center justify-center rounded hover:bg-[var(--surface-2)] text-[var(--text-muted)]"><Pencil size={12} /></button>
+              <button onClick={() => handleEliminate(node)} title="Eliminate" className="w-6 h-6 flex items-center justify-center rounded hover:bg-[var(--surface-2)] text-[var(--text-muted)]"><Trash2 size={12} /></button>
+              <button onClick={() => handleAddReport(node.id)} title="Add Report" className="w-6 h-6 flex items-center justify-center rounded hover:bg-[var(--surface-2)] text-[var(--text-muted)]"><Plus size={12} /></button>
+              <button onClick={() => { setNoteInput(node.id); setNoteText(node.notes || ""); }} title="Notes" className="w-6 h-6 flex items-center justify-center rounded hover:bg-[var(--surface-2)] text-[var(--text-muted)]"><GitBranch size={12} /></button>
+              <button onClick={() => { setMoveTarget(node.id); setMoveManagerId(""); }} title="Move" className="w-6 h-6 flex items-center justify-center rounded hover:bg-[var(--surface-2)] text-[var(--text-muted)]"><ArrowRight size={12} /></button>
             </div>
           )}
         </div>
 
-        {/* Note input inline */}
         {noteInput === node.id && (
           <div className="flex items-center gap-2" style={{ marginLeft: depth * 28 + 48, marginTop: 4, marginBottom: 8 }}>
             <input
@@ -571,7 +562,6 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
           </div>
         )}
 
-        {/* Move dropdown inline */}
         {moveTarget === node.id && (
           <div className="flex items-center gap-2" style={{ marginLeft: depth * 28 + 48, marginTop: 4, marginBottom: 8 }}>
             <select
@@ -591,28 +581,28 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
           </div>
         )}
 
-        {/* Children */}
         {expanded && node.children.map(child => renderTree(child, depth + 1, editable, useFutureStatus))}
       </div>
     );
   };
 
-  /* ═══════════════════════════════════════════════════════════════
-     TAB 1 — ORG VIEW
-     ═══════════════════════════════════════════════════════════════ */
+  /* ── Tab 1: Org View ── */
   const renderOrgView = () => (
     <div className="flex gap-6">
       {/* Left column */}
       <div className="flex-1 min-w-0">
-        <Card title="Select Manager">
+        <Card title="Restructure by manager — select a team lead to examine their org and propose changes.">
           <div className="relative" ref={dropdownRef}>
-            <input
-              className="w-full px-4 py-2.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]"
-              placeholder="Search by name or title..."
-              value={managerSearch}
-              onChange={e => { setManagerSearch(e.target.value); setShowManagerDropdown(true); }}
-              onFocus={() => setShowManagerDropdown(true)}
-            />
+            <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)]">
+              <Search size={15} className="text-[var(--text-muted)] flex-shrink-0" />
+              <input
+                className="flex-1 bg-transparent text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]"
+                placeholder="Search by name or title..."
+                value={managerSearch}
+                onChange={e => { setManagerSearch(e.target.value); setShowManagerDropdown(true); }}
+                onFocus={() => setShowManagerDropdown(true)}
+              />
+            </div>
             {showManagerDropdown && filteredManagers.length > 0 && (
               <div className="absolute z-10 top-full left-0 right-0 mt-1 rounded-xl border border-[var(--border)] bg-[var(--surface-1)] shadow-lg max-h-64 overflow-y-auto" style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.4)" }}>
                 {filteredManagers.map(m => (
@@ -641,32 +631,56 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
         </Card>
 
         {currentTree ? (
-          <Card title={`${currentTree.name}'s Organization`}>
-            <div className="overflow-y-auto" style={{ maxHeight: 520 }}>
-              {renderTree(currentTree, 0, false)}
-            </div>
-            <div className="mt-4 pt-3 border-t border-[var(--border)]">
-              <button
-                className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-colors"
-                style={{ background: "var(--accent-primary)" }}
-                onClick={() => setActiveTab("design")}
-              >
-                Start Restructuring
-              </button>
-            </div>
-          </Card>
+          currentTree.children.length === 0 ? (
+            <Card>
+              <EmptyState
+                icon={<Users size={28} />}
+                headline="No direct reports"
+                explanation="This role has no direct reports. Select a manager with a team to restructure."
+                primaryAction={{
+                  label: "View top-level org",
+                  icon: <Network size={14} />,
+                  onClick: () => {
+                    setSelectedManager("");
+                    setManagerSearch("");
+                  },
+                }}
+              />
+            </Card>
+          ) : (
+            <Card title={`${currentTree.name}'s Organization`}>
+              <div className="overflow-y-auto" style={{ maxHeight: 520 }}>
+                {renderTree(currentTree, 0, false)}
+              </div>
+              <div className="mt-4 pt-3 border-t border-[var(--border)]">
+                <button
+                  className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-colors"
+                  style={{ background: "var(--accent-primary)" }}
+                  onClick={() => setActiveTab("design")}
+                >
+                  Start Restructuring
+                </button>
+              </div>
+            </Card>
+          )
         ) : (
           <Card>
-            <div className="text-center py-16 text-[var(--text-muted)]">
-              <div className="text-4xl mb-3 opacity-40">👤</div>
-              <div className="text-sm">Select a manager to view their organization</div>
-            </div>
+            <EmptyState
+              icon={<Network size={28} />}
+              headline="No manager selected"
+              explanation="Use the search above to select a manager and view their organization."
+              primaryAction={{
+                label: "Browse managers",
+                icon: <Users size={14} />,
+                onClick: () => setShowManagerDropdown(true),
+              }}
+            />
           </Card>
         )}
       </div>
 
       {/* Right: summary stats */}
-      {currentTree && (
+      {currentTree && currentTree.children.length > 0 && (
         <div className="w-72 flex-shrink-0 space-y-4">
           <Card title="Organization Summary">
             <div className="space-y-4">
@@ -707,11 +721,22 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
     </div>
   );
 
-  /* ═══════════════════════════════════════════════════════════════
-     TAB 2 — DESIGN
-     ═══════════════════════════════════════════════════════════════ */
+  /* ── Tab 2: Design ── */
   const renderDesign = () => {
-    if (!currentTree) return <Card><Empty icon="👤" text="Select a manager in the Org View tab first to begin restructuring" /></Card>;
+    if (!currentTree) return (
+      <Card>
+        <EmptyState
+          icon={<Pencil size={28} />}
+          headline="Select a manager first"
+          explanation="Choose a team lead from the Org View to propose structural changes."
+          primaryAction={{
+            label: "Go to Org View",
+            icon: <Network size={14} />,
+            onClick: () => setActiveTab("org"),
+          }}
+        />
+      </Card>
+    );
 
     return (
       <div className="flex gap-6">
@@ -754,7 +779,9 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
                         : ch.type === "modify" ? `"${ch.before.title}" → "${ch.after.title || ch.before.title}"`
                         : `Move node ${ch.nodeId}`}
                     </span>
-                    <button onClick={() => setChanges(prev => prev.filter((_, j) => j !== i))} className="text-[var(--text-muted)] hover:text-[var(--risk)]">×</button>
+                    <button onClick={() => setChanges(prev => prev.filter((_, j) => j !== i))} className="text-[var(--text-muted)] hover:text-[var(--risk)]">
+                      <X size={12} />
+                    </button>
                   </div>
                 ))}
               </div>
@@ -804,11 +831,27 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
     );
   };
 
-  /* ═══════════════════════════════════════════════════════════════
-     TAB 3 — COMPARE
-     ═══════════════════════════════════════════════════════════════ */
+  /* ── Tab 3: Compare ── */
   const renderCompare = () => {
-    if (!currentTree || !futureTree) return <Card><Empty icon="⚖️" text="Select a manager and make design changes to compare current vs. future state" /></Card>;
+    if (!currentTree || !futureTree) return (
+      <Card>
+        <EmptyState
+          icon={<Layers3 size={28} />}
+          headline="Nothing to compare yet"
+          explanation="Select a manager and make design changes in the Design tab to compare current vs. future state."
+          primaryAction={{
+            label: "Go to Design",
+            icon: <Pencil size={14} />,
+            onClick: () => setActiveTab("design"),
+          }}
+          secondaryAction={{
+            label: "Go to Org View",
+            icon: <Network size={14} />,
+            onClick: () => setActiveTab("org"),
+          }}
+        />
+      </Card>
+    );
 
     const summary = {
       added: changes.filter(c => c.type === "add").length,
@@ -852,11 +895,22 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
     );
   };
 
-  /* ═══════════════════════════════════════════════════════════════
-     TAB 4 — IMPACT
-     ═══════════════════════════════════════════════════════════════ */
+  /* ── Tab 4: Impact ── */
   const renderImpact = () => {
-    if (changes.length === 0) return <Card><Empty icon="📊" text="Make design changes in the Design tab to see their impact analysis" /></Card>;
+    if (changes.length === 0) return (
+      <Card>
+        <EmptyState
+          icon={<Gauge size={28} />}
+          headline="No changes to analyze"
+          explanation="Make design changes in the Design tab to see their impact analysis here."
+          primaryAction={{
+            label: "Go to Design",
+            icon: <Pencil size={14} />,
+            onClick: () => setActiveTab("design"),
+          }}
+        />
+      </Card>
+    );
 
     const totalAffected = changes.length;
     const avgSpanBefore = currentMetrics.directs;
@@ -945,7 +999,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
           {risks.map(risk => (
             <Card key={risk.title}>
               <div className="flex items-start gap-3">
-                <div className="w-3 h-3 rounded-full mt-1 flex-shrink-0" style={{ background: risk.color }} />
+                <TriangleAlert size={14} style={{ color: risk.color, marginTop: 2, flexShrink: 0 }} />
                 <div>
                   <div className="text-sm font-semibold text-[var(--text-primary)] mb-1">{risk.title}</div>
                   <div className="text-lg font-bold font-data mb-1" style={{ color: risk.color }}>{risk.level}</div>
@@ -959,17 +1013,18 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
     );
   };
 
-  /* ═══════════════════════════════════════════════════════════════
-     TAB 5 — NOTES
-     ═══════════════════════════════════════════════════════════════ */
+  /* ── Tab 5: Notes ── */
   const renderNotes = () => (
     <div>
       {/* Search & filter bar */}
       <div className="flex items-center gap-4 mb-6">
-        <input
-          className="flex-1 px-4 py-2.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]"
-          placeholder="Search notes..." value={notesSearch} onChange={e => setNotesSearch(e.target.value)}
-        />
+        <div className="flex-1 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)]">
+          <Search size={15} className="text-[var(--text-muted)] flex-shrink-0" />
+          <input
+            className="flex-1 bg-transparent text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]"
+            placeholder="Search notes..." value={notesSearch} onChange={e => setNotesSearch(e.target.value)}
+          />
+        </div>
         <select
           className="px-4 py-2.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-sm text-[var(--text-primary)] outline-none"
           value={notesCategoryFilter} onChange={e => setNotesCategoryFilter(e.target.value)}
@@ -1009,14 +1064,18 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
               <select className="w-16 px-2 py-2 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-sm text-[var(--text-primary)] outline-none" value={newSkillProf} onChange={e => setNewSkillProf(Number(e.target.value))}>
                 {[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n}</option>)}
               </select>
-              <button onClick={addSkillToNote} className="px-3 py-2 rounded-lg text-sm font-semibold text-white" style={{ background: "var(--accent-primary)" }}>+</button>
+              <button onClick={addSkillToNote} className="px-3 py-2 rounded-lg text-sm font-semibold text-white flex items-center gap-1" style={{ background: "var(--accent-primary)" }}>
+                <Plus size={13} />
+              </button>
             </div>
             {(newNote.skills || []).length > 0 && (
               <div className="flex flex-wrap gap-1.5 mt-2">
                 {(newNote.skills || []).map((s, i) => (
                   <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold" style={{ background: "rgba(212,134,10,0.15)", color: "var(--accent-primary)" }}>
                     {s.name} (L{s.proficiency})
-                    <button onClick={() => setNewNote(p => ({ ...p, skills: (p.skills || []).filter((_, j) => j !== i) }))} className="hover:text-[var(--risk)]">×</button>
+                    <button onClick={() => setNewNote(p => ({ ...p, skills: (p.skills || []).filter((_, j) => j !== i) }))} className="hover:text-[var(--risk)]">
+                      <X size={10} />
+                    </button>
                   </span>
                 ))}
               </div>
@@ -1031,7 +1090,12 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
       {/* Notes list */}
       <Card title={`Notes (${notesList.length})`}>
         {notesLoading ? <LoadingSkeleton rows={3} /> : notesList.length === 0 ? (
-          <Empty icon="📝" text="No notes yet. Add your first note above." />
+          <EmptyState
+            icon={<GitBranch size={28} />}
+            headline="No notes yet"
+            explanation="Add your first note using the form above to capture key insights from this restructuring exercise."
+            primaryAction={{ label: "Add a note", icon: <Plus size={14} />, onClick: () => {} }}
+          />
         ) : (
           <div className="space-y-3 max-h-[480px] overflow-y-auto">
             {notesList.map((note, i) => (
@@ -1065,8 +1129,8 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
                   {note.created_at && <span className="text-xs text-[var(--text-muted)]">{new Date(note.created_at).toLocaleDateString()}</span>}
                   {note.id && note.status !== "confirmed" && note.status !== "rejected" && (
                     <>
-                      <button onClick={() => handleConfirmNote(note.id!)} className="text-xs font-semibold text-[var(--success)] hover:underline ml-auto">Confirm</button>
-                      <button onClick={() => handleRejectNote(note.id!)} className="text-xs font-semibold text-[var(--risk)] hover:underline">Reject</button>
+                      <button onClick={() => handleConfirmNote(note.id!)} className="text-xs font-semibold text-[var(--success)] hover:underline ml-auto flex items-center gap-1"><Check size={11} /> Confirm</button>
+                      <button onClick={() => handleRejectNote(note.id!)} className="text-xs font-semibold text-[var(--risk)] hover:underline flex items-center gap-1"><X size={11} /> Reject</button>
                     </>
                   )}
                 </div>
@@ -1078,15 +1142,14 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
     </div>
   );
 
-  /* ═══════════════════════════════════════════════════════════════
-     MAIN RENDER
-     ═══════════════════════════════════════════════════════════════ */
+  /* ── Main render ── */
   const kpis = orgData ? (orgData as any).kpis || {} : {};
+  const selectedManagerName = employees.find(e => e.id === selectedManager)?.name;
 
   return (
     <div style={{ padding: 32 }}>
       <PageHeader
-        icon="🔄"
+        icon={<Network size={20} />}
         title="Org Restructuring"
         subtitle="Design, compare, and evaluate organizational restructuring scenarios"
         onBack={onBack}
@@ -1096,8 +1159,8 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
       <ContextStrip items={[
         `${employees.length} employees loaded`,
         `${managers.length} managers identified`,
-        changes.length > 0 ? `${changes.length} pending changes` : "No changes yet",
-        selectedManager ? `Manager: ${employees.find(e => e.id === selectedManager)?.name || selectedManager}` : "No manager selected",
+        changes.length > 0 ? `${changes.length} changes proposed` : "No changes yet",
+        selectedManagerName ? `${selectedManagerName} selected` : "No manager selected",
       ]} />
 
       {orgData && (
@@ -1119,7 +1182,11 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
         {activeTab === "notes" && renderNotes()}
       </div>
 
-      {onNavigate && <NextStepBar currentModuleId="reorg" onNavigate={onNavigate} />}
+      <FlowNav
+        previous={{ id: "orgdesign", label: "Org Design Studio", icon: <Network size={15} /> }}
+        next={{ id: "reskilling", label: "Reskilling Pathways", icon: <Users size={15} /> }}
+        onNavigate={onNavigate || onBack}
+      />
     </div>
   );
 }

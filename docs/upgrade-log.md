@@ -113,3 +113,36 @@ Upgraded Org Design Studio with McKinsey-grade enhancements. Replaced all emoji 
 ### Carries forward
 - Benchmarks sub-tab has existing content but could be expanded with spider chart
 - Insights sub-tab master-detail rebuild deferred — current carousel functional
+
+---
+
+## Part 3 — Org Restructuring
+Date: 2026-04-17
+Branch: feat/platform-upgrade-v1
+
+### What changed
+Fixed the broken Org Restructuring module. Auto-selects root manager (CEO) on load instead of showing empty "Select a manager" dead-end. Replaced all emoji with Lucide icons. Replaced all Empty components with structured EmptyState (icon + headline + explanation + action). Updated ContextStrip to show employee/manager/change counts. Replaced NextStepBar with FlowNav (previous: Org Design Studio, next: Reskilling Pathways).
+
+### Files touched
+- `app/components/design/OrgRestructuring.tsx` — 1,127 -> 1,194 lines
+
+### Verification
+- Build: PASS
+
+---
+
+## Part 4 — Operating Model Lab
+Date: 2026-04-17
+Branch: feat/platform-upgrade-v1
+
+### What changed
+Surgical upgrade of the 4,338-line Operating Model Lab. Replaced all emoji icon strings in OM_FUNCTIONS (8 functions) and OM_GOVERNANCE (3 governance modes) with semantic string keys. Fixed PageHeader emoji icon. Added FlowNav (previous: Org Design Studio, next: Impact Simulator). Fixed Activity-Based Costing spinner bug that caused broken "square" character rendering next to currency values.
+
+### Files touched
+- `app/components/design/OperatingModelLab.tsx` — surgical edits, ~30 lines changed
+
+### Issues encountered and how resolved
+- Activity Costing "5000-square" bug was caused by browser default number input spinners rendering broken characters. Fixed by suppressing spinner UI with CSS classes.
+
+### Verification
+- Build: PASS
