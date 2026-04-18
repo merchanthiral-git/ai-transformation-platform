@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { FileText } from "@/lib/icons";
 import * as api from "../../lib/api";
 import type { Filters } from "../../lib/api";
 import type { ExportSummaryResponse } from "../../types/api";
@@ -51,13 +52,13 @@ export function ExportReport({ model, f, onBack, onNavigate, jobStates, simState
   const mgr = data?.manager_summary ?? { champions: 0 };
 
   if (!model && !data) return <div>
-    <PageHeader icon="📋" title="Export & Report" subtitle="Consolidated transformation report generator" onBack={onBack} moduleId="export" />
-    <Empty icon="📋" text="No Data Available for Export" subtitle="Complete at least one analysis module (Diagnose, Design, or Simulate) to generate exportable deliverables." action="Go to Overview" onAction={() => onNavigate?.("dashboard")} />
+    <PageHeader icon={<FileText />} title="Export & Report" subtitle="Consolidated transformation report generator" onBack={onBack} moduleId="export" />
+    <Empty icon={<FileText />} text="No Data Available for Export" subtitle="Complete at least one analysis module (Diagnose, Design, or Simulate) to generate exportable deliverables." action="Go to Overview" onAction={() => onNavigate?.("dashboard")} />
   </div>;
 
   return <div>
     <ContextStrip items={["Generate your board-ready transformation report. All module data is summarized below."]} />
-    <PageHeader icon="📋" title="Export & Report" subtitle="Consolidated transformation report generator" onBack={onBack} moduleId="export" />
+    <PageHeader icon={<FileText />} title="Export & Report" subtitle="Consolidated transformation report generator" onBack={onBack} moduleId="export" />
     {loading && <LoadingBar />}
     {generating && genStatus && <div className="bg-[var(--surface-2)] rounded-xl p-4 mb-4 border border-[var(--accent-primary)]/20 flex items-center gap-3">
       <div className="w-5 h-5 border-2 border-[var(--accent-primary)] border-t-transparent rounded-full animate-spin shrink-0" />

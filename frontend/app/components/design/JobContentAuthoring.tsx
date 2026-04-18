@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { Layers3, TrendingUp } from "@/lib/icons";
 import * as api from "../../../lib/api";
 import type { Filters } from "../../../lib/api";
 import {
@@ -50,9 +51,9 @@ interface GeneratedBullet {
   approved: boolean;
 }
 
-const STEPS = [
-  { id: "taxonomy", label: "Taxonomy", icon: "🗂️" },
-  { id: "themes", label: "Themes", icon: "🎯" },
+const STEPS: { id: string; label: string; icon: React.ReactNode }[] = [
+  { id: "taxonomy", label: "Taxonomy", icon: <Layers3 size={15} /> },
+  { id: "themes", label: "Themes", icon: <TrendingUp size={15} /> },
   { id: "verbs", label: "Verbs", icon: "✏️" },
   { id: "generate", label: "Generate", icon: "⚡" },
   { id: "compose", label: "Compose", icon: "📄" },
@@ -495,7 +496,7 @@ export function JobContentAuthoring({ model, f }: { model: string; f: Filters })
         {!loading && taxonomy.length === 0 && (
           <Empty
             text="No taxonomy defined yet. Start by adding a Group."
-            icon="🗂️"
+            icon={<Layers3 />}
             action="Add Group"
             onAction={() => addNode(null, "group")}
           />
@@ -626,7 +627,7 @@ export function JobContentAuthoring({ model, f }: { model: string; f: Filters })
       </div>
       {themesLoading && <LoadingSkeleton rows={4} />}
       {!themesLoading && themes.length === 0 && (
-        <Empty text="No themes yet. Add themes or apply defaults to get started." icon="🎯" action="Add Theme" onAction={addTheme} />
+        <Empty text="No themes yet. Add themes or apply defaults to get started." icon={<TrendingUp />} action="Add Theme" onAction={addTheme} />
       )}
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {themes.map((theme, idx) => (
@@ -1080,7 +1081,7 @@ export function JobContentAuthoring({ model, f }: { model: string; f: Filters })
           background: "var(--surface-1)", borderRadius: 16, padding: 40,
           border: "1px solid var(--border)", textAlign: "center",
         }}>
-          <div style={{ fontSize: 32, marginBottom: 12, opacity: 0.4 }}>🗂️</div>
+          <div style={{ fontSize: 32, marginBottom: 12, opacity: 0.4 }}><Layers3 size={32} /></div>
           <div style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)", marginBottom: 8 }}>
             Select a Sub-Family First
           </div>

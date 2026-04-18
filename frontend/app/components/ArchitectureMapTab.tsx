@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useMemo, useCallback, useRef, useEffect } from "react";
+import { Users, FileText } from "@/lib/icons";
 import { Card, Empty, Badge, showToast, COLORS, TT, AiJobSuggestButton, AiJobSuggestion } from "./shared";
 /* recharts not needed — using custom visualizations */
 import * as api from "../../lib/api";
@@ -363,7 +364,7 @@ function EmployeeTable({ employees, title, futureTree, onClose }: {
       <button onClick={onClose} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">✕</button>
     </div>
 
-    {employees.length === 0 ? <Empty text="No employees in this role" icon="👤" /> :
+    {employees.length === 0 ? <Empty text="No employees in this role" icon={<Users />} /> :
     <div className="overflow-x-auto rounded-lg border border-[var(--border)]">
       <table className="w-full text-[15px]">
         <thead><tr className="bg-[var(--surface-2)]">
@@ -872,7 +873,7 @@ export function ArchitectureMapTab({ tree, jobs, employees, model }: {
           <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: "#64748b" }}>{orgHC.toLocaleString()} people</span>
         </div>
         <div style={{ flex: 1, overflowY: "auto", padding: 8, maxHeight: "60vh" }} onClick={() => { if (mappingMode && currentSelected) handleMappingClick("current", currentSelected); }}>
-          {tree.length === 0 ? <Empty text="No architecture data" icon="📋" /> :
+          {tree.length === 0 ? <Empty text="No architecture data" icon={<FileText />} /> :
             tree.map(func => <CurrentStateNode key={func.id} node={func} depth={0}
               jobs={jobs} employees={employees} colorMetric={colorMetric}
               expanded={currentExpanded}
