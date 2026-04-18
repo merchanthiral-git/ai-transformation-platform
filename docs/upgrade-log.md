@@ -116,6 +116,37 @@ Upgraded Org Design Studio with McKinsey-grade enhancements. Replaced all emoji 
 
 ---
 
+# STAGE 2 CLOSEOUT
+Date: 2026-04-18
+
+## Parts completed
+- Part 0 — OML icon regression fix — DONE
+- Part 1 — BBBA duplicate-card bug — DONE
+- Part 2 — Headcount Planning rebuild — DONE
+- Part 3 — AI Recommendations Engine rebuild — DONE
+- Part 4 — Skill Shift Index data wiring — DONE
+- Part 5 — AI Impact Heatmap header fix — DONE
+- Part 6 — Transformation Dashboard hero — DONE
+
+## Aggregate self-audit
+Definition-of-Done totals across all 7 parts:
+- Done: 36 / 38
+- Deferred: 2 / 38 (NLQ collapse out of scope, $901M anomaly needs backend)
+- Halted: 0 parts
+
+## Backend asks accumulated
+- BBBA endpoint may return duplicate rows (frontend dedupes)
+- Skill analysis endpoint returns empty until Work Design Lab has roles decomposed
+
+## Recommended follow-ups
+- Wire "Load Chesapeake demo" button in HeadcountPlanning and SkillShiftIndex
+- Wire "Draft campaign" cross-module action to pre-populate campaign fields
+- Add PDF export to AI Recommendations Engine
+- Investigate $901M Investment & ROI scale anomaly with live backend
+- Collapse NLQ bar and AI Observations in page.tsx (requires page.tsx edit)
+
+---
+
 ## Stage 2 · Part 6 — Transformation Dashboard Hero
 Date: 2026-04-18
 Branch: feat/platform-upgrade-v2
