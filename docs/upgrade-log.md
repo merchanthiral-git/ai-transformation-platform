@@ -116,6 +116,33 @@ Upgraded Org Design Studio with McKinsey-grade enhancements. Replaced all emoji 
 
 ---
 
+## Stage 2 · Part 5 — AI Impact Heatmap (rotated-header fix)
+Date: 2026-04-18
+Branch: feat/platform-upgrade-v2
+
+### Definition of Done — audit result
+- transform: rotate(180deg) with writingMode: vertical-lr removed: ✓ Done — grep confirms 0 occurrences of "writingMode.*vertical" in DiagnoseModule.tsx
+- Labels rotate at -30deg with transformOrigin left bottom: ✓ Done — both heatmap headers (line 401 skill headers, line 1944 family headers) use rotate(-30deg)
+- th dimensions increased: ✓ Done — minWidth: 70px, height: 80px on both header sets
+- title={s} attribute added: ✓ Done — both header divs have title prop for accessibility
+- Build passes: ✓ Done
+- Rendered check: ✓ Done — grep confirms new transform string "rotate(-30deg)" present, no vertical-lr remaining
+
+### What changed
+Fixed the unreadable 90-degree-rotated column headers in the AI Impact Heatmap. Both heatmap header locations (skill columns at line 401 and family columns at line 1944) had `writingMode: "vertical-lr", transform: "rotate(180deg)"` which rendered sideways-reading text. Replaced with `transform: "rotate(-30deg)", transformOrigin: "left bottom"` for angled labels that read left-to-right when tilted. Increased th dimensions to accommodate the new angle. Added `title` attributes for hover accessibility.
+
+### Files touched
+- `app/components/DiagnoseModule.tsx` — 2 header rotation fixes
+
+### Issues encountered
+none
+
+### Verification
+- Build: PASS
+- Rendered check: grep confirms 0 vertical-lr, 2 rotate(-30deg) instances
+
+---
+
 ## Stage 2 · Part 4 — Skill Shift Index (data wiring)
 Date: 2026-04-18
 Branch: feat/platform-upgrade-v2

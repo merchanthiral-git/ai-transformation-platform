@@ -398,7 +398,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
         <div className="overflow-auto rounded-lg border border-[var(--border)]" style={{ maxHeight: 480 }}>
           <table className="w-full text-[15px]"><thead><tr className="bg-[var(--surface-2)] sticky top-0 z-10">
             <th className="px-2 py-2 text-left font-semibold text-[var(--text-muted)] border-b border-[var(--border)] sticky left-0 bg-[var(--surface-2)] z-20 min-w-[130px]">Employee</th>
-            {filteredSkills.slice(0, 15).map(s => <th key={s} className="px-0.5 py-1 text-center font-semibold text-[var(--text-muted)] border-b border-[var(--border)] min-w-[55px]"><div style={{ writingMode: "vertical-lr", transform: "rotate(180deg)", height: 75, fontSize: 14 }}>{s}</div></th>)}
+            {filteredSkills.slice(0, 15).map(s => <th key={s} className="px-0.5 py-1 text-center font-semibold text-[var(--text-muted)] border-b border-[var(--border)]" style={{ minWidth: 70, height: 80 }}><div title={s} style={{ display: "inline-block", transform: "rotate(-30deg)", transformOrigin: "left bottom", whiteSpace: "nowrap", height: 75, fontSize: 13, lineHeight: 1, paddingLeft: 4 }}>{s}</div></th>)}
           </tr></thead>
           <tbody>{employees.slice(empPage * EMP_PAGE_SIZE, (empPage + 1) * EMP_PAGE_SIZE).map(emp => <tr key={emp} className="border-b border-[var(--border)] hover:bg-[var(--hover)]">
             <td className="px-2 py-1 font-semibold text-[var(--text-primary)] sticky left-0 bg-[var(--surface-1)] z-10 border-r border-[var(--border)] truncate" style={{ maxWidth: 130 }}>{emp}</td>
@@ -1941,7 +1941,7 @@ export function AIImpactHeatmap({ model, f, onBack, onNavigate, viewCtx }: { mod
             <table className="w-full border-collapse">
               <thead><tr>
                 <th className="px-2 py-2 text-left text-[15px] text-[var(--text-muted)] font-bold uppercase sticky left-0 bg-[var(--surface-1)]">Function</th>
-                {families.map(fam => <th key={fam} className="px-2 py-2 text-center text-[14px] text-[var(--text-muted)] font-bold" style={{ writingMode: "vertical-lr", transform: "rotate(180deg)", maxWidth: 30 }}>{fam}</th>)}
+                {families.map(fam => <th key={fam} className="px-2 py-2 text-center text-[13px] text-[var(--text-muted)] font-bold" style={{ minWidth: 70, height: 80 }}><div title={fam} style={{ display: "inline-block", transform: "rotate(-30deg)", transformOrigin: "left bottom", whiteSpace: "nowrap", fontSize: 13, lineHeight: 1, paddingLeft: 4 }}>{fam}</div></th>)}
               </tr></thead>
               <tbody>{functions.map(func => <tr key={func}>
                 <td className="px-2 py-1.5 text-[15px] text-[var(--text-secondary)] font-semibold whitespace-nowrap sticky left-0 bg-[var(--surface-1)]">{func}</td>
