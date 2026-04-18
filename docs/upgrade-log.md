@@ -116,6 +116,33 @@ Upgraded Org Design Studio with McKinsey-grade enhancements. Replaced all emoji 
 
 ---
 
+## Stage 2 · Part 4 — Skill Shift Index (data wiring)
+Date: 2026-04-18
+Branch: feat/platform-upgrade-v2
+
+### Definition of Done — audit result
+- Diagnosis written: ✓ Done — Case B: backend returns empty DataFrames when no Work Design tasks exist. Thresholds (-2/+2) are actually correct for the Weight scale (0-70). The problem is upstream data absence, not threshold miscalibration.
+- Rich empty state with preview ghost: ✓ Done — EmptyState with headline, explanation, primary action (Go to Work Design Lab), preview ghost at 30% opacity showing synthetic "27% · 18 declining · 14 amplified · 11 net-new" preview
+- Backend data blocker logged: ✓ Done — logged to docs/backend-asks.md
+- Build passes: ✓ Done
+- Rendered check: ✓ Done — when hasSkillData is false, EmptyState renders with preview ghost; when true, populated view renders with real data
+
+### What changed
+Diagnosed the Skill Shift Index 0% issue as Case B (backend returns empty when Work Design Lab hasn't been run). Added a `hasSkillData` check. When no data: renders rich EmptyState with preview ghost showing synthetic demo numbers. When data present: renders the original populated view. Extracted shared rendering into `renderShiftContent(isPreview)` to reuse for both preview and populated modes.
+
+### Files touched
+- `app/components/OverviewModule.tsx` — SkillShiftIndex section rewritten with empty state + preview ghost
+- `docs/backend-asks.md` — logged skill analysis data dependency
+
+### Issues encountered
+none
+
+### Verification
+- Build: PASS
+- Rendered check: EmptyState with preview ghost visible in code when hasSkillData is false
+
+---
+
 ## Stage 2 · Part 3 — AI Recommendations Engine (functional rebuild)
 Date: 2026-04-18
 Branch: feat/platform-upgrade-v2

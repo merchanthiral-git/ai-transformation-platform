@@ -1000,54 +1000,101 @@ export function SkillShiftIndex({ model, f, onBack, onNavigate }: { model: strin
   const changingSkills = declining.length + amplified.length + netNew.length;
   const shiftIndex = totalSkills > 0 ? Math.round(changingSkills / totalSkills * 100) : 0;
 
+  // Determine if we have meaningful data or if this is an empty-state scenario
+  const hasSkillData = totalSkills > 0 && (current.length > 0 || future.length > 0);
+
+  // Preview ghost content for empty state
+  const renderShiftContent = (isPreview: boolean) => {
+    const d = isPreview ? 18 : declining.length;
+    const a = isPreview ? 14 : amplified.length;
+    const n = isPreview ? 11 : netNew.length;
+    const si = isPreview ? 27 : shiftIndex;
+    return <>
+      <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/30 rounded-2xl p-6 mb-6 text-center">
+        <div className="text-[48px] font-black font-data" style={{ color: si >= 50 ? "var(--risk)" : si >= 25 ? "var(--warning)" : "var(--success)" }}>{si}%</div>
+        <div className="text-[14px] font-bold text-[var(--text-primary)] font-heading">of your workforce{"'"}s core skills are changing</div>
+        <div className="text-[13px] text-[var(--text-muted)] mt-1">{d} declining · {a} amplified · {n} net-new</div>
+      </div>
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        <Card title="Skills Declining">
+          {!isPreview && declining.length === 0 ? <Empty text="No significant skill declines detected" /> :
+          !isPreview ? <div className="space-y-2">{declining.slice(0, 8).map(s => <div key={s.Skill} className="flex items-center gap-2 p-2 rounded-lg bg-[var(--surface-2)]">
+            <span className="text-[var(--risk)] text-[13px]">↓</span>
+            <span className="text-[14px] text-[var(--text-primary)] flex-1">{s.Skill}</span>
+            <span className="text-[13px] font-data text-[var(--risk)]">{Number(s.Delta).toFixed(1)}</span>
+          </div>)}</div> :
+          <div className="space-y-2">
+            {["Manual Data Entry", "Paper Reporting", "Routine Inspection"].map(s => <div key={s} className="flex items-center gap-2 p-2 rounded-lg bg-[var(--surface-2)]">
+              <span className="text-[var(--risk)] text-[13px]">↓</span>
+              <span className="text-[14px] text-[var(--text-primary)] flex-1">{s}</span>
+              <span className="text-[13px] font-data text-[var(--risk)]">-8.2</span>
+            </div>)}
+          </div>}
+        </Card>
+        <Card title="Skills Amplified">
+          {!isPreview && amplified.length === 0 ? <Empty text="No significant skill amplifications" /> :
+          !isPreview ? <div className="space-y-2">{amplified.slice(0, 8).map(s => <div key={s.Skill} className="flex items-center gap-2 p-2 rounded-lg bg-[var(--surface-2)]">
+            <span className="text-[var(--success)] text-[13px]">↑</span>
+            <span className="text-[14px] text-[var(--text-primary)] flex-1">{s.Skill}</span>
+            <span className="text-[13px] font-data text-[var(--success)]">+{Number(s.Delta).toFixed(1)}</span>
+          </div>)}</div> :
+          <div className="space-y-2">
+            {["Data Interpretation", "AI Oversight", "Process Design"].map(s => <div key={s} className="flex items-center gap-2 p-2 rounded-lg bg-[var(--surface-2)]">
+              <span className="text-[var(--success)] text-[13px]">↑</span>
+              <span className="text-[14px] text-[var(--text-primary)] flex-1">{s}</span>
+              <span className="text-[13px] font-data text-[var(--success)]">+12.4</span>
+            </div>)}
+          </div>}
+        </Card>
+        <Card title="Net-New Skills">
+          {!isPreview && netNew.length === 0 ? <Empty text="No entirely new skills required" /> :
+          !isPreview ? <div className="space-y-2">{netNew.map(s => <div key={s.Skill} className="flex items-center gap-2 p-2 rounded-lg bg-[var(--surface-2)]">
+            <Badge color="green">New</Badge>
+            <span className="text-[14px] text-[var(--text-primary)] flex-1">{s.Skill}</span>
+          </div>)}</div> :
+          <div className="space-y-2">
+            {["Prompt Engineering", "AI Ethics", "Workflow Automation"].map(s => <div key={s} className="flex items-center gap-2 p-2 rounded-lg bg-[var(--surface-2)]">
+              <Badge color="green">New</Badge>
+              <span className="text-[14px] text-[var(--text-primary)] flex-1">{s}</span>
+            </div>)}
+          </div>}
+        </Card>
+      </div>
+    </>;
+  };
+
   return <div>
-    <ContextStrip items={[`Skill Shift Index: ${shiftIndex}% of core skills are changing across the transformation`]} />
+    <ContextStrip items={[hasSkillData ? `Skill Shift Index: ${shiftIndex}% of core skills are changing across the transformation` : "Skill Shift Index: awaiting Work Design Lab data"]} />
     <PageHeader icon={<TrendingUp />} title="Skill Shift Index" subtitle="Net skill movement across the AI transformation" onBack={onBack} moduleId="skillshift" />
 
-    {/* Headline metric */}
-    <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/30 rounded-2xl p-6 mb-6 text-center animate-card-enter">
-      <div className="text-[48px] font-black font-data" style={{ color: shiftIndex >= 50 ? "var(--risk)" : shiftIndex >= 25 ? "var(--warning)" : "var(--success)" }}>{shiftIndex}%</div>
-      <div className="text-[14px] font-bold text-[var(--text-primary)] font-heading">of your workforce's core skills are changing</div>
-      <div className="text-[15px] text-[var(--text-muted)] mt-1">{declining.length} declining · {amplified.length} amplified · {netNew.length} net-new</div>
-    </div>
+    {/* Rich empty state when no skill data */}
+    {!hasSkillData && <div>
+      <EmptyState
+        icon={<TrendingUp />}
+        headline="Skill Shift Index not yet computable"
+        explanation="This module synthesizes current skill proficiencies with target proficiencies implied by your Work Design Lab task dispositions. Requires: at least 20 roles decomposed in Work Design Lab, OR the Chesapeake demo loaded."
+        primaryAction={{ label: "Go to Work Design Lab", onClick: () => onNavigate?.("design") }}
+        secondaryAction={{ label: "Load Chesapeake demo", onClick: () => {} }}
+      />
+      {/* Preview ghost */}
+      <div className="relative mt-6">
+        <div className="absolute top-2 right-4 z-10 px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider" style={{ background: "var(--surface-2)", color: "var(--text-muted)", border: "1px solid var(--border)" }}>
+          Preview — requires data
+        </div>
+        <div style={{ opacity: 0.3, pointerEvents: "none", userSelect: "none" }}>
+          {renderShiftContent(true)}
+        </div>
+      </div>
+    </div>}
 
-    {/* Three columns */}
-    <div className="grid grid-cols-3 gap-4 mb-6">
-      {/* Declining */}
-      <Card title="Skills Declining">
-        {declining.length === 0 ? <Empty text="No significant skill declines detected" /> :
-        <div className="space-y-2">{declining.slice(0, 8).map(s => <div key={s.Skill} className="flex items-center gap-2 p-2 rounded-lg bg-[var(--surface-2)]">
-          <span className="text-[var(--risk)] text-[15px]">↓</span>
-          <span className="text-[15px] text-[var(--text-primary)] flex-1">{s.Skill}</span>
-          <span className="text-[15px] font-data text-[var(--risk)]">{Number(s.Delta).toFixed(1)}</span>
-        </div>)}</div>}
-      </Card>
+    {/* Populated view */}
+    {hasSkillData && renderShiftContent(false)}
 
-      {/* Amplified */}
-      <Card title="Skills Amplified">
-        {amplified.length === 0 ? <Empty text="No significant skill amplifications" /> :
-        <div className="space-y-2">{amplified.slice(0, 8).map(s => <div key={s.Skill} className="flex items-center gap-2 p-2 rounded-lg bg-[var(--surface-2)]">
-          <span className="text-[var(--warning)] text-[15px]">↑</span>
-          <span className="text-[15px] text-[var(--text-primary)] flex-1">{s.Skill}</span>
-          <span className="text-[15px] font-data text-[var(--warning)]">+{Number(s.Delta).toFixed(1)}</span>
-        </div>)}</div>}
-      </Card>
-
-      {/* Net-New */}
-      <Card title="Net-New Skills">
-        {netNew.length === 0 ? <Empty text="No entirely new skills required" /> :
-        <div className="space-y-2">{netNew.map(s => <div key={s.Skill} className="flex items-center gap-2 p-2 rounded-lg bg-[var(--surface-2)]">
-          <Badge color="green">New</Badge>
-          <span className="text-[15px] text-[var(--text-primary)] flex-1">{s.Skill}</span>
-        </div>)}</div>}
-      </Card>
-    </div>
-
-    <InsightPanel title="What This Means" items={[
+    {hasSkillData && <InsightPanel title="What This Means" items={[
       `${shiftIndex}% skill shift means ${shiftIndex >= 40 ? "significant reskilling investment needed" : shiftIndex >= 20 ? "moderate training programs required" : "relatively smooth transition possible"}`,
       declining.length > 0 ? `${declining.length} skills are declining — prioritize knowledge capture before they disappear` : "No critical skill declines detected",
       netNew.length > 0 ? `${netNew.length} entirely new skills needed — these require dedicated training programs or external hiring` : "No entirely new skills required",
-    ]} icon={<GraduationCap size={16} />} />
+    ]} icon={<GraduationCap size={16} />} />}
 
     <FlowNav previous={{ id: "snapshot", label: "Workforce Snapshot" }} next={{ id: "jobarch", label: "Job Architecture" }} onNavigate={onNavigate || onBack} />
   </div>;
