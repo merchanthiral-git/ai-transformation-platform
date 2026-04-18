@@ -16,7 +16,19 @@ export function BBBAFramework({ model, f, onBack, onNavigate, jobStates, viewCtx
 
   useEffect(() => { if (!model) return; setLoading(true); api.getBBBA(model, f).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false)); }, [model, f.func, f.jf, f.sf, f.cl]);
 
-  const roles = (data?.roles || []) as { role: string; disposition: string; reason: string; strong_candidates: number; reskillable_candidates: number; cost_per_fte: number; fte_needed: number; total_cost: number; required_skills: string[]; timeline_months: number }[];
+  const rawRoles = (data?.roles || []) as { role: string; disposition: string; reason: string; strong_candidates: number; reskillable_candidates: number; cost_per_fte: number; fte_needed: number; total_cost: number; required_skills: string[]; timeline_months: number; skill_area?: string }[];
+
+  // Deduplicate: backend may return multiple rows for the same role with identical content
+  const roles = React.useMemo(() => {
+    const seen = new Set<string>();
+    return rawRoles.filter(r => {
+      const signature = JSON.stringify({ role: r.role, skills: r.required_skills, fte: r.fte_needed, disposition: r.disposition });
+      if (seen.has(signature)) return false;
+      seen.add(signature);
+      return true;
+    });
+  }, [rawRoles]);
+
   const summary = (data?.summary || {}) as Record<string, unknown>;
   const dispColors: Record<string, string> = { Build: "var(--success)", Buy: "var(--accent-primary)", Borrow: "var(--warning)", Automate: "var(--purple)" };
 
@@ -60,13 +72,14 @@ export function BBBAFramework({ model, f, onBack, onNavigate, jobStates, viewCtx
 
     {/* ═══ ROLE DECISION CARDS ═══ */}
     {roles.length > 0 && <div className="space-y-4 mb-6">
-      {roles.map(r => {
+      {roles.map((r, idx) => {
+        const gapId = r.skill_area || r.required_skills?.[0] || `gap-${idx + 1}`;
         const disp = getDisp(r.role, r.disposition);
-        return <div key={r.role} className="rounded-2xl border border-[var(--border)] bg-[var(--surface-1)] overflow-hidden" style={{ boxShadow: "var(--shadow-1)" }}>
-          {/* Role header */}
+        return <div key={`${r.role}::${gapId}`} className="rounded-2xl border border-[var(--border)] bg-[var(--surface-1)] overflow-hidden" style={{ boxShadow: "var(--shadow-1)" }}>
+          {/* Role header — shows distinguishing skill/gap info */}
           <div className="px-5 py-3 flex items-center justify-between border-b border-[var(--border)]" style={{ background: "var(--surface-2)" }}>
             <div className="flex items-center gap-3">
-              <span className="text-[18px] font-bold text-[var(--text-primary)] font-heading">{r.role}</span>
+              <span className="text-[18px] font-bold text-[var(--text-primary)] font-heading">{r.required_skills?.[0] ? `${r.required_skills[0]} gap in ${r.role}` : r.role}</span>
               <span className="text-[12px] px-2 py-0.5 rounded-full bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] font-semibold">{r.fte_needed} FTE</span>
             </div>
             <div className="flex items-center gap-2 text-[13px] text-[var(--text-muted)]">

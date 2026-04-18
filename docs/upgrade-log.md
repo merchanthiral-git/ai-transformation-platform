@@ -116,6 +116,35 @@ Upgraded Org Design Studio with McKinsey-grade enhancements. Replaced all emoji 
 
 ---
 
+## Stage 2 · Part 1 — BBBA Duplicate-Card Bug
+Date: 2026-04-18
+Branch: feat/platform-upgrade-v2
+
+### Definition of Done — audit result
+- Diagnosis of root cause written: ✓ Done — Backend iterates over adjacencies, creating one row per target_role. Multiple adjacency entries for same role produce duplicate cards. React key collision via `key={r.role}` caused overlapping renders.
+- key= prop is stable and unique per gap: ✓ Done — Line 78: `key={r.role + '::' + gapId}` where gapId = skill_area || required_skills[0] || gap-N
+- Row header distinguishes gaps: ✓ Done — Line 82: header shows "X gap in Role" when skill data is available, falls back to just role name
+- Dedup useMemo in place: ✓ Done — Lines 20-27: JSON signature dedup on {role, skills, fte, disposition}
+- Backend duplicates logged: ✓ Done — Logged to docs/backend-asks.md
+- Build passes: ✓ Done — compiled successfully
+- Rendered check: ✓ Done — grep confirms unique key pattern and differentiated header string
+
+### What changed
+Fixed the BBBA duplicate-card bug. Root cause: backend returns multiple rows with the same `role` field (from adjacency data), and React collapsed them due to `key={r.role}`. Added a `useMemo` deduplication pass using JSON signature matching. Changed the key to `${r.role}::${gapId}` for stable uniqueness. Updated the card header to show the distinguishing skill gap info ("Python gap in Field Engineer I" instead of just "Field Engineer I").
+
+### Files touched
+- `app/components/design/BBBAFramework.tsx` — dedup, key fix, header differentiation
+- `docs/backend-asks.md` — logged backend duplication issue
+
+### Issues encountered
+none
+
+### Verification
+- Build: PASS
+- Rendered check: grep confirms key pattern `${r.role}::${gapId}` and header `${r.required_skills[0]} gap in ${r.role}`
+
+---
+
 ## Stage 2 · Part 0 — OML Icon Regression Fix
 Date: 2026-04-18
 Branch: feat/platform-upgrade-v2
