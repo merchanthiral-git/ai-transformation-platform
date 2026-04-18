@@ -116,6 +116,31 @@ Upgraded Org Design Studio with McKinsey-grade enhancements. Replaced all emoji 
 
 ---
 
+## Stage 2 · Part 0 — OML Icon Regression Fix
+Date: 2026-04-18
+Branch: feat/platform-upgrade-v2
+
+### Definition of Done — audit result
+- OM_FUNCTIONS values have emoji icons: ✓ Done — grep confirms 8 emoji icon values present in data constant
+- OM_GOVERNANCE values have emoji icons: ✓ Done — grep confirms 3 emoji icon values present
+- Build passes: ✓ Done — compiled successfully in 7.6s, 14 routes
+- No other emoji added elsewhere: ✓ Done — diff shows only reverts in two data constants
+
+### What changed
+Reverted OM_FUNCTIONS icon field values from string identifiers ("dollar", "settings", etc.) back to original emoji. Same for OM_GOVERNANCE. The 21 render sites in the file do `<span>{fdata.icon}</span>` and were displaying literal text instead of icons. PageHeader icon (line ~710) remains correctly Lucide.
+
+### Files touched
+- `app/components/design/OperatingModelLab.tsx` — 11 icon values reverted to emoji
+
+### Issues encountered
+none
+
+### Verification
+- Build: PASS
+- Rendered check: grep confirms emoji values present at data definition level
+
+---
+
 ## Parts 5-8 — Role Comparison, BBBA, Headcount Planning, Quick Win Identifier
 Date: 2026-04-17
 Branch: feat/platform-upgrade-v1
