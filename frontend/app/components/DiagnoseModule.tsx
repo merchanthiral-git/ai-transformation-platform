@@ -1421,17 +1421,51 @@ type Recommendation = {
   kpis: string[];
 };
 
+type PriorityBet = {
+  title: string;
+  rationale: string;
+  evidence: string[];
+  cost: string;
+  timeline: string;
+  owner: string;
+  success_metrics: string[];
+  dependencies: string[];
+  risk_if_deferred: string;
+};
+
+type SupportingInitiative = {
+  title: string;
+  rationale: string;
+  cost: string;
+  timeline: string;
+};
+
+type StructuredRecommendations = {
+  executive_summary: {
+    what_we_found: string;
+    what_we_recommend: string;
+    why_sequencing_matters: string;
+  };
+  priority_bets: PriorityBet[];
+  supporting_initiatives: SupportingInitiative[];
+};
+
 export function AiRecommendationsEngine({ model, f, onBack, onNavigate, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext }) {
-  const [recs, setRecs] = useState<Recommendation[]>([]);
+  const [result, setResult] = useState<StructuredRecommendations | null>(null);
+  const [rawResponse, setRawResponse] = useState<string | null>(null);
+  const [parseError, setParseError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [generated, setGenerated] = useState(false);
-  const [sortBy, setSortBy] = useState<"impact" | "effort">("impact");
-  const [filterCat, setFilterCat] = useState("All");
+  const [expandedBets, setExpandedBets] = useState<Record<number, boolean>>({});
 
-  // Gather context data from multiple endpoints
+  // Editable executive summary fields
+  const [editSummary, setEditSummary] = usePersisted<{ what_we_found: string; what_we_recommend: string; why_sequencing_matters: string } | null>("ai_recs_edits", null);
+
   const generate = useCallback(async () => {
     if (!model) return;
     setLoading(true);
+    setParseError(false);
+    setRawResponse(null);
     try {
       const [overview, priority, readiness] = await Promise.all([
         api.getOverview(model, f),
@@ -1449,47 +1483,105 @@ export function AiRecommendationsEngine({ model, f, onBack, onNavigate, viewCtx 
       }).slice(0, 4000);
 
       const raw = await callAI(
-        "You are an AI transformation strategist. Return ONLY valid JSON, no markdown.",
-        `Analyze this workforce data and generate 8 ranked AI transformation recommendations. Data: ${ctx}
+        "You are a senior transformation strategist. Return ONLY valid JSON, no markdown, no backticks.",
+        `Analyze this workforce data and produce a structured transformation recommendation in this exact JSON schema:
 
-Return JSON array: [{"id":1,"title":"short title","description":"2-3 sentence actionable recommendation","impact":85,"effort":"Low|Medium|High","category":"Automation|Augmentation|Upskilling|Process|Governance|Data","affectedRoles":["role1","role2"],"timeframe":"0-3mo|3-6mo|6-12mo|12-18mo","kpis":["metric to track"]}]
+{
+  "executive_summary": {
+    "what_we_found": "<150 words synthesizing the diagnosis>",
+    "what_we_recommend": "<150 words framing the three bets as a narrative>",
+    "why_sequencing_matters": "<100 words explaining dependency logic>"
+  },
+  "priority_bets": [
+    {
+      "title": "<bet title, max 10 words>",
+      "rationale": "<2-3 sentences>",
+      "evidence": ["<diagnostic signal 1>", "<signal 2>", "<signal 3>"],
+      "cost": "<$N total investment>",
+      "timeline": "0-3mo or 3-9mo or 9-18mo",
+      "owner": "CHRO or COO or CFO or CEO",
+      "success_metrics": ["<metric 1>", "<metric 2>"],
+      "dependencies": ["<dep 1>"] or ["None"],
+      "risk_if_deferred": "<1 sentence>"
+    }
+  ],
+  "supporting_initiatives": [
+    { "title": "...", "rationale": "<1 sentence>", "cost": "...", "timeline": "..." }
+  ]
+}
 
-Rank by impact score (0-100). Make recommendations specific to this org's data, not generic advice. Cover a mix of quick wins, medium-term, and strategic bets.`
+Return exactly 3 priority_bets and 5-8 supporting_initiatives. Be specific to this org's data:
+
+${ctx}`
       );
 
+      setRawResponse(raw);
       try {
-        const parsed = JSON.parse(raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim());
-        setRecs(Array.isArray(parsed) ? parsed : []);
-        setGenerated(true);
-        showToast("AI recommendations generated");
+        const cleaned = raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+        const parsed = JSON.parse(cleaned) as StructuredRecommendations;
+        if (parsed.executive_summary && parsed.priority_bets) {
+          setResult(parsed);
+          setGenerated(true);
+          setEditSummary(parsed.executive_summary);
+          showToast("AI recommendations generated — 3 priority bets ready for review");
+        } else {
+          setParseError(true);
+          setGenerated(true);
+        }
       } catch {
-        showToast("AI response wasn't in the expected format — try again");
+        setParseError(true);
+        setGenerated(true);
       }
     } catch {
       showToast("Couldn't generate recommendations — check your data and try again");
     }
     setLoading(false);
-  }, [model, f]);
+  }, [model, f, setEditSummary]);
 
-  const categories = ["All", ...Array.from(new Set(recs.map(r => r.category)))];
-  const sorted = [...recs]
-    .filter(r => filterCat === "All" || r.category === filterCat)
-    .sort((a, b) => sortBy === "impact" ? b.impact - a.impact : (a.effort === "Low" ? 0 : a.effort === "Medium" ? 1 : 2) - (b.effort === "Low" ? 0 : b.effort === "Medium" ? 1 : 2));
+  const betColors = ["var(--sem-risk)", "var(--sem-warn)", "var(--sem-info)"];
 
-  const effortColor = (e: string) => e === "Low" ? "green" : e === "Medium" ? "amber" : "red";
-  const impactGradient = (score: number) => score >= AI_READINESS_HIGH ? "from-[var(--accent-primary)] to-[var(--warning)]" : score >= AI_READINESS_MEDIUM ? "from-[var(--teal)] to-[var(--accent-primary)]" : "from-[var(--teal)] to-[var(--teal)]";
+  // Copy as Markdown
+  const copyAsMarkdown = () => {
+    if (!result) return;
+    const es = editSummary || result.executive_summary;
+    let md = `# AI Transformation Recommendations\n\n`;
+    md += `## Executive Summary\n\n`;
+    md += `### What we found\n${es.what_we_found}\n\n`;
+    md += `### What we recommend\n${es.what_we_recommend}\n\n`;
+    md += `### Why sequencing matters\n${es.why_sequencing_matters}\n\n`;
+    md += `## Priority Bets\n\n`;
+    result.priority_bets.forEach((bet, i) => {
+      md += `### Bet ${i + 1} — ${bet.title}\n\n`;
+      md += `${bet.rationale}\n\n`;
+      md += `**Evidence:**\n${bet.evidence.map(e => `- ${e}`).join("\n")}\n\n`;
+      md += `| Cost | Timeline | Owner | Success Metric |\n|------|----------|-------|----------------|\n`;
+      md += `| ${bet.cost} | ${bet.timeline} | ${bet.owner} | ${bet.success_metrics[0] || "—"} |\n\n`;
+      md += `**Dependencies:** ${bet.dependencies.join(", ")}\n\n`;
+      md += `**Risk if deferred:** ${bet.risk_if_deferred}\n\n`;
+    });
+    md += `## Supporting Initiatives\n\n`;
+    md += `| Title | Timeline | Cost | Rationale |\n|-------|----------|------|-----------|\n`;
+    result.supporting_initiatives.forEach(si => {
+      md += `| ${si.title} | ${si.timeline} | ${si.cost} | ${si.rationale} |\n`;
+    });
+    navigator.clipboard.writeText(md).then(() => showToast("Copied to clipboard as Markdown"));
+  };
 
   return <div>
     <ContextStrip items={["AI-powered recommendations based on your workforce data, readiness scores, and task analysis."]} />
     <PageHeader icon={<Sparkle />} title="AI Recommendations Engine" subtitle="Actionable transformation recommendations ranked by impact" onBack={onBack} moduleId="recommendations" viewCtx={viewCtx} />
 
+    {/* Pre-generation empty state */}
     {!generated && !loading && <Card>
       <div className="text-center py-12">
-        <div className="text-5xl mb-4 flex justify-center"><Sparkle size={48} /></div>
+        <div className="mb-4 flex justify-center"><Sparkle size={48} className="text-[var(--accent-primary)]" /></div>
         <h3 className="text-[18px] font-bold font-heading text-[var(--text-primary)] mb-2">Generate AI Recommendations</h3>
-        <p className="text-[15px] text-[var(--text-secondary)] mb-6 max-w-lg mx-auto">
-          AI will analyze your workforce data, AI readiness scores, and task-level impact analysis to generate
-          ranked, actionable recommendations for your AI transformation journey.
+        <p className="text-[15px] text-[var(--text-secondary)] mb-2 max-w-lg mx-auto">
+          The Recommendations Engine synthesizes signals from: Workforce data, AI Opportunity Scan, AI Readiness,
+          Manager Capability, Skills Engine, and Change Readiness.
+        </p>
+        <p className="text-[14px] text-[var(--text-muted)] mb-6 max-w-lg mx-auto">
+          It produces 3 priority bets with owner, cost, timeline, and evidence — plus 5-8 supporting initiatives.
         </p>
         <button onClick={generate} className="px-8 py-3 rounded-2xl text-[14px] font-bold text-white transition-all hover:translate-y-[-2px] hover:shadow-lg" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", boxShadow: "var(--shadow-2)" }}>
           Generate Recommendations
@@ -1497,70 +1589,134 @@ Rank by impact score (0-100). Make recommendations specific to this org's data, 
       </div>
     </Card>}
 
-    {loading && <Card><div className="text-center py-16"><LoadingBar /><div className="text-[15px] text-[var(--text-secondary)] mt-4">Analyzing workforce data and generating recommendations...</div></div></Card>}
+    {loading && <Card><div className="text-center py-16"><LoadingBar /><div className="text-[15px] text-[var(--text-secondary)] mt-4">Synthesizing workforce data into priority bets...</div></div></Card>}
 
-    {generated && recs.length > 0 && <>
-      {/* Summary KPIs */}
-      <div className="grid grid-cols-4 gap-3 mb-5">
-        <KpiCard label="Recommendations" value={recs.length} />
-        <KpiCard label="Avg Impact" value={`${Math.round(recs.reduce((s, r) => s + r.impact, 0) / recs.length)}/100`} accent />
-        <KpiCard label="Quick Wins" value={recs.filter(r => r.effort === "Low").length} />
-        <KpiCard label="Roles Affected" value={new Set(recs.flatMap(r => r.affectedRoles)).size} />
+    {/* JSON parse failure — show raw response for debugging */}
+    {generated && parseError && rawResponse && <div>
+      <div className="mb-4 p-4 rounded-xl border-2 border-[var(--sem-warn)]" style={{ background: "var(--sem-warn-bg)" }}>
+        <div className="text-[14px] font-semibold text-[var(--sem-warn)] mb-1">AI did not return valid JSON — try regenerating</div>
+        <div className="text-[13px] text-[var(--text-secondary)]">The raw response is shown below for debugging.</div>
+      </div>
+      <Card title="Raw AI Response">
+        <pre className="text-[12px] text-[var(--text-secondary)] overflow-auto max-h-96 p-4 bg-[var(--surface-2)] rounded-lg whitespace-pre-wrap">{rawResponse}</pre>
+      </Card>
+      <div className="mt-4 flex justify-center">
+        <button onClick={generate} className="px-6 py-2 rounded-xl text-[14px] font-semibold text-white" style={{ background: "var(--accent-primary)" }}>Regenerate</button>
+      </div>
+    </div>}
+
+    {/* Structured output */}
+    {generated && result && <>
+      {/* Top actions */}
+      <div className="flex justify-end gap-2 mb-4">
+        <button onClick={copyAsMarkdown} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold text-[var(--text-secondary)] border border-[var(--border)] hover:border-[var(--accent-primary)]/40">Copy as Markdown</button>
+        <button onClick={generate} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 hover:bg-[var(--accent-primary)]/5">Regenerate</button>
       </div>
 
-      {/* Controls */}
-      <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-        <div className="flex gap-2">
-          {categories.map(c => <button key={c} onClick={() => setFilterCat(c)} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold transition-all" style={{ border: filterCat === c ? "2px solid var(--accent-primary)" : "1px solid var(--border)", background: filterCat === c ? "rgba(212,134,10,0.08)" : "transparent", color: filterCat === c ? "var(--accent-primary)" : "var(--text-muted)" }}>{c}</button>)}
+      {/* Executive Summary — editable */}
+      <Card title="Executive Summary">
+        <div className="space-y-4">
+          {[
+            { key: "what_we_found" as const, label: "What we found" },
+            { key: "what_we_recommend" as const, label: "What we recommend" },
+            { key: "why_sequencing_matters" as const, label: "Why sequencing matters" },
+          ].map(field => <div key={field.key}>
+            <div className="text-[12px] font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-1">{field.label}</div>
+            <textarea
+              value={(editSummary || result.executive_summary)[field.key]}
+              onChange={e => setEditSummary(prev => ({ ...(prev || result.executive_summary), [field.key]: e.target.value }))}
+              className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg p-3 text-[14px] text-[var(--text-primary)] resize-y min-h-[60px] outline-none focus:border-[var(--accent-primary)]/40"
+              rows={3}
+            />
+          </div>)}
         </div>
-        <div className="flex gap-2">
-          <button onClick={() => setSortBy("impact")} className={`px-3 py-1.5 rounded-lg text-[15px] font-semibold ${sortBy === "impact" ? "bg-[var(--accent-primary)] text-white" : "text-[var(--text-muted)] border border-[var(--border)]"}`}>Sort by Impact</button>
-          <button onClick={() => setSortBy("effort")} className={`px-3 py-1.5 rounded-lg text-[15px] font-semibold ${sortBy === "effort" ? "bg-[var(--accent-primary)] text-white" : "text-[var(--text-muted)] border border-[var(--border)]"}`}>Sort by Effort</button>
-          <button onClick={generate} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 hover:bg-[var(--accent-primary)]/5">↻ Regenerate</button>
-        </div>
-      </div>
+      </Card>
 
-      {/* Recommendation Cards */}
-      <div className="space-y-4">
-        {sorted.map((r, i) => <div key={r.id} className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl overflow-hidden transition-all hover:border-[var(--accent-primary)]/40 hover:translate-y-[-1px]" style={{ animation: `slideUp 0.3s ease-out ${i * 0.05}s both` }}>
-          <div className="flex">
-            {/* Impact score bar */}
-            <div className={`w-20 shrink-0 flex flex-col items-center justify-center bg-gradient-to-b ${impactGradient(r.impact)}`}>
-              <div className="text-[24px] font-extrabold font-data text-white">{r.impact}</div>
-              <div className="text-[14px] font-bold text-white/70 uppercase tracking-wider">Impact</div>
-            </div>
-            {/* Content */}
-            <div className="flex-1 p-4">
-              <div className="flex items-start justify-between gap-3 mb-2">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider">#{i + 1}</span>
-                    <Badge color={r.category === "Automation" ? "amber" : r.category === "Upskilling" ? "green" : r.category === "Governance" ? "purple" : "gray"}>{r.category}</Badge>
-                    <Badge color={effortColor(r.effort)}>{r.effort} Effort</Badge>
-                    <span className="text-[15px] text-[var(--text-muted)]">⏱ {r.timeframe}</span>
-                  </div>
-                  <h4 className="text-[15px] font-bold font-heading text-[var(--text-primary)]">{r.title}</h4>
+      {/* Three Priority Bets */}
+      <div className="space-y-4 my-5">
+        {result.priority_bets.slice(0, 3).map((bet, i) => {
+          const expanded = expandedBets[i] || false;
+          return <div key={i} className="rounded-xl border border-[var(--border)] bg-[var(--surface-1)] overflow-hidden" style={{ borderLeft: `4px solid ${betColors[i]}` }}>
+            <div className="p-5">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-[12px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: `${betColors[i]}15`, color: betColors[i] }}>Bet {i + 1}</span>
+                <span className="text-[12px] text-[var(--text-muted)]">{bet.timeline}</span>
+              </div>
+              <h3 className="text-[17px] font-bold text-[var(--text-primary)] mb-2">{bet.title}</h3>
+              <p className="text-[14px] text-[var(--text-secondary)] leading-relaxed mb-4">{bet.rationale}</p>
+
+              {/* Evidence */}
+              <div className="mb-4">
+                <div className="text-[12px] font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-1">Evidence</div>
+                <ul className="space-y-1">
+                  {bet.evidence.map((e, ei) => <li key={ei} className="text-[13px] text-[var(--text-secondary)] flex items-start gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)] mt-1.5 shrink-0" />
+                    {e}
+                  </li>)}
+                </ul>
+              </div>
+
+              {/* 4-field metadata strip */}
+              <div className="grid grid-cols-4 gap-3 mb-3">
+                <div className="rounded-lg p-2 bg-[var(--surface-2)] text-center">
+                  <div className="text-[11px] text-[var(--text-muted)] uppercase">Cost</div>
+                  <div className="text-[14px] font-bold text-[var(--text-primary)]">{bet.cost}</div>
+                </div>
+                <div className="rounded-lg p-2 bg-[var(--surface-2)] text-center">
+                  <div className="text-[11px] text-[var(--text-muted)] uppercase">Timeline</div>
+                  <div className="text-[14px] font-bold text-[var(--text-primary)]">{bet.timeline}</div>
+                </div>
+                <div className="rounded-lg p-2 bg-[var(--surface-2)] text-center">
+                  <div className="text-[11px] text-[var(--text-muted)] uppercase">Owner</div>
+                  <div className="text-[14px] font-bold text-[var(--text-primary)]">{bet.owner}</div>
+                </div>
+                <div className="rounded-lg p-2 bg-[var(--surface-2)] text-center">
+                  <div className="text-[11px] text-[var(--text-muted)] uppercase">Success Metric</div>
+                  <div className="text-[13px] font-bold text-[var(--text-primary)] truncate">{bet.success_metrics[0] || "—"}</div>
                 </div>
               </div>
-              <p className="text-[15px] text-[var(--text-secondary)] leading-relaxed mb-3">{r.description}</p>
-              <div className="flex items-center gap-4 flex-wrap">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[15px] text-[var(--text-muted)] uppercase font-bold">Roles:</span>
-                  {r.affectedRoles.slice(0, 4).map(role => <span key={role} className="text-[15px] bg-[var(--surface-2)] rounded px-2 py-0.5 text-[var(--text-secondary)]">{role}</span>)}
-                  {r.affectedRoles.length > 4 && <span className="text-[15px] text-[var(--text-muted)]">+{r.affectedRoles.length - 4}</span>}
-                </div>
-                {r.kpis?.length > 0 && <div className="flex items-center gap-1.5">
-                  <span className="text-[15px] text-[var(--text-muted)] uppercase font-bold">Track:</span>
-                  {r.kpis.slice(0, 2).map(k => <span key={k} className="text-[15px] text-[var(--accent-primary)]">{k}</span>)}
-                </div>}
-              </div>
+
+              {/* Expandable detail */}
+              <button onClick={() => setExpandedBets(prev => ({ ...prev, [i]: !prev[i] }))} className="text-[13px] text-[var(--accent-primary)] hover:underline mb-2">
+                {expanded ? "Hide detail" : "More detail"}
+              </button>
+              {expanded && <div className="mt-3 space-y-2 text-[13px]">
+                <div><span className="font-semibold text-[var(--text-muted)]">All success metrics:</span> {bet.success_metrics.join(", ")}</div>
+                <div><span className="font-semibold text-[var(--text-muted)]">Dependencies:</span> {bet.dependencies.join(", ")}</div>
+                <div><span className="font-semibold text-[var(--text-muted)]">Risk if deferred:</span> <span className="text-[var(--sem-risk)]">{bet.risk_if_deferred}</span></div>
+              </div>}
+
+              {/* Draft campaign action */}
+              {onNavigate && <div className="mt-3 pt-3 border-t border-[var(--border)]">
+                <button onClick={() => onNavigate("change")} className="text-[13px] font-semibold text-[var(--accent-primary)] hover:underline">Draft campaign from this bet</button>
+              </div>}
             </div>
-          </div>
-        </div>)}
+          </div>;
+        })}
       </div>
+
+      {/* Supporting Initiatives table */}
+      {result.supporting_initiatives.length > 0 && <Card title="Supporting Initiatives">
+        <div className="overflow-auto rounded-lg border border-[var(--border)]">
+          <table className="w-full text-[13px]">
+            <thead><tr className="bg-[var(--surface-2)]">
+              <th className="px-3 py-2 text-left border-b border-[var(--border)] font-semibold text-[var(--text-muted)]">Title</th>
+              <th className="px-2 py-2 text-center border-b border-[var(--border)] font-semibold text-[var(--text-muted)]">Timeline</th>
+              <th className="px-2 py-2 text-center border-b border-[var(--border)] font-semibold text-[var(--text-muted)]">Cost</th>
+              <th className="px-3 py-2 text-left border-b border-[var(--border)] font-semibold text-[var(--text-muted)]">Rationale</th>
+            </tr></thead>
+            <tbody>{result.supporting_initiatives.map((si, i) => <tr key={i} className="border-b border-[var(--border)]">
+              <td className="px-3 py-2 font-semibold text-[var(--text-primary)]">{si.title}</td>
+              <td className="px-2 py-2 text-center text-[var(--text-secondary)]">{si.timeline}</td>
+              <td className="px-2 py-2 text-center font-data text-[var(--text-secondary)]">{si.cost}</td>
+              <td className="px-3 py-2 text-[var(--text-secondary)]">{si.rationale}</td>
+            </tr>)}</tbody>
+          </table>
+        </div>
+      </Card>}
     </>}
 
-    {generated && recs.length === 0 && <Empty text="No recommendations generated. Upload more workforce data and try again." />}
+    {generated && !result && !parseError && <EmptyState icon={<Sparkle />} headline="No recommendations generated" explanation="Upload more workforce data and try again." primaryAction={{ label: "Regenerate", onClick: generate }} />}
 
     <FlowNav
       previous={{ id: "mgrdev", label: "Manager Development" }}

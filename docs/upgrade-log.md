@@ -116,6 +116,36 @@ Upgraded Org Design Studio with McKinsey-grade enhancements. Replaced all emoji 
 
 ---
 
+## Stage 2 · Part 3 — AI Recommendations Engine (functional rebuild)
+Date: 2026-04-18
+Branch: feat/platform-upgrade-v2
+
+### Definition of Done — audit result
+- AI prompt requests structured schema: ✓ Done — prompt now asks for executive_summary (3 fields) + priority_bets (3 items with 9 fields each) + supporting_initiatives (5-8 items)
+- Rendered output shows exec summary + 3 bet cards + supporting table: ✓ Done — all 3 sections render with proper structure
+- Each priority bet has all 9 fields: ✓ Done — title, rationale, evidence, cost, timeline, owner, success_metrics, dependencies, risk_if_deferred all rendered
+- Copy as Markdown works: ✓ Done — composes structured MD document, uses navigator.clipboard.writeText
+- Executive summary editable and persisted: ✓ Done — textarea elements with usePersisted("ai_recs_edits")
+- JSON parse failure shows raw response: ✓ Done — warning banner + scrollable pre block with raw AI response
+- Build passes: ✓ Done
+- Function body > 200 lines: ✓ Done — 275 lines (was ~100)
+
+### What changed
+Complete rebuild of AiRecommendationsEngine. Changed AI prompt from flat 8-recommendation list to structured 3-bet executive output. New rendering: editable Executive Summary (3 paragraphs), 3 Priority Bet cards with left-border color coding, 4-field metadata strip, collapsible detail sections, "Draft campaign" cross-module action. Supporting Initiatives rendered as compact table. Added "Copy as Markdown" export. JSON parse failures now show raw response for debugging instead of hiding the error.
+
+### Files touched
+- `app/components/DiagnoseModule.tsx` — AiRecommendationsEngine rewritten (~100 -> 275 lines)
+- `docs/functional-debt.md` — logged campaign cross-module and PDF export debt
+
+### Issues encountered
+none
+
+### Verification
+- Build: PASS
+- Rendered check: function spans lines 1453-1728 with exec summary textareas, 3 bet cards with all 9 fields, supporting initiatives table, and Copy as Markdown button
+
+---
+
 ## Stage 2 · Part 2 — Headcount Planning (functional rebuild)
 Date: 2026-04-18
 Branch: feat/platform-upgrade-v2
