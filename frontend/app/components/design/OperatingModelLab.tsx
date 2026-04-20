@@ -4334,13 +4334,13 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
         </div>;
       })()}
 
+    </div>{/* end flex layout */}
+
     <FlowNav
       previous={{ id: "orgdesign", label: "Org Design Studio", icon: <Network /> }}
       next={{ id: "impactsim", label: "Impact Simulator", icon: <Gauge /> }}
       onNavigate={onBack}
     />
-
-    </div>{/* end flex layout */}
   </div>;
 
 });

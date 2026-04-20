@@ -223,11 +223,6 @@ html { font-size: 16px; }
   /* Flex layouts with side panels: stack vertically */
   .flex.gap-4, .flex.gap-5 { flex-wrap: wrap; }
   .flex.gap-4 > [class*="shrink-0"], .flex.gap-5 > [class*="shrink-0"] { width: 100% !important; }
-  /* Restore nowrap for nested flex containers inside content cards / step panels */
-  .flex-1 .flex.gap-4, .flex-1 .flex.gap-5,
-  .min-w-0 .flex.gap-4, .min-w-0 .flex.gap-5 { flex-wrap: nowrap; }
-  .flex-1 .flex.gap-4 > [class*="shrink-0"], .flex-1 .flex.gap-5 > [class*="shrink-0"],
-  .min-w-0 .flex.gap-4 > [class*="shrink-0"], .min-w-0 .flex.gap-5 > [class*="shrink-0"] { width: auto !important; }
 }
 
 /* ═══ TAB BAR RESPONSIVE ═══ */
