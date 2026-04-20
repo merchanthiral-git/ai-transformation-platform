@@ -431,7 +431,7 @@ footer { padding: 48px 56px; border-top: 1px solid var(--rule); display: flex; j
           <p className="hero-sub">The platform that tells you exactly what to do about it — from task-level automation to boardroom-ready decisions.</p>
           <div className="hero-actions">
             <Link href="/app" className="btn-primary" data-hover><span>See What&apos;s Possible</span></Link>
-            <a href="/the-part-everyone-gets-wrong" className="btn-accent" data-hover>From Stress to Recess</a>
+            <a href="#our-story" className="btn-accent" data-hover>From Stress to Recess</a>
           </div>
         </div>
         <div className="hero-right">
