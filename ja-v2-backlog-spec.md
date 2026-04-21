@@ -48,15 +48,9 @@ These are the features that meaningfully change what the tool can do. Prioritize
 
 **Backend:**
 
-<!-- AUDIT EDIT: Section 1 - Added explicit field definitions for mapping_relationship and incumbent_assignment tables (HIGH) -->
-- `mapping_relationship` table supporting N:M current-future role relationships:
-  - `id`, `group_id` (groups related mappings in a single split/merge operation), `direction` (source | target), `role_id`, `mapping_type` (one_to_one | one_to_many | many_to_one | many_to_many | create | eliminate), `created_at`, `created_by`
-- `incumbent_assignment` sub-table for split operations (which employee goes to which target role):
-  - `id`, `employee_id`, `source_role_id`, `target_role_id`, `assignment_basis` (ai_suggested | manual), `confidence_score` (nullable, populated when ai_suggested), `assigned_at`, `assigned_by`
+- `mapping_relationship` table supporting N:M current-future role relationships
+- `incumbent_assignment` sub-table for split operations (which employee goes to which target role)
 - Validation rules: an eliminated role must have all incumbents reassigned; a merged role can't inherit conflicting architecture dimensions without resolution
-
-<!-- AUDIT EDIT: Section 1 - Added edge case rule for splitting unmapped roles (MEDIUM) -->
-- **Edge case — splitting unmapped roles:** A consultant may split a role that has no current mapping. This is allowed. Split creates future-state roles regardless of mapping status; mappings are independent of the split/merge graph.
 
 ### 2. Scenario mode
 
@@ -78,22 +72,6 @@ These are the features that meaningfully change what the tool can do. Prioritize
 - All mapping mutations get a `scenario_id` (null = baseline)
 - Read queries support `scenario_id` filter for scenario-scoped views
 - Commit operation: transactional merge with conflict detection if baseline has moved
-
-<!-- AUDIT EDIT: Section 2 - Added explicit scenario isolation scoping rules (CRITICAL) -->
-**Scenario isolation rules:**
-
-- **Definition of isolation:** Changes made within a scenario are stored with that scenario's `scenario_id` and are invisible outside it. Downstream modules (career paths, calibration, exports, working sessions) always read the **baseline** unless explicitly passed a `scenario_id` parameter.
-- **API contract:** All read endpoints that touch mapping data accept an optional `scenario_id` query parameter. When omitted, they return baseline state only. When provided, they return the scenario's overlay merged onto the baseline.
-- **No implicit scenario leakage:** A consultant working in Scenario A does not affect what another consultant sees in Scenario B or in the baseline. The scenario banner (described above) is the only UI signal; no data bleeds.
-- **Commit semantics:** Committing a scenario atomically applies its changes to the baseline in a single transaction. If the commit fails (due to conflicts), no partial changes are applied.
-
-<!-- AUDIT EDIT: Section 2 - Added conflict definition and resolution rules (HIGH) -->
-**Conflict definition and resolution:**
-
-- A **conflict** occurs when the same role has been modified in both the scenario and the baseline since the scenario's `baseline_version` was captured.
-- Conflict detection runs at commit time by comparing the scenario's role-level diffs against baseline changes since `baseline_version`.
-- Resolution is **per-role**: for each conflicting role, the consultant chooses one of: (a) keep scenario version, (b) keep baseline version, (c) manual merge (edit the role inline during conflict resolution).
-- Non-conflicting changes from the scenario are applied automatically; only conflicts require manual resolution.
 
 ### 3. Structured level criteria grid
 
@@ -134,19 +112,6 @@ These are the features that meaningfully change what the tool can do. Prioritize
 - Session-scoped audit log
 - Export endpoint for session summary in PDF/markdown
 
-<!-- AUDIT EDIT: Section 4 - Added session data freshness rules for concurrent editing (HIGH) -->
-**Session data freshness:**
-
-- When a working session is started, the session captures a snapshot timestamp (`session_started_at`).
-- Role data displayed in-session is fetched live per-role as the presenter navigates to it (not pre-cached at session start). This ensures the presenter sees the latest state.
-- If a role's mapping has been modified by another user since the session started, display a non-blocking indicator: "Updated during this session" with the modifier's name and timestamp.
-- Decisions made in-session (Accept/Reject) apply against the current baseline state at decision time, not against a stale snapshot. If a conflict exists (role was modified after it was displayed but before the decision is submitted), prompt the presenter to review the change before confirming.
-
-<!-- AUDIT EDIT: Section 4 - Tier re-scoping: working session is over-scoped for Tier 1 (HIGH) -->
-**Phasing note (audit recommendation):** Full working session mode (persistent session table, session-scoped audit log, export endpoint) is over-scoped for Tier 1 relative to split/merge and scenarios. Recommended split:
-- **Tier 1 scope:** Presentation-mode view only — full-screen queue-based navigation, per-role display, Accept/Reject/Skip buttons, progress indicator. No session persistence; decisions write directly to the mapping audit log.
-- **Tier 2 scope:** Full session tracking — `working_session` table, session-scoped audit log, session summary export, participant management.
-
 ### 5. Role archetypes and specializations
 
 **The gap:** Without inheritance, a catalogue with specializations balloons. "Senior Engineer - Platform," "Senior Engineer - Mobile," "Senior Engineer - ML" become three roles when they're really one archetype with three specializations.
@@ -158,9 +123,6 @@ These are the features that meaningfully change what the tool can do. Prioritize
 - Specialization creation: from any role, "Create specialization" — pre-populates from the parent, consultant customizes.
 - Inheritance: when the archetype changes, specializations inherit the change unless explicitly overridden.
 - Override tracking: each field on a specialization shows whether it's inherited from the archetype or overridden.
-
-<!-- AUDIT EDIT: Section 5 - Added edge case for conflicting specialization overrides (MEDIUM) -->
-- **Edge case — conflicting specialization overrides:** If two specializations both override the same field to different values and the archetype subsequently changes that field, the archetype change does NOT propagate to those specializations. Overridden fields are locked to their specialization-level value regardless of archetype changes. Only inherited (non-overridden) fields receive archetype updates.
 
 **Backend:**
 
@@ -184,13 +146,10 @@ These are the features that meaningfully change what the tool can do. Prioritize
 
 **Backend:**
 
-<!-- AUDIT EDIT: Section 6 - Added engagement_id and versioning to career_path table (MEDIUM) -->
-- `career_path` table: from_role_id, to_role_id, path_type (promotion, lateral, cross_family), is_recommended, data_support_count, `engagement_id` (scopes career paths to the engagement), `version` (integer, incremented on each edit), `is_current` (boolean, marks the active version)
+<!-- AUDIT RESOLUTION: 1 - Canonical field name is project_id -->
+- `career_path` table: from_role_id, to_role_id, path_type (promotion, lateral, cross_family), is_recommended, data_support_count, `project_id` (required)
 - Derived paths: automatically inferred from incumbent movement data where available
 - Manual paths: consultant-added edges with justification
-
-<!-- AUDIT EDIT: Section 6 - Added cycle detection edge case (MEDIUM) -->
-- **Edge case — career path cycles:** Cycles (Role A -> B -> C -> A) should be detected and flagged as warnings in the UI but allowed. Some organizations intentionally design rotational career paths. The warning surfaces in orphan detection and career path graph views with a distinct visual indicator (e.g., "Rotational cycle detected").
 
 ### 7. Before/after crosswalk export
 
@@ -207,10 +166,10 @@ These are the features that meaningfully change what the tool can do. Prioritize
 
 **Backend:**
 
-<!-- AUDIT EDIT: Section 7 - Flagged PDF generation dependency decision (MEDIUM) -->
-- **PDF generation — implementation decision required:** Server-side PDF generation (ReportLab, WeasyPrint, Puppeteer) requires system-level dependencies that may complicate deployment (e.g., WeasyPrint requires Cairo/Pango; Puppeteer requires headless Chrome). Client-side generation (jsPDF, html2pdf.js) avoids server deps but limits formatting control and file size handling. **Decision must be made before implementation begins.** Recommendation: start with server-side ReportLab (pure Python, no system deps beyond pip install) for Tier 1; evaluate WeasyPrint for richer HTML-to-PDF if ReportLab templates prove too rigid.
-- Excel generation via openpyxl (see `xlsx` skill)
-- Template configuration stored per engagement
+<!-- AUDIT RESOLUTION: 4 - Server-side export via platform export pipeline -->
+- PDF generation via ReportLab (see Export generation section in complete-specs)
+- Excel generation via openpyxl (see Export generation section in complete-specs)
+- Template configuration stored per project
 - Export history tracked for audit
 
 ---
@@ -244,9 +203,6 @@ Build after Tier 1. These meaningfully raise the ceiling but are less critical t
 - Aggregate view: percentage of roles in each category, by family, by level
 
 ### 11. Effective dating for mappings
-
-<!-- AUDIT EDIT: Section 11 - Effective dating data model should be Tier 1 forward-compatible (HIGH) -->
-**Audit note:** The `effective_date` field should be added to the `mapping_relationship` table as a **nullable column in Tier 1**, even though the full UI (date selector, phased rollout views) ships in Tier 2. Retrofitting effective dating after Tier 1 ships requires migrating every existing mapping record and touching every query that reads mappings. Adding a nullable field now is zero-cost and forward-compatible. The Tier 1 UI can ignore it; the Tier 2 UI activates it.
 
 - Every mapping decision has an effective date, not just a created-at
 - Support phased rollouts: Q2 changes vs. Q4 changes

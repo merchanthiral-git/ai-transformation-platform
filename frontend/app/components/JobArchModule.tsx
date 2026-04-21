@@ -22,6 +22,7 @@ import BulkImport from "./ja/BulkImport";
 import MappingGrid from "./ja/MappingGrid";
 import RoleDetailDrawer from "./ja/RoleDetailDrawer";
 import FlagRules from "./ja/FlagRules";
+import OrgChartRedesign from "./ja/OrgChart";
 
 /* ═══════════════════════════════════════════════════════════════
    TYPES
@@ -2500,7 +2501,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
     </div>}
 
     {/* ═══ ORG CHART TAB — Visual Org Chart Builder ═══ */}
-    {tab === "orgchart" && <OrgChartBuilder employees={employees} jobs={jobs} />}
+    {tab === "orgchart" && <OrgChartRedesign model={model} onRoleClick={(title) => { setSelectedJob(jobs.find(j => j.title === title) || null); }} />}
 
     {/* ═══ JOB PROFILES TAB ═══ */}
     {tab === "profiles" && <JobProfileLibrary jobs={jobs} model={model} />}

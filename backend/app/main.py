@@ -46,6 +46,7 @@ from app.routes_mgr import router as mgr_router
 from app.routes_scorecard import router as scorecard_router
 from app.routes_diagnostic import router as diagnostic_router
 from app.routes_synthesis import router as synthesis_router
+from app.routes_org_chart import router as org_chart_router
 from app.routes_ai import router as ai_router
 from app.routes_analytics import router as analytics_router
 from app.routes_tutorial import router as tutorial_router
@@ -133,6 +134,7 @@ app.include_router(mgr_router)
 app.include_router(scorecard_router)
 app.include_router(diagnostic_router)
 app.include_router(synthesis_router)
+app.include_router(org_chart_router)
 app.include_router(ai_router)
 app.include_router(analytics_router)
 app.include_router(tutorial_router)

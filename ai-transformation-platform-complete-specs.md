@@ -39,13 +39,33 @@ Each module has a v1 spec (build this) and a v2 backlog (reference when expandin
 - Every decision and change is audit-logged with actor, timestamp, before/after, and optional rationale note.
 - All modules respect engagement scoping (multi-tenant isolation) and workflow states (draft → proposed → in review → approved) where applicable.
 
-<!-- AUDIT EDIT: Cross-module principles - Added concurrency policy (HIGH: 10 modules, zero concurrency handling specified) -->
-**Concurrency policy (cross-module).** All modules use optimistic concurrency control. Every mutable record carries a `version` (integer, incremented on write). When a consultant saves, the write includes the `version` they read. If the version on the server has advanced (another consultant wrote first), the write is rejected. The UI shows a toast notification to the losing writer with a diff of what changed, and offers "reload and re-apply" or "overwrite." This applies to every entity with consultant-editable fields across all ten modules. For bulk operations (e.g., cluster consolidation, recommendation batch accept), the version check applies per-record and failures are reported individually without rolling back the successful writes.
-
-<!-- AUDIT EDIT: Cross-module principles - Added temporal query requirement (HIGH: only Scorecard has snapshots, 9 other modules have no as-of capability) -->
-**Temporal query requirement (cross-module).** Every module that stores decisions or scores must support "as-of" queries against historical snapshots. This means: when a snapshot is taken (manually or on schedule), the full state of decisions, scores, and computed outputs is captured immutably. Any dashboard or detail view supports a "View as of [date]" selector that reconstructs the state from the nearest snapshot. Modules with this requirement: Scorecard (already has snapshots), Opportunity Scan (opportunity scores and statuses), Heatmap (exposure scores), Role Clustering (cluster assignments and recommendations), AI Readiness (readiness scores and segments), Manager Capability (capability scores and segments), AI Recommendations (recommendation scores and statuses), Skills & Talent (gap analysis and proficiency data), Change Readiness (population scores and quadrant assignments). Skills Map Engine is exempt (taxonomy versioning already provides historical state). Implementation: a shared `module_snapshot` table with `module_type`, `engagement_id`, `snapshot_at`, `snapshot_tag`, and a JSONB `state_payload` column, plus per-module snapshot serializers.
-
 **Design system is non-negotiable.** Every module uses the same four colors, same typography, same card treatments, same grid patterns. Users should not notice they've moved between modules.
+
+<!-- AUDIT RESOLUTION: 7 - Cross-module data freshness section added -->
+**Cross-module data freshness.**
+
+When data in one module changes (e.g., a mapping update in JA, a new scorecard snapshot, a skill reassessment), downstream modules that consumed that data may become stale. The platform handles this with a controlled freshness model, not automatic recomputation:
+
+- **`freshness_version` counter:** Every data source maintains a monotonically increasing `freshness_version`. When the source data changes, the version increments. Downstream modules store the `freshness_version` they last computed against.
+- **Stale-data banner:** When a downstream module detects that its `freshness_version` is behind the source's current version, it displays a banner: "Source data has changed since this view was last computed. [Refresh]". The banner is non-blocking — the module remains fully usable with the prior data.
+- **Manual "Refresh" action:** The user clicks "Refresh" to trigger recomputation against the latest source data. This is intentional — consultants may be mid-analysis and don't want data shifting under them.
+- **No automatic recomputation:** The platform never silently recomputes a module's outputs because an upstream module changed. This prevents mid-presentation surprises and preserves audit consistency.
+- **Exception for same-module fast operations:** Within a single module, operations that are fast (under 2 seconds) and local (e.g., re-sorting a grid, applying a filter, recalculating a single cell after an inline edit) may update immediately without requiring a manual refresh. Cross-module propagation always requires explicit refresh.
+
+<!-- AUDIT RESOLUTION: 10 - AI service degradation section added -->
+**AI service degradation.**
+
+All AI-powered features (rationale generation, suggestions, interpretations, clustering, narrative generation) depend on external AI service availability. The platform handles AI service outages gracefully with per-feature degradation:
+
+- **Health monitoring:** The platform pings the AI service endpoint every 60 seconds. After 3 consecutive failures, the service is marked degraded.
+- **Per-feature degradation behaviors:**
+  - *Rationale generation* (mapping rationale, recommendation synthesis, cell interpretations): Feature disabled; UI shows "AI rationale unavailable — service temporarily down" in place of rationale text. Manual rationale entry remains available.
+  - *Suggestions* (auto-mapping, opportunity candidates, intervention recommendations): Feature disabled; "Auto-map" and similar buttons show disabled state with tooltip "AI service unavailable." Manual operations remain fully functional.
+  - *Interpretations* (scorecard narratives, heatmap cell narratives, change narratives): Cached interpretations remain visible with a "Generated [timestamp]" label. New interpretation requests show "AI interpretation unavailable."
+  - *Clustering* (role clustering, skill clustering): Clustering engine does not run; existing cluster results remain visible and actionable. New clustering requests queued for when service recovers.
+- **Retry strategy:** Exponential backoff starting at 5 seconds, doubling to a maximum of 5 minutes. Rate limit responses (429) are respected with the server-specified retry-after header. The platform does not fall back to a "retention mode" or reduced-capability AI — it either has full AI or it surfaces the degradation.
+- **User communication:** A global banner appears at the top of the platform: "AI features are temporarily unavailable. All non-AI functionality remains fully operational." Per-feature indicators (small icon or label) mark specific AI-dependent elements within each module.
+- **Logging:** All degradation events are logged with timestamp, failure type, affected features, and recovery timestamp. Logs are available to platform administrators for SLA tracking.
 
 ---
 
@@ -137,8 +157,7 @@ Every metric clearly labels its benchmark source. If no benchmark is available, 
 Backend entities to create or reference:
 
 - `scorecard_snapshot` — timestamp, engagement_id, overall_score, snapshot_tag, created_by
-<!-- AUDIT EDIT: Module 1 / Section 1.10 - Added compute_method field to scorecard_metric (metric definitions not reproducible without it) -->
-- `scorecard_metric` — snapshot_id, dimension, metric_name, value, benchmark_value, benchmark_source, status, compute_method (enum: count, ratio, average, percentile, custom_expression; for custom_expression, stores the expression string — required so metric definitions are reproducible across snapshots and engagements)
+- `scorecard_metric` — snapshot_id, dimension, metric_name, value, benchmark_value, benchmark_source, status
 - `scorecard_dimension_score` — snapshot_id, dimension, score, weight
 - Compute engine that reads from JA tables, employee tables, reporting structure tables, and produces metric values
 - Scheduled or manual snapshot trigger
