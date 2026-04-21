@@ -27,7 +27,8 @@ Design system (non-negotiable):
 
 ## 1. Product problem
 
-The current Mapping UI does not read as a job mapping tool. Consultants need to map their client's existing job architecture (current state) to a target/future architecture across five dimensions: function group, family, sub-family, track, and level. Typical engagement size is ~650 roles. Today this work happens in Excel, and the tool needs to replicate the spreadsheet workflow while doing what Excel cannot: surface AI suggestions, flag data integrity issues, visualize calibration patterns, and feed the future-state mapping into every other module in the platform.
+<!-- AUDIT RESOLUTION: 11 - Updated dimension count from five to six -->
+The current Mapping UI does not read as a job mapping tool. Consultants need to map their client's existing job architecture (current state) to a target/future architecture across up to six dimensions: function group (optional), job family group (optional), family, sub-family, track, and level. Typical engagement size is ~650 roles. Today this work happens in Excel, and the tool needs to replicate the spreadsheet workflow while doing what Excel cannot: surface AI suggestions, flag data integrity issues, visualize calibration patterns, and feed the future-state mapping into every other module in the platform.
 
 ## 2. Architectural principle: future state as source of truth
 
@@ -43,21 +44,30 @@ Required changes:
 
 Claude Code: in your spec, enumerate every file that currently reads JA data and how each needs to be updated.
 
-## 3. Five mapping dimensions
+<!-- AUDIT RESOLUTION: 11 - Replaced five mapping dimensions with six; Function Group and Job Family Group as distinct optional dimensions -->
+## 3. Six mapping dimensions
 
-Every role has up to five job architecture dimensions, in both current and future state:
+Every role has up to six job architecture dimensions, in both current and future state:
 
-1. **Function group** — optional (not all clients use function groups; UI must handle null gracefully)
-2. **Family** — required
-3. **Sub-family** — required, must be child of selected family
-4. **Track** — required (S, P, T, M, E)
-5. **Level** — required, must be valid for selected track
+1. **Function Group** — optional (not all clients use function groups; UI must handle null gracefully). A broad organizational grouping above Family (e.g., "Commercial," "Technology," "Corporate Services"). Disabled by default; enabled per engagement in engagement settings.
+2. **Job Family Group** — optional, distinct from Function Group. A classification grouping that cuts across functions (e.g., "Analytics," "Operations," "Leadership"). Disabled by default; enabled per engagement in engagement settings. Job Family Group is not a parent of Function Group or vice versa — they are orthogonal optional dimensions.
+3. **Family** — required
+4. **Sub-family** — required, must be child of selected family
+5. **Track** — required (S, P, T, M, E)
+6. **Level** — required, must be valid for selected track
+
+**Enablement rules for optional dimensions:**
+- Both Function Group and Job Family Group are disabled by default for new engagements.
+- Either can be enabled independently per engagement in engagement settings.
+- Once enabled for an engagement, the dimension becomes required for all roles in that engagement (no partial adoption — either all roles have it or none do). Roles imported before enablement must be backfilled.
+- Enabling or disabling is a significant engagement-level decision and is audit-logged.
 
 Cascading rules:
 - Sub-family dropdown options filter based on selected family
 - Level dropdown options filter based on selected track
 - Only M and E tracks can manage (people-manager = true allowed)
 - Track change between IC tracks (P/T) and manager tracks (M/E) is a significant event and should be flagged separately from a simple level change
+- Function Group and Job Family Group have no cascading relationship with Family or each other — they are independent classification axes
 
 ## 4. Primary view: job catalogue grid
 
@@ -67,7 +77,8 @@ The grid is the primary interface. It reads and feels like the Excel consultants
 
 - Header row: navy `#1C2B3A` background, white text, small caps labels
 - Secondary header band splits columns into two groups: **Current state** (left) and **Future state** (right), separated by a heavy 2px navy vertical divider
-- Columns (in order): status strip (20px color bar), role name + incumbent count, current function, current family, current sub-family, current track, current level, `|` navy divider `|` future function, future family, future sub-family, future track, future level, row actions
+<!-- AUDIT RESOLUTION: 11 - Updated columns to include Function Group and Job Family Group (shown only when enabled) -->
+- Columns (in order): status strip (20px color bar), role name + incumbent count, [current function group]*, [current job family group]*, current family, current sub-family, current track, current level, `|` navy divider `|` [future function group]*, [future job family group]*, future family, future sub-family, future track, future level, row actions. Columns marked with * are shown only when the corresponding dimension is enabled for the engagement.
 - Sticky left: role name column stays visible when scrolling horizontally
 - Row height: single line by default, with small secondary line under role name for incumbent count / AI suggestion status
 
@@ -91,7 +102,8 @@ The grid is the primary interface. It reads and feels like the Excel consultants
 
 ### Filter bar (above grid)
 
-- Filter chips for function, family, sub-family, track, level (click to add, × to remove)
+<!-- AUDIT RESOLUTION: 11 - Added Function Group and Job Family Group to filter chips -->
+- Filter chips for function group (when enabled), job family group (when enabled), family, sub-family, track, level (click to add, x to remove)
 - Status filter pills: All, Unmapped, Low confidence, Changed, AI suggested
 - Sort dropdown: by role name, by status, by incumbent count, by change magnitude
 - Search box: free-text search on role name
@@ -123,14 +135,15 @@ Side drawer or modal overlay. Three tabs, sharing a persistent header.
 
 Two-column layout, Current state (read-only, left) vs Target state (editable, right).
 
-For each of the five dimensions, show:
+<!-- AUDIT RESOLUTION: 11 - Updated drawer to show six dimensions; both optional dimensions shown only when enabled -->
+For each of the six dimensions (up to six when optional dimensions are enabled), show:
 - Small caps label
 - Value (current side: plain text; target side: dropdown)
 - Status dot next to the target label: green "match" if unchanged, orange "changed" if different
 - When changed, show "Was: [previous value]" annotation below the dropdown
 - Level change to a different track (IC → manager) shows an additional badge: "Track change"
 
-Function group row is omitted gracefully when the client doesn't use function groups.
+Function Group row is omitted gracefully when not enabled for the engagement. Job Family Group row is omitted gracefully when not enabled for the engagement. When both are enabled, display order is: Function Group, Job Family Group, Family, Sub-family, Track, Level.
 
 Below the dimensions, an AI rationale bar explains why the mapping was suggested:
 - AI avatar + rationale text
@@ -140,7 +153,8 @@ Action row at bottom:
 - Primary blue button: "Accept mapping"
 - Secondary: "Edit"
 - Tertiary: "Reject"
-- Right-aligned caption: "2 of 5 dimensions changed"
+<!-- AUDIT RESOLUTION: 11 - Updated dimension count -->
+- Right-aligned caption: "2 of N dimensions changed" (where N is the number of active dimensions for this engagement — 4 to 6 depending on which optional dimensions are enabled)
 
 ### Tab 2: Job description
 
@@ -170,9 +184,11 @@ Strictly job architecture fields. No performance, comp, ratings, goals, or anyth
 
 ### Section: Current job architecture
 
+<!-- AUDIT RESOLUTION: 11 - Updated to show all six dimensions when enabled -->
 - Working title (from HRIS)
 - Mapped role
-- Function group
+- Function Group (shown only when enabled for engagement)
+- Job Family Group (shown only when enabled for engagement)
 - Family · Sub-family
 - Track · Level
 - People manager (yes/no)
@@ -302,8 +318,10 @@ Each rule has:
 
 Backend fields that must exist (flag any that are missing):
 
-- `future_state_architecture` table/model: one row per role with all 5 dimensions, `project_id` (required)
+<!-- AUDIT RESOLUTION: 11 - Updated data model to include 6 dimensions with Function Group and Job Family Group -->
+- `future_state_architecture` table/model: one row per role with all 6 dimensions (function_group, job_family_group, family, sub_family, track, level), `project_id` (required). `function_group` and `job_family_group` are nullable — null when the dimension is not enabled for the engagement.
 - `current_state_architecture` table/model: same shape, `project_id` (required)
+- `engagement_dimension_config` table: `project_id`, `function_group_enabled` (boolean, default false), `job_family_group_enabled` (boolean, default false). Controls which optional dimensions are active for the engagement.
 - `mapping` table linking current to future with:
   - `project_id` (required)
   - `confidence_score` (0–100)

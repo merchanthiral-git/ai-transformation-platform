@@ -452,34 +452,39 @@ These position the tool as a Mercer asset, not just a one-engagement deliverable
 - Track client name, industry, size, scope, engagement lead, timeline, deliverables committed, status
 - Turns the tool from software into a record of practice
 
-### 49. Cross-engagement pattern library
+### 49. (deferred: firm library — Phase 4+) Cross-engagement pattern library
 
+<!-- AUDIT RESOLUTION: 6 - Firm library deferred to Phase 4+ -->
 - Anonymized patterns across all engagements on the platform
 - "SaaS companies under 5,000 employees typically have 4-6 levels in IC track"
 - Firm-level IP that justifies tool existence
 - Requires strict anonymization and client consent framework
 
-### 50. Internal benchmarking library
+### 50. (deferred: firm library — Phase 4+) Internal benchmarking library
 
+<!-- AUDIT RESOLUTION: 6 - Firm library deferred to Phase 4+ -->
 - Architecture shapes seen across firm engagements
 - Family counts, level counts, span patterns
 - Consultants compare current engagement against historical firm data
 - Distinct from market benchmarks (which you don't have access to)
 
-### 51. Methodology defaults
+### 51. (deferred: firm library — Phase 4+) Methodology defaults
 
+<!-- AUDIT RESOLUTION: 6 - Firm library deferred to Phase 4+ -->
 - Tool behaves in a Mercer-consistent way by default
 - Mercer IPE template loads automatically
 - Firm guidance embedded at decision points
 
-### 52. Consultant playbook integration
+### 52. (deferred: firm library — Phase 4+) Consultant playbook integration
 
+<!-- AUDIT RESOLUTION: 6 - Firm library deferred to Phase 4+ -->
 - Major decision points link to playbook content
 - "Changing a track assignment — here's our firm's guidance"
 - Training system for junior consultants
 
-### 53. Deliverable templates
+### 53. (deferred: firm library — Phase 4+) Deliverable templates
 
+<!-- AUDIT RESOLUTION: 6 - Firm library deferred to Phase 4+ -->
 - Firm-branded templates for every major deliverable
 - Role cards, family summaries, crosswalks, implementation reports, executive summaries
 - Consultants don't build decks from scratch

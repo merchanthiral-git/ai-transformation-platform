@@ -33,11 +33,15 @@ Each module has a v1 spec (build this) and a v2 backlog (reference when expandin
 
 **Cross-module data model principles:**
 
+> **AUDIT RESOLUTION: 1 — Schema naming convention established.** The canonical field name for project/engagement scoping across all tables and APIs is `project_id`. The user-facing label remains "engagement" to match consulting vocabulary. Do not mix the two in code.
+
 - Every module reads the **future-state** job architecture from the JA module (Section 2 of `ja-mapping-spec.md`). This is non-negotiable.
 - Roles, skills, employees, families, and org units are shared entities — one source of truth per entity, referenced by ID from every module.
 - Every AI-generated output has a structured rationale that names signals and confidence contributors — black-box scores are unacceptable.
 - Every decision and change is audit-logged with actor, timestamp, before/after, and optional rationale note.
 - All modules respect engagement scoping (multi-tenant isolation) and workflow states (draft → proposed → in review → approved) where applicable.
+
+> **AUDIT RESOLUTION: 3 — Multi-tenancy and data isolation.** The platform is multi-tenant with row-level security (RLS). Data isolation is enforced at three layers: (1) API layer — every endpoint extracts `project_id` from the authenticated session; queries omitting it are rejected. (2) ORM layer — all query builders inject `project_id` filters automatically; no raw queries bypass without review. (3) PostgreSQL RLS — row-level security policies on every tenant-scoped table enforce `project_id` filtering at the database level. Cross-project queries (e.g., firm library aggregations) use a privileged database connection that bypasses RLS, gated by a `cross_project_consent` table recording per-project opt-in with timestamp and authorizing user.
 
 **Design system is non-negotiable.** Every module uses the same four colors, same typography, same card treatments, same grid patterns. Users should not notice they've moved between modules.
 
@@ -67,6 +71,22 @@ All AI-powered features (rationale generation, suggestions, interpretations, clu
 - **User communication:** A global banner appears at the top of the platform: "AI features are temporarily unavailable. All non-AI functionality remains fully operational." Per-feature indicators (small icon or label) mark specific AI-dependent elements within each module.
 - **Logging:** All degradation events are logged with timestamp, failure type, affected features, and recovery timestamp. Logs are available to platform administrators for SLA tracking.
 
+> **AUDIT RESOLUTION: 2 — Platform AI provider.** All AI-generated content across the platform uses the Anthropic Claude API as the single AI provider. Configuration:
+> - **Zero-retention agreement:** Anthropic's zero-retention data policy is required. No client data is stored by the AI provider beyond the request lifecycle.
+> - **Pseudonymized data:** All data sent to the AI provider is pseudonymized — no real employee names, client names, or identifying information in prompts. A pseudonymization layer maps real identifiers to opaque tokens before API calls and maps back on response.
+> - **Model selection:** Claude Opus for rationale generation, recommendation synthesis, and narrative generation (quality-critical outputs). Claude Sonnet for bulk operations (auto-mapping, clustering, opportunity scanning) where throughput matters more than maximum quality.
+> - **API keys:** Platform-level API keys managed by infrastructure, not per-user or per-engagement. Keys are rotated on a 90-day schedule.
+> - **Cost tracking:** Every API call logs token usage to `ai_usage_log` table with `project_id`, `module`, `operation_type`, `input_tokens`, `output_tokens`, `model`, `timestamp`. Cost is tracked and reportable per `project_id`.
+
+> **AUDIT RESOLUTION: 4 — Export generation.** All PDF, PPTX, and XLSX exports across the platform use a shared server-side rendering pipeline:
+> - **PDF:** Generated via ReportLab (pure Python, no system-level dependencies). Supports engagement branding (client logo, primary color, firm co-branding footer).
+> - **PPTX:** Generated via python-pptx. Slide templates are engagement-configurable with branded master slides.
+> - **XLSX:** Generated via openpyxl. Supports multiple sheets, formatted headers, and frozen panes.
+> - **Shared rendering pipeline:** All export formats share a common data preparation layer that normalizes module outputs into export-ready structures. Each module registers its exportable views with the pipeline; the pipeline handles branding, pagination, and format-specific rendering.
+> - **Async export with signed URLs:** Exports are generated asynchronously via a background task queue. The user clicks "Export," sees a progress indicator, and receives a signed URL (valid for 24 hours) when complete. Large exports (>100 pages, >10K rows) are always async; small exports may complete synchronously.
+> - **Chart fidelity:** Charts exported to PDF and PPTX are rendered server-side using the same data and color palette as the on-screen version. Chart rendering uses matplotlib with the platform color palette (`#3B82F6`, `#F97316`, `#14B8A6`, `#8B5CF6`) to ensure visual consistency. SVG intermediate format for maximum fidelity.
+> - **Export audit logging:** Every export is logged to `export_log` table with `project_id`, `module`, `export_type` (PDF/PPTX/XLSX), `scope` (what was exported), `exported_by`, `exported_at`, `file_size_bytes`, `signed_url_expiry`.
+
 ---
 
 # Module 1: Org Health Scorecard
@@ -89,7 +109,8 @@ Single-page dashboard organized into six health dimensions, each dimension a car
 
 **Dimensions:**
 
-1. **Structural clarity** — how well-defined is the architecture? Metrics: percentage of roles with complete architecture (all five dimensions filled), percentage of roles with job descriptions, percentage of employees mapped to a defined role, duplicate title count across families, ghost role count (roles with zero incumbents).
+<!-- AUDIT RESOLUTION: 11 - Function Group and Job Family Group added as optional analysis dimensions -->
+1. **Structural clarity** — how well-defined is the architecture? Metrics: percentage of roles with complete architecture (all required dimensions filled), percentage of roles with job descriptions, percentage of employees mapped to a defined role, duplicate title count across families, ghost role count (roles with zero incumbents). When Function Group and/or Job Family Group are enabled for the engagement, additional metrics: percentage of roles with Function Group assigned, percentage of roles with Job Family Group assigned, consistency of Function Group usage across families.
 
 2. **Span and layer discipline** — is the hierarchy coherent? Metrics: median span of control, layer count CEO-to-IC, spans-of-one count (managers with single direct report), layer concentration (which layer holds the most headcount), management ratio (percentage of workforce who are managers).
 
@@ -147,6 +168,8 @@ Every metric clearly labels its benchmark source. If no benchmark is available, 
 
 ### 1.9 Export
 
+> *AUDIT RESOLUTION: 4 — All exports in this module use the platform export pipeline (see Export generation section).*
+
 - PDF executive summary (one page, headline score + dimension scores + top 3 issues + top 3 strengths)
 - Full PDF report (one page per dimension with charts and AI interpretation)
 - Excel data dump (all metrics with values, benchmarks, trends)
@@ -156,13 +179,21 @@ Every metric clearly labels its benchmark source. If no benchmark is available, 
 
 Backend entities to create or reference:
 
-- `scorecard_snapshot` — timestamp, engagement_id, overall_score, snapshot_tag, created_by
+- `scorecard_snapshot` — timestamp, project_id, overall_score, snapshot_tag, created_by
 - `scorecard_metric` — snapshot_id, dimension, metric_name, value, benchmark_value, benchmark_source, status
 - `scorecard_dimension_score` — snapshot_id, dimension, score, weight
 - Compute engine that reads from JA tables, employee tables, reporting structure tables, and produces metric values
 - Scheduled or manual snapshot trigger
 
-### 1.11 Cross-module dependencies
+<!-- AUDIT RESOLUTION: 7 - Data freshness subsection for Module 1 -->
+### 1.11 Data freshness
+
+The Org Health Scorecard reads from JA tables, employee data, and other module outputs. It tracks `freshness_version` for each upstream source. When JA mappings, employee records, or role metadata change upstream, the scorecard displays a stale-data banner: "Source data has changed since this scorecard was last computed. [Refresh]". Consultants trigger recomputation manually. Scorecard snapshots record the `freshness_version` of each source at compute time for audit traceability.
+
+<!-- AUDIT RESOLUTION: 10 - AI service degradation reference for Module 1 -->
+AI-generated interpretations (Section 1.5 drill-down, Section 1.6 overall health) follow the platform-level AI service degradation protocol. When AI is unavailable, cached interpretations remain visible with a "Generated [timestamp]" label; new interpretation requests show "AI interpretation unavailable." Scorecard computation and metric display remain fully functional without AI.
+
+### 1.12 Cross-module dependencies
 
 **Reads from:**
 - Job Architecture module (roles, families, tracks, levels, incumbents)
@@ -174,14 +205,14 @@ Backend entities to create or reference:
 - Change Readiness (scorecard provides structural baseline)
 - Every executive summary deliverable
 
-### 1.12 Out of scope for v1
+### 1.13 Out of scope for v1
 
 - Market benchmark data (not available)
 - Employee sentiment or engagement scores (not collecting survey data)
 - Compensation health (separate discipline)
 - Performance management signals (separate discipline)
 
-### 1.13 Build phasing (v1)
+### 1.14 Build phasing (v1)
 
 1. Data model and compute engine for the six dimensions
 2. Dashboard view with all six cards
@@ -221,7 +252,7 @@ Backend entities to create or reference:
 
 **12. Composite scoring transparency.** Every composite score (dimension scores, overall score) shows its component metrics and weights. Clients will ask "why is this 72 and not 80?" — the answer must be clickable.
 
-**13. Benchmarking opt-in flow.** UX for consultants (with client approval) to contribute anonymized scorecard data to the firm library. Includes consent capture, anonymization preview, and opt-out controls.
+**(deferred: firm library — Phase 4+) 13. Benchmarking opt-in flow.** UX for consultants (with client approval) to contribute anonymized scorecard data to the firm library. Includes consent capture, anonymization preview, and opt-out controls.
 
 **14. Scorecard for specific populations.** Run the scorecard on a filtered population: just Engineering, just managers, just the top 20% by tenure. Same dashboard structure, narrowed scope.
 
@@ -261,13 +292,13 @@ Backend entities to create or reference:
 
 ### Firm-level features
 
-**31. Cross-engagement firm dashboard.** Partners and practice leads see aggregate scorecard patterns across all active engagements, anonymized where required by client consent.
+**(deferred: firm library — Phase 4+) 31. Cross-engagement firm dashboard.** Partners and practice leads see aggregate scorecard patterns across all active engagements, anonymized where required by client consent.
 
-**32. Benchmark curation.** A firm role that reviews and curates the benchmark library, flagging outliers, seasoning new benchmarks with more data points.
+**(deferred: firm library — Phase 4+) 32. Benchmark curation.** A firm role that reviews and curates the benchmark library, flagging outliers, seasoning new benchmarks with more data points.
 
-**33. Scorecard methodology documentation.** Firm-published methodology document explaining how each metric is computed, why it matters, and what the benchmarks represent. Linkable from every metric.
+**(deferred: firm library — Phase 4+) 33. Scorecard methodology documentation.** Firm-published methodology document explaining how each metric is computed, why it matters, and what the benchmarks represent. Linkable from every metric.
 
-**34. Engagement type tagging.** Tag engagements by type so scorecard patterns can be grouped meaningfully in the firm library.
+**(deferred: firm library — Phase 4+) 34. Engagement type tagging.** Tag engagements by type so scorecard patterns can be grouped meaningfully in the firm library.
 
 ### Tool-level
 
@@ -391,6 +422,8 @@ Opens on card click. Full detail for a single opportunity.
 
 ### 2.5 Opportunity identification engine
 
+> *AUDIT RESOLUTION: 2 — AI-generated content in this module uses the platform AI provider (see Platform AI provider section).*
+
 This is the AI-heavy component. Given the client's job architecture and activity decomposition, the engine generates opportunity candidates.
 
 **Inputs:**
@@ -478,6 +511,8 @@ Typical flow through the module:
 
 ### 2.10 Export
 
+> *AUDIT RESOLUTION: 4 — All exports in this module use the platform export pipeline (see Export generation section).*
+
 - Opportunity portfolio PDF (executive summary + card per opportunity)
 - Detailed opportunity report (one page per opportunity, all sections expanded)
 - Excel data dump for further analysis
@@ -486,7 +521,7 @@ Typical flow through the module:
 
 ### 2.11 Data model requirements
 
-- `opportunity` — title, category, status, impact_score, feasibility_score, engagement_id, value_thesis, current_state, future_state, created_at, created_by
+- `opportunity` — title, category, status, impact_score, feasibility_score, project_id, value_thesis, current_state, future_state, created_at, created_by
 - `opportunity_role` — many-to-many linking opportunities to affected roles
 - `opportunity_activity` — many-to-many linking opportunities to affected activities
 - `opportunity_signal` — evidence records: why was this opportunity identified (role_id, activity_id, signal_type, signal_strength)
@@ -494,7 +529,15 @@ Typical flow through the module:
 - `opportunity_dependency` — directional links between opportunities
 - `opportunity_risk` — identified risks with severity and mitigation
 
-### 2.12 Cross-module dependencies
+<!-- AUDIT RESOLUTION: 7 - Data freshness subsection for Module 2 -->
+### 2.12 Data freshness
+
+The AI Opportunity Scan reads from JA (roles, activities, skills, org structure), Skills Map Engine, AI Impact Heatmap, and Org Health Scorecard. It tracks `freshness_version` for each upstream source. When upstream data changes, the scan displays a stale-data banner: "Source data has changed since opportunities were last generated. [Refresh]". Opportunity re-generation requires explicit user action. Existing opportunity cards remain valid and editable while stale.
+
+<!-- AUDIT RESOLUTION: 10 - AI service degradation reference for Module 2 -->
+AI-generated opportunity candidates (Section 2.5), scoring (Section 2.6), and evidence narratives follow the platform-level AI service degradation protocol. When AI is unavailable, the "Auto-scan" and opportunity identification engine are disabled. Existing opportunities, manual scoring, and all non-AI views remain fully functional. The portfolio grid, matrix, and detail views continue to operate normally.
+
+### 2.13 Cross-module dependencies
 
 **Reads from:**
 - Job Architecture (roles, activities, skills, org structure)
@@ -507,14 +550,14 @@ Typical flow through the module:
 - Change Readiness (opportunity scope informs change impact)
 - Workforce planning (headcount impact feeds workforce modeling)
 
-### 2.13 Out of scope for v1
+### 2.14 Out of scope for v1
 
 - Implementation planning and project management (that's post-prioritization work)
 - ROI calculation (needs client financial data, comes later in the engagement)
 - Vendor selection (the scan identifies opportunities, not tools)
 - Technical architecture for AI solutions (engineering work, not consulting)
 
-### 2.14 Build phasing (v1)
+### 2.15 Build phasing (v1)
 
 1. Data model for opportunities, signals, scoring components
 2. Opportunity identification engine (AI service + pattern library)
@@ -536,11 +579,11 @@ Typical flow through the module:
 
 **4. Scenario comparison.** "What if we focused this engagement on customer service vs. engineering?" Run two scans scoped to different parts of the org and compare opportunity portfolios. Useful for engagement-scoping conversations.
 
-**5. Industry pattern library.** Pre-built opportunity patterns for specific industries (SaaS, financial services, retail, healthcare, manufacturing). When starting a new engagement, load the relevant pattern library and the scan runs against those patterns by default. Much higher precision for first-pass opportunity identification.
+**(deferred: firm library — Phase 4+) 5. Industry pattern library.** Pre-built opportunity patterns for specific industries (SaaS, financial services, retail, healthcare, manufacturing). When starting a new engagement, load the relevant pattern library and the scan runs against those patterns by default. Much higher precision for first-pass opportunity identification.
 
 **6. Opportunity linkage to job redesign.** For each opportunity, show how the affected roles change in the future state. "This opportunity frees 12 hours/week in the Analyst role — the Analyst role's redesigned definition moves that capacity into higher-value strategic analysis." Direct bridge to the JA module's future state.
 
-**7. Opportunity confidence calibration.** Track how opportunities actually played out in prior engagements. Opportunities identified as "high impact, high feasibility" that failed reduce confidence in similar future identifications. Engagement learning that improves the scan over time.
+**(deferred: firm library — Phase 4+) 7. Opportunity confidence calibration.** Track how opportunities actually played out in prior engagements. Opportunities identified as "high impact, high feasibility" that failed reduce confidence in similar future identifications. Engagement learning that improves the scan over time.
 
 ### Tier 2: Strong value, moderate complexity
 
@@ -564,7 +607,7 @@ Typical flow through the module:
 
 **17. Multi-language opportunity titles and descriptions.** For global engagements, opportunity descriptions generated in the client's working language.
 
-**18. Benchmarking against prior engagements.** "How does this opportunity count and composition compare to other engagements of similar scope?" Firm library reference.
+**(deferred: firm library — Phase 4+) 18. Benchmarking against prior engagements.** "How does this opportunity count and composition compare to other engagements of similar scope?" Firm library reference.
 
 **19. Opportunity export as a Miro / Mural board.** Visual collaboration format for workshop-style client conversations.
 
@@ -594,13 +637,13 @@ Typical flow through the module:
 
 ### Firm-level features
 
-**31. Firm-wide opportunity pattern library.** Aggregate opportunity patterns across all engagements to refine identification precision.
+**(deferred: firm library — Phase 4+) 31. Firm-wide opportunity pattern library.** Aggregate opportunity patterns across all engagements to refine identification precision.
 
-**32. Success rate by opportunity type.** Track which opportunity categories actually deliver value across engagements.
+**(deferred: firm library — Phase 4+) 32. Success rate by opportunity type.** Track which opportunity categories actually deliver value across engagements.
 
-**33. Average scoring benchmarks.** "High impact" opportunities at this firm historically score X — calibration reference for new consultants.
+**(deferred: firm library — Phase 4+) 33. Average scoring benchmarks.** "High impact" opportunities at this firm historically score X — calibration reference for new consultants.
 
-**34. Playbook integration.** Each opportunity category links to firm playbook content on how to implement.
+**(deferred: firm library — Phase 4+) 34. Playbook integration.** Each opportunity category links to firm playbook content on how to implement.
 
 ### Tool-level
 
@@ -641,7 +684,8 @@ Two-axis matrix. Rows are job families, columns are business functions (or rever
 
 **Cell contents:**
 
-- Color intensity: AI exposure score (0-100, green low exposure, amber moderate, red/deep-orange high)
+<!-- AUDIT RESOLUTION: 8 - Replaced green-to-red color semantics with intensity-based navy ramp -->
+- Color intensity: AI exposure score (0-100, light-to-dark navy ramp). Color intensity encodes exposure magnitude, not valence. Low exposure cells are light (near-white with slight navy tint); high exposure cells are deep navy. This avoids implying that high AI exposure is "bad" (red) or low exposure is "good" (green) — exposure is a neutral structural fact that requires interpretation in context.
 - Small numeric score in the cell
 - Secondary indicator: headcount in that intersection (cell size, dot, or inline count)
 - Hover state: tooltip with breakdown (automate % / augment % / create %)
@@ -649,16 +693,19 @@ Two-axis matrix. Rows are job families, columns are business functions (or rever
 
 **Color semantics (deliberate, not default):**
 
-- Green (low exposure, 0-30): work is primarily relational, judgment-heavy, physically embodied, or high-context
-- Amber (moderate, 31-60): mixed — significant AI-amenable work alongside human-essential work
-- Orange (high, 61-80): substantial exposure, meaningful role redesign likely required
-- Red (transformational, 81-100): role composition fundamentally changes
+- Lightest navy tint (low exposure, 0-30): work is primarily relational, judgment-heavy, physically embodied, or high-context
+- Medium navy (moderate, 31-60): mixed — significant AI-amenable work alongside human-essential work
+- Dark navy (high, 61-80): substantial exposure, meaningful role redesign likely required
+- Deepest navy (transformational, 81-100): role composition fundamentally changes
 
 ### 3.4 Heatmap variants and views
 
 The user toggles between several views of the same underlying data:
 
 - **Function × Family (default):** the classic grid described above
+<!-- AUDIT RESOLUTION: 11 - Added Function Group and Job Family Group view toggles for heatmap -->
+- **Function Group × Family:** when Function Group is enabled for the engagement, view exposure aggregated at Function Group level across families
+- **Job Family Group × Family:** when Job Family Group is enabled for the engagement, view exposure aggregated at Job Family Group level across families
 - **Function × Level:** exposure by seniority within each function (does AI hit junior roles harder? senior?)
 - **Family × Level:** exposure by seniority within each family
 - **Geographic:** function or family × location, if location data is available
@@ -677,10 +724,13 @@ Click any cell to open a detail panel.
 - Roles in this cell (list, linked to JA)
 - Activities driving the score (top 5 most-exposed activities with exposure levels)
 - Linked opportunities from the Opportunity Scan
-- AI-generated interpretation: what this exposure pattern means for the client
-- Override controls: consultant can adjust the cell's score with required rationale
+<!-- AUDIT RESOLUTION: 8 - AI interpretation must state strategic alignment explicitly -->
+- AI-generated interpretation: what this exposure pattern means for the client. Every AI interpretation must explicitly state strategic alignment — how the exposure pattern connects to the client's stated strategic priorities and transformation objectives, not just describe the numbers.
+- Override controls: consultant can adjust the cell's score with required rationale. Override rationale must include strategic alignment justification.
 
 ### 3.6 Scoring model
+
+> *AUDIT RESOLUTION: 2 — AI-generated content in this module uses the platform AI provider (see Platform AI provider section).*
 
 **Role-level exposure score** is the foundation:
 
@@ -736,6 +786,8 @@ Overrides survive recomputation — if the taxonomy updates, overridden cells re
 
 ### 3.10 Export
 
+> *AUDIT RESOLUTION: 4 — All exports in this module use the platform export pipeline (see Export generation section).*
+
 - Full heatmap as high-res PDF
 - Heatmap embedded in executive deck template
 - Drilldown detail as one-page-per-cell PDF
@@ -750,7 +802,15 @@ Overrides survive recomputation — if the taxonomy updates, overridden cells re
 - `exposure_override` — entity_id, original_score, override_score, rationale, overridden_by, overridden_at
 - Aggregation engine that rolls role-level scores up through family, function, and cell levels
 
-### 3.12 Cross-module dependencies
+<!-- AUDIT RESOLUTION: 7 - Data freshness subsection for Module 3 -->
+### 3.12 Data freshness
+
+The AI Impact Heatmap reads from JA (role activity decomposition, family, function, headcount), Skills Map Engine, and the activity taxonomy. It tracks `freshness_version` for each upstream source. When role activities, family assignments, or taxonomy versions change, the heatmap displays a stale-data banner: "Source data has changed since exposure scores were last computed. [Refresh]". Exposure scores are not automatically recomputed — consultants trigger recomputation manually. Existing heatmap cells, overrides, and drilldown data remain usable while stale.
+
+<!-- AUDIT RESOLUTION: 10 - AI service degradation reference for Module 3 -->
+AI-generated cell interpretations (Section 3.5 drilldown), anomaly callouts, and narrative generation follow the platform-level AI service degradation protocol. When AI is unavailable, cached interpretations remain visible with a "Generated [timestamp]" label. Exposure scoring computation (which is algorithmic, not AI-dependent) continues to function normally. The heatmap grid, view toggles, and override UI remain fully operational.
+
+### 3.13 Cross-module dependencies
 
 **Reads from:**
 - Job Architecture (role activity decomposition, family, function, headcount)
@@ -763,21 +823,21 @@ Overrides survive recomputation — if the taxonomy updates, overridden cells re
 - Workforce planning modules
 - Executive deliverables (heatmap is often the anchor chart)
 
-### 3.13 Out of scope for v1
+### 3.14 Out of scope for v1
 
 - Predictive labor market data (external benchmarks not available)
 - Role-level headcount forecasting (that's workforce planning, not heatmap)
 - Individual employee scoring (exposure is at the role level, not the person)
 - Pay/comp exposure (separate discipline)
 
-### 3.14 Build phasing (v1)
+### 3.15 Build phasing (v1)
 
 1. Activity taxonomy data model and seed data
 2. Role-level exposure scoring engine
 3. Aggregation to family, function, cell levels
-4. Heatmap grid UI with default view
-5. View toggle (function × family, family × level, etc.)
-6. Cell detail drilldown
+4. Heatmap grid UI with default view (navy intensity ramp)
+5. View toggle (function × family, function group × family, job family group × family, family × level, etc.)
+6. Cell detail drilldown with strategic alignment in AI interpretation
 7. Override UI and audit logging
 8. Export formats
 
@@ -801,11 +861,14 @@ Overrides survive recomputation — if the taxonomy updates, overridden cells re
 
 ### Tier 2: Strong value, moderate complexity
 
-**8. Custom taxonomy per engagement.** Allow engagement-specific activity taxonomy extensions when the client's work includes activities not well-represented in the base taxonomy (industry-specific processes).
+<!-- AUDIT RESOLUTION: 8 - Strategic overlay added as new Tier 2 v2 item -->
+**8. Strategic priority overlay.** Overlay the client's strategic priorities onto the heatmap as a separate visual layer. Each cell gains a secondary indicator showing alignment strength to each stated priority. Enables consultants to answer "where does high AI exposure intersect with strategic priority X?" visually. Toggle overlay on/off per priority.
+
+**9. Custom taxonomy per engagement.** Allow engagement-specific activity taxonomy extensions when the client's work includes activities not well-represented in the base taxonomy (industry-specific processes).
 
 **9. Activity library browser.** Dedicated view for browsing, searching, editing the activity taxonomy. Power users and firm methodologists.
 
-**10. Cross-engagement exposure comparison.** How does this client's exposure compare to other engagements in the same industry? Firm library reference.
+**(deferred: firm library — Phase 4+) 10. Cross-engagement exposure comparison.** How does this client's exposure compare to other engagements in the same industry? Firm library reference.
 
 **11. Exposure deltas over engagement lifetime.** If the engagement includes ongoing snapshots, show how exposure has shifted as the client has refined activities, restructured roles, etc.
 
@@ -851,13 +914,13 @@ Overrides survive recomputation — if the taxonomy updates, overridden cells re
 
 ### Firm-level features
 
-**31. Firm-wide activity taxonomy governance.** Version control, review workflows, retirement of stale activity types.
+**(deferred: firm library — Phase 4+) 31. Firm-wide activity taxonomy governance.** Version control, review workflows, retirement of stale activity types.
 
-**32. Industry-specific taxonomy extensions.** Maintained taxonomies for SaaS, financial services, manufacturing, healthcare, retail.
+**(deferred: firm library — Phase 4+) 32. Industry-specific taxonomy extensions.** Maintained taxonomies for SaaS, financial services, manufacturing, healthcare, retail.
 
-**33. Exposure benchmarks by industry.** Anonymized firm data showing typical exposure patterns by industry.
+**(deferred: firm library — Phase 4+) 33. Exposure benchmarks by industry.** Anonymized firm data showing typical exposure patterns by industry.
 
-**34. Methodology white papers.** Firm-authored documentation on how exposure is computed, linked from every metric.
+**(deferred: firm library — Phase 4+) 34. Methodology white papers.** Firm-authored documentation on how exposure is computed, linked from every metric.
 
 ### Tool-level
 
@@ -961,6 +1024,8 @@ A two-panel layout. Left panel lists identified clusters sorted by size and conf
 
 ### 4.5 Cluster generation engine
 
+> *AUDIT RESOLUTION: 2 — AI-generated content in this module uses the platform AI provider (see Platform AI provider section).*
+
 AI-driven. Inputs:
 
 - All roles in the engagement catalogue
@@ -1011,6 +1076,8 @@ Engagement-level setting: "Execute consolidations from clustering" (on) vs. "Dia
 
 ### 4.9 Export
 
+> *AUDIT RESOLUTION: 4 — All exports in this module use the platform export pipeline (see Export generation section).*
+
 - Cluster report PDF (executive summary + one page per significant cluster)
 - Consolidation crosswalk: current roles → recommended consolidated roles, as Excel
 - Cluster map as standalone image
@@ -1018,13 +1085,21 @@ Engagement-level setting: "Execute consolidations from clustering" (on) vs. "Dia
 
 ### 4.10 Data model requirements
 
-- `role_cluster` — name, engagement_id, confidence, recommendation_type, status, created_at
+- `role_cluster` — name, project_id, confidence, recommendation_type, status, created_at
 - `cluster_membership` — cluster_id, role_id, similarity_score
 - `cluster_evidence` — cluster_id, signal_type, evidence_detail
 - `consolidation_action` — cluster_id, action_type, target_role_id, status, executed_at
 - Clustering engine with versioned similarity model
 
-### 4.11 Cross-module dependencies
+<!-- AUDIT RESOLUTION: 7 - Data freshness subsection for Module 4 -->
+### 4.11 Data freshness
+
+Role Clustering reads from JA (all role data, titles, structure), Skills Map Engine, and job descriptions. It tracks `freshness_version` for each upstream source. When roles, titles, skills, or JDs change upstream, the clustering module displays a stale-data banner: "Source data has changed since clusters were last generated. [Refresh]". Existing cluster results remain valid and actionable while stale. Re-clustering requires explicit user action.
+
+<!-- AUDIT RESOLUTION: 10 - AI service degradation reference for Module 4 -->
+AI-driven clustering (Section 4.5 cluster generation engine), cluster label generation, and consolidation recommendations follow the platform-level AI service degradation protocol. When AI is unavailable, the clustering engine does not run; existing cluster results remain visible, reviewable, and actionable. Manual cluster operations (split, merge, reject, accept) remain fully functional. New clustering requests are queued for when service recovers.
+
+### 4.12 Cross-module dependencies
 
 **Reads from:**
 - Job Architecture (all role data, titles, structure)
@@ -1036,14 +1111,14 @@ Engagement-level setting: "Execute consolidations from clustering" (on) vs. "Dia
 - Org Health Scorecard (cluster findings feed "structural clarity" dimension)
 - Change Readiness (consolidations are changes that must be sequenced)
 
-### 4.12 Out of scope for v1
+### 4.13 Out of scope for v1
 
 - Clustering across clients (no cross-engagement role comparison)
 - Predictive clustering of roles that don't exist yet
 - Compensation-based clustering (different discipline)
 - Real-time clustering during catalogue editing (batch process is fine)
 
-### 4.13 Build phasing (v1)
+### 4.14 Build phasing (v1)
 
 1. Data model and clustering engine
 2. Cluster list view
@@ -1124,13 +1199,13 @@ Engagement-level setting: "Execute consolidations from clustering" (on) vs. "Dia
 
 ### Firm-level features
 
-**31. Firm-wide clustering patterns.** Anonymized cluster patterns across engagements informing base similarity models.
+**(deferred: firm library — Phase 4+) 31. Firm-wide clustering patterns.** Anonymized cluster patterns across engagements informing base similarity models.
 
-**32. Industry-specific clustering priors.** Clustering tuned for specific industries where role patterns are known.
+**(deferred: firm library — Phase 4+) 32. Industry-specific clustering priors.** Clustering tuned for specific industries where role patterns are known.
 
-**33. Clustering methodology documentation.** Firm-published documentation on how clustering works, linked from the module.
+**(deferred: firm library — Phase 4+) 33. Clustering methodology documentation.** Firm-published documentation on how clustering works, linked from the module.
 
-**34. Consolidation outcome tracking.** Did consolidations from clustering actually succeed in implementation? Feedback loop to improve recommendations.
+**(deferred: firm library — Phase 4+) 34. Consolidation outcome tracking.** Did consolidations from clustering actually succeed in implementation? Feedback loop to improve recommendations.
 
 ### Tool-level
 
@@ -1256,34 +1331,33 @@ At org level:
 - Structural readiness: governance presence, policy clarity, accountability mechanisms
 - Leadership readiness: visible AI sponsorship, decision-making authority for AI initiatives
 
-### 5.8 Assessment instruments
+### 5.8 Assessment data sources (import-only)
 
-Readiness is scored from multiple input sources:
+> *AUDIT RESOLUTION: 5 — Survey delivery is an explicit non-goal. The platform imports assessment results; it does not administer surveys.*
 
-**Survey-based:**
+Readiness is scored from imported data, not from surveys delivered by this platform. Survey delivery is the client's responsibility using their existing tools.
 
-- Configurable survey instrument with question banks for each dimension
-- Administered via survey link (engagement-level, anonymized aggregation)
-- Individual responses scored against the readiness model
+**Data import channels:**
 
-**Assessment-based:**
+- **CSV import:** Structured CSV upload with column mapping wizard. Supports bulk import of assessment responses, skill inventories, and behavioral data. Validation on import with error report.
+- **Qualtrics integration (v1.1):** API integration to pull completed survey responses directly from Qualtrics. Engagement consultant configures the Qualtrics survey ID; the platform pulls responses on demand or on schedule.
+- **Typeform integration (v1.2):** Similar API integration for Typeform-based assessments.
+- **Question bank templates for external tools:** The platform provides downloadable question bank templates (CSV/XLSX) organized by readiness dimension (capability, opportunity, motivation, resources) that consultants can import into Qualtrics, Typeform, Google Forms, or any survey tool. Templates include recommended question text, response scales, and scoring keys. The platform does not deliver these questions — it provides the content for the client's chosen survey tool.
 
-- Knowledge assessment questions (multiple choice, scenario response)
-- Scored automatically
+**Behavioral data (when available):**
 
-**Behavioral (when available):**
+- Tool usage logs (Copilot, ChatGPT Enterprise, etc., if client shares data) — imported via CSV
+- Training completion data — imported via CSV or HRIS integration
+- Internal experimentation participation — imported via CSV
 
-- Tool usage logs (Copilot, ChatGPT Enterprise, etc., if client shares data)
-- Training completion data
-- Internal experimentation participation
+**Qualitative data:**
 
-**Qualitative:**
+- Manager assessments of direct reports — imported via structured CSV
+- Consultant observation notes — entered directly in the platform
 
-- Manager assessments of direct reports
-- Peer ratings (optional, risky for culture)
-- Consultant observation notes
+**Consent:** Survey consent and data handling for the assessment instruments is the client's responsibility. The platform stores imported data under the engagement's data processing agreement (DPA) but does not collect consent from survey respondents directly.
 
-The module supports multiple input modes so engagements can configure what data is available.
+**Explicit non-goal:** Survey delivery, survey link generation, survey response collection, and survey reminder emails are NOT built into this platform. These are handled by external survey tools.
 
 ### 5.9 Segmentation model
 
@@ -1297,6 +1371,8 @@ The module supports multiple input modes so engagements can configure what data 
 Each segment has a distinct intervention profile — the wrong intervention applied to the wrong segment backfires. Champions need empowerment; skeptics need dialogue; unengaged need belonging before technique.
 
 ### 5.10 Intervention recommendation engine
+
+> *AUDIT RESOLUTION: 2 — AI-generated content in this module uses the platform AI provider (see Platform AI provider section).*
 
 Based on segment distribution and gaps, the module recommends intervention mixes:
 
@@ -1319,6 +1395,8 @@ Enables "before/after" evidence for transformation ROI conversations.
 
 ### 5.12 Export
 
+> *AUDIT RESOLUTION: 4 — All exports in this module use the platform export pipeline (see Export generation section).*
+
 - Org readiness report PDF (executive summary + dimension deep-dives + recommendations)
 - Function-level readiness reports (one per function)
 - Segmentation visualization standalone
@@ -1327,7 +1405,7 @@ Enables "before/after" evidence for transformation ROI conversations.
 
 ### 5.13 Data model requirements
 
-- `readiness_assessment` — engagement_id, administered_at, instrument_version, response_count
+- `readiness_assessment` — project_id, administered_at, instrument_version, response_count
 - `readiness_response` — assessment_id, individual_id (anonymized), responses, computed_scores
 - `readiness_score` — scope (individual/team/function/org), entity_id, dimension, score, computed_at
 - `segment_assignment` — individual_id, segment, confidence, assessment_id
@@ -1385,7 +1463,7 @@ Strong data privacy posture: individual records access-controlled, anonymization
 
 ### Tier 2: Strong value, moderate complexity
 
-**8. Anonymized peer benchmarking.** Compare team or function readiness to anonymized similar teams from firm library.
+**(deferred: firm library — Phase 4+) 8. Anonymized peer benchmarking.** Compare team or function readiness to anonymized similar teams from firm library.
 
 **9. Readiness heatmap.** Org chart colored by readiness score — where are the hot spots and cold spots?
 
@@ -1435,13 +1513,13 @@ Strong data privacy posture: individual records access-controlled, anonymization
 
 ### Firm-level features
 
-**31. Firm-wide readiness pattern library.** Which segmentation distributions predict which transformation outcomes? Anonymized learning across engagements.
+**(deferred: firm library — Phase 4+) 31. Firm-wide readiness pattern library.** Which segmentation distributions predict which transformation outcomes? Anonymized learning across engagements.
 
-**32. Firm-published readiness frameworks.** Documentation and methodology pages accessible from the module.
+**(deferred: firm library — Phase 4+) 32. Firm-published readiness frameworks.** Documentation and methodology pages accessible from the module.
 
-**33. Consultant readiness facilitation training.** Tool-embedded training for consultants new to readiness work.
+**(deferred: firm library — Phase 4+) 33. Consultant readiness facilitation training.** Tool-embedded training for consultants new to readiness work.
 
-**34. Engagement outcome tracking.** Did readiness-guided engagements succeed more than readiness-ignorant ones? Validation metric.
+**(deferred: firm library — Phase 4+) 34. Engagement outcome tracking.** Did readiness-guided engagements succeed more than readiness-ignorant ones? Validation metric.
 
 ### Tool-level
 
@@ -1459,6 +1537,7 @@ Strong data privacy posture: individual records access-controlled, anonymization
 - Do not build individual talent decisions (hiring, firing, promotion) based on readiness.
 - Do not build psychometric personality profiling. Stays focused on AI-specific readiness.
 - Do not surface individual scores to managers without engagement-level consent and explicit workflow.
+- *AUDIT RESOLUTION: 5 —* Do not build survey delivery, survey administration, or assessment instrument hosting. The platform imports results from external survey tools (Qualtrics, Typeform, Google Forms, etc.).
 
 ---
 
@@ -1500,7 +1579,9 @@ Grid or list showing all managers in the engagement with capability scores and s
 
 - Manager name, title, function, team size
 - Capability composite score
-- Manager segment (Champion, Capable, Developing, Blocker, Detached)
+<!-- AUDIT RESOLUTION: 9 - Updated segment column to 4-segment + engagement overlay -->
+- Capability segment (Champion, Capable, Developing, Blocker)
+- Engagement level (Active, Passive, Absent)
 - AI capability subscore
 - Change leadership subscore
 - Coaching subscore
@@ -1532,7 +1613,9 @@ Clicking any manager opens their profile.
 
 - Name, title, function, team size, reporting chain
 - Composite capability score with trend
-- Segment assignment with confidence
+<!-- AUDIT RESOLUTION: 9 - Updated to reflect 4-segment + engagement overlay -->
+- Capability segment assignment (Champion/Capable/Developing/Blocker) with confidence
+- Engagement level (Active/Passive/Absent) with confidence
 
 **Capability breakdown:**
 
@@ -1568,23 +1651,35 @@ Clicking any manager opens their profile.
 
 ### 6.5 Manager segmentation
 
-Five-segment model:
+<!-- AUDIT RESOLUTION: 9 - Replaced 5-segment model with 4-segment capability + engagement overlay -->
+Four-segment capability model with engagement overlay:
 
-**Champion:** High capability + high AI engagement + visible leadership. Promote these — invite to steering groups, public speaking roles, pilot leadership. Estimated 5-15% of managers in most orgs.
+**Capability segments** (primary classification based on assessed managerial and AI capability):
 
-**Capable:** Strong capability, moderate AI engagement. Can lead when given direction. Target for champion pipeline. Typically 30-40%.
+**Champion:** High capability across both managerial and AI dimensions. Visible leadership, strong coaching, effective change communication. Promote these — invite to steering groups, public speaking roles, pilot leadership. Estimated 5-15% of managers in most orgs.
 
-**Developing:** Some capability gaps, willing to engage. Primary development target — most intervention investment goes here. Typically 25-35%.
+**Capable:** Strong capability, moderate gaps in specific areas. Can lead when given direction. Target for champion pipeline. Typically 30-40%.
+
+**Developing:** Meaningful capability gaps but demonstrating growth trajectory. Primary development target — most intervention investment goes here. Typically 25-35%.
 
 **Blocker:** Active resistance or persistent capability gaps creating team friction. Requires intervention — coaching, role change, or exit conversation. Typically 5-10%.
 
-**Detached:** Low engagement, low capability, not visibly blocking but not contributing. Requires engagement work before development work. Typically 5-15%.
+**Engagement overlay** (orthogonal classification based on observed participation behavior):
 
-Segments are not permanent labels. Movement between segments is expected and tracked.
+**Active:** Visibly engaged with transformation — participating in initiatives, experimenting with AI tools, proactively communicating direction to their teams, volunteering for pilot programs.
+
+**Passive:** Present but not proactively engaged. Complies when directed but does not self-initiate. May need activation strategies (involvement, recognition, purpose connection).
+
+**Absent:** Disengaged from transformation activities. Not participating, not communicating, not experimenting. Requires investigation — the cause may be workload, motivation, role mismatch, or active resistance.
+
+Every manager has both a capability segment and an engagement level. The combination drives intervention strategy — a "Capable + Passive" manager needs different intervention than a "Capable + Active" manager. A "Developing + Active" manager is a high-priority investment; a "Developing + Absent" manager requires engagement work before capability development.
+
+Segments and engagement levels are not permanent labels. Movement between segments is expected and tracked.
 
 ### 6.6 AI champion identification
 
-From the Champion segment, identify specific managers who have disproportionate influence:
+<!-- AUDIT RESOLUTION: 9 - Updated to reference 4-segment model with engagement overlay -->
+From the Champion capability segment with Active engagement level, identify specific managers who have disproportionate influence:
 
 - Span of influence (team size × cross-functional reach)
 - Visibility (seniority + communication style)
@@ -1596,7 +1691,8 @@ Short list of 5-15 recommended champions per engagement, depending on org size.
 
 ### 6.7 Blocker identification and intervention framework
 
-Blockers require careful handling. Surface:
+<!-- AUDIT RESOLUTION: 9 - Updated to reference 4-segment model; Blocker × engagement overlay informs intervention -->
+Blockers require careful handling. The engagement overlay adds important nuance: a "Blocker + Active" manager is actively resisting (highest intervention priority), while a "Blocker + Absent" manager may be disengaged rather than hostile (different intervention path). Surface:
 
 - Specific behaviors that indicate blocking (dismissive language, undermining communication, gatekeeping)
 - Team consequences (lower team readiness, lower experimentation, turnover)
@@ -1605,20 +1701,33 @@ Blockers require careful handling. Surface:
 
 Blocker identification is the most politically sensitive output of this module. Access controls matter — not every consultant sees blocker data, only leads working with senior client stakeholders.
 
-### 6.8 Assessment sources
+### 6.8 Assessment data sources (import-only)
 
-Manager capability scored from:
+> *AUDIT RESOLUTION: 5 — Survey/360 delivery is an explicit non-goal. The platform imports assessment results; it does not administer 360 feedback instruments.*
 
-- Direct report feedback (360-lite — scoped questions about specific capabilities)
-- Peer feedback (optional, often impractical)
-- Manager self-assessment
-- Manager's manager assessment
-- Behavioral observations in working sessions
-- Team outcome data (indirect signal)
+Manager capability is scored from imported data. The platform does not deliver 360-degree feedback surveys or any assessment instruments directly.
+
+**Data import channels:**
+
+- **CSV import:** Structured CSV upload for 360-lite feedback results, self-assessments, and manager assessments. Column mapping wizard with validation.
+- **Qualtrics integration (v1.1):** Pull completed 360 responses from Qualtrics surveys configured by the engagement consultant.
+- **Typeform integration (v1.2):** Similar integration for Typeform-based 360 instruments.
+- **Question bank templates:** Downloadable 360-lite question templates organized by manager capability dimension (coaching, change leadership, team design, AI literacy, etc.) for import into external survey tools.
+
+**Additional data sources:**
+
+- Behavioral observations in working sessions — entered directly by consultants in the platform
+- Team outcome data (indirect signal) — imported via CSV or computed from platform data
 
 Multiple sources cross-validated. Discrepancies (high self-rating, low direct-report rating) are themselves a data point.
 
+**Consent:** 360 feedback consent and anonymity guarantees are the client's responsibility when administering via external tools.
+
+**Explicit non-goal:** 360 feedback delivery, survey link generation, respondent tracking, and reminder emails are NOT built into this platform.
+
 ### 6.9 Development recommendations
+
+> *AUDIT RESOLUTION: 2 — AI-generated content in this module uses the platform AI provider (see Platform AI provider section).*
 
 For each manager in Developing segment and some in Capable segment, tailored development paths:
 
@@ -1650,6 +1759,8 @@ Cohort patterns inform systemic interventions (e.g., "our VP cohort has a consis
 
 ### 6.12 Export
 
+> *AUDIT RESOLUTION: 4 — All exports in this module use the platform export pipeline (see Export generation section).*
+
 - Manager capability report PDF (aggregate + per-manager profiles for senior consultants)
 - Champion identification one-pager
 - Blocker analysis (restricted distribution)
@@ -1658,9 +1769,10 @@ Cohort patterns inform systemic interventions (e.g., "our VP cohort has a consis
 
 ### 6.13 Data model requirements
 
-- `manager` — individual_id, direct_report_count, function, level, engagement_id
+- `manager` — individual_id, direct_report_count, function, level, project_id
 - `capability_assessment` — manager_id, dimension, score, source_type, assessed_at
-- `manager_segment` — manager_id, segment, confidence, assigned_at
+<!-- AUDIT RESOLUTION: 9 - Split segment into capability_segment and engagement_level fields -->
+- `manager_segment` — manager_id, capability_segment (champion/capable/developing/blocker), engagement_level (active/passive/absent), segment_confidence, engagement_confidence, assigned_at
 - `champion_candidate` — manager_id, criteria_scores, recommendation_level
 - `blocker_flag` — manager_id, evidence, severity, mitigation_status
 - `development_recommendation` — manager_id, intervention_type, rationale, status
@@ -1748,7 +1860,7 @@ Strong access control — blocker data especially restricted.
 
 **21. Manager visibility tracking.** How much public air time does this manager have (all-hands, company blog, internal communications)? Calibrates champion visibility.
 
-**22. Cross-company manager benchmarks.** Compared to managers at similar companies (firm library, anonymized).
+**(deferred: firm library — Phase 4+) 22. Cross-company manager benchmarks.** Compared to managers at similar companies (firm library, anonymized).
 
 **23. Manager peer networks.** Identify natural peer networks among managers for self-organized learning.
 
@@ -1768,13 +1880,13 @@ Strong access control — blocker data especially restricted.
 
 ### Firm-level features
 
-**31. Firm-wide manager capability patterns.** What does high-performing manager cohorts look like across industries? Firm library.
+**(deferred: firm library — Phase 4+) 31. Firm-wide manager capability patterns.** What does high-performing manager cohorts look like across industries? Firm library.
 
-**32. Manager assessment methodology publication.** Firm-authored methodology on manager capability assessment, linked from the module.
+**(deferred: firm library — Phase 4+) 32. Manager assessment methodology publication.** Firm-authored methodology on manager capability assessment, linked from the module.
 
-**33. Manager development program library.** Catalog of manager development programs with outcomes data.
+**(deferred: firm library — Phase 4+) 33. Manager development program library.** Catalog of manager development programs with outcomes data.
 
-**34. Champion alumni network.** Past engagement champions aggregated as an external-facing community.
+**(deferred: firm library — Phase 4+) 34. Champion alumni network.** Past engagement champions aggregated as an external-facing community.
 
 ### Tool-level
 
@@ -1792,6 +1904,7 @@ Strong access control — blocker data especially restricted.
 - Do not build talent decisions (compensation, promotion) directly. Input to those decisions, not the decision itself.
 - Do not build psychometric personality assessment. Too far outside consulting scope.
 - Do not surface blocker flags to the blocker themselves without careful coaching conversation protocol.
+- *AUDIT RESOLUTION: 5 —* Do not build 360 feedback delivery, survey administration, or assessment instrument hosting. The platform imports results from external survey/360 tools.
 
 ---
 
@@ -1894,6 +2007,8 @@ Grid or card layout showing all recommendations for the engagement. Each recomme
 
 ### 7.5 Recommendation generation engine
 
+> *AUDIT RESOLUTION: 2 — AI-generated content in this module uses the platform AI provider (see Platform AI provider section).*
+
 AI-driven synthesis. Inputs:
 
 - All findings from upstream modules
@@ -1976,6 +2091,8 @@ Similar to JA's working session mode: full-screen, one recommendation at a time,
 
 ### 7.11 Export
 
+> *AUDIT RESOLUTION: 4 — All exports in this module use the platform export pipeline (see Export generation section).*
+
 - Recommendation portfolio PDF (executive summary + one page per recommendation)
 - Transformation roadmap visualization (single page or poster-sized)
 - Recommendation deck (PowerPoint, one slide per recommendation, client-brandable)
@@ -1984,15 +2101,23 @@ Similar to JA's working session mode: full-screen, one recommendation at a time,
 
 ### 7.12 Data model requirements
 
-- `recommendation` — title, category, status, impact_score, feasibility_score, investment_tier, strategic_alignment, engagement_id
+- `recommendation` — title, category, status, impact_score, feasibility_score, investment_tier, strategic_alignment, project_id
 - `recommendation_source_finding` — many-to-many linking recommendations to findings across modules
 - `recommendation_dependency` — directional links between recommendations
 - `recommendation_affected_entity` — polymorphic links to roles, functions, processes
 - `recommendation_score_component` — impact and feasibility breakdowns
-- `client_priority` — engagement_id, priority_name, priority_description, priority_rank
+- `client_priority` — project_id, priority_name, priority_description, priority_rank
 - `roadmap_placement` — recommendation_id, roadmap_phase, start_date, end_date
 
-### 7.13 Cross-module dependencies
+<!-- AUDIT RESOLUTION: 7 - Data freshness subsection for Module 7 -->
+### 7.13 Data freshness
+
+AI Recommendations reads from every other module in the platform. It tracks `freshness_version` for each upstream source. When any upstream module's findings change, the recommendations module displays a stale-data banner: "Source findings have changed since recommendations were last generated. [Refresh]". Existing recommendations remain valid and editable while stale. Recommendation re-generation requires explicit user action. The roadmap builder, portfolio views, and manual operations remain fully functional regardless of freshness state.
+
+<!-- AUDIT RESOLUTION: 10 - AI service degradation reference for Module 7 -->
+AI-driven recommendation synthesis (Section 7.5 generation engine), scoring, and narrative generation follow the platform-level AI service degradation protocol. When AI is unavailable, the recommendation generation engine is disabled. Existing recommendations, manual authoring, scoring adjustments, roadmap building, and all portfolio views remain fully functional. Consultants can continue to create, edit, and prioritize recommendations manually.
+
+### 7.14 Cross-module dependencies
 
 **Reads from:**
 - Every other module in the platform (Org Health, Opportunity Scan, Heatmap, Role Clustering, AI Readiness, Manager Capability, Skills & Talent, Skills Map Engine, Change Readiness, Job Architecture)
@@ -2002,14 +2127,14 @@ Similar to JA's working session mode: full-screen, one recommendation at a time,
 - All executive deliverables
 - External roadmap and project management tools via export
 
-### 7.14 Out of scope for v1
+### 7.15 Out of scope for v1
 
 - Detailed project plans (resource loading, task breakdowns)
 - Financial modeling beyond relative investment tiers
 - Vendor selection for recommended technology interventions
 - Ongoing execution tracking post-engagement
 
-### 7.15 Build phasing (v1)
+### 7.16 Build phasing (v1)
 
 1. Data model for recommendations, findings, dependencies, roadmap placements
 2. Synthesis engine (aggregation across modules)
@@ -2026,7 +2151,7 @@ Similar to JA's working session mode: full-screen, one recommendation at a time,
 
 **1. ROI modeling per recommendation.** Once client financial context is supplied, compute hard ROI: implementation cost, expected value, payback period, NPV. This is the single biggest leap in client value for the module.
 
-**2. Recommendation templates by industry.** Pre-built recommendation patterns for common industries and scenarios. When findings match known patterns, pre-populated recommendations accelerate the synthesis.
+**(deferred: firm library — Phase 4+) 2. Recommendation templates by industry.** Pre-built recommendation patterns for common industries and scenarios. When findings match known patterns, pre-populated recommendations accelerate the synthesis.
 
 **3. Scenario comparison.** Multiple recommendation portfolios representing different strategic choices. "Portfolio A: cost-focused. Portfolio B: growth-focused." Compare side-by-side.
 
@@ -2090,13 +2215,13 @@ Similar to JA's working session mode: full-screen, one recommendation at a time,
 
 ### Firm-level features
 
-**31. Firm-wide recommendation pattern library.** Anonymized successful recommendation patterns across engagements.
+**(deferred: firm library — Phase 4+) 31. Firm-wide recommendation pattern library.** Anonymized successful recommendation patterns across engagements.
 
-**32. Recommendation playbook integration.** Each recommendation category links to firm playbooks on how to implement.
+**(deferred: firm library — Phase 4+) 32. Recommendation playbook integration.** Each recommendation category links to firm playbooks on how to implement.
 
-**33. Recommendation outcome database.** What happened to recommendations across engagements? Firm learning asset.
+**(deferred: firm library — Phase 4+) 33. Recommendation outcome database.** What happened to recommendations across engagements? Firm learning asset.
 
-**34. Recommendation quality metrics.** Firm tracks recommendation characteristics associated with high acceptance and implementation success.
+**(deferred: firm library — Phase 4+) 34. Recommendation quality metrics.** Firm tracks recommendation characteristics associated with high acceptance and implementation success.
 
 ### Tool-level
 
@@ -2254,6 +2379,8 @@ Multiple sources produce a composite score with provenance tracking.
 
 ### 8.12 Export
 
+> *AUDIT RESOLUTION: 4 — All exports in this module use the platform export pipeline (see Export generation section).*
+
 - Talent state report PDF (executive summary + gap analysis + adjacency opportunities + sourcing strategies)
 - Skill gap detail export (one page per critical gap)
 - Individual development plans (with appropriate privacy controls)
@@ -2265,11 +2392,19 @@ Multiple sources produce a composite score with provenance tracking.
 - `skill` — shared with Skills Map Engine (canonical_name, description, proficiency_definitions, taxonomy_links)
 - `person_skill` — individual_id, skill_id, proficiency_level, evidence_source, assessed_at, confidence
 - `role_skill_requirement` — role_id, skill_id, required_proficiency, criticality
-- `skill_gap` — engagement_id, skill_id, current_supply, future_demand, severity
+- `skill_gap` — project_id, skill_id, current_supply, future_demand, severity
 - `skill_adjacency` — source_skill_id, target_skill_id, adjacency_strength, typical_transition_effort
 - `sourcing_strategy` — skill_gap_id, strategy_type, estimated_time, estimated_investment
 
-### 8.14 Cross-module dependencies
+<!-- AUDIT RESOLUTION: 7 - Data freshness subsection for Module 8 -->
+### 8.14 Data freshness
+
+Skills & Talent reads from JA (roles, role-skill requirements, incumbents), Skills Map Engine (skill library, taxonomy, adjacency), AI Opportunity Scan, and Manager Capability. It tracks `freshness_version` for each upstream source. When role definitions, skill taxonomy, or opportunity data change upstream, the module displays a stale-data banner: "Source data has changed since talent analysis was last computed. [Refresh]". Gap analysis, adjacency analysis, and sourcing recommendations are not automatically recomputed. Existing analysis results remain usable while stale.
+
+<!-- AUDIT RESOLUTION: 10 - AI service degradation reference for Module 8 -->
+AI-generated development recommendations (Section 8.7 individual talent profile), sourcing strategy suggestions (Section 8.9), and adjacency narratives follow the platform-level AI service degradation protocol. When AI is unavailable, AI-generated recommendations are disabled. Gap analysis computation (algorithmic), individual/team profiles, bulk assessment ingestion, and all views remain fully functional.
+
+### 8.15 Cross-module dependencies
 
 **Reads from:**
 - Job Architecture (roles, role-skill requirements, incumbents)
@@ -2282,14 +2417,14 @@ Multiple sources produce a composite score with provenance tracking.
 - Workforce planning
 - Org Health Scorecard (skill metrics feed health dimensions)
 
-### 8.15 Out of scope for v1
+### 8.16 Out of scope for v1
 
 - Learning content authoring or delivery (different discipline)
 - Certification tracking (feeds in but not built here)
 - Performance evaluation based on skills
 - Compensation decisions based on skills
 
-### 8.16 Build phasing (v1)
+### 8.17 Build phasing (v1)
 
 1. Data model (skills, person-skill, role-skill, proficiency)
 2. Bulk skill assessment ingestion
@@ -2370,13 +2505,13 @@ Multiple sources produce a composite score with provenance tracking.
 
 ### Firm-level features
 
-**31. Firm-wide skill taxonomy governance.** Maintained skill library with version control, shared across engagements.
+**(deferred: firm library — Phase 4+) 31. Firm-wide skill taxonomy governance.** Maintained skill library with version control, shared across engagements.
 
-**32. Cross-engagement skill pattern library.** Which skill gap patterns recur across industries?
+**(deferred: firm library — Phase 4+) 32. Cross-engagement skill pattern library.** Which skill gap patterns recur across industries?
 
-**33. Methodology documentation.** Firm-authored skill assessment and gap analysis methodology.
+**(deferred: firm library — Phase 4+) 33. Methodology documentation.** Firm-authored skill assessment and gap analysis methodology.
 
-**34. Skill taxonomy extensions for specific industries.** Industry-specific skill libraries layered on base taxonomy.
+**(deferred: firm library — Phase 4+) 34. Skill taxonomy extensions for specific industries.** Industry-specific skill libraries layered on base taxonomy.
 
 ### Tool-level
 
@@ -2556,6 +2691,8 @@ Keyboard navigation and quick jump between related skills in the detail view.
 
 ### 9.11 Export
 
+> *AUDIT RESOLUTION: 4 — All exports in this module use the platform export pipeline (see Export generation section).*
+
 - Full skill library export (CSV with all fields)
 - Taxonomy relationship export (edge list)
 - Skill-role mapping export
@@ -2569,7 +2706,7 @@ Keyboard navigation and quick jump between related skills in the detail view.
 - `skill_alias` — skill_id, alias_name, alias_source
 - `proficiency_definition` — skill_id, level, definition, observable_behaviors
 - `skill_relationship` — source_skill_id, target_skill_id, relationship_type, strength
-- `skill_engagement_extension` — engagement_id, skill_id, customization_type, customization_data
+- `skill_engagement_extension` — project_id, skill_id, customization_type, customization_data
 - `job_title_match` — raw_title, matched_skill_profile, confidence
 - `onet_import_snapshot` — version, imported_at, diff_summary
 
@@ -2676,13 +2813,13 @@ Keyboard navigation and quick jump between related skills in the detail view.
 
 ### Firm-level features
 
-**31. Firm-curated base taxonomy.** Firm-maintained base skill library shared across all engagements, with governance workflow.
+**(deferred: firm library — Phase 4+) 31. Firm-curated base taxonomy.** Firm-maintained base skill library shared across all engagements, with governance workflow.
 
-**32. Industry taxonomy modules.** Pre-built skill extensions for specific industries (healthcare, financial services, manufacturing).
+**(deferred: firm library — Phase 4+) 32. Industry taxonomy modules.** Pre-built skill extensions for specific industries (healthcare, financial services, manufacturing).
 
-**33. Taxonomy contribution workflow.** Consultants in engagements propose base taxonomy additions; firm reviews and promotes.
+**(deferred: firm library — Phase 4+) 33. Taxonomy contribution workflow.** Consultants in engagements propose base taxonomy additions; firm reviews and promotes.
 
-**34. Taxonomy methodology documentation.** Published methodology on taxonomy governance and evolution.
+**(deferred: firm library — Phase 4+) 34. Taxonomy methodology documentation.** Published methodology on taxonomy governance and evolution.
 
 ### Tool-level
 
@@ -2867,6 +3004,8 @@ Strong access controls on stakeholder data — politically sensitive.
 
 ### 10.12 Export
 
+> *AUDIT RESOLUTION: 4 — All exports in this module use the platform export pipeline (see Export generation section).*
+
 - Change readiness assessment report PDF (executive summary + quadrant analysis + intervention recommendations)
 - Population-level change strategy reports
 - Stakeholder map (restricted distribution)
@@ -2875,17 +3014,25 @@ Strong access controls on stakeholder data — politically sensitive.
 
 ### 10.13 Data model requirements
 
-- `population` — engagement_id, population_name, type (function/team/region/cohort), headcount
+- `population` — project_id, population_name, type (function/team/region/cohort), headcount
 - `readiness_score` — population_id, willingness_score, ability_score, assessed_at
 - `readiness_driver` — score_id, driver_type, driver_value, contribution_weight
 - `change_load` — population_id, active_initiative_count, recent_change_intensity, assessed_at
 - `intervention_recommendation` — population_id, quadrant, intervention_type, rationale
-- `stakeholder` — engagement_id, name, role, position, influence_level, commitment_level
-- `change_velocity_model` — engagement_id, planned_pace, population_capacity, risk_level
+- `stakeholder` — project_id, name, role, position, influence_level, commitment_level
+- `change_velocity_model` — project_id, planned_pace, population_capacity, risk_level
 
 Sensitive data with access controls.
 
-### 10.14 Cross-module dependencies
+<!-- AUDIT RESOLUTION: 7 - Data freshness subsection for Module 10 -->
+### 10.14 Data freshness
+
+Change Readiness reads from JA (population definitions, headcount), AI Readiness, Manager Capability, AI Recommendations, and Org Health Scorecard. It tracks `freshness_version` for each upstream source. When upstream data changes (e.g., new readiness assessments, updated recommendations, scorecard re-runs), the module displays a stale-data banner: "Source data has changed since readiness analysis was last computed. [Refresh]". Quadrant assignments, intervention recommendations, and velocity models are not automatically recomputed. Existing analysis remains usable while stale.
+
+<!-- AUDIT RESOLUTION: 10 - AI service degradation reference for Module 10 -->
+AI-generated change narratives (Section 10.10), intervention recommendations (Section 10.7), and velocity modeling interpretations follow the platform-level AI service degradation protocol. When AI is unavailable, cached narratives remain visible with a "Generated [timestamp]" label. Readiness scoring (algorithmic), quadrant matrix, population views, stakeholder mapping, and change load analysis remain fully functional.
+
+### 10.15 Cross-module dependencies
 
 **Reads from:**
 - Job Architecture (population definitions, headcount)
@@ -2898,14 +3045,14 @@ Sensitive data with access controls.
 - AI Recommendations (sequencing recommendations inform roadmap)
 - Executive deliverables (change strategy is often the closing chapter)
 
-### 10.15 Out of scope for v1
+### 10.16 Out of scope for v1
 
 - Individual-level change readiness (module focuses on populations)
 - Change management execution (post-strategy work)
 - Communications authoring (inputs to comms strategy, not execution)
 - Change program management (project tracking is elsewhere)
 
-### 10.16 Build phasing (v1)
+### 10.17 Build phasing (v1)
 
 1. Data model for populations, readiness scores, drivers, interventions
 2. Readiness scoring engine
@@ -2980,7 +3127,7 @@ Sensitive data with access controls.
 
 **27. Retrospective scheduling.** Scheduled checkpoints for engagement team retros on change effectiveness.
 
-**28. Cross-engagement change pattern library.** Which change approaches worked in which contexts? Firm learning.
+**(deferred: firm library — Phase 4+) 28. Cross-engagement change pattern library.** Which change approaches worked in which contexts? Firm learning.
 
 **29. Change metrics integration.** Connect to client operational metrics to track actual change outcomes.
 
@@ -2988,13 +3135,13 @@ Sensitive data with access controls.
 
 ### Firm-level features
 
-**31. Firm-wide change patterns.** Anonymized change outcomes across engagements informing intervention recommendations.
+**(deferred: firm library — Phase 4+) 31. Firm-wide change patterns.** Anonymized change outcomes across engagements informing intervention recommendations.
 
-**32. Change methodology documentation.** Firm-authored change management methodology linked from module.
+**(deferred: firm library — Phase 4+) 32. Change methodology documentation.** Firm-authored change management methodology linked from module.
 
-**33. Consultant change competency development.** Embedded learning for consultants new to change work.
+**(deferred: firm library — Phase 4+) 33. Consultant change competency development.** Embedded learning for consultants new to change work.
 
-**34. Client change maturity benchmarks.** Anonymized benchmarks on client change readiness profiles.
+**(deferred: firm library — Phase 4+) 34. Client change maturity benchmarks.** Anonymized benchmarks on client change readiness profiles.
 
 ### Tool-level
 
@@ -3012,6 +3159,40 @@ Sensitive data with access controls.
 - Do not build communications delivery (email, intranet, video). Informs what and when; delivery is elsewhere.
 - Do not build employee engagement surveys as a product. Lightweight readiness pulses only.
 - Do not build post-engagement change monitoring beyond snapshot capability. Requires operational integrations we're not building.
+
+---
+
+# Firm library: deferred to Phase 4+
+
+> *AUDIT RESOLUTION: 6 — Firm library explicitly deferred. No partial implementations.*
+
+The firm-wide cross-engagement learning system referenced by multiple modules is **explicitly deferred to Phase 4+**. This includes:
+
+- Scorecard benchmark library (Module 1)
+- Opportunity pattern library (Module 2)
+- Heatmap taxonomy and exposure benchmarks (Module 3)
+- Cluster and consolidation patterns (Module 4)
+- Readiness benchmarks and outcome tracking (Module 5)
+- Manager capability patterns (Module 6)
+- Recommendation outcome tracking (Module 7)
+- Skill taxonomy governance (Module 9)
+- Change pattern library (Module 10)
+
+**Implementation rules:**
+
+1. **No partial implementations.** Do not build any of the above in v1 or v2. The firm library requires a separate architecture spec covering the cross-engagement anonymized data layer, consent flows, anonymization algorithms, and governance model. Building pieces without the full architecture creates technical debt and privacy risk.
+2. **"Coming soon" placeholders.** Where the UI would show firm library data (e.g., benchmark comparisons on Scorecard, pattern suggestions on Opportunity Scan), display a "Coming soon" placeholder with no interaction. Do not show empty states that imply broken functionality.
+3. **No data collection for future firm library.** Do not silently collect or aggregate cross-engagement data in anticipation of the firm library. Data collection begins only when the consent framework is in place.
+4. **Module-specific alternative approaches for v1/v2:**
+   - Module 1 (Scorecard): Benchmarks come from client history only. No cross-engagement comparison.
+   - Module 2 (Opportunity Scan): Opportunity patterns are engagement-scoped. Industry patterns are consultant-entered, not firm-library-sourced.
+   - Module 3 (Heatmap): Activity taxonomy is platform-maintained (not firm-curated). No cross-engagement exposure benchmarks.
+   - Module 4 (Role Clustering): Clustering is engagement-scoped. No cross-engagement consolidation patterns.
+   - Module 5 (AI Readiness): No cross-engagement readiness benchmarks. Readiness profiles are engagement-only.
+   - Module 6 (Manager Capability): No cross-engagement manager capability patterns. Benchmarking is within-engagement only.
+   - Module 7 (Recommendations): No cross-engagement recommendation outcome tracking. Pattern library is consultant knowledge, not system-sourced.
+   - Module 9 (Skills Map Engine): O*NET is the base taxonomy. Firm-curated extensions are deferred. Engagement-specific extensions are supported.
+   - Module 10 (Change Readiness): No cross-engagement change pattern library. Resistance patterns are consultant-entered.
 
 ---
 
@@ -3034,6 +3215,12 @@ All ten modules share data and assumptions. A few principles are non-negotiable:
 **Design system consistency.** Ivory, navy, blue, orange. Users shouldn't notice they've moved between modules.
 
 **Export everywhere.** Every view and chart is exportable. Consultants live in Excel, PowerPoint, and PDF.
+
+<!-- AUDIT RESOLUTION: 7 - Cross-module data freshness reinforced in final principles -->
+**Data freshness (cross-module).** Upstream data changes surface stale-data banners in downstream modules. Recomputation is always manual (user clicks "Refresh"). No automatic cross-module recomputation. See the cross-module data freshness section in the preamble for full specification.
+
+<!-- AUDIT RESOLUTION: 10 - AI service degradation reinforced in final principles -->
+**AI service degradation.** All AI-dependent features degrade gracefully when the AI service is unavailable. Health monitoring (60s ping, 3-failure threshold), per-feature degradation, exponential backoff retry, global + per-feature user communication, and degradation logging. See the AI service degradation section in the preamble for full specification.
 
 ## Build sequence across modules
 
