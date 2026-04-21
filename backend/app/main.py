@@ -40,6 +40,12 @@ from app.routes_simulate import router as simulate_router
 from app.routes_mobilize import router as mobilize_router
 from app.routes_export import router as export_router
 from app.routes_job_arch import router as job_arch_router
+from app.routes_ja_mapping import router as ja_mapping_router
+from app.routes_wd import router as wd_router
+from app.routes_mgr import router as mgr_router
+from app.routes_scorecard import router as scorecard_router
+from app.routes_diagnostic import router as diagnostic_router
+from app.routes_synthesis import router as synthesis_router
 from app.routes_ai import router as ai_router
 from app.routes_analytics import router as analytics_router
 from app.routes_tutorial import router as tutorial_router
@@ -121,6 +127,12 @@ app.include_router(simulate_router)
 app.include_router(mobilize_router)
 app.include_router(export_router)
 app.include_router(job_arch_router)
+app.include_router(ja_mapping_router)
+app.include_router(wd_router)
+app.include_router(mgr_router)
+app.include_router(scorecard_router)
+app.include_router(diagnostic_router)
+app.include_router(synthesis_router)
 app.include_router(ai_router)
 app.include_router(analytics_router)
 app.include_router(tutorial_router)

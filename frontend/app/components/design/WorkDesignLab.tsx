@@ -16,6 +16,8 @@ import {
   Plus, X, Pencil, Check, BookOpen, Layers3, TrendingUp,
   FileText, BarChart3, Lock,
 } from "@/lib/icons";
+import WorkDesignQueue from "../wd/WorkDesignQueue";
+import WorkflowCanvas from "../wd/WorkflowCanvas";
 import {
   EmptyState,
   ExpertPanel,
@@ -226,6 +228,8 @@ export function WorkDesignLab({
   }, []);
   const [wdTab, setWdTab] = useState("ctx");
   const [weeklyHours, setWeeklyHours] = useState(40);
+  const [viewMode, setViewMode] = useState<"queue" | "classic">("queue");
+  const [selectedWDJob, setSelectedWDJob] = useState<{ id: string; title: string } | null>(null);
   // Reset to Context tab when job changes
   useEffect(() => { if (job) setWdTab("ctx"); }, [job]);
   const js = jobStates[job] || { deconRows: [], redeployRows: [], scenario: "Balanced", deconSubmitted: false, redeploySubmitted: false, finalized: false, recon: null, initialized: false };
@@ -459,9 +463,36 @@ Rules:
   // Top 5 jobs sorted alphabetically (start here strip)
   const topJobs = [...jobs].sort((a, b) => a.localeCompare(b)).slice(0, 5);
 
-  // ── STEP 0: Job Selector (no job selected) ──
+  // ── QUEUE MODE: canvas view (WD job selected from queue) ──
+  if (!job && viewMode === "queue" && selectedWDJob) return (
+    <WorkflowCanvas
+      jobId={selectedWDJob.id}
+      jobTitle={selectedWDJob.title}
+      projectId={model || "Demo_Model"}
+      model={model}
+      onBackToQueue={() => setSelectedWDJob(null)}
+    />
+  );
+
+  // ── QUEUE MODE: queue landing view ──
+  if (!job && viewMode === "queue") return <div style={{ minHeight: "calc(100vh - 48px)" }}>
+    <PageHeader icon={<PenLine size={20} />} title="Work Design Lab" subtitle="Mercer Work Design methodology — queue-based redesign workflow" onBack={onBack} moduleId="design" />
+    <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px" }}>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
+        <button onClick={() => setViewMode("classic")} style={{ fontSize: 11, color: "var(--text-muted)", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}>Switch to Classic View</button>
+      </div>
+    </div>
+    <WorkDesignQueue projectId={model || "Demo_Model"} model={model} onJobSelect={(wdJob) => setSelectedWDJob({ id: wdJob.id, title: wdJob.title })} />
+  </div>;
+
+  // ── STEP 0: Job Selector — classic view (no job selected) ──
   if (!job) return <div style={{ background: "radial-gradient(ellipse at 50% 30%, rgba(212,134,10,0.04) 0%, transparent 60%)", minHeight: "calc(100vh - 48px)" }}>
     <PageHeader icon={<PenLine size={20} />} title="Work Design Lab" subtitle="Mercer Work Design methodology — select a job to begin analysis" onBack={onBack} moduleId="design" />
+    <div style={{ maxWidth: 768, margin: "0 auto", padding: "0 24px" }}>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
+        <button onClick={() => setViewMode("queue")} style={{ fontSize: 11, color: "#3B82F6", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}>Switch to Queue View</button>
+      </div>
+    </div>
 
     <div className="max-w-3xl mx-auto px-6">
       <div className="text-center mb-8">

@@ -15,6 +15,14 @@ import { JobContentAuthoring } from "./design/JobContentAuthoring";
 import { Layers3, Network } from "@/lib/icons";
 import { FlowNav } from "@/app/ui";
 
+/* JA Mapping Module — Phase 1 components */
+import FrameworkBuilder from "./ja/FrameworkBuilder";
+import CatalogueHealth from "./ja/CatalogueHealth";
+import BulkImport from "./ja/BulkImport";
+import MappingGrid from "./ja/MappingGrid";
+import RoleDetailDrawer from "./ja/RoleDetailDrawer";
+import FlagRules from "./ja/FlagRules";
+
 /* ═══════════════════════════════════════════════════════════════
    TYPES
    ═══════════════════════════════════════════════════════════════ */
@@ -2111,6 +2119,25 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
   const [flagFilter, setFlagFilter] = useState("All");
   const [aiProfileData, setAiProfileData] = useState<Record<string, AiJobSuggestion>>({});
 
+  /* JA Mapping module state */
+  const [jaScenarioId, setJaScenarioId] = useState("");
+  const [jaDrawerRow, setJaDrawerRow] = useState<any>(null);
+  const [jaDrawerOpen, setJaDrawerOpen] = useState(false);
+  const projectId = model || "Demo_Model"; // use model as project identifier
+
+  /* Load default scenario on mount */
+  useEffect(() => {
+    if (!projectId) return;
+    api.apiFetch(`/api/ja/scenarios?project_id=${projectId}`)
+      .then(r => r.json())
+      .then((scs: any[]) => {
+        if (Array.isArray(scs)) {
+          const primary = scs.find((s: any) => s.is_primary) || scs[0];
+          if (primary) setJaScenarioId(primary.id);
+        }
+      }).catch(() => {});
+  }, [projectId]);
+
   useEffect(() => {
     if (!model) return;
     setLoading(true);
@@ -2202,7 +2229,12 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
       { id: "catalogue", label: "◆ Catalogue" },
       { id: "orgchart", label: "◇ Org Chart" },
       { id: "profiles", label: "◈ Profiles" },
-      { id: "map", label: "▣ Map" },
+      { id: "ja-framework", label: "⬡ Framework" },
+      { id: "ja-health", label: "⬢ Health" },
+      { id: "ja-import", label: "⬣ Import" },
+      { id: "ja-mapping", label: "▣ Mapping" },
+      { id: "ja-flags", label: "⚑ Flags" },
+      { id: "map", label: "▣ Map (Legacy)" },
       { id: "validation", label: "◉ Validation" },
       { id: "analytics", label: "▥ Analytics" },
       { id: "evaluation", label: "▧ Evaluation" },
@@ -2473,7 +2505,61 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
     {/* ═══ JOB PROFILES TAB ═══ */}
     {tab === "profiles" && <JobProfileLibrary jobs={jobs} model={model} />}
 
-    {/* ═══ ARCHITECTURE MAP TAB — strategic mapping workspace ═══ */}
+    {/* ═══ JA FRAMEWORK BUILDER ═══ */}
+    {tab === "ja-framework" && (
+      <FrameworkBuilder model={model} projectId={projectId} onFrameworkReady={(fw) => {
+        /* Auto-load scenario ID after framework save */
+        fetch(`/api/ja/scenarios?project_id=${projectId}`, { headers: { Authorization: `Bearer ${typeof window !== "undefined" ? localStorage.getItem("auth_token") || "" : ""}` } })
+          .then(r => r.json()).then((scs: any[]) => {
+            const primary = scs.find((s: any) => s.is_primary) || scs[0];
+            if (primary) setJaScenarioId(primary.id);
+          }).catch(() => {});
+      }} />
+    )}
+
+    {/* ═══ JA CATALOGUE HEALTH ═══ */}
+    {tab === "ja-health" && <CatalogueHealth model={model} projectId={projectId} />}
+
+    {/* ═══ JA BULK IMPORT ═══ */}
+    {tab === "ja-import" && <BulkImport projectId={projectId} onImportComplete={() => setTab("ja-health")} />}
+
+    {/* ═══ JA MAPPING GRID ═══ */}
+    {tab === "ja-mapping" && (
+      <>
+        <MappingGrid
+          model={model}
+          projectId={projectId}
+          scenarioId={jaScenarioId}
+          onRoleClick={(row) => { setJaDrawerRow(row); setJaDrawerOpen(true); }}
+        />
+        <RoleDetailDrawer
+          row={jaDrawerRow}
+          isOpen={jaDrawerOpen}
+          onClose={() => setJaDrawerOpen(false)}
+          model={model}
+          projectId={projectId}
+          onAccept={(gid) => {
+            fetch("/api/ja/mappings/bulk-action", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", Authorization: `Bearer ${typeof window !== "undefined" ? localStorage.getItem("auth_token") || "" : ""}` },
+              body: JSON.stringify({ group_ids: [gid], action: "accept" }),
+            }).then(() => setJaDrawerOpen(false));
+          }}
+          onReject={(gid) => {
+            fetch("/api/ja/mappings/bulk-action", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", Authorization: `Bearer ${typeof window !== "undefined" ? localStorage.getItem("auth_token") || "" : ""}` },
+              body: JSON.stringify({ group_ids: [gid], action: "reject" }),
+            }).then(() => setJaDrawerOpen(false));
+          }}
+        />
+      </>
+    )}
+
+    {/* ═══ JA FLAGS ═══ */}
+    {tab === "ja-flags" && <FlagRules projectId={projectId} scenarioId={jaScenarioId} />}
+
+    {/* ═══ ARCHITECTURE MAP TAB (Legacy) — strategic mapping workspace ═══ */}
     {tab === "map" && <ArchitectureMapTab tree={tree} jobs={jobs} employees={employees} model={model} />}
 
     {/* ═══ VALIDATION TAB — Health dashboard with ring ═══ */}

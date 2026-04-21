@@ -727,3 +727,80 @@ export function lockScenario(modelId: string, scenarioName: string, scenarioData
 export function getLockedScenario(modelId: string) {
   return fetchJSON(`/api/decisions/${encodeURIComponent(modelId)}/scenario`, null);
 }
+
+// ── Work Design Lab (Queue & Inheritance) ────────────────────────
+
+export function getWDQueue(projectId: string, filters: { wave?: string; status?: string; function?: string; search?: string; source?: string } = {}) {
+  const p = new URLSearchParams({ project_id: projectId });
+  if (filters.wave) p.set("wave", filters.wave);
+  if (filters.status) p.set("status", filters.status);
+  if (filters.function) p.set("function", filters.function);
+  if (filters.search) p.set("search", filters.search);
+  if (filters.source) p.set("source", filters.source);
+  return fetchJSON(`/api/wd/queue?${p}`, { functions: [], summary: {}, waves: {} });
+}
+
+export function createWDJob(body: Record<string, unknown>) {
+  return fetchJSON("/api/wd/jobs", {}, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+}
+
+export function getWDJob(jobId: string) {
+  return fetchJSON(`/api/wd/jobs/${jobId}`, null);
+}
+
+export function updateWDJob(jobId: string, body: Record<string, unknown>) {
+  return fetchJSON(`/api/wd/jobs/${jobId}`, {}, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+}
+
+export function deleteWDJob(jobId: string) {
+  return fetchJSON(`/api/wd/jobs/${jobId}`, {}, { method: "DELETE" });
+}
+
+export function batchUpdateWDWave(jobIds: string[], wave: string) {
+  return fetchJSON("/api/wd/jobs/batch-wave", {}, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ job_ids: jobIds, wave }) });
+}
+
+export function batchUpdateWDStatus(jobIds: string[], wdStatus: string) {
+  return fetchJSON("/api/wd/jobs/batch-status", {}, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ job_ids: jobIds, wd_status: wdStatus }) });
+}
+
+export function updateWDWave(jobId: string, wave: string) {
+  return fetchJSON(`/api/wd/jobs/${jobId}/wave`, {}, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ wave }) });
+}
+
+export function updateWDStatus(jobId: string, wdStatus: string) {
+  return fetchJSON(`/api/wd/jobs/${jobId}/status`, {}, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ wd_status: wdStatus }) });
+}
+
+export function scanWDSync(projectId: string) {
+  return fetchJSON(`/api/wd/queue/scan-sync?project_id=${projectId}`, {}, { method: "POST" });
+}
+
+export function reSyncWDJob(jobId: string) {
+  return fetchJSON(`/api/wd/jobs/${jobId}/re-sync`, {}, { method: "POST" });
+}
+
+export function resolveWDConflict(jobId: string, conflictId: string, resolution: string, mergedValue?: unknown) {
+  return fetchJSON(`/api/wd/jobs/${jobId}/resolve-conflict?conflict_id=${conflictId}`, {}, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ resolution, merged_value: mergedValue }) });
+}
+
+export function breakWDInheritance(jobId: string) {
+  return fetchJSON(`/api/wd/jobs/${jobId}/break-inheritance`, {}, { method: "POST" });
+}
+
+export function relinkWDToJA(jobId: string, jaJobId: string) {
+  return fetchJSON(`/api/wd/jobs/${jobId}/relink-to-ja?ja_job_id=${jaJobId}`, {}, { method: "POST" });
+}
+
+export function getWDConflicts(jobId: string) {
+  return fetchJSON(`/api/wd/jobs/${jobId}/conflicts`, []);
+}
+
+export function getWDDecisions(jobId: string, stage?: string) {
+  const p = stage ? `?stage=${stage}` : "";
+  return fetchJSON(`/api/wd/jobs/${jobId}/decisions${p}`, []);
+}
+
+export function populateWDFromData(projectId: string, modelId: string) {
+  return fetchJSON(`/api/wd/queue/populate-from-data?project_id=${projectId}&model_id=${modelId}`, {}, { method: "POST" });
+}
