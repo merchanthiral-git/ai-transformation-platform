@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import VistaProvider from "./components/vista/VistaProvider";
-import VistaScene from "./components/vista/VistaScene";
-import VistaHud from "./components/vista/VistaHud";
 import CustomCursor from "./components/ambient/CustomCursor";
 
 export const metadata: Metadata = {
@@ -48,10 +46,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           `(function(){var currentVersion=null;function check(){fetch('/api/version').then(function(r){return r.json()}).then(function(d){if(!d.version)return;if(!currentVersion){currentVersion=d.version;return}if(d.version!==currentVersion&&!document.getElementById('version-banner')){var b=document.createElement('div');b.id='version-banner';b.style.cssText='position:fixed;bottom:24px;right:24px;z-index:99999;background:rgba(22,24,34,0.9);border:1px solid rgba(244,168,58,0.3);border-radius:12px;padding:14px 20px;display:flex;align-items:center;gap:12px;font-family:Inter Tight,sans-serif;box-shadow:0 8px 32px rgba(0,0,0,0.4);backdrop-filter:blur(12px)';b.innerHTML='<span style=\"color:var(--ink-soft);font-size:14px\">A new version is available</span><button onclick=\"window.location.reload()\" style=\"padding:6px 16px;border-radius:8px;border:1px solid rgba(244,168,58,0.3);background:rgba(244,168,58,0.1);color:var(--amber);font-size:13px;font-weight:600;cursor:pointer;font-family:Inter Tight,sans-serif\">Refresh</button>';document.body.appendChild(b)}}).catch(function(){})}setTimeout(check,3000);setInterval(check,300000)})()`,
         ].join(';') }} />
       </head>
-      <body className="min-h-full flex flex-col" style={{ background: 'var(--sky-top)', color: 'var(--ink)' }}>
+      <body className="min-h-full flex flex-col" style={{ background: 'var(--app-bg)', color: 'var(--ink)' }}>
         <VistaProvider>
-          <VistaScene />
-          <VistaHud />
           <CustomCursor />
           {children}
         </VistaProvider>

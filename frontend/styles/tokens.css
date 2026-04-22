@@ -18,6 +18,9 @@
   /* Landscape — fixed */
   --ground: #05040a;
 
+  /* App background — solid readable dark */
+  --app-bg: #0f1220;
+
   /* UI chrome — fixed */
   --paper: rgba(22, 24, 34, 0.72);
   --paper-solid: #161822;

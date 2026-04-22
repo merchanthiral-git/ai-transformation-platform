@@ -3,23 +3,32 @@ import type { ReactNode, HTMLAttributes } from 'react';
 interface GlassPanelProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
   hot?: boolean;
+  variant?: 'solid' | 'glass';
   className?: string;
 }
 
-export function GlassPanel({ children, hot = false, className = '', ...rest }: GlassPanelProps) {
+export function GlassPanel({ children, hot = false, variant = 'solid', className = '', ...rest }: GlassPanelProps) {
+  const isGlass = variant === 'glass';
+
   return (
     <div
       className={`
-        rounded-2xl backdrop-blur-[24px] p-5
+        rounded-2xl p-5
         transition-all duration-[240ms]
+        ${isGlass ? 'backdrop-blur-[24px]' : ''}
         ${hot
-          ? 'border border-[var(--border-hot)] bg-[var(--bg-panel-hover)]'
-          : 'border border-[var(--border)] bg-[var(--paper)]'
+          ? 'border border-[var(--border-hot)]'
+          : 'border border-[var(--border)]'
         }
-        hover:border-[var(--border-hot)] hover:bg-[var(--bg-panel-hover)]
+        hover:border-[var(--border-hot)]
         ${className}
       `}
-      style={{ transitionTimingFunction: 'var(--ease-spring)' }}
+      style={{
+        transitionTimingFunction: 'var(--ease-spring)',
+        background: isGlass
+          ? (hot ? 'var(--bg-panel-hover)' : 'var(--paper)')
+          : (hot ? 'rgba(20, 24, 38, 1)' : 'rgba(20, 24, 38, 0.95)'),
+      }}
       {...rest}
     >
       {children}

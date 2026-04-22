@@ -385,10 +385,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   input[type="number"]::-webkit-inner-spin-button,
   input[type="number"]::-webkit-outer-spin-button { opacity: 0.3; }
 
-  /* ── Computed Reality Glass Cards ── */
+  /* ── Vista Cards — solid by default, glass when on VistaSurface ── */
   .glass-card {
-    background: var(--bg-panel);
-    backdrop-filter: blur(24px);
+    background: rgba(20, 24, 38, 0.95);
     border: 1px solid var(--cr-border);
     border-radius: 16px;
     box-shadow: 0 2px 12px rgba(0,0,0,0.3);
@@ -399,17 +398,26 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     box-shadow: 0 4px 20px rgba(0,0,0,0.4);
     border-color: var(--cr-border-hot);
   }
+  /* Glass variant — opt-in for Vista surfaces */
+  .vista-surface .glass-card {
+    background: var(--bg-panel);
+    backdrop-filter: blur(24px);
+  }
 
-  /* KPI glass cards with cyan/violet gradient borders */
+  /* KPI tiles — solid by default */
   .kpi-glass {
-    background: linear-gradient(135deg, rgba(22,24,34,0.8), rgba(22,24,34,0.9));
-    backdrop-filter: blur(16px);
+    background: rgba(20, 24, 38, 0.95);
     border-radius: 16px;
     padding: 20px;
     text-align: center;
     position: relative;
     overflow: hidden;
     box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  }
+  /* Glass variant on Vista surfaces */
+  .vista-surface .kpi-glass {
+    background: linear-gradient(135deg, rgba(22,24,34,0.8), rgba(22,24,34,0.9));
+    backdrop-filter: blur(16px);
   }
   .kpi-glass::before {
     content: '';
