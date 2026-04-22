@@ -1298,14 +1298,14 @@ function CareerLatticeTab({ jobs, model }: { jobs: Job[]; model: string }) {
                 <div style={{ fontSize: 11, fontFamily: MONO, fontWeight: 700, color: "var(--ink-faint)", marginTop: 4 }}>{promotionHC} people at that level</div>
                 {compressionRatio > 0 && <div style={{ fontSize: 11, fontFamily: MONO, fontWeight: 700, color: compressionRatio > 4 ? "var(--coral)" : compressionRatio > 3 ? "var(--amber)" : "var(--ink-faint)", marginTop: 2 }}>Compression: {compressionRatio}:1</div>}
               </> : <div style={{ fontSize: 11, color: "var(--ink-faint)" }}>Top of {selectedJob.track} track — consider cross-track</div>}
-              {paths?.nextMoves?.length ? <div style={{ marginTop: 6, paddingTop: 6, borderTop: "1px solid rgba(255,255,255,0.06)" }}>{paths.nextMoves.map(t => <div key={t} style={{ fontSize: 11, color: "var(--ink)", marginBottom: 1 }}>• {t}</div>)}</div> : null}
+              {paths?.nextMoves?.length ? <div style={{ marginTop: 6, paddingTop: 6, borderTop: "1px solid rgba(255,255,255,0.06)" }}>{paths.nextMoves.map((t, i) => <div key={`next-${i}`} style={{ fontSize: 11, color: "var(--ink)", marginBottom: 1 }}>• {t}</div>)}</div> : null}
               <div style={{ fontSize: 11, color: "var(--ink-faint)", marginTop: 4 }}>~12-18 months typical</div>
             </div>
             {/* Lateral */}
             <div style={{ padding: 12, borderRadius: 8, background: "rgba(244,168,58,0.04)", border: "1px solid rgba(244,168,58,0.15)" }}>
               <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--amber)", marginBottom: 8 }}>→ Lateral Move</div>
               {lateralRoles.length > 0 ? lateralRoles.map(r => <div key={r.id} style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)", marginBottom: 2 }}>{r.title} <span style={{ fontSize: 11, color: "var(--ink-faint)" }}>({r.track})</span></div>) : <div style={{ fontSize: 11, color: "var(--ink-faint)" }}>No lateral options at this level</div>}
-              {paths?.lateralMoves?.length ? <div style={{ marginTop: 6, paddingTop: 6, borderTop: "1px solid rgba(255,255,255,0.06)" }}>{paths.lateralMoves.map(t => <div key={t} style={{ fontSize: 11, color: "var(--ink)", marginBottom: 1 }}>• {t}</div>)}</div> : null}
+              {paths?.lateralMoves?.length ? <div style={{ marginTop: 6, paddingTop: 6, borderTop: "1px solid rgba(255,255,255,0.06)" }}>{paths.lateralMoves.map((t, i) => <div key={`lat-${i}`} style={{ fontSize: 11, color: "var(--ink)", marginBottom: 1 }}>• {t}</div>)}</div> : null}
               <div style={{ fontSize: 11, color: "var(--ink-faint)", marginTop: 4 }}>Broadens cross-functional experience</div>
             </div>
             {/* Cross-Track */}
@@ -1316,7 +1316,7 @@ function CareerLatticeTab({ jobs, model }: { jobs: Job[]; model: string }) {
                 {crossTarget && <div style={{ fontSize: 11, color: "var(--ink)", marginTop: 2 }}>→ {crossTarget.title}</div>}
                 <div style={{ fontSize: 11, color: "var(--ink-faint)", marginTop: 4 }}>Requires: people leadership readiness</div>
               </> : <div style={{ fontSize: 11, color: "var(--ink-faint)" }}>Not typical from this position</div>}
-              {paths?.crossTrack?.length ? <div style={{ marginTop: 6, paddingTop: 6, borderTop: "1px solid rgba(255,255,255,0.06)" }}>{paths.crossTrack.map(t => <div key={t} style={{ fontSize: 11, color: "var(--ink)", marginBottom: 1 }}>• {t}</div>)}</div> : null}
+              {paths?.crossTrack?.length ? <div style={{ marginTop: 6, paddingTop: 6, borderTop: "1px solid rgba(255,255,255,0.06)" }}>{paths.crossTrack.map((t, i) => <div key={`cross-${i}`} style={{ fontSize: 11, color: "var(--ink)", marginBottom: 1 }}>• {t}</div>)}</div> : null}
             </div>
           </div>
         </div>
@@ -1481,7 +1481,7 @@ function JAGovernanceTab({ jobs, employees, model }: { jobs: Job[]; employees: E
           {titleDuplicates.length > 0 && <div className="rounded-lg p-3" style={{ borderLeft: "3px solid var(--purple)", background: "rgba(167,139,184,0.04)" }}>
             <div className="flex items-center justify-between mb-1"><span className="text-[14px] font-bold text-[var(--purple)]">Cross-Function Title Inconsistency</span><Badge color="purple">{titleDuplicates.length} titles</Badge></div>
             <div className="text-[13px] text-[var(--text-secondary)]">Same title exists at different levels across functions — standardize.</div>
-            <div className="space-y-1 mt-2">{titleDuplicates.slice(0, 5).map(([title, levels]) => <div key={title} className="text-[13px] text-[var(--text-muted)]">&quot;{title}&quot; found at levels: {[...levels].join(", ")}</div>)}</div>
+            <div className="space-y-1 mt-2">{titleDuplicates.slice(0, 5).map(([title, levels], i) => <div key={`dup-${i}`} className="text-[13px] text-[var(--text-muted)]">&quot;{title}&quot; found at levels: {[...levels].join(", ")}</div>)}</div>
           </div>}
 
           {levelCompression.length > 0 && <div className="rounded-lg p-3" style={{ borderLeft: "3px solid var(--warning)", background: "rgba(244,168,58,0.04)" }}>
