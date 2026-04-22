@@ -37,7 +37,7 @@ export function ExpandableChart({ title, children }: { title?: string; children:
 
   return <div className="relative group">
     {/* Expand button */}
-    <button onClick={() => setExpanded(true)} title="Click to enlarge" className="absolute top-1 right-1 z-10 w-6 h-6 rounded-md flex items-center justify-center text-[15px] opacity-0 group-hover:opacity-100 transition-all" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "var(--text-muted)", cursor: "pointer" }} onMouseEnter={e => { e.currentTarget.style.color = "var(--accent-primary)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.3)"; }} onMouseLeave={e => { e.currentTarget.style.color = "var(--text-muted)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}>⛶</button>
+    <button onClick={() => setExpanded(true)} title="Click to enlarge" className="absolute top-1 right-1 z-10 w-6 h-6 rounded-md flex items-center justify-center text-[15px] opacity-0 group-hover:opacity-100 transition-all" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "var(--text-muted)", cursor: "pointer" }} onMouseEnter={e => { e.currentTarget.style.color = "var(--accent-primary)"; e.currentTarget.style.borderColor = "rgba(34,211,238,0.3)"; }} onMouseLeave={e => { e.currentTarget.style.color = "var(--text-muted)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}>⛶</button>
     {/* Inline chart */}
     <div onDoubleClick={() => setExpanded(true)}>{children}</div>
     {/* Expanded modal */}
@@ -45,9 +45,9 @@ export function ExpandableChart({ title, children }: { title?: string; children:
       <div style={{ width: "90vw", height: "85vh", background: "var(--surface-1)", borderRadius: 20, border: "1px solid var(--border)", boxShadow: "var(--shadow-4)", display: "flex", flexDirection: "column", overflow: "hidden" }} onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div style={{ padding: "16px 24px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
-          {title && <h3 style={{ fontSize: 22, fontWeight: 700, color: "var(--text-primary)", fontFamily: "'Outfit', sans-serif" }}>{title}</h3>}
+          {title && <h3 style={{ fontSize: 22, fontWeight: 700, color: "var(--text-primary)", fontFamily: "'Inter Tight', sans-serif" }}>{title}</h3>}
           {!title && <div />}
-          <button onClick={() => setExpanded(false)} style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(212,134,10,0.1)", border: "1px solid rgba(212,134,10,0.2)", color: "var(--accent-primary)", fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
+          <button onClick={() => setExpanded(false)} style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(34,211,238,0.1)", border: "1px solid rgba(34,211,238,0.2)", color: "var(--accent-primary)", fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
         </div>
         {/* Chart area */}
         <div style={{ flex: 1, padding: 24, overflow: "auto", fontSize: "130%" }}>{children}</div>
@@ -88,7 +88,7 @@ export function RadarViz({ data, title }: { data: { subject: string; current: nu
     <RadarChart data={data} margin={{ top: 10, right: 30, bottom: 10, left: 30 }}>
       <PolarGrid stroke="var(--border)" /><PolarAngleAxis dataKey="subject" tick={{ fontSize: 15, fill: "var(--text-secondary)" }} /><PolarRadiusAxis domain={[0, data[0]?.max || 5]} tick={{ fontSize: 15, fill: "var(--text-muted)" }} />
       <Radar name="Current" dataKey="current" stroke="var(--accent-primary)" fill="var(--accent-primary)" fillOpacity={0.2} strokeWidth={2} />
-      {data[0]?.future !== undefined && <Radar name="Future" dataKey="future" stroke="#F97316" fill="#F97316" fillOpacity={0.1} strokeWidth={2} strokeDasharray="4 4" />}
+      {data[0]?.future !== undefined && <Radar name="Future" dataKey="future" stroke="#fbbf24" fill="#fbbf24" fillOpacity={0.1} strokeWidth={2} strokeDasharray="4 4" />}
       <Legend wrapperStyle={{ fontSize: 15, color: "var(--text-secondary)" }} /><Tooltip contentStyle={TT as object} />
     </RadarChart>
   </ResponsiveContainer>;

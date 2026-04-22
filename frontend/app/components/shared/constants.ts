@@ -1,22 +1,22 @@
 import { CDN_BASE, cb } from "../../../lib/cdn";
 
-export const COLORS = ["#D4860A","#C07030","#E8C547","#B8602A","#D97706","#F59E0B","#A0522D","#E09040"];
+export const COLORS = ["#22d3ee","#a78bfa","#34d399","#fb7185","#fbbf24","#38bdf8","#c084fc","#2dd4bf"];
 
-/** Track colors — canonical source of truth (Dim 9: Vignelli) */
+/** Track colors — canonical source of truth (Computed Reality palette) */
 export const TRACK_COLORS: Record<string, string> = {
   S: "#22d3ee",  // Support — cyan
-  P: "#3B82F6",  // Professional — blue
-  M: "#F97316",  // Management — orange
-  E: "#ef4444",  // Executive — red
-  T: "#a78bfa",  // Technical — purple
+  P: "#38bdf8",  // Professional — sky
+  M: "#a78bfa",  // Management — violet
+  E: "#fb7185",  // Executive — rose
+  T: "#c084fc",  // Technical — purple
 };
 
-/** Severity scale — emotional temperature (Dim 10: James Turrell) */
+/** Severity scale — Computed Reality semantic */
 export const SEVERITY_COLORS = {
-  critical: "#ef4444",  // hot red
-  warning: "#F97316",   // warm orange
-  info: "#3B82F6",      // cool blue
-  success: "#10B981",   // calm green
+  critical: "#fb7185",  // rose
+  warning: "#fbbf24",   // amber
+  info: "#22d3ee",      // cyan
+  success: "#34d399",   // emerald
 } as const;
 
 /** Standardized spacing scale (Dim 9: Vignelli) — 4, 8, 12, 16, 20, 24, 32, 40, 48 */
@@ -131,45 +131,45 @@ export const MODULE_HELP: Record<string, { title: string; summary: string; pages
 };
 
 export const PHASES = [
-  { id: "discover", label: "Discover", icon: "🔍", color: "#D4860A", desc: "Understand where you are", guidance: "Start by understanding your organization's workforce structure, job architecture, and AI readiness.", modules: ["dashboard", "snapshot", "skillshift", "jobarch"] },
-  { id: "diagnose", label: "Diagnose", icon: "🩺", color: "#E8C547", desc: "Find what matters most", guidance: "Now that you understand the landscape, let's identify the highest-impact opportunities and biggest risks.", modules: ["orghealth", "scan", "heatmap", "readiness", "changeready", "clusters", "recommendations", "mgrcap", "skills"] },
-  { id: "design", label: "Design", icon: "✏️", color: "#10B981", desc: "Architect the future state", guidance: "Design your future state — redesign roles, restructure the operating model, and plan your workforce.", modules: ["design", "opmodel", "build", "bbba", "headcount", "quickwins", "rolecompare"] },
-  { id: "simulate", label: "Simulate", icon: "⚡", color: "#8B5CF6", desc: "Model the impact before you commit", guidance: "Model different futures before committing. Adjust assumptions, compare scenarios, and build the business case.", modules: ["simulate"] },
-  { id: "mobilize", label: "Mobilize", icon: "🚀", color: "#F59E0B", desc: "Make it happen", guidance: "Build your transformation roadmap, engage stakeholders, and generate the deliverables.", modules: ["plan", "story", "archetypes", "mgrdev", "reskill", "marketplace", "export"] },
+  { id: "discover", label: "Discover", icon: "🔍", color: "#22d3ee", desc: "Understand where you are", guidance: "Start by understanding your organization's workforce structure, job architecture, and AI readiness.", modules: ["dashboard", "snapshot", "skillshift", "jobarch"] },
+  { id: "diagnose", label: "Diagnose", icon: "🩺", color: "#fbbf24", desc: "Find what matters most", guidance: "Now that you understand the landscape, let's identify the highest-impact opportunities and biggest risks.", modules: ["orghealth", "scan", "heatmap", "readiness", "changeready", "clusters", "recommendations", "mgrcap", "skills"] },
+  { id: "design", label: "Design", icon: "✏️", color: "#34d399", desc: "Architect the future state", guidance: "Design your future state — redesign roles, restructure the operating model, and plan your workforce.", modules: ["design", "opmodel", "build", "bbba", "headcount", "quickwins", "rolecompare"] },
+  { id: "simulate", label: "Simulate", icon: "⚡", color: "#a78bfa", desc: "Model the impact before you commit", guidance: "Model different futures before committing. Adjust assumptions, compare scenarios, and build the business case.", modules: ["simulate"] },
+  { id: "mobilize", label: "Mobilize", icon: "🚀", color: "#fbbf24", desc: "Make it happen", guidance: "Build your transformation roadmap, engage stakeholders, and generate the deliverables.", modules: ["plan", "story", "archetypes", "mgrdev", "reskill", "marketplace", "export"] },
 ];
 
 export const MODULES = [
-  { id: "dashboard", icon: "🎯", title: "Transformation Dashboard", desc: "Executive summary across all phases", color: "#F59E0B", phase: "discover", views: ["org","custom"] },
-  { id: "jobarch", icon: "🏗️", title: "Job Architecture", desc: "Enterprise job catalogue, hierarchy, career framework & validation", color: "#B8602A", phase: "discover", views: ["org","job","employee","custom"], empTitle: "Career Path", jobTitle: "Role in Context", empDesc: "Your career trajectory and development", jobDesc: "Where this role sits in the hierarchy" },
-  { id: "snapshot", icon: "📊", title: "Workforce Snapshot", desc: "See your people, structure, and readiness baseline", color: "#D4860A", phase: "discover", views: ["org","job","employee","custom"], empTitle: "Employee Profile", jobTitle: "Job Profile", empDesc: "Your profile, team, and AI impact", jobDesc: "Role incumbents, comp, and AI scores" },
-  { id: "orghealth", icon: "🏥", title: "Org Health Scorecard", desc: "Auto-calculated metrics with industry benchmarks", color: "#D4860A", phase: "diagnose", views: ["org","custom"] },
-  { id: "scan", icon: "🔬", title: "AI Opportunity Scan", desc: "Find where AI creates the most value", color: "#F97316", phase: "diagnose", views: ["org","job","employee","custom"], empTitle: "AI Impact on My Role", jobTitle: "AI Impact on This Job" },
-  { id: "heatmap", icon: "🔥", title: "AI Impact Heatmap", desc: "Automation potential by function × job family", color: "#EF4444", phase: "diagnose", views: ["org","custom"] },
-  { id: "clusters", icon: "🔗", title: "Role Clustering", desc: "Group similar roles, identify consolidation candidates", color: "#B8602A", phase: "diagnose", views: ["org","custom"] },
-  { id: "readiness", icon: "🎯", title: "AI Readiness", desc: "Individual and team readiness for AI transformation", color: "#C07030", phase: "diagnose", views: ["org","job","employee","custom"], empTitle: "My Readiness", empDesc: "Your personal AI readiness scores" },
-  { id: "mgrcap", icon: "👔", title: "Manager Capability", desc: "Assess manager readiness and identify champions", color: "#A855F7", phase: "diagnose", views: ["org","custom"] },
-  { id: "recommendations", icon: "🤖", title: "AI Recommendations", desc: "AI-generated transformation recommendations ranked by impact", color: "#E09040", phase: "diagnose", views: ["org","job","custom"] },
-  { id: "skills", icon: "🧠", title: "Skills & Talent", desc: "Inventory, gap analysis, and adjacency mapping", color: "#D97706", phase: "diagnose", views: ["org","job","employee","custom"], empTitle: "My Skills", jobTitle: "Role Skills", empDesc: "Your skill profile and development gaps", jobDesc: "Skills required for this role" },
-  { id: "skillsmap", icon: "🗺️", title: "Skills Map Engine", desc: "O*NET-powered skills library, job matching, and mapping", color: "#0891B2", phase: "diagnose", views: ["org","job","custom"], jobTitle: "Role Skills Map", jobDesc: "O*NET skill profile for this role" },
-  { id: "bbba", icon: "🔀", title: "Build/Buy/Borrow/Auto", desc: "Talent sourcing strategy per redesigned role", color: "#B8602A", phase: "design", views: ["org","custom"] },
-  { id: "headcount", icon: "👥", title: "Headcount Planning", desc: "Current to future workforce waterfall", color: "#8B5CF6", phase: "design", views: ["org","custom"] },
-  { id: "design", icon: "✏️", title: "Work Design Lab", desc: "Redesign tasks, roles, and time allocation job by job", color: "#10B981", phase: "design", views: ["org","job","custom"] },
-  { id: "simulate", icon: "⚡", title: "Impact Simulator", desc: "Model scenarios, costs, and redeployment outcomes", color: "#D97706", phase: "simulate", views: ["org","job","employee","custom"], empTitle: "How AI Affects Me", jobTitle: "Role Scenario", empDesc: "Personal impact of AI transformation", jobDesc: "Scenario modeling for this specific role" },
-  { id: "build", icon: "🏗️", title: "Org Design Studio", desc: "Reshape spans, layers, and structure across the org", color: "#B8602A", phase: "design", views: ["org","job","employee","custom"], empTitle: "My Org Chart", jobTitle: "Structural Context", empDesc: "Your reporting line and team structure", jobDesc: "Where this role sits structurally" },
-  { id: "reorg", icon: "🔄", title: "Org Restructuring", desc: "Design future-state org structures with drag-and-drop canvas", color: "#E09040", phase: "design", views: ["org","job","custom"], jobTitle: "Role Restructuring", jobDesc: "How this role changes in the restructure" },
-  { id: "reskill", icon: "📚", title: "Reskilling Pathways", desc: "Per-employee learning plans and timelines", color: "#D97706", phase: "mobilize", views: ["org","employee","custom"], empTitle: "My Learning Path", empDesc: "Your personal reskilling journey" },
-  { id: "marketplace", icon: "🏪", title: "Talent Marketplace", desc: "Match internal candidates to redesigned roles", color: "#F97316", phase: "mobilize", views: ["org","custom"] },
-  { id: "skillshift", icon: "🔄", title: "Skill Shift Index", desc: "Net skill movement — declining, amplified, and net-new skills", color: "#D97706", phase: "discover", views: ["org","custom"] },
-  { id: "changeready", icon: "📈", title: "Change Readiness", desc: "4-quadrant segmentation and intervention mapping", color: "#EF4444", phase: "diagnose", views: ["org","custom"] },
-  { id: "archetypes", icon: "🎭", title: "Readiness Archetypes", desc: "Consultant-grade workforce archetypes with engagement playbooks", color: "#C07030", phase: "mobilize", views: ["org","custom"] },
-  { id: "story", icon: "📖", title: "Transformation Story", desc: "AI-generated executive narrative for board presentations", color: "#E09040", phase: "mobilize", views: ["org","custom"] },
-  { id: "mgrdev", icon: "🎓", title: "Manager Development", desc: "Targeted development plans for people managers", color: "#A855F7", phase: "mobilize", views: ["org","custom"] },
-  { id: "plan", icon: "🚀", title: "Change Planner", desc: "Sequence initiatives and manage transformation risk", color: "#EF4444", phase: "mobilize", views: ["org","job","employee","custom"], empTitle: "My Change Journey", jobTitle: "Role Change Plan", empDesc: "Your personal transformation timeline", jobDesc: "Change initiatives affecting this role" },
-  { id: "export", icon: "📋", title: "Export & Report", desc: "Generate your board-ready transformation report", color: "#EF4444", phase: "mobilize", views: ["org","job","employee","custom"] },
-  { id: "opmodel", icon: "🧬", title: "Operating Model Lab", desc: "Explore architecture patterns across functions", color: "#F59E0B", phase: "design", views: ["org","custom"] },
+  { id: "dashboard", icon: "🎯", title: "Transformation Dashboard", desc: "Executive summary across all phases", color: "#fbbf24", phase: "discover", views: ["org","custom"] },
+  { id: "jobarch", icon: "🏗️", title: "Job Architecture", desc: "Enterprise job catalogue, hierarchy, career framework & validation", color: "#22d3ee", phase: "discover", views: ["org","job","employee","custom"], empTitle: "Career Path", jobTitle: "Role in Context", empDesc: "Your career trajectory and development", jobDesc: "Where this role sits in the hierarchy" },
+  { id: "snapshot", icon: "📊", title: "Workforce Snapshot", desc: "See your people, structure, and readiness baseline", color: "#22d3ee", phase: "discover", views: ["org","job","employee","custom"], empTitle: "Employee Profile", jobTitle: "Job Profile", empDesc: "Your profile, team, and AI impact", jobDesc: "Role incumbents, comp, and AI scores" },
+  { id: "orghealth", icon: "🏥", title: "Org Health Scorecard", desc: "Auto-calculated metrics with industry benchmarks", color: "#22d3ee", phase: "diagnose", views: ["org","custom"] },
+  { id: "scan", icon: "🔬", title: "AI Opportunity Scan", desc: "Find where AI creates the most value", color: "#fbbf24", phase: "diagnose", views: ["org","job","employee","custom"], empTitle: "AI Impact on My Role", jobTitle: "AI Impact on This Job" },
+  { id: "heatmap", icon: "🔥", title: "AI Impact Heatmap", desc: "Automation potential by function × job family", color: "#fb7185", phase: "diagnose", views: ["org","custom"] },
+  { id: "clusters", icon: "🔗", title: "Role Clustering", desc: "Group similar roles, identify consolidation candidates", color: "#a78bfa", phase: "diagnose", views: ["org","custom"] },
+  { id: "readiness", icon: "🎯", title: "AI Readiness", desc: "Individual and team readiness for AI transformation", color: "#38bdf8", phase: "diagnose", views: ["org","job","employee","custom"], empTitle: "My Readiness", empDesc: "Your personal AI readiness scores" },
+  { id: "mgrcap", icon: "👔", title: "Manager Capability", desc: "Assess manager readiness and identify champions", color: "#c084fc", phase: "diagnose", views: ["org","custom"] },
+  { id: "recommendations", icon: "🤖", title: "AI Recommendations", desc: "AI-generated transformation recommendations ranked by impact", color: "#fbbf24", phase: "diagnose", views: ["org","job","custom"] },
+  { id: "skills", icon: "🧠", title: "Skills & Talent", desc: "Inventory, gap analysis, and adjacency mapping", color: "#a78bfa", phase: "diagnose", views: ["org","job","employee","custom"], empTitle: "My Skills", jobTitle: "Role Skills", empDesc: "Your skill profile and development gaps", jobDesc: "Skills required for this role" },
+  { id: "skillsmap", icon: "🗺️", title: "Skills Map Engine", desc: "O*NET-powered skills library, job matching, and mapping", color: "#22d3ee", phase: "diagnose", views: ["org","job","custom"], jobTitle: "Role Skills Map", jobDesc: "O*NET skill profile for this role" },
+  { id: "bbba", icon: "🔀", title: "Build/Buy/Borrow/Auto", desc: "Talent sourcing strategy per redesigned role", color: "#a78bfa", phase: "design", views: ["org","custom"] },
+  { id: "headcount", icon: "👥", title: "Headcount Planning", desc: "Current to future workforce waterfall", color: "#c084fc", phase: "design", views: ["org","custom"] },
+  { id: "design", icon: "✏️", title: "Work Design Lab", desc: "Redesign tasks, roles, and time allocation job by job", color: "#34d399", phase: "design", views: ["org","job","custom"] },
+  { id: "simulate", icon: "⚡", title: "Impact Simulator", desc: "Model scenarios, costs, and redeployment outcomes", color: "#a78bfa", phase: "simulate", views: ["org","job","employee","custom"], empTitle: "How AI Affects Me", jobTitle: "Role Scenario", empDesc: "Personal impact of AI transformation", jobDesc: "Scenario modeling for this specific role" },
+  { id: "build", icon: "🏗️", title: "Org Design Studio", desc: "Reshape spans, layers, and structure across the org", color: "#22d3ee", phase: "design", views: ["org","job","employee","custom"], empTitle: "My Org Chart", jobTitle: "Structural Context", empDesc: "Your reporting line and team structure", jobDesc: "Where this role sits structurally" },
+  { id: "reorg", icon: "🔄", title: "Org Restructuring", desc: "Design future-state org structures with drag-and-drop canvas", color: "#fbbf24", phase: "design", views: ["org","job","custom"], jobTitle: "Role Restructuring", jobDesc: "How this role changes in the restructure" },
+  { id: "reskill", icon: "📚", title: "Reskilling Pathways", desc: "Per-employee learning plans and timelines", color: "#a78bfa", phase: "mobilize", views: ["org","employee","custom"], empTitle: "My Learning Path", empDesc: "Your personal reskilling journey" },
+  { id: "marketplace", icon: "🏪", title: "Talent Marketplace", desc: "Match internal candidates to redesigned roles", color: "#fbbf24", phase: "mobilize", views: ["org","custom"] },
+  { id: "skillshift", icon: "🔄", title: "Skill Shift Index", desc: "Net skill movement — declining, amplified, and net-new skills", color: "#a78bfa", phase: "discover", views: ["org","custom"] },
+  { id: "changeready", icon: "📈", title: "Change Readiness", desc: "4-quadrant segmentation and intervention mapping", color: "#fb7185", phase: "diagnose", views: ["org","custom"] },
+  { id: "archetypes", icon: "🎭", title: "Readiness Archetypes", desc: "Consultant-grade workforce archetypes with engagement playbooks", color: "#38bdf8", phase: "mobilize", views: ["org","custom"] },
+  { id: "story", icon: "📖", title: "Transformation Story", desc: "AI-generated executive narrative for board presentations", color: "#fbbf24", phase: "mobilize", views: ["org","custom"] },
+  { id: "mgrdev", icon: "🎓", title: "Manager Development", desc: "Targeted development plans for people managers", color: "#c084fc", phase: "mobilize", views: ["org","custom"] },
+  { id: "plan", icon: "🚀", title: "Change Planner", desc: "Sequence initiatives and manage transformation risk", color: "#fb7185", phase: "mobilize", views: ["org","job","employee","custom"], empTitle: "My Change Journey", jobTitle: "Role Change Plan", empDesc: "Your personal transformation timeline", jobDesc: "Change initiatives affecting this role" },
+  { id: "export", icon: "📋", title: "Export & Report", desc: "Generate your board-ready transformation report", color: "#fb7185", phase: "mobilize", views: ["org","job","employee","custom"] },
+  { id: "opmodel", icon: "🧬", title: "Operating Model Lab", desc: "Explore architecture patterns across functions", color: "#fbbf24", phase: "design", views: ["org","custom"] },
   // om_canvas is accessed from within OperatingModelLab, not as a standalone module
-  { id: "rolecompare", icon: "⚖️", title: "Role Comparison", desc: "Side-by-side current vs. redesigned role analysis", color: "#C07030", phase: "design", views: ["org","job","custom"] },
-  { id: "quickwins", icon: "⚡", title: "Quick-Win Identifier", desc: "Find highest ROI, lowest effort AI opportunities", color: "#22C55E", phase: "design", views: ["org","custom"] },
+  { id: "rolecompare", icon: "⚖️", title: "Role Comparison", desc: "Side-by-side current vs. redesigned role analysis", color: "#38bdf8", phase: "design", views: ["org","job","custom"] },
+  { id: "quickwins", icon: "⚡", title: "Quick-Win Identifier", desc: "Find highest ROI, lowest effort AI opportunities", color: "#34d399", phase: "design", views: ["org","custom"] },
 ];
 
 export const PHASE_BACKGROUNDS: Record<string, string> = {
@@ -201,9 +201,9 @@ export function generateCardBackgrounds(): Record<string, string> {
 
 export const SIM_DIMS = ["Data Readiness","Process Standardization","Technology Enablement","Talent Readiness","Leadership Alignment"];
 export const SIM_PRESETS: Record<string, { label: string; adoption: number; timeline: number; ramp: number; color: string }> = {
-  conservative: { label: "Conservative", adoption: 0.3, timeline: 18, ramp: 0.6, color: "#D4860A" },
-  balanced: { label: "Balanced", adoption: 0.6, timeline: 12, ramp: 0.8, color: "#10B981" },
-  aggressive: { label: "Aggressive", adoption: 0.8, timeline: 12, ramp: 0.9, color: "var(--purple)" },
+  conservative: { label: "Conservative", adoption: 0.3, timeline: 18, ramp: 0.6, color: "#22d3ee" },
+  balanced: { label: "Balanced", adoption: 0.6, timeline: 12, ramp: 0.8, color: "#34d399" },
+  aggressive: { label: "Aggressive", adoption: 0.8, timeline: 12, ramp: 0.9, color: "#a78bfa" },
 };
 export const SIM_JOBS = [
   { role: "Financial Analyst", dept: "Finance", currentHrs: 188, aiEligibleHrs: 120, highAiTasks: 14, rate: 85 },
@@ -307,7 +307,7 @@ export const SPAN_BENCHMARKS: { industry: string; icon: string; avgSpan: number;
 
 
 export const SKILLS_TAXONOMY: { domain: string; color: string; icon: string; skills: { name: string; profLevels: string[]; industries?: string[] }[] }[] = [
-  { domain: "Technical & Engineering", color: "#D4860A", icon: "⚙️", skills: [
+  { domain: "Technical & Engineering", color: "#22d3ee", icon: "⚙️", skills: [
     {name:"Software Engineering",profLevels:["Can read code","Can write features","Can architect systems","Can lead platform design"]},
     {name:"Data Engineering",profLevels:["SQL basics","Pipeline building","Data architecture","Enterprise data strategy"]},
     {name:"Cloud Platforms (AWS/Azure/GCP)",profLevels:["Basic deployment","Multi-service usage","Architecture design","Enterprise cloud strategy"]},
@@ -317,7 +317,7 @@ export const SKILLS_TAXONOMY: { domain: string; color: string; icon: string; ski
     {name:"ERP Systems (SAP/Oracle)",profLevels:["End-user","Configuration","Customization","Architecture & integration"],industries:["Manufacturing","Financial Services"]},
     {name:"HRIS / Workday",profLevels:["End-user","Report building","Configuration","Architecture"],industries:["General"]},
   ]},
-  { domain: "Leadership & Management", color: "#8B5CF6", icon: "👔", skills: [
+  { domain: "Leadership & Management", color: "#a78bfa", icon: "👔", skills: [
     {name:"People Leadership",profLevels:["Peer influence","Team lead (3-5)","Director (15-50)","Executive (100+)"]},
     {name:"Strategic Thinking",profLevels:["Understands strategy","Contributes to planning","Shapes function strategy","Sets enterprise direction"]},
     {name:"Change Management",profLevels:["Adapts to change","Supports change","Leads change programs","Transforms organizations"]},
@@ -325,27 +325,27 @@ export const SKILLS_TAXONOMY: { domain: string; color: string; icon: string; ski
     {name:"Decision Making",profLevels:["Follows frameworks","Data-driven decisions","Complex tradeoff analysis","Ambiguity navigation"]},
     {name:"Coaching & Development",profLevels:["Provides feedback","Mentors individuals","Builds team capability","Creates learning culture"]},
   ]},
-  { domain: "Analytical & Quantitative", color: "#10B981", icon: "📊", skills: [
+  { domain: "Analytical & Quantitative", color: "#34d399", icon: "📊", skills: [
     {name:"Data Analysis",profLevels:["Basic reporting","Trend analysis","Advanced analytics","Predictive modeling"]},
     {name:"Financial Modeling",profLevels:["Reads financials","Builds models","Complex scenarios","Enterprise valuation"],industries:["Financial Services","General"]},
     {name:"Statistical Analysis",profLevels:["Descriptive stats","Hypothesis testing","Regression/ML","Experimental design"]},
     {name:"Business Intelligence",profLevels:["Consumes dashboards","Builds reports","Designs BI architecture","Enterprise analytics strategy"]},
     {name:"Process Analysis",profLevels:["Documents processes","Identifies improvements","Lean/Six Sigma","Process transformation"]},
   ]},
-  { domain: "Communication & Influence", color: "#F97316", icon: "💬", skills: [
+  { domain: "Communication & Influence", color: "#fbbf24", icon: "💬", skills: [
     {name:"Written Communication",profLevels:["Clear emails","Reports & proposals","Executive communications","Published thought leadership"]},
     {name:"Presentation Skills",profLevels:["Team updates","Client presentations","Executive briefings","Keynote / board-level"]},
     {name:"Negotiation",profLevels:["Basic bargaining","Contract negotiation","Complex multi-party","Strategic deal-making"]},
     {name:"Cross-Cultural Communication",profLevels:["Awareness","Working across cultures","Leading global teams","Global strategy development"]},
   ]},
-  { domain: "Digital & AI Fluency", color: "#E8C547", icon: "🤖", skills: [
+  { domain: "Digital & AI Fluency", color: "#38bdf8", icon: "🤖", skills: [
     {name:"AI Tool Usage",profLevels:["Basic prompting","Workflow integration","Custom automations","AI strategy & governance"]},
     {name:"Prompt Engineering",profLevels:["Simple queries","Complex chain-of-thought","System design","Enterprise AI patterns"]},
     {name:"No-Code / Low-Code",profLevels:["Template usage","Custom workflows","Integration design","Platform architecture"]},
     {name:"Data Literacy",profLevels:["Reads charts","Interprets data","Designs metrics","Data-driven culture leadership"]},
     {name:"Process Automation",profLevels:["Identifies opportunities","Builds simple automations","RPA/workflow design","Enterprise automation strategy"]},
   ]},
-  { domain: "Domain-Specific", color: "#B8602A", icon: "🏢", skills: [
+  { domain: "Domain-Specific", color: "#fb7185", icon: "🏢", skills: [
     {name:"Regulatory & Compliance",profLevels:["Follows regulations","Monitors changes","Designs compliance programs","Enterprise risk governance"],industries:["Financial Services","Healthcare"]},
     {name:"Clinical Knowledge",profLevels:["Basic terminology","Clinical workflows","Evidence-based practice","Clinical governance"],industries:["Healthcare"]},
     {name:"Supply Chain Management",profLevels:["Understands flow","Demand/supply planning","Network optimization","Global supply strategy"],industries:["Manufacturing","Retail"]},

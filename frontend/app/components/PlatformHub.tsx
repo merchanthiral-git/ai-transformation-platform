@@ -5,10 +5,10 @@ import { CDN_BASE, cb } from "../../lib/cdn";
 import { KNOWLEDGE_BASE, KnowledgeModal } from "./KnowledgeBase";
 
 /* ═══════════════════════════════════════════════════════════════
-   PLATFORM HUB — premium command center with warm amber design
+   PLATFORM HUB — premium command center with Computed Reality design
    ═══════════════════════════════════════════════════════════════ */
 
-const IS: React.CSSProperties = { width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid rgba(212,134,10,0.15)", background: "rgba(255,250,240,0.04)", color: "var(--text-primary)", fontSize: 15, fontFamily: "'Outfit', sans-serif", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s" };
+const IS: React.CSSProperties = { width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid rgba(34,211,238,0.15)", background: "rgba(14,20,36,0.04)", color: "var(--text-primary)", fontSize: 15, fontFamily: "'Inter Tight', sans-serif", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s" };
 const LBL: React.CSSProperties = { display: "block", fontSize: 15, color: "var(--text-muted)", marginBottom: 5, fontFamily: "'IBM Plex Mono', monospace", textTransform: "uppercase", letterSpacing: "1.5px" };
 
 export function PlatformHub({ user, onBack, onUpdateUser }: { user: authApi.AuthUser; onBack: () => void; onUpdateUser: (u: authApi.AuthUser) => void }) {
@@ -26,29 +26,29 @@ export function PlatformHub({ user, onBack, onUpdateUser }: { user: authApi.Auth
     ...(isAdmin ? [{ id: "admin", icon: "🛡️", label: "Admin" }] : []),
   ];
 
-  return <div className="flex min-h-screen w-full" style={{ background: "radial-gradient(ellipse at 30% 20%, rgba(30,18,8,0.6) 0%, transparent 50%), linear-gradient(135deg, #0B1120 0%, #12182a 50%, #0f1525 100%)" }}>
-    {/* Sidebar — premium warm amber design */}
-    <aside className="w-[220px] min-h-screen flex flex-col px-3 py-5 shrink-0" style={{ height: "100vh", position: "sticky", top: 0, background: "rgba(12,10,8,0.95)", borderRight: "1px solid rgba(212,134,10,0.06)" }}>
+  return <div className="flex min-h-screen w-full" style={{ background: "radial-gradient(ellipse at 30% 20%, rgba(5,7,13,0.6) 0%, transparent 50%), linear-gradient(135deg, #05070d 0%, #0a1628 50%, #080e1e 100%)" }}>
+    {/* Sidebar — Computed Reality design */}
+    <aside className="w-[220px] min-h-screen flex flex-col px-3 py-5 shrink-0" style={{ height: "100vh", position: "sticky", top: 0, background: "rgba(5,7,13,0.95)", borderRight: "1px solid rgba(34,211,238,0.06)" }}>
       <button onClick={onBack} className="text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mb-5 flex items-center gap-1.5 transition-colors font-semibold group">
         <span className="group-hover:-translate-x-0.5 transition-transform">←</span> Back to Platform
       </button>
       <div className="flex items-center gap-2.5 mb-6 px-2">
-        <div style={{ width: 32, height: 32, borderRadius: 10, background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 800, color: "#fff", fontFamily: "'Outfit', sans-serif" }}>AI</div>
+        <div style={{ width: 32, height: 32, borderRadius: 10, background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 800, color: "#fff", fontFamily: "'Inter Tight', sans-serif" }}>AI</div>
         <div>
-          <div className="text-[15px] font-bold" style={{ color: "rgba(255,245,235,0.9)" }}>Platform Hub</div>
-          <div className="text-[14px]" style={{ color: "rgba(212,134,10,0.4)" }}>v4.0</div>
+          <div className="text-[15px] font-bold" style={{ color: "rgba(232,236,245,0.9)" }}>Platform Hub</div>
+          <div className="text-[14px]" style={{ color: "rgba(34,211,238,0.4)" }}>v4.0</div>
         </div>
       </div>
       <div className="space-y-0.5 relative">
         {tabs.map(t => {
           const active = tab === t.id;
-          return <button key={t.id} onClick={() => setTab(t.id)} className="w-full text-left px-3 py-2.5 rounded-xl text-[15px] transition-all flex items-center gap-2.5 relative" style={{ background: active ? "rgba(212,134,10,0.1)" : "transparent", color: active ? "var(--accent-primary)" : "rgba(255,230,200,0.35)", fontWeight: active ? 600 : 400, borderLeft: active ? "3px solid var(--accent-primary)" : "3px solid transparent" }} onMouseEnter={e => { if (!active) e.currentTarget.style.color = "rgba(255,230,200,0.6)"; }} onMouseLeave={e => { if (!active) e.currentTarget.style.color = "rgba(255,230,200,0.35)"; }}>
+          return <button key={t.id} onClick={() => setTab(t.id)} className="w-full text-left px-3 py-2.5 rounded-xl text-[15px] transition-all flex items-center gap-2.5 relative" style={{ background: active ? "rgba(34,211,238,0.1)" : "transparent", color: active ? "var(--accent-primary)" : "rgba(136,146,171,0.35)", fontWeight: active ? 600 : 400, borderLeft: active ? "3px solid var(--accent-primary)" : "3px solid transparent" }} onMouseEnter={e => { if (!active) e.currentTarget.style.color = "rgba(136,146,171,0.6)"; }} onMouseLeave={e => { if (!active) e.currentTarget.style.color = "rgba(136,146,171,0.35)"; }}>
             <span className="text-[15px]">{t.icon}</span>{t.label}
           </button>;
         })}
       </div>
       <div className="mt-auto pt-4">
-        <div className="text-center text-[14px] opacity-30" style={{ color: "rgba(212,134,10,0.6)" }}>AI Transformation Platform</div>
+        <div className="text-center text-[14px] opacity-30" style={{ color: "rgba(34,211,238,0.6)" }}>AI Transformation Platform</div>
       </div>
     </aside>
 
@@ -65,11 +65,11 @@ export function PlatformHub({ user, onBack, onUpdateUser }: { user: authApi.Auth
         {tab === "admin" && isAdmin && <div className="px-10 py-8 max-w-[880px]"><AdminTab /></div>}
       </div>
       {/* Footer */}
-      <div className="px-10 py-6 text-center border-t" style={{ borderColor: "rgba(212,134,10,0.06)" }}>
-        <div className="text-[15px]" style={{ color: "rgba(255,230,200,0.15)" }}>Built with purpose in New York {"\u00B7"} {"\u00A9"} 2026 HR Digital Playground</div>
+      <div className="px-10 py-6 text-center border-t" style={{ borderColor: "rgba(34,211,238,0.06)" }}>
+        <div className="text-[15px]" style={{ color: "rgba(136,146,171,0.15)" }}>Built with purpose in New York {"\u00B7"} {"\u00A9"} 2026 HR Digital Playground</div>
         <div style={{ display: "flex", justifyContent: "center", gap: 16, marginTop: 8 }}>
-          <a href="/privacy" style={{ fontSize: 13, color: "rgba(212,134,10,0.25)", textDecoration: "none" }}>Privacy Policy</a>
-          <a href="/terms" style={{ fontSize: 13, color: "rgba(212,134,10,0.25)", textDecoration: "none" }}>Terms of Service</a>
+          <a href="/privacy" style={{ fontSize: 13, color: "rgba(34,211,238,0.25)", textDecoration: "none" }}>Privacy Policy</a>
+          <a href="/terms" style={{ fontSize: 13, color: "rgba(34,211,238,0.25)", textDecoration: "none" }}>Terms of Service</a>
         </div>
       </div>
       <style>{`@keyframes hubFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }`}</style>
@@ -103,12 +103,12 @@ function AccountTab({ user, onUpdate }: { user: authApi.AuthUser; onUpdate: (u: 
     <h1 className="text-[24px] font-bold font-heading text-[var(--text-primary)] mb-8" style={{ letterSpacing: "-0.5px" }}>Account Settings</h1>
 
     {/* Profile hero card */}
-    <div className="rounded-2xl p-6 mb-6" style={{ background: "linear-gradient(135deg, rgba(212,134,10,0.08), rgba(192,112,48,0.04))", border: "1px solid rgba(212,134,10,0.12)" }}>
+    <div className="rounded-2xl p-6 mb-6" style={{ background: "linear-gradient(135deg, rgba(34,211,238,0.08), rgba(34,211,238,0.04))", border: "1px solid rgba(34,211,238,0.12)" }}>
       <div className="flex items-center gap-5 mb-5">
-        <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-[28px] font-bold text-white shrink-0" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", fontFamily: "'Outfit',sans-serif", boxShadow: "var(--shadow-3)" }}>{(dn || "U")[0].toUpperCase()}</div>
+        <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-[28px] font-bold text-white shrink-0" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", fontFamily: "'Inter Tight',sans-serif", boxShadow: "var(--shadow-3)" }}>{(dn || "U")[0].toUpperCase()}</div>
         <div>
           <div className="text-[18px] font-bold text-[var(--text-primary)] font-heading">{user.username}</div>
-          <div className="flex gap-4 mt-1.5 text-[15px] font-data" style={{ color: "rgba(212,134,10,0.5)" }}>
+          <div className="flex gap-4 mt-1.5 text-[15px] font-data" style={{ color: "rgba(34,211,238,0.5)" }}>
             <span>Member since {new Date().toLocaleDateString()}</span>
             {user.last_login && <span>Last active: {new Date(user.last_login).toLocaleDateString()}</span>}
           </div>
@@ -117,20 +117,20 @@ function AccountTab({ user, onUpdate }: { user: authApi.AuthUser; onUpdate: (u: 
       {err && <div className="rounded-xl px-4 py-2.5 mb-4 text-[15px] font-data" style={{ background: "rgba(220,50,50,0.06)", border: "1px solid rgba(220,50,50,0.15)", color: "#f08080" }}>{err}</div>}
       {msg && <div className="rounded-xl px-4 py-2.5 mb-4 text-[15px] font-data" style={{ background: "rgba(16,185,129,0.06)", border: "1px solid rgba(16,185,129,0.15)", color: "#6ee7b7" }}>{msg}</div>}
       <div className="grid grid-cols-2 gap-5">
-        <div><label style={LBL}>Display Name</label><input value={dn} onChange={e => setDn(e.target.value)} style={IS} onFocus={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.4)"} onBlur={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.15)"} /></div>
-        <div><label style={LBL}>Email</label><input value={email} onChange={e => setEmail(e.target.value)} type="email" style={IS} onFocus={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.4)"} onBlur={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.15)"} /></div>
+        <div><label style={LBL}>Display Name</label><input value={dn} onChange={e => setDn(e.target.value)} style={IS} onFocus={e => e.currentTarget.style.borderColor = "rgba(34,211,238,0.4)"} onBlur={e => e.currentTarget.style.borderColor = "rgba(34,211,238,0.15)"} /></div>
+        <div><label style={LBL}>Email</label><input value={email} onChange={e => setEmail(e.target.value)} type="email" style={IS} onFocus={e => e.currentTarget.style.borderColor = "rgba(34,211,238,0.4)"} onBlur={e => e.currentTarget.style.borderColor = "rgba(34,211,238,0.15)"} /></div>
       </div>
     </div>
 
     {/* Change password */}
-    <div className="rounded-2xl p-6 mb-6" style={{ background: "rgba(255,250,240,0.02)", border: "1px solid rgba(212,134,10,0.08)" }}>
+    <div className="rounded-2xl p-6 mb-6" style={{ background: "rgba(14,20,36,0.02)", border: "1px solid rgba(34,211,238,0.08)" }}>
       <h3 className="text-[15px] font-bold font-heading text-[var(--text-primary)] mb-5" style={{ letterSpacing: "0.3px" }}>Change Password</h3>
       <div className="space-y-4 max-w-md">
-        <div><label style={LBL}>Current Password</label><input type="password" value={curPw} onChange={e => setCurPw(e.target.value)} style={IS} onFocus={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.4)"} onBlur={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.15)"} /></div>
-        <div><label style={LBL}>New Password</label><input type="password" value={newPw} onChange={e => setNewPw(e.target.value)} style={IS} onFocus={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.4)"} onBlur={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.15)"} />
+        <div><label style={LBL}>Current Password</label><input type="password" value={curPw} onChange={e => setCurPw(e.target.value)} style={IS} onFocus={e => e.currentTarget.style.borderColor = "rgba(34,211,238,0.4)"} onBlur={e => e.currentTarget.style.borderColor = "rgba(34,211,238,0.15)"} /></div>
+        <div><label style={LBL}>New Password</label><input type="password" value={newPw} onChange={e => setNewPw(e.target.value)} style={IS} onFocus={e => e.currentTarget.style.borderColor = "rgba(34,211,238,0.4)"} onBlur={e => e.currentTarget.style.borderColor = "rgba(34,211,238,0.15)"} />
           {newPw && <div className="flex gap-1 mt-2">{[1,2,3,4,5].map(i => <div key={i} className="h-1.5 flex-1 rounded-full transition-all" style={{ background: i <= pwScore ? (pwScore <= 2 ? "#f08080" : pwScore <= 4 ? "#f0a050" : "#6ee7b7") : "rgba(255,255,255,0.05)" }} />)}</div>}
         </div>
-        <div><label style={LBL}>Confirm New Password</label><input type="password" value={confPw} onChange={e => setConfPw(e.target.value)} style={IS} onFocus={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.4)"} onBlur={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.15)"} /></div>
+        <div><label style={LBL}>Confirm New Password</label><input type="password" value={confPw} onChange={e => setConfPw(e.target.value)} style={IS} onFocus={e => e.currentTarget.style.borderColor = "rgba(34,211,238,0.4)"} onBlur={e => e.currentTarget.style.borderColor = "rgba(34,211,238,0.15)"} /></div>
       </div>
     </div>
 
@@ -145,23 +145,23 @@ function AboutTab() {
 
   const quotes = [
     { q: "What factors do you attribute to your success and advancement in your career?", text: "This might seem clich\u00E9, but I\u2019ve found that the most successful people are those who find opportunity even in challenging situations, and when they encounter adversity, they\u2019re able to have resilience coupled with a positive mindset. That not only allows you to figure out how to solve for something, but you also inspire others to work through change. That outlook really helped me over the course of my career. Change is a constant in today\u2019s world, so having a muscle for it that I\u2019ve built over time has helped me accept change as part of the everyday equation.", author: "Stephanie Penner", accent: "var(--accent-primary)" },
-    { q: "What are the most important qualities you look for in people and leaders?", text: "I look for a whole bunch of things. They have to be smart, they have to have good judgment, they have to work hard\u2026 they have to be capable. But character is a sine qua non \u2014 an absolute necessity. They tell the truth, and nothing but the truth. They don\u2019t shave the truth. They don\u2019t twist it depending on who they\u2019re talking to. They have courage \u2014 they\u2019re not afraid to speak up. They care about the company, not just themselves.", author: "Jamie Dimon, Chairman & CEO, JPMorgan Chase", accent: "#3B82F6" },
+    { q: "What are the most important qualities you look for in people and leaders?", text: "I look for a whole bunch of things. They have to be smart, they have to have good judgment, they have to work hard\u2026 they have to be capable. But character is a sine qua non \u2014 an absolute necessity. They tell the truth, and nothing but the truth. They don\u2019t shave the truth. They don\u2019t twist it depending on who they\u2019re talking to. They have courage \u2014 they\u2019re not afraid to speak up. They care about the company, not just themselves.", author: "Jamie Dimon, Chairman & CEO, JPMorgan Chase", accent: "#22d3ee" },
     { q: "On preparation and excellence", text: "You have to take responsibility for your job. You have to do the work ahead of time. You can\u2019t just show up and expect things to work out. Always be prepared. Because you never know when you\u2019re going to be tested. It could be in a meeting, it could be when someone asks you a question, it could be when you least expect it. And if you\u2019re not prepared, it\u2019s going to show. People will know.", author: "Jim Donovan, Vice Chairman, Goldman Sachs", accent: "var(--teal)" },
   ];
   const cur = quotes[quoteIdx];
 
   const LI_SVG = <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>;
 
-  return <div style={{ fontFamily: "'DM Sans', 'Outfit', sans-serif" }}>
+  return <div style={{ fontFamily: "'Inter Tight', 'Inter Tight', sans-serif" }}>
 
     {/* ═══ SECTION 1: HERO — Full-width, video bg, centred typography ═══ */}
-    <div className="relative overflow-hidden flex items-center justify-center" style={{ minHeight: 420, background: "linear-gradient(160deg, #1a0c00 0%, #3d2000 30%, var(--teal) 60%, var(--accent-primary) 85%, var(--warning) 100%)" }}>
+    <div className="relative overflow-hidden flex items-center justify-center" style={{ minHeight: 420, background: "linear-gradient(160deg, #05070d 0%, #0a1628 30%, var(--teal) 60%, var(--cyan) 85%, var(--cr-amber) 100%)" }}>
       {/* Subtle radial overlay */}
       <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 80%, rgba(0,0,0,0.35) 0%, transparent 60%)" }} />
       <div className="relative z-10 text-center px-8 py-16">
         <img src={cb(`${CDN_BASE}/hiral_photo.jpg`)} alt="Hiral Merchant" style={{ width: 130, height: 130, borderRadius: "50%", border: "4px solid rgba(255,255,255,0.2)", boxShadow: "0 8px 40px rgba(0,0,0,0.4)", objectFit: "cover", margin: "0 auto 28px" }} />
-        <h1 style={{ fontSize: 48, fontWeight: 800, color: "#fff", fontFamily: "'Outfit', sans-serif", textShadow: "0 3px 24px rgba(0,0,0,0.35)", letterSpacing: "-1px", marginBottom: 8 }}>Hiral Merchant</h1>
-        <p style={{ fontSize: 20, color: "rgba(255,240,220,0.85)", fontWeight: 500, fontFamily: "'DM Sans', sans-serif", marginBottom: 24 }}>Consultant at Mercer &middot; Workforce Transformation &middot; New York</p>
+        <h1 style={{ fontSize: 48, fontWeight: 800, color: "#fff", fontFamily: "'Inter Tight', sans-serif", textShadow: "0 3px 24px rgba(0,0,0,0.35)", letterSpacing: "-1px", marginBottom: 8 }}>Hiral Merchant</h1>
+        <p style={{ fontSize: 20, color: "rgba(232,236,245,0.85)", fontWeight: 500, fontFamily: "'Inter Tight', sans-serif", marginBottom: 24 }}>Consultant at Mercer &middot; Workforce Transformation &middot; New York</p>
         <a href="https://www.linkedin.com/in/hiral-merchant-6a0416b1/" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 24px", borderRadius: 12, fontSize: 15, fontWeight: 600, background: "rgba(0,0,0,0.25)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.18)", color: "#fff", textDecoration: "none", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(0,0,0,0.4)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(0,0,0,0.25)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.18)"; }}>
           {LI_SVG} Connect on LinkedIn
         </a>
@@ -173,20 +173,20 @@ function AboutTab() {
       <div style={{ display: "flex", gap: 48, alignItems: "flex-start" }}>
         {/* Left: Bio (60%) */}
         <div style={{ flex: "0 0 58%", minWidth: 0 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "rgba(212,134,10,0.5)", textTransform: "uppercase", letterSpacing: 2.5, marginBottom: 12, fontFamily: "'IBM Plex Mono', monospace" }}>About</div>
-          <p style={{ fontSize: 18, lineHeight: 1.9, color: "rgba(255,230,200,0.55)", fontFamily: "'DM Sans', sans-serif" }}>Born in Montreal and raised in the mountains of Western North Carolina, Hiral is now based in <strong style={{ color: "var(--accent-primary)" }}>New York</strong> as a Consultant at <strong style={{ color: "var(--accent-primary)" }}>Mercer</strong>. He holds a Bachelor of Science from the University of North Carolina at Charlotte.</p>
-          <p style={{ fontSize: 18, lineHeight: 1.9, color: "rgba(255,230,200,0.55)", fontFamily: "'DM Sans', sans-serif", marginTop: 20 }}>Passionate about the intersection of <strong style={{ color: "var(--accent-primary)" }}>AI and people</strong>, and the democratization of knowledge that enables a more confident workforce &mdash; this platform is a reflection of that mission. The AI Transformation Platform provides the analytical rigor of a top-tier consulting engagement in a self-service tool that any organization can use.</p>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "rgba(34,211,238,0.5)", textTransform: "uppercase", letterSpacing: 2.5, marginBottom: 12, fontFamily: "'IBM Plex Mono', monospace" }}>About</div>
+          <p style={{ fontSize: 18, lineHeight: 1.9, color: "rgba(136,146,171,0.55)", fontFamily: "'Inter Tight', sans-serif" }}>Born in Montreal and raised in the mountains of Western North Carolina, Hiral is now based in <strong style={{ color: "var(--accent-primary)" }}>New York</strong> as a Consultant at <strong style={{ color: "var(--accent-primary)" }}>Mercer</strong>. He holds a Bachelor of Science from the University of North Carolina at Charlotte.</p>
+          <p style={{ fontSize: 18, lineHeight: 1.9, color: "rgba(136,146,171,0.55)", fontFamily: "'Inter Tight', sans-serif", marginTop: 20 }}>Passionate about the intersection of <strong style={{ color: "var(--accent-primary)" }}>AI and people</strong>, and the democratization of knowledge that enables a more confident workforce &mdash; this platform is a reflection of that mission. The AI Transformation Platform provides the analytical rigor of a top-tier consulting engagement in a self-service tool that any organization can use.</p>
         </div>
         {/* Right: At a Glance (40%) */}
-        <div style={{ flex: "0 0 38%", minWidth: 0, borderRadius: 20, padding: "32px 28px", background: "rgba(255,255,255,0.02)", backdropFilter: "blur(16px)", border: "1px solid rgba(212,134,10,0.1)", boxShadow: "0 4px 32px rgba(0,0,0,0.1)" }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(212,134,10,0.5)", textTransform: "uppercase", letterSpacing: 2, marginBottom: 20, fontFamily: "'IBM Plex Mono', monospace" }}>At a Glance</div>
+        <div style={{ flex: "0 0 38%", minWidth: 0, borderRadius: 20, padding: "32px 28px", background: "rgba(255,255,255,0.02)", backdropFilter: "blur(16px)", border: "1px solid rgba(34,211,238,0.1)", boxShadow: "0 4px 32px rgba(0,0,0,0.1)" }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(34,211,238,0.5)", textTransform: "uppercase", letterSpacing: 2, marginBottom: 20, fontFamily: "'IBM Plex Mono', monospace" }}>At a Glance</div>
           {[
             { icon: "\u{1F393}", label: "UNC Charlotte \u2014 BS" },
             { icon: "\u{1F4CD}", label: "New York, NY" },
             { icon: "\u{1F3E2}", label: "Mercer \u2014 Workforce Transformation" },
             { icon: "\u{1F310}", label: "LinkedIn", link: "https://www.linkedin.com/in/hiral-merchant-6a0416b1/" },
             { icon: "\u{1F4E7}", label: "merchanthiral@gmail.com" },
-          ].map(item => <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16, fontSize: 16, color: "rgba(255,230,200,0.55)", fontFamily: "'DM Sans', sans-serif" }}>
+          ].map(item => <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16, fontSize: 16, color: "rgba(136,146,171,0.55)", fontFamily: "'Inter Tight', sans-serif" }}>
             <span style={{ fontSize: 18, width: 24, textAlign: "center", flexShrink: 0 }}>{item.icon}</span>
             {item.link ? <a href={item.link} target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent-primary)", textDecoration: "none" }}>{item.label}</a> : <span>{item.label}</span>}
           </div>)}
@@ -195,24 +195,24 @@ function AboutTab() {
     </div>
 
     {/* ═══ SECTION 3: QUOTES CAROUSEL — Full-width, glassmorphism ═══ */}
-    <div style={{ padding: "80px 48px 100px", background: "linear-gradient(180deg, transparent 0%, rgba(212,134,10,0.02) 50%, transparent 100%)" }}>
+    <div style={{ padding: "80px 48px 100px", background: "linear-gradient(180deg, transparent 0%, rgba(34,211,238,0.02) 50%, transparent 100%)" }}>
       <div className="text-center" style={{ marginBottom: 48 }}>
-        <h2 style={{ fontSize: 34, fontWeight: 800, fontFamily: "'Outfit', sans-serif", color: "rgba(255,245,235,0.9)", letterSpacing: "-0.5px", marginBottom: 8 }}>Words That Shape the Work</h2>
+        <h2 style={{ fontSize: 34, fontWeight: 800, fontFamily: "'Inter Tight', sans-serif", color: "rgba(232,236,245,0.9)", letterSpacing: "-0.5px", marginBottom: 8 }}>Words That Shape the Work</h2>
         <div style={{ width: 64, height: 3, borderRadius: 2, background: "var(--accent-primary)", margin: "0 auto 12px" }} />
-        <p style={{ fontSize: 16, color: "rgba(232,197,71,0.35)", fontFamily: "'DM Sans', sans-serif" }}>Three voices, one philosophy</p>
+        <p style={{ fontSize: 16, color: "rgba(34,211,238,0.35)", fontFamily: "'Inter Tight', sans-serif" }}>Three voices, one philosophy</p>
       </div>
 
       <div className="relative" style={{ maxWidth: 900, margin: "0 auto" }}>
         {/* Navigation arrows — large, visible */}
-        <button onClick={() => setQuoteIdx((quoteIdx + 2) % 3)} style={{ position: "absolute", left: -64, top: "50%", transform: "translateY(-50%)", width: 48, height: 48, borderRadius: 14, background: "rgba(255,255,255,0.04)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,200,150,0.1)", color: "rgba(255,230,200,0.4)", fontSize: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s", zIndex: 2 }} onMouseEnter={e => { e.currentTarget.style.color = "var(--accent-primary)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.3)"; e.currentTarget.style.background = "rgba(212,134,10,0.08)"; }} onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,230,200,0.4)"; e.currentTarget.style.borderColor = "rgba(255,200,150,0.1)"; e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}>{"\u2190"}</button>
-        <button onClick={() => setQuoteIdx((quoteIdx + 1) % 3)} style={{ position: "absolute", right: -64, top: "50%", transform: "translateY(-50%)", width: 48, height: 48, borderRadius: 14, background: "rgba(255,255,255,0.04)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,200,150,0.1)", color: "rgba(255,230,200,0.4)", fontSize: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s", zIndex: 2 }} onMouseEnter={e => { e.currentTarget.style.color = "var(--accent-primary)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.3)"; e.currentTarget.style.background = "rgba(212,134,10,0.08)"; }} onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,230,200,0.4)"; e.currentTarget.style.borderColor = "rgba(255,200,150,0.1)"; e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}>{"\u2192"}</button>
+        <button onClick={() => setQuoteIdx((quoteIdx + 2) % 3)} style={{ position: "absolute", left: -64, top: "50%", transform: "translateY(-50%)", width: 48, height: 48, borderRadius: 14, background: "rgba(255,255,255,0.04)", backdropFilter: "blur(8px)", border: "1px solid rgba(136,146,171,0.1)", color: "rgba(136,146,171,0.4)", fontSize: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s", zIndex: 2 }} onMouseEnter={e => { e.currentTarget.style.color = "var(--accent-primary)"; e.currentTarget.style.borderColor = "rgba(34,211,238,0.3)"; e.currentTarget.style.background = "rgba(34,211,238,0.08)"; }} onMouseLeave={e => { e.currentTarget.style.color = "rgba(136,146,171,0.4)"; e.currentTarget.style.borderColor = "rgba(136,146,171,0.1)"; e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}>{"\u2190"}</button>
+        <button onClick={() => setQuoteIdx((quoteIdx + 1) % 3)} style={{ position: "absolute", right: -64, top: "50%", transform: "translateY(-50%)", width: 48, height: 48, borderRadius: 14, background: "rgba(255,255,255,0.04)", backdropFilter: "blur(8px)", border: "1px solid rgba(136,146,171,0.1)", color: "rgba(136,146,171,0.4)", fontSize: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s", zIndex: 2 }} onMouseEnter={e => { e.currentTarget.style.color = "var(--accent-primary)"; e.currentTarget.style.borderColor = "rgba(34,211,238,0.3)"; e.currentTarget.style.background = "rgba(34,211,238,0.08)"; }} onMouseLeave={e => { e.currentTarget.style.color = "rgba(136,146,171,0.4)"; e.currentTarget.style.borderColor = "rgba(136,146,171,0.1)"; e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}>{"\u2192"}</button>
 
         {/* Glassmorphism quote card */}
-        <div key={quoteIdx} className="relative overflow-hidden" style={{ padding: "48px 56px", borderRadius: 24, background: "rgba(255,255,255,0.03)", backdropFilter: "blur(20px)", border: `1px solid rgba(255,200,150,0.08)`, borderLeft: `4px solid ${cur.accent}`, boxShadow: "0 8px 48px rgba(0,0,0,0.15)", animation: "quoteFade 0.5s ease" }}>
+        <div key={quoteIdx} className="relative overflow-hidden" style={{ padding: "48px 56px", borderRadius: 24, background: "rgba(255,255,255,0.03)", backdropFilter: "blur(20px)", border: `1px solid rgba(136,146,171,0.08)`, borderLeft: `4px solid ${cur.accent}`, boxShadow: "0 8px 48px rgba(0,0,0,0.15)", animation: "quoteFade 0.5s ease" }}>
           <div className="absolute top-2 left-12 font-serif leading-none select-none" style={{ fontSize: 100, color: `${cur.accent}10` }}>{"\u201C"}</div>
           <div className="relative z-10">
             <div style={{ fontSize: 13, textTransform: "uppercase", letterSpacing: 2.5, color: `${cur.accent}90`, marginBottom: 20, fontFamily: "'IBM Plex Mono', monospace", fontWeight: 600 }}>{cur.q}</div>
-            <blockquote style={{ fontSize: 22, fontFamily: "'Outfit', sans-serif", lineHeight: 1.85, color: "rgba(255,245,235,0.7)", fontStyle: "italic", marginBottom: 28 }}>{cur.text}</blockquote>
+            <blockquote style={{ fontSize: 22, fontFamily: "'Inter Tight', sans-serif", lineHeight: 1.85, color: "rgba(232,236,245,0.7)", fontStyle: "italic", marginBottom: 28 }}>{cur.text}</blockquote>
             <div style={{ textAlign: "right", fontFamily: "'IBM Plex Mono', monospace", fontSize: 14, fontWeight: 700, color: cur.accent }}>{"\u2014"} {cur.author}</div>
           </div>
         </div>
@@ -226,49 +226,49 @@ function AboutTab() {
     {/* ═══ SECTION 4: THIS IS ABOUT YOU — Shorter paragraphs + callout cards ═══ */}
     <div style={{ padding: "80px 48px 100px", maxWidth: 860, margin: "0 auto" }}>
       <div style={{ textAlign: "center", marginBottom: 48 }}>
-        <h2 style={{ fontSize: 34, fontWeight: 800, fontFamily: "'Outfit', sans-serif", color: "rgba(255,245,235,0.9)", letterSpacing: "-0.5px", marginBottom: 8 }}>This Is About You</h2>
+        <h2 style={{ fontSize: 34, fontWeight: 800, fontFamily: "'Inter Tight', sans-serif", color: "rgba(232,236,245,0.9)", letterSpacing: "-0.5px", marginBottom: 8 }}>This Is About You</h2>
         <div style={{ width: 64, height: 3, borderRadius: 2, background: "var(--accent-primary)", margin: "0 auto 12px" }} />
-        <p style={{ fontSize: 16, color: "rgba(232,197,71,0.35)", fontFamily: "'DM Sans', sans-serif" }}>Why these principles define the transformation journey</p>
+        <p style={{ fontSize: 16, color: "rgba(34,211,238,0.35)", fontFamily: "'Inter Tight', sans-serif" }}>Why these principles define the transformation journey</p>
       </div>
 
       {/* Courage */}
-      <p style={{ fontSize: 17, lineHeight: 1.9, color: "rgba(255,230,200,0.5)", fontFamily: "'DM Sans', sans-serif", marginBottom: 24 }}>At some point in your transformation journey, you{"\u2019"}re going to sit in a room with data that tells an uncomfortable truth. Maybe 40% of tasks in your largest function are automatable. Maybe your most tenured leaders hold the roles most exposed to AI disruption. In that moment, you have a choice &mdash; soften the message or tell the truth.</p>
+      <p style={{ fontSize: 17, lineHeight: 1.9, color: "rgba(136,146,171,0.5)", fontFamily: "'Inter Tight', sans-serif", marginBottom: 24 }}>At some point in your transformation journey, you{"\u2019"}re going to sit in a room with data that tells an uncomfortable truth. Maybe 40% of tasks in your largest function are automatable. Maybe your most tenured leaders hold the roles most exposed to AI disruption. In that moment, you have a choice &mdash; soften the message or tell the truth.</p>
 
-      <div style={{ padding: "24px 32px", borderRadius: 16, background: "rgba(212,134,10,0.04)", border: "1px solid rgba(212,134,10,0.1)", borderLeft: "4px solid var(--accent-primary)", marginBottom: 40 }}>
-        <p style={{ fontSize: 18, fontWeight: 600, color: "var(--accent-primary)", fontFamily: "'Outfit', sans-serif", lineHeight: 1.7, margin: 0 }}>The organizations that transform successfully are led by people who choose truth. Not because it{"\u2019"}s easy, but because every decision built on incomplete truth compounds into a plan that doesn{"\u2019"}t work.</p>
+      <div style={{ padding: "24px 32px", borderRadius: 16, background: "rgba(34,211,238,0.04)", border: "1px solid rgba(34,211,238,0.1)", borderLeft: "4px solid var(--accent-primary)", marginBottom: 40 }}>
+        <p style={{ fontSize: 18, fontWeight: 600, color: "var(--accent-primary)", fontFamily: "'Inter Tight', sans-serif", lineHeight: 1.7, margin: 0 }}>The organizations that transform successfully are led by people who choose truth. Not because it{"\u2019"}s easy, but because every decision built on incomplete truth compounds into a plan that doesn{"\u2019"}t work.</p>
       </div>
 
       {/* Resilience */}
-      <p style={{ fontSize: 17, lineHeight: 1.9, color: "rgba(255,230,200,0.5)", fontFamily: "'DM Sans', sans-serif", marginBottom: 24 }}>Transformation is not a single moment &mdash; it{"\u2019"}s an eighteen-month, sometimes three-year grind. Stakeholders will lose patience. Pilots won{"\u2019"}t show results fast enough. Employees will push back harder than expected. A champion will become a skeptic.</p>
+      <p style={{ fontSize: 17, lineHeight: 1.9, color: "rgba(136,146,171,0.5)", fontFamily: "'Inter Tight', sans-serif", marginBottom: 24 }}>Transformation is not a single moment &mdash; it{"\u2019"}s an eighteen-month, sometimes three-year grind. Stakeholders will lose patience. Pilots won{"\u2019"}t show results fast enough. Employees will push back harder than expected. A champion will become a skeptic.</p>
 
-      <p style={{ fontSize: 17, lineHeight: 1.9, color: "rgba(255,230,200,0.5)", fontFamily: "'DM Sans', sans-serif", marginBottom: 24 }}>When 60% of your workforce scores as {"\u201C"}resistant to change{"\u201D"} in the readiness assessment, that{"\u2019"}s not a failure &mdash; that{"\u2019"}s a segmentation strategy. The resilience isn{"\u2019"}t in ignoring the data. It{"\u2019"}s in asking <strong style={{ color: "var(--accent-primary)" }}>{"\u201C"}what does this tell me about what to do differently?{"\u201D"}</strong></p>
+      <p style={{ fontSize: 17, lineHeight: 1.9, color: "rgba(136,146,171,0.5)", fontFamily: "'Inter Tight', sans-serif", marginBottom: 24 }}>When 60% of your workforce scores as {"\u201C"}resistant to change{"\u201D"} in the readiness assessment, that{"\u2019"}s not a failure &mdash; that{"\u2019"}s a segmentation strategy. The resilience isn{"\u2019"}t in ignoring the data. It{"\u2019"}s in asking <strong style={{ color: "var(--accent-primary)" }}>{"\u201C"}what does this tell me about what to do differently?{"\u201D"}</strong></p>
 
-      <div style={{ padding: "24px 32px", borderRadius: 16, background: "rgba(59,130,246,0.04)", border: "1px solid rgba(59,130,246,0.1)", borderLeft: "4px solid #3B82F6", marginBottom: 40 }}>
-        <p style={{ fontSize: 18, fontWeight: 600, color: "rgba(147,197,253,0.8)", fontFamily: "'Outfit', sans-serif", lineHeight: 1.7, margin: 0 }}>The consultants and HR leaders who deliver real transformation find opportunity in setbacks. A redesigned role rejected by the business is feedback, not defeat.</p>
+      <div style={{ padding: "24px 32px", borderRadius: 16, background: "rgba(34,211,238,0.04)", border: "1px solid rgba(34,211,238,0.1)", borderLeft: "4px solid #22d3ee", marginBottom: 40 }}>
+        <p style={{ fontSize: 18, fontWeight: 600, color: "rgba(34,211,238,0.8)", fontFamily: "'Inter Tight', sans-serif", lineHeight: 1.7, margin: 0 }}>The consultants and HR leaders who deliver real transformation find opportunity in setbacks. A redesigned role rejected by the business is feedback, not defeat.</p>
       </div>
 
       {/* Preparation */}
-      <p style={{ fontSize: 17, lineHeight: 1.9, color: "rgba(255,230,200,0.5)", fontFamily: "'DM Sans', sans-serif", marginBottom: 24 }}>Preparation is everything that separates a plan that gets funded from one that gets shelved. When your CEO asks {"\u201C"}what{"\u2019"}s the ROI?{"\u201D"} and you{"\u2019"}ve run the cost model with realistic assumptions, pressure-tested it across three scenarios, and can speak to skill gaps, reskilling costs, and timeline &mdash; you earn credibility. When you can{"\u2019"}t, you lose the room.</p>
+      <p style={{ fontSize: 17, lineHeight: 1.9, color: "rgba(136,146,171,0.5)", fontFamily: "'Inter Tight', sans-serif", marginBottom: 24 }}>Preparation is everything that separates a plan that gets funded from one that gets shelved. When your CEO asks {"\u201C"}what{"\u2019"}s the ROI?{"\u201D"} and you{"\u2019"}ve run the cost model with realistic assumptions, pressure-tested it across three scenarios, and can speak to skill gaps, reskilling costs, and timeline &mdash; you earn credibility. When you can{"\u2019"}t, you lose the room.</p>
 
-      <div style={{ padding: "24px 32px", borderRadius: 16, background: "rgba(192,112,48,0.04)", border: "1px solid rgba(192,112,48,0.1)", borderLeft: "4px solid var(--teal)", marginBottom: 40 }}>
-        <p style={{ fontSize: 18, fontWeight: 600, color: "rgba(220,160,90,0.8)", fontFamily: "'Outfit', sans-serif", lineHeight: 1.7, margin: 0 }}>This platform exists so you{"\u2019"}re never caught unprepared. Every module is a layer of preparation &mdash; from the org health scorecard to the capacity waterfall to the stakeholder map.</p>
+      <div style={{ padding: "24px 32px", borderRadius: 16, background: "rgba(34,211,238,0.04)", border: "1px solid rgba(34,211,238,0.1)", borderLeft: "4px solid var(--teal)", marginBottom: 40 }}>
+        <p style={{ fontSize: 18, fontWeight: 600, color: "rgba(34,211,238,0.8)", fontFamily: "'Inter Tight', sans-serif", lineHeight: 1.7, margin: 0 }}>This platform exists so you{"\u2019"}re never caught unprepared. Every module is a layer of preparation &mdash; from the org health scorecard to the capacity waterfall to the stakeholder map.</p>
       </div>
 
       {/* The Playground */}
-      <p style={{ fontSize: 17, lineHeight: 1.9, color: "rgba(255,230,200,0.5)", fontFamily: "'DM Sans', sans-serif", marginBottom: 24 }}>This is why this platform is called a Digital Playground. Not because transformation is a game &mdash; but because every leader who excels at the real thing practices first. The leaders who use this tool the way it{"\u2019"}s intended walk into the real transformation with confidence. They{"\u2019"}ve already seen every version of the future.</p>
+      <p style={{ fontSize: 17, lineHeight: 1.9, color: "rgba(136,146,171,0.5)", fontFamily: "'Inter Tight', sans-serif", marginBottom: 24 }}>This is why this platform is called a Digital Playground. Not because transformation is a game &mdash; but because every leader who excels at the real thing practices first. The leaders who use this tool the way it{"\u2019"}s intended walk into the real transformation with confidence. They{"\u2019"}ve already seen every version of the future.</p>
 
       {/* Closing & Why */}
-      <div style={{ padding: "32px 36px", borderRadius: 20, background: "linear-gradient(135deg, rgba(212,134,10,0.04), rgba(232,197,71,0.02))", border: "1px solid rgba(212,134,10,0.12)", marginBottom: 40, textAlign: "center" }}>
-        <p style={{ fontSize: 19, fontStyle: "italic", lineHeight: 1.8, color: "rgba(232,197,71,0.6)", fontFamily: "'Outfit', sans-serif", margin: "0 0 16px 0" }}>{"\u201C"}The principles behind great leadership and great transformation are the same. And those principles shouldn{"\u2019"}t be locked behind expensive consulting engagements that only Fortune 500 companies can access.{"\u201D"}</p>
-        <p style={{ fontSize: 16, color: "rgba(255,230,200,0.4)", fontFamily: "'DM Sans', sans-serif", margin: 0 }}>A 200-person healthcare system deserves the same rigor as a 50,000-person bank. That{"\u2019"}s what <strong style={{ color: "var(--accent-primary)" }}>democratizing knowledge</strong> means.</p>
+      <div style={{ padding: "32px 36px", borderRadius: 20, background: "linear-gradient(135deg, rgba(34,211,238,0.04), rgba(34,211,238,0.02))", border: "1px solid rgba(34,211,238,0.12)", marginBottom: 40, textAlign: "center" }}>
+        <p style={{ fontSize: 19, fontStyle: "italic", lineHeight: 1.8, color: "rgba(34,211,238,0.6)", fontFamily: "'Inter Tight', sans-serif", margin: "0 0 16px 0" }}>{"\u201C"}The principles behind great leadership and great transformation are the same. And those principles shouldn{"\u2019"}t be locked behind expensive consulting engagements that only Fortune 500 companies can access.{"\u201D"}</p>
+        <p style={{ fontSize: 16, color: "rgba(136,146,171,0.4)", fontFamily: "'Inter Tight', sans-serif", margin: 0 }}>A 200-person healthcare system deserves the same rigor as a 50,000-person bank. That{"\u2019"}s what <strong style={{ color: "var(--accent-primary)" }}>democratizing knowledge</strong> means.</p>
       </div>
 
       {/* Signature */}
-      <div className="flex items-center gap-4" style={{ paddingTop: 32, borderTop: "1px solid rgba(212,134,10,0.08)" }}>
-        <img src={cb(`${CDN_BASE}/hiral_photo.jpg`)} alt="HM" style={{ width: 48, height: 48, borderRadius: 12, objectFit: "cover", border: "2px solid rgba(212,134,10,0.3)" }} />
+      <div className="flex items-center gap-4" style={{ paddingTop: 32, borderTop: "1px solid rgba(34,211,238,0.08)" }}>
+        <img src={cb(`${CDN_BASE}/hiral_photo.jpg`)} alt="HM" style={{ width: 48, height: 48, borderRadius: 12, objectFit: "cover", border: "2px solid rgba(34,211,238,0.3)" }} />
         <div>
-          <div style={{ fontSize: 16, fontWeight: 700, color: "rgba(255,245,235,0.9)", fontFamily: "'Outfit', sans-serif" }}>Hiral Merchant</div>
-          <div style={{ fontSize: 14, color: "rgba(212,134,10,0.4)" }}>New York &middot; 2026</div>
+          <div style={{ fontSize: 16, fontWeight: 700, color: "rgba(232,236,245,0.9)", fontFamily: "'Inter Tight', sans-serif" }}>Hiral Merchant</div>
+          <div style={{ fontSize: 14, color: "rgba(34,211,238,0.4)" }}>New York &middot; 2026</div>
         </div>
       </div>
     </div>
@@ -299,11 +299,11 @@ function KnowledgeBaseTab() {
 
   return <div>
     <h1 className="text-[24px] font-bold font-heading text-[var(--text-primary)] mb-2" style={{ letterSpacing: "-0.5px" }}>Knowledge Base</h1>
-    <p className="text-[14px] mb-6" style={{ color: "rgba(212,134,10,0.4)" }}>Comprehensive guides for every module and feature.</p>
+    <p className="text-[14px] mb-6" style={{ color: "rgba(34,211,238,0.4)" }}>Comprehensive guides for every module and feature.</p>
 
-    <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search articles..." className="w-full rounded-xl px-5 py-3.5 text-[15px] text-[var(--text-primary)] outline-none mb-7 transition-all" style={{ background: "rgba(255,250,240,0.03)", border: "1px solid rgba(212,134,10,0.1)", fontFamily: "'Outfit',sans-serif" }} onFocus={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.3)"} onBlur={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.1)"} />
+    <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search articles..." className="w-full rounded-xl px-5 py-3.5 text-[15px] text-[var(--text-primary)] outline-none mb-7 transition-all" style={{ background: "rgba(14,20,36,0.03)", border: "1px solid rgba(34,211,238,0.1)", fontFamily: "'Inter Tight',sans-serif" }} onFocus={e => e.currentTarget.style.borderColor = "rgba(34,211,238,0.3)"} onBlur={e => e.currentTarget.style.borderColor = "rgba(34,211,238,0.1)"} />
 
-    {!search && <div className="rounded-2xl p-5 mb-7" style={{ background: "rgba(212,134,10,0.04)", border: "1px solid rgba(212,134,10,0.08)" }}>
+    {!search && <div className="rounded-2xl p-5 mb-7" style={{ background: "rgba(34,211,238,0.04)", border: "1px solid rgba(34,211,238,0.08)" }}>
       <h3 className="text-[15px] font-bold font-heading mb-3" style={{ color: "var(--accent-primary)" }}>Getting Started</h3>
       <div className="space-y-1.5">{gettingStarted.map(s => <button key={s.step} onClick={() => setOpenId(s.id)} className="w-full text-left flex items-center gap-3 p-2.5 rounded-xl transition-all hover:translate-x-1" style={{ background: "transparent" }}>
         <div className="w-6 h-6 rounded-full flex items-center justify-center text-[15px] font-bold text-white shrink-0" style={{ background: "var(--accent-primary)" }}>{s.step}</div>
@@ -312,9 +312,9 @@ function KnowledgeBaseTab() {
     </div>}
 
     {Object.entries(groups).map(([cat, items]) => <div key={cat} className="mb-6">
-      <h3 className="text-[15px] font-bold uppercase tracking-[2px] mb-3" style={{ color: "rgba(212,134,10,0.4)" }}>{cat}</h3>
-      <div className="space-y-2">{items.map(([id, e]) => <div key={id} className="rounded-xl p-4 flex items-center gap-3 cursor-pointer transition-all hover:translate-x-1" style={{ background: "rgba(255,250,240,0.02)", border: "1px solid rgba(212,134,10,0.06)" }} onClick={() => setOpenId(id)}>
-        <div className="flex-1 min-w-0"><div className="text-[15px] font-semibold text-[var(--text-primary)] font-heading">{e.title}</div><div className="text-[15px] mt-0.5 truncate" style={{ color: "rgba(212,134,10,0.35)" }}>{e.summary}</div></div>
+      <h3 className="text-[15px] font-bold uppercase tracking-[2px] mb-3" style={{ color: "rgba(34,211,238,0.4)" }}>{cat}</h3>
+      <div className="space-y-2">{items.map(([id, e]) => <div key={id} className="rounded-xl p-4 flex items-center gap-3 cursor-pointer transition-all hover:translate-x-1" style={{ background: "rgba(14,20,36,0.02)", border: "1px solid rgba(34,211,238,0.06)" }} onClick={() => setOpenId(id)}>
+        <div className="flex-1 min-w-0"><div className="text-[15px] font-semibold text-[var(--text-primary)] font-heading">{e.title}</div><div className="text-[15px] mt-0.5 truncate" style={{ color: "rgba(34,211,238,0.35)" }}>{e.summary}</div></div>
         <div className="flex items-center gap-2 shrink-0">
           <span className="text-[15px] px-2 py-0.5 rounded-full font-semibold" style={{ background: `${e.categoryColor}15`, color: e.categoryColor }}>{e.category}</span>
           <button onClick={ev => { ev.stopPropagation(); toggleBookmark(id); }} className="text-[14px] transition-opacity hover:opacity-100" style={{ opacity: bookmarks.includes(id) ? 1 : 0.3 }}>{bookmarks.includes(id) ? "⭐" : "☆"}</button>
@@ -340,9 +340,9 @@ function UseCasesTab() {
   const [openId, setOpenId] = useState<string | null>(null);
   const uc = USE_CASES.find(u => u.id === openId);
   if (uc) return <div style={{ animation: "fadeIn 0.3s ease-out" }}>
-    <button onClick={() => setOpenId(null)} className="text-[15px] hover:text-[var(--accent-primary)] mb-5 flex items-center gap-1.5 group transition-colors" style={{ color: "rgba(212,134,10,0.4)" }}><span className="group-hover:-translate-x-0.5 transition-transform">←</span> Back</button>
-    <div className="rounded-2xl p-7" style={{ background: "rgba(255,250,240,0.02)", border: "1px solid rgba(212,134,10,0.08)" }}>
-      <div className="flex items-center gap-2 mb-2"><span className="text-2xl">{uc.icon}</span><span className="text-[15px] px-2.5 py-0.5 rounded-full font-semibold" style={{ background: "rgba(212,134,10,0.08)", color: "var(--accent-primary)" }}>{uc.industry}</span></div>
+    <button onClick={() => setOpenId(null)} className="text-[15px] hover:text-[var(--accent-primary)] mb-5 flex items-center gap-1.5 group transition-colors" style={{ color: "rgba(34,211,238,0.4)" }}><span className="group-hover:-translate-x-0.5 transition-transform">←</span> Back</button>
+    <div className="rounded-2xl p-7" style={{ background: "rgba(14,20,36,0.02)", border: "1px solid rgba(34,211,238,0.08)" }}>
+      <div className="flex items-center gap-2 mb-2"><span className="text-2xl">{uc.icon}</span><span className="text-[15px] px-2.5 py-0.5 rounded-full font-semibold" style={{ background: "rgba(34,211,238,0.08)", color: "var(--accent-primary)" }}>{uc.industry}</span></div>
       <h2 className="text-[20px] font-bold font-heading text-[var(--text-primary)] mb-1">{uc.company}</h2>
       <div className="text-[15px] font-semibold mb-4" style={{ color: "var(--accent-primary)" }}>{uc.challenge}</div>
       <div className="rounded-xl p-4 mb-5" style={{ background: "rgba(16,185,129,0.04)", border: "1px solid rgba(16,185,129,0.1)" }}><div className="text-[15px] font-bold uppercase tracking-wider mb-1" style={{ color: "var(--success)" }}>Outcome</div><div className="text-[15px] text-[var(--text-primary)] font-semibold">{uc.outcome}</div></div>
@@ -352,11 +352,11 @@ function UseCasesTab() {
 
   return <div>
     <h1 className="text-[24px] font-bold font-heading text-[var(--text-primary)] mb-2" style={{ letterSpacing: "-0.5px" }}>Use Cases</h1>
-    <p className="text-[14px] mb-7" style={{ color: "rgba(212,134,10,0.4)" }}>Real-world consulting scenarios.</p>
-    <div className="grid grid-cols-2 gap-4">{USE_CASES.map(uc => <div key={uc.id} onClick={() => setOpenId(uc.id)} className="rounded-2xl p-5 cursor-pointer transition-all hover:translate-y-[-2px]" style={{ background: "rgba(255,250,240,0.02)", border: "1px solid rgba(212,134,10,0.06)" }}>
-      <div className="flex items-center gap-2 mb-2"><span className="text-xl">{uc.icon}</span><span className="text-[15px] px-2 py-0.5 rounded-full font-semibold" style={{ background: "rgba(212,134,10,0.08)", color: "var(--accent-primary)" }}>{uc.industry}</span></div>
+    <p className="text-[14px] mb-7" style={{ color: "rgba(34,211,238,0.4)" }}>Real-world consulting scenarios.</p>
+    <div className="grid grid-cols-2 gap-4">{USE_CASES.map(uc => <div key={uc.id} onClick={() => setOpenId(uc.id)} className="rounded-2xl p-5 cursor-pointer transition-all hover:translate-y-[-2px]" style={{ background: "rgba(14,20,36,0.02)", border: "1px solid rgba(34,211,238,0.06)" }}>
+      <div className="flex items-center gap-2 mb-2"><span className="text-xl">{uc.icon}</span><span className="text-[15px] px-2 py-0.5 rounded-full font-semibold" style={{ background: "rgba(34,211,238,0.08)", color: "var(--accent-primary)" }}>{uc.industry}</span></div>
       <div className="text-[15px] font-semibold text-[var(--text-primary)] font-heading mb-1">{uc.company}</div>
-      <div className="text-[15px] mb-3" style={{ color: "rgba(212,134,10,0.35)" }}>{uc.challenge}</div>
+      <div className="text-[15px] mb-3" style={{ color: "rgba(34,211,238,0.35)" }}>{uc.challenge}</div>
       <div className="text-[15px] font-semibold" style={{ color: "var(--success)" }}>{uc.outcome}</div>
     </div>)}</div>
   </div>;
@@ -383,15 +383,15 @@ function TutorialsTab() {
   const [requestText, setRequestText] = useState("");
   const tut = TUTORIALS.find(t => t.id === openId);
   if (tut) return <div style={{ animation: "fadeIn 0.3s ease-out" }}>
-    <button onClick={() => setOpenId(null)} className="text-[15px] hover:text-[var(--accent-primary)] mb-5 flex items-center gap-1.5 transition-colors" style={{ color: "rgba(212,134,10,0.4)" }}>← Back</button>
-    <div className="rounded-2xl p-8 text-center mb-5" style={{ background: "linear-gradient(135deg, rgba(212,134,10,0.06), rgba(192,112,48,0.03))", border: "1px solid rgba(212,134,10,0.1)", minHeight: 180 }}>
+    <button onClick={() => setOpenId(null)} className="text-[15px] hover:text-[var(--accent-primary)] mb-5 flex items-center gap-1.5 transition-colors" style={{ color: "rgba(34,211,238,0.4)" }}>← Back</button>
+    <div className="rounded-2xl p-8 text-center mb-5" style={{ background: "linear-gradient(135deg, rgba(34,211,238,0.06), rgba(34,211,238,0.03))", border: "1px solid rgba(34,211,238,0.1)", minHeight: 180 }}>
       <div className="text-5xl mb-3 opacity-30">▶️</div>
       <div className="text-[14px] font-semibold text-[var(--text-primary)]">Video Coming Soon</div>
-      <div className="text-[15px] mt-1" style={{ color: "rgba(212,134,10,0.4)" }}>{tut.title} &middot; {tut.duration}</div>
+      <div className="text-[15px] mt-1" style={{ color: "rgba(34,211,238,0.4)" }}>{tut.title} &middot; {tut.duration}</div>
     </div>
-    <div className="rounded-2xl p-6" style={{ background: "rgba(255,250,240,0.02)", border: "1px solid rgba(212,134,10,0.08)" }}>
+    <div className="rounded-2xl p-6" style={{ background: "rgba(14,20,36,0.02)", border: "1px solid rgba(34,211,238,0.08)" }}>
       <h2 className="text-[18px] font-bold font-heading text-[var(--text-primary)] mb-2">{tut.title}</h2>
-      <div className="flex gap-2 mb-4"><span className="text-[14px] px-2.5 py-0.5 rounded-full font-semibold" style={{ background: "rgba(212,134,10,0.08)", color: "var(--accent-primary)" }}>{tut.level}</span><span className="text-[14px]" style={{ color: "rgba(212,134,10,0.35)" }}>{tut.duration}</span></div>
+      <div className="flex gap-2 mb-4"><span className="text-[14px] px-2.5 py-0.5 rounded-full font-semibold" style={{ background: "rgba(34,211,238,0.08)", color: "var(--accent-primary)" }}>{tut.level}</span><span className="text-[14px]" style={{ color: "rgba(34,211,238,0.35)" }}>{tut.duration}</span></div>
       <p className="text-[15px] text-[var(--text-secondary)] leading-[1.8]">{tut.desc}</p>
     </div>
   </div>;
@@ -399,16 +399,16 @@ function TutorialsTab() {
   const cats = [...new Set(TUTORIALS.map(t => t.cat))];
   return <div>
     <h1 className="text-[24px] font-bold font-heading text-[var(--text-primary)] mb-2" style={{ letterSpacing: "-0.5px" }}>Tutorials</h1>
-    <p className="text-[14px] mb-7" style={{ color: "rgba(212,134,10,0.4)" }}>Step-by-step guides for every feature.</p>
+    <p className="text-[14px] mb-7" style={{ color: "rgba(34,211,238,0.4)" }}>Step-by-step guides for every feature.</p>
     {cats.map(cat => <div key={cat} className="mb-6">
-      <h3 className="text-[15px] font-bold uppercase tracking-[2px] mb-3" style={{ color: "rgba(212,134,10,0.4)" }}>{cat}</h3>
-      <div className="grid grid-cols-3 gap-3">{TUTORIALS.filter(t => t.cat === cat).map(t => <div key={t.id} onClick={() => setOpenId(t.id)} className="rounded-2xl overflow-hidden cursor-pointer transition-all hover:translate-y-[-2px]" style={{ border: "1px solid rgba(212,134,10,0.06)" }}>
-        <div className="h-24 flex items-center justify-center" style={{ background: "linear-gradient(135deg, rgba(212,134,10,0.06), rgba(192,112,48,0.03))" }}><span className="text-3xl opacity-25" style={{ color: "var(--accent-primary)" }}>▶</span></div>
-        <div className="p-3.5" style={{ background: "rgba(255,250,240,0.02)" }}><div className="text-[15px] font-semibold text-[var(--text-primary)] font-heading mb-1">{t.title}</div><div className="flex gap-2 text-[14px]"><span style={{ color: "rgba(212,134,10,0.35)" }}>{t.duration}</span><span className="px-1.5 py-0.5 rounded-full" style={{ background: "rgba(212,134,10,0.06)", color: "var(--accent-primary)" }}>{t.level}</span></div></div>
+      <h3 className="text-[15px] font-bold uppercase tracking-[2px] mb-3" style={{ color: "rgba(34,211,238,0.4)" }}>{cat}</h3>
+      <div className="grid grid-cols-3 gap-3">{TUTORIALS.filter(t => t.cat === cat).map(t => <div key={t.id} onClick={() => setOpenId(t.id)} className="rounded-2xl overflow-hidden cursor-pointer transition-all hover:translate-y-[-2px]" style={{ border: "1px solid rgba(34,211,238,0.06)" }}>
+        <div className="h-24 flex items-center justify-center" style={{ background: "linear-gradient(135deg, rgba(34,211,238,0.06), rgba(34,211,238,0.03))" }}><span className="text-3xl opacity-25" style={{ color: "var(--accent-primary)" }}>▶</span></div>
+        <div className="p-3.5" style={{ background: "rgba(14,20,36,0.02)" }}><div className="text-[15px] font-semibold text-[var(--text-primary)] font-heading mb-1">{t.title}</div><div className="flex gap-2 text-[14px]"><span style={{ color: "rgba(34,211,238,0.35)" }}>{t.duration}</span><span className="px-1.5 py-0.5 rounded-full" style={{ background: "rgba(34,211,238,0.06)", color: "var(--accent-primary)" }}>{t.level}</span></div></div>
       </div>)}</div>
     </div>)}
-    <div className="rounded-2xl p-4 flex items-center gap-3" style={{ background: "rgba(255,250,240,0.02)", border: "1px solid rgba(212,134,10,0.06)" }}>
-      <input value={requestText} onChange={e => setRequestText(e.target.value)} placeholder="Request a tutorial topic..." className="flex-1 rounded-xl px-4 py-2.5 text-[15px] text-[var(--text-primary)] outline-none" style={{ background: "rgba(255,250,240,0.03)", border: "1px solid rgba(212,134,10,0.1)" }} />
+    <div className="rounded-2xl p-4 flex items-center gap-3" style={{ background: "rgba(14,20,36,0.02)", border: "1px solid rgba(34,211,238,0.06)" }}>
+      <input value={requestText} onChange={e => setRequestText(e.target.value)} placeholder="Request a tutorial topic..." className="flex-1 rounded-xl px-4 py-2.5 text-[15px] text-[var(--text-primary)] outline-none" style={{ background: "rgba(14,20,36,0.03)", border: "1px solid rgba(34,211,238,0.1)" }} />
       <button onClick={() => { if (requestText.trim()) { const r = JSON.parse(localStorage.getItem("tutorial_requests") || "[]"); r.push({ text: requestText, date: new Date().toISOString() }); localStorage.setItem("tutorial_requests", JSON.stringify(r)); setRequestText(""); }}} className="px-5 py-2.5 rounded-xl text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>Request</button>
     </div>
   </div>;
@@ -428,14 +428,14 @@ function ReleasesTab() {
 
   return <div>
     <h1 className="text-[24px] font-bold font-heading text-[var(--text-primary)] mb-7" style={{ letterSpacing: "-0.5px" }}>Release Notes</h1>
-    <div className="space-y-4">{releases.map(r => <div key={r.ver} className="flex gap-5 rounded-2xl p-5" style={{ background: "rgba(255,250,240,0.02)", border: "1px solid rgba(212,134,10,0.06)" }}>
+    <div className="space-y-4">{releases.map(r => <div key={r.ver} className="flex gap-5 rounded-2xl p-5" style={{ background: "rgba(14,20,36,0.02)", border: "1px solid rgba(34,211,238,0.06)" }}>
       {/* Timeline dot */}
-      <div className="flex flex-col items-center shrink-0 pt-1"><div className="w-3 h-3 rounded-full" style={{ background: "var(--accent-primary)", boxShadow: "0 0 8px rgba(212,134,10,0.3)" }} /><div className="w-0.5 flex-1 mt-1" style={{ background: "rgba(212,134,10,0.1)" }} /></div>
+      <div className="flex flex-col items-center shrink-0 pt-1"><div className="w-3 h-3 rounded-full" style={{ background: "var(--accent-primary)", boxShadow: "0 0 8px rgba(34,211,238,0.3)" }} /><div className="w-0.5 flex-1 mt-1" style={{ background: "rgba(34,211,238,0.1)" }} /></div>
       <div className="flex-1">
         <div className="flex items-center gap-3 mb-1">
           <span className="text-[16px] font-black font-data" style={{ color: "var(--accent-primary)" }}>v{r.ver}</span>
-          <span className="text-[15px]" style={{ color: "rgba(212,134,10,0.35)" }}>{r.date}</span>
-          {r.badges.map(b => <span key={b} className="text-[15px] font-bold px-2 py-0.5 rounded-full" style={{ color: b === "New Feature" ? "var(--success)" : b === "Improvement" ? "var(--accent-primary)" : "var(--text-muted)", background: b === "New Feature" ? "rgba(16,185,129,0.08)" : b === "Improvement" ? "rgba(212,134,10,0.08)" : "rgba(255,255,255,0.03)" }}>{b}</span>)}
+          <span className="text-[15px]" style={{ color: "rgba(34,211,238,0.35)" }}>{r.date}</span>
+          {r.badges.map(b => <span key={b} className="text-[15px] font-bold px-2 py-0.5 rounded-full" style={{ color: b === "New Feature" ? "var(--success)" : b === "Improvement" ? "var(--accent-primary)" : "var(--text-muted)", background: b === "New Feature" ? "rgba(16,185,129,0.08)" : b === "Improvement" ? "rgba(34,211,238,0.08)" : "rgba(255,255,255,0.03)" }}>{b}</span>)}
         </div>
         <div className="text-[14px] font-bold text-[var(--text-primary)] font-heading mb-1">{r.title}</div>
         <p className="text-[15px] text-[var(--text-secondary)] leading-relaxed">{r.desc}</p>
@@ -459,23 +459,23 @@ function FeedbackTab({ user }: { user: authApi.AuthUser }) {
 
   return <div>
     <h1 className="text-[24px] font-bold font-heading text-[var(--text-primary)] mb-7" style={{ letterSpacing: "-0.5px" }}>Feedback & Support</h1>
-    <div className="rounded-2xl p-6 mb-6" style={{ background: "rgba(255,250,240,0.02)", border: "1px solid rgba(212,134,10,0.08)" }}>
+    <div className="rounded-2xl p-6 mb-6" style={{ background: "rgba(14,20,36,0.02)", border: "1px solid rgba(34,211,238,0.08)" }}>
       <h3 className="text-[15px] font-bold font-heading text-[var(--text-primary)] mb-5">Submit Feedback</h3>
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div><label style={LBL}>Category</label><select value={cat} onChange={e => setCat(e.target.value)} style={IS}><option>Bug Report</option><option>Feature Request</option><option>General Feedback</option><option>Question</option></select></div>
           {cat === "Bug Report" && <div><label style={LBL}>Severity</label><select value={severity} onChange={e => setSeverity(e.target.value)} style={IS}><option>Low</option><option>Medium</option><option>High</option></select></div>}
         </div>
-        <div><label style={LBL}>Subject</label><input value={subject} onChange={e => setSubject(e.target.value)} placeholder="Brief description" style={IS} onFocus={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.4)"} onBlur={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.15)"} /></div>
-        <div><label style={LBL}>Description</label><textarea value={desc} onChange={e => setDesc(e.target.value)} placeholder="Detailed description..." rows={4} style={{ ...IS, resize: "vertical" as const }} onFocus={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.4)"} onBlur={e => e.currentTarget.style.borderColor = "rgba(212,134,10,0.15)"} /></div>
+        <div><label style={LBL}>Subject</label><input value={subject} onChange={e => setSubject(e.target.value)} placeholder="Brief description" style={IS} onFocus={e => e.currentTarget.style.borderColor = "rgba(34,211,238,0.4)"} onBlur={e => e.currentTarget.style.borderColor = "rgba(34,211,238,0.15)"} /></div>
+        <div><label style={LBL}>Description</label><textarea value={desc} onChange={e => setDesc(e.target.value)} placeholder="Detailed description..." rows={4} style={{ ...IS, resize: "vertical" as const }} onFocus={e => e.currentTarget.style.borderColor = "rgba(34,211,238,0.4)"} onBlur={e => e.currentTarget.style.borderColor = "rgba(34,211,238,0.15)"} /></div>
         <button onClick={submit} disabled={!subject.trim() || !desc.trim()} className="px-6 py-2.5 rounded-xl text-[15px] font-semibold text-white transition-all disabled:opacity-30" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>Submit Feedback</button>
       </div>
     </div>
-    {submitted.length > 0 && <div className="rounded-2xl p-6" style={{ background: "rgba(255,250,240,0.02)", border: "1px solid rgba(212,134,10,0.08)" }}>
+    {submitted.length > 0 && <div className="rounded-2xl p-6" style={{ background: "rgba(14,20,36,0.02)", border: "1px solid rgba(34,211,238,0.08)" }}>
       <h3 className="text-[15px] font-bold font-heading text-[var(--text-primary)] mb-4">My Submissions</h3>
-      <div className="space-y-2">{submitted.map((s, i) => <div key={i} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "rgba(212,134,10,0.03)", border: "1px solid rgba(212,134,10,0.05)" }}>
-        <div className="flex-1"><div className="text-[15px] font-semibold text-[var(--text-primary)]">{s.subject}</div><div className="text-[14px]" style={{ color: "rgba(212,134,10,0.35)" }}>{s.cat} &middot; {new Date(s.date).toLocaleDateString()}</div></div>
-        <span className="text-[14px] px-2 py-0.5 rounded-full font-semibold" style={{ background: "rgba(212,134,10,0.08)", color: "var(--accent-primary)" }}>{s.status}</span>
+      <div className="space-y-2">{submitted.map((s, i) => <div key={i} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "rgba(34,211,238,0.03)", border: "1px solid rgba(34,211,238,0.05)" }}>
+        <div className="flex-1"><div className="text-[15px] font-semibold text-[var(--text-primary)]">{s.subject}</div><div className="text-[14px]" style={{ color: "rgba(34,211,238,0.35)" }}>{s.cat} &middot; {new Date(s.date).toLocaleDateString()}</div></div>
+        <span className="text-[14px] px-2 py-0.5 rounded-full font-semibold" style={{ background: "rgba(34,211,238,0.08)", color: "var(--accent-primary)" }}>{s.status}</span>
       </div>)}</div>
     </div>}
   </div>;
@@ -511,7 +511,7 @@ function AdminTab() {
 
   return <div>
     <h1 className="text-[24px] font-bold font-heading text-[var(--text-primary)] mb-2" style={{ letterSpacing: "-0.5px" }}>Admin Panel</h1>
-    <p className="text-[14px] mb-7" style={{ color: "rgba(212,134,10,0.4)" }}>User management and platform analytics.</p>
+    <p className="text-[14px] mb-7" style={{ color: "rgba(34,211,238,0.4)" }}>User management and platform analytics.</p>
 
     {/* Stats row */}
     <div className="grid grid-cols-5 gap-3 mb-6">
@@ -520,40 +520,40 @@ function AdminTab() {
         { label: "Total Projects", value: stats.total_projects || 0 },
         { label: "AI Calls Today", value: (aiUsage as Record<string,unknown>).total_today || 0 },
         { label: "AI Limit/User", value: (aiUsage as Record<string,unknown>).limit_per_user || 20 },
-      ].map(s => <div key={s.label} className="rounded-xl p-4 text-center" style={{ background: "rgba(212,134,10,0.04)", border: "1px solid rgba(212,134,10,0.08)" }}>
+      ].map(s => <div key={s.label} className="rounded-xl p-4 text-center" style={{ background: "rgba(34,211,238,0.04)", border: "1px solid rgba(34,211,238,0.08)" }}>
         <div className="text-[22px] font-extrabold font-data" style={{ color: "var(--accent-primary)" }}>{String(s.value)}</div>
-        <div className="text-[14px] uppercase tracking-wider mt-0.5" style={{ color: "rgba(212,134,10,0.4)" }}>{s.label}</div>
+        <div className="text-[14px] uppercase tracking-wider mt-0.5" style={{ color: "rgba(34,211,238,0.4)" }}>{s.label}</div>
       </div>)}
     </div>
 
     {/* AI Usage per user */}
-    {Object.keys((aiUsage as Record<string,unknown>).per_user || {}).length > 0 && <div className="rounded-xl p-5 mb-6" style={{ background: "rgba(255,250,240,0.02)", border: "1px solid rgba(212,134,10,0.08)" }}>
+    {Object.keys((aiUsage as Record<string,unknown>).per_user || {}).length > 0 && <div className="rounded-xl p-5 mb-6" style={{ background: "rgba(14,20,36,0.02)", border: "1px solid rgba(34,211,238,0.08)" }}>
       <h3 className="text-[15px] font-bold font-heading text-[var(--text-primary)] mb-3">AI Usage by User (Today)</h3>
       <div className="space-y-1.5">{Object.entries((aiUsage as Record<string,Record<string,number>>).per_user || {}).map(([uid, count]) => <div key={uid} className="flex items-center gap-3">
         <span className="text-[15px] text-[var(--text-secondary)] w-32 truncate font-data">{uid.slice(0, 12)}...</span>
-        <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: "rgba(212,134,10,0.06)" }}><div className="h-full rounded-full" style={{ width: `${(count / 20) * 100}%`, background: "var(--accent-primary)" }} /></div>
+        <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: "rgba(34,211,238,0.06)" }}><div className="h-full rounded-full" style={{ width: `${(count / 20) * 100}%`, background: "var(--accent-primary)" }} /></div>
         <span className="text-[15px] font-data" style={{ color: "var(--accent-primary)" }}>{count}/20</span>
       </div>)}</div>
     </div>}
 
     {/* User table */}
-    <div className="rounded-xl overflow-hidden" style={{ border: "1px solid rgba(212,134,10,0.08)" }}>
+    <div className="rounded-xl overflow-hidden" style={{ border: "1px solid rgba(34,211,238,0.08)" }}>
       <table className="w-full text-[15px]">
-        <thead><tr style={{ background: "rgba(212,134,10,0.04)" }}>
-          {["Username", "Email", "Signup Date", "Last Login", "Activity", "Projects", "Status", ""].map(h => <th key={h} className="px-3 py-2.5 text-left text-[14px] font-semibold uppercase tracking-wider" style={{ color: "rgba(212,134,10,0.4)", borderBottom: "1px solid rgba(212,134,10,0.06)" }}>{h}</th>)}
+        <thead><tr style={{ background: "rgba(34,211,238,0.04)" }}>
+          {["Username", "Email", "Signup Date", "Last Login", "Activity", "Projects", "Status", ""].map(h => <th key={h} className="px-3 py-2.5 text-left text-[14px] font-semibold uppercase tracking-wider" style={{ color: "rgba(34,211,238,0.4)", borderBottom: "1px solid rgba(34,211,238,0.06)" }}>{h}</th>)}
         </tr></thead>
         <tbody>{users.map(u => {
           const activity = String(u.activity || "Never");
-          const actColors: Record<string, string> = { Online: "#10B981", Today: "#3B82F6", "This week": "#8B5CF6", "This month": "rgba(212,134,10,0.5)", Inactive: "#EF4444", Never: "rgba(212,134,10,0.3)" };
-          const actBgs: Record<string, string> = { Online: "rgba(16,185,129,0.1)", Today: "rgba(59,130,246,0.1)", "This week": "rgba(139,92,246,0.08)", "This month": "rgba(212,134,10,0.06)", Inactive: "rgba(239,68,68,0.08)", Never: "rgba(212,134,10,0.04)" };
-          return <tr key={String(u.id)} className="transition-colors" style={{ borderBottom: "1px solid rgba(212,134,10,0.04)" }}>
+          const actColors: Record<string, string> = { Online: "#10B981", Today: "#22d3ee", "This week": "#8B5CF6", "This month": "rgba(34,211,238,0.5)", Inactive: "#EF4444", Never: "rgba(34,211,238,0.3)" };
+          const actBgs: Record<string, string> = { Online: "rgba(16,185,129,0.1)", Today: "rgba(34,211,238,0.1)", "This week": "rgba(139,92,246,0.08)", "This month": "rgba(34,211,238,0.06)", Inactive: "rgba(239,68,68,0.08)", Never: "rgba(34,211,238,0.04)" };
+          return <tr key={String(u.id)} className="transition-colors" style={{ borderBottom: "1px solid rgba(34,211,238,0.04)" }}>
           <td className="px-3 py-2.5">
             <div className="font-semibold text-[var(--text-primary)]">{String(u.username)}</div>
-            {u.display_name && u.display_name !== u.username && <div className="text-[11px]" style={{ color: "rgba(212,134,10,0.35)" }}>{String(u.display_name)}</div>}
+            {u.display_name && u.display_name !== u.username && <div className="text-[11px]" style={{ color: "rgba(34,211,238,0.35)" }}>{String(u.display_name)}</div>}
           </td>
           <td className="px-3 py-2.5 text-[var(--text-secondary)] font-data text-[13px]">{String(u.email || "—")}</td>
-          <td className="px-3 py-2.5 font-data" style={{ color: "rgba(212,134,10,0.4)" }}>{String(u.created_at || "—")}</td>
-          <td className="px-3 py-2.5 font-data" style={{ color: "rgba(212,134,10,0.4)" }}>{String(u.last_login || "Never")}</td>
+          <td className="px-3 py-2.5 font-data" style={{ color: "rgba(34,211,238,0.4)" }}>{String(u.created_at || "—")}</td>
+          <td className="px-3 py-2.5 font-data" style={{ color: "rgba(34,211,238,0.4)" }}>{String(u.last_login || "Never")}</td>
           <td className="px-3 py-2.5"><span className="text-[12px] px-2 py-0.5 rounded-full font-semibold" style={{ color: actColors[activity] || actColors.Never, background: actBgs[activity] || actBgs.Never }}>{activity}</span></td>
           <td className="px-3 py-2.5 font-data text-center" style={{ color: "var(--accent-primary)" }}>{String(u.project_count || 0)}</td>
           <td className="px-3 py-2.5"><span className="text-[12px] px-2 py-0.5 rounded-full font-semibold" style={{ color: u.is_active ? "var(--success)" : "var(--risk)", background: u.is_active ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)" }}>{u.is_active ? "Active" : "Disabled"}</span></td>
