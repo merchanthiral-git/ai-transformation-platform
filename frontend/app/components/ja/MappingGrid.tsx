@@ -49,7 +49,7 @@ interface Props {
 const STATUS_COLORS: Record<string, string> = {
   confirmed: "var(--sage)",
   ai_suggested: "var(--amber)",
-  unmapped: "var(--ink-soft)",
+  unmapped: "#c9bfa8",
   rejected: "var(--coral)",
   changes_requested: "#EAB308",
 };
@@ -57,9 +57,9 @@ const STATUS_COLORS: Record<string, string> = {
 const S = {
   wrapper: { padding: "16px 20px" } as React.CSSProperties,
   filterBar: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" as const, marginBottom: 14 } as React.CSSProperties,
-  searchBox: { display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 6, minWidth: 220 } as React.CSSProperties,
+  searchBox: { display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", background: "#1e2030", border: "1px solid var(--border)", borderRadius: 6, minWidth: 220 } as React.CSSProperties,
   searchInput: { flex: 1, background: "transparent", border: "none", color: "var(--text-primary)", fontSize: "var(--text-xs)", outline: "none" } as React.CSSProperties,
-  pill: (active: boolean) => ({ padding: "4px 12px", fontSize: 11, fontWeight: "var(--fw-medium)", border: `1px solid ${active ? "var(--amber)" : "var(--border)"}`, borderRadius: 14, background: active ? "rgba(244,168,58,0.1)" : "var(--surface-2)", color: active ? "var(--amber)" : "var(--text-muted)", cursor: "pointer", whiteSpace: "nowrap" as const }) as React.CSSProperties,
+  pill: (active: boolean) => ({ padding: "4px 12px", fontSize: 11, fontWeight: "var(--fw-medium)", border: `1px solid ${active ? "var(--amber)" : "var(--border)"}`, borderRadius: 14, background: active ? "rgba(244,168,58,0.1)" : "#1e2030", color: active ? "var(--amber)" : "#8a7f6d", cursor: "pointer", whiteSpace: "nowrap" as const }) as React.CSSProperties,
   autoMapBtn: { display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 14px", fontSize: "var(--text-xs)", fontWeight: "var(--fw-semi)", border: "none", borderRadius: 6, background: "var(--amber)", color: "#fff", cursor: "pointer", marginLeft: "auto" } as React.CSSProperties,
   bulkBar: { display: "flex", alignItems: "center", gap: 8, padding: "8px 14px", background: "rgba(244,168,58,0.06)", border: "1px solid rgba(244,168,58,0.15)", borderRadius: 8, marginBottom: 10, fontSize: "var(--text-xs)" } as React.CSSProperties,
   table: { width: "100%", borderCollapse: "separate" as const, borderSpacing: 0 } as React.CSSProperties,
@@ -68,7 +68,7 @@ const S = {
   groupHeader: { padding: "3px 10px", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.6)", textTransform: "uppercase" as const, letterSpacing: "0.08em", background: "var(--paper-solid)", textAlign: "center" as const } as React.CSSProperties,
   dividerTh: { width: 2, background: "var(--ink)", padding: 0, borderBottom: "2px solid #161822" } as React.CSSProperties,
   td: { padding: "7px 10px", fontSize: "var(--text-xs)", color: "var(--text-secondary)", borderBottom: "1px solid var(--border)", verticalAlign: "middle" as const } as React.CSSProperties,
-  statusStrip: (status: string) => ({ width: 4, padding: 0, background: STATUS_COLORS[status] || "var(--ink-soft)", borderBottom: "1px solid var(--border)" }) as React.CSSProperties,
+  statusStrip: (status: string) => ({ width: 4, padding: 0, background: STATUS_COLORS[status] || "#c9bfa8", borderBottom: "1px solid var(--border)" }) as React.CSSProperties,
   dividerTd: { width: 2, background: "var(--paper-solid)", padding: 0, borderBottom: "1px solid var(--border)" } as React.CSSProperties,
   changedCell: { color: "var(--amber)", fontWeight: "var(--fw-semi)" } as React.CSSProperties,
   changeArrow: { color: "var(--amber)", fontSize: 11, marginLeft: 3 } as React.CSSProperties,
@@ -79,15 +79,15 @@ const S = {
   }) as React.CSSProperties,
   actionBtn: (color: string) => ({ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 24, height: 24, border: "none", borderRadius: 4, background: "transparent", color, cursor: "pointer", fontSize: 13 }) as React.CSSProperties,
   patternBadge: (pattern: string) => {
-    const colors: Record<string, string> = { split: "var(--dusk)", merge: "var(--sage)", new: "var(--amber)", sunset: "var(--coral)" };
-    return { display: "inline-flex", alignItems: "center", gap: 3, padding: "1px 6px", fontSize: 11, fontWeight: 600, borderRadius: 3, background: `${colors[pattern] || "var(--surface-2)"}20`, color: colors[pattern] || "var(--text-muted)" } as React.CSSProperties;
+    const colors: Record<string, string> = { split: "#a78bb8", merge: "#8ba87a", new: "#f4a83a", sunset: "#e87a5d" };
+    return { display: "inline-flex", alignItems: "center", gap: 3, padding: "1px 6px", fontSize: 11, fontWeight: 600, borderRadius: 3, background: `${colors[pattern] || "#1e2030"}20`, color: colors[pattern] || "#8a7f6d" } as React.CSSProperties;
   },
-  pager: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 0", fontSize: "var(--text-xs)", color: "var(--text-muted)" } as React.CSSProperties,
-  pageBtn: (disabled: boolean) => ({ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 28, height: 28, border: "1px solid var(--border)", borderRadius: 4, background: "var(--surface-2)", color: disabled ? "var(--border)" : "var(--text-secondary)", cursor: disabled ? "default" : "pointer", opacity: disabled ? 0.5 : 1 }) as React.CSSProperties,
+  pager: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 0", fontSize: "var(--text-xs)", color: "#8a7f6d" } as React.CSSProperties,
+  pageBtn: (disabled: boolean) => ({ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 28, height: 28, border: "1px solid var(--border)", borderRadius: 4, background: "#1e2030", color: disabled ? "var(--border)" : "var(--text-secondary)", cursor: disabled ? "default" : "pointer", opacity: disabled ? 0.5 : 1 }) as React.CSSProperties,
   flagIcon: { color: "var(--amber)", marginLeft: 4, verticalAlign: "middle" } as React.CSSProperties,
-  summary: { display: "flex", gap: 16, marginBottom: 10, fontSize: "var(--text-xs)", color: "var(--text-muted)" } as React.CSSProperties,
+  summary: { display: "flex", gap: 16, marginBottom: 10, fontSize: "var(--text-xs)", color: "#8a7f6d" } as React.CSSProperties,
   summaryDot: (color: string) => ({ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: color, marginRight: 4 }) as React.CSSProperties,
-  kbd: { display: "inline-block", padding: "1px 5px", fontSize: 11, background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 3, fontFamily: "var(--ff-mono)", color: "var(--text-muted)" } as React.CSSProperties,
+  kbd: { display: "inline-block", padding: "1px 5px", fontSize: 11, background: "#1e2030", border: "1px solid var(--border)", borderRadius: 3, fontFamily: "var(--ff-mono)", color: "#8a7f6d" } as React.CSSProperties,
 };
 
 /* ═══════════════════════════════════════════════════════════════
@@ -243,7 +243,7 @@ export default function MappingGrid({ model, projectId, scenarioId, onRoleClick,
       <div style={S.summary}>
         <span><span style={S.summaryDot("var(--sage)")} />{summary.mapped || 0} mapped</span>
         <span><span style={S.summaryDot("var(--amber)")} />{summary.ai_suggested || 0} AI suggested</span>
-        <span><span style={S.summaryDot("var(--ink-soft)")} />{summary.unmapped || 0} unmapped</span>
+        <span><span style={S.summaryDot("#c9bfa8")} />{summary.unmapped || 0} unmapped</span>
         <span><span style={S.summaryDot("var(--coral)")} />{summary.rejected || 0} rejected</span>
         {(summary.total_flags || 0) > 0 && <span><AlertTriangle size={11} style={{ color: "var(--amber)" }} /> {summary.total_flags} flags</span>}
         <span style={{ marginLeft: "auto", fontSize: 11 }}>
@@ -254,9 +254,9 @@ export default function MappingGrid({ model, projectId, scenarioId, onRoleClick,
       {/* Filter bar */}
       <div style={S.filterBar}>
         <div style={S.searchBox}>
-          <Search size={13} style={{ color: "var(--text-muted)" }} />
+          <Search size={13} style={{ color: "#8a7f6d" }} />
           <input id="ja-grid-search" style={S.searchInput} value={search} onChange={e => { setSearch(e.target.value); setPage(0); }} placeholder="Search roles…" />
-          {search && <button style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", padding: 0 }} onClick={() => setSearch("")}><X size={12} /></button>}
+          {search && <button style={{ background: "none", border: "none", color: "#8a7f6d", cursor: "pointer", padding: 0 }} onClick={() => setSearch("")}><X size={12} /></button>}
         </div>
 
         {/* Status pills */}
@@ -357,7 +357,7 @@ export default function MappingGrid({ model, projectId, scenarioId, onRoleClick,
                 >
                   {/* Checkbox */}
                   <td style={{ ...S.td, width: 32, textAlign: "center" }}>
-                    <button style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer" }}
+                    <button style={{ background: "none", border: "none", color: "#8a7f6d", cursor: "pointer" }}
                       onClick={e => { e.stopPropagation(); toggleSelect(c.id); }}>
                       {isSelected ? <CheckSquare size={13} style={{ color: "var(--amber)" }} /> : <Square size={13} />}
                     </button>
@@ -378,7 +378,7 @@ export default function MappingGrid({ model, projectId, scenarioId, onRoleClick,
                         </span>
                       )}
                     </div>
-                    <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 1 }}>
+                    <div style={{ fontSize: 11, color: "#8a7f6d", marginTop: 1 }}>
                       {c.incumbent_count} incumbent{c.incumbent_count !== 1 ? "s" : ""}
                       {row.track_change && <span style={{ marginLeft: 6, color: "var(--amber)", fontWeight: "var(--fw-semi)" }}>Track change</span>}
                     </div>
@@ -416,7 +416,7 @@ export default function MappingGrid({ model, projectId, scenarioId, onRoleClick,
               );
             })}
             {rows.length === 0 && !loading && (
-              <tr><td colSpan={15} style={{ ...S.td, textAlign: "center", padding: 40, color: "var(--text-muted)" }}>
+              <tr><td colSpan={15} style={{ ...S.td, textAlign: "center", padding: 40, color: "#8a7f6d" }}>
                 {search || statusFilter ? "No roles match the current filters" : "No roles imported yet. Use the Import tab to load current-state data."}
               </td></tr>
             )}

@@ -892,11 +892,11 @@ export function ArchitectureMapTab({ tree, jobs, employees, model }: {
         {/* Mapping type buttons */}
         <div style={{ padding: "8px 6px", display: "flex", flexDirection: "column", gap: 4 }}>
           {[
-            { type: "one-to-one", label: "1:1 Continue", color: "var(--amber)" },
-            { type: "one-to-many", label: "Split 1:Many", color: "var(--dusk)" },
-            { type: "many-to-one", label: "Merge Many:1", color: "var(--amber)" },
-            { type: "new", label: "New Role", color: "var(--sage)" },
-            { type: "sunset", label: "Sunset", color: "var(--coral)" },
+            { type: "one-to-one", label: "1:1 Continue", color: "#f4a83a" },
+            { type: "one-to-many", label: "Split 1:Many", color: "#a78bb8" },
+            { type: "many-to-one", label: "Merge Many:1", color: "#f4a83a" },
+            { type: "new", label: "New Role", color: "#8ba87a" },
+            { type: "sunset", label: "Sunset", color: "#e87a5d" },
           ].map(btn => <button key={btn.type} disabled={!mappingMode} style={{ padding: "5px 8px", borderRadius: 6, fontSize: 11, fontWeight: 600, border: `1px solid ${btn.color}30`, background: `${btn.color}08`, color: mappingMode ? btn.color : "var(--ink-faint)", cursor: mappingMode ? "pointer" : "not-allowed", opacity: mappingMode ? 1 : 0.5, transition: "all 0.15s" }}>{btn.label}</button>)}
         </div>
         {/* Existing mappings */}

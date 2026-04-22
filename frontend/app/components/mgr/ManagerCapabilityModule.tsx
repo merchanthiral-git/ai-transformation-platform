@@ -44,11 +44,11 @@ interface Props {
    ═══════════════════════════════════════════════════════════════ */
 
 const SEG_CONFIG: Record<string, { label: string; color: string; bg: string; icon: string }> = {
-  champion: { label: "Champion", color: "var(--sage)", bg: "rgba(34,197,94,0.08)", icon: "★" },
-  capable: { label: "Capable", color: "var(--amber)", bg: "rgba(244,168,58,0.06)", icon: "●" },
-  developing: { label: "Developing", color: "var(--amber)", bg: "rgba(244,168,58,0.06)", icon: "◐" },
-  blocker: { label: "Blocker", color: "var(--coral)", bg: "rgba(232,122,93,0.08)", icon: "✕" },
-  detached: { label: "Detached", color: "var(--ink-soft)", bg: "rgba(156,163,175,0.08)", icon: "○" },
+  champion: { label: "Champion", color: "#8ba87a", bg: "rgba(34,197,94,0.08)", icon: "★" },
+  capable: { label: "Capable", color: "#f4a83a", bg: "rgba(244,168,58,0.06)", icon: "●" },
+  developing: { label: "Developing", color: "#f4a83a", bg: "rgba(244,168,58,0.06)", icon: "◐" },
+  blocker: { label: "Blocker", color: "#e87a5d", bg: "rgba(232,122,93,0.08)", icon: "✕" },
+  detached: { label: "Detached", color: "#c9bfa8", bg: "rgba(156,163,175,0.08)", icon: "○" },
 };
 
 const DIM_LABELS: Record<string, string> = {
@@ -267,7 +267,7 @@ export default function ManagerCapabilityModule({ model, projectId }: Props) {
 
       {/* ── Segment filter pills ── */}
       <div style={S.segPills}>
-        <button style={S.segPill(segFilter === "", "var(--amber)")} onClick={() => setSegFilter("")}>All ({s?.total_managers || 0})</button>
+        <button style={S.segPill(segFilter === "", "#f4a83a")} onClick={() => setSegFilter("")}>All ({s?.total_managers || 0})</button>
         {Object.entries(SEG_CONFIG).map(([key, cfg]) => (
           <button key={key} style={S.segPill(segFilter === key, cfg.color)} onClick={() => setSegFilter(segFilter === key ? "" : key)}>
             {cfg.icon} {cfg.label} ({s?.segments?.[key] || 0})

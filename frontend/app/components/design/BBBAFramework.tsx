@@ -30,14 +30,14 @@ export function BBBAFramework({ model, f, onBack, onNavigate, jobStates, viewCtx
   }, [rawRoles]);
 
   const summary = (data?.summary || {}) as Record<string, unknown>;
-  const dispColors: Record<string, string> = { Build: "var(--success)", Buy: "var(--accent-primary)", Borrow: "var(--warning)", Automate: "var(--purple)" };
+  const dispColors: Record<string, string> = { Build: "#8ba87a", Buy: "#f4a83a", Borrow: "#f4a83a", Automate: "#a78bb8" };
 
   // Strategy meta
   const strategies = [
-    { id: "Build", color: "var(--success)", label: "Train your existing people", pros: "Cheapest long-term, retains culture", cons: "Slowest (3-12mo)", best: "Skills adjacent to current", cost: "$", time: "3-12mo" },
-    { id: "Buy", color: "var(--accent-primary)", label: "Hire new talent externally", pros: "Exact skills immediately", cons: "Expensive, culture risk", best: "Skills don't exist internally", cost: "$$$", time: "2-6mo" },
-    { id: "Borrow", color: "var(--warning)", label: "Use contractors or consultants", pros: "Fastest, no commitment", cons: "No knowledge transfer", best: "Temporary or specialized need", cost: "$$", time: "1mo" },
-    { id: "Automate", color: "var(--purple)", label: "Deploy AI or technology", pros: "Scales infinitely, low ongoing cost", cons: "Upfront investment, change mgmt", best: "Repetitive, rule-based tasks", cost: "$$ then $", time: "2-4mo" },
+    { id: "Build", color: "#8ba87a", label: "Train your existing people", pros: "Cheapest long-term, retains culture", cons: "Slowest (3-12mo)", best: "Skills adjacent to current", cost: "$", time: "3-12mo" },
+    { id: "Buy", color: "#f4a83a", label: "Hire new talent externally", pros: "Exact skills immediately", cons: "Expensive, culture risk", best: "Skills don't exist internally", cost: "$$$", time: "2-6mo" },
+    { id: "Borrow", color: "#f4a83a", label: "Use contractors or consultants", pros: "Fastest, no commitment", cons: "No knowledge transfer", best: "Temporary or specialized need", cost: "$$", time: "1mo" },
+    { id: "Automate", color: "#a78bb8", label: "Deploy AI or technology", pros: "Scales infinitely, low ongoing cost", cons: "Upfront investment, change mgmt", best: "Repetitive, rule-based tasks", cost: "$$ then $", time: "2-4mo" },
   ];
   const [showStratInfo, setShowStratInfo] = useState(true);
   const getDisp = (role: string, orig: string) => overrides[role] || orig;

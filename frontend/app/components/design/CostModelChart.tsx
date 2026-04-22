@@ -87,7 +87,7 @@ function CostRow({
 }) {
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
-  const trackColor = TRACK_COLORS[row.layer.charAt(0)] || "var(--amber)";
+  const trackColor = TRACK_COLORS[row.layer.charAt(0)] || "#f4a83a";
   const barWidth = maxCost > 0 ? (Math.max(row.currentCost, row.futureCost) / maxCost) * 100 : 0;
 
   const delta = row.deltaCost;
@@ -193,7 +193,7 @@ function CostRow({
 }
 
 function TrackSection({ label, trackKey, rows, maxCost }: { label: string; trackKey: string; rows: ComputedRow[]; maxCost: number }) {
-  const trackColor = TRACK_COLORS[trackKey] || "var(--amber)";
+  const trackColor = TRACK_COLORS[trackKey] || "#f4a83a";
   const curTotal = rows.reduce((s, r) => s + r.currentCost, 0);
   const futTotal = rows.reduce((s, r) => s + r.futureCost, 0);
   const delta = futTotal - curTotal;

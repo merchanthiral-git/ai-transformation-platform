@@ -37,21 +37,21 @@ interface Props {
    STYLES
    ═══════════════════════════════════════════════════════════════ */
 
-const SEV_COLORS: Record<string, string> = { error: "var(--coral)", warning: "var(--amber)", info: "var(--amber)" };
+const SEV_COLORS: Record<string, string> = { error: "#e87a5d", warning: "#f4a83a", info: "#f4a83a" };
 
 const S = {
   page: { padding: "24px 28px", maxWidth: 1100, margin: "0 auto" } as React.CSSProperties,
   h2: { fontSize: "var(--text-lg)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)", margin: "0 0 4px" } as React.CSSProperties,
-  subtitle: { fontSize: "var(--text-xs)", color: "var(--text-muted)", marginBottom: 20 } as React.CSSProperties,
+  subtitle: { fontSize: "var(--text-xs)", color: "#8a7f6d", marginBottom: 20 } as React.CSSProperties,
   tabs: { display: "flex", borderBottom: "1px solid var(--border)", marginBottom: 20, gap: 0 } as React.CSSProperties,
-  tab: (active: boolean) => ({ padding: "8px 16px", fontSize: "var(--text-xs)", fontWeight: active ? "var(--fw-semi)" : "var(--fw-medium)", color: active ? "var(--amber)" : "var(--text-muted)", borderBottom: active ? "2px solid #f4a83a" : "2px solid transparent", background: "none", border: "none", cursor: "pointer" }) as React.CSSProperties,
+  tab: (active: boolean) => ({ padding: "8px 16px", fontSize: "var(--text-xs)", fontWeight: active ? "var(--fw-semi)" : "var(--fw-medium)", color: active ? "var(--amber)" : "#8a7f6d", borderBottom: active ? "2px solid #f4a83a" : "2px solid transparent", background: "none", border: "none", cursor: "pointer" }) as React.CSSProperties,
   section: { background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 10, marginBottom: 16, overflow: "hidden" } as React.CSSProperties,
   ruleRow: { display: "flex", alignItems: "center", gap: 12, padding: "12px 18px", borderBottom: "1px solid var(--border)" } as React.CSSProperties,
-  sevDot: (sev: string) => ({ width: 8, height: 8, borderRadius: "50%", background: SEV_COLORS[sev] || "var(--ink-soft)", flexShrink: 0 }) as React.CSSProperties,
+  sevDot: (sev: string) => ({ width: 8, height: 8, borderRadius: "50%", background: SEV_COLORS[sev] || "#c9bfa8", flexShrink: 0 }) as React.CSSProperties,
   ruleInfo: { flex: 1 } as React.CSSProperties,
   ruleName: { fontSize: "var(--text-xs)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)" } as React.CSSProperties,
-  ruleDesc: { fontSize: 11, color: "var(--text-muted)", marginTop: 1 } as React.CSSProperties,
-  thresholdInput: { width: 60, padding: "4px 8px", fontSize: "var(--text-xs)", background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 4, color: "var(--text-primary)", outline: "none", textAlign: "center" as const } as React.CSSProperties,
+  ruleDesc: { fontSize: 11, color: "#8a7f6d", marginTop: 1 } as React.CSSProperties,
+  thresholdInput: { width: 60, padding: "4px 8px", fontSize: "var(--text-xs)", background: "#1e2030", border: "1px solid var(--border)", borderRadius: 4, color: "var(--text-primary)", outline: "none", textAlign: "center" as const } as React.CSSProperties,
   toggleBtn: { background: "none", border: "none", cursor: "pointer", padding: 2, display: "flex" } as React.CSSProperties,
   groupHeader: (sev: string) => ({
     display: "flex", alignItems: "center", gap: 8, padding: "10px 18px",
@@ -59,13 +59,13 @@ const S = {
     borderBottom: "1px solid var(--border)", cursor: "pointer",
   }) as React.CSSProperties,
   violationRow: { display: "flex", alignItems: "center", gap: 10, padding: "8px 18px 8px 44px", borderBottom: "1px solid var(--border)", fontSize: "var(--text-xs)" } as React.CSSProperties,
-  suppressBtn: { display: "inline-flex", alignItems: "center", gap: 3, padding: "3px 8px", fontSize: 11, background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 4, color: "var(--text-muted)", cursor: "pointer" } as React.CSSProperties,
+  suppressBtn: { display: "inline-flex", alignItems: "center", gap: 3, padding: "3px 8px", fontSize: 11, background: "#1e2030", border: "1px solid var(--border)", borderRadius: 4, color: "#8a7f6d", cursor: "pointer" } as React.CSSProperties,
   badge: (count: number, sev: string) => ({
     display: "inline-flex", alignItems: "center", justifyContent: "center",
     minWidth: 20, height: 18, padding: "0 5px", borderRadius: 9,
     fontSize: 11, fontWeight: 700,
-    background: `${SEV_COLORS[sev] || "var(--ink-soft)"}18`,
-    color: SEV_COLORS[sev] || "var(--ink-soft)",
+    background: `${SEV_COLORS[sev] || "#c9bfa8"}18`,
+    color: SEV_COLORS[sev] || "#c9bfa8",
   }) as React.CSSProperties,
   summaryBar: { display: "flex", gap: 16, marginBottom: 20, fontSize: "var(--text-xs)" } as React.CSSProperties,
   summaryItem: (color: string) => ({ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 8, borderLeft: `3px solid ${color}` }) as React.CSSProperties,
@@ -147,7 +147,7 @@ export default function FlagRules({ projectId, scenarioId, onRoleClick }: Props)
   const infoCount = groups.filter(g => g.rule.severity === "info").reduce((s, g) => s + g.count, 0);
 
   if (loading) {
-    return <div style={S.page}><div style={{ textAlign: "center", padding: 60, color: "var(--text-muted)" }}>Loading flags…</div></div>;
+    return <div style={S.page}><div style={{ textAlign: "center", padding: 60, color: "#8a7f6d" }}>Loading flags…</div></div>;
   }
 
   return (
@@ -161,15 +161,15 @@ export default function FlagRules({ projectId, scenarioId, onRoleClick }: Props)
       <div style={S.summaryBar}>
         <div style={S.summaryItem("var(--coral)")}>
           <span style={{ fontSize: "var(--text-base)", fontWeight: "var(--fw-bold)", color: "var(--coral)" }}>{errorCount}</span>
-          <span style={{ color: "var(--text-muted)" }}>Errors</span>
+          <span style={{ color: "#8a7f6d" }}>Errors</span>
         </div>
         <div style={S.summaryItem("var(--amber)")}>
           <span style={{ fontSize: "var(--text-base)", fontWeight: "var(--fw-bold)", color: "var(--amber)" }}>{warnCount}</span>
-          <span style={{ color: "var(--text-muted)" }}>Warnings</span>
+          <span style={{ color: "#8a7f6d" }}>Warnings</span>
         </div>
         <div style={S.summaryItem("var(--amber)")}>
           <span style={{ fontSize: "var(--text-base)", fontWeight: "var(--fw-bold)", color: "var(--amber)" }}>{infoCount}</span>
-          <span style={{ color: "var(--text-muted)" }}>Info</span>
+          <span style={{ color: "#8a7f6d" }}>Info</span>
         </div>
       </div>
 
@@ -188,7 +188,7 @@ export default function FlagRules({ projectId, scenarioId, onRoleClick }: Props)
       {activeTab === "violations" && (
         <>
           {groups.length === 0 ? (
-            <div style={{ textAlign: "center", padding: 48, color: "var(--text-muted)" }}>
+            <div style={{ textAlign: "center", padding: 48, color: "#8a7f6d" }}>
               <Shield size={32} style={{ marginBottom: 8 }} />
               <div style={{ fontSize: "var(--text-sm)", fontWeight: "var(--fw-medium)" }}>No violations found</div>
               <div style={{ fontSize: "var(--text-xs)", marginTop: 4 }}>All rules pass — the architecture looks clean</div>
@@ -202,7 +202,7 @@ export default function FlagRules({ projectId, scenarioId, onRoleClick }: Props)
                     <span style={{ fontSize: "var(--text-xs)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)" }}>{group.rule.name}</span>
                   </div>
                   <span style={S.badge(group.count, group.rule.severity)}>{group.count}</span>
-                  <ChevronRight size={13} style={{ color: "var(--text-muted)", transform: expanded.has(group.rule.id) ? "rotate(90deg)" : "none", transition: "transform 0.15s" }} />
+                  <ChevronRight size={13} style={{ color: "#8a7f6d", transform: expanded.has(group.rule.id) ? "rotate(90deg)" : "none", transition: "transform 0.15s" }} />
                 </div>
                 {expanded.has(group.rule.id) && group.violations.map(v => (
                   <div key={v.id} style={S.violationRow}>
@@ -249,18 +249,18 @@ export default function FlagRules({ projectId, scenarioId, onRoleClick }: Props)
               </div>
               {rule.threshold !== null && (
                 <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                  <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Threshold:</span>
+                  <span style={{ fontSize: 11, color: "#8a7f6d" }}>Threshold:</span>
                   <input style={S.thresholdInput} type="number" value={rule.threshold}
                     onChange={e => updateThreshold(rule.id, Number(e.target.value))} />
                 </div>
               )}
-              <span style={{ fontSize: 11, color: "var(--text-muted)", padding: "2px 6px", border: "1px solid var(--border)", borderRadius: 3 }}>
+              <span style={{ fontSize: 11, color: "#8a7f6d", padding: "2px 6px", border: "1px solid var(--border)", borderRadius: 3 }}>
                 {rule.severity}
               </span>
               <button style={S.toggleBtn} onClick={() => toggleRule(rule.id, !rule.enabled)}>
                 {rule.enabled
                   ? <ToggleRight size={20} style={{ color: "var(--sage)" }} />
-                  : <ToggleLeft size={20} style={{ color: "var(--text-muted)" }} />}
+                  : <ToggleLeft size={20} style={{ color: "#8a7f6d" }} />}
               </button>
             </div>
           ))}

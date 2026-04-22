@@ -155,9 +155,9 @@ Paragraph 6 (RECOMMENDATION): Is this scenario right, and what are the specific 
             </div>
             <div className="flex gap-3">
               {[
-                { icon: "💰", label: `$${(totals.savings / 1000000).toFixed(1)}M`, sub: "savings/yr", color: "var(--success)" },
-                { icon: "📈", label: `${roi}x`, sub: "ROI", color: "var(--accent-primary)" },
-                { icon: "⏱️", label: `${breakEven}mo`, sub: "payback", color: "var(--amber)" },
+                { icon: "💰", label: `$${(totals.savings / 1000000).toFixed(1)}M`, sub: "savings/yr", color: "#8ba87a" },
+                { icon: "📈", label: `${roi}x`, sub: "ROI", color: "#f4a83a" },
+                { icon: "⏱️", label: `${breakEven}mo`, sub: "payback", color: "#f4a83a" },
               ].map(b => <div key={b.sub} className="rounded-xl px-4 py-2.5 text-center" style={{ background: `${b.color}08`, border: `1px solid ${b.color}20` }}>
                 <div className="text-[11px] opacity-60">{b.icon}</div>
                 <div className="text-[18px] font-extrabold" style={{ color: b.color, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>{b.label}</div>
@@ -307,7 +307,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
   }, [realJobs, f.func]);
   const activeJobs = filteredJobs;
 
-  const cfg = custom ? { label: "Custom", adoption: custAdopt / 100, timeline: custTimeline, ramp: 0.75, color: "var(--amber)" } : SIM_PRESETS[scenario];
+  const cfg = custom ? { label: "Custom", adoption: custAdopt / 100, timeline: custTimeline, ramp: 0.75, color: "#f4a83a" } : SIM_PRESETS[scenario];
 
   const scenData = activeJobs.map(j => {
     const rel = Math.round(j.aiEligibleHrs * cfg.adoption * cfg.ramp);
@@ -1535,7 +1535,7 @@ function StressTestTab({ projectId, model }: { projectId: string; model: string 
 
   const reset = () => { setShockType(null); setDescription(""); setScope("whole_org"); setScopeValue(""); setMagnitude(20); setTimeline("90_days"); };
 
-  const sevColor = (s: string) => s === "critical" ? "var(--risk)" : s === "high" ? "var(--warning)" : s === "medium" ? "var(--accent-primary)" : "var(--success)";
+  const sevColor = (s: string) => s === "critical" ? "#e87a5d" : s === "high" ? "#f4a83a" : s === "medium" ? "#f4a83a" : "#8ba87a";
   const sevBg = (s: string) => s === "critical" ? "rgba(232,122,93,0.08)" : s === "high" ? "rgba(244,168,58,0.08)" : s === "medium" ? "rgba(244,168,58,0.08)" : "rgba(139,168,122,0.08)";
   const sevLabel = (s: string) => s === "critical" ? "This shock poses existential risk to transformation timeline" : s === "high" ? "Significant disruption expected across multiple functions" : s === "medium" ? "Manageable with proactive intervention" : "Limited impact, monitor and adjust";
   const sevIcon = (s: string) => s === "critical" ? "🔴" : s === "high" ? "🟠" : s === "medium" ? "🟡" : "🟢";

@@ -7,19 +7,19 @@
 const DATA_FALLBACKS = ["#8B9DC3", "#C8A6DC", "#A8C8A4", "#E8B88F", "#7FB3C7", "#D4A574", "#B8A0C0", "#9FB8A0"];
 
 const SEMANTIC_FALLBACKS: Record<string, string> = {
-  success: "var(--sage)",
-  warn: "var(--amber)",
-  risk: "var(--coral)",
-  info: "var(--amber)",
-  insight: "var(--dusk)",
+  success: "#8ba87a",
+  warn: "#f4a83a",
+  risk: "#e87a5d",
+  info: "#f4a83a",
+  insight: "#a78bb8",
 };
 
 const TRACK_FALLBACKS: Record<string, string> = {
-  E: "var(--coral)",
-  M: "var(--amber)",
+  E: "#e87a5d",
+  M: "#f4a83a",
   P: "#2563EB",
-  S: "var(--amber)",
-  T: "var(--dusk)",
+  S: "#f4a83a",
+  T: "#a78bb8",
 };
 
 function getCSSVar(varName: string, fallback: string): string {

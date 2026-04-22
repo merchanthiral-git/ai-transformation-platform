@@ -26,9 +26,9 @@ export type KBEntry = {
 
 /* ── Category colors ── */
 const CAT_COLORS: Record<string, string> = {
-  "Overview": "var(--accent-primary)", "Diagnose": "var(--teal)", "Design": "var(--warning)",
-  "Simulate": "var(--amber)", "Mobilize": "var(--teal)", "Export": "var(--teal)",
-  "Job Architecture": "var(--accent-primary)", "Platform": "var(--purple)",
+  "Overview": "#f4a83a", "Diagnose": "#8ba87a", "Design": "#f4a83a",
+  "Simulate": "#f4a83a", "Mobilize": "#8ba87a", "Export": "#8ba87a",
+  "Job Architecture": "#f4a83a", "Platform": "#a78bb8",
 };
 
 /* ═══════════════════════════════════════════════════════════════

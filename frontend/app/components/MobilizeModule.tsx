@@ -88,7 +88,7 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
   const endIdx = Math.min(filtered.length, startIdx + visibleCount + 4);
   const visibleSlice = filtered.slice(startIdx, endIdx);
 
-  const priColor = (p: string) => p === "High" ? "var(--risk)" : p === "Medium" ? "var(--warning)" : "var(--success)";
+  const priColor = (p: string) => p === "High" ? "#e87a5d" : p === "Medium" ? "#f4a83a" : "#8ba87a";
   const priBg = (p: string) => p === "High" ? "rgba(232,122,93,0.1)" : p === "Medium" ? "rgba(244,168,58,0.1)" : "rgba(139,168,122,0.1)";
 
   // Toggle chip helper
@@ -114,10 +114,10 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
       <input value={fSearch} onChange={e => setFSearch(e.target.value)} placeholder="Search name or role..." className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-[13px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] w-52" />
 
       {/* Priority chips */}
-      {priorityOptions.map(p => <button key={p} onClick={() => toggleChip(fPriority, p, setFPriority)} className="px-2.5 py-1 rounded-full text-[12px] font-bold transition-all" style={{ background: fPriority.includes(p) ? priBg(p) : "var(--surface-2)", color: fPriority.includes(p) ? priColor(p) : "var(--text-muted)", border: `1px solid ${fPriority.includes(p) ? priColor(p) + "40" : "var(--border)"}` }}>{p}</button>)}
+      {priorityOptions.map(p => <button key={p} onClick={() => toggleChip(fPriority, p, setFPriority)} className="px-2.5 py-1 rounded-full text-[12px] font-bold transition-all" style={{ background: fPriority.includes(p) ? priBg(p) : "#1e2030", color: fPriority.includes(p) ? priColor(p) : "#8a7f6d", border: `1px solid ${fPriority.includes(p) ? priColor(p) + "40" : "var(--border)"}` }}>{p}</button>)}
 
       {/* Wave chips */}
-      {waveOptions.length > 1 && waveOptions.map(w => <button key={w} onClick={() => toggleChip(fWave, w, setFWave)} className="px-2.5 py-1 rounded-full text-[12px] font-bold transition-all" style={{ background: fWave.includes(w) ? "rgba(167,139,184,0.1)" : "var(--surface-2)", color: fWave.includes(w) ? "var(--purple)" : "var(--text-muted)", border: `1px solid ${fWave.includes(w) ? "rgba(167,139,184,0.3)" : "var(--border)"}` }}>{w}</button>)}
+      {waveOptions.length > 1 && waveOptions.map(w => <button key={w} onClick={() => toggleChip(fWave, w, setFWave)} className="px-2.5 py-1 rounded-full text-[12px] font-bold transition-all" style={{ background: fWave.includes(w) ? "rgba(167,139,184,0.1)" : "#1e2030", color: fWave.includes(w) ? "var(--purple)" : "#8a7f6d", border: `1px solid ${fWave.includes(w) ? "rgba(167,139,184,0.3)" : "var(--border)"}` }}>{w}</button>)}
 
       {/* Function dropdown */}
       {funcOptions.length > 1 && <select value={fFunc.length === 1 ? fFunc[0] : ""} onChange={e => setFFunc(e.target.value ? [e.target.value] : [])} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-2 py-1.5 text-[12px] text-[var(--text-primary)] outline-none">
@@ -152,7 +152,7 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
                   <div className="text-[11px] text-[var(--text-muted)] truncate">{p.current_role}{p.target_role !== p.current_role ? ` → ${p.target_role}` : ""}</div>
                 </div>
                 <span className="px-1.5 py-0.5 rounded text-[10px] font-bold shrink-0" style={{ background: priBg(p.priority), color: priColor(p.priority) }}>{p.priority}</span>
-                <div className="w-8 text-center shrink-0"><div className="text-[12px]" style={{ fontFamily:"'JetBrains Mono', monospace", fontWeight:700, color: p.readiness_score >= 70 ? "var(--success)" : p.readiness_score >= 40 ? "var(--warning)" : "var(--risk)" }}>{p.readiness_score}</div><div className="text-[9px] text-[var(--text-muted)]">ready</div></div>
+                <div className="w-8 text-center shrink-0"><div className="text-[12px]" style={{ fontFamily:"'JetBrains Mono', monospace", fontWeight:700, color: p.readiness_score >= 70 ? "#8ba87a" : p.readiness_score >= 40 ? "#f4a83a" : "#e87a5d" }}>{p.readiness_score}</div><div className="text-[9px] text-[var(--text-muted)]">ready</div></div>
                 <div className="w-10 text-right shrink-0 text-[11px] text-[var(--text-muted)]">{p.total_months > 0 ? `${p.total_months}mo` : "—"}</div>
               </div>;
             })}
@@ -168,7 +168,7 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
 
           {/* Priority distribution */}
           <div className="grid grid-cols-3 gap-3 mb-5">
-            {[{ label: "High Priority", count: fHigh, color: "var(--risk)" }, { label: "Medium Priority", count: fMed, color: "var(--warning)" }, { label: "Low Priority", count: fLow, color: "var(--success)" }].map(t => <div key={t.label} className="rounded-xl p-4 text-center border border-[var(--border)]">
+            {[{ label: "High Priority", count: fHigh, color: "#e87a5d" }, { label: "Medium Priority", count: fMed, color: "#f4a83a" }, { label: "Low Priority", count: fLow, color: "#8ba87a" }].map(t => <div key={t.label} className="rounded-xl p-4 text-center border border-[var(--border)]">
               <div className="text-[12px] font-bold uppercase tracking-wider mb-1" style={{ color: t.color }}>{t.label}</div>
               <div className="text-[24px] font-extrabold text-[var(--text-primary)]">{fmt(t.count)}</div>
               <div className="text-[11px] text-[var(--text-muted)]" style={{fontFamily:"'JetBrains Mono', monospace", fontWeight:700}}>{filtered.length > 0 ? (t.count / filtered.length * 100).toFixed(1) : "0.0"}%</div>
@@ -202,8 +202,8 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
               <div className="text-[13px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Avg Readiness by Function</div>
               {funcs.map(fn => <div key={fn.fn} className="flex items-center gap-3 mb-1.5">
                 <span className="text-[12px] text-[var(--text-primary)] font-semibold w-32 truncate shrink-0">{fn.fn}</span>
-                <div className="flex-1 h-2 bg-[var(--surface-3)] rounded-full overflow-hidden"><div className="h-full rounded-full" style={{ width: `${fn.avg}%`, background: fn.avg >= 70 ? "var(--success)" : fn.avg >= 40 ? "var(--warning)" : "var(--risk)" }} /></div>
-                <span className="text-[12px] font-bold w-8 text-right" style={{ color: fn.avg >= 70 ? "var(--success)" : fn.avg >= 40 ? "var(--warning)" : "var(--risk)" }}>{fn.avg}</span>
+                <div className="flex-1 h-2 bg-[var(--surface-3)] rounded-full overflow-hidden"><div className="h-full rounded-full" style={{ width: `${fn.avg}%`, background: fn.avg >= 70 ? "#8ba87a" : fn.avg >= 40 ? "#f4a83a" : "#e87a5d" }} /></div>
+                <span className="text-[12px] font-bold w-8 text-right" style={{ color: fn.avg >= 70 ? "#8ba87a" : fn.avg >= 40 ? "#f4a83a" : "#e87a5d" }}>{fn.avg}</span>
               </div>)}
             </div>;
           })()}
@@ -239,7 +239,7 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
             </div>
             <div className="flex gap-2">
               <span className="px-2 py-0.5 rounded-full text-[11px] font-bold" style={{ background: priBg(selected.priority), color: priColor(selected.priority) }}>{selected.priority} Priority</span>
-              <span className="px-2 py-0.5 rounded-full text-[11px] font-bold" style={{ background: selected.readiness_score >= 70 ? "rgba(139,168,122,0.1)" : selected.readiness_score >= 40 ? "rgba(244,168,58,0.1)" : "rgba(232,122,93,0.1)", color: selected.readiness_score >= 70 ? "var(--success)" : selected.readiness_score >= 40 ? "var(--warning)" : "var(--risk)" }}>{selected.readiness_band} ({selected.readiness_score})</span>
+              <span className="px-2 py-0.5 rounded-full text-[11px] font-bold" style={{ background: selected.readiness_score >= 70 ? "rgba(139,168,122,0.1)" : selected.readiness_score >= 40 ? "rgba(244,168,58,0.1)" : "rgba(232,122,93,0.1)", color: selected.readiness_score >= 70 ? "#8ba87a" : selected.readiness_score >= 40 ? "#f4a83a" : "#e87a5d" }}>{selected.readiness_band} ({selected.readiness_score})</span>
               <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[rgba(167,139,184,0.1)] text-[var(--purple)]">{selected.wave}</span>
             </div>
           </div>
@@ -256,7 +256,7 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
             </div>
             <div className="rounded-xl p-3 bg-[var(--surface-2)] border border-[var(--border)] text-center">
               <div className="text-[11px] text-[var(--text-muted)] uppercase">AI Impact</div>
-              <div className="text-[20px] font-extrabold" style={{ color: selected.ai_score >= 7 ? "var(--risk)" : selected.ai_score >= 4 ? "var(--warning)" : "var(--success)" }}>{fmt(selected.ai_score)}/10</div>
+              <div className="text-[20px] font-extrabold" style={{ color: selected.ai_score >= 7 ? "#e87a5d" : selected.ai_score >= 4 ? "#f4a83a" : "#8ba87a" }}>{fmt(selected.ai_score)}/10</div>
             </div>
           </div>
 
@@ -266,15 +266,15 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
             <div className="space-y-2">{selected.skills_to_develop.map(s => <div key={s.skill} className="rounded-lg p-3 bg-[var(--surface-2)] border border-[var(--border)]">
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-[13px] font-bold text-[var(--text-primary)]">{s.skill}</span>
-                <span className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: s.intervention === "Course" ? "rgba(139,168,122,0.1)" : s.intervention === "Coaching" ? "rgba(244,168,58,0.1)" : "rgba(167,139,184,0.1)", color: s.intervention === "Course" ? "var(--success)" : s.intervention === "Coaching" ? "var(--warning)" : "var(--purple)" }}>{s.intervention} · {s.months}mo</span>
+                <span className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: s.intervention === "Course" ? "rgba(139,168,122,0.1)" : s.intervention === "Coaching" ? "rgba(244,168,58,0.1)" : "rgba(167,139,184,0.1)", color: s.intervention === "Course" ? "#8ba87a" : s.intervention === "Coaching" ? "#f4a83a" : "var(--purple)" }}>{s.intervention} · {s.months}mo</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-bold w-6" style={{ color: "var(--warning)" }}>{s.current}</span>
+                <span className="text-[11px] font-bold w-6" style={{ color: "#f4a83a" }}>{s.current}</span>
                 <div className="flex-1 h-2 bg-[var(--surface-3)] rounded-full overflow-hidden relative">
                   <div className="absolute inset-y-0 left-0 rounded-full bg-[var(--warning)]" style={{ width: `${(s.current / Math.max(s.target, 1)) * 100}%` }} />
                   <div className="absolute inset-y-0 left-0 rounded-full border-r-2 border-[var(--success)]" style={{ width: `${Math.min(100, (s.target / 5) * 100)}%`, borderStyle: "dashed" }} />
                 </div>
-                <span className="text-[11px] font-bold w-6 text-right" style={{ color: "var(--success)" }}>{s.target}</span>
+                <span className="text-[11px] font-bold w-6 text-right" style={{ color: "#8ba87a" }}>{s.target}</span>
               </div>
             </div>)}</div>
           </div>}
@@ -343,17 +343,17 @@ export function TalentMarketplace({ model, f, onBack, onNavigate, viewCtx }: { m
         <Badge color={m.fill_recommendation==="Internal"?"green":"amber"}>{m.fill_recommendation} Fill Recommended</Badge>
         <span className="text-[15px] text-[var(--text-muted)]">{m.candidates.length} candidates evaluated</span>
       </div>
-      <div className="grid grid-cols-4 gap-2">{m.candidates.slice(0, 6).map(c => { const isSl = (shortlisted[m.target_role]||[]).includes(c.employee); return <div key={c.employee} className="bg-[var(--surface-2)] rounded-xl p-3 border transition-all" style={{borderColor:isSl?"var(--success)":"var(--border)"}}>
-        <div className="flex items-center justify-between mb-1"><span className="text-[15px] font-semibold truncate flex-1">{c.employee}</span><span className="text-[15px] font-extrabold" style={{color:c.composite_score>=70?"var(--success)":c.composite_score>=50?"var(--warning)":"var(--risk)"}}>{c.composite_score}</span></div>
+      <div className="grid grid-cols-4 gap-2">{m.candidates.slice(0, 6).map(c => { const isSl = (shortlisted[m.target_role]||[]).includes(c.employee); return <div key={c.employee} className="bg-[var(--surface-2)] rounded-xl p-3 border transition-all" style={{borderColor:isSl?"#8ba87a":"var(--border)"}}>
+        <div className="flex items-center justify-between mb-1"><span className="text-[15px] font-semibold truncate flex-1">{c.employee}</span><span className="text-[15px] font-extrabold" style={{color:c.composite_score>=70?"#8ba87a":c.composite_score>=50?"#f4a83a":"#e87a5d"}}>{c.composite_score}</span></div>
         <div className="grid grid-cols-3 gap-1 mb-1 text-[15px]">
-          <div className="text-center"><span className="font-bold" style={{color:c.adjacency_pct>=70?"var(--success)":"var(--warning)"}}>{c.adjacency_pct}%</span><br/>Adjacency</div>
-          <div className="text-center"><span className="font-bold" style={{color:c.readiness_score>=3.5?"var(--success)":"var(--warning)"}}>{c.readiness_score}</span><br/>Readiness</div>
+          <div className="text-center"><span className="font-bold" style={{color:c.adjacency_pct>=70?"#8ba87a":"#f4a83a"}}>{c.adjacency_pct}%</span><br/>Adjacency</div>
+          <div className="text-center"><span className="font-bold" style={{color:c.readiness_score>=3.5?"#8ba87a":"#f4a83a"}}>{c.readiness_score}</span><br/>Readiness</div>
           <div className="text-center"><span className="font-bold">{c.reskill_months}mo</span><br/>Reskill</div>
         </div>
         <div className="text-[15px] text-[var(--success)] truncate">✓ {c.matching_skills.slice(0,2).join(", ")}</div>
         {c.gap_skills.length > 0 && <div className="text-[15px] text-[var(--risk)] truncate">✗ {c.gap_skills.slice(0,2).join(", ")}</div>}
         {c.has_pathway && <div className="text-[15px] text-[var(--purple)]">📚 Pathway: {fmtNum(c.pathway_cost)}</div>}
-        <button onClick={() => setShortlisted(prev => { const l = prev[m.target_role]||[]; return {...prev, [m.target_role]: isSl ? l.filter(e=>e!==c.employee) : [...l, c.employee]}; })} className="mt-1 text-[14px] font-semibold w-full py-1 rounded text-center" style={{background:isSl?"rgba(139,168,122,0.1)":"var(--surface-1)",color:isSl?"var(--success)":"var(--text-muted)",border:`1px solid ${isSl?"var(--success)":"var(--border)"}`}}>{isSl?"★ Shortlisted":"☆ Shortlist"}</button>
+        <button onClick={() => setShortlisted(prev => { const l = prev[m.target_role]||[]; return {...prev, [m.target_role]: isSl ? l.filter(e=>e!==c.employee) : [...l, c.employee]}; })} className="mt-1 text-[14px] font-semibold w-full py-1 rounded text-center" style={{background:isSl?"rgba(139,168,122,0.1)":"var(--surface-1)",color:isSl?"#8ba87a":"#8a7f6d",border:`1px solid ${isSl?"#8ba87a":"var(--border)"}`}}>{isSl?"★ Shortlisted":"☆ Shortlist"}</button>
       </div>; })}</div>
     </Card>)}
     {marketplace.length === 0 && !loading && <Card><Empty text="Talent Marketplace Not Yet Populated" subtitle="Complete the Skills Adjacency Map in the Design phase to populate the internal talent marketplace with role-matching candidates." action="Go to Design" onAction={() => onNavigate?.("design")} /></Card>}
@@ -361,8 +361,8 @@ export function TalentMarketplace({ model, f, onBack, onNavigate, viewCtx }: { m
     {/* Score Methodology */}
     <Card title="How Composite Scores Work">
       <div className="grid grid-cols-3 gap-4 mb-3">{[
-        {label:"Adjacency",weight:"50%",desc:"How much current skills overlap with target role requirements",color:"var(--accent-primary)"},
-        {label:"Readiness",weight:"30%",desc:"AI readiness score — how prepared the person is for change",color:"var(--success)"},
+        {label:"Adjacency",weight:"50%",desc:"How much current skills overlap with target role requirements",color:"#f4a83a"},
+        {label:"Readiness",weight:"30%",desc:"AI readiness score — how prepared the person is for change",color:"#8ba87a"},
         {label:"Reskill Time",weight:"20%",desc:"Inverse of months needed — faster reskilling scores higher",color:"var(--purple)"},
       ].map(f => <div key={f.label} className="rounded-xl p-3 text-center border border-[var(--border)]">
         <div className="text-[18px] font-extrabold" style={{color:f.color}}>{f.weight}</div>
@@ -428,11 +428,11 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
   const [aiChangePlan, setAiChangePlan] = useState<Record<string, unknown>[]>([]);
   // Gantt chart state
   const defaultGanttPhases = [
-    { id: "assess", label: "Assess", start: 0, duration: 3, color: "var(--accent-primary)", activities: ["Workforce baseline", "AI readiness scan", "Stakeholder mapping", "Risk assessment"], status: "on_track" as string },
-    { id: "design", label: "Design", start: 2, duration: 4, color: "var(--warning)", activities: ["Role redesign", "Job architecture", "Operating model", "Skill gap analysis"], status: "on_track" as string },
-    { id: "pilot", label: "Pilot", start: 5, duration: 3, color: "var(--teal)", activities: ["Wave 1 rollout", "Training delivery", "Tool deployment", "Feedback collection"], status: "not_started" as string },
-    { id: "scale", label: "Scale", start: 7, duration: 5, color: "var(--amber)", activities: ["Wave 2-3 rollout", "Process optimization", "Manager development", "Performance tracking"], status: "not_started" as string },
-    { id: "sustain", label: "Sustain", start: 11, duration: 4, color: "var(--teal)", activities: ["Continuous improvement", "Capability maturity", "Knowledge transfer", "BAU transition"], status: "not_started" as string },
+    { id: "assess", label: "Assess", start: 0, duration: 3, color: "#f4a83a", activities: ["Workforce baseline", "AI readiness scan", "Stakeholder mapping", "Risk assessment"], status: "on_track" as string },
+    { id: "design", label: "Design", start: 2, duration: 4, color: "#f4a83a", activities: ["Role redesign", "Job architecture", "Operating model", "Skill gap analysis"], status: "on_track" as string },
+    { id: "pilot", label: "Pilot", start: 5, duration: 3, color: "#8ba87a", activities: ["Wave 1 rollout", "Training delivery", "Tool deployment", "Feedback collection"], status: "not_started" as string },
+    { id: "scale", label: "Scale", start: 7, duration: 5, color: "#f4a83a", activities: ["Wave 2-3 rollout", "Process optimization", "Manager development", "Performance tracking"], status: "not_started" as string },
+    { id: "sustain", label: "Sustain", start: 11, duration: 4, color: "#8ba87a", activities: ["Continuous improvement", "Capability maturity", "Knowledge transfer", "BAU transition"], status: "not_started" as string },
   ];
   const [ganttPhases, setGanttPhases] = usePersisted<typeof defaultGanttPhases>(`${model}_ganttPhases`, defaultGanttPhases);
   const [ganttDuration, setGanttDuration] = useState(18);
@@ -447,24 +447,24 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
   type WsActivity = { id: string; activity: string; owner: string; status: string; priority: string; pct: number };
   type Workstream = { id: string; name: string; icon: string; color: string; collapsed: boolean; items: WsActivity[] };
   const defaultWorkstreams: Workstream[] = [
-    { id: "tech", name: "Technology", icon: "💻", color: "var(--accent-primary)", collapsed: false, items: [
+    { id: "tech", name: "Technology", icon: "💻", color: "#f4a83a", collapsed: false, items: [
       { id: "t1", activity: "AI tool selection & procurement", owner: "CTO", status: "In Progress", priority: "High", pct: 40 },
       { id: "t2", activity: "Data pipeline modernization", owner: "VP Engineering", status: "Planned", priority: "High", pct: 0 },
       { id: "t3", activity: "Integration testing", owner: "QA Lead", status: "Not Started", priority: "Medium", pct: 0 },
       { id: "t4", activity: "Security review & compliance", owner: "CISO", status: "In Progress", priority: "High", pct: 30 },
     ]},
-    { id: "people", name: "People & Change", icon: "👥", color: "var(--teal)", collapsed: false, items: [
+    { id: "people", name: "People & Change", icon: "👥", color: "#8ba87a", collapsed: false, items: [
       { id: "p1", activity: "Reskilling program design", owner: "L&D Director", status: "In Progress", priority: "High", pct: 50 },
       { id: "p2", activity: "Change champion network activation", owner: "Change Lead", status: "Complete", priority: "High", pct: 100 },
       { id: "p3", activity: "Role transition planning", owner: "HRBPs", status: "Planned", priority: "Medium", pct: 0 },
       { id: "p4", activity: "Employee communication rollout", owner: "Comms Director", status: "In Progress", priority: "Medium", pct: 25 },
     ]},
-    { id: "process", name: "Process & Operations", icon: "⚙️", color: "var(--warning)", collapsed: false, items: [
+    { id: "process", name: "Process & Operations", icon: "⚙️", color: "#f4a83a", collapsed: false, items: [
       { id: "r1", activity: "Process mapping & documentation", owner: "Process Excellence", status: "Complete", priority: "Medium", pct: 100 },
       { id: "r2", activity: "AI workflow design", owner: "Process Lead", status: "In Progress", priority: "High", pct: 60 },
       { id: "r3", activity: "Standard operating procedure updates", owner: "Operations", status: "Not Started", priority: "Medium", pct: 0 },
     ]},
-    { id: "gov", name: "Governance & Compliance", icon: "🏛️", color: "var(--amber)", collapsed: false, items: [
+    { id: "gov", name: "Governance & Compliance", icon: "🏛️", color: "#f4a83a", collapsed: false, items: [
       { id: "g1", activity: "AI governance framework", owner: "Chief Risk Officer", status: "In Progress", priority: "High", pct: 35 },
       { id: "g2", activity: "Decision rights matrix (RACI)", owner: "COO", status: "Planned", priority: "Medium", pct: 0 },
       { id: "g3", activity: "KPI & measurement framework", owner: "Strategy Lead", status: "Planned", priority: "Medium", pct: 0 },
@@ -499,7 +499,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
   // ── ADKAR state ──
   const ADKAR_DIMS = ["Awareness", "Desire", "Knowledge", "Ability", "Reinforcement"] as const;
   const ADKAR_GROUPS = ["Executives", "Senior Leaders", "Middle Managers", "Frontline Managers", "Tech ICs", "Finance ICs", "HR ICs", "Operations ICs"] as const;
-  const ADKAR_COLORS: Record<string, string> = { Awareness: "var(--accent-primary)", Desire: "var(--teal)", Knowledge: "var(--purple)", Ability: "var(--success)", Reinforcement: "var(--amber)" };
+  const ADKAR_COLORS: Record<string, string> = { Awareness: "#f4a83a", Desire: "#8ba87a", Knowledge: "#a78bb8", Ability: "#8ba87a", Reinforcement: "#f4a83a" };
   const ADKAR_RECS: Record<string, { title: string; actions: string[] }> = {
     Awareness: { title: "Build Awareness — Communicate the Why", actions: ["Host town halls explaining the business case for change", "Create FAQ documents addressing common concerns", "Share success stories from similar transformations", "Send personalized impact statements to each group", "Appoint visible executive sponsors who model the change narrative"] },
     Desire: { title: "Build Desire — Address What's In It For Me", actions: ["Involve resistors in co-designing the solution", "Identify and activate change champions in each team", "Address personal fears: job security, skill relevance, status", "Show career advancement opportunities in the new model", "Create incentives aligned with adoption (recognition, development)"] },
@@ -547,8 +547,8 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
     <PageHeader icon={<Users />} title="My Change Journey" subtitle={`What's changing for ${viewCtx.employee}`} onBack={onBack} moduleId="plan" />
     <Card title="Your Transformation Timeline">
       <div className="space-y-4">
-        {[{ wave: "Wave 1", time: "Month 1-3", title: "Awareness & Training", items: ["AI tool introduction workshops", "New process documentation shared", "Pilot group participation opportunity"], color: "var(--accent-primary)" },
-          { wave: "Wave 2", time: "Month 4-6", title: "Transition & Practice", items: ["AI tools integrated into daily workflow", "Reduced manual task load", "Coaching sessions with change champion"], color: "var(--success)" },
+        {[{ wave: "Wave 1", time: "Month 1-3", title: "Awareness & Training", items: ["AI tool introduction workshops", "New process documentation shared", "Pilot group participation opportunity"], color: "#f4a83a" },
+          { wave: "Wave 2", time: "Month 4-6", title: "Transition & Practice", items: ["AI tools integrated into daily workflow", "Reduced manual task load", "Coaching sessions with change champion"], color: "#8ba87a" },
           { wave: "Wave 3", time: "Month 7-12", title: "New Normal", items: ["Full adoption of AI-augmented processes", "Role evolution complete", "Focus shifts to higher-value activities"], color: "var(--purple)" }
         ].map((w, i) => <div key={i} className="flex gap-4">
           <div className="flex flex-col items-center shrink-0"><div className="w-8 h-8 rounded-full flex items-center justify-center text-[15px] font-bold text-white" style={{ background: w.color }}>{i + 1}</div>{i < 2 && <div className="w-px h-full mt-1" style={{ background: w.color, opacity: 0.2 }} />}</div>
@@ -631,7 +631,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
                 const startPct = Math.max(0, waveIdx) * 25;
                 const widthPct = wave.includes("4") ? 25 : (row.end && String(row.end).includes("Q") ? 
                   Math.max(25, (["Wave 1","Wave 2","Wave 3","Wave 4"].indexOf(wave) + 2) * 25 - startPct) : 25);
-                const priColor = row.priority === "High" ? "var(--risk)" : row.priority === "Low" ? "var(--success)" : "var(--accent-primary)";
+                const priColor = row.priority === "High" ? "#e87a5d" : row.priority === "Low" ? "#8ba87a" : "#f4a83a";
                 return <div key={i} className="flex items-center" style={{ height: 28 }}>
                   <div className="text-[15px] font-semibold text-[var(--text-primary)] truncate" style={{ width: 180, flexShrink: 0, paddingRight: 8 }} title={String(row.initiative || "")}>{String(row.initiative || "").length > 22 ? String(row.initiative || "").slice(0,20) + "…" : String(row.initiative || "")}</div>
                   <div className="flex-1 relative h-full flex items-center">
@@ -649,7 +649,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
           </div>
           {/* Legend */}
           <div className="flex gap-4 mt-3 pt-2 border-t border-[var(--border)]">
-            {[{l:"High Priority",c:"var(--risk)"},{l:"Medium",c:"var(--accent-primary)"},{l:"Low",c:"var(--success)"}].map(x => <div key={x.l} className="flex items-center gap-1.5 text-[14px] text-[var(--text-muted)]"><div className="w-3 h-2 rounded-sm" style={{ background: `${x.c}30`, border: `1px solid ${x.c}50` }} />{x.l}</div>)}
+            {[{l:"High Priority",c:"#e87a5d"},{l:"Medium",c:"#f4a83a"},{l:"Low",c:"#8ba87a"}].map(x => <div key={x.l} className="flex items-center gap-1.5 text-[14px] text-[var(--text-muted)]"><div className="w-3 h-2 rounded-sm" style={{ background: `${x.c}30`, border: `1px solid ${x.c}50` }} />{x.l}</div>)}
           </div>
         </div>
       </div>
@@ -666,7 +666,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
         </div>)}</div>
         <div className="flex gap-0">{waves.map(([name], i) => <div key={name} className="flex-1 h-2 first:rounded-l last:rounded-r" style={{ background: COLORS[i % COLORS.length] }} />)}</div>
         <div className="flex justify-between mt-1 text-[15px] text-[var(--text-muted)]"><span>Start</span><span>End</span></div>
-      </Card>}<div className="grid grid-cols-12 gap-4"><div className="col-span-7"><Card title="Change Plan"><DataTable data={((d?.roadmap ?? []) as Record<string, unknown>[])} /></Card></div><div className="col-span-5"><Card title="Priority"><DonutViz data={Object.entries(pd).map(([n, v]) => ({ name: n, value: v }))} /></Card><Card title="Waves"><BarViz data={Object.entries(wd).map(([n, v]) => ({ Wave: n, Count: v }))} labelKey="Wave" valueKey="Count" color="var(--warning)" /></Card></div></div></div>; })() : <div><Empty text="Change Roadmap Not Yet Generated" subtitle="Complete the Design and Simulate phases first. The roadmap sequences your transformation initiatives with realistic timelines." action="Go to Simulate" onAction={() => onNavigate?.("simulate")} /></div>}
+      </Card>}<div className="grid grid-cols-12 gap-4"><div className="col-span-7"><Card title="Change Plan"><DataTable data={((d?.roadmap ?? []) as Record<string, unknown>[])} /></Card></div><div className="col-span-5"><Card title="Priority"><DonutViz data={Object.entries(pd).map(([n, v]) => ({ name: n, value: v }))} /></Card><Card title="Waves"><BarViz data={Object.entries(wd).map(([n, v]) => ({ Wave: n, Count: v }))} labelKey="Wave" valueKey="Count" color="#f4a83a" /></Card></div></div></div>; })() : <div><Empty text="Change Roadmap Not Yet Generated" subtitle="Complete the Design and Simulate phases first. The roadmap sequences your transformation initiatives with realistic timelines." action="Go to Simulate" onAction={() => onNavigate?.("simulate")} /></div>}
     {/* ═══ INTERACTIVE GANTT CHART ═══ */}
     {sub === "gantt" && <div>
       <Card title={ganttEdited ? "Custom Transformation Roadmap" : "Transformation Gantt Chart"}>
@@ -679,7 +679,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
             </select>
           </div>
           <div className="flex gap-2 ml-auto">
-            <button onClick={() => { const id = `p${Date.now()}`; const colors = ["var(--accent-primary)","var(--warning)","var(--teal)","var(--amber)","var(--teal)","var(--purple)"]; setGanttPhases(prev => [...prev, { id, label: "New Phase", start: Math.max(0, ...prev.map(p => p.start + p.duration)), duration: 2, color: colors[prev.length % colors.length], activities: ["Define activities..."], status: "not_started" }]); }} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 hover:bg-[var(--accent-primary)]/5 transition-all">+ Add Phase</button>
+            <button onClick={() => { const id = `p${Date.now()}`; const colors = ["#f4a83a","#f4a83a","var(--teal)","var(--amber)","var(--teal)","var(--purple)"]; setGanttPhases(prev => [...prev, { id, label: "New Phase", start: Math.max(0, ...prev.map(p => p.start + p.duration)), duration: 2, color: colors[prev.length % colors.length], activities: ["Define activities..."], status: "not_started" }]); }} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 hover:bg-[var(--accent-primary)]/5 transition-all">+ Add Phase</button>
             <button onClick={() => { const id = `m${Date.now()}`; setGanttMilestones(prev => [...prev, { id, label: "New Milestone", month: 6 }]); }} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:border-[var(--accent-primary)]/30 transition-all">+ Milestone</button>
             {ganttEdited && <button onClick={() => setGanttPhases(defaultGanttPhases)} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">Reset to Default</button>}
           </div>
@@ -691,7 +691,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
             {/* Milestones row */}
             <div className="flex mb-1 ml-32 relative h-6">
               {ganttMilestones.map(ms => <div key={ms.id} className="absolute flex flex-col items-center group" style={{ left: `${(ms.month / ganttDuration) * 100}%`, transform: "translateX(-50%)" }}>
-                <div style={{ width: 10, height: 10, background: "var(--risk)", transform: "rotate(45deg)" }} />
+                <div style={{ width: 10, height: 10, background: "#e87a5d", transform: "rotate(45deg)" }} />
                 <div className="text-[13px] text-[var(--risk)] font-semibold whitespace-nowrap mt-1 opacity-70 group-hover:opacity-100">{ms.label}</div>
               </div>)}
             </div>
@@ -755,7 +755,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
             {/* Legend */}
             <div className="flex gap-4 mt-4 pt-3 border-t border-[var(--border)] flex-wrap">
               {ganttPhases.map(p => <div key={p.id} className="flex items-center gap-1.5 text-[14px] text-[var(--text-muted)]"><div className="w-3 h-2 rounded-sm" style={{ background: p.color }} />{p.label} ({p.duration}mo)</div>)}
-              <div className="flex items-center gap-1.5 text-[14px] text-[var(--text-muted)] ml-auto"><div style={{ width: 8, height: 8, background: "var(--risk)", transform: "rotate(45deg)" }} /> Milestone</div>
+              <div className="flex items-center gap-1.5 text-[14px] text-[var(--text-muted)] ml-auto"><div style={{ width: 8, height: 8, background: "#e87a5d", transform: "rotate(45deg)" }} /> Milestone</div>
             </div>
           </div>
         </div>
@@ -769,9 +769,9 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
       const atRiskActs = workstreams.reduce((s, ws) => s + ws.items.filter(a => a.status === "At Risk" || a.status === "Blocked").length, 0);
       const overallPct = totalActs > 0 ? Math.round((completedActs / totalActs) * 100) : 0;
       const statuses = ["Not Started", "Planned", "In Progress", "Complete", "At Risk", "Blocked"];
-      const statusColors: Record<string, string> = { Complete: "var(--success)", "In Progress": "var(--accent-primary)", Planned: "var(--warning)", "Not Started": "var(--text-muted)", "At Risk": "var(--risk)", Blocked: "var(--risk)" };
+      const statusColors: Record<string, string> = { Complete: "#8ba87a", "In Progress": "#f4a83a", Planned: "#f4a83a", "Not Started": "#8a7f6d", "At Risk": "#e87a5d", Blocked: "#e87a5d" };
       const priorities = ["High", "Medium", "Low"];
-      const priColors: Record<string, string> = { High: "var(--risk)", Medium: "var(--warning)", Low: "var(--success)" };
+      const priColors: Record<string, string> = { High: "#e87a5d", Medium: "#f4a83a", Low: "#8ba87a" };
       const updateActivity = (wsId: string, actId: string, field: string, value: string | number) => {
         setWorkstreams(prev => prev.map(ws => ws.id === wsId ? { ...ws, items: ws.items.map(a => a.id === actId ? { ...a, [field]: value } : a) } : ws));
       };
@@ -791,7 +791,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
             <option value="All">All Statuses</option>{statuses.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
           <div className="ml-auto flex gap-2">
-            <button onClick={() => { const id = `ws${Date.now()}`; const colors = ["var(--purple)","var(--accent-primary)","var(--teal)","var(--warning)","var(--amber)"]; setWorkstreams(prev => [...prev, { id, name: "New Workstream", icon: "📋", color: colors[prev.length % colors.length], collapsed: false, items: [{ id: `${id}_a1`, activity: "Define activities...", owner: "TBD", status: "Not Started", priority: "Medium", pct: 0 }] }]); }} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30">+ Workstream</button>
+            <button onClick={() => { const id = `ws${Date.now()}`; const colors = ["var(--purple)","#f4a83a","var(--teal)","#f4a83a","var(--amber)"]; setWorkstreams(prev => [...prev, { id, name: "New Workstream", icon: "📋", color: colors[prev.length % colors.length], collapsed: false, items: [{ id: `${id}_a1`, activity: "Define activities...", owner: "TBD", status: "Not Started", priority: "Medium", pct: 0 }] }]); }} className="px-3 py-1.5 rounded-lg text-[14px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30">+ Workstream</button>
           </div>
         </div>
 
@@ -806,7 +806,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
               <span className="text-[16px] font-bold text-[var(--text-primary)] flex-1">{ws.name}</span>
               <span className="text-[14px] text-[var(--text-muted)]">{ws.items.length} activities</span>
               <div className="w-16 h-2 rounded-full bg-[var(--surface-2)] overflow-hidden"><div className="h-full rounded-full bg-[var(--success)]" style={{ width: `${wsComplete}%` }} /></div>
-              <span className="text-[14px] font-bold" style={{ color: wsComplete === 100 ? "var(--success)" : "var(--text-muted)" }}>{wsComplete}%</span>
+              <span className="text-[14px] font-bold" style={{ color: wsComplete === 100 ? "#8ba87a" : "#8a7f6d" }}>{wsComplete}%</span>
               <span className="text-[14px] text-[var(--text-muted)]">{ws.collapsed ? "▸" : "▾"}</span>
             </button>
             {/* Activities table */}
@@ -818,8 +818,8 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
               <tbody>{filtered.map(item => <tr key={item.id} className="border-t border-[var(--border)] hover:bg-[var(--hover)]">
                 <td className="px-2 py-2"><input value={item.activity} onChange={e => updateActivity(ws.id, item.id, "activity", e.target.value)} className="bg-transparent text-[var(--text-primary)] outline-none w-full text-[15px]" /></td>
                 <td className="px-2 py-2"><input value={item.owner} onChange={e => updateActivity(ws.id, item.id, "owner", e.target.value)} className="bg-transparent text-[var(--text-secondary)] outline-none w-full text-[15px]" style={{ maxWidth: 140 }} /></td>
-                <td className="px-2 py-2"><select value={item.status} onChange={e => updateActivity(ws.id, item.id, "status", e.target.value)} className="bg-[var(--surface-2)] border-none rounded px-2 py-1 text-[14px] font-semibold outline-none" style={{ color: statusColors[item.status] || "var(--text-muted)" }}>{statuses.map(s => <option key={s} value={s}>{s}</option>)}</select></td>
-                <td className="px-2 py-2"><select value={item.priority} onChange={e => updateActivity(ws.id, item.id, "priority", e.target.value)} className="bg-[var(--surface-2)] border-none rounded px-2 py-1 text-[14px] font-semibold outline-none" style={{ color: priColors[item.priority] || "var(--text-muted)" }}>{priorities.map(p => <option key={p} value={p}>{p}</option>)}</select></td>
+                <td className="px-2 py-2"><select value={item.status} onChange={e => updateActivity(ws.id, item.id, "status", e.target.value)} className="bg-[var(--surface-2)] border-none rounded px-2 py-1 text-[14px] font-semibold outline-none" style={{ color: statusColors[item.status] || "#8a7f6d" }}>{statuses.map(s => <option key={s} value={s}>{s}</option>)}</select></td>
+                <td className="px-2 py-2"><select value={item.priority} onChange={e => updateActivity(ws.id, item.id, "priority", e.target.value)} className="bg-[var(--surface-2)] border-none rounded px-2 py-1 text-[14px] font-semibold outline-none" style={{ color: priColors[item.priority] || "#8a7f6d" }}>{priorities.map(p => <option key={p} value={p}>{p}</option>)}</select></td>
                 <td className="px-2 py-2"><div className="flex items-center gap-2"><div className="w-16 h-2 rounded-full bg-[var(--surface-2)] overflow-hidden"><div className="h-full rounded-full bg-[var(--success)]" style={{ width: `${item.pct}%` }} /></div><span className="text-[14px] text-[var(--text-muted)] w-8">{item.pct}%</span></div></td>
                 <td><button onClick={() => setWorkstreams(prev => prev.map(w => w.id === ws.id ? { ...w, items: w.items.filter(a => a.id !== item.id) } : w))} className="text-[var(--text-muted)] hover:text-[var(--risk)] text-[15px]">{"×"}</button></td>
               </tr>)}</tbody></table>
@@ -851,7 +851,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
           { id: "heatmap" as const, label: "Heatmap", icon: "🗺" },
           { id: "actions" as const, label: "Action Plan", icon: "📋" },
           { id: "track" as const, label: "Progress", icon: "📈" },
-        ]).map(v => <button key={v.id} onClick={() => setAdkarView(v.id)} className="flex-1 px-3 py-2 rounded-lg text-[14px] font-semibold transition-all" style={{ background: adkarView === v.id ? "rgba(244,168,58,0.12)" : "transparent", color: adkarView === v.id ? "var(--accent-primary)" : "var(--text-muted)" }}>{v.icon} {v.label}</button>)}
+        ]).map(v => <button key={v.id} onClick={() => setAdkarView(v.id)} className="flex-1 px-3 py-2 rounded-lg text-[14px] font-semibold transition-all" style={{ background: adkarView === v.id ? "rgba(244,168,58,0.12)" : "transparent", color: adkarView === v.id ? "#f4a83a" : "#8a7f6d" }}>{v.icon} {v.label}</button>)}
       </div>
 
       {/* ─── ASSESSMENT ─── */}
@@ -875,9 +875,9 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
                     return <div key={dim} className="flex-1">
                       <div className="text-[12px] font-bold text-center mb-1" style={{ color: ADKAR_COLORS[dim] }}>{dim[0]}</div>
                       <div className="flex justify-center gap-0.5">{[1,2,3,4,5].map(n => <button key={n} onClick={() => setAdkarScore(group, dim, { score: getAdkarScore(group, dim).score === n ? 0 : n })} className="w-6 h-6 rounded text-[12px] font-bold transition-all" style={{
-                        background: s.score >= n ? `${n <= 2 ? "var(--risk)" : n <= 3 ? "var(--warning)" : "var(--success)"}20` : "var(--bg)",
-                        color: s.score >= n ? (n <= 2 ? "var(--risk)" : n <= 3 ? "var(--warning)" : "var(--success)") : "var(--text-muted)",
-                        border: isBarrier && s.score >= n ? "2px solid var(--risk)" : s.score >= n ? `1px solid ${n <= 2 ? "var(--risk)" : n <= 3 ? "var(--warning)" : "var(--success)"}` : "1px solid var(--border)",
+                        background: s.score >= n ? `${n <= 2 ? "#e87a5d" : n <= 3 ? "#f4a83a" : "#8ba87a"}20` : "var(--bg)",
+                        color: s.score >= n ? (n <= 2 ? "#e87a5d" : n <= 3 ? "#f4a83a" : "#8ba87a") : "#8a7f6d",
+                        border: isBarrier && s.score >= n ? "2px solid var(--risk)" : s.score >= n ? `1px solid ${n <= 2 ? "#e87a5d" : n <= 3 ? "#f4a83a" : "#8ba87a"}` : "1px solid var(--border)",
                       }}>{n}</button>)}</div>
                       {adkarEditingCell === `${group}_${dim}` ? <input value={s.justification} onChange={e => setAdkarScore(group, dim, { justification: e.target.value })} onBlur={() => setAdkarEditingCell(null)} placeholder="Why this score..." className="w-full mt-1 bg-[var(--bg)] border border-[var(--border)] rounded px-1 py-0.5 text-[11px] outline-none text-center placeholder:text-[var(--text-muted)]" autoFocus /> : <button onClick={() => setAdkarEditingCell(`${group}_${dim}`)} className="w-full text-[11px] text-[var(--text-muted)] mt-1 truncate hover:text-[var(--accent-primary)]">{s.justification || "Add note"}</button>}
                     </div>;
@@ -916,14 +916,14 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
                 const isBarrier = dim === barrier;
                 return <td key={dim} className="px-2 py-2 text-center" onClick={() => { setAdkarView("assess"); }}>
                   <div className="w-10 h-10 rounded-lg mx-auto flex items-center justify-center text-[16px] font-bold cursor-pointer transition-all" style={{
-                    background: s === 0 ? "var(--surface-2)" : s <= 2 ? "rgba(232,122,93,0.15)" : s <= 3 ? "rgba(244,168,58,0.15)" : "rgba(139,168,122,0.15)",
-                    color: s === 0 ? "var(--text-muted)" : s <= 2 ? "var(--risk)" : s <= 3 ? "var(--warning)" : "var(--success)",
+                    background: s === 0 ? "#1e2030" : s <= 2 ? "rgba(232,122,93,0.15)" : s <= 3 ? "rgba(244,168,58,0.15)" : "rgba(139,168,122,0.15)",
+                    color: s === 0 ? "#8a7f6d" : s <= 2 ? "#e87a5d" : s <= 3 ? "#f4a83a" : "#8ba87a",
                     border: isBarrier ? "2px solid var(--risk)" : "none",
                   }}>{s || "—"}</div>
                 </td>;
               })}
-              <td className="px-2 py-2 text-center text-[14px] font-bold" style={{ color: avg >= 4 ? "var(--success)" : avg >= 3 ? "var(--warning)" : avg > 0 ? "var(--risk)" : "var(--text-muted)" }}>{avg > 0 ? avg.toFixed(1) : "—"}</td>
-              <td className="px-2 py-2 text-center"><span className="text-[13px] font-bold" style={{ color: barrier ? "var(--risk)" : "var(--success)" }}>{barrier || "None"}</span></td>
+              <td className="px-2 py-2 text-center text-[14px] font-bold" style={{ color: avg >= 4 ? "#8ba87a" : avg >= 3 ? "#f4a83a" : avg > 0 ? "#e87a5d" : "#8a7f6d" }}>{avg > 0 ? avg.toFixed(1) : "—"}</td>
+              <td className="px-2 py-2 text-center"><span className="text-[13px] font-bold" style={{ color: barrier ? "#e87a5d" : "#8ba87a" }}>{barrier || "None"}</span></td>
             </tr>;
           })}
         </tbody></table></div>
@@ -935,8 +935,8 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
           const dimAvgs = ADKAR_DIMS.map(d => ({ dim: d, avg: (() => { const s = ADKAR_GROUPS.map(g => getAdkarScore(g, d).score).filter(x => x > 0); return s.length ? s.reduce((a, b) => a + b, 0) / s.length : 0; })() }));
           const weakestDim = dimAvgs.filter(d => d.avg > 0).sort((a, b) => a.avg - b.avg)[0];
           return <div className="mt-4 grid grid-cols-3 gap-3">
-            <div className="rounded-xl p-4 bg-[var(--surface-2)] text-center"><div className="text-[24px] font-extrabold" style={{ color: orgAvg >= 3.5 ? "var(--success)" : orgAvg >= 2.5 ? "var(--warning)" : "var(--risk)" }}>{orgAvg.toFixed(1)}</div><div className="text-[13px] text-[var(--text-muted)] uppercase">Org ADKAR Avg</div></div>
-            <div className="rounded-xl p-4 bg-[var(--surface-2)] text-center"><div className="text-[24px] font-extrabold" style={{ color: "var(--risk)" }}>{weakestDim?.dim || "—"}</div><div className="text-[13px] text-[var(--text-muted)] uppercase">Weakest Dimension ({weakestDim?.avg.toFixed(1) || "—"})</div></div>
+            <div className="rounded-xl p-4 bg-[var(--surface-2)] text-center"><div className="text-[24px] font-extrabold" style={{ color: orgAvg >= 3.5 ? "#8ba87a" : orgAvg >= 2.5 ? "#f4a83a" : "#e87a5d" }}>{orgAvg.toFixed(1)}</div><div className="text-[13px] text-[var(--text-muted)] uppercase">Org ADKAR Avg</div></div>
+            <div className="rounded-xl p-4 bg-[var(--surface-2)] text-center"><div className="text-[24px] font-extrabold" style={{ color: "#e87a5d" }}>{weakestDim?.dim || "—"}</div><div className="text-[13px] text-[var(--text-muted)] uppercase">Weakest Dimension ({weakestDim?.avg.toFixed(1) || "—"})</div></div>
             <div className="rounded-xl p-4 bg-[var(--surface-2)] text-center"><div className="text-[24px] font-extrabold text-[var(--risk)]">{ADKAR_GROUPS.filter(g => getBarrierPoint(g)).length}</div><div className="text-[13px] text-[var(--text-muted)] uppercase">Groups with Barriers</div></div>
           </div>;
         })()}
@@ -954,7 +954,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
               <div className="space-y-3">
                 {barriers.map((b, i) => <div key={b.group} className="rounded-lg bg-[var(--surface-2)] p-3">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="w-6 h-6 rounded-full flex items-center justify-center text-[12px] font-bold text-white" style={{ background: "var(--accent-primary)" }}>P{i + 1}</span>
+                    <span className="w-6 h-6 rounded-full flex items-center justify-center text-[12px] font-bold text-white" style={{ background: "#f4a83a" }}>P{i + 1}</span>
                     <span className="text-[14px] font-bold text-[var(--text-primary)]">Build {b.barrier} among {b.group} (currently {b.score}/5)</span>
                   </div>
                   <div className="space-y-1 ml-8">{ADKAR_RECS[b.barrier!].actions.slice(0, 3).map((a, ai) => <div key={ai} className="text-[13px] text-[var(--text-secondary)]">• {a}</div>)}</div>
@@ -986,11 +986,11 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
           {["P", "Group", "Dim", "Action", "Owner", "Timeline", "Status", ""].map(h => <th key={h} className="px-2 py-2 text-left text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">{h}</th>)}
         </tr></thead><tbody>
           {adkarActions.sort((a, b) => a.priority - b.priority).map(act => {
-            const statusColors: Record<string, string> = { "Not Started": "var(--text-muted)", "In Progress": "var(--warning)", Complete: "var(--success)" };
+            const statusColors: Record<string, string> = { "Not Started": "#8a7f6d", "In Progress": "#f4a83a", Complete: "#8ba87a" };
             return <tr key={act.id} className="border-b border-[var(--border)]">
-              <td className="px-2 py-2 text-center"><span className="w-5 h-5 rounded-full inline-flex items-center justify-center text-[11px] font-bold text-white" style={{ background: "var(--accent-primary)" }}>{act.priority}</span></td>
+              <td className="px-2 py-2 text-center"><span className="w-5 h-5 rounded-full inline-flex items-center justify-center text-[11px] font-bold text-white" style={{ background: "#f4a83a" }}>{act.priority}</span></td>
               <td className="px-2 py-2 text-[13px] text-[var(--text-secondary)]">{act.group}</td>
-              <td className="px-2 py-2"><span className="text-[12px] font-bold" style={{ color: ADKAR_COLORS[act.dim] || "var(--text-muted)" }}>{act.dim}</span></td>
+              <td className="px-2 py-2"><span className="text-[12px] font-bold" style={{ color: ADKAR_COLORS[act.dim] || "#8a7f6d" }}>{act.dim}</span></td>
               <td className="px-2 py-2 text-[13px] text-[var(--text-primary)] max-w-[250px]">{act.action}</td>
               <td className="px-2 py-2"><input value={act.owner} onChange={e => setAdkarActions(prev => prev.map(a => a.id === act.id ? {...a, owner: e.target.value} : a))} className="bg-[var(--bg)] border border-[var(--border)] rounded px-1 py-0.5 text-[12px] w-20 outline-none" placeholder="Assign..." /></td>
               <td className="px-2 py-2"><input value={act.timeline} onChange={e => setAdkarActions(prev => prev.map(a => a.id === act.id ? {...a, timeline: e.target.value} : a))} className="bg-[var(--bg)] border border-[var(--border)] rounded px-1 py-0.5 text-[12px] w-16 outline-none" placeholder="Wk 1-4" /></td>
@@ -1031,7 +1031,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
                 {ADKAR_DIMS.map(dim => {
                   const s = getAdkarScore(group, dim).score;
                   return <div key={dim} className="flex-1 flex items-center justify-center text-[11px] font-bold text-white" style={{
-                    background: s === 0 ? "var(--surface-2)" : s <= 2 ? "var(--risk)" : s <= 3 ? "var(--warning)" : "var(--success)",
+                    background: s === 0 ? "#1e2030" : s <= 2 ? "#e87a5d" : s <= 3 ? "#f4a83a" : "#8ba87a",
                   }}>{s > 0 ? `${dim[0]}${s}` : ""}</div>;
                 })}
               </div>
@@ -1042,7 +1042,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
         {adkarActions.length > 0 && <div className="mt-5 rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[14px] font-bold text-[var(--text-primary)]">Action Completion</span>
-            <span className="text-[14px] font-bold" style={{ color: "var(--success)" }}>{adkarActions.filter(a => a.status === "Complete").length}/{adkarActions.length}</span>
+            <span className="text-[14px] font-bold" style={{ color: "#8ba87a" }}>{adkarActions.filter(a => a.status === "Complete").length}/{adkarActions.length}</span>
           </div>
           <div className="h-3 bg-[var(--bg)] rounded-full overflow-hidden"><div className="h-full rounded-full bg-[var(--success)] transition-all" style={{ width: `${(adkarActions.filter(a => a.status === "Complete").length / Math.max(adkarActions.length, 1)) * 100}%` }} /></div>
         </div>}
@@ -1052,12 +1052,12 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
     {/* ═══ STAKEHOLDER MAP — Draggable ═══ */}
     {sub === "stakeholders" && (() => {
       const quads = [
-        { id: "manage", label: "Manage Closely", desc: "High Power + High Interest", color: "var(--risk)", bg: "rgba(232,122,93,0.05)" },
-        { id: "satisfy", label: "Keep Satisfied", desc: "High Power + Low Interest", color: "var(--accent-primary)", bg: "rgba(244,168,58,0.05)" },
-        { id: "inform", label: "Keep Informed", desc: "Low Power + High Interest", color: "var(--amber)", bg: "rgba(217,119,6,0.05)" },
-        { id: "monitor", label: "Monitor", desc: "Low Power + Low Interest", color: "var(--success)", bg: "rgba(139,168,122,0.05)" },
+        { id: "manage", label: "Manage Closely", desc: "High Power + High Interest", color: "#e87a5d", bg: "rgba(232,122,93,0.05)" },
+        { id: "satisfy", label: "Keep Satisfied", desc: "High Power + Low Interest", color: "#f4a83a", bg: "rgba(244,168,58,0.05)" },
+        { id: "inform", label: "Keep Informed", desc: "Low Power + High Interest", color: "#f4a83a", bg: "rgba(217,119,6,0.05)" },
+        { id: "monitor", label: "Monitor", desc: "Low Power + Low Interest", color: "#8ba87a", bg: "rgba(139,168,122,0.05)" },
       ];
-      const sentColor = (s: string) => s === "Champion" || s === "Supportive" ? "var(--success)" : s === "Resistant" || s === "Opposed" ? "var(--risk)" : s === "Concerned" || s === "Cautious" ? "var(--warning)" : "var(--text-muted)";
+      const sentColor = (s: string) => s === "Champion" || s === "Supportive" ? "#8ba87a" : s === "Resistant" || s === "Opposed" ? "#e87a5d" : s === "Concerned" || s === "Cautious" ? "#f4a83a" : "#8a7f6d";
       const handleDrop = (quadId: string, e: React.DragEvent) => {
         e.preventDefault();
         setDragOverQuad(null);
@@ -1103,7 +1103,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
       const sortCol = riskSortCol; const setSortCol = setRiskSortCol;
       const newRisk = newRiskForm; const setNewRisk = setNewRiskForm;
       const sorted = [...risks].sort((a, b) => sortCol === "score" ? (b.prob * b.impact) - (a.prob * a.impact) : a.name.localeCompare(b.name));
-      const riskColor = (score: number) => score >= RISK_SCORE_HIGH ? "var(--risk)" : score >= RISK_SCORE_MEDIUM ? "var(--warning)" : "var(--success)";
+      const riskColor = (score: number) => score >= RISK_SCORE_HIGH ? "#e87a5d" : score >= RISK_SCORE_MEDIUM ? "#f4a83a" : "#8ba87a";
       const addRisk = () => {
         if (!newRisk.name.trim()) return;
         const id = `R${risks.length + 1}`;
@@ -1153,7 +1153,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
                 <td className="px-2 py-2 text-center"><span style={{ fontFamily:"'JetBrains Mono', monospace", fontWeight:700, color: riskColor(score) }}>{score}</span></td>
                 <td className="px-2 py-2 text-[var(--text-secondary)] text-[15px] max-w-[200px]">{r.mitigation}</td>
                 <td className="px-2 py-2 text-[var(--text-secondary)]">{r.owner}</td>
-                <td className="px-2 py-2"><span className="text-[15px] px-2 py-0.5 rounded-full font-semibold" style={{ color: r.status === "Mitigating" ? "var(--success)" : r.status === "Closed" ? "var(--text-muted)" : "var(--warning)", background: r.status === "Mitigating" ? "rgba(139,168,122,0.1)" : r.status === "Closed" ? "var(--surface-2)" : "rgba(244,168,58,0.1)" }}>{r.status}</span></td>
+                <td className="px-2 py-2"><span className="text-[15px] px-2 py-0.5 rounded-full font-semibold" style={{ color: r.status === "Mitigating" ? "#8ba87a" : r.status === "Closed" ? "#8a7f6d" : "#f4a83a", background: r.status === "Mitigating" ? "rgba(139,168,122,0.1)" : r.status === "Closed" ? "#1e2030" : "rgba(244,168,58,0.1)" }}>{r.status}</span></td>
                 <td className="px-2 py-1"><button onClick={() => deleteRisk(r.id)} className="text-[15px] text-[var(--text-muted)] hover:text-[var(--risk)] transition-colors">✕</button></td>
               </tr>;
             })}</tbody></table>
@@ -1335,10 +1335,10 @@ export function ReadinessArchetypes({ model, f, onBack, onNavigate }: { model: s
 
   type Archetype = { id: string; label: string; icon: string; color: string; bgColor: string; desc: string; engagement: string[]; pct: number };
   const archetypes: Archetype[] = [
-    { id: "early", label: "Early Adopter", icon: "🚀", color: "var(--success)", bgColor: "rgba(139,168,122,0.08)", desc: "High willingness + High ability — your champions", engagement: ["Empower as peer trainers and AI ambassadors", "Give early access to new AI tools", "Feature in internal success stories", "Involve in design decisions as co-creators"], pct: earlyPct },
-    { id: "eager", label: "Eager Learner", icon: "📚", color: "var(--accent-primary)", bgColor: "rgba(244,168,58,0.08)", desc: "High willingness + Low ability — motivated but need upskilling", engagement: ["Prioritize for training programs", "Pair with Early Adopters as mentors", "Provide sandbox environments", "Celebrate learning milestones"], pct: eagerPct },
-    { id: "skeptic", label: "Skeptic with Expertise", icon: "🔍", color: "var(--warning)", bgColor: "rgba(244,168,58,0.08)", desc: "Low willingness + High ability — critical group with deep knowledge", engagement: ["Involve in design decisions (ownership, not orders)", "Address specific concerns directly with data", "Position as quality gatekeepers for AI outputs", "Respect their expertise — they see risks others miss"], pct: skepticPct },
-    { id: "atrisk", label: "At-Risk Anchor", icon: "⚠️", color: "var(--risk)", bgColor: "rgba(232,122,93,0.08)", desc: "Low willingness + Low ability — highest intervention need", engagement: ["One-on-one career conversations", "Clear personal impact assessment", "Explore redeployment options early", "Connect with support resources (EAP, coaching)"], pct: atriskPct },
+    { id: "early", label: "Early Adopter", icon: "🚀", color: "#8ba87a", bgColor: "rgba(139,168,122,0.08)", desc: "High willingness + High ability — your champions", engagement: ["Empower as peer trainers and AI ambassadors", "Give early access to new AI tools", "Feature in internal success stories", "Involve in design decisions as co-creators"], pct: earlyPct },
+    { id: "eager", label: "Eager Learner", icon: "📚", color: "#f4a83a", bgColor: "rgba(244,168,58,0.08)", desc: "High willingness + Low ability — motivated but need upskilling", engagement: ["Prioritize for training programs", "Pair with Early Adopters as mentors", "Provide sandbox environments", "Celebrate learning milestones"], pct: eagerPct },
+    { id: "skeptic", label: "Skeptic with Expertise", icon: "🔍", color: "#f4a83a", bgColor: "rgba(244,168,58,0.08)", desc: "Low willingness + High ability — critical group with deep knowledge", engagement: ["Involve in design decisions (ownership, not orders)", "Address specific concerns directly with data", "Position as quality gatekeepers for AI outputs", "Respect their expertise — they see risks others miss"], pct: skepticPct },
+    { id: "atrisk", label: "At-Risk Anchor", icon: "⚠️", color: "#e87a5d", bgColor: "rgba(232,122,93,0.08)", desc: "Low willingness + Low ability — highest intervention need", engagement: ["One-on-one career conversations", "Clear personal impact assessment", "Explore redeployment options early", "Connect with support resources (EAP, coaching)"], pct: atriskPct },
   ];
 
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -1434,7 +1434,7 @@ function forceSimulate(nodes: SimNode[], edges: GraphEdge[], width: number, heig
   }
 }
 
-const CATEGORY_COLORS: Record<string, string> = { Technology: "var(--amber)", Finance: "var(--accent-primary)", HR: "var(--purple)", Operations: "var(--warning)", Product: "var(--success)", "Sales & Marketing": "var(--coral)", Marketing: "var(--coral)", Sales: "var(--dusk)", General: "#888", Legal: "var(--risk)" };
+const CATEGORY_COLORS: Record<string, string> = { Technology: "#f4a83a", Finance: "#f4a83a", HR: "#a78bb8", Operations: "#f4a83a", Product: "#8ba87a", "Sales & Marketing": "#e87a5d", Marketing: "#e87a5d", Sales: "#a78bb8", General: "#888", Legal: "#e87a5d" };
 
 export function SkillsNetwork({ model, f, onBack, onNavigate }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void }) {
   const [graph, setGraph] = useState<{ nodes: GraphNode[]; edges: GraphEdge[]; stats?: Record<string, unknown> } | null>(null);
@@ -1524,11 +1524,11 @@ export function SkillsNetwork({ model, f, onBack, onNavigate }: { model: string;
           <div className="space-y-3">
             <div>
               <div className="text-[11px] font-bold text-[var(--text-muted)] uppercase mb-1">Color by</div>
-              <div className="flex gap-1">{(["category", "ai", "employees"] as const).map(c => <button key={c} onClick={() => setColorBy(c)} className="px-2.5 py-1 rounded-lg text-[12px] font-semibold transition-all" style={{ background: colorBy === c ? "rgba(244,168,58,0.1)" : "var(--surface-2)", color: colorBy === c ? "var(--accent-primary)" : "var(--text-muted)", border: `1px solid ${colorBy === c ? "rgba(244,168,58,0.3)" : "var(--border)"}` }}>{c === "ai" ? "AI Relevance" : c === "employees" ? "Employee Count" : "Category"}</button>)}</div>
+              <div className="flex gap-1">{(["category", "ai", "employees"] as const).map(c => <button key={c} onClick={() => setColorBy(c)} className="px-2.5 py-1 rounded-lg text-[12px] font-semibold transition-all" style={{ background: colorBy === c ? "rgba(244,168,58,0.1)" : "#1e2030", color: colorBy === c ? "#f4a83a" : "#8a7f6d", border: `1px solid ${colorBy === c ? "rgba(244,168,58,0.3)" : "var(--border)"}` }}>{c === "ai" ? "AI Relevance" : c === "employees" ? "Employee Count" : "Category"}</button>)}</div>
             </div>
             <div>
               <div className="text-[11px] font-bold text-[var(--text-muted)] uppercase mb-1">Min connection: {minWeight.toFixed(2)}</div>
-              <input type="range" min={0.15} max={0.8} step={0.05} value={minWeight} onChange={e => setMinWeight(Number(e.target.value))} className="w-full" style={{ accentColor: "var(--accent-primary)" }} />
+              <input type="range" min={0.15} max={0.8} step={0.05} value={minWeight} onChange={e => setMinWeight(Number(e.target.value))} className="w-full" style={{ accentColor: "#f4a83a" }} />
             </div>
           </div>
           <div className="text-[11px] text-[var(--text-muted)] mt-2">{graph.nodes.length} skills · {filteredEdges.length} connections</div>
@@ -1568,9 +1568,9 @@ export function SkillsNetwork({ model, f, onBack, onNavigate }: { model: string;
                 <span className="text-[10px] text-[var(--text-muted)]">{step.estimated_weeks}w · {Math.round(step.adjacency_score * 100)}% overlap</span>
               </div>
               <div className="flex items-center gap-2 py-1.5">
-                <div className="w-3 h-3 rounded-full" style={{ background: i === pathResult.steps.length - 1 ? "var(--accent-primary)" : "var(--surface-3)", border: `2px solid ${i === pathResult.steps.length - 1 ? "var(--accent-primary)" : "var(--border)"}` }} />
+                <div className="w-3 h-3 rounded-full" style={{ background: i === pathResult.steps.length - 1 ? "#f4a83a" : "var(--surface-3)", border: `2px solid ${i === pathResult.steps.length - 1 ? "#f4a83a" : "var(--border)"}` }} />
                 <span className="text-[12px] font-bold text-[var(--text-primary)]">{step.to_skill}</span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: step.learning_approach === "build" ? "rgba(139,168,122,0.1)" : step.learning_approach === "borrow" ? "rgba(244,168,58,0.1)" : "rgba(232,122,93,0.1)", color: step.learning_approach === "build" ? "var(--success)" : step.learning_approach === "borrow" ? "var(--warning)" : "var(--risk)" }}>{step.learning_approach}</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: step.learning_approach === "build" ? "rgba(139,168,122,0.1)" : step.learning_approach === "borrow" ? "rgba(244,168,58,0.1)" : "rgba(232,122,93,0.1)", color: step.learning_approach === "build" ? "#8ba87a" : step.learning_approach === "borrow" ? "#f4a83a" : "#e87a5d" }}>{step.learning_approach}</span>
               </div>
             </div>)}</div>
             <div className="mt-3 p-3 rounded-lg bg-[var(--surface-2)] border border-[var(--border)]">
@@ -1590,7 +1590,7 @@ export function SkillsNetwork({ model, f, onBack, onNavigate }: { model: string;
           return <Card title={node.name}>
             <div className="grid grid-cols-3 gap-2 mb-3">
               <div className="text-center p-2 rounded-lg bg-[var(--surface-2)]"><div className="text-[16px] font-extrabold text-[var(--accent-primary)]">{node.employee_count}</div><div className="text-[10px] text-[var(--text-muted)]">employees</div></div>
-              <div className="text-center p-2 rounded-lg bg-[var(--surface-2)]"><div className="text-[16px] font-extrabold" style={{ color: node.ai_relevance >= 7 ? "var(--risk)" : node.ai_relevance >= 4 ? "var(--warning)" : "var(--success)" }}>{node.ai_relevance}</div><div className="text-[10px] text-[var(--text-muted)]">AI relevance</div></div>
+              <div className="text-center p-2 rounded-lg bg-[var(--surface-2)]"><div className="text-[16px] font-extrabold" style={{ color: node.ai_relevance >= 7 ? "#e87a5d" : node.ai_relevance >= 4 ? "#f4a83a" : "#8ba87a" }}>{node.ai_relevance}</div><div className="text-[10px] text-[var(--text-muted)]">AI relevance</div></div>
               <div className="text-center p-2 rounded-lg bg-[var(--surface-2)]"><div className="text-[16px] font-extrabold text-[var(--text-primary)]">{node.proficiency_avg}</div><div className="text-[10px] text-[var(--text-muted)]">avg prof.</div></div>
             </div>
             <div className="text-[11px] font-bold text-[var(--text-muted)] uppercase mb-1">Adjacent skills ({connections.length})</div>
@@ -1619,7 +1619,7 @@ export function SkillsNetwork({ model, f, onBack, onNavigate }: { model: string;
             const isPathEdge = pathEdgeSet.has(`${e.source}→${e.target}`);
             const dim = hasPath && !isPathEdge;
             return <line key={i} x1={a.x} y1={a.y} x2={b.x} y2={b.y}
-              stroke={isPathEdge ? "var(--accent-primary)" : e.overlap_type === "task" ? "rgba(8,145,178,0.3)" : "rgba(167,139,184,0.25)"}
+              stroke={isPathEdge ? "#f4a83a" : e.overlap_type === "task" ? "rgba(8,145,178,0.3)" : "rgba(167,139,184,0.25)"}
               strokeWidth={isPathEdge ? 3 : Math.max(0.5, e.weight * 4)}
               opacity={dim ? 0.08 : 1}
             />;
@@ -1632,8 +1632,8 @@ export function SkillsNetwork({ model, f, onBack, onNavigate }: { model: string;
             const isHovered = hoveredNode === n.id;
             const dim = hasPath && !isPath;
             return <g key={n.id} onClick={() => { setSelectedNode(n.id === selectedNode ? null : n.id); }} onMouseEnter={() => setHoveredNode(n.id)} onMouseLeave={() => setHoveredNode(null)} className="cursor-pointer">
-              <circle cx={n.x} cy={n.y} r={r + 2} fill="none" stroke={isSelected ? "var(--accent-primary)" : isPath ? "var(--accent-primary)" : "none"} strokeWidth={isSelected ? 3 : 2} opacity={dim ? 0.15 : 1} />
-              <circle cx={n.x} cy={n.y} r={r} fill={isPath ? "var(--accent-primary)" : getNodeColor(n)} opacity={dim ? 0.15 : isHovered ? 1 : 0.85} />
+              <circle cx={n.x} cy={n.y} r={r + 2} fill="none" stroke={isSelected ? "#f4a83a" : isPath ? "#f4a83a" : "none"} strokeWidth={isSelected ? 3 : 2} opacity={dim ? 0.15 : 1} />
+              <circle cx={n.x} cy={n.y} r={r} fill={isPath ? "#f4a83a" : getNodeColor(n)} opacity={dim ? 0.15 : isHovered ? 1 : 0.85} />
               {(isHovered || isSelected || isPath) && <text x={n.x} y={n.y - r - 4} textAnchor="middle" fill="var(--text-primary)" fontSize={10} fontWeight={700} fontFamily="Outfit, sans-serif">{n.name}</text>}
             </g>;
           })}

@@ -82,7 +82,7 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
         <div className="mt-3 pt-2 border-t border-[var(--border)] text-[15px] text-[var(--text-muted)]">Total automatable time: {quickWins.reduce((sum, t) => sum + Number(t["Current Time Spent %"] || t.time_pct || 0), 0)}% of combined role time → est. {Math.round(quickWins.reduce((sum, t) => sum + Number(t["Current Time Spent %"] || t.time_pct || 0), 0) * 0.6 * 40 / 100)} hrs/week freed</div>
       </div>}
       <div className="grid grid-cols-12 gap-4"><div className="col-span-7"><Card title="Top AI Priority Tasks"><DataTable data={top10} /></Card></div><div className="col-span-5"><Card title="Impact by Workstream"><BarViz data={((data?.workstream_impact ?? []) as Record<string, unknown>[])} labelKey="Workstream" valueKey="Time Impact" color="var(--accent-scenario)" /></Card></div></div></div>; })()}
-    {sub === "skills" && <div className="grid grid-cols-2 gap-4"><Card title="Current Skills"><BarViz data={((data?.current ?? []) as Record<string, unknown>[])} labelKey="Skill" valueKey="Weight" color="var(--success)" /></Card><Card title="Skill Gap"><DataTable data={((data?.gap ?? []) as Record<string, unknown>[])} cols={["Skill", "Current", "Future", "Delta"]} /></Card></div>}
+    {sub === "skills" && <div className="grid grid-cols-2 gap-4"><Card title="Current Skills"><BarViz data={((data?.current ?? []) as Record<string, unknown>[])} labelKey="Skill" valueKey="Weight" color="#8ba87a" /></Card><Card title="Skill Gap"><DataTable data={((data?.gap ?? []) as Record<string, unknown>[])} cols={["Skill", "Current", "Future", "Delta"]} /></Card></div>}
     {sub === "org" && (() => {
       if (data && (data as Record<string, unknown>).empty) return <Empty text="Upload org or workforce data" icon={<Users size={20} />} />;
       const k = (data?.kpis ?? { total: 0, managers: 0, ics: 0, avg_span: 0, max_span: 0, layers: 0 }) as OrgDiagnosticsKpis;
@@ -92,7 +92,7 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
 
       // ── Layer Distribution: sort by track order, color by track ──
       const TRACK_ORDER = ["S","P","T","M","E"];
-      const TRACK_COLORS: Record<string, string> = { S: "var(--ink-whisper)", P: "var(--amber)", T: "var(--dusk)", M: "var(--amber)", E: "var(--coral)" };
+      const TRACK_COLORS: Record<string, string> = { S: "#5a5245", P: "#f4a83a", T: "#a78bb8", M: "#f4a83a", E: "#e87a5d" };
       const TRACK_LABELS: Record<string, string> = { S: "Support", P: "Professional", T: "Technical", M: "Management", E: "Executive" };
       const sortedLayers = [...rawLayers].sort((a, b) => {
         const tA = TRACK_ORDER.indexOf(a.name[0]) * 100 + parseInt(a.name.slice(1) || "0");
@@ -169,7 +169,7 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
                 {sortedLayers.map(l => {
                   const pct = (l.value / maxLayerVal) * 100;
                   const track = l.name[0];
-                  const color = TRACK_COLORS[track] || "var(--accent-primary)";
+                  const color = TRACK_COLORS[track] || "#f4a83a";
                   return <div key={l.name} className="flex-1 flex flex-col items-center justify-end h-full" style={{ minWidth: 0 }}>
                     <div className="text-[10px] font-data text-[var(--text-muted)] mb-1">{l.value > 0 ? l.value.toLocaleString() : ""}</div>
                     <div className="w-full rounded-t-sm transition-all" style={{ height: `${Math.max(pct, 2)}%`, background: color, opacity: 0.8, minHeight: l.value > 0 ? 4 : 0 }} />
@@ -203,7 +203,7 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
             {/* View toggle */}
             <div className="flex gap-1 mb-3">
               {([["dist", "Distribution"], ["level", "By Level"], ["outlier", "Outliers"]] as const).map(([id, label]) =>
-                <button key={id} onClick={() => setSpanView(id)} className="px-2 py-0.5 rounded text-[11px] font-semibold transition-colors" style={{ background: spanView === id ? "var(--accent-primary)" : "var(--surface-2)", color: spanView === id ? "#fff" : "var(--text-muted)", border: `1px solid ${spanView === id ? "var(--accent-primary)" : "var(--border)"}` }}>{label}</button>
+                <button key={id} onClick={() => setSpanView(id)} className="px-2 py-0.5 rounded text-[11px] font-semibold transition-colors" style={{ background: spanView === id ? "#f4a83a" : "#1e2030", color: spanView === id ? "#fff" : "#8a7f6d", border: `1px solid ${spanView === id ? "#f4a83a" : "var(--border)"}` }}>{label}</button>
               )}
             </div>
 
@@ -215,7 +215,7 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
                     const pct = (b.count / maxSpanCount) * 100;
                     const isHealthy = b.min >= 5 && b.max <= 10;
                     const isNarrow = b.max < 5;
-                    const color = isHealthy ? "var(--success)" : isNarrow ? "var(--warning)" : "var(--risk)";
+                    const color = isHealthy ? "#8ba87a" : isNarrow ? "#f4a83a" : "#e87a5d";
                     return <div key={b.label} className="flex-1 flex flex-col items-center justify-end h-full">
                       <div className="text-[11px] font-data font-bold mb-1" style={{ color }}>{b.count || ""}</div>
                       <div className="w-full rounded-t-sm" style={{ height: `${Math.max(pct, 2)}%`, background: color, opacity: 0.75, minHeight: b.count > 0 ? 4 : 0 }} />
@@ -239,12 +239,12 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
                 <div className="text-[11px] text-[var(--text-muted)] mb-2">Target range: <span className="text-[var(--success)] font-semibold">5-10</span> direct reports</div>
                 {spanByLevel.map(sl => {
                   const inRange = sl.avg >= 5 && sl.avg <= 10;
-                  const color = inRange ? "var(--success)" : sl.avg < 5 ? "var(--amber)" : "var(--risk)";
+                  const color = inRange ? "#8ba87a" : sl.avg < 5 ? "var(--amber)" : "#e87a5d";
                   return <div key={sl.level} className="flex items-center gap-2">
                     <span className="text-[12px] font-data text-[var(--text-muted)] w-7">{sl.level}</span>
                     <div className="flex-1 h-4 bg-[var(--surface-2)] rounded-full overflow-hidden relative">
                       {/* Target range indicator */}
-                      <div className="absolute h-full rounded-full opacity-10" style={{ left: `${5 / 20 * 100}%`, width: `${5 / 20 * 100}%`, background: "var(--success)" }} />
+                      <div className="absolute h-full rounded-full opacity-10" style={{ left: `${5 / 20 * 100}%`, width: `${5 / 20 * 100}%`, background: "#8ba87a" }} />
                       <div className="h-full rounded-full transition-all relative z-10" style={{ width: `${Math.min(sl.avg / 20 * 100, 100)}%`, background: color }} />
                     </div>
                     <span className="text-[12px] font-data font-semibold w-8 text-right" style={{ color }}>{sl.avg}</span>
@@ -261,11 +261,11 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
                   <span className="text-[var(--risk)] font-semibold">{allSpans.filter(s => s > 12).length}</span> overextended (&gt;12) · <span className="text-[var(--amber)] font-semibold">{allSpans.filter(s => s > 0 && s < 3).length}</span> too narrow (&lt;3)
                 </div>
                 <div className="space-y-1 max-h-[180px] overflow-y-auto">{outliers.map((o, i) => <div key={i} className="flex items-center gap-2 text-[12px] py-1 border-b border-[var(--border)]">
-                  <span className="w-2 h-2 rounded-full shrink-0" style={{ background: o.span > 12 ? "var(--risk)" : o.span < 5 ? "var(--warning)" : "var(--amber)" }} />
+                  <span className="w-2 h-2 rounded-full shrink-0" style={{ background: o.span > 12 ? "#e87a5d" : o.span < 5 ? "#f4a83a" : "var(--amber)" }} />
                   <span className="text-[var(--text-primary)] font-semibold truncate flex-1">{o.name}</span>
                   <span className="text-[var(--text-muted)] truncate" style={{ maxWidth: 80 }}>{o.dept}</span>
                   <span className="text-[var(--text-muted)] w-6">{o.level}</span>
-                  <span className="font-data font-bold w-6 text-right" style={{ color: o.span > 12 ? "var(--risk)" : o.span < 5 ? "var(--warning)" : "var(--amber)" }}>{o.span}</span>
+                  <span className="font-data font-bold w-6 text-right" style={{ color: o.span > 12 ? "#e87a5d" : o.span < 5 ? "#f4a83a" : "var(--amber)" }}>{o.span}</span>
                 </div>)}</div>
               </>}
             </>}
@@ -345,9 +345,9 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
     const rec = records.find(r => r.employee === emp && r.skill === skill);
     return rec ? rec.proficiency : 0;
   };
-  const profColor = (p: number) => p === 0 ? "transparent" : p === 1 ? "var(--risk)" : p === 2 ? "var(--warning)" : p === 3 ? "var(--success)" : "var(--sage)";
+  const profColor = (p: number) => p === 0 ? "transparent" : p === 1 ? "#e87a5d" : p === 2 ? "#f4a83a" : p === 3 ? "#8ba87a" : "#8ba87a";
   const profLabel = (p: number) => p === 1 ? "Novice" : p === 2 ? "Developing" : p === 3 ? "Proficient" : p === 4 ? "Expert" : "Not assessed";
-  const dispColors: Record<string, string> = { "Close Internally": "var(--success)", "Hire Externally": "var(--accent-primary)", "Accept Risk": "var(--warning)", "Automate": "var(--purple)" };
+  const dispColors: Record<string, string> = { "Close Internally": "#8ba87a", "Hire Externally": "#f4a83a", "Accept Risk": "#f4a83a", "Automate": "#a78bb8" };
   const dispOptions = ["Close Internally", "Hire Externally", "Accept Risk", "Automate"];
 
   const filteredSkills = skillFilter ? skills.filter(s => s.toLowerCase().includes(skillFilter.toLowerCase())) : skills;
@@ -402,7 +402,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
           </tr></thead>
           <tbody>{employees.slice(empPage * EMP_PAGE_SIZE, (empPage + 1) * EMP_PAGE_SIZE).map(emp => <tr key={emp} className="border-b border-[var(--border)] hover:bg-[var(--hover)]">
             <td className="px-2 py-1 font-semibold text-[var(--text-primary)] sticky left-0 bg-[var(--surface-1)] z-10 border-r border-[var(--border)] truncate" style={{ maxWidth: 130 }}>{emp}</td>
-            {filteredSkills.slice(0, 15).map(s => { const p = getProf(emp, s); const key = `${emp}__${s}`; const edited = editedScores[key] !== undefined; return <td key={s} className="px-0.5 py-0.5 text-center"><button title={`${s}: ${profLabel(p)} (${p}/4)\nClick to change`} onClick={() => setEditedScores(prev => ({ ...prev, [key]: p >= 4 ? 0 : p + 1 }))} className="w-6 h-6 rounded text-[14px] font-bold transition-all" style={{ background: p ? `${profColor(p)}20` : "var(--surface-2)", color: p ? profColor(p) : "var(--text-muted)", border: `1px solid ${edited ? "var(--accent-primary)" : (p ? profColor(p) + "30" : "var(--border)")}`, outline: edited ? "1px solid var(--accent-primary)" : "none" }}>{p || "·"}</button></td>; })}
+            {filteredSkills.slice(0, 15).map(s => { const p = getProf(emp, s); const key = `${emp}__${s}`; const edited = editedScores[key] !== undefined; return <td key={s} className="px-0.5 py-0.5 text-center"><button title={`${s}: ${profLabel(p)} (${p}/4)\nClick to change`} onClick={() => setEditedScores(prev => ({ ...prev, [key]: p >= 4 ? 0 : p + 1 }))} className="w-6 h-6 rounded text-[14px] font-bold transition-all" style={{ background: p ? `${profColor(p)}20` : "#1e2030", color: p ? profColor(p) : "#8a7f6d", border: `1px solid ${edited ? "#f4a83a" : (p ? profColor(p) + "30" : "var(--border)")}`, outline: edited ? "1px solid var(--accent-primary)" : "none" }}>{p || "·"}</button></td>; })}
           </tr>)}</tbody></table>
         </div>
         <div className="flex items-center justify-between mt-2">
@@ -420,8 +420,8 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
         <div className="grid grid-cols-3 gap-4">{Object.entries(clusters).map(([cluster, clusterSkills]) => {
           const avg = clusterSkills.reduce((sum, s) => { const recs = records.filter(r => r.skill === s); return sum + (recs.length ? recs.reduce((a, r) => a + r.proficiency, 0) / recs.length : 0); }, 0) / Math.max(clusterSkills.length, 1);
           return <div key={cluster} className="bg-[var(--surface-2)] rounded-xl p-4 border border-[var(--border)]">
-            <div className="flex items-center justify-between mb-3"><span className="text-[15px] font-bold text-[var(--text-primary)]">{cluster}</span><span className="text-[18px] font-extrabold" style={{ color: avg >= 3 ? "var(--success)" : avg >= 2 ? "var(--warning)" : "var(--risk)" }}>{avg.toFixed(1)}</span></div>
-            <div className="space-y-1.5">{clusterSkills.map(s => { const recs = records.filter(r => r.skill === s); const sAvg = recs.length ? recs.reduce((a, r) => a + r.proficiency, 0) / recs.length : 0; const assessed = recs.length; return <div key={s} className="flex items-center justify-between text-[15px]"><span className="text-[var(--text-secondary)] truncate flex-1 mr-2">{s}</span><div className="flex items-center gap-1.5"><span className="text-[14px] text-[var(--text-muted)]">{assessed}emp</span><div className="w-14 h-1.5 rounded-full bg-[var(--surface-3)] overflow-hidden"><div className="h-full rounded-full" style={{ width: `${(sAvg / 4) * 100}%`, background: sAvg >= 3 ? "var(--success)" : sAvg >= 2 ? "var(--warning)" : "var(--risk)" }} /></div><span className="text-[14px] w-5 text-right font-semibold" style={{ color: sAvg >= 3 ? "var(--success)" : sAvg >= 2 ? "var(--warning)" : "var(--risk)" }}>{sAvg.toFixed(1)}</span></div></div>; })}</div>
+            <div className="flex items-center justify-between mb-3"><span className="text-[15px] font-bold text-[var(--text-primary)]">{cluster}</span><span className="text-[18px] font-extrabold" style={{ color: avg >= 3 ? "#8ba87a" : avg >= 2 ? "#f4a83a" : "#e87a5d" }}>{avg.toFixed(1)}</span></div>
+            <div className="space-y-1.5">{clusterSkills.map(s => { const recs = records.filter(r => r.skill === s); const sAvg = recs.length ? recs.reduce((a, r) => a + r.proficiency, 0) / recs.length : 0; const assessed = recs.length; return <div key={s} className="flex items-center justify-between text-[15px]"><span className="text-[var(--text-secondary)] truncate flex-1 mr-2">{s}</span><div className="flex items-center gap-1.5"><span className="text-[14px] text-[var(--text-muted)]">{assessed}emp</span><div className="w-14 h-1.5 rounded-full bg-[var(--surface-3)] overflow-hidden"><div className="h-full rounded-full" style={{ width: `${(sAvg / 4) * 100}%`, background: sAvg >= 3 ? "#8ba87a" : sAvg >= 2 ? "#f4a83a" : "#e87a5d" }} /></div><span className="text-[14px] w-5 text-right font-semibold" style={{ color: sAvg >= 3 ? "#8ba87a" : sAvg >= 2 ? "#f4a83a" : "#e87a5d" }}>{sAvg.toFixed(1)}</span></div></div>; })}</div>
           </div>;
         })}</div>
       </Card>}
@@ -441,7 +441,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
       </div>
 
       <div className="flex items-center justify-between mb-3">
-        <div className="flex gap-2">{(["skill", "individual"] as const).map(v => <button key={v} onClick={() => setGapView(v)} className="px-3 py-1 rounded-lg text-[15px] font-semibold" style={{ background: gapView === v ? "var(--accent-primary)" : "var(--surface-2)", color: gapView === v ? "#fff" : "var(--text-muted)" }}>{v === "skill" ? "By Skill" : "By Employee"}</button>)}</div>
+        <div className="flex gap-2">{(["skill", "individual"] as const).map(v => <button key={v} onClick={() => setGapView(v)} className="px-3 py-1 rounded-lg text-[15px] font-semibold" style={{ background: gapView === v ? "#f4a83a" : "#1e2030", color: gapView === v ? "#fff" : "#8a7f6d" }}>{v === "skill" ? "By Skill" : "By Employee"}</button>)}</div>
         <div className="text-[15px] text-[var(--text-muted)]">Set disposition per gap: what action to take</div>
       </div>
 
@@ -451,12 +451,12 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
           <span className="text-[15px] font-semibold w-40 shrink-0 text-[var(--text-primary)]">{g.skill}</span>
           <div className="flex-1">
             <div className="h-4 bg-[var(--bg)] rounded-full overflow-hidden relative">
-              <div className="h-full rounded-full absolute left-0" style={{ width: `${(g.current_avg / 4) * 100}%`, background: g.severity === "Critical" ? "var(--risk)" : g.severity === "Moderate" ? "var(--warning)" : "var(--success)", opacity: 0.6 }} />
+              <div className="h-full rounded-full absolute left-0" style={{ width: `${(g.current_avg / 4) * 100}%`, background: g.severity === "Critical" ? "#e87a5d" : g.severity === "Moderate" ? "#f4a83a" : "#8ba87a", opacity: 0.6 }} />
               <div style={{ position: "absolute", left: `${(g.target / 4) * 100}%`, top: 0, bottom: 0, width: 2, background: "var(--text-primary)" }} />
             </div>
-            <div className="flex justify-between text-[14px] mt-0.5"><span className="text-[var(--text-muted)]">Current: {g.current_avg}</span><span className="text-[14px]" style={{ color: "var(--text-muted)" }}>Target: {g.target} ({g.target_source})</span></div>
+            <div className="flex justify-between text-[14px] mt-0.5"><span className="text-[var(--text-muted)]">Current: {g.current_avg}</span><span className="text-[14px]" style={{ color: "#8a7f6d" }}>Target: {g.target} ({g.target_source})</span></div>
           </div>
-          <div className="text-center shrink-0 w-14"><div className="text-[15px] font-extrabold" style={{ color: g.severity === "Critical" ? "var(--risk)" : g.severity === "Moderate" ? "var(--warning)" : "var(--success)" }}>-{g.delta}</div><div className="text-[15px]" style={{ color: g.severity === "Critical" ? "var(--risk)" : g.severity === "Moderate" ? "var(--warning)" : "var(--success)" }}>{g.severity}</div></div>
+          <div className="text-center shrink-0 w-14"><div className="text-[15px] font-extrabold" style={{ color: g.severity === "Critical" ? "#e87a5d" : g.severity === "Moderate" ? "#f4a83a" : "#8ba87a" }}>-{g.delta}</div><div className="text-[15px]" style={{ color: g.severity === "Critical" ? "#e87a5d" : g.severity === "Moderate" ? "#f4a83a" : "#8ba87a" }}>{g.severity}</div></div>
           <select value={gapDispositions[g.skill] || ""} onChange={e => setGapDispositions(prev => ({ ...prev, [g.skill]: e.target.value }))} className="bg-[var(--surface-1)] border border-[var(--border)] rounded-lg px-2 py-1 text-[15px] text-[var(--text-primary)] outline-none w-32 shrink-0">
             <option value="">Disposition...</option>{dispOptions.map(d => <option key={d} value={d}>{d}</option>)}
           </select>
@@ -466,8 +466,8 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
           <div className="flex items-center gap-2 mb-2"><span className="text-[15px] font-bold text-[var(--text-primary)]">{g.skill}</span><Badge color={g.severity === "Critical" ? "red" : "amber"}>{g.severity}</Badge><span className="text-[15px] text-[var(--text-muted)]">Target: {g.target}</span></div>
           <div className="grid grid-cols-5 gap-1">{g.employee_gaps.slice(0, 10).map(eg => <div key={eg.employee} className="bg-[var(--surface-2)] rounded-lg p-2 text-center border border-[var(--border)]">
             <div className="text-[15px] font-semibold text-[var(--text-primary)] truncate">{eg.employee}</div>
-            <div className="text-[14px] font-extrabold mt-0.5" style={{ color: eg.delta > 1.5 ? "var(--risk)" : eg.delta > 0.5 ? "var(--warning)" : "var(--success)" }}>{eg.current}→{eg.target}</div>
-            <div className="text-[15px]" style={{ color: eg.reskillable ? "var(--success)" : "var(--risk)" }}>{eg.reskillable ? "Reskillable" : "Hire needed"}</div>
+            <div className="text-[14px] font-extrabold mt-0.5" style={{ color: eg.delta > 1.5 ? "#e87a5d" : eg.delta > 0.5 ? "#f4a83a" : "#8ba87a" }}>{eg.current}→{eg.target}</div>
+            <div className="text-[15px]" style={{ color: eg.reskillable ? "#8ba87a" : "#e87a5d" }}>{eg.reskillable ? "Reskillable" : "Hire needed"}</div>
           </div>)}</div>
         </div>)}
       </Card>}
@@ -489,7 +489,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
       <div className="flex items-center gap-3 mb-4 flex-wrap">
         <span className="text-[15px] text-[var(--text-secondary)]">Threshold:</span>
         <input type="range" min={30} max={90} step={5} value={adjThreshold} onChange={e => setAdjThreshold(Number(e.target.value))} className="w-36" style={{ accentColor: "var(--amber)" }} />
-        <span className="text-[15px] font-bold" style={{ color: adjThreshold >= 70 ? "var(--success)" : adjThreshold >= 50 ? "var(--warning)" : "var(--risk)" }}>{adjThreshold}%</span>
+        <span className="text-[15px] font-bold" style={{ color: adjThreshold >= 70 ? "#8ba87a" : adjThreshold >= 50 ? "#f4a83a" : "#e87a5d" }}>{adjThreshold}%</span>
         <div className="flex gap-2 text-[14px]"><Badge color="green">≥70% Strong</Badge><Badge color="amber">50-69% Reskillable</Badge><Badge color="gray">&lt;50% Stretch</Badge></div>
         {Boolean(adjSummary.wdl_connected) && <Badge color="green">WDL Connected</Badge>}
       </div>
@@ -499,15 +499,15 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
           <Badge color="green">{a.strong_matches} strong</Badge><Badge color="amber">{a.reskillable} reskillable</Badge><Badge color="gray">{a.weak_matches} weak</Badge>
           {a.wdl_derived && <span className="text-[14px] text-[var(--success)]">Skills from Work Design Lab</span>}
         </div>
-        <div className="grid grid-cols-4 gap-2">{(a.top_candidates || []).filter(c => c.adjacency_pct >= adjThreshold).map(c => { const isShortlisted = (shortlisted[a.target_role] || []).includes(c.employee); return <div key={c.employee} className="bg-[var(--surface-2)] rounded-xl p-3 border transition-all" style={{ borderColor: isShortlisted ? "var(--success)" : "var(--border)" }}>
+        <div className="grid grid-cols-4 gap-2">{(a.top_candidates || []).filter(c => c.adjacency_pct >= adjThreshold).map(c => { const isShortlisted = (shortlisted[a.target_role] || []).includes(c.employee); return <div key={c.employee} className="bg-[var(--surface-2)] rounded-xl p-3 border transition-all" style={{ borderColor: isShortlisted ? "#8ba87a" : "var(--border)" }}>
           <div className="flex items-center justify-between mb-1">
             <span className="text-[15px] font-semibold text-[var(--text-primary)] truncate flex-1 mr-1">{c.employee}</span>
-            <span className="text-[14px] font-extrabold shrink-0" style={{ color: c.adjacency_pct >= 70 ? "var(--success)" : c.adjacency_pct >= 50 ? "var(--warning)" : "var(--risk)" }}>{c.adjacency_pct}%</span>
+            <span className="text-[14px] font-extrabold shrink-0" style={{ color: c.adjacency_pct >= 70 ? "#8ba87a" : c.adjacency_pct >= 50 ? "#f4a83a" : "#e87a5d" }}>{c.adjacency_pct}%</span>
           </div>
           <div className="text-[14px] text-[var(--success)] mb-0.5 truncate">✓ {c.matching_skills.slice(0, 3).join(", ")}</div>
           {c.gap_skills.length > 0 && <div className="text-[14px] text-[var(--risk)] mb-1 truncate">✗ {c.gap_skills.slice(0, 3).join(", ")}</div>}
           {c.reskill_months > 0 && <div className="text-[15px] text-[var(--text-muted)]">~{c.reskill_months}mo reskilling</div>}
-          <button onClick={() => setShortlisted(prev => { const list = prev[a.target_role] || []; return { ...prev, [a.target_role]: isShortlisted ? list.filter(e => e !== c.employee) : [...list, c.employee] }; })} className="mt-1 text-[14px] font-semibold w-full py-1 rounded text-center" style={{ background: isShortlisted ? "rgba(139,168,122,0.1)" : "var(--surface-1)", color: isShortlisted ? "var(--success)" : "var(--text-muted)", border: `1px solid ${isShortlisted ? "var(--success)" : "var(--border)"}` }}>{isShortlisted ? "★ Shortlisted" : "☆ Shortlist"}</button>
+          <button onClick={() => setShortlisted(prev => { const list = prev[a.target_role] || []; return { ...prev, [a.target_role]: isShortlisted ? list.filter(e => e !== c.employee) : [...list, c.employee] }; })} className="mt-1 text-[14px] font-semibold w-full py-1 rounded text-center" style={{ background: isShortlisted ? "rgba(139,168,122,0.1)" : "var(--surface-1)", color: isShortlisted ? "#8ba87a" : "#8a7f6d", border: `1px solid ${isShortlisted ? "#8ba87a" : "var(--border)"}` }}>{isShortlisted ? "★ Shortlisted" : "☆ Shortlist"}</button>
         </div>; })}</div>
         {(a.top_candidates || []).filter(c => c.adjacency_pct >= adjThreshold).length === 0 && <div className="text-[15px] text-[var(--text-muted)] py-4 text-center">No candidates above {adjThreshold}% — lower threshold or plan external hire</div>}
       </Card>)}
@@ -540,7 +540,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
           return { skill, supplyPct, demandPct, gapPct, status, supplyCount: proficient, demandCount: Math.round(employees.length * demandPct / 100) };
         }).sort((a, b) => b.gapPct - a.gapPct);
 
-        const statusColors: Record<string, string> = { critical: "var(--risk)", shortage: "var(--warning)", moderate: "var(--accent-primary)", adequate: "var(--success)", surplus: "var(--amber)" };
+        const statusColors: Record<string, string> = { critical: "#e87a5d", shortage: "#f4a83a", moderate: "#f4a83a", adequate: "#8ba87a", surplus: "#f4a83a" };
         const statusLabels: Record<string, string> = { critical: "CRITICAL", shortage: "SHORTAGE", moderate: "MODERATE", adequate: "ADEQUATE", surplus: "SURPLUS" };
         const criticals = supplyDemand.filter(s => s.status === "critical");
         const shortages = supplyDemand.filter(s => s.status === "shortage");
@@ -566,15 +566,15 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
                 {/* Center: skill name */}
                 <div className="w-36 text-center shrink-0"><span className="text-[14px] font-semibold text-[var(--text-primary)] truncate block">{sd.skill}</span></div>
                 {/* Demand bar (goes RIGHT from center) */}
-                <div className="w-24"><div className="h-5 rounded-r-lg" style={{ width: `${Math.max(sd.demandPct, 2)}%`, minWidth: 4, background: "var(--accent-primary)" }} /></div>
-                <div className="w-16 text-[13px] font-data font-bold" style={{ color: "var(--accent-primary)" }}>{sd.demandPct}%</div>
+                <div className="w-24"><div className="h-5 rounded-r-lg" style={{ width: `${Math.max(sd.demandPct, 2)}%`, minWidth: 4, background: "#f4a83a" }} /></div>
+                <div className="w-16 text-[13px] font-data font-bold" style={{ color: "#f4a83a" }}>{sd.demandPct}%</div>
                 {/* Gap badge */}
                 <div className="w-24 text-right"><span className="px-2 py-0.5 rounded-full text-[12px] font-bold" style={{ background: `${statusColors[sd.status]}12`, color: statusColors[sd.status] }}>{sd.gapPct > 0 ? `-${sd.gapPct}%` : `+${Math.abs(sd.gapPct)}%`} {statusLabels[sd.status]}</span></div>
               </div>)}
             </div>
             <div className="flex justify-between mt-3 text-[13px] text-[var(--text-muted)]">
               <span className="flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ background: "var(--amber)" }} /> Supply (have the skill)</span>
-              <span className="flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ background: "var(--accent-primary)" }} /> Demand (need the skill)</span>
+              <span className="flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ background: "#f4a83a" }} /> Demand (need the skill)</span>
             </div>
           </Card>
 
@@ -585,7 +585,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
                 <div className="flex items-center gap-2 mb-1"><span className="text-[14px] font-bold text-[var(--risk)]">Priority {i + 1} (URGENT)</span><Badge color="red">{sd.gapPct}% gap</Badge></div>
                 <div className="text-[15px] text-[var(--text-primary)] font-semibold mb-1">Launch {sd.skill} upskilling for {sd.demandCount - sd.supplyCount} employees</div>
                 <div className="text-[14px] text-[var(--text-muted)] mb-2">Current: {sd.supplyPct}% ({sd.supplyCount} people) → Need: {sd.demandPct}% ({sd.demandCount} people)</div>
-                <div className="flex gap-2">{onNavigate && <button onClick={() => onNavigate("reskill")} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold text-white" style={{ background: "var(--risk)" }}>Create Reskilling Pathway</button>}</div>
+                <div className="flex gap-2">{onNavigate && <button onClick={() => onNavigate("reskill")} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold text-white" style={{ background: "#e87a5d" }}>Create Reskilling Pathway</button>}</div>
               </div>)}
               {shortages.slice(0, 3).map((sd, i) => <div key={sd.skill} className="rounded-xl p-4 border-l-3" style={{ borderLeft: "3px solid var(--warning)", background: "rgba(244,168,58,0.04)" }}>
                 <div className="flex items-center gap-2 mb-1"><span className="text-[14px] font-bold text-[var(--warning)]">Priority {criticals.length + i + 1}</span><Badge color="amber">{sd.gapPct}% gap</Badge></div>
@@ -604,10 +604,10 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
       const setSelectedRole = setSelectedCareerRole;
       const selectedAdj = adjacencies.find(a => a.target_role === selectedRole);
       const moveTypes = [
-        { type: "⬆️", label: "Promotion", color: "var(--success)", desc: "Move up a level" },
+        { type: "⬆️", label: "Promotion", color: "#8ba87a", desc: "Move up a level" },
         { type: "➡️", label: "Lateral", color: "var(--amber)", desc: "Same level, different function" },
         { type: "↗️", label: "Cross-track", color: "var(--purple)", desc: "IC to Manager or vice versa" },
-        { type: "🔄", label: "Pivot", color: "var(--warning)", desc: "New domain entirely" },
+        { type: "🔄", label: "Pivot", color: "#f4a83a", desc: "New domain entirely" },
       ];
 
       return <div className="space-y-5">
@@ -638,7 +638,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
               <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-5">
                 {(selectedAdj.top_candidates || []).slice(0, 9).map((c, ci) => {
                   const moveType = c.adjacency_pct >= 80 ? moveTypes[0] : c.adjacency_pct >= 60 ? moveTypes[1] : c.adjacency_pct >= 40 ? moveTypes[2] : moveTypes[3];
-                  const lineColor = c.adjacency_pct >= 70 ? "var(--success)" : c.adjacency_pct >= 50 ? "var(--warning)" : "var(--risk)";
+                  const lineColor = c.adjacency_pct >= 70 ? "#8ba87a" : c.adjacency_pct >= 50 ? "#f4a83a" : "#e87a5d";
                   return <div key={c.employee || ci} className="rounded-xl border bg-[var(--surface-1)] p-4 transition-all hover:border-[var(--accent-primary)]/30" style={{ borderColor: "var(--border)", boxShadow: "var(--shadow-1)" }}>
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-[16px]">{moveType.type}</span>
@@ -648,7 +648,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
                       {/* Skill match ring */}
                       <div className="relative w-12 h-12 shrink-0">
                         <svg width="48" height="48" viewBox="0 0 48 48">
-                          <circle cx="24" cy="24" r="20" fill="none" stroke="var(--surface-2)" strokeWidth="4" />
+                          <circle cx="24" cy="24" r="20" fill="none" stroke="#1e2030" strokeWidth="4" />
                           <circle cx="24" cy="24" r="20" fill="none" stroke={lineColor} strokeWidth="4" strokeDasharray={`${c.adjacency_pct * 1.26} 126`} strokeLinecap="round" transform="rotate(-90 24 24)" />
                         </svg>
                         <div className="absolute inset-0 flex items-center justify-center text-[12px] font-bold font-data" style={{ color: lineColor }}>{c.adjacency_pct}%</div>
@@ -706,7 +706,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
       const scores = maturityScores; const setScores = setMaturityScores;
       const avg = Object.values(scores).length > 0 ? Object.values(scores).reduce((s, v) => s + v, 0) / Object.values(scores).length : 0;
       const level = avg >= 4 ? "Advanced" : avg >= 3 ? "Proficient" : avg >= 2 ? "Emerging" : avg >= 1 ? "Foundational" : "Not Assessed";
-      const levelColor = avg >= 4 ? "var(--success)" : avg >= 3 ? "var(--accent-primary)" : avg >= 2 ? "var(--warning)" : "var(--risk)";
+      const levelColor = avg >= 4 ? "#8ba87a" : avg >= 3 ? "#f4a83a" : avg >= 2 ? "#f4a83a" : "#e87a5d";
 
       return <div>
         <Card title="Skills Maturity Assessment">
@@ -717,7 +717,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
                 <span className="text-xl">{d.icon}</span>
                 <div><div className="text-[15px] font-bold text-[var(--text-primary)]">{d.label}</div><div className="text-[14px] text-[var(--text-muted)]">{d.desc}</div></div>
               </div>
-              <div className="flex gap-1 mt-2">{[1,2,3,4,5].map(v => <button key={v} onClick={() => setScores(p => ({ ...p, [d.id]: p[d.id] === v ? 0 : v }))} className="flex-1 py-2 rounded-lg text-[14px] font-bold transition-all" style={{ background: (scores[d.id] || 0) >= v ? "var(--accent-primary)" : "var(--surface-1)", color: (scores[d.id] || 0) >= v ? "#fff" : "var(--text-muted)", border: "1px solid var(--border)", cursor: "pointer" }}>{v}</button>)}</div>
+              <div className="flex gap-1 mt-2">{[1,2,3,4,5].map(v => <button key={v} onClick={() => setScores(p => ({ ...p, [d.id]: p[d.id] === v ? 0 : v }))} className="flex-1 py-2 rounded-lg text-[14px] font-bold transition-all" style={{ background: (scores[d.id] || 0) >= v ? "#f4a83a" : "var(--surface-1)", color: (scores[d.id] || 0) >= v ? "#fff" : "#8a7f6d", border: "1px solid var(--border)", cursor: "pointer" }}>{v}</button>)}</div>
             </div>)}
           </div>
           {Object.values(scores).length > 0 && <div className="text-center p-6 rounded-xl bg-[var(--surface-2)] border border-[var(--border)]">
@@ -858,7 +858,7 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2"><span className="text-[14px] text-[var(--text-muted)]">Question {assessQ + 1} of {totalQuestions}</span><span className="text-[14px] font-bold text-[var(--accent-primary)] font-data">{pct}%</span></div>
         <div className="h-2 bg-[var(--surface-2)] rounded-full overflow-hidden"><div className="h-full rounded-full bg-[var(--accent-primary)] transition-all" style={{ width: `${pct}%` }} /></div>
-        <div className="flex gap-1 mt-2">{ASSESS_DIMS.map((d, di) => { const dStart = ASSESS_DIMS.slice(0, di).reduce((s, dd) => s + dd.questions.length, 0); const dEnd = dStart + d.questions.length; const isActive = assessQ >= dStart && assessQ < dEnd; const isDone = assessQ >= dEnd; return <div key={d.id} className="flex-1 text-center text-[11px] font-semibold" style={{ color: isActive ? "var(--accent-primary)" : isDone ? "var(--success)" : "var(--text-muted)" }}>{d.icon} {d.id.split(" ").slice(-1)}</div>; })}</div>
+        <div className="flex gap-1 mt-2">{ASSESS_DIMS.map((d, di) => { const dStart = ASSESS_DIMS.slice(0, di).reduce((s, dd) => s + dd.questions.length, 0); const dEnd = dStart + d.questions.length; const isActive = assessQ >= dStart && assessQ < dEnd; const isDone = assessQ >= dEnd; return <div key={d.id} className="flex-1 text-center text-[11px] font-semibold" style={{ color: isActive ? "#f4a83a" : isDone ? "#8ba87a" : "#8a7f6d" }}>{d.icon} {d.id.split(" ").slice(-1)}</div>; })}</div>
       </div>
       {/* Question */}
       <div className="max-w-2xl mx-auto">
@@ -872,8 +872,8 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
               boxShadow: isSelected ? "0 0 12px rgba(244,168,58,0.15)" : "0 1px 4px rgba(0,0,0,0.06)",
             }}>
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center text-[14px] font-bold shrink-0" style={{ background: isSelected ? "var(--accent-primary)" : "var(--surface-2)", color: isSelected ? "white" : "var(--text-muted)" }}>{isSelected ? "✓" : oi + 1}</div>
-                <span className="text-[16px]" style={{ color: isSelected ? "var(--accent-primary)" : "var(--text-secondary)" }}>{opt}</span>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center text-[14px] font-bold shrink-0" style={{ background: isSelected ? "#f4a83a" : "#1e2030", color: isSelected ? "white" : "#8a7f6d" }}>{isSelected ? "✓" : oi + 1}</div>
+                <span className="text-[16px]" style={{ color: isSelected ? "#f4a83a" : "var(--text-secondary)" }}>{opt}</span>
               </div>
             </button>;
           })}
@@ -910,8 +910,8 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
       {/* Assessment score header */}
       {assessComplete && <div className="rounded-2xl border border-[var(--accent-primary)]/20 bg-[rgba(244,168,58,0.04)] p-6 mb-5 text-center">
         <div className="text-[14px] text-[var(--text-muted)] uppercase tracking-wider mb-1">Your AI Readiness Score</div>
-        <div className="text-[48px] font-extrabold font-data" style={{ color: orgAvg >= 3.5 ? "var(--success)" : orgAvg >= 2.5 ? "var(--warning)" : "var(--risk)" }}>{orgAvg}/5</div>
-        <div className="text-[16px] font-semibold" style={{ color: orgAvg >= 3.5 ? "var(--success)" : orgAvg >= 2.5 ? "var(--warning)" : "var(--risk)" }}>{orgAvg >= 4 ? "Exceptional" : orgAvg >= 3.5 ? "Strong" : orgAvg >= 2.5 ? "Moderate" : orgAvg >= 1.5 ? "Developing" : "Critical"}</div>
+        <div className="text-[48px] font-extrabold font-data" style={{ color: orgAvg >= 3.5 ? "#8ba87a" : orgAvg >= 2.5 ? "#f4a83a" : "#e87a5d" }}>{orgAvg}/5</div>
+        <div className="text-[16px] font-semibold" style={{ color: orgAvg >= 3.5 ? "#8ba87a" : orgAvg >= 2.5 ? "#f4a83a" : "#e87a5d" }}>{orgAvg >= 4 ? "Exceptional" : orgAvg >= 3.5 ? "Strong" : orgAvg >= 2.5 ? "Moderate" : orgAvg >= 1.5 ? "Developing" : "Critical"}</div>
         <button onClick={() => { setAssessActive(true); setAssessQ(0); }} className="mt-3 text-[13px] text-[var(--text-muted)] hover:text-[var(--accent-primary)]">Retake Assessment</button>
       </div>}
 
@@ -919,16 +919,16 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
         <KpiCard label="Org Average" value={`${orgAvg || data?.org_average || "—"}/5`} accent /><KpiCard label="Ready Now" value={Number(bands.ready_now || 0)} /><KpiCard label="Coachable" value={Number(bands.coachable || 0)} /><KpiCard label="At Risk" value={Number(bands.at_risk || 0)} /><KpiCard label="Weakest" value={String(Object.entries(dimAvgs).sort((a,b) => Number(a[1]) - Number(b[1]))[0]?.[0] || data?.lowest_dimension || "—")} />
       </div>
 
-      <div className="flex gap-2 mb-4">{(["org","individual"] as const).map(v => <button key={v} onClick={() => setViewLevel(v)} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold" style={{ background: viewLevel === v ? "var(--accent-primary)" : "var(--surface-2)", color: viewLevel === v ? "#fff" : "var(--text-muted)" }}>{v === "org" ? "Organization View" : "Individual Scores"}</button>)}</div>
+      <div className="flex gap-2 mb-4">{(["org","individual"] as const).map(v => <button key={v} onClick={() => setViewLevel(v)} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold" style={{ background: viewLevel === v ? "#f4a83a" : "#1e2030", color: viewLevel === v ? "#fff" : "#8a7f6d" }}>{v === "org" ? "Organization View" : "Individual Scores"}</button>)}</div>
 
       {viewLevel === "org" ? <div className="grid grid-cols-2 gap-4">
         <Card title="Readiness by Dimension"><RadarViz data={Object.entries(dimAvgs).map(([k,v]) => ({ subject: k, current: Number(v), max: 5 }))} /></Card>
         <Card title="Readiness Bands"><DonutViz data={[{name:"Ready Now",value:Number(bands.ready_now||0)},{name:"Coachable",value:Number(bands.coachable||0)},{name:"At Risk",value:Number(bands.at_risk||0)}]} />
-          <div className="mt-3 space-y-2">{[{band:"Ready Now",color:"var(--success)",desc:"Can adopt AI tools immediately"},{band:"Coachable",color:"var(--warning)",desc:"Needs 3-6 months of support"},{band:"At Risk",color:"var(--risk)",desc:"Needs intensive intervention"}].map(b => <div key={b.band} className="flex items-center gap-2 text-[14px]"><div className="w-2.5 h-2.5 rounded-full shrink-0" style={{background:b.color}} /><span className="font-semibold" style={{color:b.color}}>{b.band}</span><span className="text-[var(--text-muted)]">— {b.desc}</span></div>)}</div>
+          <div className="mt-3 space-y-2">{[{band:"Ready Now",color:"#8ba87a",desc:"Can adopt AI tools immediately"},{band:"Coachable",color:"#f4a83a",desc:"Needs 3-6 months of support"},{band:"At Risk",color:"#e87a5d",desc:"Needs intensive intervention"}].map(b => <div key={b.band} className="flex items-center gap-2 text-[14px]"><div className="w-2.5 h-2.5 rounded-full shrink-0" style={{background:b.color}} /><span className="font-semibold" style={{color:b.color}}>{b.band}</span><span className="text-[var(--text-muted)]">— {b.desc}</span></div>)}</div>
         </Card>
       </div> : <Card title="Individual Readiness Scores">
         <div className="overflow-auto rounded-lg border border-[var(--border)]" style={{maxHeight:450}}><table className="w-full text-[14px]"><thead><tr className="bg-[var(--surface-2)] sticky top-0"><th className="px-3 py-2 text-left font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Employee</th>{dimensions.map(d => <th key={d} className="px-2 py-2 text-center font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">{d}</th>)}<th className="px-2 py-2 text-center font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Avg</th><th className="px-2 py-2 text-center font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Band</th></tr></thead>
-        <tbody>{individuals.slice(rdPage * RD_PAGE, (rdPage + 1) * RD_PAGE).map(ind => <tr key={ind.employee} className="border-b border-[var(--border)]"><td className="px-3 py-1.5 font-semibold">{ind.employee}</td>{dimensions.map(d => { const v = ind.scores[d] || 0; return <td key={d} className="px-2 py-1.5 text-center"><span className="text-[14px] font-bold" style={{color: v >= 4 ? "var(--success)" : v >= 3 ? "var(--accent-primary)" : v >= 2 ? "var(--warning)" : "var(--risk)"}}>{v}</span></td>; })}<td className="px-2 py-1.5 text-center font-bold">{ind.average}</td><td className="px-2 py-1.5 text-center"><Badge color={ind.band==="Ready Now"?"green":ind.band==="Coachable"?"amber":"red"}>{ind.band}</Badge></td></tr>)}</tbody></table></div>
+        <tbody>{individuals.slice(rdPage * RD_PAGE, (rdPage + 1) * RD_PAGE).map(ind => <tr key={ind.employee} className="border-b border-[var(--border)]"><td className="px-3 py-1.5 font-semibold">{ind.employee}</td>{dimensions.map(d => { const v = ind.scores[d] || 0; return <td key={d} className="px-2 py-1.5 text-center"><span className="text-[14px] font-bold" style={{color: v >= 4 ? "#8ba87a" : v >= 3 ? "#f4a83a" : v >= 2 ? "#f4a83a" : "#e87a5d"}}>{v}</span></td>; })}<td className="px-2 py-1.5 text-center font-bold">{ind.average}</td><td className="px-2 py-1.5 text-center"><Badge color={ind.band==="Ready Now"?"green":ind.band==="Coachable"?"amber":"red"}>{ind.band}</Badge></td></tr>)}</tbody></table></div>
       </Card>}
 
       {/* Dimension improvement */}
@@ -940,8 +940,8 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
           return <div key={dim} className="flex items-center gap-3 p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)]">
             <span className="text-[14px] font-semibold text-[var(--text-muted)] shrink-0">{dimInfo?.icon || "—"}</span>
             <div className="w-28 shrink-0"><div className="text-[14px] font-semibold text-[var(--text-primary)]">{dim}</div><div className="text-[13px] text-[var(--text-muted)]">{Number(avg).toFixed(1)}/5</div></div>
-            <div className="flex-1"><div className="h-3 rounded-full bg-[var(--surface-3)] overflow-hidden"><div className="h-full rounded-full" style={{width:`${(Number(avg)/5)*100}%`,background: Number(avg) >= 3.5 ? "var(--success)" : Number(avg) >= 2.5 ? "var(--warning)" : "var(--risk)"}} /></div></div>
-            <div className="text-right shrink-0"><div className="text-[14px] font-semibold" style={{color: Number(avg) >= 3.5 ? "var(--success)" : Number(avg) >= 2.5 ? "var(--warning)" : "var(--risk)"}}>{plan}</div><div className="text-[13px] text-[var(--text-muted)]">{timeline}</div></div>
+            <div className="flex-1"><div className="h-3 rounded-full bg-[var(--surface-3)] overflow-hidden"><div className="h-full rounded-full" style={{width:`${(Number(avg)/5)*100}%`,background: Number(avg) >= 3.5 ? "#8ba87a" : Number(avg) >= 2.5 ? "#f4a83a" : "#e87a5d"}} /></div></div>
+            <div className="text-right shrink-0"><div className="text-[14px] font-semibold" style={{color: Number(avg) >= 3.5 ? "#8ba87a" : Number(avg) >= 2.5 ? "#f4a83a" : "#e87a5d"}}>{plan}</div><div className="text-[13px] text-[var(--text-muted)]">{timeline}</div></div>
           </div>;
         })}</div>
       </Card>
@@ -969,7 +969,7 @@ export function ManagerCapability({ model, f, onBack, onNavigate, viewCtx }: { m
   const managers = data?.managers ?? [];
   const dims = data?.dimensions ?? [];
   const summary = data?.summary ?? {};
-  const catColors: Record<string, string> = { "Transformation Champion": "var(--success)", "Needs Development": "var(--warning)", "Flight Risk": "var(--risk)", "Adequate": "var(--text-muted)" };
+  const catColors: Record<string, string> = { "Transformation Champion": "#8ba87a", "Needs Development": "#f4a83a", "Flight Risk": "#e87a5d", "Adequate": "#8a7f6d" };
   const catIcons: Record<string, string> = { "Transformation Champion": "Champion", "Needs Development": "Dev", "Flight Risk": "Risk", "Adequate": "OK" };
   const [expandedCat, setExpandedCat] = useState<string | null>(null);
   const [expandedMgr, setExpandedMgr] = useState<string | null>(null);
@@ -1055,7 +1055,7 @@ export function ManagerCapability({ model, f, onBack, onNavigate, viewCtx }: { m
         <tbody>{managers.slice(0, 30).map(m => <tr key={m.manager} className="border-b border-[var(--border)] hover:bg-[var(--hover)] cursor-pointer transition-colors" onClick={() => setExpandedMgr(expandedMgr === m.manager ? null : m.manager)}>
           <td className="px-3 py-2 font-semibold text-[var(--text-primary)]">{m.manager}</td>
           <td className="px-2 py-2 text-center text-[var(--text-muted)]">{m.direct_reports}</td>
-          {dims.map(d => { const v = m.scores[d] || 0; return <td key={d} className="px-2 py-2 text-center"><span className="inline-flex w-7 h-7 rounded-lg items-center justify-center text-[14px] font-bold" style={{ background: `${v >= 4 ? "var(--success)" : v >= 3 ? "var(--accent-primary)" : v >= 2 ? "var(--warning)" : "var(--risk)"}15`, color: v >= 4 ? "var(--success)" : v >= 3 ? "var(--accent-primary)" : v >= 2 ? "var(--warning)" : "var(--risk)" }}>{v || "—"}</span></td>; })}
+          {dims.map(d => { const v = m.scores[d] || 0; return <td key={d} className="px-2 py-2 text-center"><span className="inline-flex w-7 h-7 rounded-lg items-center justify-center text-[14px] font-bold" style={{ background: `${v >= 4 ? "#8ba87a" : v >= 3 ? "#f4a83a" : v >= 2 ? "#f4a83a" : "#e87a5d"}15`, color: v >= 4 ? "#8ba87a" : v >= 3 ? "#f4a83a" : v >= 2 ? "#f4a83a" : "#e87a5d" }}>{v || "—"}</span></td>; })}
           <td className="px-2 py-2 text-center font-extrabold text-[var(--text-primary)]">{m.average || "—"}</td>
           <td className="px-2 py-2 text-center"><Badge color={m.category === "Transformation Champion" ? "green" : m.category === "Needs Development" ? "amber" : m.category === "Flight Risk" ? "red" : "gray"}>{catIcons[m.category] || "✓"}</Badge></td>
         </tr>)}</tbody></table></div>
@@ -1074,7 +1074,7 @@ export function ManagerCapability({ model, f, onBack, onNavigate, viewCtx }: { m
           <div className="flex-1"><div className="text-[14px] font-semibold text-[var(--text-primary)]">{m.manager}</div><div className="text-[12px] text-[var(--text-muted)]">{m.direct_reports} reports</div></div>
           <div className="text-center shrink-0 w-14"><div className="text-[11px] text-[var(--text-muted)]">Mgr</div><div className="text-[14px] font-extrabold" style={{ color: catColors[m.category] || "#888" }}>{m.average || "—"}</div></div>
           <span className="text-[var(--text-muted)]">→</span>
-          <div className="text-center shrink-0 w-14"><div className="text-[11px] text-[var(--text-muted)]">Team</div><div className="text-[14px] font-extrabold" style={{ color: m.team_readiness_avg >= 3.5 ? "var(--success)" : m.team_readiness_avg >= 2.5 ? "var(--warning)" : "var(--risk)" }}>{m.team_readiness_avg || "—"}</div></div>
+          <div className="text-center shrink-0 w-14"><div className="text-[11px] text-[var(--text-muted)]">Team</div><div className="text-[14px] font-extrabold" style={{ color: m.team_readiness_avg >= 3.5 ? "#8ba87a" : m.team_readiness_avg >= 2.5 ? "#f4a83a" : "#e87a5d" }}>{m.team_readiness_avg || "—"}</div></div>
         </div>)}</div>
       </Card>
     </>}
@@ -1131,7 +1131,7 @@ export function ChangeReadiness({ model, f, onBack, onNavigate, viewCtx, simStat
   const [pulseEntries, setPulseEntries] = usePersisted<{ date: string; source: string; segment: string; sentiment: number; themes: string }[]>(`${model}_pulse`, []);
   const [issues, setIssues] = usePersisted<{ id: string; desc: string; severity: string; owner: string; status: string }[]>(`${model}_issues`, []);
 
-  const statusColors: Record<string, string> = { "Not Started": "var(--text-muted)", "In Planning": "var(--amber)", "Ready for Review": "var(--warning)", "Approved": "var(--success)", "In Progress": "var(--accent-primary)", "Completed": "var(--success)", "Deferred": "var(--text-muted)", "Active": "var(--success)", "Draft": "var(--text-muted)", "Paused": "var(--warning)", "Complete": "var(--success)" };
+  const statusColors: Record<string, string> = { "Not Started": "#8a7f6d", "In Planning": "#f4a83a", "Ready for Review": "#f4a83a", "Approved": "#8ba87a", "In Progress": "#f4a83a", "Completed": "#8ba87a", "Deferred": "#8a7f6d", "Active": "#8ba87a", "Draft": "#8a7f6d", "Paused": "#f4a83a", "Complete": "#8ba87a" };
 
   return <div>
     <ContextStrip items={["Plan, coordinate, and track change management campaigns across your transformation."]} />
@@ -1154,10 +1154,10 @@ export function ChangeReadiness({ model, f, onBack, onNavigate, viewCtx, simStat
       {campaigns.map(c => {
         const completedActs = c.activities.filter(a => a.status === "Completed").length;
         const pct = c.activities.length ? Math.round((completedActs / c.activities.length) * 100) : 0;
-        return <div key={c.id} className="rounded-2xl border bg-[var(--surface-1)] p-5 cursor-pointer transition-all hover:border-[var(--accent-primary)]/30" style={{ borderColor: activeCampaignId === c.id ? "var(--accent-primary)" : "var(--border)", borderLeft: `4px solid ${statusColors[c.status] || "var(--text-muted)"}`, boxShadow: "var(--shadow-1)" }} onClick={() => { setActiveCampaignId(c.id); setCrTab("activities"); }}>
+        return <div key={c.id} className="rounded-2xl border bg-[var(--surface-1)] p-5 cursor-pointer transition-all hover:border-[var(--accent-primary)]/30" style={{ borderColor: activeCampaignId === c.id ? "#f4a83a" : "var(--border)", borderLeft: `4px solid ${statusColors[c.status] || "#8a7f6d"}`, boxShadow: "var(--shadow-1)" }} onClick={() => { setActiveCampaignId(c.id); setCrTab("activities"); }}>
           <div className="flex items-center justify-between mb-2">
             <div className="text-[18px] font-bold text-[var(--text-primary)] font-heading">{c.name}</div>
-            <span className="px-3 py-1 rounded-full text-[13px] font-bold" style={{ background: `${statusColors[c.status] || "var(--text-muted)"}12`, color: statusColors[c.status] }}>{c.status}</span>
+            <span className="px-3 py-1 rounded-full text-[13px] font-bold" style={{ background: `${statusColors[c.status] || "#8a7f6d"}12`, color: statusColors[c.status] }}>{c.status}</span>
           </div>
           <div className="flex items-center gap-4 text-[14px] text-[var(--text-muted)] mb-3">
             <span>{c.target}</span><span>Owner: {c.owner}</span><span>{c.start} → {c.end}</span>
@@ -1172,12 +1172,12 @@ export function ChangeReadiness({ model, f, onBack, onNavigate, viewCtx, simStat
       {addingCampaign && <div className="rounded-xl border border-[var(--accent-primary)]/30 bg-[rgba(244,168,58,0.04)] p-4 space-y-3">
         <input id="cn" placeholder="Campaign name..." className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-[14px] outline-none placeholder:text-[var(--text-muted)]" />
         <div className="grid grid-cols-2 gap-3"><input id="ct" placeholder="Target audience..." className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-[14px] outline-none placeholder:text-[var(--text-muted)]" /><input id="co" placeholder="Campaign owner..." className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-[14px] outline-none placeholder:text-[var(--text-muted)]" /></div>
-        <div className="flex gap-2"><button onClick={() => { const el = (id: string) => (document.getElementById(id) as HTMLInputElement)?.value || ""; const name = el("cn"); if (!name) return; setCampaigns(prev => [...prev, { id: `c${Date.now()}`, name, status: "Draft", target: el("ct"), owner: el("co"), start: "", end: "", activities: [] }]); setAddingCampaign(false); }} className="px-4 py-2 rounded-lg text-[14px] font-semibold text-white" style={{ background: "var(--accent-primary)" }}>Create</button><button onClick={() => setAddingCampaign(false)} className="px-4 py-2 rounded-lg text-[14px] text-[var(--text-muted)] border border-[var(--border)]">Cancel</button></div>
+        <div className="flex gap-2"><button onClick={() => { const el = (id: string) => (document.getElementById(id) as HTMLInputElement)?.value || ""; const name = el("cn"); if (!name) return; setCampaigns(prev => [...prev, { id: `c${Date.now()}`, name, status: "Draft", target: el("ct"), owner: el("co"), start: "", end: "", activities: [] }]); setAddingCampaign(false); }} className="px-4 py-2 rounded-lg text-[14px] font-semibold text-white" style={{ background: "#f4a83a" }}>Create</button><button onClick={() => setAddingCampaign(false)} className="px-4 py-2 rounded-lg text-[14px] text-[var(--text-muted)] border border-[var(--border)]">Cancel</button></div>
       </div>}
       {/* Audience segmentation from readiness data */}
       {total > 0 && <Card title="Audience Segmentation (from AI Readiness)">
         <div className="grid grid-cols-4 gap-3">
-          {[{ l: "Champions", v: summary.champion_count, c: "var(--success)" }, { l: "High Risk", v: summary.high_risk_count, c: "var(--risk)" }, { l: "Supporters", v: Math.round(total * 0.4), c: "var(--accent-primary)" }, { l: "Monitor", v: Math.round(total * 0.15), c: "var(--text-muted)" }].map(s => <div key={s.l} className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold" style={{ color: s.c as string }}>{Number(s.v || 0)}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">{s.l}</div></div>)}
+          {[{ l: "Champions", v: summary.champion_count, c: "#8ba87a" }, { l: "High Risk", v: summary.high_risk_count, c: "#e87a5d" }, { l: "Supporters", v: Math.round(total * 0.4), c: "#f4a83a" }, { l: "Monitor", v: Math.round(total * 0.15), c: "#8a7f6d" }].map(s => <div key={s.l} className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[20px] font-extrabold" style={{ color: s.c as string }}>{Number(s.v || 0)}</div><div className="text-[12px] text-[var(--text-muted)] uppercase">{s.l}</div></div>)}
         </div>
       </Card>}
     </div>}
@@ -1188,7 +1188,7 @@ export function ChangeReadiness({ model, f, onBack, onNavigate, viewCtx, simStat
         <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full text-[14px]"><thead><tr className="bg-[var(--surface-2)]">
           {["Activity", "Type", "Channel", "Audience", "Owner", "Start", "Status", ""].map(h => <th key={h} className="px-2 py-2 text-left text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)] whitespace-nowrap">{h}</th>)}
         </tr></thead><tbody>
-          {activeCampaign.activities.map(act => <tr key={act.id} className="border-b border-[var(--border)]" style={{ borderLeft: `3px solid ${statusColors[act.status] || "var(--text-muted)"}` }}>
+          {activeCampaign.activities.map(act => <tr key={act.id} className="border-b border-[var(--border)]" style={{ borderLeft: `3px solid ${statusColors[act.status] || "#8a7f6d"}` }}>
             <td className="px-2 py-2 font-semibold text-[var(--text-primary)] max-w-[250px]">{act.activity}</td>
             <td className="px-2 py-2 text-[var(--text-muted)]">{act.type}</td>
             <td className="px-2 py-2 text-[var(--text-muted)]">{act.channel}</td>
@@ -1205,7 +1205,7 @@ export function ChangeReadiness({ model, f, onBack, onNavigate, viewCtx, simStat
           <select id="at" className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-2 py-2 text-[13px] outline-none"><option>Workshop</option><option>Town Hall</option><option>1:1 Meeting</option><option>Communication</option><option>Training</option><option>Survey</option><option>Document</option><option>Drop-in</option></select>
           <select id="ac" className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-2 py-2 text-[13px] outline-none"><option>In-person</option><option>Virtual</option><option>Email</option><option>Intranet</option><option>Manager cascade</option></select>
           <input id="ao" placeholder="Owner..." className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-2 py-2 text-[13px] outline-none" />
-          <div className="col-span-3 flex gap-2"><button onClick={() => { const el = (id: string) => (document.getElementById(id) as HTMLInputElement | HTMLSelectElement)?.value || ""; const desc = el("aa"); if (!desc) return; setCampaigns(prev => prev.map(c => c.id === activeCampaignId ? { ...c, activities: [...c.activities, { id: `a${Date.now()}`, activity: desc, type: el("at"), channel: el("ac"), audience: "All employees", owner: el("ao"), start: "", end: "", status: "Not Started", notes: "" }] } : c)); setAddingActivity(false); }} className="px-4 py-1.5 rounded-lg text-[13px] font-semibold text-white" style={{ background: "var(--accent-primary)" }}>Add</button><button onClick={() => setAddingActivity(false)} className="text-[13px] text-[var(--text-muted)]">Cancel</button></div>
+          <div className="col-span-3 flex gap-2"><button onClick={() => { const el = (id: string) => (document.getElementById(id) as HTMLInputElement | HTMLSelectElement)?.value || ""; const desc = el("aa"); if (!desc) return; setCampaigns(prev => prev.map(c => c.id === activeCampaignId ? { ...c, activities: [...c.activities, { id: `a${Date.now()}`, activity: desc, type: el("at"), channel: el("ac"), audience: "All employees", owner: el("ao"), start: "", end: "", status: "Not Started", notes: "" }] } : c)); setAddingActivity(false); }} className="px-4 py-1.5 rounded-lg text-[13px] font-semibold text-white" style={{ background: "#f4a83a" }}>Add</button><button onClick={() => setAddingActivity(false)} className="text-[13px] text-[var(--text-muted)]">Cancel</button></div>
         </div>}
       </Card>}
     </div>}
@@ -1222,12 +1222,12 @@ export function ChangeReadiness({ model, f, onBack, onNavigate, viewCtx, simStat
           {raciStakeholders.map(s => {
             const key = `${act}__${s}`;
             const val = raciMatrix[key] || "";
-            const raciColors: Record<string, string> = { R: "var(--amber)", A: "var(--accent-primary)", C: "var(--purple)", I: "var(--text-muted)" };
-            return <td key={s} className="px-2 py-2 text-center"><button onClick={() => { const cycle = ["", "R", "A", "C", "I"]; setRaciMatrix(prev => ({ ...prev, [key]: cycle[(cycle.indexOf(val) + 1) % cycle.length] })); }} className="w-7 h-7 rounded-lg text-[14px] font-bold inline-flex items-center justify-center" style={{ background: val ? `${raciColors[val] || "var(--text-muted)"}15` : "var(--surface-2)", color: val ? raciColors[val] : "var(--border)", border: `1px solid ${val ? `${raciColors[val]}30` : "var(--border)"}` }}>{val || "·"}</button></td>;
+            const raciColors: Record<string, string> = { R: "#f4a83a", A: "#f4a83a", C: "#a78bb8", I: "#8a7f6d" };
+            return <td key={s} className="px-2 py-2 text-center"><button onClick={() => { const cycle = ["", "R", "A", "C", "I"]; setRaciMatrix(prev => ({ ...prev, [key]: cycle[(cycle.indexOf(val) + 1) % cycle.length] })); }} className="w-7 h-7 rounded-lg text-[14px] font-bold inline-flex items-center justify-center" style={{ background: val ? `${raciColors[val] || "#8a7f6d"}15` : "#1e2030", color: val ? raciColors[val] : "var(--border)", border: `1px solid ${val ? `${raciColors[val]}30` : "var(--border)"}` }}>{val || "·"}</button></td>;
           })}
         </tr>)}
       </tbody></table></div>
-      <div className="flex gap-4 mt-3 text-[13px] text-[var(--text-muted)]">{[{ l: "R", n: "Responsible", c: "var(--amber)" }, { l: "A", n: "Accountable", c: "var(--accent-primary)" }, { l: "C", n: "Consulted", c: "var(--purple)" }, { l: "I", n: "Informed", c: "var(--text-muted)" }].map(x => <span key={x.l} className="flex items-center gap-1"><span className="w-5 h-5 rounded text-[13px] font-bold flex items-center justify-center" style={{ background: `${x.c}15`, color: x.c }}>{x.l}</span>{x.n}</span>)}</div>
+      <div className="flex gap-4 mt-3 text-[13px] text-[var(--text-muted)]">{[{ l: "R", n: "Responsible", c: "#f4a83a" }, { l: "A", n: "Accountable", c: "#f4a83a" }, { l: "C", n: "Consulted", c: "#a78bb8" }, { l: "I", n: "Informed", c: "#8a7f6d" }].map(x => <span key={x.l} className="flex items-center gap-1"><span className="w-5 h-5 rounded text-[13px] font-bold flex items-center justify-center" style={{ background: `${x.c}15`, color: x.c }}>{x.l}</span>{x.n}</span>)}</div>
     </Card>}
 
     {/* ═══ TAB: MESSAGES ═══ */}
@@ -1267,10 +1267,10 @@ export function ChangeReadiness({ model, f, onBack, onNavigate, viewCtx, simStat
       {/* Issue log */}
       <Card title="Issue Log">
         <div className="space-y-2 mb-3">{issues.map(iss => <div key={iss.id} className="flex items-center gap-3 p-3 rounded-lg bg-[var(--surface-2)] border border-[var(--border)]">
-          <span className="text-[14px] font-bold" style={{ color: iss.severity === "High" ? "var(--risk)" : iss.severity === "Medium" ? "var(--warning)" : "var(--text-muted)" }}>{iss.severity}</span>
+          <span className="text-[14px] font-bold" style={{ color: iss.severity === "High" ? "#e87a5d" : iss.severity === "Medium" ? "#f4a83a" : "#8a7f6d" }}>{iss.severity}</span>
           <div className="flex-1 text-[14px] text-[var(--text-secondary)]">{iss.desc}</div>
           <span className="text-[13px] text-[var(--text-muted)]">{iss.owner}</span>
-          <button onClick={() => setIssues(prev => prev.map(i => i.id === iss.id ? { ...i, status: i.status === "Open" ? "Resolved" : "Open" } : i))} className="px-2 py-0.5 rounded text-[12px] font-semibold" style={{ color: iss.status === "Open" ? "var(--risk)" : "var(--success)" }}>{iss.status}</button>
+          <button onClick={() => setIssues(prev => prev.map(i => i.id === iss.id ? { ...i, status: i.status === "Open" ? "Resolved" : "Open" } : i))} className="px-2 py-0.5 rounded text-[12px] font-semibold" style={{ color: iss.status === "Open" ? "#e87a5d" : "#8ba87a" }}>{iss.status}</button>
         </div>)}</div>
         <button onClick={() => { const desc = prompt("Issue description:"); if (desc) setIssues(prev => [...prev, { id: `i${Date.now()}`, desc, severity: "Medium", owner: "", status: "Open" }]); }} className="text-[13px] text-[var(--text-muted)] hover:text-[var(--accent-primary)]">+ Add Issue</button>
       </Card>
@@ -1280,7 +1280,7 @@ export function ChangeReadiness({ model, f, onBack, onNavigate, viewCtx, simStat
           <span className="text-[13px] text-[var(--text-muted)] font-data w-20">{p.date}</span>
           <span className="text-[13px] text-[var(--text-muted)]">{p.source}</span>
           <span className="text-[13px] text-[var(--text-muted)]">{p.segment}</span>
-          <span className="text-[14px] font-bold" style={{ color: p.sentiment >= 4 ? "var(--success)" : p.sentiment >= 3 ? "var(--warning)" : "var(--risk)" }}>{p.sentiment}/5</span>
+          <span className="text-[14px] font-bold" style={{ color: p.sentiment >= 4 ? "#8ba87a" : p.sentiment >= 3 ? "#f4a83a" : "#e87a5d" }}>{p.sentiment}/5</span>
           <span className="text-[13px] text-[var(--text-secondary)] flex-1">{p.themes}</span>
         </div>)}</div>
         <button onClick={() => { const date = new Date().toISOString().split("T")[0]; const sentiment = Number(prompt("Sentiment score (1-5):") || "3"); const themes = prompt("Key themes:") || ""; setPulseEntries(prev => [...prev, { date, source: "Survey", segment: "All", sentiment, themes }]); }} className="text-[13px] text-[var(--text-muted)] hover:text-[var(--accent-primary)]">+ Add Pulse Check</button>
@@ -1307,7 +1307,7 @@ export function ManagerDevelopment({ model, f, onBack, onNavigate, viewCtx }: { 
 
   const tracks = data?.tracks ?? data?.plans ?? [];
   const summary = data?.summary ?? {};
-  const catColors: Record<string, string> = { "Transformation Champion": "var(--success)", "Needs Development": "var(--warning)", "Flight Risk": "var(--risk)" };
+  const catColors: Record<string, string> = { "Transformation Champion": "#8ba87a", "Needs Development": "#f4a83a", "Flight Risk": "#e87a5d" };
   const catIcons: Record<string, string> = { "Transformation Champion": "Champion", "Needs Development": "Dev", "Flight Risk": "Risk" };
 
   if (!loading && tracks.length === 0) return <div>
@@ -1359,7 +1359,7 @@ export function ManagerDevelopment({ model, f, onBack, onNavigate, viewCtx }: { 
         </div>
         <Badge color={int.format.includes("1:1") ? "purple" : int.format.includes("Group") ? "indigo" : "gray"}>{int.format}</Badge>
         <span className="text-[15px] text-[var(--text-muted)] shrink-0">{int.duration_weeks}wk</span>
-        <span className="text-[15px] font-bold shrink-0" style={{ color: "var(--accent-primary)" }}>{fmtNum(int.cost)}</span>
+        <span className="text-[15px] font-bold shrink-0" style={{ color: "#f4a83a" }}>{fmtNum(int.cost)}</span>
       </div>)}</div>}
     </Card>)}
 
@@ -1373,8 +1373,8 @@ export function ManagerDevelopment({ model, f, onBack, onNavigate, viewCtx }: { 
     {/* 30/60/90 Day Milestones */}
     <Card title="Development Milestones — 30/60/90 Day Plan">
       <div className="grid grid-cols-3 gap-4">{[
-        {day:"30",title:"Foundation",items:["Complete initial assessment","Assign executive coach/mentor","Begin first development module","Set personal development goals"],color:"var(--accent-primary)"},
-        {day:"60",title:"Building",items:["Complete 2 of 4 development modules","Lead one team workshop on AI readiness","Receive 360 feedback mid-check","Demonstrate 1 new AI tool adoption"],color:"var(--success)"},
+        {day:"30",title:"Foundation",items:["Complete initial assessment","Assign executive coach/mentor","Begin first development module","Set personal development goals"],color:"#f4a83a"},
+        {day:"60",title:"Building",items:["Complete 2 of 4 development modules","Lead one team workshop on AI readiness","Receive 360 feedback mid-check","Demonstrate 1 new AI tool adoption"],color:"#8ba87a"},
         {day:"90",title:"Demonstrating",items:["Complete all development modules","Lead transformation initiative in function","Re-assess on all 4 dimensions","Present development journey to peers"],color:"var(--purple)"},
       ].map(m => <div key={m.day} className="rounded-xl p-4 border-l-4 bg-[var(--surface-2)]" style={{borderColor:m.color}}>
         <div className="text-[18px] font-extrabold mb-1" style={{color:m.color}}>Day {m.day}</div>
@@ -1390,7 +1390,7 @@ export function ManagerDevelopment({ model, f, onBack, onNavigate, viewCtx }: { 
         return <div key={champion.manager} className="flex items-center gap-3 p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)]">
           <div className="flex-1"><div className="text-[15px] font-bold text-[var(--success)]">{champion.manager}</div><div className="text-[14px] text-[var(--text-muted)]">Champion (Score: {champion.average_score})</div></div>
           <div className="text-[var(--text-muted)]">→</div>
-          <div className="flex-1 space-y-1">{mentees.map(m => <div key={m.manager} className="text-[15px]"><span className="font-semibold" style={{color: m.category === "Flight Risk" ? "var(--risk)" : "var(--warning)"}}>{m.manager}</span> <span className="text-[var(--text-muted)]">({m.category}, {m.average_score})</span></div>)}</div>
+          <div className="flex-1 space-y-1">{mentees.map(m => <div key={m.manager} className="text-[15px]"><span className="font-semibold" style={{color: m.category === "Flight Risk" ? "#e87a5d" : "#f4a83a"}}>{m.manager}</span> <span className="text-[var(--text-muted)]">({m.category}, {m.average_score})</span></div>)}</div>
         </div>;
       })}</div>
     </Card>}
@@ -1538,7 +1538,7 @@ ${ctx}`
     setLoading(false);
   }, [model, f, setEditSummary]);
 
-  const betColors = ["var(--sem-risk)", "var(--sem-warn)", "var(--sem-info)"];
+  const betColors = ["#e87a5d", "#f4a83a", "#f4a83a"];
 
   // Copy as Markdown
   const copyAsMarkdown = () => {
@@ -1601,7 +1601,7 @@ ${ctx}`
         <pre className="text-[12px] text-[var(--text-secondary)] overflow-auto max-h-96 p-4 bg-[var(--surface-2)] rounded-lg whitespace-pre-wrap">{rawResponse}</pre>
       </Card>
       <div className="mt-4 flex justify-center">
-        <button onClick={generate} className="px-6 py-2 rounded-xl text-[14px] font-semibold text-white" style={{ background: "var(--accent-primary)" }}>Regenerate</button>
+        <button onClick={generate} className="px-6 py-2 rounded-xl text-[14px] font-semibold text-white" style={{ background: "#f4a83a" }}>Regenerate</button>
       </div>
     </div>}
 
@@ -1784,7 +1784,7 @@ export function OrgHealthScorecard({ model, f, onBack, onNavigate, viewCtx }: { 
     { id: "roles", label: "Unique Roles", value: ovKpis.roles || 0, numValue: Number(ovKpis.roles || 0), benchAvg: 0, bestInClass: 0, benchmark: "1:15-20 per HC", status: (empCount / Math.max(Number(ovKpis.roles || 1), 1)) >= 10 ? "green" : "amber", detail: `${ovKpis.roles || 0} roles for ${empCount} employees (1:${Math.round(empCount / Math.max(Number(ovKpis.roles || 1), 1))}).` },
   ];
 
-  const statusColor = (s: string) => s === "green" ? "var(--success)" : s === "amber" ? "var(--warning)" : "var(--risk)";
+  const statusColor = (s: string) => s === "green" ? "#8ba87a" : s === "amber" ? "#f4a83a" : "#e87a5d";
   const overallScore = Math.round(metrics.filter(m => m.status === "green").length / metrics.length * 100);
 
   // Radar chart data for benchmark comparison
@@ -1816,7 +1816,7 @@ export function OrgHealthScorecard({ model, f, onBack, onNavigate, viewCtx }: { 
 
     {/* Overall score */}
     <div className="flex items-center gap-4 mb-5">
-      <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-[28px] font-black font-data" style={{ background: `${overallScore >= 70 ? "var(--success)" : overallScore >= 40 ? "var(--warning)" : "var(--risk)"}15`, color: overallScore >= 70 ? "var(--success)" : overallScore >= 40 ? "var(--warning)" : "var(--risk)", border: `2px solid ${overallScore >= 70 ? "var(--success)" : overallScore >= 40 ? "var(--warning)" : "var(--risk)"}40` }}>{overallScore}%</div>
+      <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-[28px] font-black font-data" style={{ background: `${overallScore >= 70 ? "#8ba87a" : overallScore >= 40 ? "#f4a83a" : "#e87a5d"}15`, color: overallScore >= 70 ? "#8ba87a" : overallScore >= 40 ? "#f4a83a" : "#e87a5d", border: `2px solid ${overallScore >= 70 ? "#8ba87a" : overallScore >= 40 ? "#f4a83a" : "#e87a5d"}40` }}>{overallScore}%</div>
       <div><div className="text-[16px] font-bold text-[var(--text-primary)] font-heading">Organizational Health</div><div className="text-[15px] text-[var(--text-secondary)]">{metrics.filter(m => m.status === "green").length} passing, {metrics.filter(m => m.status === "amber").length} warnings, {metrics.filter(m => m.status === "red").length} critical vs. {benchIndustryLabel} benchmarks</div></div>
     </div>
 
@@ -1830,14 +1830,14 @@ export function OrgHealthScorecard({ model, f, onBack, onNavigate, viewCtx }: { 
           </div>
           <div className="w-3 h-3 rounded-full" style={{ background: statusColor(m.status) }} />
         </div>
-        <div className="text-[22px] font-extrabold font-data mb-1" style={{ color: m.status === "green" ? "var(--success)" : m.status === "amber" ? "var(--warning)" : "var(--risk)" }}>{m.value}</div>
+        <div className="text-[22px] font-extrabold font-data mb-1" style={{ color: m.status === "green" ? "#8ba87a" : m.status === "amber" ? "#f4a83a" : "#e87a5d" }}>{m.value}</div>
         {/* Inline benchmark comparison */}
         {m.benchAvg > 0 && <div className="flex items-center gap-2 text-[15px] mb-1">
           <span className="text-[var(--text-muted)]">Industry avg:</span>
           <span className="font-data font-semibold text-[var(--text-secondary)]">{m.benchAvg}{m.id === "high_ai" ? "%" : ""}</span>
           <span className="text-[var(--text-muted)]">·</span>
           <span className="text-[var(--text-muted)]">Best:</span>
-          <span className="font-data font-semibold" style={{ color: "var(--success)" }}>{m.bestInClass}{m.id === "high_ai" ? "%" : ""}</span>
+          <span className="font-data font-semibold" style={{ color: "#8ba87a" }}>{m.bestInClass}{m.id === "high_ai" ? "%" : ""}</span>
         </div>}
         <div className="text-[15px] text-[var(--text-muted)]">Benchmark: {m.benchmark}</div>
         {expandedMetric === m.id && <div className="mt-3 pt-3 border-t border-[var(--border)] text-[15px] text-[var(--text-secondary)] leading-relaxed animate-tab-enter">{m.detail}</div>}
@@ -1851,11 +1851,11 @@ export function OrgHealthScorecard({ model, f, onBack, onNavigate, viewCtx }: { 
           <ExpandableChart title="Benchmark Comparison"><ResponsiveContainer width="100%" height={320}>
             <RadarChart data={radarData}>
               <PolarGrid stroke="var(--border)" />
-              <PolarAngleAxis dataKey="subject" tick={{ fontSize: 15, fill: "var(--text-muted)" }} />
+              <PolarAngleAxis dataKey="subject" tick={{ fontSize: 15, fill: "#8a7f6d" }} />
               <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
-              <Radar name="Your Org" dataKey="yours" stroke="var(--accent-primary)" fill="var(--accent-primary)" fillOpacity={0.25} strokeWidth={2} />
+              <Radar name="Your Org" dataKey="yours" stroke="#f4a83a" fill="#f4a83a" fillOpacity={0.25} strokeWidth={2} />
               <Radar name="Industry Avg" dataKey="industry" stroke="var(--amber)" fill="var(--amber)" fillOpacity={0.08} strokeWidth={2} strokeDasharray="6 4" />
-              <Radar name="Best in Class" dataKey="best" stroke="var(--success)" fill="var(--success)" fillOpacity={0.05} strokeWidth={1.5} strokeDasharray="3 3" />
+              <Radar name="Best in Class" dataKey="best" stroke="#8ba87a" fill="#8ba87a" fillOpacity={0.05} strokeWidth={1.5} strokeDasharray="3 3" />
               <Tooltip contentStyle={{ ...TT }} />
               <Legend wrapperStyle={{ fontSize: 15 }} />
             </RadarChart>
@@ -1865,11 +1865,11 @@ export function OrgHealthScorecard({ model, f, onBack, onNavigate, viewCtx }: { 
           <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-3">Dimension Breakdown</div>
           {radarData.map(d => {
             const delta = d.yours - d.industry;
-            const color = delta >= 5 ? "var(--success)" : delta >= -5 ? "var(--warning)" : "var(--risk)";
+            const color = delta >= 5 ? "#8ba87a" : delta >= -5 ? "#f4a83a" : "#e87a5d";
             return <div key={d.subject} className="flex items-center gap-2 mb-2">
               <span className="text-[15px] text-[var(--text-secondary)] w-16">{d.subject}</span>
               <div className="flex-1 h-2 bg-[var(--surface-2)] rounded-full overflow-hidden relative">
-                <div className="h-full rounded-full" style={{ width: `${d.yours}%`, background: "var(--accent-primary)" }} />
+                <div className="h-full rounded-full" style={{ width: `${d.yours}%`, background: "#f4a83a" }} />
                 <div className="absolute top-0 h-full w-0.5" style={{ left: `${d.industry}%`, background: "var(--amber)" }} />
               </div>
               <span className="text-[15px] font-data w-12 text-right font-semibold" style={{ color }}>{delta >= 0 ? "+" : ""}{delta}%</span>
@@ -1884,14 +1884,14 @@ export function OrgHealthScorecard({ model, f, onBack, onNavigate, viewCtx }: { 
       {layers.length > 0 && <Card title="Level Distribution">
         <div className="space-y-1.5">{layers.sort((a, b) => a.name.localeCompare(b.name)).map(l => <div key={l.name} className="flex items-center gap-2">
           <span className="text-[15px] font-data text-[var(--text-muted)] w-8">{l.name}</span>
-          <div className="flex-1 h-3 bg-[var(--surface-2)] rounded-full overflow-hidden"><div className="h-full rounded-full" style={{ width: `${(l.value / Math.max(...layers.map(x => x.value), 1)) * 100}%`, background: "var(--accent-primary)" }} /></div>
+          <div className="flex-1 h-3 bg-[var(--surface-2)] rounded-full overflow-hidden"><div className="h-full rounded-full" style={{ width: `${(l.value / Math.max(...layers.map(x => x.value), 1)) * 100}%`, background: "#f4a83a" }} /></div>
           <span className="text-[15px] font-data text-[var(--text-secondary)] w-8 text-right">{l.value}</span>
         </div>)}</div>
       </Card>}
       {funcDist.length > 0 && <Card title="Function Size">
         <div className="space-y-1.5">{funcDist.map(fd => <div key={fd.name} className="flex items-center gap-2">
           <span className="text-[15px] text-[var(--text-secondary)] w-28 truncate">{fd.name}</span>
-          <div className="flex-1 h-3 bg-[var(--surface-2)] rounded-full overflow-hidden"><div className="h-full rounded-full" style={{ width: `${(fd.value / Math.max(...funcDist.map(x => x.value), 1)) * 100}%`, background: "var(--accent-primary)" }} /></div>
+          <div className="flex-1 h-3 bg-[var(--surface-2)] rounded-full overflow-hidden"><div className="h-full rounded-full" style={{ width: `${(fd.value / Math.max(...funcDist.map(x => x.value), 1)) * 100}%`, background: "#f4a83a" }} /></div>
           <span className="text-[15px] font-data text-[var(--text-secondary)] w-8 text-right">{fd.value}</span>
         </div>)}</div>
       </Card>}
@@ -1947,7 +1947,7 @@ export function AIImpactHeatmap({ model, f, onBack, onNavigate, viewCtx }: { mod
                 <td className="px-2 py-1.5 text-[15px] text-[var(--text-secondary)] font-semibold whitespace-nowrap sticky left-0 bg-[var(--surface-1)]">{func}</td>
                 {families.map(fam => {
                   const cell = getCell(func, fam);
-                  return <td key={fam} className="p-0.5"><div onClick={() => cell && setSelectedCell(cell)} className="w-8 h-8 rounded-md flex items-center justify-center text-[15px] font-bold cursor-pointer transition-all hover:scale-110" style={{ background: cell ? cellColor(cell.score) : "var(--surface-2)", color: cell ? "#fff" : "var(--text-muted)" }}>{cell ? cell.score.toFixed(0) : ""}</div></td>;
+                  return <td key={fam} className="p-0.5"><div onClick={() => cell && setSelectedCell(cell)} className="w-8 h-8 rounded-md flex items-center justify-center text-[15px] font-bold cursor-pointer transition-all hover:scale-110" style={{ background: cell ? cellColor(cell.score) : "#1e2030", color: cell ? "#fff" : "#8a7f6d" }}>{cell ? cell.score.toFixed(0) : ""}</div></td>;
                 })}
               </tr>)}</tbody>
             </table>
@@ -2010,10 +2010,10 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
   const pairs = data?.pairs ?? [];
 
   const MONO = "'JetBrains Mono', monospace";
-  const TRACK_COLORS: Record<string, string> = { E: "var(--coral)", M: "var(--amber)", P: "var(--amber)", S: "var(--amber)", T: "var(--dusk)" };
-  const funcColors: Record<string, string> = { Technology: "var(--amber)", Finance: "var(--amber)", HR: "var(--dusk)", Operations: "var(--amber)", Marketing: "var(--coral)", Legal: "var(--coral)", Sales: "var(--dusk)", Product: "var(--sage)" };
+  const TRACK_COLORS: Record<string, string> = { E: "#e87a5d", M: "#f4a83a", P: "#f4a83a", S: "#f4a83a", T: "#a78bb8" };
+  const funcColors: Record<string, string> = { Technology: "#f4a83a", Finance: "#f4a83a", HR: "#a78bb8", Operations: "#f4a83a", Marketing: "#e87a5d", Legal: "#e87a5d", Sales: "#a78bb8", Product: "#8ba87a" };
 
-  const overlapColor = (pct: number) => pct >= 90 ? "var(--sage)" : pct >= 70 ? "var(--sage)" : pct >= 50 ? "var(--amber)" : pct >= 30 ? "var(--amber)" : "var(--ink-faint)";
+  const overlapColor = (pct: number) => pct >= 90 ? "#8ba87a" : pct >= 70 ? "#8ba87a" : pct >= 50 ? "#f4a83a" : pct >= 30 ? "#f4a83a" : "#8a7f6d";
 
   // Derive per-cluster savings from opportunities
   const clusterSavings = useMemo(() => {
@@ -2065,7 +2065,7 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
       {/* Synthesis paragraph */}
       <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.7, marginBottom: 20, padding: "12px 16px", background: "rgba(255,255,255,0.04)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.08)" }}>
         Analysis identified <span style={{ fontWeight: 700, color: "var(--text-primary)", fontFamily: MONO }}>{consolidationCount}</span> consolidation opportunities across <span style={{ fontWeight: 700, color: "var(--text-primary)", fontFamily: MONO }}>{departments.length}</span> departments. Acting on the top {Math.min(3, consolidationCount)} would save approximately <span style={{ fontWeight: 700, color: "var(--sage)", fontFamily: MONO }}>{fmtNum(totalSavings * 0.6 || Number(summary.potential_savings || 0) * 0.6)}</span> annually and affect <span style={{ fontWeight: 700, color: "var(--text-primary)", fontFamily: MONO }}>{totalAffected.toLocaleString()}</span> employees. Review the clusters below, prioritized by impact.
-        {topModest && <span style={{ display: "block", marginTop: 8, fontSize: 12, color: "var(--text-muted)", fontStyle: "italic" }}>Note: Consolidation opportunities in this organization are modest — consider focusing efforts on other diagnostic areas first.</span>}
+        {topModest && <span style={{ display: "block", marginTop: 8, fontSize: 12, color: "#8a7f6d", fontStyle: "italic" }}>Note: Consolidation opportunities in this organization are modest — consider focusing efforts on other diagnostic areas first.</span>}
       </div>
 
       {/* View toggle + filters */}
@@ -2075,7 +2075,7 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
           {(["list", "matrix"] as const).map(m => <button key={m} onClick={() => setViewMode(m)} style={{ padding: "5px 16px", borderRadius: 6, fontSize: 13, fontWeight: 600, border: "none", cursor: "pointer", background: viewMode === m ? "rgba(244,168,58,0.15)" : "transparent", color: viewMode === m ? "var(--amber)" : "var(--ink-faint)", transition: "all 0.15s" }}>{m === "list" ? "List View" : "Matrix View"}</button>)}
         </div>
         {/* Department filter */}
-        <select value={deptFilter} onChange={e => setDeptFilter(e.target.value)} style={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 8, padding: "5px 12px", fontSize: 13, color: "var(--text-primary)", outline: "none" }}>
+        <select value={deptFilter} onChange={e => setDeptFilter(e.target.value)} style={{ background: "#1e2030", border: "1px solid var(--border)", borderRadius: 8, padding: "5px 12px", fontSize: 13, color: "var(--text-primary)", outline: "none" }}>
           <option value="All">All Departments</option>
           {departments.map(d => <option key={d} value={d}>{d}</option>)}
         </select>

@@ -71,26 +71,26 @@ export function TransformationDashboard({ data, jobStates, simState, viewCtx }: 
 
   const cfg = simState.custom ? { adoption: simState.custAdopt / 100 } : (SIM_PRESETS[simState.scenario] || { adoption: 0.6 });
   const kpis = viewCtx?.mode === "employee" ? [
-    { label: "My AI Impact", value: `${Math.round(cfg.adoption * 100)}%`, icon: "🤖", color: "var(--warning)" },
-    { label: "Tasks Augmented", value: Number(Math.round(highAiTasks * cfg.adoption)) || "—", icon: "⚡", color: "var(--accent-primary)" },
-    { label: "Time Freed", value: `${Math.round(cfg.adoption * 40)}%`, icon: "⏰", color: "var(--success)" },
+    { label: "My AI Impact", value: `${Math.round(cfg.adoption * 100)}%`, icon: "🤖", color: "#f4a83a" },
+    { label: "Tasks Augmented", value: Number(Math.round(highAiTasks * cfg.adoption)) || "—", icon: "⚡", color: "#f4a83a" },
+    { label: "Time Freed", value: `${Math.round(cfg.adoption * 40)}%`, icon: "⏰", color: "#8ba87a" },
     { label: "New Skills", value: Number(Math.round(cfg.adoption * 3)) || "—", icon: "📚", color: "var(--purple)" },
-    { label: "Change Wave", value: "Wave 1", icon: "🚀", color: "var(--accent-primary)" },
-    { label: "Readiness", value: `${String(k.readiness_score || "—")}/100`, icon: "◎", color: "var(--warning)" },
+    { label: "Change Wave", value: "Wave 1", icon: "🚀", color: "#f4a83a" },
+    { label: "Readiness", value: `${String(k.readiness_score || "—")}/100`, icon: "◎", color: "#f4a83a" },
   ] : viewCtx?.mode === "job" ? [
-    { label: "Incumbents", value: Number(k.employees) || 0, icon: "👥", color: "var(--accent-primary)" },
-    { label: "Tasks Mapped", value: Number(totalTasks) || "—", icon: "📋", color: "var(--success)" },
-    { label: "High AI Tasks", value: Number(highAiTasks) || "—", icon: "🤖", color: "var(--warning)" },
-    { label: "AI Impact", value: `${Math.round(cfg.adoption * 100)}%`, icon: "⚡", color: "var(--accent-primary)" },
-    { label: "Status", value: finalized > 0 ? "Finalized" : totalJobs > 0 ? "In Progress" : "Not Started", icon: "✓", color: finalized > 0 ? "var(--success)" : "var(--warning)" },
-    { label: "Readiness", value: `${String(k.readiness_score || "—")}/100`, icon: "◎", color: "var(--warning)" },
+    { label: "Incumbents", value: Number(k.employees) || 0, icon: "👥", color: "#f4a83a" },
+    { label: "Tasks Mapped", value: Number(totalTasks) || "—", icon: "📋", color: "#8ba87a" },
+    { label: "High AI Tasks", value: Number(highAiTasks) || "—", icon: "🤖", color: "#f4a83a" },
+    { label: "AI Impact", value: `${Math.round(cfg.adoption * 100)}%`, icon: "⚡", color: "#f4a83a" },
+    { label: "Status", value: finalized > 0 ? "Finalized" : totalJobs > 0 ? "In Progress" : "Not Started", icon: "✓", color: finalized > 0 ? "#8ba87a" : "#f4a83a" },
+    { label: "Readiness", value: `${String(k.readiness_score || "—")}/100`, icon: "◎", color: "#f4a83a" },
   ] : [
-    { label: "Employees", value: Number(k.employees) || 0, icon: "👥", color: "var(--accent-primary)" },
+    { label: "Employees", value: Number(k.employees) || 0, icon: "👥", color: "#f4a83a" },
     { label: "Roles Analyzed", value: totalJobs, icon: "💼", color: "var(--purple)" },
-    { label: "Tasks Mapped", value: totalTasks, icon: "📋", color: "var(--success)" },
-    { label: "High AI Tasks", value: highAiTasks, icon: "🤖", color: "var(--warning)" },
-    { label: "Jobs Finalized", value: `${finalized}/${Number(totalJobs) || "—"}`, icon: "✓", color: "var(--success)" },
-    { label: "AI Readiness", value: `${String(k.readiness_score || "—")}/100`, icon: "◎", color: k.readiness_score && Number(k.readiness_score) >= 70 ? "var(--success)" : k.readiness_score && Number(k.readiness_score) >= 50 ? "var(--warning)" : "var(--risk)" },
+    { label: "Tasks Mapped", value: totalTasks, icon: "📋", color: "#8ba87a" },
+    { label: "High AI Tasks", value: highAiTasks, icon: "🤖", color: "#f4a83a" },
+    { label: "Jobs Finalized", value: `${finalized}/${Number(totalJobs) || "—"}`, icon: "✓", color: "#8ba87a" },
+    { label: "AI Readiness", value: `${String(k.readiness_score || "—")}/100`, icon: "◎", color: k.readiness_score && Number(k.readiness_score) >= 70 ? "#8ba87a" : k.readiness_score && Number(k.readiness_score) >= 50 ? "#f4a83a" : "#e87a5d" },
   ];
 
   return <div className="mb-6">
@@ -99,9 +99,9 @@ export function TransformationDashboard({ data, jobStates, simState, viewCtx }: 
     <div className="flex gap-2 mb-3">
       {PHASES.map((phase, i) => {
         const done = i === 0 ? p1Complete : i === 1 ? p2Complete : i === 2 ? p3Complete : i === 3 ? p4Complete : p5Ready;
-        return <div key={phase.id} className="flex-1 rounded-lg px-3 py-2 flex items-center gap-2" style={{ background: done ? `${phase.color}10` : "var(--surface-2)", border: `1px solid ${done ? `${phase.color}30` : "var(--border)"}` }}>
+        return <div key={phase.id} className="flex-1 rounded-lg px-3 py-2 flex items-center gap-2" style={{ background: done ? `${phase.color}10` : "#1e2030", border: `1px solid ${done ? `${phase.color}30` : "var(--border)"}` }}>
           <span className="text-sm">{phase.icon}</span>
-          <div><div className="text-[15px] font-bold" style={{ color: done ? phase.color : "var(--text-muted)" }}>{phase.label}</div><div className="text-[14px]" style={{ color: done ? `${phase.color}99` : "var(--text-muted)" }}>{done ? "In progress" : i === 0 ? "Upload data" : "Locked"}</div></div>
+          <div><div className="text-[15px] font-bold" style={{ color: done ? phase.color : "#8a7f6d" }}>{phase.label}</div><div className="text-[14px]" style={{ color: done ? `${phase.color}99` : "#8a7f6d" }}>{done ? "In progress" : i === 0 ? "Upload data" : "Locked"}</div></div>
         </div>;
       })}
     </div>
@@ -182,7 +182,7 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
             const isActive = p.id === selectedPhase;
             return <React.Fragment key={p.id}>
               {i > 0 && <div style={{ width: 24, height: 2, borderRadius: 1, background: pStat !== "not_started" || isActive ? `${p.color}40` : "rgba(255,255,255,0.04)" }} />}
-              <button onClick={() => setSelectedPhase(p.id)} style={{ padding: isActive ? "6px 16px" : "6px 12px", borderRadius: 20, fontSize: 15, fontWeight: 700, cursor: "pointer", transition: "all 0.25s", background: isActive ? `${p.color}20` : "transparent", border: `1.5px solid ${isActive ? p.color : pStat !== "not_started" ? `${p.color}30` : "rgba(255,255,255,0.06)"}`, color: isActive ? p.color : pStat !== "not_started" ? "var(--text-secondary)" : "var(--text-muted)", animation: isActive ? "subtlePulse 2.5s ease-in-out infinite" : "none" }}>
+              <button onClick={() => setSelectedPhase(p.id)} style={{ padding: isActive ? "6px 16px" : "6px 12px", borderRadius: 20, fontSize: 15, fontWeight: 700, cursor: "pointer", transition: "all 0.25s", background: isActive ? `${p.color}20` : "transparent", border: `1.5px solid ${isActive ? p.color : pStat !== "not_started" ? `${p.color}30` : "rgba(255,255,255,0.06)"}`, color: isActive ? p.color : pStat !== "not_started" ? "var(--text-secondary)" : "#8a7f6d", animation: isActive ? "subtlePulse 2.5s ease-in-out infinite" : "none" }}>
                 {pStat === "complete" ? "✓ " : ""}{p.label}
               </button>
             </React.Fragment>;
@@ -214,7 +214,7 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
         <div className="grid gap-4" style={{ gridTemplateColumns: phaseMods.length <= 2 ? "1fr 1fr" : phaseMods.length <= 4 ? "1fr 1fr" : "1fr 1fr 1fr" }}>
           {phaseMods.map((m, mi) => {
             const status = moduleStatus[m.id] || "not_started";
-            const statusColor = status === "complete" ? "var(--success)" : status === "in_progress" ? "var(--accent-primary)" : "rgba(255,255,255,0.08)";
+            const statusColor = status === "complete" ? "#8ba87a" : status === "in_progress" ? "#f4a83a" : "rgba(255,255,255,0.08)";
             const statusLabel = status === "complete" ? "Complete" : status === "in_progress" ? "In Progress" : "";
             const mTitle = viewMode === "employee" && (m as Record<string, unknown>).empTitle ? String((m as Record<string, unknown>).empTitle) : viewMode === "job" && (m as Record<string, unknown>).jobTitle ? String((m as Record<string, unknown>).jobTitle) : m.title;
             const mDesc = viewMode === "employee" && (m as Record<string, unknown>).empDesc ? String((m as Record<string, unknown>).empDesc) : viewMode === "job" && (m as Record<string, unknown>).jobDesc ? String((m as Record<string, unknown>).jobDesc) : m.desc;
@@ -278,9 +278,9 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
     {/* Header with subtle dark gradient for readability — z-20 to stay above milestone z-10 */}
     <div className="relative z-20 text-center pt-6 pb-4" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 80%, transparent 100%)" }}>
       <div style={{ fontSize: 14, color: "rgba(255,255,255,0.45)", marginBottom: 8, display: "flex", justifyContent: "center", gap: 6, alignItems: "center" }}>
-        {onBackToHub && <button onClick={onBackToHub} style={{ cursor: "pointer", textShadow: "0 1px 4px rgba(0,0,0,0.5)", background: "none", border: "none", color: "rgba(255,255,255,0.45)", fontSize: 14, padding: "2px 4px", borderRadius: 4, transition: "color 0.15s" }} onMouseEnter={e => e.currentTarget.style.color = "var(--accent-primary)"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.45)"}>Home</button>}
+        {onBackToHub && <button onClick={onBackToHub} style={{ cursor: "pointer", textShadow: "0 1px 4px rgba(0,0,0,0.5)", background: "none", border: "none", color: "rgba(255,255,255,0.45)", fontSize: 14, padding: "2px 4px", borderRadius: 4, transition: "color 0.15s" }} onMouseEnter={e => e.currentTarget.style.color = "#f4a83a"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.45)"}>Home</button>}
         {onBackToHub && <span style={{ opacity: 0.3 }}>/</span>}
-        {onBackToSplash && projectName && <button onClick={onBackToSplash} style={{ cursor: "pointer", textShadow: "0 1px 4px rgba(0,0,0,0.5)", background: "none", border: "none", color: "rgba(255,255,255,0.45)", fontSize: 14, padding: "2px 4px", borderRadius: 4, transition: "color 0.15s" }} onMouseEnter={e => e.currentTarget.style.color = "var(--accent-primary)"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.45)"}>
+        {onBackToSplash && projectName && <button onClick={onBackToSplash} style={{ cursor: "pointer", textShadow: "0 1px 4px rgba(0,0,0,0.5)", background: "none", border: "none", color: "rgba(255,255,255,0.45)", fontSize: 14, padding: "2px 4px", borderRadius: 4, transition: "color 0.15s" }} onMouseEnter={e => e.currentTarget.style.color = "#f4a83a"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.45)"}>
           {projectName}
         </button>}
         {onBackToSplash && <span style={{ opacity: 0.3 }}>/</span>}
@@ -324,9 +324,9 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
       </button>
       <div className="inline-flex items-center gap-4 px-5 py-2 rounded-full" style={{ background: "rgba(0,0,0,0.3)", backdropFilter: "blur(4px)" }}>
         <div style={{ width: 60, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.1)", overflow: "hidden" }}>
-          <div style={{ width: `${progressPct}%`, height: "100%", borderRadius: 2, background: "var(--accent-primary)" }} />
+          <div style={{ width: `${progressPct}%`, height: "100%", borderRadius: 2, background: "#f4a83a" }} />
         </div>
-        <span style={{ fontSize: 14, fontWeight: 700, color: "var(--accent-primary)" }}>{progressPct}%</span>
+        <span style={{ fontSize: 14, fontWeight: 700, color: "#f4a83a" }}>{progressPct}%</span>
         <span style={{ fontSize: 14, color: "rgba(255,255,255,0.35)" }}>{totalExplored}/{totalModules}</span>
       </div>
     </div>
@@ -375,7 +375,7 @@ export function EmployeeProfileCard({ employee, model, f }: { employee: string; 
         <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-1">Reports to</div>
         <div className="text-[15px] font-semibold text-[var(--text-primary)]">{aiProfile.manager}</div>
         <div className="mt-3 text-[15px] font-bold text-[var(--text-muted)] uppercase mb-1">AI Impact</div>
-        <div className="text-[15px] font-bold" style={{ color: aiProfile.aiImpact === "High" ? "var(--risk)" : aiProfile.aiImpact === "Moderate" ? "var(--warning)" : "var(--success)" }}>{aiProfile.aiImpact}</div>
+        <div className="text-[15px] font-bold" style={{ color: aiProfile.aiImpact === "High" ? "#e87a5d" : aiProfile.aiImpact === "Moderate" ? "#f4a83a" : "#8ba87a" }}>{aiProfile.aiImpact}</div>
       </div>
     </div>
   </Card>;
@@ -525,7 +525,7 @@ export function TransformationExecDashboard({ model, f, onBack, onNavigate, deci
     {!loading && <div className="mb-8 p-8 rounded-2xl" style={{ background: "linear-gradient(135deg, var(--surface-2), var(--surface-1))", borderLeft: "4px solid var(--accent-primary)" }}>
       <h1 className="text-[26px] font-bold mb-3 text-[var(--text-primary)]">{heroState.headline}</h1>
       <p className="text-[15px] text-[var(--text-secondary)] mb-6 max-w-3xl leading-relaxed">{heroState.subtitle}</p>
-      <button onClick={() => nav(heroState.action.target)} className="px-6 py-3 rounded-xl font-semibold text-[14px]" style={{ background: "var(--accent-primary)", color: "white" }}>
+      <button onClick={() => nav(heroState.action.target)} className="px-6 py-3 rounded-xl font-semibold text-[14px]" style={{ background: "#f4a83a", color: "white" }}>
         {heroState.action.label} →
       </button>
     </div>}
@@ -558,19 +558,19 @@ export function TransformationExecDashboard({ model, f, onBack, onNavigate, deci
     {/* Phase summary cards */}
     <div className="grid grid-cols-3 gap-4 mb-6">
       {[
-        { phase: "Discover", icon: "D", color: "var(--accent-primary)", ready: true, items: [
+        { phase: "Discover", icon: "D", color: "#f4a83a", ready: true, items: [
           { label: "Employees", value: data?.total_employees ? Number(data.total_employees).toLocaleString() : "—" },
           { label: "AI Readiness", value: data?.org_readiness ? `${data.org_readiness}/5` : "—" },
           { label: "Champions", value: typeof mgr.champions === "object" ? "—" : (mgr.champions || "—") },
           { label: "At Risk", value: typeof bands.at_risk === "object" ? "—" : (bands.at_risk || "—") },
         ]},
-        { phase: "Design", icon: "S", color: "var(--success)", ready: !!(bbba.build || bbba.buy || data?.skills_coverage), items: [
+        { phase: "Design", icon: "S", color: "#8ba87a", ready: !!(bbba.build || bbba.buy || data?.skills_coverage), items: [
           { label: "Skills Coverage", value: data?.skills_coverage ? `${data.skills_coverage}%` : "—" },
           { label: "Critical Gaps", value: typeof data?.critical_gaps === "object" ? "—" : (data?.critical_gaps || "—") },
           { label: "Build Roles", value: typeof bbba.build === "object" ? "—" : (bbba.build || "—") },
           { label: "Buy Roles", value: typeof bbba.buy === "object" ? "—" : (bbba.buy || "—") },
         ]},
-        { phase: "Deliver", icon: "M", color: "var(--warning)", ready: !!(Number(reskill.total_investment) || Number(wf.net_change)), items: [
+        { phase: "Deliver", icon: "M", color: "#f4a83a", ready: !!(Number(reskill.total_investment) || Number(wf.net_change)), items: [
           { label: "High Risk %", value: data?.high_risk_pct && typeof data.high_risk_pct !== "object" ? `${data.high_risk_pct}%` : "—" },
           { label: "Internal Fill", value: typeof mp.internal_fill === "object" ? "—" : (mp.internal_fill || "—") },
           { label: "Reskill Cost", value: Number(reskill.total_investment) ? fmtNum(reskill.total_investment) : "—" },
@@ -585,12 +585,12 @@ export function TransformationExecDashboard({ model, f, onBack, onNavigate, deci
     {/* Cross-module transformation progress — computed from live state */}
     {transformationSummary && (transformationSummary.designedJobCount > 0 || transformationSummary.decisionCount > 0) && <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
       {[
-        { label: "Jobs Designed", value: `${transformationSummary.designedJobCount}/${transformationSummary.totalJobCount}`, color: "var(--success)" },
-        { label: "Tasks Analyzed", value: String(transformationSummary.totalTasks), color: "var(--accent-primary)" },
+        { label: "Jobs Designed", value: `${transformationSummary.designedJobCount}/${transformationSummary.totalJobCount}`, color: "#8ba87a" },
+        { label: "Tasks Analyzed", value: String(transformationSummary.totalTasks), color: "#f4a83a" },
         { label: "Capacity Freed", value: `${transformationSummary.capacityFreedPct}%`, color: "var(--purple)" },
-        { label: "Active Scenario", value: transformationSummary.scenario.charAt(0).toUpperCase() + transformationSummary.scenario.slice(1), color: "var(--warning)" },
+        { label: "Active Scenario", value: transformationSummary.scenario.charAt(0).toUpperCase() + transformationSummary.scenario.slice(1), color: "#f4a83a" },
         { label: "Decisions Made", value: String(transformationSummary.decisionCount), color: "var(--amber)" },
-        { label: "Open Risks", value: String(transformationSummary.openRiskCount), color: transformationSummary.openRiskCount > 3 ? "var(--risk)" : "var(--success)" },
+        { label: "Open Risks", value: String(transformationSummary.openRiskCount), color: transformationSummary.openRiskCount > 3 ? "#e87a5d" : "#8ba87a" },
       ].map(m => <div key={m.label} className="rounded-xl p-3 text-center border" style={{ borderColor: `${m.color}20`, background: `${m.color}06` }}>
         <div className="text-[20px] font-extrabold" style={{ color: m.color, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>{m.value}</div>
         <div className="text-[13px] text-[var(--text-muted)] uppercase">{m.label}</div>
@@ -611,9 +611,9 @@ export function TransformationExecDashboard({ model, f, onBack, onNavigate, deci
     <div className="grid grid-cols-2 gap-4">
       <Card title="Workforce Readiness">
         <div className="flex gap-3">{[
-          { label: "Ready Now", value: Number(bands.ready_now || 0), color: "var(--success)" },
-          { label: "Coachable", value: Number(bands.coachable || 0), color: "var(--warning)" },
-          { label: "At Risk", value: Number(bands.at_risk || 0), color: "var(--risk)" },
+          { label: "Ready Now", value: Number(bands.ready_now || 0), color: "#8ba87a" },
+          { label: "Coachable", value: Number(bands.coachable || 0), color: "#f4a83a" },
+          { label: "At Risk", value: Number(bands.at_risk || 0), color: "#e87a5d" },
         ].map(b => <div key={b.label} className="flex-1 rounded-xl p-3 text-center border border-[var(--border)]">
           <div className="text-[24px] font-extrabold" style={{ color: b.color }}>{b.value}</div>
           <div className="text-[15px] text-[var(--text-muted)]">{b.label}</div>
@@ -622,9 +622,9 @@ export function TransformationExecDashboard({ model, f, onBack, onNavigate, deci
       </Card>
       <Card title="Talent Strategy Mix">
         <div className="flex gap-3">{[
-          { label: "Build", value: Number(bbba.build || 0), color: "var(--success)", icon: "🏗️" },
-          { label: "Buy", value: Number(bbba.buy || 0), color: "var(--accent-primary)", icon: "🛒" },
-          { label: "Borrow", value: Number(bbba.borrow || 0), color: "var(--warning)", icon: "🤝" },
+          { label: "Build", value: Number(bbba.build || 0), color: "#8ba87a", icon: "🏗️" },
+          { label: "Buy", value: Number(bbba.buy || 0), color: "#f4a83a", icon: "🛒" },
+          { label: "Borrow", value: Number(bbba.borrow || 0), color: "#f4a83a", icon: "🤝" },
           { label: "Automate", value: Number(bbba.automate || 0), color: "var(--purple)", icon: "🤖" },
         ].map(b => <div key={b.label} className="flex-1 rounded-xl p-3 text-center border border-[var(--border)]">
           <div className="text-lg mb-1">{b.icon}</div>
@@ -681,7 +681,7 @@ export function TransformationExecDashboard({ model, f, onBack, onNavigate, deci
         <div className="flex-1"><div className="text-[15px] font-semibold text-[var(--text-primary)]">{r.risk}</div><div className="text-[15px] text-[var(--text-muted)]">Source: {r.source} · Mitigation: {r.mitigation}</div></div>
         <Badge color={r.probability === "High" ? "red" : r.probability === "Medium" ? "amber" : "green"}>{r.probability}</Badge>
         <Badge color={r.impact === "High" ? "red" : r.impact === "Medium" ? "amber" : "green"}>{r.impact}</Badge>
-        <button onClick={() => updateRisk?.(r.id, { status: r.status === "Open" ? "Mitigated" : "Open" })} className="text-[14px] font-semibold px-2 py-1 rounded" style={{ background: r.status === "Open" ? "var(--risk)" : "var(--success)", color: "#fff" }}>{r.status}</button>
+        <button onClick={() => updateRisk?.(r.id, { status: r.status === "Open" ? "Mitigated" : "Open" })} className="text-[14px] font-semibold px-2 py-1 rounded" style={{ background: r.status === "Open" ? "#e87a5d" : "#8ba87a", color: "#fff" }}>{r.status}</button>
       </div>)}</div>}
     </Card>
 
@@ -691,11 +691,11 @@ export function TransformationExecDashboard({ model, f, onBack, onNavigate, deci
       {(() => {
         const visited = JSON.parse(localStorage.getItem(`${model}_visited`) || "{}") as Record<string, boolean>;
         const phases = [
-          {name:"Discover",modules:["dashboard","snapshot","skillshift","jobarch"],color:"var(--accent-primary)"},
-          {name:"Diagnose",modules:["orghealth","scan","heatmap","readiness","changeready","clusters","recommendations","mgrcap","skills"],color:"var(--warning)"},
-          {name:"Design",modules:["design","opmodel","build","bbba","headcount","quickwins","rolecompare"],color:"var(--success)"},
+          {name:"Discover",modules:["dashboard","snapshot","skillshift","jobarch"],color:"#f4a83a"},
+          {name:"Diagnose",modules:["orghealth","scan","heatmap","readiness","changeready","clusters","recommendations","mgrcap","skills"],color:"#f4a83a"},
+          {name:"Design",modules:["design","opmodel","build","bbba","headcount","quickwins","rolecompare"],color:"#8ba87a"},
           {name:"Simulate",modules:["simulate"],color:"var(--purple)"},
-          {name:"Mobilize",modules:["plan","story","archetypes","mgrdev","reskill","marketplace","export"],color:"var(--warning)"},
+          {name:"Mobilize",modules:["plan","story","archetypes","mgrdev","reskill","marketplace","export"],color:"#f4a83a"},
         ];
         return <div className="grid grid-cols-3 gap-4">{phases.map(p => {
           const done = p.modules.filter(m => visited[m]).length;
@@ -768,7 +768,7 @@ function UploadIntelligencePanel({ insights, funcDist, onNavigate }: {
   }, [collapsed, insights.observations.length, insights.suggestions.length]);
 
   // Data quality traffic light
-  const qualityColor = insights.completeness_pct >= 90 ? "var(--success)" : insights.completeness_pct >= 60 ? "var(--warning)" : "var(--risk)";
+  const qualityColor = insights.completeness_pct >= 90 ? "#8ba87a" : insights.completeness_pct >= 60 ? "#f4a83a" : "#e87a5d";
   const qualityLabel = insights.completeness_pct >= 90 ? "Complete" : insights.completeness_pct >= 60 ? "Some Gaps" : "Needs Attention";
 
   return <div className="mb-5 rounded-2xl border overflow-hidden transition-all" style={{ borderColor: "rgba(244,168,58,0.15)", background: "linear-gradient(135deg, rgba(244,168,58,0.03), rgba(232,197,71,0.02))" }}>
@@ -836,7 +836,7 @@ function UploadIntelligencePanel({ insights, funcDist, onNavigate }: {
             {insights.level_distribution.length > 0 ? (() => {
               // Group levels by track prefix, sort numerically within each
               const TRACK_NAMES: Record<string, string> = { P: "Professional", M: "Management", S: "Senior", E: "Executive", L: "Level", I: "Individual", D: "Director", A: "Associate", C: "C-Suite" };
-              const TRACK_COLORS: Record<string, string> = { P: "var(--amber)", M: "var(--accent-primary)", S: "var(--purple)", E: "var(--coral)", L: "var(--accent-primary)", I: "var(--success)", D: "var(--warning)", A: "var(--dusk)", C: "var(--risk)" };
+              const TRACK_COLORS: Record<string, string> = { P: "#f4a83a", M: "#f4a83a", S: "#a78bb8", E: "#e87a5d", L: "#f4a83a", I: "#8ba87a", D: "#f4a83a", A: "#a78bb8", C: "#e87a5d" };
 
               // Detect track prefixes dynamically from data
               const groups: Record<string, { level: string; count: number; num: number }[]> = {};
@@ -866,7 +866,7 @@ function UploadIntelligencePanel({ insights, funcDist, onNavigate }: {
                 {sortedTracks.map(track => {
                   const items = groups[track];
                   const trackLabel = TRACK_NAMES[track] || track;
-                  const trackColor = TRACK_COLORS[track] || "var(--accent-primary)";
+                  const trackColor = TRACK_COLORS[track] || "#f4a83a";
                   const trackTotal = items.reduce((s, d) => s + d.count, 0);
                   return <div key={track}>
                     {/* Track header */}
@@ -905,7 +905,7 @@ function UploadIntelligencePanel({ insights, funcDist, onNavigate }: {
             </div>
             <div className="mt-2 pt-2 border-t border-[var(--border)]">
               <div className="text-[14px] text-[var(--text-muted)] uppercase tracking-wider">AI Readiness</div>
-              <div className="text-[22px] font-black font-data" style={{ color: insights.readiness_score >= 70 ? "var(--success)" : insights.readiness_score >= 40 ? "var(--warning)" : "var(--risk)" }}>{insights.readiness_score}<span className="text-[15px] font-normal text-[var(--text-muted)]">/100</span></div>
+              <div className="text-[22px] font-black font-data" style={{ color: insights.readiness_score >= 70 ? "#8ba87a" : insights.readiness_score >= 40 ? "#f4a83a" : "#e87a5d" }}>{insights.readiness_score}<span className="text-[15px] font-normal text-[var(--text-muted)]">/100</span></div>
             </div>
           </div>
         </div>
@@ -958,8 +958,8 @@ export function WorkforceSnapshot({ model, f, onBack, onNavigate, viewCtx }: { m
       <Card title="Workforce Metrics">
         <div className="space-y-3">
           <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-2)]"><span className="text-[15px]">Manager-to-IC Ratio</span><span className="text-[18px] font-extrabold text-[var(--text-primary)]">1:{Math.max(1, Math.round((Number(typeof (data as Record<string, unknown>).employees === "object" ? 1 : ((data as Record<string, unknown>).employees || 1)) * 0.8) / Math.max(Number(typeof (data as Record<string, unknown>).employees === "object" ? 1 : ((data as Record<string, unknown>).employees || 1)) * 0.2, 1)))}</span></div>
-          <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-2)]"><span className="text-[15px]">Avg Span of Control <span className="text-[12px] text-[var(--text-muted)] font-normal">(managers' avg direct reports)</span></span><span className="text-[18px] font-extrabold" style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: (() => { const v = Math.round(Number(typeof (data as Record<string, unknown>).employees === "object" ? 0 : ((data as Record<string, unknown>).employees || 0)) * 0.8 / Math.max(Number(typeof (data as Record<string, unknown>).employees === "object" ? 0 : ((data as Record<string, unknown>).employees || 0)) * 0.2, 1)); return v >= 6 && v <= 10 ? "var(--success)" : "var(--warning)"; })() }}>{Math.round(Number(typeof (data as Record<string, unknown>).employees === "object" ? 0 : ((data as Record<string, unknown>).employees || 0)) * 0.8 / Math.max(Number(typeof (data as Record<string, unknown>).employees === "object" ? 0 : ((data as Record<string, unknown>).employees || 0)) * 0.2, 1))}</span></div>
-          <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-2)]"><span className="text-[15px]">AI Readiness Score</span><span className="text-[18px] font-extrabold" style={{color: Number(typeof (data as Record<string, unknown>).readiness === "object" ? 0 : ((data as Record<string, unknown>).readiness || 0)) >= 70 ? "var(--success)" : "var(--warning)"}}>{String(typeof (data as Record<string, unknown>).readiness === "object" ? "—" : ((data as Record<string, unknown>).readiness || "—"))}/100</span></div>
+          <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-2)]"><span className="text-[15px]">Avg Span of Control <span className="text-[12px] text-[var(--text-muted)] font-normal">(managers' avg direct reports)</span></span><span className="text-[18px] font-extrabold" style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: (() => { const v = Math.round(Number(typeof (data as Record<string, unknown>).employees === "object" ? 0 : ((data as Record<string, unknown>).employees || 0)) * 0.8 / Math.max(Number(typeof (data as Record<string, unknown>).employees === "object" ? 0 : ((data as Record<string, unknown>).employees || 0)) * 0.2, 1)); return v >= 6 && v <= 10 ? "#8ba87a" : "#f4a83a"; })() }}>{Math.round(Number(typeof (data as Record<string, unknown>).employees === "object" ? 0 : ((data as Record<string, unknown>).employees || 0)) * 0.8 / Math.max(Number(typeof (data as Record<string, unknown>).employees === "object" ? 0 : ((data as Record<string, unknown>).employees || 0)) * 0.2, 1))}</span></div>
+          <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-2)]"><span className="text-[15px]">AI Readiness Score</span><span className="text-[18px] font-extrabold" style={{color: Number(typeof (data as Record<string, unknown>).readiness === "object" ? 0 : ((data as Record<string, unknown>).readiness || 0)) >= 70 ? "#8ba87a" : "#f4a83a"}}>{String(typeof (data as Record<string, unknown>).readiness === "object" ? "—" : ((data as Record<string, unknown>).readiness || "—"))}/100</span></div>
         </div>
       </Card>
     </div>}
@@ -1082,7 +1082,7 @@ export function SkillShiftIndex({ model, f, onBack, onNavigate }: { model: strin
     const si = isPreview ? 27 : shiftIndex;
     return <>
       <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/30 rounded-2xl p-6 mb-6 text-center">
-        <div className="text-[48px] font-black font-data" style={{ color: si >= 50 ? "var(--risk)" : si >= 25 ? "var(--warning)" : "var(--success)" }}>{si}%</div>
+        <div className="text-[48px] font-black font-data" style={{ color: si >= 50 ? "#e87a5d" : si >= 25 ? "#f4a83a" : "#8ba87a" }}>{si}%</div>
         <div className="text-[14px] font-bold text-[var(--text-primary)] font-heading">of your workforce{"'"}s core skills are changing</div>
         <div className="text-[13px] text-[var(--text-muted)] mt-1">{d} declining · {a} amplified · {n} net-new</div>
       </div>
@@ -1149,7 +1149,7 @@ export function SkillShiftIndex({ model, f, onBack, onNavigate }: { model: strin
       />
       {/* Preview ghost */}
       <div className="relative mt-6">
-        <div className="absolute top-2 right-4 z-10 px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider" style={{ background: "var(--surface-2)", color: "var(--text-muted)", border: "1px solid var(--border)" }}>
+        <div className="absolute top-2 right-4 z-10 px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider" style={{ background: "#1e2030", color: "#8a7f6d", border: "1px solid var(--border)" }}>
           Preview — requires data
         </div>
         <div style={{ opacity: 0.3, pointerEvents: "none", userSelect: "none" }}>

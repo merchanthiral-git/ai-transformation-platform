@@ -27,7 +27,7 @@ const SKILL_TABS = [
 ];
 
 const CAT_COLORS: Record<string, string> = {
-  technical: "var(--amber)", functional: "var(--amber)", leadership: "var(--dusk)", adaptive: "var(--sage)",
+  technical: "#f4a83a", functional: "#f4a83a", leadership: "#a78bb8", adaptive: "#8ba87a",
 };
 
 const PROFICIENCY_LEVELS = [
@@ -50,7 +50,7 @@ const INTEGRATION_MODULES = ["Job Architecture", "Work Design Lab", "Talent Mark
    HELPERS
    ═══════════════════════════════════════════════════════════════ */
 
-function catColor(cat: string) { return CAT_COLORS[cat?.toLowerCase()] || "var(--text-muted)"; }
+function catColor(cat: string) { return CAT_COLORS[cat?.toLowerCase()] || "#8a7f6d"; }
 
 function trendIcon(t: string) {
   if (t === "Rising") return "\u2197";

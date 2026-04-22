@@ -199,7 +199,7 @@ export function SmartRecommendations({ completedModules, hasWorkforce, hasWorkDe
   const visible = recs.filter(r => !dismissed.has(r.title));
   if (visible.length === 0) return null;
 
-  const priorityColor = (p: string) => p === "high" ? "var(--accent-primary)" : p === "medium" ? "var(--purple)" : "rgba(255,255,255,0.3)";
+  const priorityColor = (p: string) => p === "high" ? "#f4a83a" : p === "medium" ? "#a78bb8" : "rgba(255,255,255,0.3)";
   const priorityIcon = (p: string) => p === "high" ? "⚡" : p === "medium" ? "💡" : "📌";
 
   return (

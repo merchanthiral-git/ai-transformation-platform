@@ -184,9 +184,9 @@ export default function StageHandoff({
   });
 
   const artifacts = [
-    { title: "Redesign Summary", icon: <FileText size={16} style={{ color: "var(--amber)" }} />, color: "var(--amber)", value: summary, setter: setSummary, done: !!summary.trim() },
-    { title: "Published Job Description", icon: <FileText size={16} style={{ color: "var(--dusk)" }} />, color: "var(--dusk)", value: jd, setter: setJd, done: !!jd.trim() },
-    { title: "Change Impact Brief", icon: <Users size={16} style={{ color: "var(--amber)" }} />, color: "var(--amber)", value: changeImpact, setter: setChangeImpact, done: !!changeImpact.trim() },
+    { title: "Redesign Summary", icon: <FileText size={16} style={{ color: "var(--amber)" }} />, color: "#f4a83a", value: summary, setter: setSummary, done: !!summary.trim() },
+    { title: "Published Job Description", icon: <FileText size={16} style={{ color: "var(--dusk)" }} />, color: "#a78bb8", value: jd, setter: setJd, done: !!jd.trim() },
+    { title: "Change Impact Brief", icon: <Users size={16} style={{ color: "var(--amber)" }} />, color: "#f4a83a", value: changeImpact, setter: setChangeImpact, done: !!changeImpact.trim() },
   ];
 
   return (

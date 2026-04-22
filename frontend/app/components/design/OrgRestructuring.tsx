@@ -107,10 +107,10 @@ function getInitials(name: string): string {
 
 function trackColor(track: string): string {
   const map: Record<string, string> = {
-    M: "var(--accent-primary)", E: "var(--purple)", P: "var(--success)",
-    T: "var(--amber)", S: "var(--warning)",
+    M: "#f4a83a", E: "#a78bb8", P: "#8ba87a",
+    T: "#f4a83a", S: "#f4a83a",
   };
-  return map[track] || "var(--text-muted)";
+  return map[track] || "#8a7f6d";
 }
 
 function cloneTree(node: ReorgNode): ReorgNode {

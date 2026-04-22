@@ -341,7 +341,7 @@ export function SkillsMapEngine({ model, f, onBack, onNavigate }: {
   }, [occupations, majorGroupFilter, jobZoneFilter, searchQ]);
 
   const JZ_LABELS: Record<string, string> = { "1": "Little or No Preparation", "2": "Some Preparation", "3": "Medium Preparation", "4": "Considerable Preparation", "5": "Extensive Preparation" };
-  const JZ_COLORS: Record<string, string> = { "1": "var(--sage)", "2": "var(--amber)", "3": "var(--amber)", "4": "var(--coral)", "5": "var(--dusk)" };
+  const JZ_COLORS: Record<string, string> = { "1": "#8ba87a", "2": "#f4a83a", "3": "#f4a83a", "4": "#e87a5d", "5": "#a78bb8" };
 
   // ── Render ──
   return React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 0, minHeight: "100%" } },

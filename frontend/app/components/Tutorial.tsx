@@ -262,7 +262,7 @@ function DiagnosisPanel({ thinkingDone }: { thinkingDone: boolean }) {
 }
 
 function DesignPanel({ revealCount }: { revealCount: number }) {
-  const colors = { automate: "var(--risk)", augment: "var(--warning)", keep: "var(--success)" };
+  const colors = { automate: "#e87a5d", augment: "#f4a83a", keep: "#8ba87a" };
   const labels = { automate: "Automate", augment: "Augment", keep: "Keep Human" };
   return <div style={{ maxWidth: 520, margin: "20px auto" }}>
     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>

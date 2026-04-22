@@ -203,7 +203,7 @@ export function useRiskRegister(projectId: string) {
 // ── Toast System ──
 export function Toast({ message, type = "info", onDismiss }: { message: string; type?: "info" | "success" | "error" | "warning"; onDismiss: () => void }) {
   useEffect(() => { const t = setTimeout(onDismiss, 4000); return () => clearTimeout(t); }, [onDismiss]);
-  const colors = { info: "var(--accent-primary)", success: "var(--success)", error: "var(--risk)", warning: "var(--warning)" };
+  const colors = { info: "#f4a83a", success: "#8ba87a", error: "#e87a5d", warning: "#f4a83a" };
   const dotColors = { info: "var(--amber)", success: "var(--sage)", error: "var(--coral)", warning: "var(--amber)" };
   const icons = { info: "\u2139\uFE0F", success: "\u2713", error: "\u2715", warning: "\u26A0" };
   return React.createElement("div", { role: "alert", "aria-live": "polite", className: "fixed bottom-6 right-6 z-50 animate-[slideUp_0.3s_ease] flex items-center gap-3 px-5 py-3 rounded-xl shadow-xl", style: { background: "var(--surface-1)", border: `1px solid ${colors[type]}30`, minWidth: 280, maxWidth: 420 } },

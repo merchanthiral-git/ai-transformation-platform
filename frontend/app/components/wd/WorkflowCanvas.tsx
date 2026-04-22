@@ -272,7 +272,7 @@ export default function WorkflowCanvas({ jobId, jobTitle, projectId, model, onBa
 
       {/* ── Stale / Conflict banner ── */}
       {isStale && (
-        <div style={S.banner("var(--amber)")}>
+        <div style={S.banner("#f4a83a")}>
           <AlertTriangle size={14} style={{ color: "var(--amber)", flexShrink: 0 }} />
           <span style={{ flex: 1 }}>
             Job Architecture was updated since last sync.
@@ -283,7 +283,7 @@ export default function WorkflowCanvas({ jobId, jobTitle, projectId, model, onBa
         </div>
       )}
       {isConflict && (
-        <div style={S.banner("var(--amber)")}>
+        <div style={S.banner("#f4a83a")}>
           <AlertTriangle size={14} style={{ color: "var(--amber)", flexShrink: 0 }} />
           <span style={{ flex: 1, fontWeight: "var(--fw-semi)" }}>
             JA changed fields that this redesign has also modified. Review needed.

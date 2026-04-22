@@ -629,13 +629,13 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
 
       {/* Status pills */}
       {meta && meta.unmapped_count > 0 && (
-        <button style={S.pill(statusFilter === "unmapped", "var(--amber)")}
+        <button style={S.pill(statusFilter === "unmapped", "#f4a83a")}
           onClick={() => setStatusFilter(statusFilter === "unmapped" ? "" : "unmapped")}>
           Unmapped ({meta.unmapped_count})
         </button>
       )}
       {meta && meta.flagged_count > 0 && (
-        <button style={S.pill(statusFilter === "flagged", "var(--coral)")}
+        <button style={S.pill(statusFilter === "flagged", "#e87a5d")}
           onClick={() => setStatusFilter(statusFilter === "flagged" ? "" : "flagged")}>
           Flags ({meta.flagged_count})
         </button>

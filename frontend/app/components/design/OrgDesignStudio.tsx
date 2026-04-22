@@ -463,7 +463,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
 
     {view === "current" && (() => {
       const OV_MONO = "'JetBrains Mono', monospace";
-      const spanHealth = (s: number) => s >= 6 && s <= 8 ? { label: "Optimal", color: "var(--sage)", badge: "✓" } : s >= 5 && s <= 10 ? { label: s < 6 ? "Narrow" : "Wide", color: "var(--amber)", badge: "◈" } : { label: s < 5 ? "Critically narrow" : "Critically wide", color: "var(--coral)", badge: "⚠" };
+      const spanHealth = (s: number) => s >= 6 && s <= 8 ? { label: "Optimal", color: "#8ba87a", badge: "✓" } : s >= 5 && s <= 10 ? { label: s < 6 ? "Narrow" : "Wide", color: "#f4a83a", badge: "◈" } : { label: s < 5 ? "Critically narrow" : "Critically wide", color: "#e87a5d", badge: "⚠" };
       const spanImproving = (cur: number, fut: number) => Math.abs(fut - 7) < Math.abs(cur - 7);
       // Scenario impact score: 0-100 based on how much the scenario improves structure
       const deptImprovements = currentData.filter((d, i) => spanImproving(d.avgSpan, sc.departments[i]?.avgSpan || d.avgSpan)).length;
@@ -993,7 +993,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       const benchColor = (val: number, min: number, max: number) => val >= min && val <= max ? "var(--sage)" : "var(--amber)";
 
       // Track colors for pyramid bars
-      const DRILL_TRACK_COLORS: Record<string, string> = { E: "var(--coral)", M: "var(--amber)", P: "var(--amber)", S: "var(--amber)", T: "var(--dusk)" };
+      const DRILL_TRACK_COLORS: Record<string, string> = { E: "#e87a5d", M: "#f4a83a", P: "#f4a83a", S: "#f4a83a", T: "#a78bb8" };
       const DRILL_MONO = "'JetBrains Mono', monospace";
 
       // Build pyramid data — only levels with at least 1 person in current or scenario
@@ -1055,7 +1055,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
               <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                 {pyramidLevels.map(lv => {
                   const trackChar = lv.level.charAt(0);
-                  const trackColor = DRILL_TRACK_COLORS[trackChar] || "var(--amber)";
+                  const trackColor = DRILL_TRACK_COLORS[trackChar] || "#f4a83a";
                   const currentWidth = (lv.current / maxPyramidHC) * 100;
                   const scenarioWidth = (lv.scenario / maxPyramidHC) * 100;
                   const maxBarPct = 70;
@@ -1140,7 +1140,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {costConcentration.map((lv, idx) => {
                   const pct = totalDeptLevelCost > 0 ? (lv.totalCost / totalDeptLevelCost) * 100 : 0;
-                  const trackColor = DRILL_TRACK_COLORS[lv.level.charAt(0)] || "var(--amber)";
+                  const trackColor = DRILL_TRACK_COLORS[lv.level.charAt(0)] || "#f4a83a";
                   return <div key={lv.level}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -1379,10 +1379,10 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       // Enrich insights with severity, recommendation
       const enrichedInsights = insights.map(ins => {
         let severity: string, severityIcon: string, severityColor: string;
-        if (ins.type === "alert") { severity = "Critical"; severityIcon = "\u26A0"; severityColor = "var(--coral)"; }
-        else if (ins.type === "warning") { severity = "Needs Attention"; severityIcon = "\u25C8"; severityColor = "var(--amber)"; }
-        else if (ins.type === "positive") { severity = "On Track"; severityIcon = "\u2713"; severityColor = "var(--sage)"; }
-        else { severity = "Opportunity"; severityIcon = "\u2139"; severityColor = "var(--amber)"; }
+        if (ins.type === "alert") { severity = "Critical"; severityIcon = "\u26A0"; severityColor = "#e87a5d"; }
+        else if (ins.type === "warning") { severity = "Needs Attention"; severityIcon = "\u25C8"; severityColor = "#f4a83a"; }
+        else if (ins.type === "positive") { severity = "On Track"; severityIcon = "\u2713"; severityColor = "#8ba87a"; }
+        else { severity = "Opportunity"; severityIcon = "\u2139"; severityColor = "#f4a83a"; }
 
         let recommendation = "";
         if (ins.title.includes("Over-Layered")) recommendation = "Consolidate one management layer in flagged functions. Target 6-8:1 span ratio.";

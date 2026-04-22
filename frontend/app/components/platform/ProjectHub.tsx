@@ -335,13 +335,13 @@ function SandboxViewSelector({ companyName, onSelect }: { companyName: string; o
 const TUTORIAL_VISUALS: Record<number, string> = { 0: "👋", 1: "🗺️", 2: "📊", 3: "🔍", 4: "📈", 5: "🎯", 6: "🏥", 7: "🔥", 8: "🔄", 9: "🏗️", 10: "🔬", 11: "🛠️", 12: "🧬", 13: "⚖️", 14: "📐", 15: "📊", 16: "⚡", 17: "💰", 18: "🔀", 19: "📋", 20: "👥", 21: "📊", 22: "🎓", 23: "📤", 24: "🤖", 25: "🏛️", 26: "🎯" };
 
 const TUTORIAL_PHASES = [
-  { label: "Start", icon: "👋", range: [0, 2], color: "var(--accent-primary)" },
-  { label: "Discover", icon: "🔍", range: [3, 5], color: "var(--warning)" },
-  { label: "Diagnose", icon: "🩺", range: [6, 10], color: "var(--teal)" },
-  { label: "Design", icon: "✏️", range: [11, 15], color: "var(--success)" },
-  { label: "Simulate", icon: "⚡", range: [16, 18], color: "var(--purple)" },
-  { label: "Mobilize", icon: "🚀", range: [19, 23], color: "var(--warning)" },
-  { label: "Platform", icon: "🏛️", range: [24, 26], color: "var(--amber)" },
+  { label: "Start", icon: "👋", range: [0, 2], color: "#f4a83a" },
+  { label: "Discover", icon: "🔍", range: [3, 5], color: "#f4a83a" },
+  { label: "Diagnose", icon: "🩺", range: [6, 10], color: "#8ba87a" },
+  { label: "Design", icon: "✏️", range: [11, 15], color: "#8ba87a" },
+  { label: "Simulate", icon: "⚡", range: [16, 18], color: "#a78bb8" },
+  { label: "Mobilize", icon: "🚀", range: [19, 23], color: "#f4a83a" },
+  { label: "Platform", icon: "🏛️", range: [24, 26], color: "#f4a83a" },
 ];
 
 export function TutorialOverlay({ step, totalSteps, steps, onNext, onPrev, onClose, onJump }: {

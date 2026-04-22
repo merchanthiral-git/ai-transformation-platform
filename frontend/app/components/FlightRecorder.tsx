@@ -35,8 +35,8 @@ type Summary = {
 };
 
 const MODULE_COLORS: Record<string, string> = {
-  overview: "var(--amber)", diagnose: "var(--accent-primary)", design: "var(--purple)",
-  simulate: "var(--warning)", mobilize: "var(--success)", export: "var(--coral)",
+  overview: "#f4a83a", diagnose: "#f4a83a", design: "#a78bb8",
+  simulate: "#f4a83a", mobilize: "#8ba87a", export: "#e87a5d",
 };
 
 const MODULE_ICONS: Record<string, string> = {
@@ -144,9 +144,9 @@ export function FlightRecorder({ projectId, projectName, onBack }: { projectId: 
       {/* Filters */}
       <div className="flex items-center gap-2 flex-wrap">
         <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search decisions..." className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-[13px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] w-48" />
-        {FILTER_MODULES.map(m => <button key={m} onClick={() => setModuleFilter(m)} className="px-2.5 py-1 rounded-full text-[11px] font-bold transition-all" style={{ background: moduleFilter === m ? (m === "All" ? "rgba(244,168,58,0.1)" : `${MODULE_COLORS[m] || "#888"}15`) : "var(--surface-2)", color: moduleFilter === m ? (m === "All" ? "var(--accent-primary)" : MODULE_COLORS[m] || "#888") : "var(--text-muted)", border: `1px solid ${moduleFilter === m ? (MODULE_COLORS[m] || "var(--accent-primary)") + "40" : "var(--border)"}` }}>{m === "All" ? "All" : (MODULE_ICONS[m] || "") + " " + m}</button>)}
+        {FILTER_MODULES.map(m => <button key={m} onClick={() => setModuleFilter(m)} className="px-2.5 py-1 rounded-full text-[11px] font-bold transition-all" style={{ background: moduleFilter === m ? (m === "All" ? "rgba(244,168,58,0.1)" : `${MODULE_COLORS[m] || "#888"}15`) : "#1e2030", color: moduleFilter === m ? (m === "All" ? "#f4a83a" : MODULE_COLORS[m] || "#888") : "#8a7f6d", border: `1px solid ${moduleFilter === m ? (MODULE_COLORS[m] || "#f4a83a") + "40" : "var(--border)"}` }}>{m === "All" ? "All" : (MODULE_ICONS[m] || "") + " " + m}</button>)}
         <div className="ml-2" />
-        {["All", "major", "minor"].map(s => <button key={s} onClick={() => setSigFilter(s)} className="px-2.5 py-1 rounded-full text-[11px] font-bold transition-all" style={{ background: sigFilter === s ? "rgba(244,168,58,0.1)" : "var(--surface-2)", color: sigFilter === s ? "var(--accent-primary)" : "var(--text-muted)", border: `1px solid ${sigFilter === s ? "rgba(244,168,58,0.3)" : "var(--border)"}` }}>{s === "All" ? "All" : s}</button>)}
+        {["All", "major", "minor"].map(s => <button key={s} onClick={() => setSigFilter(s)} className="px-2.5 py-1 rounded-full text-[11px] font-bold transition-all" style={{ background: sigFilter === s ? "rgba(244,168,58,0.1)" : "#1e2030", color: sigFilter === s ? "#f4a83a" : "#8a7f6d", border: `1px solid ${sigFilter === s ? "rgba(244,168,58,0.3)" : "var(--border)"}` }}>{s === "All" ? "All" : s}</button>)}
       </div>
     </div>
 
@@ -184,7 +184,7 @@ export function FlightRecorder({ projectId, projectName, onBack }: { projectId: 
 
                   <div className="flex items-center gap-1.5 mb-2">
                     <span className="px-1.5 py-0.5 rounded text-[10px] font-bold" style={{ background: `${modColor}15`, color: modColor }}>{event.module}</span>
-                    <span className="px-1.5 py-0.5 rounded text-[10px] font-bold" style={{ background: event.significance === "major" ? "rgba(244,168,58,0.1)" : "var(--surface-2)", color: event.significance === "major" ? "var(--accent-primary)" : "var(--text-muted)" }}>{event.significance}</span>
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-bold" style={{ background: event.significance === "major" ? "rgba(244,168,58,0.1)" : "#1e2030", color: event.significance === "major" ? "#f4a83a" : "#8a7f6d" }}>{event.significance}</span>
                     {event.tags.map(t => <span key={t} className="text-[10px] text-[var(--text-muted)]">#{t}</span>)}
                   </div>
 
@@ -196,7 +196,7 @@ export function FlightRecorder({ projectId, projectName, onBack }: { projectId: 
                       const before = event.data_snapshot.before?.[k];
                       return <span key={k} className="text-[var(--text-muted)]">
                         {k}: <strong className="text-[var(--text-primary)]">{typeof v === "number" ? fmt(v) : String(v)}</strong>
-                        {before !== undefined && before !== v && <span className="text-[11px]" style={{ color: "var(--accent-primary)" }}> (was {typeof before === "number" ? fmt(before as number) : String(before)})</span>}
+                        {before !== undefined && before !== v && <span className="text-[11px]" style={{ color: "#f4a83a" }}> (was {typeof before === "number" ? fmt(before as number) : String(before)})</span>}
                       </span>;
                     })}
                   </div>}

@@ -212,7 +212,7 @@ function OppsViz({ data }: { data: Record<string, unknown> }) {
 function ScenariosViz({ data }: { data: Record<string, unknown> }) {
   const scenarios = data.scenarios as Record<string, Record<string, unknown>> | undefined;
   if (!scenarios) return <EmptyViz />;
-  const colors: Record<string, string> = { conservative: "var(--success)", moderate: "var(--accent-primary)", aggressive: "var(--risk)" };
+  const colors: Record<string, string> = { conservative: "#8ba87a", moderate: "#f4a83a", aggressive: "#e87a5d" };
   return <div style={{ padding: 24, height: "100%", overflow: "auto" }}>
     <VizLabel>Scenario Comparison</VizLabel>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
@@ -236,7 +236,7 @@ function ScenariosViz({ data }: { data: Record<string, unknown> }) {
 function RoadmapViz({ data }: { data: Record<string, unknown> }) {
   const phases = data.phases as Array<Record<string, unknown>> | undefined;
   if (!phases) return <EmptyViz />;
-  const pc = ["var(--accent-primary)", "var(--purple)", "var(--amber)", "var(--success)"];
+  const pc = ["#f4a83a", "#a78bb8", "#f4a83a", "#8ba87a"];
   const totalEnd = Number((phases[phases.length - 1] as Record<string, unknown>).end_month || 18);
   return <div style={{ padding: 24, height: "100%", overflow: "auto" }}>
     <VizLabel>Implementation Roadmap</VizLabel>

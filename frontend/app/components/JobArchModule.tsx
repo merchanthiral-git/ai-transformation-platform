@@ -43,9 +43,9 @@ type Employee = {
    ═══════════════════════════════════════════════════════════════ */
 
 const TRACK_COLORS: Record<string, string> = {
-  S: "var(--amber)", P: "var(--sky-gold)", M: "var(--dusk)", E: "var(--coral)", T: "var(--dusk)",
-  Support: "var(--amber)", Professional: "var(--sky-gold)", Management: "var(--dusk)", Executive: "var(--coral)", Technical: "var(--dusk)",
-  IC: "var(--sky-gold)", Manager: "var(--dusk)",
+  S: "#f4a83a", P: "#e8a050", M: "#a78bb8", E: "#e87a5d", T: "#a78bb8",
+  Support: "#f4a83a", Professional: "#e8a050", Management: "#a78bb8", Executive: "#e87a5d", Technical: "#a78bb8",
+  IC: "#e8a050", Manager: "#a78bb8",
 };
 
 function getTrackLetter(level: string): string {
@@ -56,7 +56,7 @@ function getTrackLetter(level: string): string {
 function getTrackColor(trackOrLevel: string): string {
   if (TRACK_COLORS[trackOrLevel]) return TRACK_COLORS[trackOrLevel];
   const letter = getTrackLetter(trackOrLevel);
-  return TRACK_COLORS[letter] || "var(--sky-gold)";
+  return TRACK_COLORS[letter] || "#e8a050";
 }
 
 /** Renders a consistent level badge pill everywhere */
@@ -79,9 +79,9 @@ function TrackDot({ track, size = 8 }: { track: string; size?: number }) {
 type OrgNode = { id: string; name: string; title: string; function: string; level: string; track: string; managerId: string; children: OrgNode[]; headcount: number; collapsed: boolean; performance: string; flightRisk: string };
 
 const ORG_FUNC_COLORS: Record<string, string> = {
-  Technology: "var(--amber)", Finance: "var(--accent-primary)", HR: "var(--purple)", Operations: "var(--warning)",
-  Marketing: "var(--coral)", Legal: "var(--risk)", Product: "var(--success)", Sales: "var(--dusk)",
-  "Customer Service": "var(--sage)", Strategy: "var(--purple)", Risk: "var(--coral)", Executive: "var(--accent-primary)",
+  Technology: "#f4a83a", Finance: "#f4a83a", HR: "#a78bb8", Operations: "#f4a83a",
+  Marketing: "#e87a5d", Legal: "#e87a5d", Product: "#8ba87a", Sales: "#a78bb8",
+  "Customer Service": "#8ba87a", Strategy: "#a78bb8", Risk: "#e87a5d", Executive: "#f4a83a",
 };
 
 function OrgChartBuilder({ employees, jobs }: { employees: Employee[]; jobs: Job[] }) {
@@ -697,7 +697,7 @@ function JobProfileLibrary({ jobs, model }: { jobs: Job[]; model: string }) {
   const drafts = jobs.filter(j => { const c = completeness(j.id); return c > 0 && c < 90; }).length;
   const emptyCount = jobs.filter(j => completeness(j.id) === 0).length;
 
-  const TRACK_DOTS: Record<string, string> = { S: "var(--amber)", P: "var(--sky-gold)", M: "var(--dusk)", E: "var(--coral)", T: "var(--dusk)" };
+  const TRACK_DOTS: Record<string, string> = { S: "#f4a83a", P: "#e8a050", M: "#a78bb8", E: "#e87a5d", T: "#a78bb8" };
   const MONO = "'JetBrains Mono', monospace";
   const selectedJob = jobs.find(j => j.id === selectedJobId);
   const selectedProfile = selectedJobId ? getProfile(selectedJobId) : emptyProfile;
@@ -792,7 +792,7 @@ function JobProfileLibrary({ jobs, model }: { jobs: Job[]; model: string }) {
           {group.jobs.map(job => {
             const badge = statusBadge(job.id);
             const isActive = selectedJobId === job.id;
-            const trackDot = TRACK_DOTS[job.track?.charAt(0) || "P"] || "var(--sky-gold)";
+            const trackDot = TRACK_DOTS[job.track?.charAt(0) || "P"] || "#e8a050";
             const isChecked = compareJobs.includes(job.id);
             return <button key={job.id} onClick={() => { if (compareMode) { setCompareJobs(prev => isChecked ? prev.filter(id => id !== job.id) : prev.length < 4 ? [...prev, job.id] : prev); } else { setSelectedJobId(job.id); } }} style={{ width: "100%", display: "flex", alignItems: "center", gap: 8, padding: "6px 8px", borderRadius: 8, cursor: "pointer", background: isActive ? "rgba(244,168,58,0.08)" : "transparent", borderLeft: isActive ? "3px solid var(--amber)" : "3px solid transparent", transition: "all 0.15s", border: "none", textAlign: "left", minHeight: 44 }}>
               {compareMode && <div style={{ width: 14, height: 14, borderRadius: 4, border: `1.5px solid ${isChecked ? "var(--dusk)" : "rgba(255,255,255,0.15)"}`, background: isChecked ? "var(--dusk)" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 11, color: "#fff" }}>{isChecked ? "✓" : ""}</div>}
@@ -855,7 +855,7 @@ function JobProfileLibrary({ jobs, model }: { jobs: Job[]; model: string }) {
             const sk = selectedProfile.skills;
             const hasAny = sk.technical.length > 0 || sk.functional.length > 0 || sk.leadership.length > 0 || sk.digital.length > 0;
             if (!hasAny) return <EmptyPlaceholder text="No skills tagged. Generate with AI to populate." />;
-            const catColors: Record<string, string> = { technical: "var(--amber)", functional: "var(--sage)", leadership: "var(--dusk)", digital: "var(--amber)" };
+            const catColors: Record<string, string> = { technical: "#f4a83a", functional: "#8ba87a", leadership: "#a78bb8", digital: "#f4a83a" };
             return <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
               {(["technical", "functional", "leadership"] as const).filter(c => sk[c].length > 0).map(cat => <div key={cat}>
                 <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase" as const, color: catColors[cat], marginBottom: 6 }}>{cat === "technical" ? "Technical" : cat === "functional" ? "Behavioral" : "Leadership"}</div>
@@ -1230,9 +1230,9 @@ function CareerLatticeTab({ jobs, model }: { jobs: Job[]; model: string }) {
                       const dimmed = selectedJobId && !isSelected && !isPath;
                       return <button key={j.id} onClick={() => setSelectedJobId(isSelected ? null : j.id)} style={{
                         width: "100%", textAlign: "left", padding: "5px 8px", borderRadius: 6, cursor: "pointer",
-                        background: isSelected ? `${tc}30` : isPath ? `${pathType === "promotion" ? "var(--sage)" : pathType === "lateral" ? "var(--dusk)" : "var(--amber)"}10` : `${tc}10`,
+                        background: isSelected ? `${tc}30` : isPath ? `${pathType === "promotion" ? "#8ba87a" : pathType === "lateral" ? "#a78bb8" : "#f4a83a"}10` : `${tc}10`,
                         border: isSelected ? `1px solid ${tc}` : "1px solid transparent",
-                        borderLeft: `3px solid ${isSelected ? tc : isPath ? (pathType === "promotion" ? "var(--sage)" : pathType === "lateral" ? "var(--dusk)" : "var(--amber)") : `${tc}30`}`,
+                        borderLeft: `3px solid ${isSelected ? tc : isPath ? (pathType === "promotion" ? "#8ba87a" : pathType === "lateral" ? "#a78bb8" : "#f4a83a") : `${tc}30`}`,
                         opacity: dimmed ? 0.3 : 1, transform: isSelected ? "scale(1.02)" : "none",
                         boxShadow: isSelected ? `0 0 12px ${tc}25` : "none",
                         transition: "all 0.15s ease-out",
@@ -1407,7 +1407,7 @@ function JAGovernanceTab({ jobs, employees, model }: { jobs: Job[]; employees: E
     {govView === "health" && <div className="space-y-5">
       {/* Health score ring + summary */}
       {(() => {
-        const hCol = healthScore >= 70 ? "var(--sage)" : healthScore >= 50 ? "var(--amber)" : "var(--coral)";
+        const hCol = healthScore >= 70 ? "#8ba87a" : healthScore >= 50 ? "#f4a83a" : "#e87a5d";
         const hVerdict = healthScore >= 90 ? "Excellent" : healthScore >= 70 ? "Solid — minor gaps" : healthScore >= 50 ? "Needs work — structural risks present" : "Critical — architecture unreliable";
         const circ = 2 * Math.PI * 55;
         const dashOff = circ * (1 - healthScore / 100);
@@ -1534,8 +1534,8 @@ function JAGovernanceTab({ jobs, employees, model }: { jobs: Job[]; employees: E
         {["Type", "Role", "Requested By", "Justification", "Date", "Status", ""].map(h => <th key={h} className="px-3 py-2 text-left text-[12px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">{h}</th>)}
       </tr></thead><tbody>
         {changeReqs.map(cr => {
-          const typeColors: Record<string, string> = { new: "var(--success)", modify: "var(--warning)", deprecate: "var(--risk)" };
-          const statusColors: Record<string, string> = { Draft: "var(--text-muted)", Pending: "var(--warning)", Approved: "var(--success)", Rejected: "var(--risk)" };
+          const typeColors: Record<string, string> = { new: "#8ba87a", modify: "#f4a83a", deprecate: "#e87a5d" };
+          const statusColors: Record<string, string> = { Draft: "#8a7f6d", Pending: "#f4a83a", Approved: "#8ba87a", Rejected: "#e87a5d" };
           return <tr key={cr.id} className="border-b border-[var(--border)]">
             <td className="px-3 py-2"><span className="px-2 py-0.5 rounded-full text-[11px] font-bold" style={{ background: `${typeColors[cr.type]}12`, color: typeColors[cr.type] }}>{cr.type}</span></td>
             <td className="px-3 py-2 font-semibold text-[var(--text-primary)]">{cr.roleTitle}</td>
@@ -1653,8 +1653,8 @@ function JAIntelligenceTab({ jobs, employees, model }: { jobs: Job[]; employees:
         { severity: "info" as const, icon: "ℹ", title: "Fastest Growing Function", body: `${highAI.length > 0 ? `${highAI[0]?.function || "IT Infrastructure"} has the highest concentration of AI-impacted roles. ${highAI.length} roles are flagged for significant automation potential.` : "IT Infrastructure is growing fastest at +15% YoY, driven by cloud migration and AI infrastructure buildout."}`, stat: highAI.length > 0 ? String(highAI.length) : "+15%", statLabel: highAI.length > 0 ? "AI-impacted roles" : "YoY growth", action: "Align hiring plans with AI impact assessments. Prioritize roles that complement rather than duplicate automation capabilities." },
       ];
       const s = slides[slideIdx % slides.length];
-      const sevColors: Record<string, string> = { critical: "var(--coral)", warning: "var(--amber)", positive: "var(--sage)", info: "var(--amber)" };
-      const sc = sevColors[s.severity] || "var(--amber)";
+      const sevColors: Record<string, string> = { critical: "#e87a5d", warning: "#f4a83a", positive: "#8ba87a", info: "#f4a83a" };
+      const sc = sevColors[s.severity] || "#f4a83a";
 
       return <div>
         {/* Navigation */}
@@ -1715,9 +1715,9 @@ function JAIntelligenceTab({ jobs, employees, model }: { jobs: Job[]; employees:
         </div>}
         {/* AI-generated insights */}
         {aiInsights.filter(i => i.type === "evolution" || i.type === "convergence" || i.type === "compression").map(ins => {
-          const sevColors: Record<string, string> = { urgent: "var(--risk)", watch: "var(--warning)", opportunity: "var(--success)" };
+          const sevColors: Record<string, string> = { urgent: "#e87a5d", watch: "#f4a83a", opportunity: "#8ba87a" };
           const sevIcons: Record<string, string> = { urgent: "🔴", watch: "🟡", opportunity: "🟢" };
-          return <div key={ins.id} className="rounded-xl border-l-4 p-4" style={{ borderLeftColor: sevColors[ins.severity] || "var(--text-muted)", background: `${sevColors[ins.severity] || "var(--text-muted)"}06` }}>
+          return <div key={ins.id} className="rounded-xl border-l-4 p-4" style={{ borderLeftColor: sevColors[ins.severity] || "#8a7f6d", background: `${sevColors[ins.severity] || "#8a7f6d"}06` }}>
             <div className="flex items-center gap-2 mb-1"><span className="text-[14px]">{sevIcons[ins.severity] || "⚪"}</span><span className="text-[15px] font-bold text-[var(--text-primary)]">{ins.title}</span>{ins.affected > 0 && <Badge color="gray">{ins.affected} affected</Badge>}</div>
             <div className="text-[14px] text-[var(--text-secondary)] mb-1">{ins.body}</div>
             <div className="text-[13px] text-[var(--accent-primary)]">→ {ins.action}</div>
@@ -1986,7 +1986,7 @@ function RoleNetworkTab({ jobs, model }: { jobs: Job[]; model: string }) {
             const families = [...new Set(jobs.map(j => j.family))].slice(0, 6);
             return families.map((fam, fi) => {
               const famJobs = jobs.filter(j => j.family === fam).slice(0, 5);
-              const clusterColor = [TRACK_COLORS.P, TRACK_COLORS.M, TRACK_COLORS.T, TRACK_COLORS.E, TRACK_COLORS.S, "var(--amber)"][fi % 6];
+              const clusterColor = [TRACK_COLORS.P, TRACK_COLORS.M, TRACK_COLORS.T, TRACK_COLORS.E, TRACK_COLORS.S, "#f4a83a"][fi % 6];
               return <div key={fam} style={{ padding: 12, borderRadius: 12, background: `${clusterColor}06`, border: `1px solid ${clusterColor}15`, minWidth: 120 }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: clusterColor, marginBottom: 6, textAlign: "center" }}>{fam}</div>
                 {famJobs.map(j => <div key={j.id} style={{ fontSize: 11, color: "var(--text-secondary)", padding: "2px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>{j.title} <span style={{ fontSize: 11, fontFamily: MONO, color: "var(--ink-faint)" }}>{j.headcount}</span></div>)}
@@ -2566,7 +2566,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
     {/* ═══ VALIDATION TAB — Health dashboard with ring ═══ */}
     {tab === "validation" && (() => {
       const healthVal = Number(analytics.health_score || 0);
-      const healthCol = healthVal >= 70 ? "var(--sage)" : healthVal >= 50 ? "var(--amber)" : "var(--coral)";
+      const healthCol = healthVal >= 70 ? "#8ba87a" : healthVal >= 50 ? "#f4a83a" : "#e87a5d";
       const healthVerdict = healthVal >= 90 ? "Excellent" : healthVal >= 70 ? "Solid — minor gaps" : healthVal >= 50 ? "Needs work — structural risks present" : "Critical — architecture unreliable";
       const circumference = 2 * Math.PI * 55;
       const dashOffset = circumference * (1 - healthVal / 100);
@@ -2611,7 +2611,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
         <div className="space-y-2">
           {flags.filter(fl => flagFilter === "All" || fl.category === flagFilter).map((fl, i) => {
             const statusIcon = fl.severity === "critical" ? "✕" : fl.severity === "warning" ? "◈" : "✓";
-            const statusColor = fl.severity === "critical" ? "var(--coral)" : fl.severity === "warning" ? "var(--amber)" : "var(--sage)";
+            const statusColor = fl.severity === "critical" ? "#e87a5d" : fl.severity === "warning" ? "#f4a83a" : "#8ba87a";
             return <div key={i} className="flex items-start gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }} onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.07)"; }} onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.04)"; }}>
               {/* Status icon circle */}
               <div className="w-[26px] h-[26px] rounded-full flex items-center justify-center text-[11px] font-bold shrink-0" style={{ background: `${statusColor}15`, color: statusColor, boxShadow: `0 0 8px ${statusColor}20` }}>{statusIcon}</div>
@@ -2650,7 +2650,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
         {trackEntries.length > 0 && <div className="flex gap-3">
           {trackEntries.map(([track, count]) => {
             const pct = Math.round((count / totalTrackHC) * 100);
-            const color = TRACK_COLORS[track] || "var(--amber)";
+            const color = TRACK_COLORS[track] || "#f4a83a";
             const circ = 2 * Math.PI * 28;
             const dashOff = circ * (1 - pct / 100);
             return <div key={track} className="flex-1 rounded-xl p-4 relative overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>

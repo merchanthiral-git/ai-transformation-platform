@@ -64,7 +64,7 @@ export function HeadcountPlanning({ model, f, onBack, onNavigate, jobStates, vie
       : financials;
 
     const bars = isPreview ? [
-      { label: "Start", value: 8000, delta: 0, color: "var(--accent-primary)" },
+      { label: "Start", value: 8000, delta: 0, color: "#f4a83a" },
       { label: "Transitioned", value: -147, delta: -147, color: getSemanticColor("risk") },
       { label: "Attrition", value: -320, delta: -320, color: getSemanticColor("warn") },
       { label: "Redeployed", value: 89, delta: 89, color: getSemanticColor("info") },

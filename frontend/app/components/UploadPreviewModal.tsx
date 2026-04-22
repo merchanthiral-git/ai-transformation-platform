@@ -152,7 +152,7 @@ export function UploadPreviewModal({ files, onClose, onImport }: {
               {/* File tabs */}
               {previews.length > 1 && (
                 <div style={{ display: "flex", gap: 6, marginBottom: 16, flexWrap: "wrap" }}>
-                  {previews.map((p, i) => <Tab key={i} active={i === fileIdx} color="var(--amber)" label={p.fileName} onClick={() => { setFileIdx(i); setSheetIdx(0); }} />)}
+                  {previews.map((p, i) => <Tab key={i} active={i === fileIdx} color="#f4a83a" label={p.fileName} onClick={() => { setFileIdx(i); setSheetIdx(0); }} />)}
                 </div>
               )}
               {preview && sheet && (
@@ -160,7 +160,7 @@ export function UploadPreviewModal({ files, onClose, onImport }: {
                   {/* Sheet tabs */}
                   {preview.sheets.length > 1 && (
                     <div style={{ display: "flex", gap: 6, marginBottom: 16, flexWrap: "wrap" }}>
-                      {preview.sheets.map((s, i) => <Tab key={i} active={i === sheetIdx} color="var(--amber)" label={s.name} onClick={() => setSheetIdx(i)} />)}
+                      {preview.sheets.map((s, i) => <Tab key={i} active={i === sheetIdx} color="#f4a83a" label={s.name} onClick={() => setSheetIdx(i)} />)}
                     </div>
                   )}
 
@@ -275,7 +275,7 @@ function MappingTable({ mappings, expected, getTarget, onChange }: {
   mappings: ColumnMapping[]; expected: string[];
   getTarget: (m: ColumnMapping) => string; onChange: (src: string, tgt: string) => void;
 }) {
-  const icon = (m: ColumnMapping) => m.status === "mapped" ? { i: "\u2713", c: "var(--sage)" } : m.status === "missing" ? { i: "\u2717", c: "var(--coral)" } : { i: "\u26A0", c: "var(--amber)" };
+  const icon = (m: ColumnMapping) => m.status === "mapped" ? { i: "\u2713", c: "#8ba87a" } : m.status === "missing" ? { i: "\u2717", c: "#e87a5d" } : { i: "\u26A0", c: "#f4a83a" };
   const hdr: React.CSSProperties = { padding: "8px 16px", textAlign: "left", color: "var(--ink-faint)", fontSize: 11, fontWeight: 500, borderBottom: "1px solid rgba(255,255,255,0.05)" };
   return (
     <div style={{ marginBottom: 16, borderRadius: 10, border: "1px solid rgba(255,255,255,0.05)", overflow: "hidden" }}>
@@ -318,7 +318,7 @@ function ValidationCard({ sheet, open, toggle }: { sheet: SheetPreview; open: bo
   const errs = issues.filter((i) => i.severity === "error");
   const warns = issues.filter((i) => i.severity === "warning");
   const infos = issues.filter((i) => i.severity === "info");
-  const clr = errs.length ? "var(--coral)" : warns.length ? "var(--amber)" : "var(--sage)";
+  const clr = errs.length ? "#e87a5d" : warns.length ? "#f4a83a" : "#8ba87a";
   return (
     <div style={{ borderRadius: 10, border: `1px solid ${clr}22`, background: `${clr}08`, overflow: "hidden" }}>
       <div onClick={issues.length ? toggle : undefined} style={{

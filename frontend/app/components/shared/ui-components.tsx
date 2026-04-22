@@ -195,11 +195,11 @@ export type Annotation = {
 };
 
 const ANNO_COLORS = [
-  { id: "amber", hex: "var(--accent-primary)", label: "Insight" },
-  { id: "red", hex: "var(--risk)", label: "Risk" },
-  { id: "green", hex: "var(--success)", label: "Opportunity" },
-  { id: "blue", hex: "var(--amber)", label: "Question" },
-  { id: "purple", hex: "var(--purple)", label: "Action" },
+  { id: "amber", hex: "#f4a83a", label: "Insight" },
+  { id: "red", hex: "#e87a5d", label: "Risk" },
+  { id: "green", hex: "#8ba87a", label: "Opportunity" },
+  { id: "blue", hex: "#f4a83a", label: "Question" },
+  { id: "purple", hex: "#a78bb8", label: "Action" },
 ];
 
 export function AnnotationLayer({ annotations, moduleId, onAdd, onUpdate, onDelete, annotateMode, children }: {
@@ -238,7 +238,7 @@ export function AnnotationLayer({ annotations, moduleId, onAdd, onUpdate, onDele
     setCreating(null);
   };
 
-  const colorHex = (id: string) => ANNO_COLORS.find(c => c.id === id)?.hex || "var(--accent-primary)";
+  const colorHex = (id: string) => ANNO_COLORS.find(c => c.id === id)?.hex || "#f4a83a";
   const pinSize = (p: string) => p === "High" ? 20 : p === "Medium" ? 16 : 13;
 
   return <div ref={containerRef} className="relative" style={{ cursor: annotateMode ? "crosshair" : undefined }} onClick={handleClick}>
@@ -586,7 +586,7 @@ export function SidebarSelect({ label, options, value, onChange }: { label?: str
 export function ReadinessDot({ ready }: { ready: boolean }) { return <span className={`inline-block w-2 h-2 rounded-full mr-2 ${ready ? "bg-[var(--success)]" : "bg-[var(--risk)]"}`} />; }
 
 export function ViewToggle({ viewCtx, onChangeView }: { viewCtx: ViewContext; onChangeView: () => void }) {
-  const colors: Record<string, string> = { org: "var(--accent-primary)", job: "var(--success)", employee: "var(--purple)", custom: "var(--warning)" };
+  const colors: Record<string, string> = { org: "#f4a83a", job: "#8ba87a", employee: "#a78bb8", custom: "#f4a83a" };
   const icons: Record<string, string> = { org: "🏢", job: "💼", employee: "👤", custom: "⚙️" };
   const labels: Record<string, string> = { org: "Org-Wide", job: viewCtx.job || "Job", employee: viewCtx.employee || "Employee", custom: "Custom" };
   return <button onClick={onChangeView} className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-[15px] font-semibold transition-all hover:opacity-80" style={{ background: `${colors[viewCtx.mode]}15`, border: `1px solid ${colors[viewCtx.mode]}30`, color: colors[viewCtx.mode] }}>
@@ -751,7 +751,7 @@ const METHODOLOGY_CONTENT: Record<string, { title: string; sections: { heading?:
 // ── Confidence Badge — shows reliability of AI-generated outputs ──
 export function ConfidenceBadge({ score, dataPoints, label }: { score: number; dataPoints?: number; label?: string }) {
   const clamped = Math.max(0, Math.min(1, score));
-  const color = clamped >= 0.8 ? "var(--success)" : clamped >= 0.6 ? "var(--warning)" : "var(--risk)";
+  const color = clamped >= 0.8 ? "#8ba87a" : clamped >= 0.6 ? "#f4a83a" : "#e87a5d";
   const levelLabel = clamped >= 0.8 ? "High" : clamped >= 0.6 ? "Moderate" : "Low";
   const bg = clamped >= 0.8 ? "rgba(139,168,122,0.1)" : clamped >= 0.6 ? "rgba(244,168,58,0.1)" : "rgba(232,122,93,0.1)";
 
