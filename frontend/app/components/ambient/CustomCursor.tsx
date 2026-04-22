@@ -104,8 +104,14 @@ export default function CustomCursor() {
       />
       <style jsx global>{`
         @media (hover: hover) {
-          body { cursor: none !important; }
-          a, button, [role="button"], input, select, textarea { cursor: none !important; }
+          body:not(:has(.marketing-root)) { cursor: none !important; }
+          body:not(:has(.marketing-root)) a,
+          body:not(:has(.marketing-root)) button,
+          body:not(:has(.marketing-root)) [role="button"],
+          body:not(:has(.marketing-root)) input,
+          body:not(:has(.marketing-root)) select,
+          body:not(:has(.marketing-root)) textarea { cursor: none !important; }
+          .marketing-root, .marketing-root * { cursor: auto !important; }
         }
       `}</style>
     </>
