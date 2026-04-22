@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef, Suspense, lazy } from "react";
 import * as api from "../../lib/api";
 import type { Filters } from "../../lib/api";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, CartesianGrid } from "recharts";
@@ -10,19 +10,19 @@ import {
   useApiData, usePersisted, useDebounce, callAI, showToast,
   ErrorBoundary, AiJobSuggestButton, AiJobSuggestion, ExpandableChart,
 } from "./shared";
-import { ArchitectureMapTab } from "./ArchitectureMapTab";
-import { JobContentAuthoring } from "./design/JobContentAuthoring";
 import { Layers3, Network } from "@/lib/icons";
 import { FlowNav } from "@/app/ui";
-
-/* JA Mapping Module — Phase 1 components */
-import FrameworkBuilder from "./ja/FrameworkBuilder";
-import CatalogueHealth from "./ja/CatalogueHealth";
-import BulkImport from "./ja/BulkImport";
-import MappingGrid from "./ja/MappingGrid";
 import RoleDetailDrawer from "./ja/RoleDetailDrawer";
-import FlagRules from "./ja/FlagRules";
-import OrgChartRedesign from "./ja/OrgChart";
+
+/* JA Mapping Module — lazy-loaded tab components for performance */
+const ArchitectureMapTab = lazy(() => import("./ArchitectureMapTab").then(m => ({ default: m.ArchitectureMapTab })));
+const JobContentAuthoring = lazy(() => import("./design/JobContentAuthoring").then(m => ({ default: m.JobContentAuthoring })));
+const FrameworkBuilder = lazy(() => import("./ja/FrameworkBuilder"));
+const CatalogueHealth = lazy(() => import("./ja/CatalogueHealth"));
+const BulkImport = lazy(() => import("./ja/BulkImport"));
+const MappingGrid = lazy(() => import("./ja/MappingGrid"));
+const FlagRules = lazy(() => import("./ja/FlagRules"));
+const OrgChartRedesign = lazy(() => import("./ja/OrgChart"));
 
 /* ═══════════════════════════════════════════════════════════════
    TYPES
@@ -2500,13 +2500,13 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
     </div>}
 
     {/* ═══ ORG CHART TAB — Visual Org Chart Builder ═══ */}
-    {tab === "orgchart" && <OrgChartRedesign model={model} onRoleClick={(title) => { setSelectedJob(jobs.find(j => j.title === title) || null); }} />}
+    {tab === "orgchart" && <Suspense fallback={<LoadingBar />}><OrgChartRedesign model={model} onRoleClick={(title) => { setSelectedJob(jobs.find(j => j.title === title) || null); }} /></Suspense>}
 
     {/* ═══ JOB PROFILES TAB ═══ */}
     {tab === "profiles" && <JobProfileLibrary jobs={jobs} model={model} />}
 
     {/* ═══ JA FRAMEWORK BUILDER ═══ */}
-    {tab === "ja-framework" && (
+    {tab === "ja-framework" && (<Suspense fallback={<LoadingBar />}>
       <FrameworkBuilder model={model} projectId={projectId} onFrameworkReady={(fw) => {
         /* Auto-load scenario ID after framework save */
         fetch(`/api/ja/scenarios?project_id=${projectId}`, { headers: { Authorization: `Bearer ${typeof window !== "undefined" ? localStorage.getItem("auth_token") || "" : ""}` } })
@@ -2515,16 +2515,16 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
             if (primary) setJaScenarioId(primary.id);
           }).catch(() => {});
       }} />
-    )}
+    </Suspense>)}
 
     {/* ═══ JA CATALOGUE HEALTH ═══ */}
-    {tab === "ja-health" && <CatalogueHealth model={model} projectId={projectId} />}
+    {tab === "ja-health" && <Suspense fallback={<LoadingBar />}><CatalogueHealth model={model} projectId={projectId} /></Suspense>}
 
     {/* ═══ JA BULK IMPORT ═══ */}
-    {tab === "ja-import" && <BulkImport projectId={projectId} onImportComplete={() => setTab("ja-health")} />}
+    {tab === "ja-import" && <Suspense fallback={<LoadingBar />}><BulkImport projectId={projectId} onImportComplete={() => setTab("ja-health")} /></Suspense>}
 
     {/* ═══ JA MAPPING GRID ═══ */}
-    {tab === "ja-mapping" && (
+    {tab === "ja-mapping" && (<Suspense fallback={<LoadingBar />}>
       <>
         <MappingGrid
           model={model}
@@ -2554,13 +2554,13 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
           }}
         />
       </>
-    )}
+    </Suspense>)}
 
     {/* ═══ JA FLAGS ═══ */}
-    {tab === "ja-flags" && <FlagRules projectId={projectId} scenarioId={jaScenarioId} />}
+    {tab === "ja-flags" && <Suspense fallback={<LoadingBar />}><FlagRules projectId={projectId} scenarioId={jaScenarioId} /></Suspense>}
 
     {/* ═══ ARCHITECTURE MAP TAB (Legacy) — strategic mapping workspace ═══ */}
-    {tab === "map" && <ArchitectureMapTab tree={tree} jobs={jobs} employees={employees} model={model} />}
+    {tab === "map" && <Suspense fallback={<LoadingBar />}><ArchitectureMapTab tree={tree} jobs={jobs} employees={employees} model={model} /></Suspense>}
 
     {/* ═══ VALIDATION TAB — Health dashboard with ring ═══ */}
     {tab === "validation" && (() => {
@@ -2813,7 +2813,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
       </div>}
     </div>}
 
-    {tab === "content" && <div className="animate-tab-enter"><JobContentAuthoring model={model} f={f} /></div>}
+    {tab === "content" && <Suspense fallback={<LoadingBar />}><div className="animate-tab-enter"><JobContentAuthoring model={model} f={f} /></div></Suspense>}
 
     <FlowNav previous={{ id: "snapshot", label: "Workforce Snapshot" }} next={{ id: "design", label: "Work Design Lab" }} onNavigate={onNavigate || onBack} />
   </div>;

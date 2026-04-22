@@ -608,7 +608,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
             {actions.slice(0, 3).map((a, i) => <div key={i} style={{ display: 'flex', gap: 12, padding: '12px 0', borderTop: i > 0 ? '0.5px solid rgba(22,24,34,0.08)' : 'none', cursor: 'default', transition: 'background 0.15s' }}
               onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(247,245,240,0.5)'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = 'transparent'; }}>
-              <span style={{ width: 24, height: 24, borderRadius: 12, background: 'var(--ivory, var(--ink))', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 600, color: 'var(--ink)', flexShrink: 0 }}>{i + 1}</span>
+              <span style={{ width: 24, height: 24, borderRadius: 12, background: 'rgba(20, 24, 38, 0.95)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 600, color: 'var(--ink)', flexShrink: 0 }}>{i + 1}</span>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink)', marginBottom: 2 }}>{a.title}</div>
                 <div style={{ fontSize: 11, color: 'var(--ink-soft)', lineHeight: 1.5 }}>{a.desc}</div>
@@ -622,13 +622,13 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
         <div style={{ background: 'rgba(20, 24, 38, 0.95)', border: '1px solid var(--border)', borderRadius: 8, overflow: 'hidden', marginBottom: 16 }}>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse' }}>
-              <thead><tr style={{ background: 'var(--ivory, #F1EFE8)' }}>
+              <thead><tr style={{ background: 'rgba(20, 24, 38, 0.6)' }}>
                 {['Department', 'HC', 'Span (C\u2192S)', 'Layers (C\u2192S)', 'Mgr Ratio', 'Health'].map(h => <th key={h} style={{ padding: '10px 12px', textAlign: h === 'Department' ? 'left' : 'right', fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'var(--ink-faint)', borderBottom: '0.5px solid rgba(22,24,34,0.12)' }}>{h}</th>)}
               </tr></thead>
               <tbody>{sortedDepts.map((d, i) => {
                 const f = d.fut;
                 const mgrRatio = Math.round(d.managers / Math.max(d.headcount, 1) * 100);
-                return <tr key={d.name} style={{ borderBottom: '0.5px solid rgba(22,24,34,0.08)', background: i % 2 ? 'var(--ivory, var(--ink))' : '#FFFFFF' }}>
+                return <tr key={d.name} style={{ borderBottom: '1px solid var(--border)', background: i % 2 ? 'var(--ivory, var(--ink))' : '#FFFFFF' }}>
                   <td style={{ padding: '8px 12px', fontWeight: 500, color: 'var(--ink)', fontSize: 12 }}>
                     <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: 3, background: d.health.color, marginRight: 8 }} />{d.name}
                   </td>
@@ -1203,7 +1203,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
               </div>
 
               {/* Simulated Impact box */}
-              <div style={{ background: 'var(--ivory, var(--ink))', borderRadius: 6, padding: '12px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ background: 'rgba(20, 24, 38, 0.95)', borderRadius: 6, padding: '12px', display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'var(--ink-faint)', marginBottom: 2 }}>Simulated Impact</div>
                 {[
                   { label: "Headcount Change", value: `${simDept.hcDelta >= 0 ? "+" : ""}${simDept.hcDelta}`, good: simDept.hcDelta <= 0 },
@@ -1461,7 +1461,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
                 <span style={{ fontSize: 11, fontWeight: 500, color: ins.severityColor }}>{ins.metric}</span>
               </div>}
               {/* Recommendation box */}
-              <div style={{ background: 'var(--ivory, var(--ink))', borderRadius: 6, padding: '10px 12px' }}>
+              <div style={{ background: 'rgba(20, 24, 38, 0.95)', borderRadius: 6, padding: '10px 12px' }}>
                 <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'var(--ink-soft)', marginBottom: 4 }}>Recommendation</div>
                 <div style={{ fontSize: 11, color: 'var(--ink-soft)', lineHeight: 1.5 }}>{ins.recommendation}</div>
               </div>
