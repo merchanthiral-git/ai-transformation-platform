@@ -47,14 +47,14 @@ const S = {
   artifactHeader: { display: "flex", alignItems: "center", gap: 10, padding: "14px 18px", cursor: "pointer", userSelect: "none" as const } as React.CSSProperties,
   artifactIcon: (color: string) => ({ width: 32, height: 32, borderRadius: 8, background: `${color}12`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }) as React.CSSProperties,
   artifactTitle: { flex: 1, fontSize: "var(--text-sm)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)" } as React.CSSProperties,
-  artifactStatus: (done: boolean) => ({ fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 10, background: done ? "rgba(34,197,94,0.1)" : "rgba(249,115,22,0.1)", color: done ? "#22C55E" : "#F97316" }) as React.CSSProperties,
+  artifactStatus: (done: boolean) => ({ fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 10, background: done ? "rgba(34,197,94,0.1)" : "rgba(251,191,36,0.1)", color: done ? "#22C55E" : "#fbbf24" }) as React.CSSProperties,
   artifactBody: { padding: "0 18px 18px" } as React.CSSProperties,
   textarea: { width: "100%", padding: "10px 12px", fontSize: "var(--text-xs)", background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 6, color: "var(--text-primary)", resize: "vertical" as const, outline: "none", fontFamily: "inherit", minHeight: 100, lineHeight: 1.6 } as React.CSSProperties,
   input: { width: "100%", padding: "7px 10px", fontSize: "var(--text-xs)", background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 6, color: "var(--text-primary)", outline: "none" } as React.CSSProperties,
   label: { fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.05em", marginBottom: 4, marginTop: 10 } as React.CSSProperties,
   actions: { display: "flex", gap: 6, marginTop: 8 } as React.CSSProperties,
   btn: { display: "inline-flex", alignItems: "center", gap: 4, padding: "5px 12px", fontSize: 11, fontWeight: "var(--fw-medium)", border: "1px solid var(--border)", borderRadius: 5, background: "var(--surface-2)", color: "var(--text-secondary)", cursor: "pointer" } as React.CSSProperties,
-  btnPrimary: { display: "inline-flex", alignItems: "center", gap: 4, padding: "7px 16px", fontSize: 12, fontWeight: "var(--fw-semi)", border: "none", borderRadius: 6, background: "#3B82F6", color: "#fff", cursor: "pointer" } as React.CSSProperties,
+  btnPrimary: { display: "inline-flex", alignItems: "center", gap: 4, padding: "7px 16px", fontSize: 12, fontWeight: "var(--fw-semi)", border: "none", borderRadius: 6, background: "#22d3ee", color: "#fff", cursor: "pointer" } as React.CSSProperties,
   btnSuccess: { display: "inline-flex", alignItems: "center", gap: 4, padding: "8px 18px", fontSize: 12, fontWeight: "var(--fw-semi)", border: "none", borderRadius: 6, background: "#22C55E", color: "#fff", cursor: "pointer" } as React.CSSProperties,
   decisionRow: { display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: "1px solid var(--border)", fontSize: "var(--text-xs)" } as React.CSSProperties,
   decisionStage: { padding: "2px 6px", fontSize: 11, fontWeight: 600, borderRadius: 3, background: "var(--surface-2)", color: "var(--text-muted)", minWidth: 80, textAlign: "center" as const } as React.CSSProperties,
@@ -184,9 +184,9 @@ export default function StageHandoff({
   });
 
   const artifacts = [
-    { title: "Redesign Summary", icon: <FileText size={16} style={{ color: "#3B82F6" }} />, color: "#3B82F6", value: summary, setter: setSummary, done: !!summary.trim() },
-    { title: "Published Job Description", icon: <FileText size={16} style={{ color: "#8B5CF6" }} />, color: "#8B5CF6", value: jd, setter: setJd, done: !!jd.trim() },
-    { title: "Change Impact Brief", icon: <Users size={16} style={{ color: "#F97316" }} />, color: "#F97316", value: changeImpact, setter: setChangeImpact, done: !!changeImpact.trim() },
+    { title: "Redesign Summary", icon: <FileText size={16} style={{ color: "#22d3ee" }} />, color: "#22d3ee", value: summary, setter: setSummary, done: !!summary.trim() },
+    { title: "Published Job Description", icon: <FileText size={16} style={{ color: "#a78bfa" }} />, color: "#a78bfa", value: jd, setter: setJd, done: !!jd.trim() },
+    { title: "Change Impact Brief", icon: <Users size={16} style={{ color: "#fbbf24" }} />, color: "#fbbf24", value: changeImpact, setter: setChangeImpact, done: !!changeImpact.trim() },
   ];
 
   return (

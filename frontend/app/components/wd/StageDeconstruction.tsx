@@ -44,7 +44,7 @@ interface Props {
    STYLES
    ═══════════════════════════════════════════════════════════════ */
 
-const IMPACT_COLORS: Record<string, string> = { High: "#EF4444", Moderate: "#F59E0B", Low: "#22C55E" };
+const IMPACT_COLORS: Record<string, string> = { High: "#fb7185", Moderate: "#fbbf24", Low: "#22C55E" };
 
 const S = {
   summaryBar: { display: "flex", gap: 16, marginBottom: 16, flexWrap: "wrap" as const } as React.CSSProperties,
@@ -56,10 +56,10 @@ const S = {
   sectionTitle: { fontSize: "var(--text-sm)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)", marginBottom: 10, display: "flex", alignItems: "center", gap: 8 } as React.CSSProperties,
   toolbar: { display: "flex", alignItems: "center", gap: 6, marginBottom: 10, flexWrap: "wrap" as const } as React.CSSProperties,
   btn: { display: "inline-flex", alignItems: "center", gap: 4, padding: "5px 12px", fontSize: 11, fontWeight: "var(--fw-medium)", border: "1px solid var(--border)", borderRadius: 5, background: "var(--surface-2)", color: "var(--text-secondary)", cursor: "pointer" } as React.CSSProperties,
-  btnPrimary: { display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 14px", fontSize: 11, fontWeight: "var(--fw-semi)", border: "none", borderRadius: 5, background: "#3B82F6", color: "#fff", cursor: "pointer" } as React.CSSProperties,
+  btnPrimary: { display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 14px", fontSize: 11, fontWeight: "var(--fw-semi)", border: "none", borderRadius: 5, background: "#22d3ee", color: "#fff", cursor: "pointer" } as React.CSSProperties,
   btnAccent: { display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 14px", fontSize: 11, fontWeight: "var(--fw-semi)", border: "none", borderRadius: 5, background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", color: "#fff", cursor: "pointer" } as React.CSSProperties,
   table: { width: "100%", borderCollapse: "separate" as const, borderSpacing: 0, fontSize: "var(--text-xs)" } as React.CSSProperties,
-  th: { padding: "7px 8px", fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.05em", borderBottom: "2px solid var(--border)", background: "#1C2B3A", color2: "#fff", whiteSpace: "nowrap" as const, cursor: "pointer", userSelect: "none" as const } as React.CSSProperties,
+  th: { padding: "7px 8px", fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.05em", borderBottom: "2px solid var(--border)", background: "#05070d", color2: "#fff", whiteSpace: "nowrap" as const, cursor: "pointer", userSelect: "none" as const } as React.CSSProperties,
   td: { padding: "6px 8px", borderBottom: "1px solid var(--border)", verticalAlign: "middle" as const } as React.CSSProperties,
   input: { width: "100%", padding: "4px 6px", fontSize: "var(--text-xs)", background: "var(--surface-2)", border: "1px solid transparent", borderRadius: 4, color: "var(--text-primary)", outline: "none" } as React.CSSProperties,
   inputNum: { width: 52, padding: "4px 6px", fontSize: "var(--text-xs)", fontFamily: "var(--ff-mono)", background: "var(--surface-2)", border: "1px solid transparent", borderRadius: 4, color: "var(--text-primary)", outline: "none", textAlign: "center" as const } as React.CSSProperties,
@@ -67,19 +67,19 @@ const S = {
   impactDot: (impact: string) => ({ display: "inline-block", width: 7, height: 7, borderRadius: "50%", background: IMPACT_COLORS[impact] || "#9CA3AF", marginRight: 4 }) as React.CSSProperties,
   inlineBar: (pct: number, color: string) => ({ display: "inline-block", width: `${Math.min(pct, 100)}%`, height: 4, background: color, borderRadius: 2, transition: "width 0.2s" }) as React.CSSProperties,
   barBg: { width: 50, height: 4, background: "var(--border)", borderRadius: 2, display: "inline-block", verticalAlign: "middle", marginLeft: 4 } as React.CSSProperties,
-  footer: { padding: "8px", background: "#1C2B3A", fontWeight: "var(--fw-bold)" } as React.CSSProperties,
+  footer: { padding: "8px", background: "#05070d", fontWeight: "var(--fw-bold)" } as React.CSSProperties,
   budgetBar: { background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 8, padding: "12px 16px", marginBottom: 16 } as React.CSSProperties,
   progressTrack: { height: 8, background: "var(--surface-2)", borderRadius: 4, overflow: "hidden", display: "flex" } as React.CSSProperties,
   progressSeg: (pct: number, color: string) => ({ width: `${pct}%`, height: "100%", background: color, transition: "width 0.3s" }) as React.CSSProperties,
   chartGrid: { display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 16 } as React.CSSProperties,
   treemapCell: (pct: number, color: string) => ({ flex: `${Math.max(pct, 3)}`, height: 32, background: color, borderRadius: 3, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 600, color: "#fff", overflow: "hidden", whiteSpace: "nowrap" as const, padding: "0 4px", minWidth: 0 }) as React.CSSProperties,
   ringContainer: { position: "relative" as const, width: 100, height: 100, margin: "0 auto" } as React.CSSProperties,
-  emptyPrompt: { textAlign: "center" as const, padding: "32px 20px", background: "rgba(249,115,22,0.04)", border: "1px solid rgba(249,115,22,0.15)", borderRadius: 10, marginBottom: 16 } as React.CSSProperties,
-  dictPanel: { background: "rgba(139,92,246,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, padding: "16px 18px", marginBottom: 16 } as React.CSSProperties,
+  emptyPrompt: { textAlign: "center" as const, padding: "32px 20px", background: "rgba(251,191,36,0.04)", border: "1px solid rgba(251,191,36,0.15)", borderRadius: 10, marginBottom: 16 } as React.CSSProperties,
+  dictPanel: { background: "rgba(167,139,250,0.04)", border: "1px solid rgba(167,139,250,0.2)", borderRadius: 10, padding: "16px 18px", marginBottom: 16 } as React.CSSProperties,
   dictEntry: { background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 8, padding: "12px 14px", marginBottom: 8 } as React.CSSProperties,
 };
 
-const TREEMAP_COLORS = ["#3B82F6", "#8B5CF6", "#14B8A6", "#F97316", "#EF4444", "#22C55E", "#EC4899", "#6366F1"];
+const TREEMAP_COLORS = ["#22d3ee", "#a78bfa", "#14B8A6", "#fbbf24", "#fb7185", "#22C55E", "#EC4899", "#6366F1"];
 
 /* ═══════════════════════════════════════════════════════════════
    COMPONENT
@@ -253,21 +253,21 @@ export default function StageDeconstruction({
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 11 }}>
             <span>Allocated: <strong style={{ fontFamily: "var(--ff-mono)" }}>{allocHrs}h</strong></span>
-            <span style={{ color: remainHrs >= 0 ? "#22C55E" : "#EF4444" }}>Remaining: <strong style={{ fontFamily: "var(--ff-mono)" }}>{remainHrs}h</strong></span>
-            <span style={{ fontWeight: "var(--fw-bold)", fontFamily: "var(--ff-mono)", color: totalPct === 100 ? "#22C55E" : totalPct > 100 ? "#EF4444" : "#F97316" }}>{totalPct}%</span>
+            <span style={{ color: remainHrs >= 0 ? "#22C55E" : "#fb7185" }}>Remaining: <strong style={{ fontFamily: "var(--ff-mono)" }}>{remainHrs}h</strong></span>
+            <span style={{ fontWeight: "var(--fw-bold)", fontFamily: "var(--ff-mono)", color: totalPct === 100 ? "#22C55E" : totalPct > 100 ? "#fb7185" : "#fbbf24" }}>{totalPct}%</span>
           </div>
         </div>
         <div style={S.progressTrack}>
           {hoursByImpact.Low > 0 && <div style={S.progressSeg(hoursByImpact.Low / weeklyHours * 100, "#22C55E")} />}
-          {hoursByImpact.Moderate > 0 && <div style={S.progressSeg(hoursByImpact.Moderate / weeklyHours * 100, "#F59E0B")} />}
-          {hoursByImpact.High > 0 && <div style={S.progressSeg(hoursByImpact.High / weeklyHours * 100, "#EF4444")} />}
+          {hoursByImpact.Moderate > 0 && <div style={S.progressSeg(hoursByImpact.Moderate / weeklyHours * 100, "#fbbf24")} />}
+          {hoursByImpact.High > 0 && <div style={S.progressSeg(hoursByImpact.High / weeklyHours * 100, "#fb7185")} />}
         </div>
         <div style={{ display: "flex", gap: 12, marginTop: 4, fontSize: 11, color: "var(--text-muted)" }}>
           <span><span style={{ display: "inline-block", width: 6, height: 6, borderRadius: "50%", background: "#22C55E", marginRight: 3 }} />Human: {hoursByImpact.Low.toFixed(1)}h</span>
-          <span><span style={{ display: "inline-block", width: 6, height: 6, borderRadius: "50%", background: "#F59E0B", marginRight: 3 }} />AI-Augmented: {hoursByImpact.Moderate.toFixed(1)}h</span>
-          <span><span style={{ display: "inline-block", width: 6, height: 6, borderRadius: "50%", background: "#EF4444", marginRight: 3 }} />Automated: {hoursByImpact.High.toFixed(1)}h</span>
+          <span><span style={{ display: "inline-block", width: 6, height: 6, borderRadius: "50%", background: "#fbbf24", marginRight: 3 }} />AI-Augmented: {hoursByImpact.Moderate.toFixed(1)}h</span>
+          <span><span style={{ display: "inline-block", width: 6, height: 6, borderRadius: "50%", background: "#fb7185", marginRight: 3 }} />Automated: {hoursByImpact.High.toFixed(1)}h</span>
         </div>
-        {totalPct !== 100 && totalPct > 0 && <div style={{ marginTop: 4, fontSize: 11, fontWeight: "var(--fw-semi)", color: "#EF4444" }}>Total is {totalPct}% — must equal 100% to proceed</div>}
+        {totalPct !== 100 && totalPct > 0 && <div style={{ marginTop: 4, fontSize: 11, fontWeight: "var(--fw-semi)", color: "#fb7185" }}>Total is {totalPct}% — must equal 100% to proceed</div>}
       </div>
 
       {/* ── Visual charts row ── */}
@@ -299,7 +299,7 @@ export default function StageDeconstruction({
             <div key={type} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
               <span style={{ width: 70, fontSize: 11, color: "var(--text-secondary)" }}>{type}</span>
               <div style={{ flex: 1, height: 6, background: "var(--border)", borderRadius: 3 }}>
-                <div style={{ width: `${pct}%`, height: "100%", background: type === "Repetitive" ? "#EF4444" : "#3B82F6", borderRadius: 3, transition: "width 0.3s" }} />
+                <div style={{ width: `${pct}%`, height: "100%", background: type === "Repetitive" ? "#fb7185" : "#22d3ee", borderRadius: 3, transition: "width 0.3s" }} />
               </div>
               <span style={{ width: 32, fontSize: 11, fontFamily: "var(--ff-mono)", color: "var(--text-muted)", textAlign: "right" }}>{pct}%</span>
             </div>
@@ -316,7 +316,7 @@ export default function StageDeconstruction({
             { ok: isValid, text: isValid ? "Ready to submit" : "Fix issues above", req: "" },
           ].map((v, i) => (
             <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4, fontSize: 11 }}>
-              {v.ok ? <Check size={12} style={{ color: "#22C55E" }} /> : <AlertTriangle size={12} style={{ color: "#F97316" }} />}
+              {v.ok ? <Check size={12} style={{ color: "#22C55E" }} /> : <AlertTriangle size={12} style={{ color: "#fbbf24" }} />}
               <span style={{ color: v.ok ? "#22C55E" : "var(--text-secondary)" }}>{v.text}</span>
             </div>
           ))}
@@ -326,7 +326,7 @@ export default function StageDeconstruction({
       {/* ── Empty state prompt ── */}
       {rows.length === 0 && (
         <div style={S.emptyPrompt}>
-          <Sparkles size={28} style={{ color: "#F97316", marginBottom: 8, opacity: 0.6 }} />
+          <Sparkles size={28} style={{ color: "#fbbf24", marginBottom: 8, opacity: 0.6 }} />
           <div style={{ fontSize: "var(--text-sm)", fontWeight: "var(--fw-medium)", color: "var(--text-primary)", marginBottom: 4 }}>
             No tasks yet for {jobTitle}
           </div>
@@ -345,7 +345,7 @@ export default function StageDeconstruction({
       {showDict && dictEntries.length > 0 && (
         <div style={S.dictPanel}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-            <span style={{ fontSize: "var(--text-sm)", fontWeight: "var(--fw-semi)", color: "#8B5CF6", display: "flex", alignItems: "center", gap: 6 }}><BookOpen size={14} /> Task Dictionary — {jobTitle}</span>
+            <span style={{ fontSize: "var(--text-sm)", fontWeight: "var(--fw-semi)", color: "#a78bfa", display: "flex", alignItems: "center", gap: 6 }}><BookOpen size={14} /> Task Dictionary — {jobTitle}</span>
             <button style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer" }} onClick={() => setShowDict(false)}><X size={14} /></button>
           </div>
           <div style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)", marginBottom: 10 }}>Pre-built task portfolios. Loading replaces your current tasks.</div>
@@ -353,10 +353,10 @@ export default function StageDeconstruction({
             <div key={ei} style={S.dictEntry}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ padding: "2px 8px", fontSize: 11, background: "rgba(139,92,246,0.1)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 4, color: "#8B5CF6", fontWeight: 600 }}>{entry.industry}</span>
+                  <span style={{ padding: "2px 8px", fontSize: 11, background: "rgba(167,139,250,0.1)", border: "1px solid rgba(167,139,250,0.2)", borderRadius: 4, color: "#a78bfa", fontWeight: 600 }}>{entry.industry}</span>
                   <span style={{ fontSize: 11, color: "var(--text-muted)" }}>{entry.tasks.length} tasks</span>
                 </div>
-                <button style={{ ...S.btn, color: "#8B5CF6", borderColor: "rgba(139,92,246,0.3)" }} onClick={() => loadDict(entry)}>Load Tasks</button>
+                <button style={{ ...S.btn, color: "#a78bfa", borderColor: "rgba(167,139,250,0.3)" }} onClick={() => loadDict(entry)}>Load Tasks</button>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
                 {entry.tasks.map((t, ti) => (
@@ -437,7 +437,7 @@ export default function StageDeconstruction({
                   const estHrs = Math.round(timePct * weeklyHours / 100 * 10) / 10;
                   return (
                     <tr key={row["Task ID"] || idx} style={{ borderBottom: "1px solid var(--border)" }}
-                      onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.02)")}
+                      onMouseEnter={e => (e.currentTarget.style.background = "rgba(34,211,238,0.02)")}
                       onMouseLeave={e => (e.currentTarget.style.background = "")}>
                       <td style={{ ...S.td, fontFamily: "var(--ff-mono)", fontSize: 11, color: "var(--text-muted)" }}>{row["Task ID"]}</td>
                       <td style={S.td}><input style={{ ...S.input, minWidth: 160 }} value={row["Task Name"] || ""} onChange={e => updateCell(idx, "Task Name", e.target.value)} /></td>
@@ -445,7 +445,7 @@ export default function StageDeconstruction({
                       <td style={S.td}>
                         <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                           <input style={S.inputNum} type="number" value={timePct} onChange={e => updateCell(idx, "Current Time Spent %", Math.max(0, Number(e.target.value) || 0))} />
-                          <div style={S.barBg}><div style={S.inlineBar(timePct, "#3B82F6")} /></div>
+                          <div style={S.barBg}><div style={S.inlineBar(timePct, "#22d3ee")} /></div>
                         </div>
                       </td>
                       <td style={{ ...S.td, fontFamily: "var(--ff-mono)", fontSize: 11, color: "var(--text-muted)" }}>{estHrs}h</td>
@@ -481,7 +481,7 @@ export default function StageDeconstruction({
               <tfoot>
                 <tr>
                   <td colSpan={3} style={{ ...S.footer, color: "#fff", fontSize: 11 }}>Total</td>
-                  <td style={{ ...S.footer, color: totalPct === 100 ? "#22C55E" : "#EF4444", fontFamily: "var(--ff-mono)", fontSize: 12 }}>{totalPct}%</td>
+                  <td style={{ ...S.footer, color: totalPct === 100 ? "#22C55E" : "#fb7185", fontFamily: "var(--ff-mono)", fontSize: 12 }}>{totalPct}%</td>
                   <td style={{ ...S.footer, color: "#fff", fontFamily: "var(--ff-mono)", fontSize: 11 }}>{totalHrs}h</td>
                   <td colSpan={6} style={S.footer} />
                 </tr>

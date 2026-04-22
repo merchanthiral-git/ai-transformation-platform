@@ -112,15 +112,15 @@ export function NLQBar({ projectId, modelId, currentModule }: { projectId: strin
   const [focused, setFocused] = useState(false);
 
   if (!modelId) return <div className="relative z-30 mb-4">
-    <div style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", fontSize: 18, color: "rgba(59,130,246,0.3)", zIndex: 2, pointerEvents: "none" }}>⌕</div>
-    <input disabled placeholder="Upload data to enable AI search..." style={{ width: "100%", height: 48, paddingLeft: 40, paddingRight: 72, borderRadius: 12, fontSize: 13, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", color: "var(--text-muted)", outline: "none", cursor: "not-allowed", fontFamily: "'DM Sans', sans-serif" }} />
+    <div style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", fontSize: 18, color: "rgba(34,211,238,0.3)", zIndex: 2, pointerEvents: "none" }}>⌕</div>
+    <input disabled placeholder="Upload data to enable AI search..." style={{ width: "100%", height: 48, paddingLeft: 40, paddingRight: 72, borderRadius: 12, fontSize: 13, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", color: "var(--text-muted)", outline: "none", cursor: "not-allowed", fontFamily: "'Inter Tight', sans-serif" }} />
   </div>;
 
   return <div ref={panelRef} className="relative z-30 mb-4">
     {/* Search bar — primary interactive element */}
     <form onSubmit={handleSubmit} className="relative">
       <div style={{
-        position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", fontSize: 18, color: focused ? "#3B82F6" : "rgba(59,130,246,0.5)", transition: "color 0.15s", zIndex: 2, pointerEvents: "none",
+        position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", fontSize: 18, color: focused ? "#22d3ee" : "rgba(34,211,238,0.5)", transition: "color 0.15s", zIndex: 2, pointerEvents: "none",
       }}>⌕</div>
       <input
         ref={inputRef}
@@ -133,11 +133,11 @@ export function NLQBar({ projectId, modelId, currentModule }: { projectId: strin
         style={{
           width: "100%", height: 48, paddingLeft: 40, paddingRight: 72, borderRadius: 12, fontSize: 13,
           background: "rgba(255,255,255,0.05)",
-          border: focused ? "1px solid rgba(59,130,246,0.6)" : "1px solid rgba(255,255,255,0.10)",
-          boxShadow: focused ? "0 0 12px rgba(59,130,246,0.15)" : "none",
+          border: focused ? "1px solid rgba(34,211,238,0.6)" : "1px solid rgba(255,255,255,0.10)",
+          boxShadow: focused ? "0 0 12px rgba(34,211,238,0.15)" : "none",
           color: "var(--text-primary)", outline: "none",
           transition: "border-color 0.15s, box-shadow 0.15s, background 0.15s",
-          fontFamily: "'DM Sans', sans-serif",
+          fontFamily: "'Inter Tight', sans-serif",
         }}
         onMouseEnter={e => { if (!focused) (e.target as HTMLInputElement).style.borderColor = "rgba(255,255,255,0.16)"; }}
         onMouseLeave={e => { if (!focused) (e.target as HTMLInputElement).style.borderColor = "rgba(255,255,255,0.10)"; }}
@@ -176,7 +176,7 @@ export function NLQBar({ projectId, modelId, currentModule }: { projectId: strin
       {!loading && result && <div className="p-4 space-y-4">
         {/* Answer card */}
         <div className="flex items-start gap-3">
-          <div className="w-7 h-7 rounded-lg flex items-center justify-center text-[14px] shrink-0" style={{ background: "linear-gradient(135deg, rgba(212,134,10,0.15), rgba(192,112,48,0.1))" }}>🔍</div>
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center text-[14px] shrink-0" style={{ background: "linear-gradient(135deg, rgba(34,211,238,0.15), rgba(192,112,48,0.1))" }}>🔍</div>
           <div className="flex-1 min-w-0">
             <div className="text-[14px] text-[var(--text-primary)] leading-relaxed font-heading">{result.answer}</div>
             {result.confidence !== undefined && result.confidence < 0.7 && <div className="text-[11px] text-[var(--warning)] mt-1 flex items-center gap-1"><span>⚠</span> Based on available data (confidence: {Math.round(result.confidence * 100)}%)</div>}

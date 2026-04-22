@@ -36,7 +36,7 @@ interface BotState {
 
 // ── Constants ──
 
-const COLORS = ["var(--accent-primary)", "var(--purple)", "#3B82F6", "var(--success)", "var(--warning)", "var(--risk)", "#EC4899", "#14B8A6"];
+const COLORS = ["var(--accent-primary)", "var(--purple)", "#22d3ee", "var(--success)", "var(--warning)", "var(--risk)", "#EC4899", "#14B8A6"];
 const TT: React.CSSProperties = { background: "rgba(15,12,8,0.95)", border: "1px solid rgba(255,200,150,0.1)", borderRadius: 10, fontSize: 12, color: "#f5e6d0" };
 
 const ACTION_LABELS: Record<string, string> = {
@@ -101,7 +101,7 @@ function BotViz({ action, results }: { action: string | null; results: Record<st
 }
 
 function EmptyViz() {
-  return <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "rgba(255,200,150,0.15)", fontSize: 14, fontFamily: "'Outfit', sans-serif" }}>
+  return <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "rgba(255,200,150,0.15)", fontSize: 14, fontFamily: "'Inter Tight', sans-serif" }}>
     Visualizations appear here as the analysis runs
   </div>;
 }
@@ -186,7 +186,7 @@ function ReadinessViz({ data }: { data: Record<string, unknown> }) {
       </RadarChart>
     </ResponsiveContainer>
     <div style={{ display: "flex", gap: 16, justifyContent: "center", marginTop: 8 }}>
-      {[["Technology", "var(--accent-primary)"], ["Process", "var(--purple)"], ["People", "var(--success)"], ["Data", "#3B82F6"]].map(([l, c]) => <Legend2 key={l} color={c as string} label={l as string} />)}
+      {[["Technology", "var(--accent-primary)"], ["Process", "var(--purple)"], ["People", "var(--success)"], ["Data", "#22d3ee"]].map(([l, c]) => <Legend2 key={l} color={c as string} label={l as string} />)}
     </div>
   </div>;
 }
@@ -225,7 +225,7 @@ function ScenariosViz({ data }: { data: Record<string, unknown> }) {
           {([["Net FTE", s.net_fte_reduction, ""], ["Year 1 Savings", s.year1_savings, "$"], ["Investment", inv?.total, "$"], ["Net Benefit", s.net_year1_benefit, "$"], ["Payback", s.payback_months, "", " mo"]] as const).map(([label, val, pre, suf]) =>
             <div key={String(label)} style={{ display: "flex", justifyContent: "space-between", padding: "4px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
               <span style={{ fontSize: 12, color: "rgba(255,200,150,0.4)" }}>{String(label)}</span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: c, fontFamily: "'IBM Plex Mono', monospace" }}>{pre}{typeof val === "number" ? val.toLocaleString() : "—"}{suf || ""}</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: c, fontFamily: "monospace" }}>{pre}{typeof val === "number" ? val.toLocaleString() : "—"}{suf || ""}</span>
             </div>)}
         </div>;
       })}
@@ -236,7 +236,7 @@ function ScenariosViz({ data }: { data: Record<string, unknown> }) {
 function RoadmapViz({ data }: { data: Record<string, unknown> }) {
   const phases = data.phases as Array<Record<string, unknown>> | undefined;
   if (!phases) return <EmptyViz />;
-  const pc = ["var(--accent-primary)", "var(--purple)", "#3B82F6", "var(--success)"];
+  const pc = ["var(--accent-primary)", "var(--purple)", "#22d3ee", "var(--success)"];
   const totalEnd = Number((phases[phases.length - 1] as Record<string, unknown>).end_month || 18);
   return <div style={{ padding: 24, height: "100%", overflow: "auto" }}>
     <VizLabel>Implementation Roadmap</VizLabel>
@@ -287,7 +287,7 @@ function VizLabel({ children }: { children: React.ReactNode }) {
 function MetricCard({ label, value, bench }: { label: string; value: string; bench?: string }) {
   return <div style={{ padding: "14px 16px", borderRadius: 12, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
     <div style={{ fontSize: 11, color: "rgba(255,200,150,0.4)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>{label}</div>
-    <div style={{ fontSize: 24, fontWeight: 800, color: "var(--accent-primary)", fontFamily: "'IBM Plex Mono', monospace" }}>{value}</div>
+    <div style={{ fontSize: 24, fontWeight: 800, color: "var(--accent-primary)", fontFamily: "monospace" }}>{value}</div>
     {bench && <div style={{ fontSize: 11, color: "rgba(255,200,150,0.25)" }}>Benchmark: {bench}</div>}
   </div>;
 }
@@ -307,14 +307,14 @@ function exportLog(state: BotState, results: Record<string, unknown>) {
   const infoFindings = state.findings.filter(f => f.severity === "info" && f.user_status !== "dismissed");
 
   const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>AI Analyst Report</title>
-<style>body{font-family:'DM Sans',system-ui,sans-serif;max-width:900px;margin:40px auto;padding:0 24px;color:#1a1a2e;line-height:1.6}
-h1{font-family:'Outfit',sans-serif;font-size:32px;color:var(--accent-primary);border-bottom:2px solid var(--accent-primary);padding-bottom:8px}
-h2{font-family:'Outfit',sans-serif;font-size:22px;color:#333;margin-top:32px;border-bottom:1px solid #eee;padding-bottom:6px}
-h3{font-family:'Outfit',sans-serif;font-size:16px;color:#555;margin-top:20px}
+<style>body{font-family:'Inter Tight',system-ui,sans-serif;max-width:900px;margin:40px auto;padding:0 24px;color:#1a1a2e;line-height:1.6}
+h1{font-family:'Inter Tight',sans-serif;font-size:32px;color:var(--accent-primary);border-bottom:2px solid var(--accent-primary);padding-bottom:8px}
+h2{font-family:'Inter Tight',sans-serif;font-size:22px;color:#333;margin-top:32px;border-bottom:1px solid #eee;padding-bottom:6px}
+h3{font-family:'Inter Tight',sans-serif;font-size:16px;color:#555;margin-top:20px}
 .finding{padding:12px 16px;margin:8px 0;border-radius:8px;border-left:4px solid}
-.critical{border-color:var(--risk);background:#FEF2F2}.warning{border-color:var(--warning);background:#FFFBEB}.info{border-color:#3B82F6;background:#EFF6FF}
+.critical{border-color:var(--risk);background:#FEF2F2}.warning{border-color:var(--warning);background:#FFFBEB}.info{border-color:#22d3ee;background:#EFF6FF}
 .corrected{opacity:0.6;text-decoration:line-through}.acknowledged{opacity:0.8}
-.metric{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--accent-primary)}
+.metric{font-family:monospace;font-weight:700;color:var(--accent-primary)}
 table{width:100%;border-collapse:collapse;margin:16px 0}th,td{padding:8px 12px;text-align:left;border-bottom:1px solid #eee}th{background:#f8f8f8;font-weight:600;font-size:13px}
 .footer{margin-top:40px;padding-top:16px;border-top:1px solid #eee;font-size:12px;color:#999;text-align:center}
 </style></head><body>
@@ -358,9 +358,9 @@ function IntroScreen({ onStart }: { onStart: () => void }) {
   return <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "#0B1120", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
     <AnimatePresence>
       {step >= 0 && <motion.div key="s0" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} style={{ width: 56, height: 56, borderRadius: "50%", background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, marginBottom: 8 }}>🤖</motion.div>}
-      {step >= 1 && <motion.div key="s1" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} style={{ fontSize: 28, fontWeight: 800, color: "#fff", fontFamily: "'Outfit', sans-serif" }}>Meet your AI Analyst</motion.div>}
+      {step >= 1 && <motion.div key="s1" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} style={{ fontSize: 28, fontWeight: 800, color: "#fff", fontFamily: "'Inter Tight', sans-serif" }}>Meet your AI Analyst</motion.div>}
       {step >= 2 && <motion.div key="s2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ fontSize: 15, color: "rgba(255,200,150,0.45)", maxWidth: 400, textAlign: "center", lineHeight: 1.6 }}>It analyzes your organization while you watch and guide. You're always in control.</motion.div>}
-      {step >= 3 && <motion.button key="s3" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} onClick={onStart} style={{ marginTop: 16, padding: "14px 36px", borderRadius: 14, background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", border: "none", color: "#fff", fontSize: 16, fontWeight: 700, cursor: "pointer", fontFamily: "'Outfit', sans-serif", boxShadow: "0 4px 20px rgba(224,144,64,0.3)" }}>Start Analysis</motion.button>}
+      {step >= 3 && <motion.button key="s3" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} onClick={onStart} style={{ marginTop: 16, padding: "14px 36px", borderRadius: 14, background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", border: "none", color: "#fff", fontSize: 16, fontWeight: 700, cursor: "pointer", fontFamily: "'Inter Tight', sans-serif", boxShadow: "0 4px 20px rgba(224,144,64,0.3)" }}>Start Analysis</motion.button>}
     </AnimatePresence>
   </div>;
 }
@@ -375,7 +375,7 @@ function StatsBar({ state, elapsed }: { state: BotState; elapsed: number }) {
   const info = state.findings.filter(f => f.severity === "info" && f.user_status !== "dismissed").length;
   const corrections = state.findings.filter(f => f.user_status === "corrected").length;
   const mins = Math.floor(elapsed / 60); const secs = elapsed % 60;
-  return <div style={{ height: 32, display: "flex", alignItems: "center", gap: 20, padding: "0 20px", background: "rgba(255,255,255,0.02)", borderTop: "1px solid rgba(255,255,255,0.04)", fontSize: 11, color: "rgba(255,200,150,0.3)", fontFamily: "'IBM Plex Mono', monospace", flexShrink: 0 }}>
+  return <div style={{ height: 32, display: "flex", alignItems: "center", gap: 20, padding: "0 20px", background: "rgba(255,255,255,0.02)", borderTop: "1px solid rgba(255,255,255,0.04)", fontSize: 11, color: "rgba(255,200,150,0.3)", fontFamily: "monospace", flexShrink: 0 }}>
     <span>Findings: {crit + warn + info} ({crit > 0 ? <span style={{ color: "var(--risk)" }}>{crit} critical</span> : null}{crit > 0 && warn > 0 ? ", " : ""}{warn > 0 ? <span style={{ color: "var(--warning)" }}>{warn} warnings</span> : null}{(crit > 0 || warn > 0) && info > 0 ? ", " : ""}{info > 0 ? `${info} info` : ""})</span>
     <span>Steps: {state.progress.completed}/{state.progress.total}</span>
     {corrections > 0 && <span>Corrections: {corrections}</span>}
@@ -645,7 +645,7 @@ export default function BotWorkspace({ projectId, modelId, onClose }: { projectI
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
         <div style={{ width: 28, height: 28, borderRadius: "50%", background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>🤖</div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "var(--accent-primary)", fontFamily: "'Outfit', sans-serif" }}>AI Analyst</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "var(--accent-primary)", fontFamily: "'Inter Tight', sans-serif" }}>AI Analyst</div>
           <div style={{ fontSize: 11, color: "rgba(255,200,150,0.4)" }}>{state?.status === "running" ? "Analyzing..." : state?.status === "completed" ? "Complete" : "Waiting"}</div>
         </div>
         {newFindings > 0 && <div style={{ padding: "2px 8px", borderRadius: 10, background: "rgba(224,144,64,0.2)", fontSize: 11, fontWeight: 700, color: "var(--accent-primary)" }}>{newFindings} new</div>}
@@ -666,7 +666,7 @@ export default function BotWorkspace({ projectId, modelId, onClose }: { projectI
       <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1 }}>
         <div style={{ width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>🤖</div>
         <div>
-          <div style={{ fontSize: 15, fontWeight: 700, color: "var(--accent-primary)", fontFamily: "'Outfit', sans-serif" }}>AI Analyst</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: "var(--accent-primary)", fontFamily: "'Inter Tight', sans-serif" }}>AI Analyst</div>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <div style={{ width: 6, height: 6, borderRadius: "50%", background: state.status === "running" ? "var(--success)" : state.status === "waiting_for_user" ? "var(--accent-primary)" : state.status === "completed" ? "var(--purple)" : "#6B7280", animation: state.status === "running" ? "statusPulse 1.5s infinite" : "none" }} />
             <span style={{ fontSize: 12, color: "rgba(255,200,150,0.4)" }}>
@@ -688,7 +688,7 @@ export default function BotWorkspace({ projectId, modelId, onClose }: { projectI
           {(["slow", "normal", "fast"] as const).map(s => <button key={s} onClick={() => setSpeed(s)} style={{ padding: "4px 10px", fontSize: 11, fontWeight: speed === s ? 700 : 400, background: speed === s ? "rgba(255,255,255,0.06)" : "transparent", color: speed === s ? "rgba(255,200,150,0.6)" : "rgba(255,200,150,0.25)", border: "none", cursor: "pointer", textTransform: "capitalize" }}>{s}</button>)}
         </div>
         <div style={{ textAlign: "right" }}>
-          <div style={{ fontSize: 12, color: "rgba(255,200,150,0.4)", fontFamily: "'IBM Plex Mono', monospace" }}>Step {state.progress.completed}/{state.progress.total}</div>
+          <div style={{ fontSize: 12, color: "rgba(255,200,150,0.4)", fontFamily: "monospace" }}>Step {state.progress.completed}/{state.progress.total}</div>
           <div style={{ width: 80, height: 3, borderRadius: 2, background: "rgba(255,255,255,0.06)", overflow: "hidden", marginTop: 2 }}><div style={{ height: "100%", borderRadius: 2, background: "var(--accent-primary)", width: `${state.progress.percentage}%`, transition: "width 0.5s ease" }} /></div>
         </div>
         <button onClick={() => exportLog(state, analysisResults.current)} style={{ padding: "5px 12px", borderRadius: 8, fontSize: 11, fontWeight: 600, background: "transparent", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,200,150,0.35)", cursor: "pointer" }} title="Export (E)">Export</button>
@@ -717,13 +717,13 @@ export default function BotWorkspace({ projectId, modelId, onClose }: { projectI
             const isFinding = entry.type === "finding";
             const severity = entry.metadata?.severity as string;
             const findingType = entry.metadata?.finding_type as string | undefined;
-            const borderColor = severity === "critical" ? "var(--risk)" : severity === "warning" ? "var(--warning)" : isBot ? "var(--accent-primary)" : "#3B82F6";
+            const borderColor = severity === "critical" ? "var(--risk)" : severity === "warning" ? "var(--warning)" : isBot ? "var(--accent-primary)" : "#22d3ee";
             const isRecent = i >= (state.activity_log.length - 6);
             const linkedModule = isFinding && severity ? CATEGORY_MODULE[findingType || severity] || CATEGORY_MODULE[entry.metadata?.category as string || ""] : null;
 
             return <div key={entry.id} style={{ display: "flex", gap: 10, padding: "8px 0", borderBottom: "1px solid rgba(255,255,255,0.03)" }}>
               <div style={{ width: 3, borderRadius: 2, background: borderColor, flexShrink: 0, alignSelf: "stretch", opacity: 0.6 }} />
-              <div style={{ width: 22, height: 22, borderRadius: "50%", background: isBot ? "rgba(224,144,64,0.15)" : "rgba(59,130,246,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, flexShrink: 0, marginTop: 2, color: isBot ? "var(--accent-primary)" : "#3B82F6" }}>
+              <div style={{ width: 22, height: 22, borderRadius: "50%", background: isBot ? "rgba(224,144,64,0.15)" : "rgba(34,211,238,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, flexShrink: 0, marginTop: 2, color: isBot ? "var(--accent-primary)" : "#22d3ee" }}>
                 {isBot ? "🤖" : entry.actor === "system" ? "⚙" : "U"}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -738,7 +738,7 @@ export default function BotWorkspace({ projectId, modelId, onClose }: { projectI
                       const conf = Number(entry.metadata!.confidence);
                       const color = conf >= 0.8 ? "var(--success)" : conf >= 0.5 ? "var(--warning)" : "var(--risk)";
                       const style = conf >= 0.8 ? "solid" : conf >= 0.5 ? "dashed" : "dotted";
-                      return <span style={{ fontSize: 11, color, borderLeft: `2px ${style} ${color}`, paddingLeft: 6, fontFamily: "'IBM Plex Mono', monospace" }}>{Math.round(conf * 100)}% confidence</span>;
+                      return <span style={{ fontSize: 11, color, borderLeft: `2px ${style} ${color}`, paddingLeft: 6, fontFamily: "monospace" }}>{Math.round(conf * 100)}% confidence</span>;
                     })()}
                   </div>
                 )}
@@ -750,7 +750,7 @@ export default function BotWorkspace({ projectId, modelId, onClose }: { projectI
                     <button onClick={() => sendCommand("tell me more")} style={{ padding: "5px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,200,150,0.4)", cursor: "pointer" }}>Tell me more</button>
                   </div>
                 )}
-                <div style={{ fontSize: 11, color: "rgba(255,200,150,0.15)", marginTop: 4, fontFamily: "'IBM Plex Mono', monospace" }}>{new Date(entry.timestamp).toLocaleTimeString()}</div>
+                <div style={{ fontSize: 11, color: "rgba(255,200,150,0.15)", marginTop: 4, fontFamily: "monospace" }}>{new Date(entry.timestamp).toLocaleTimeString()}</div>
               </div>
             </div>;
           })}
@@ -766,7 +766,7 @@ export default function BotWorkspace({ projectId, modelId, onClose }: { projectI
           <div style={{ display: "flex", gap: 8 }}>
             <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === "Enter") sendCommand(input); }}
               placeholder="Type a command or ask a question..."
-              style={{ flex: 1, padding: "10px 16px", borderRadius: 12, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "#fff", fontSize: 13, outline: "none", fontFamily: "'DM Sans', sans-serif" }} />
+              style={{ flex: 1, padding: "10px 16px", borderRadius: 12, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "#fff", fontSize: 13, outline: "none", fontFamily: "'Inter Tight', sans-serif" }} />
             <button onClick={() => sendCommand(input)} style={{ width: 40, height: 40, borderRadius: 12, background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", border: "none", color: "#fff", fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>→</button>
           </div>
         </div>

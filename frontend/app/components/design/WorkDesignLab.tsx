@@ -486,11 +486,11 @@ Rules:
   </div>;
 
   // ── STEP 0: Job Selector — classic view (no job selected) ──
-  if (!job) return <div style={{ background: "radial-gradient(ellipse at 50% 30%, rgba(212,134,10,0.04) 0%, transparent 60%)", minHeight: "calc(100vh - 48px)" }}>
+  if (!job) return <div style={{ background: "radial-gradient(ellipse at 50% 30%, rgba(34,211,238,0.04) 0%, transparent 60%)", minHeight: "calc(100vh - 48px)" }}>
     <PageHeader icon={<PenLine size={20} />} title="Work Design Lab" subtitle="Mercer Work Design methodology — select a job to begin analysis" onBack={onBack} moduleId="design" />
     <div style={{ maxWidth: 768, margin: "0 auto", padding: "0 24px" }}>
       <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
-        <button onClick={() => setViewMode("queue")} style={{ fontSize: 11, color: "#3B82F6", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}>Switch to Queue View</button>
+        <button onClick={() => setViewMode("queue")} style={{ fontSize: 11, color: "#22d3ee", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}>Switch to Queue View</button>
       </div>
     </div>
 
@@ -505,7 +505,7 @@ Rules:
       {topJobs.length > 0 && <div className="mb-6">
         <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2 flex items-center gap-2"><TrendingUp size={14} /> Start here — high impact</div>
         <div className="flex gap-2 flex-wrap">
-          {topJobs.map(j => <button key={j} onClick={() => onSelectJob(j)} className="px-3 py-2 rounded-lg border border-[var(--accent-primary)]/20 bg-[rgba(212,134,10,0.06)] text-[15px] font-semibold text-[var(--accent-primary)] transition-all hover:border-[var(--accent-primary)]/40 hover:translate-y-[-1px]">{j}</button>)}
+          {topJobs.map(j => <button key={j} onClick={() => onSelectJob(j)} className="px-3 py-2 rounded-lg border border-[var(--accent-primary)]/20 bg-[rgba(34,211,238,0.06)] text-[15px] font-semibold text-[var(--accent-primary)] transition-all hover:border-[var(--accent-primary)]/40 hover:translate-y-[-1px]">{j}</button>)}
         </div>
       </div>}
 
@@ -522,7 +522,7 @@ Rules:
         {(["all", "not-analyzed", "in-progress", "complete"] as const).map(s => {
           const labels: Record<string, string> = { all: "All", "not-analyzed": "Not analyzed", "in-progress": "In progress", complete: "Complete" };
           const isActive = statusFilter === s;
-          return <button key={s} onClick={() => setStatusFilter(s)} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold border transition-all" style={{ background: isActive ? "rgba(212,134,10,0.1)" : "var(--surface-2)", borderColor: isActive ? "var(--accent-primary)" : "var(--border)", color: isActive ? "var(--accent-primary)" : "var(--text-secondary)" }}><Filter size={12} className="inline mr-1" />{labels[s]}</button>;
+          return <button key={s} onClick={() => setStatusFilter(s)} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold border transition-all" style={{ background: isActive ? "rgba(34,211,238,0.1)" : "var(--surface-2)", borderColor: isActive ? "var(--accent-primary)" : "var(--border)", color: isActive ? "var(--accent-primary)" : "var(--text-secondary)" }}><Filter size={12} className="inline mr-1" />{labels[s]}</button>;
         })}
       </div>
 
@@ -532,7 +532,7 @@ Rules:
         <div className="flex gap-2 flex-wrap">
           {[...inProgressJobs, ...completedJobs].slice(0, 6).map(j => {
             const st = jobStates[j]; const done = st?.finalized;
-            return <button key={j} onClick={() => onSelectJob(j)} className="px-3 py-2 rounded-lg border text-[15px] font-semibold transition-all hover:border-[var(--accent-primary)]/40 flex items-center gap-1" style={{ background: done ? "rgba(16,185,129,0.06)" : "rgba(212,134,10,0.06)", borderColor: done ? "rgba(16,185,129,0.2)" : "rgba(212,134,10,0.2)", color: done ? "var(--success)" : "var(--accent-primary)" }}>
+            return <button key={j} onClick={() => onSelectJob(j)} className="px-3 py-2 rounded-lg border text-[15px] font-semibold transition-all hover:border-[var(--accent-primary)]/40 flex items-center gap-1" style={{ background: done ? "rgba(52,211,153,0.06)" : "rgba(34,211,238,0.06)", borderColor: done ? "rgba(52,211,153,0.2)" : "rgba(34,211,238,0.2)", color: done ? "var(--success)" : "var(--accent-primary)" }}>
               {done ? <Check size={14} /> : <span>&#9684;</span>}{j}
             </button>;
           })}
@@ -568,7 +568,7 @@ Rules:
         {steps.map((s, si) => {
           const isActive = wdTab === s.id;
           const canGo = si === 0 || steps[si - 1].done;
-          return <button key={s.id} onClick={() => canGo && setWdTab(s.id)} className="w-full text-left px-3 py-2 rounded-lg text-[15px] transition-all flex items-center gap-2" style={{ background: isActive ? "rgba(212,134,10,0.1)" : "transparent", color: isActive ? "var(--accent-primary)" : canGo ? "var(--text-secondary)" : "var(--text-muted)", cursor: canGo ? "pointer" : "not-allowed", opacity: canGo ? 1 : 0.4 }}>
+          return <button key={s.id} onClick={() => canGo && setWdTab(s.id)} className="w-full text-left px-3 py-2 rounded-lg text-[15px] transition-all flex items-center gap-2" style={{ background: isActive ? "rgba(34,211,238,0.1)" : "transparent", color: isActive ? "var(--accent-primary)" : canGo ? "var(--text-secondary)" : "var(--text-muted)", cursor: canGo ? "pointer" : "not-allowed", opacity: canGo ? 1 : 0.4 }}>
             <span className="w-5 h-5 rounded-full flex items-center justify-center text-[14px] font-bold shrink-0" style={{ background: s.done ? "var(--success)" : isActive ? "var(--accent-primary)" : "var(--surface-2)", color: s.done || isActive ? "#fff" : "var(--text-muted)", border: `1.5px solid ${s.done ? "var(--success)" : isActive ? "var(--accent-primary)" : "var(--border)"}` }}>{s.done ? <Check size={12} /> : si + 1}</span>
             <span className="font-semibold truncate">{s.label}</span>
           </button>;
@@ -689,13 +689,13 @@ Rules:
             <span className="text-[15px] text-[var(--text-muted)]">{js.deconRows.length} tasks · {totalEstHours}h/wk</span>
             <div className="flex gap-2">
               <button onClick={generateTasks} disabled={aiGenerating || js.finalized} className={`px-3 py-1.5 rounded-md text-[15px] font-semibold transition-all inline-flex items-center gap-1 ${aiGenerating ? "animate-pulse" : ""}`} style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", color: "#fff", opacity: aiGenerating || js.finalized ? 0.5 : 1 }}><Sparkle size={14} />{aiGenerating ? "Generating..." : "Auto-Generate Tasks"}</button>
-              {dictEntries.length > 0 && <button onClick={() => setShowTaskDict(d => !d)} className="px-3 py-1.5 rounded-md text-[15px] font-semibold bg-[rgba(139,92,246,0.1)] border border-[rgba(139,92,246,0.3)] text-[var(--purple)] inline-flex items-center gap-1" style={{ opacity: js.finalized ? 0.5 : 1 }}><BookOpen size={14} /> Dictionary ({dictEntries.length})</button>}
+              {dictEntries.length > 0 && <button onClick={() => setShowTaskDict(d => !d)} className="px-3 py-1.5 rounded-md text-[15px] font-semibold bg-[rgba(167,139,250,0.1)] border border-[rgba(167,139,250,0.3)] text-[var(--purple)] inline-flex items-center gap-1" style={{ opacity: js.finalized ? 0.5 : 1 }}><BookOpen size={14} /> Dictionary ({dictEntries.length})</button>}
               <button onClick={() => { const maxId = js.deconRows.reduce((m, r) => { const n = parseInt(String(r["Task ID"] || "T0").replace("T", ""), 10); return n > m ? n : m; }, 0); setJobState(job, { deconRows: [...js.deconRows, { "Task ID": `T${String(maxId + 1).padStart(3, "0")}`, "Task Name": "", Workstream: "", "AI Impact": "Low", "Est Hours/Week": 0, "Current Time Spent %": 0, "Time Saved %": 0, "Task Type": "Variable", Interaction: "Interactive", Logic: "Probabilistic", "Primary Skill": "", "Secondary Skill": "" }], deconSubmitted: false, redeploySubmitted: false, finalized: false, recon: null, redeployRows: [] }); }} className="px-3 py-1.5 bg-[var(--surface-3)] rounded-md text-[15px] font-semibold text-[var(--text-secondary)] inline-flex items-center gap-1"><Plus size={14} /> Add Task</button>
               <button disabled={!deconValid || js.finalized} onClick={() => { setJobState(job, { deconSubmitted: true, redeploySubmitted: false, finalized: false, recon: null, redeployRows: [] }); setWdTab("redeploy"); }} className={`px-3 py-1.5 rounded-md text-[15px] font-semibold ${!deconValid || js.finalized ? "bg-[var(--border)] text-[var(--text-muted)]" : "bg-[var(--accent-primary)] text-white hover:opacity-90"}`}>{js.deconSubmitted ? "Update" : "Submit"} Deconstruction</button>
             </div>
           </div>
           {/* Task Dictionary Panel */}
-          {showTaskDict && dictEntries.length > 0 && <div className="mb-4 rounded-xl border border-[rgba(139,92,246,0.3)] bg-[rgba(139,92,246,0.04)] p-4">
+          {showTaskDict && dictEntries.length > 0 && <div className="mb-4 rounded-xl border border-[rgba(167,139,250,0.3)] bg-[rgba(167,139,250,0.04)] p-4">
             <div className="flex items-center justify-between mb-3">
               <div className="text-[15px] font-bold text-[var(--purple)] flex items-center gap-2"><BookOpen size={16} /> Task Dictionary — {job}</div>
               <button onClick={() => setShowTaskDict(false)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] cursor-pointer"><X size={16} /></button>

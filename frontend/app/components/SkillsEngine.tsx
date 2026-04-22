@@ -27,7 +27,7 @@ const SKILL_TABS = [
 ];
 
 const CAT_COLORS: Record<string, string> = {
-  technical: "#3B82F6", functional: "#F59E0B", leadership: "#8B5CF6", adaptive: "#10B981",
+  technical: "#22d3ee", functional: "#fbbf24", leadership: "#a78bfa", adaptive: "#34d399",
 };
 
 const PROFICIENCY_LEVELS = [
@@ -338,7 +338,7 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
                           <td className="px-3 py-2">
                             <div className="flex items-center gap-2">
                               {pctBar(Number(s.automation_risk || 0), "var(--warning)")}
-                              <span className="text-[13px] text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}>{Number(s.automation_risk || 0)}%</span>
+                              <span className="text-[13px] text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{Number(s.automation_risk || 0)}%</span>
                             </div>
                           </td>
                           <td className="px-3 py-2 text-[15px] text-[var(--text-secondary)]">{String(s.transferability || "Medium")}</td>
@@ -474,7 +474,7 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
                 <div className="space-y-3">
                   <div className="flex items-center gap-4">
                     <span className="text-[15px] text-[var(--text-secondary)]">Proficiency data coverage:</span>
-                    <span className="text-[20px] font-bold text-[var(--accent-primary)]" style={{ fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}>{coverage}%</span>
+                    <span className="text-[20px] font-bold text-[var(--accent-primary)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{coverage}%</span>
                     <span className="text-[13px] text-[var(--text-muted)]">({withProf} of {skills.length} skills)</span>
                   </div>
                   {pctBar(coverage, "var(--accent-primary)", 300)}
@@ -581,7 +581,7 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
                               fill={catColor(n.category)} stroke={matchesSearch ? "#fff" : "none"} strokeWidth={matchesSearch ? 2 : 0} />
                           )}
                           {(r > 10 || graphSelectedNode === n.id || matchesSearch) && (
-                            <text x={n.x} y={n.y + r + 14} textAnchor="middle" fill="var(--text-secondary)" fontSize={12} fontFamily="'Outfit', sans-serif">
+                            <text x={n.x} y={n.y + r + 14} textAnchor="middle" fill="var(--text-secondary)" fontSize={12} fontFamily="'Inter Tight', sans-serif">
                               {n.label.length > 18 ? n.label.slice(0, 16) + "\u2026" : n.label}
                             </text>
                           )}
@@ -670,7 +670,7 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
                             const met = typeof val === "object" && val !== null ? Number((val as Record<string, unknown>).met || 0) : 0;
                             return <div key={cat} className="p-3 rounded-lg border border-[var(--border)] text-center" style={{ background: `${hColor}15` }}>
                               <div className="text-[13px] text-[var(--text-muted)] mb-1">{cat}</div>
-                              <div className="text-[20px] font-bold" style={{ color: hColor, fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}>{pct.toFixed(1)}%</div>
+                              <div className="text-[20px] font-bold" style={{ color: hColor, fontFamily: "'JetBrains Mono', monospace" }}>{pct.toFixed(1)}%</div>
                               {total > 0 && <div className="text-[9px] text-[var(--text-muted)] mt-1">{met}/{total} skills met</div>}
                             </div>;
                           })}
@@ -775,7 +775,7 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
                             <td className="px-3 py-2">
                               <div className="flex items-center gap-2">
                                 {pctBar(Number(s.proximity || Math.random() * 80 + 20), "var(--success)")}
-                                <span className="text-[13px] text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}>{Math.round(Number(s.proximity || Math.random() * 80 + 20))}%</span>
+                                <span className="text-[13px] text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{Math.round(Number(s.proximity || Math.random() * 80 + 20))}%</span>
                               </div>
                             </td>
                             <td className="px-3 py-2"><Badge color={catColor(String(s.category || ""))}>{String(s.category || "")}</Badge></td>
@@ -801,10 +801,10 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
                     <div>
                       {/* Quadrant labels */}
                       <div className="grid grid-cols-2 gap-2 mb-3">
-                        <div className="text-center text-[13px] text-[var(--text-muted)] py-1 rounded" style={{ background: "rgba(239,68,68,0.1)" }}>Phase Out (High Risk, Low Importance)</div>
-                        <div className="text-center text-[13px] text-[var(--text-muted)] py-1 rounded" style={{ background: "rgba(245,158,11,0.1)" }}>Augment (High Risk, High Importance)</div>
+                        <div className="text-center text-[13px] text-[var(--text-muted)] py-1 rounded" style={{ background: "rgba(251,113,133,0.1)" }}>Phase Out (High Risk, Low Importance)</div>
+                        <div className="text-center text-[13px] text-[var(--text-muted)] py-1 rounded" style={{ background: "rgba(251,191,36,0.1)" }}>Augment (High Risk, High Importance)</div>
                         <div className="text-center text-[13px] text-[var(--text-muted)] py-1 rounded" style={{ background: "rgba(107,114,128,0.1)" }}>Maintain (Low Risk, Low Importance)</div>
-                        <div className="text-center text-[13px] text-[var(--text-muted)] py-1 rounded" style={{ background: "rgba(16,185,129,0.1)" }}>Protect (Low Risk, High Importance)</div>
+                        <div className="text-center text-[13px] text-[var(--text-muted)] py-1 rounded" style={{ background: "rgba(52,211,153,0.1)" }}>Protect (Low Risk, High Importance)</div>
                       </div>
                       {/* Scatter plot */}
                       <div className="flex justify-center">
@@ -854,7 +854,7 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
               <svg width={700} height={320} style={{ overflow: "visible" }}>
                 {/* Center hub */}
                 <rect x={300} y={130} width={100} height={50} rx={10} fill="var(--accent-primary)" />
-                <text x={350} y={160} textAnchor="middle" fill="#fff" fontSize={13} fontWeight={700} fontFamily="'Outfit', sans-serif">Skills Engine</text>
+                <text x={350} y={160} textAnchor="middle" fill="#fff" fontSize={13} fontWeight={700} fontFamily="'Inter Tight', sans-serif">Skills Engine</text>
                 {/* Module boxes */}
                 {INTEGRATION_MODULES.map((mod, i) => {
                   const angle = (i / INTEGRATION_MODULES.length) * Math.PI * 2 - Math.PI / 2;
@@ -865,7 +865,7 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
                     <g key={mod}>
                       <line x1={350} y1={155} x2={cx} y2={cy} stroke="var(--border)" strokeWidth={1.5} markerEnd="url(#arrowhead)" />
                       <rect x={cx - bw / 2} y={cy - bh / 2} width={bw} height={bh} rx={8} fill="var(--surface-2)" stroke="var(--border)" strokeWidth={1} />
-                      <text x={cx} y={cy + 4} textAnchor="middle" fill="var(--text-secondary)" fontSize={12} fontFamily="'Outfit', sans-serif">{mod}</text>
+                      <text x={cx} y={cy + 4} textAnchor="middle" fill="var(--text-secondary)" fontSize={12} fontFamily="'Inter Tight', sans-serif">{mod}</text>
                     </g>
                   );
                 })}
@@ -946,17 +946,17 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
               return (
                 <div className="grid grid-cols-3 gap-4">
                   <div className="p-4 rounded-xl border border-[var(--border)] bg-[var(--surface-2)] text-center">
-                    <div className="text-[32px] font-bold text-[var(--warning)]" style={{ fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}>{orphans}</div>
+                    <div className="text-[32px] font-bold text-[var(--warning)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{orphans}</div>
                     <div className="text-[14px] text-[var(--text-muted)]">Orphan Skills</div>
                     <div className="text-[12px] text-[var(--text-muted)] mt-1">Not mapped to any job</div>
                   </div>
                   <div className="p-4 rounded-xl border border-[var(--border)] bg-[var(--surface-2)] text-center">
-                    <div className="text-[32px] font-bold text-[var(--risk)]" style={{ fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}>{stale}</div>
+                    <div className="text-[32px] font-bold text-[var(--risk)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{stale}</div>
                     <div className="text-[14px] text-[var(--text-muted)]">Stale Mappings</div>
                     <div className="text-[12px] text-[var(--text-muted)] mt-1">Declining skills with low usage</div>
                   </div>
                   <div className="p-4 rounded-xl border border-[var(--border)] bg-[var(--surface-2)] text-center">
-                    <div className="text-[32px] font-bold" style={{ color: "var(--accent-primary)", fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}>{missingAnchors}</div>
+                    <div className="text-[32px] font-bold" style={{ color: "var(--accent-primary)", fontFamily: "'JetBrains Mono', monospace" }}>{missingAnchors}</div>
                     <div className="text-[14px] text-[var(--text-muted)]">Missing Proficiency Anchors</div>
                     <div className="text-[12px] text-[var(--text-muted)] mt-1">No current proficiency data</div>
                   </div>

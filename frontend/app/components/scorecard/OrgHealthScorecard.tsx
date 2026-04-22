@@ -47,15 +47,15 @@ interface Props {
    ═══════════════════════════════════════════════════════════════ */
 
 const DIM_CONFIG: Record<string, { label: string; icon: string; color: string }> = {
-  structural_clarity: { label: "Structural Clarity", icon: "◆", color: "#3B82F6" },
-  span_layer_discipline: { label: "Span & Layer", icon: "◇", color: "#8B5CF6" },
+  structural_clarity: { label: "Structural Clarity", icon: "◆", color: "#22d3ee" },
+  span_layer_discipline: { label: "Span & Layer", icon: "◇", color: "#a78bfa" },
   leveling_integrity: { label: "Leveling Integrity", icon: "◈", color: "#14B8A6" },
-  workforce_composition: { label: "Workforce Composition", icon: "◉", color: "#F97316" },
+  workforce_composition: { label: "Workforce Composition", icon: "◉", color: "#fbbf24" },
   career_mobility: { label: "Career Mobility", icon: "◎", color: "#22C55E" },
-  transformation_readiness: { label: "Transformation Readiness", icon: "◍", color: "#EF4444" },
+  transformation_readiness: { label: "Transformation Readiness", icon: "◍", color: "#fb7185" },
 };
 
-const STATUS_COLORS: Record<string, string> = { green: "#22C55E", amber: "#F59E0B", red: "#EF4444" };
+const STATUS_COLORS: Record<string, string> = { green: "#22C55E", amber: "#fbbf24", red: "#fb7185" };
 
 /* ═══════════════════════════════════════════════════════════════
    STYLES
@@ -68,10 +68,10 @@ const S = {
   subtitle: { fontSize: "var(--text-xs)", color: "var(--text-muted)", marginTop: 2 } as React.CSSProperties,
   heroScore: { display: "flex", alignItems: "center", gap: 20, padding: "24px 28px", background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 12, marginBottom: 20 } as React.CSSProperties,
   scoreRing: (score: number) => {
-    const color = score >= 70 ? "#22C55E" : score >= 40 ? "#F59E0B" : "#EF4444";
+    const color = score >= 70 ? "#22C55E" : score >= 40 ? "#fbbf24" : "#fb7185";
     return { width: 90, height: 90, borderRadius: "50%", border: `4px solid ${color}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 } as React.CSSProperties;
   },
-  scoreNum: (score: number) => ({ fontSize: 32, fontWeight: 700, fontFamily: "var(--ff-mono)", color: score >= 70 ? "#22C55E" : score >= 40 ? "#F59E0B" : "#EF4444" }) as React.CSSProperties,
+  scoreNum: (score: number) => ({ fontSize: 32, fontWeight: 700, fontFamily: "var(--ff-mono)", color: score >= 70 ? "#22C55E" : score >= 40 ? "#fbbf24" : "#fb7185" }) as React.CSSProperties,
   scoreLabel: { fontSize: "var(--text-sm)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)" } as React.CSSProperties,
   scoreSub: { fontSize: "var(--text-xs)", color: "var(--text-muted)", marginTop: 2 } as React.CSSProperties,
   issueList: { display: "flex", gap: 12, flex: 1, marginLeft: 24 } as React.CSSProperties,
@@ -82,7 +82,7 @@ const S = {
   card: (color: string) => ({ background: "var(--surface-1)", border: "1px solid var(--border)", borderTop: `3px solid ${color}`, borderRadius: 10, padding: "18px 20px" }) as React.CSSProperties,
   cardHeader: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 } as React.CSSProperties,
   cardTitle: { fontSize: "var(--text-sm)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)", display: "flex", alignItems: "center", gap: 6 } as React.CSSProperties,
-  cardScore: (score: number) => ({ fontSize: 22, fontWeight: 700, fontFamily: "var(--ff-mono)", color: score >= 70 ? "#22C55E" : score >= 40 ? "#F59E0B" : "#EF4444" }) as React.CSSProperties,
+  cardScore: (score: number) => ({ fontSize: 22, fontWeight: 700, fontFamily: "var(--ff-mono)", color: score >= 70 ? "#22C55E" : score >= 40 ? "#fbbf24" : "#fb7185" }) as React.CSSProperties,
   metricRow: { display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: "1px solid var(--border)", fontSize: "var(--text-xs)" } as React.CSSProperties,
   metricName: { flex: 1, color: "var(--text-secondary)" } as React.CSSProperties,
   metricValue: { fontFamily: "var(--ff-mono)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)", minWidth: 50, textAlign: "right" as const } as React.CSSProperties,
@@ -91,7 +91,7 @@ const S = {
   snapList: { background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 10, padding: "16px 20px" } as React.CSSProperties,
   snapRow: { display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: "1px solid var(--border)", fontSize: "var(--text-xs)", cursor: "pointer" } as React.CSSProperties,
   btn: { display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 14px", fontSize: 11, fontWeight: "var(--fw-medium)", border: "1px solid var(--border)", borderRadius: 6, background: "var(--surface-2)", color: "var(--text-secondary)", cursor: "pointer" } as React.CSSProperties,
-  btnPrimary: { display: "inline-flex", alignItems: "center", gap: 4, padding: "7px 16px", fontSize: 11, fontWeight: "var(--fw-semi)", border: "none", borderRadius: 6, background: "#3B82F6", color: "#fff", cursor: "pointer" } as React.CSSProperties,
+  btnPrimary: { display: "inline-flex", alignItems: "center", gap: 4, padding: "7px 16px", fontSize: 11, fontWeight: "var(--fw-semi)", border: "none", borderRadius: 6, background: "#22d3ee", color: "#fff", cursor: "pointer" } as React.CSSProperties,
 };
 
 /* ═══════════════════════════════════════════════════════════════
@@ -210,7 +210,7 @@ export default function OrgHealthScorecard({ model, projectId }: Props) {
                 </div>
               ))}
               {dim.metrics.length > 3 && (
-                <button style={{ background: "none", border: "none", fontSize: 11, color: "#3B82F6", cursor: "pointer", marginTop: 6, padding: 0 }}
+                <button style={{ background: "none", border: "none", fontSize: 11, color: "#22d3ee", cursor: "pointer", marginTop: 6, padding: 0 }}
                   onClick={() => setExpandedDim(isExpanded ? null : key)}>
                   {isExpanded ? "Show less" : `+${dim.metrics.length - 3} more metrics`}
                 </button>
@@ -229,7 +229,7 @@ export default function OrgHealthScorecard({ model, projectId }: Props) {
           {snapshots.slice(0, 10).map(snap => (
             <div key={snap.id} style={S.snapRow}>
               <span style={{ fontWeight: "var(--fw-medium)", color: "var(--text-primary)", flex: 1 }}>{snap.tag}</span>
-              <span style={{ fontFamily: "var(--ff-mono)", fontWeight: "var(--fw-bold)", color: snap.overall_score >= 70 ? "#22C55E" : snap.overall_score >= 40 ? "#F59E0B" : "#EF4444" }}>{Math.round(snap.overall_score)}</span>
+              <span style={{ fontFamily: "var(--ff-mono)", fontWeight: "var(--fw-bold)", color: snap.overall_score >= 70 ? "#22C55E" : snap.overall_score >= 40 ? "#fbbf24" : "#fb7185" }}>{Math.round(snap.overall_score)}</span>
               <span style={{ fontSize: 11, color: "var(--text-muted)", minWidth: 80 }}>{new Date(snap.created_at).toLocaleDateString()}</span>
               <ChevronRight size={12} style={{ color: "var(--text-muted)" }} />
             </div>

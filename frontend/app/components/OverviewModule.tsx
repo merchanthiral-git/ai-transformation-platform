@@ -108,7 +108,7 @@ export function TransformationDashboard({ data, jobStates, simState, viewCtx }: 
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
       {kpis.map(k => <div key={k.label} className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl px-3 py-3 text-center">
         <div className="text-[16px] mb-1">{k.icon}</div>
-        <div className="text-[18px] font-extrabold" style={{ color: k.color, fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace", fontWeight: 700 }}>{typeof k.value === "object" && k.value !== null ? String(k.value) : k.value}</div>
+        <div className="text-[18px] font-extrabold" style={{ color: k.color, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>{typeof k.value === "object" && k.value !== null ? String(k.value) : k.value}</div>
         <div className="text-[15px] text-[var(--text-muted)] font-semibold uppercase tracking-wider">{k.label}</div>
       </div>)}
     </div>
@@ -198,7 +198,7 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
               <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase" as const, color: phase.color, background: `${phase.color}12`, padding: "3px 12px", borderRadius: 10 }}>Phase {pi + 1} of 5</span>
               {exploredCount > 0 && <span className="text-[15px] text-[var(--text-muted)]">{exploredCount}/{phaseMods.length} explored</span>}
             </div>
-            <h2 style={{ fontSize: 32, fontWeight: 800, fontFamily: "'Outfit', sans-serif", color: "var(--text-primary)", lineHeight: 1.1 }}>{phase.label}</h2>
+            <h2 style={{ fontSize: 32, fontWeight: 800, fontFamily: "'Inter Tight', sans-serif", color: "var(--text-primary)", lineHeight: 1.1 }}>{phase.label}</h2>
           </div>
         </div>
         <p className="text-[15px] text-[var(--text-secondary)] mb-2 max-w-2xl leading-relaxed">{(phase as Record<string, unknown>).guidance as string}</p>
@@ -237,7 +237,7 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
                     <div style={{ fontSize: 48, filter: `drop-shadow(0 4px 12px rgba(0,0,0,0.5))`, lineHeight: 1 }}>{m.icon}</div>
                     {statusLabel && <div className="flex items-center gap-1.5 shrink-0"><div className="w-2 h-2 rounded-full" style={{ background: statusColor }} /><span className="text-[14px] font-bold uppercase" style={{ color: statusColor, textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>{statusLabel}</span></div>}
                   </div>
-                  <div style={{ fontSize: 20, fontWeight: 700, fontFamily: "'Outfit', sans-serif", color: "#ffffff", marginBottom: 6, textShadow: "0 1px 6px rgba(0,0,0,0.5)" }}>{mTitle}</div>
+                  <div style={{ fontSize: 20, fontWeight: 700, fontFamily: "'Inter Tight', sans-serif", color: "#ffffff", marginBottom: 6, textShadow: "0 1px 6px rgba(0,0,0,0.5)" }}>{mTitle}</div>
                   <div style={{ fontSize: 15, color: "rgba(255,255,255,0.65)", lineHeight: 1.6, textShadow: "0 1px 4px rgba(0,0,0,0.4)" }}>{mDesc}</div>
                 </div>
                 <div className="mt-4 flex items-center gap-2 text-[15px] font-semibold transition-all group-hover:gap-3" style={{ color: m.color, textShadow: "0 1px 4px rgba(0,0,0,0.4)" }}>
@@ -284,9 +284,9 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
           {projectName}
         </button>}
         {onBackToSplash && <span style={{ opacity: 0.3 }}>/</span>}
-        <span style={{ color: "rgba(212,134,10,0.7)", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>Journey</span>
+        <span style={{ color: "rgba(34,211,238,0.7)", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>Journey</span>
       </div>
-      <h1 style={{ fontSize: 32, fontWeight: 800, fontFamily: "'Outfit', sans-serif", color: "#fff", textShadow: "0 2px 12px rgba(0,0,0,0.6)" }}>Your Transformation Journey</h1>
+      <h1 style={{ fontSize: 32, fontWeight: 800, fontFamily: "'Inter Tight', sans-serif", color: "#fff", textShadow: "0 2px 12px rgba(0,0,0,0.6)" }}>Your Transformation Journey</h1>
       <p style={{ fontSize: 15, color: "rgba(255,255,255,0.5)", textShadow: "0 1px 6px rgba(0,0,0,0.4)" }}>Click a milestone to explore its modules</p>
     </div>
 
@@ -303,13 +303,13 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
           pointerEvents: "auto", cursor: "pointer",
         }}>
           {/* Icon image with solid navy circle background */}
-          <div className="milestone-icon" style={{ width: 96, height: 96, borderRadius: "50%", background: "#1C2B3A", display: "flex", alignItems: "center", justifyContent: "center", filter: isCurrent ? "drop-shadow(0 0 16px rgba(212,134,10,0.5))" : isReached ? "drop-shadow(0 4px 16px rgba(0,0,0,0.5))" : "grayscale(0.5) drop-shadow(0 4px 16px rgba(0,0,0,0.5))", transition: "transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease" }}>
+          <div className="milestone-icon" style={{ width: 96, height: 96, borderRadius: "50%", background: "#05070d", display: "flex", alignItems: "center", justifyContent: "center", filter: isCurrent ? "drop-shadow(0 0 16px rgba(34,211,238,0.5))" : isReached ? "drop-shadow(0 4px 16px rgba(0,0,0,0.5))" : "grayscale(0.5) drop-shadow(0 4px 16px rgba(0,0,0,0.5))", transition: "transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease" }}>
             <img src={cb(`${CDN_BASE}/icon_${phase.id}.png`)} alt={phase.label} style={{ width: 96, height: 96, objectFit: "contain", borderRadius: "50%" }} />
           </div>
           {/* Label — frosted navy pill */}
           <div className="milestone-label" style={{ position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)", width: 180, textAlign: "center", marginTop: 12, transition: "filter 0.2s ease" }}>
             <div style={{ display: "inline-block", padding: "10px 18px", borderRadius: 14, background: "rgba(28,43,58,0.7)", backdropFilter: "blur(12px)", border: "1px solid rgba(212,168,67,0.2)" }}>
-              <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "'Outfit', sans-serif", color: "#FFFFFF" }}>{phase.label}</div>
+              <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "'Inter Tight', sans-serif", color: "#FFFFFF" }}>{phase.label}</div>
               <div style={{ fontSize: 13, fontWeight: 500, color: "rgba(255,255,255,0.8)", marginTop: 2 }}>{phase.desc}</div>
             </div>
           </div>
@@ -319,7 +319,7 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
 
     {/* Bottom: CTA + progress */}
     <div className="absolute bottom-0 left-0 right-0 text-center pb-6 pt-10" style={{ zIndex: 5, background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)" }}>
-      <button onClick={() => setSelectedPhase(PHASES[activeIdx].id)} className="transition-all hover:translate-y-[-2px] mb-3" style={{ padding: "14px 40px", borderRadius: 14, fontSize: 16, fontWeight: 700, color: "#fff", background: "rgba(212,134,10,0.15)", backdropFilter: "blur(12px)", border: "1px solid rgba(212,134,10,0.4)", cursor: "pointer", textShadow: "0 1px 4px rgba(0,0,0,0.4)" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(212,134,10,0.25)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.7)"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(212,134,10,0.15)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.4)"; }}>
+      <button onClick={() => setSelectedPhase(PHASES[activeIdx].id)} className="transition-all hover:translate-y-[-2px] mb-3" style={{ padding: "14px 40px", borderRadius: 14, fontSize: 16, fontWeight: 700, color: "#fff", background: "rgba(34,211,238,0.15)", backdropFilter: "blur(12px)", border: "1px solid rgba(34,211,238,0.4)", cursor: "pointer", textShadow: "0 1px 4px rgba(0,0,0,0.4)" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(34,211,238,0.25)"; e.currentTarget.style.borderColor = "rgba(34,211,238,0.7)"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(34,211,238,0.15)"; e.currentTarget.style.borderColor = "rgba(34,211,238,0.4)"; }}>
         {activeIdx === 0 ? "Begin with Discovery \u2192" : `Continue ${PHASES[activeIdx].label} \u2192`}
       </button>
       <div className="inline-flex items-center gap-4 px-5 py-2 rounded-full" style={{ background: "rgba(0,0,0,0.3)", backdropFilter: "blur(4px)" }}>
@@ -332,7 +332,7 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
     </div>
 
     <style>{`
-      @keyframes nodePulse { 0%,100% { box-shadow: 0 0 24px rgba(212,134,10,0.2), 0 0 48px rgba(212,134,10,0.08); } 50% { box-shadow: 0 0 32px rgba(212,134,10,0.3), 0 0 64px rgba(212,134,10,0.12); } }
+      @keyframes nodePulse { 0%,100% { box-shadow: 0 0 24px rgba(34,211,238,0.2), 0 0 48px rgba(34,211,238,0.08); } 50% { box-shadow: 0 0 32px rgba(34,211,238,0.3), 0 0 64px rgba(34,211,238,0.12); } }
       .milestone-btn:hover .milestone-icon { transform: scale(1.1); box-shadow: 0 0 20px rgba(212,168,67,0.4); filter: brightness(1.1) drop-shadow(0 0 16px rgba(212,168,67,0.4)) !important; }
       .milestone-btn:hover .milestone-label { filter: brightness(1.15); }
     `}</style>
@@ -421,7 +421,7 @@ export function EmployeeOrgChart({ employee, model, f }: { employee: string; mod
       {/* Skip level */}
       {skip && <><PersonNode name={skip.name} title={skip.title} color="var(--surface-3)" /><div className="w-px h-4 bg-[var(--border)]" /></>}
       {/* Manager */}
-      {mgr && <><PersonNode name={mgr.name} title={mgr.title} color="rgba(212,134,10,0.3)" /><div className="w-px h-4 bg-[var(--border)]" /></>}
+      {mgr && <><PersonNode name={mgr.name} title={mgr.title} color="rgba(34,211,238,0.3)" /><div className="w-px h-4 bg-[var(--border)]" /></>}
       {/* Self + peers row */}
       <div className="flex items-start gap-6">
         {peers.slice(0, 2).map((p, i) => <PersonNode key={i} name={p.name} title={p.title} />)}
@@ -455,7 +455,7 @@ export function PersonalImpactCard({ employee, jobStates, simState }: { employee
         <div className="text-[15px] text-[var(--text-muted)]">new skills you will develop</div>
       </div>
     </div>
-    <div className="mt-4 bg-[rgba(16,185,129,0.06)] border border-[var(--success)]/20 rounded-xl p-4">
+    <div className="mt-4 bg-[rgba(52,211,153,0.06)] border border-[var(--success)]/20 rounded-xl p-4">
       <div className="text-[15px] text-[var(--text-secondary)] leading-relaxed">Under the <strong className="text-[var(--text-primary)]">{simState.scenario || "Balanced"}</strong> scenario, your role will evolve. Repetitive tasks will be automated, freeing your time for strategic work, relationship building, and innovation. You will receive training on new AI tools relevant to your function.</div>
     </div>
   </Card>;
@@ -592,7 +592,7 @@ export function TransformationExecDashboard({ model, f, onBack, onNavigate, deci
         { label: "Decisions Made", value: String(transformationSummary.decisionCount), color: "#0891B2" },
         { label: "Open Risks", value: String(transformationSummary.openRiskCount), color: transformationSummary.openRiskCount > 3 ? "var(--risk)" : "var(--success)" },
       ].map(m => <div key={m.label} className="rounded-xl p-3 text-center border" style={{ borderColor: `${m.color}20`, background: `${m.color}06` }}>
-        <div className="text-[20px] font-extrabold" style={{ color: m.color, fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace", fontWeight: 700 }}>{m.value}</div>
+        <div className="text-[20px] font-extrabold" style={{ color: m.color, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>{m.value}</div>
         <div className="text-[13px] text-[var(--text-muted)] uppercase">{m.label}</div>
       </div>)}
     </div>}
@@ -600,10 +600,10 @@ export function TransformationExecDashboard({ model, f, onBack, onNavigate, deci
     {/* Investment overview */}
     <Card title="Investment & ROI Summary">
       <div className="grid grid-cols-4 gap-4">
-        <div className="rounded-xl p-4 text-center border border-[var(--border)] bg-[var(--surface-2)]"><div className="text-[15px] text-[var(--text-muted)] uppercase mb-1">Total Investment</div><div className="text-[24px] font-extrabold text-[var(--text-primary)]" style={{ fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace", fontWeight: 700 }}>{fmtNum(Number(bbba.total_investment) || 0)}</div></div>
-        <div className="rounded-xl p-4 text-center border border-[var(--border)] bg-[var(--surface-2)]"><div className="text-[15px] text-[var(--text-muted)] uppercase mb-1">Reskilling</div><div className="text-[24px] font-extrabold text-[var(--success)]" style={{ fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace", fontWeight: 700 }}>{fmtNum(Number(typeof bbba.reskilling_investment === "object" ? reskill.total_investment : (bbba.reskilling_investment || reskill.total_investment)) || 0)}</div></div>
-        <div className="rounded-xl p-4 text-center border border-[var(--border)] bg-[var(--surface-2)]"><div className="text-[15px] text-[var(--text-muted)] uppercase mb-1">Hiring</div><div className="text-[24px] font-extrabold text-[var(--accent-primary)]" style={{ fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace", fontWeight: 700 }}>{fmtNum(Number(bbba.hiring_cost) || 0)}</div></div>
-        <div className="rounded-xl p-4 text-center border border-[var(--border)] bg-[var(--surface-2)]"><div className="text-[15px] text-[var(--text-muted)] uppercase mb-1">Manager Dev</div><div className="text-[24px] font-extrabold text-[var(--purple)]" style={{ fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace", fontWeight: 700 }}>{fmtNum(Number((data?.manager_summary as Record<string,unknown>)?.total_investment) || 0)}</div></div>
+        <div className="rounded-xl p-4 text-center border border-[var(--border)] bg-[var(--surface-2)]"><div className="text-[15px] text-[var(--text-muted)] uppercase mb-1">Total Investment</div><div className="text-[24px] font-extrabold text-[var(--text-primary)]" style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>{fmtNum(Number(bbba.total_investment) || 0)}</div></div>
+        <div className="rounded-xl p-4 text-center border border-[var(--border)] bg-[var(--surface-2)]"><div className="text-[15px] text-[var(--text-muted)] uppercase mb-1">Reskilling</div><div className="text-[24px] font-extrabold text-[var(--success)]" style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>{fmtNum(Number(typeof bbba.reskilling_investment === "object" ? reskill.total_investment : (bbba.reskilling_investment || reskill.total_investment)) || 0)}</div></div>
+        <div className="rounded-xl p-4 text-center border border-[var(--border)] bg-[var(--surface-2)]"><div className="text-[15px] text-[var(--text-muted)] uppercase mb-1">Hiring</div><div className="text-[24px] font-extrabold text-[var(--accent-primary)]" style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>{fmtNum(Number(bbba.hiring_cost) || 0)}</div></div>
+        <div className="rounded-xl p-4 text-center border border-[var(--border)] bg-[var(--surface-2)]"><div className="text-[15px] text-[var(--text-muted)] uppercase mb-1">Manager Dev</div><div className="text-[24px] font-extrabold text-[var(--purple)]" style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>{fmtNum(Number((data?.manager_summary as Record<string,unknown>)?.total_investment) || 0)}</div></div>
       </div>
     </Card>
 
@@ -771,9 +771,9 @@ function UploadIntelligencePanel({ insights, funcDist, onNavigate }: {
   const qualityColor = insights.completeness_pct >= 90 ? "var(--success)" : insights.completeness_pct >= 60 ? "var(--warning)" : "var(--risk)";
   const qualityLabel = insights.completeness_pct >= 90 ? "Complete" : insights.completeness_pct >= 60 ? "Some Gaps" : "Needs Attention";
 
-  return <div className="mb-5 rounded-2xl border overflow-hidden transition-all" style={{ borderColor: "rgba(212,134,10,0.15)", background: "linear-gradient(135deg, rgba(212,134,10,0.03), rgba(232,197,71,0.02))" }}>
+  return <div className="mb-5 rounded-2xl border overflow-hidden transition-all" style={{ borderColor: "rgba(34,211,238,0.15)", background: "linear-gradient(135deg, rgba(34,211,238,0.03), rgba(232,197,71,0.02))" }}>
     {/* Header — always visible */}
-    <button onClick={() => setCollapsed(!collapsed)} className="w-full flex items-center justify-between px-5 py-3 hover:bg-[rgba(212,134,10,0.04)] transition-all">
+    <button onClick={() => setCollapsed(!collapsed)} className="w-full flex items-center justify-between px-5 py-3 hover:bg-[rgba(34,211,238,0.04)] transition-all">
       <div className="flex items-center gap-3">
         <span className="text-lg">🔍</span>
         <div className="text-left">
@@ -958,7 +958,7 @@ export function WorkforceSnapshot({ model, f, onBack, onNavigate, viewCtx }: { m
       <Card title="Workforce Metrics">
         <div className="space-y-3">
           <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-2)]"><span className="text-[15px]">Manager-to-IC Ratio</span><span className="text-[18px] font-extrabold text-[var(--text-primary)]">1:{Math.max(1, Math.round((Number(typeof (data as Record<string, unknown>).employees === "object" ? 1 : ((data as Record<string, unknown>).employees || 1)) * 0.8) / Math.max(Number(typeof (data as Record<string, unknown>).employees === "object" ? 1 : ((data as Record<string, unknown>).employees || 1)) * 0.2, 1)))}</span></div>
-          <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-2)]"><span className="text-[15px]">Avg Span of Control <span className="text-[12px] text-[var(--text-muted)] font-normal">(managers' avg direct reports)</span></span><span className="text-[18px] font-extrabold" style={{ fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace", fontWeight: 700, color: (() => { const v = Math.round(Number(typeof (data as Record<string, unknown>).employees === "object" ? 0 : ((data as Record<string, unknown>).employees || 0)) * 0.8 / Math.max(Number(typeof (data as Record<string, unknown>).employees === "object" ? 0 : ((data as Record<string, unknown>).employees || 0)) * 0.2, 1)); return v >= 6 && v <= 10 ? "var(--success)" : "var(--warning)"; })() }}>{Math.round(Number(typeof (data as Record<string, unknown>).employees === "object" ? 0 : ((data as Record<string, unknown>).employees || 0)) * 0.8 / Math.max(Number(typeof (data as Record<string, unknown>).employees === "object" ? 0 : ((data as Record<string, unknown>).employees || 0)) * 0.2, 1))}</span></div>
+          <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-2)]"><span className="text-[15px]">Avg Span of Control <span className="text-[12px] text-[var(--text-muted)] font-normal">(managers' avg direct reports)</span></span><span className="text-[18px] font-extrabold" style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: (() => { const v = Math.round(Number(typeof (data as Record<string, unknown>).employees === "object" ? 0 : ((data as Record<string, unknown>).employees || 0)) * 0.8 / Math.max(Number(typeof (data as Record<string, unknown>).employees === "object" ? 0 : ((data as Record<string, unknown>).employees || 0)) * 0.2, 1)); return v >= 6 && v <= 10 ? "var(--success)" : "var(--warning)"; })() }}>{Math.round(Number(typeof (data as Record<string, unknown>).employees === "object" ? 0 : ((data as Record<string, unknown>).employees || 0)) * 0.8 / Math.max(Number(typeof (data as Record<string, unknown>).employees === "object" ? 0 : ((data as Record<string, unknown>).employees || 0)) * 0.2, 1))}</span></div>
           <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-2)]"><span className="text-[15px]">AI Readiness Score</span><span className="text-[18px] font-extrabold" style={{color: Number(typeof (data as Record<string, unknown>).readiness === "object" ? 0 : ((data as Record<string, unknown>).readiness || 0)) >= 70 ? "var(--success)" : "var(--warning)"}}>{String(typeof (data as Record<string, unknown>).readiness === "object" ? "—" : ((data as Record<string, unknown>).readiness || "—"))}/100</span></div>
         </div>
       </Card>

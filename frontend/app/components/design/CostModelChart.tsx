@@ -31,10 +31,10 @@ const defaultData: LayerCostData[] = [
 
 /* ── Phase 3: Track-based colors ── */
 const TRACK_COLORS: Record<string, string> = {
-  E: "#1C2B3A",    // Executive: navy
-  M: "#3B82F6",    // Management: blue
+  E: "#05070d",    // Executive: navy
+  M: "#22d3ee",    // Management: blue
   P: "#14B8A6",    // Professional: teal
-  T: "#8B5CF6",    // Technical: purple
+  T: "#a78bfa",    // Technical: purple
   S: "#64748b",    // Support: gray
 };
 
@@ -73,7 +73,7 @@ const TOOLTIP_STYLE: React.CSSProperties = {
   position: "absolute", top: "100%", left: 50, zIndex: 20,
   background: "#FFFFFF", border: "0.5px solid rgba(28,43,58,0.2)",
   borderRadius: 6, padding: 10,
-  fontSize: 11, color: "#1C2B3A", lineHeight: 1.8,
+  fontSize: 11, color: "#05070d", lineHeight: 1.8,
   boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
   whiteSpace: "nowrap", pointerEvents: "none",
 };
@@ -87,7 +87,7 @@ function CostRow({
 }) {
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
-  const trackColor = TRACK_COLORS[row.layer.charAt(0)] || "#3B82F6";
+  const trackColor = TRACK_COLORS[row.layer.charAt(0)] || "#22d3ee";
   const barWidth = maxCost > 0 ? (Math.max(row.currentCost, row.futureCost) / maxCost) * 100 : 0;
 
   const delta = row.deltaCost;
@@ -116,7 +116,7 @@ function CostRow({
         transition: "background 0.15s ease",
         position: "relative",
         minHeight: 40,
-        outline: focused ? "2px solid #3B82F6" : "none",
+        outline: focused ? "2px solid #22d3ee" : "none",
         outlineOffset: 1,
       }}
     >
@@ -131,7 +131,7 @@ function CostRow({
       </div>
 
       {/* HC transition */}
-      <div style={{ fontSize: 12, fontWeight: 500, color: "#1C2B3A" }}>
+      <div style={{ fontSize: 12, fontWeight: 500, color: "#05070d" }}>
         {row.currentHeadcount.toLocaleString()}
         {hcChanged ? (
           <>
@@ -156,7 +156,7 @@ function CostRow({
         {barWidth > 20 && (
           <div style={{
             position: "absolute", left: 8, top: 3, fontSize: 11, fontWeight: 500,
-            color: "#1C2B3A", zIndex: 2,
+            color: "#05070d", zIndex: 2,
           }}>
             {formatCurrency(row.currentCost)}
           </div>
@@ -164,7 +164,7 @@ function CostRow({
       </div>
 
       {/* Future cost */}
-      <div style={{ fontSize: 12, fontWeight: 500, color: "#1C2B3A", textAlign: "right" }}>
+      <div style={{ fontSize: 12, fontWeight: 500, color: "#05070d", textAlign: "right" }}>
         {formatCurrency(row.futureCost)}
       </div>
 
@@ -193,7 +193,7 @@ function CostRow({
 }
 
 function TrackSection({ label, trackKey, rows, maxCost }: { label: string; trackKey: string; rows: ComputedRow[]; maxCost: number }) {
-  const trackColor = TRACK_COLORS[trackKey] || "#3B82F6";
+  const trackColor = TRACK_COLORS[trackKey] || "#22d3ee";
   const curTotal = rows.reduce((s, r) => s + r.currentCost, 0);
   const futTotal = rows.reduce((s, r) => s + r.futureCost, 0);
   const delta = futTotal - curTotal;
@@ -273,7 +273,7 @@ function DonutChart({ segments, totalCost, size = 140 }: { segments: { label: st
     <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         {paths}
-        <text x={cx} y={cy - 6} textAnchor="middle" fill="#1C2B3A" fontSize={15} fontWeight={500}>
+        <text x={cx} y={cy - 6} textAnchor="middle" fill="#05070d" fontSize={15} fontWeight={500}>
           {centerLabel}
         </text>
         <text x={cx} y={cy + 10} textAnchor="middle" fill="rgba(28,43,58,0.55)" fontSize={11} fontWeight={500} letterSpacing="0.05em">
@@ -285,7 +285,7 @@ function DonutChart({ segments, totalCost, size = 140 }: { segments: { label: st
           <div key={seg.label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <div style={{ width: 10, height: 10, borderRadius: 3, background: seg.color }} />
             <span style={{ fontSize: 11, color: "rgba(28,43,58,0.65)", fontWeight: 500 }}>{seg.label}</span>
-            <span style={{ fontSize: 11, fontWeight: 500, color: "#1C2B3A" }}>
+            <span style={{ fontSize: 11, fontWeight: 500, color: "#05070d" }}>
               {((seg.value / total) * 100).toFixed(1)}%
             </span>
           </div>
@@ -370,7 +370,7 @@ export default function CostModelChart({ data }: { data?: LayerCostData[] }) {
     letterSpacing: "0.05em", color: "rgba(28,43,58,0.55)", marginBottom: 4,
   };
   const cardValue: React.CSSProperties = {
-    fontSize: 20, fontWeight: 500, color: "#1C2B3A",
+    fontSize: 20, fontWeight: 500, color: "#05070d",
   };
 
   return (
@@ -386,7 +386,7 @@ export default function CostModelChart({ data }: { data?: LayerCostData[] }) {
           background: "rgba(247,245,240,0.5)", borderRadius: 8,
           border: "0.5px dashed rgba(28,43,58,0.15)",
         }}>
-          <div style={{ fontSize: 14, fontWeight: 500, color: "#1C2B3A", marginBottom: 4 }}>
+          <div style={{ fontSize: 14, fontWeight: 500, color: "#05070d", marginBottom: 4 }}>
             This scenario is cost-neutral
           </div>
           <div style={{ fontSize: 11, color: "rgba(28,43,58,0.55)" }}>
@@ -455,7 +455,7 @@ export default function CostModelChart({ data }: { data?: LayerCostData[] }) {
             style={{
               padding: "5px 16px", borderRadius: 6,
               fontSize: 12, fontWeight: 500, border: "none",
-              background: mode === m ? "#1C2B3A" : "transparent",
+              background: mode === m ? "#05070d" : "transparent",
               color: mode === m ? "#FFFFFF" : "rgba(28,43,58,0.55)",
               cursor: "pointer", transition: "all 0.15s ease",
             }}

@@ -18,7 +18,7 @@ interface SkillDef { id: string; name: string; elementId: string }
 interface SkillCategory { name: string; color: string; skills: SkillDef[] }
 
 const SKILL_CATEGORIES: SkillCategory[] = [
-  { name: "Basic Skills", color: "#3B82F6", skills: [
+  { name: "Basic Skills", color: "#22d3ee", skills: [
     { id: "bs1", name: "Reading Comprehension", elementId: "2.A.1.a" },
     { id: "bs2", name: "Active Listening", elementId: "2.A.1.b" },
     { id: "bs3", name: "Writing", elementId: "2.A.1.c" },
@@ -26,13 +26,13 @@ const SKILL_CATEGORIES: SkillCategory[] = [
     { id: "bs5", name: "Mathematics", elementId: "2.A.1.e" },
     { id: "bs6", name: "Science", elementId: "2.A.1.f" },
   ]},
-  { name: "Process Skills", color: "#8B5CF6", skills: [
+  { name: "Process Skills", color: "#a78bfa", skills: [
     { id: "ps1", name: "Critical Thinking", elementId: "2.A.2.a" },
     { id: "ps2", name: "Active Learning", elementId: "2.A.2.b" },
     { id: "ps3", name: "Learning Strategies", elementId: "2.A.2.c" },
     { id: "ps4", name: "Monitoring", elementId: "2.A.2.d" },
   ]},
-  { name: "Social Skills", color: "#10B981", skills: [
+  { name: "Social Skills", color: "#34d399", skills: [
     { id: "ss1", name: "Social Perceptiveness", elementId: "2.B.1.a" },
     { id: "ss2", name: "Coordination", elementId: "2.B.1.b" },
     { id: "ss3", name: "Persuasion", elementId: "2.B.1.c" },
@@ -40,10 +40,10 @@ const SKILL_CATEGORIES: SkillCategory[] = [
     { id: "ss5", name: "Instructing", elementId: "2.B.1.e" },
     { id: "ss6", name: "Service Orientation", elementId: "2.B.1.f" },
   ]},
-  { name: "Complex Problem Solving", color: "#F59E0B", skills: [
+  { name: "Complex Problem Solving", color: "#fbbf24", skills: [
     { id: "cp1", name: "Complex Problem Solving", elementId: "2.B.2.i" },
   ]},
-  { name: "Technical Skills", color: "#EF4444", skills: [
+  { name: "Technical Skills", color: "#fb7185", skills: [
     { id: "ts1", name: "Operations Analysis", elementId: "2.B.3.a" },
     { id: "ts2", name: "Technology Design", elementId: "2.B.3.b" },
     { id: "ts3", name: "Equipment Selection", elementId: "2.B.3.c" },
@@ -61,7 +61,7 @@ const SKILL_CATEGORIES: SkillCategory[] = [
     { id: "sy2", name: "Systems Analysis", elementId: "2.B.4.f" },
     { id: "sy3", name: "Systems Evaluation", elementId: "2.B.4.g" },
   ]},
-  { name: "Resource Management", color: "#F97316", skills: [
+  { name: "Resource Management", color: "#fbbf24", skills: [
     { id: "rm1", name: "Time Management", elementId: "2.B.5.a" },
     { id: "rm2", name: "Management of Financial Resources", elementId: "2.B.5.b" },
     { id: "rm3", name: "Management of Material Resources", elementId: "2.B.5.c" },
@@ -341,7 +341,7 @@ export function SkillsMapEngine({ model, f, onBack, onNavigate }: {
   }, [occupations, majorGroupFilter, jobZoneFilter, searchQ]);
 
   const JZ_LABELS: Record<string, string> = { "1": "Little or No Preparation", "2": "Some Preparation", "3": "Medium Preparation", "4": "Considerable Preparation", "5": "Extensive Preparation" };
-  const JZ_COLORS: Record<string, string> = { "1": "#10B981", "2": "#3B82F6", "3": "#F59E0B", "4": "#EF4444", "5": "#8B5CF6" };
+  const JZ_COLORS: Record<string, string> = { "1": "#34d399", "2": "#22d3ee", "3": "#fbbf24", "4": "#fb7185", "5": "#a78bfa" };
 
   // ── Render ──
   return React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 0, minHeight: "100%" } },
@@ -411,14 +411,14 @@ export function SkillsMapEngine({ model, f, onBack, onNavigate }: {
                   onClick: () => handleSelectOcc(code),
                   style: {
                     padding: "8px 10px", borderRadius: 8, cursor: "pointer", marginBottom: 2,
-                    background: isActive ? "rgba(212,134,10,0.1)" : "transparent",
+                    background: isActive ? "rgba(34,211,238,0.1)" : "transparent",
                     borderLeft: isActive ? "3px solid var(--accent-primary)" : "3px solid transparent",
                     transition: "all 0.12s",
                   },
                 },
                   React.createElement("div", { style: { fontSize: 13, fontWeight: isActive ? 600 : 400, color: isActive ? "var(--text-primary)" : "var(--text-secondary)", lineHeight: 1.3 } }, title),
                   React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6, marginTop: 2 } },
-                    React.createElement("span", { style: { fontSize: 11, color: "var(--text-muted)", fontFamily: "'IBM Plex Mono', monospace" } }, code),
+                    React.createElement("span", { style: { fontSize: 11, color: "var(--text-muted)", fontFamily: "monospace" } }, code),
                     jz ? React.createElement("span", { style: { fontSize: 11, fontWeight: 600, padding: "1px 5px", borderRadius: 4, background: `${JZ_COLORS[jz] || "#888"}15`, color: JZ_COLORS[jz] || "#888" } }, `Zone ${jz}`) : null,
                   ),
                 );
@@ -468,9 +468,9 @@ export function SkillsMapEngine({ model, f, onBack, onNavigate }: {
     return React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 20 } },
       // ── Section 1: Header ──
       React.createElement("div", null,
-        React.createElement("h2", { style: { fontSize: 24, fontWeight: 800, color: "var(--text-primary)", margin: 0, lineHeight: 1.2, fontFamily: "'Outfit', sans-serif" } }, title),
+        React.createElement("h2", { style: { fontSize: 24, fontWeight: 800, color: "var(--text-primary)", margin: 0, lineHeight: 1.2, fontFamily: "'Inter Tight', sans-serif" } }, title),
         React.createElement("div", { style: { display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" as const, marginTop: 8 } },
-          React.createElement("span", { style: { fontSize: 12, fontFamily: "'IBM Plex Mono', monospace", color: "var(--text-muted)", background: "var(--surface-2)", padding: "2px 8px", borderRadius: 4 } }, socCode),
+          React.createElement("span", { style: { fontSize: 12, fontFamily: "monospace", color: "var(--text-muted)", background: "var(--surface-2)", padding: "2px 8px", borderRadius: 4 } }, socCode),
           jobZone ? React.createElement("span", { style: { fontSize: 12, fontWeight: 600, padding: "2px 8px", borderRadius: 4, background: `${JZ_COLORS[jobZone] || "#888"}15`, color: JZ_COLORS[jobZone] || "#888" } }, `Zone ${jobZone} \u2014 ${JZ_LABELS[jobZone] || ""}`) : null,
           React.createElement("span", { style: { fontSize: 12, color: "var(--text-muted)", background: "var(--surface-2)", padding: "2px 8px", borderRadius: 4 } }, "O*NET Default"),
         ),
@@ -527,8 +527,8 @@ export function SkillsMapEngine({ model, f, onBack, onNavigate }: {
                   React.createElement("div", { style: { height: 16, background: "var(--surface-2)", borderRadius: 4, overflow: "hidden" } },
                     React.createElement("div", { style: S.bar(barPct, cat.color) }),
                   ),
-                  React.createElement("span", { style: { fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: "var(--text-muted)", textAlign: "right" as const } }, importance.toFixed(1)),
-                  React.createElement("span", { style: { fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: "var(--text-muted)", textAlign: "right" as const } }, level.toFixed(1)),
+                  React.createElement("span", { style: { fontFamily: "monospace", fontSize: 11, color: "var(--text-muted)", textAlign: "right" as const } }, importance.toFixed(1)),
+                  React.createElement("span", { style: { fontFamily: "monospace", fontSize: 11, color: "var(--text-muted)", textAlign: "right" as const } }, level.toFixed(1)),
                 );
               }),
               !showAllSkills && occSkills.length > 10
@@ -548,9 +548,9 @@ export function SkillsMapEngine({ model, f, onBack, onNavigate }: {
             const hot = t.hot_technology as boolean;
             return React.createElement("span", { key: i, style: {
               fontSize: 12, padding: "4px 10px", borderRadius: 6,
-              background: hot ? "rgba(239,68,68,0.1)" : "var(--surface-2)",
+              background: hot ? "rgba(251,113,133,0.1)" : "var(--surface-2)",
               color: hot ? "var(--risk)" : "var(--text-secondary)",
-              border: `1px solid ${hot ? "rgba(239,68,68,0.2)" : "var(--border)"}`,
+              border: `1px solid ${hot ? "rgba(251,113,133,0.2)" : "var(--border)"}`,
               fontWeight: hot ? 600 : 400,
             } }, name + (hot ? " \uD83D\uDD25" : ""));
           }),
@@ -692,7 +692,7 @@ export function SkillsMapEngine({ model, f, onBack, onNavigate }: {
               const statusColor = status === "Complete" ? "var(--success)" : status === "In Progress" ? "var(--warning)" : "var(--text-muted)";
               return React.createElement("tr", { key: title, style: { borderBottom: "1px solid var(--border)" } },
                 React.createElement("td", { style: { padding: "10px 12px", color: "var(--text-primary)", fontWeight: 500 } }, title),
-                React.createElement("td", { style: { padding: "10px 12px", color: "var(--text-secondary)", fontSize: 12, fontFamily: "'IBM Plex Mono', monospace" } }, socCode),
+                React.createElement("td", { style: { padding: "10px 12px", color: "var(--text-secondary)", fontSize: 12, fontFamily: "monospace" } }, socCode),
                 React.createElement("td", { style: { padding: "10px 12px" } },
                   React.createElement("span", { style: { color: statusColor, fontWeight: 600, fontSize: 12 } }, status)
                 ),
@@ -753,7 +753,7 @@ export function SkillsMapEngine({ model, f, onBack, onNavigate }: {
                     React.createElement("div", { style: { flex: 1, height: 18, background: "var(--surface-2)", borderRadius: 4, overflow: "hidden" } },
                       React.createElement("div", { style: S.bar(barPct, cat.color) }),
                     ),
-                    React.createElement("span", { style: { fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, minWidth: 32 } }, importance.toFixed(1)),
+                    React.createElement("span", { style: { fontFamily: "monospace", fontSize: 11, minWidth: 32 } }, importance.toFixed(1)),
                   ),
                   React.createElement("select", {
                     value: prof,
@@ -862,7 +862,7 @@ export function SkillsMapEngine({ model, f, onBack, onNavigate }: {
           const r = row as Record<string, unknown>;
           return React.createElement("tr", { key: i, style: { borderBottom: "1px solid var(--border)" } },
             React.createElement("td", { style: { padding: "8px 12px", color: "var(--text-primary)" } }, (r.title || r.job_title || "") as string),
-            React.createElement("td", { style: { padding: "8px 12px", color: "var(--text-secondary)", fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 } }, (r.soc_code || r.code || "") as string),
+            React.createElement("td", { style: { padding: "8px 12px", color: "var(--text-secondary)", fontFamily: "monospace", fontSize: 12 } }, (r.soc_code || r.code || "") as string),
             React.createElement("td", { style: { padding: "8px 12px", color: "var(--text-secondary)" } }, String(r.skills_count || r.skills || 0)),
             React.createElement("td", { style: { padding: "8px 12px", color: "var(--text-muted)", fontSize: 12 } }, (r.status || "Mapped") as string),
           );
@@ -907,7 +907,7 @@ export function SkillsMapEngine({ model, f, onBack, onNavigate }: {
                 React.createElement("span", { style: { color: "var(--text-secondary)", fontSize: 12 } }, (r.category || cat.name) as string),
               )
             ),
-            React.createElement("td", { style: { padding: "8px 12px", color: "var(--text-secondary)", fontFamily: "'IBM Plex Mono', monospace" } }, String(r.job_count || 0)),
+            React.createElement("td", { style: { padding: "8px 12px", color: "var(--text-secondary)", fontFamily: "monospace" } }, String(r.job_count || 0)),
           );
         })
       ),

@@ -24,7 +24,7 @@ export default function OrgChartPopoutPage() {
     return (
       <div style={{
         display: "flex", alignItems: "center", justifyContent: "center",
-        height: "100vh", background: "#F7F5F0", color: "rgba(28,43,58,0.5)",
+        height: "100vh", background: "#e8ecf5", color: "rgba(5,7,13,0.5)",
         fontSize: 14,
       }}>
         Missing model parameter.
@@ -33,14 +33,14 @@ export default function OrgChartPopoutPage() {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "#F7F5F0", overflow: "hidden" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "#e8ecf5", overflow: "hidden" }}>
       {/* Slim top bar */}
       <div style={{
         display: "flex", alignItems: "center", height: 40, padding: "0 16px",
-        background: "#fff", borderBottom: "0.5px solid rgba(28,43,58,0.12)",
+        background: "#fff", borderBottom: "0.5px solid rgba(5,7,13,0.12)",
         flexShrink: 0, zIndex: 10,
       }}>
-        <span style={{ fontSize: 12, fontWeight: 600, color: "#1C2B3A", whiteSpace: "nowrap" }}>
+        <span style={{ fontSize: 12, fontWeight: 600, color: "#05070d", whiteSpace: "nowrap" }}>
           Org Chart &middot; Popout
         </span>
 
@@ -48,9 +48,9 @@ export default function OrgChartPopoutPage() {
         <div style={{ display: "flex", alignItems: "center", gap: 4, marginLeft: 16 }}>
           <span style={{
             width: 6, height: 6, borderRadius: "50%",
-            background: !ready ? "#F59E0B" : synced ? "#22C55E" : "#94A3B8",
+            background: !ready ? "#fbbf24" : synced ? "#22C55E" : "#94A3B8",
           }} />
-          <span style={{ fontSize: 11, color: "rgba(28,43,58,0.5)" }}>
+          <span style={{ fontSize: 11, color: "rgba(5,7,13,0.5)" }}>
             {!ready ? "Loading..." : synced ? "Synced" : "Standalone"}
           </span>
         </div>
@@ -62,8 +62,8 @@ export default function OrgChartPopoutPage() {
           style={{
             display: "inline-flex", alignItems: "center", gap: 4,
             padding: "4px 10px", fontSize: 11, fontWeight: 500,
-            border: "0.5px solid rgba(28,43,58,0.15)", borderRadius: 6,
-            background: "#fff", color: "#1C2B3A", cursor: "pointer",
+            border: "0.5px solid rgba(5,7,13,0.15)", borderRadius: 6,
+            background: "#fff", color: "#05070d", cursor: "pointer",
           }}
           title="Close popout"
         >

@@ -64,7 +64,7 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
 
     {sub === "ai" && (() => { const s = (data?.summary ?? { tasks_scored: 0, quick_wins: 0, total_time_impact: 0, avg_risk: 0 }) as AIPrioritySummary; const top10 = (data?.top10 ?? []) as Record<string, unknown>[]; const quickWins = top10.filter(t => String(t["AI Impact"] || t.ai_impact || "").toLowerCase() === "high" && (Number(t["Current Time Spent %"] || t.time_pct || 0) >= 10) && String(t["Logic"] || t.logic || "").toLowerCase() === "deterministic"); return <div><div className="grid grid-cols-4 gap-3 mb-5"><KpiCard label="Tasks Scored" value={s.tasks_scored ?? 0} /><KpiCard label="Quick Wins" value={quickWins.length || (s.quick_wins ?? 0)} accent /><KpiCard label="Time Impact" value={`${s.total_time_impact ?? 0}h/wk`} /><KpiCard label="Avg Risk" value={s.avg_risk ?? 0} /></div>
       {/* Quick Wins Panel */}
-      {quickWins.length > 0 && <div className="bg-gradient-to-r from-[rgba(16,185,129,0.06)] to-transparent border border-[rgba(16,185,129,0.15)] rounded-xl p-5 mb-4">
+      {quickWins.length > 0 && <div className="bg-gradient-to-r from-[rgba(52,211,153,0.06)] to-transparent border border-[rgba(52,211,153,0.15)] rounded-xl p-5 mb-4">
         <div className="flex items-center gap-2 mb-3"><span className="text-lg">⚡</span><span className="text-[14px] font-bold text-[var(--success)]">Quick Wins — Automate Now</span><Badge color="green">{quickWins.length} tasks</Badge><ConfidenceBadge score={Math.min(1, (s.tasks_scored || 0) / Math.max(quickWins.length * 3, 1))} dataPoints={s.tasks_scored || 0} /></div>
         <div className="text-[15px] text-[var(--text-secondary)] mb-3">These tasks are High AI Impact + Deterministic logic + ≥10% of work time. They can be automated with minimal risk and maximum ROI.</div>
         <div className="space-y-2">{quickWins.slice(0, 6).map((t, i) => {
@@ -92,7 +92,7 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
 
       // ── Layer Distribution: sort by track order, color by track ──
       const TRACK_ORDER = ["S","P","T","M","E"];
-      const TRACK_COLORS: Record<string, string> = { S: "#8B7355", P: "#3B82F6", T: "#8B5CF6", M: "#F59E0B", E: "#EF4444" };
+      const TRACK_COLORS: Record<string, string> = { S: "#8B7355", P: "#22d3ee", T: "#a78bfa", M: "#fbbf24", E: "#fb7185" };
       const TRACK_LABELS: Record<string, string> = { S: "Support", P: "Professional", T: "Technical", M: "Management", E: "Executive" };
       const sortedLayers = [...rawLayers].sort((a, b) => {
         const tA = TRACK_ORDER.indexOf(a.name[0]) * 100 + parseInt(a.name.slice(1) || "0");
@@ -239,7 +239,7 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
                 <div className="text-[11px] text-[var(--text-muted)] mb-2">Target range: <span className="text-[var(--success)] font-semibold">5-10</span> direct reports</div>
                 {spanByLevel.map(sl => {
                   const inRange = sl.avg >= 5 && sl.avg <= 10;
-                  const color = inRange ? "var(--success)" : sl.avg < 5 ? "#3B82F6" : "var(--risk)";
+                  const color = inRange ? "var(--success)" : sl.avg < 5 ? "#22d3ee" : "var(--risk)";
                   return <div key={sl.level} className="flex items-center gap-2">
                     <span className="text-[12px] font-data text-[var(--text-muted)] w-7">{sl.level}</span>
                     <div className="flex-1 h-4 bg-[var(--surface-2)] rounded-full overflow-hidden relative">
@@ -258,14 +258,14 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
             {spanView === "outlier" && <>
               {outliers.length === 0 ? <div className="text-[var(--text-muted)] text-center py-8">No outliers detected</div> : <>
                 <div className="text-[12px] text-[var(--text-muted)] mb-2">
-                  <span className="text-[var(--risk)] font-semibold">{allSpans.filter(s => s > 12).length}</span> overextended (&gt;12) · <span className="text-[#3B82F6] font-semibold">{allSpans.filter(s => s > 0 && s < 3).length}</span> too narrow (&lt;3)
+                  <span className="text-[var(--risk)] font-semibold">{allSpans.filter(s => s > 12).length}</span> overextended (&gt;12) · <span className="text-[#22d3ee] font-semibold">{allSpans.filter(s => s > 0 && s < 3).length}</span> too narrow (&lt;3)
                 </div>
                 <div className="space-y-1 max-h-[180px] overflow-y-auto">{outliers.map((o, i) => <div key={i} className="flex items-center gap-2 text-[12px] py-1 border-b border-[var(--border)]">
-                  <span className="w-2 h-2 rounded-full shrink-0" style={{ background: o.span > 12 ? "var(--risk)" : o.span < 5 ? "var(--warning)" : "#3B82F6" }} />
+                  <span className="w-2 h-2 rounded-full shrink-0" style={{ background: o.span > 12 ? "var(--risk)" : o.span < 5 ? "var(--warning)" : "#22d3ee" }} />
                   <span className="text-[var(--text-primary)] font-semibold truncate flex-1">{o.name}</span>
                   <span className="text-[var(--text-muted)] truncate" style={{ maxWidth: 80 }}>{o.dept}</span>
                   <span className="text-[var(--text-muted)] w-6">{o.level}</span>
-                  <span className="font-data font-bold w-6 text-right" style={{ color: o.span > 12 ? "var(--risk)" : o.span < 5 ? "var(--warning)" : "#3B82F6" }}>{o.span}</span>
+                  <span className="font-data font-bold w-6 text-right" style={{ color: o.span > 12 ? "var(--risk)" : o.span < 5 ? "var(--warning)" : "#22d3ee" }}>{o.span}</span>
                 </div>)}</div>
               </>}
             </>}
@@ -359,8 +359,8 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
     {!loading && employees.length === 0 && validationErrors.length === 0 && <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-2xl p-8 text-center"><div className="text-3xl mb-3 opacity-40 flex justify-center"><Sparkle size={32} /></div><h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">No Skills Data Yet</h3><p className="text-[15px] text-[var(--text-secondary)]">Upload workforce data to see skills inventory, or select Demo_Model.</p></div>}
 
     {/* Validation errors */}
-    {validationErrors.map((err, i) => <div key={i} className="bg-[rgba(245,158,11,0.08)] border border-[var(--warning)]/30 rounded-lg px-4 py-2 mb-2 text-[15px] text-[var(--warning)]">⚠ {err}</div>)}
-    {Boolean(gapSummary.wdl_connected) && <div className="bg-[rgba(16,185,129,0.08)] border border-[var(--success)]/30 rounded-lg px-4 py-2 mb-2 text-[15px] text-[var(--success)]">✓ Connected to Work Design Lab — gap targets derived from your task reconstruction</div>}
+    {validationErrors.map((err, i) => <div key={i} className="bg-[rgba(251,191,36,0.08)] border border-[var(--warning)]/30 rounded-lg px-4 py-2 mb-2 text-[15px] text-[var(--warning)]">⚠ {err}</div>)}
+    {Boolean(gapSummary.wdl_connected) && <div className="bg-[rgba(52,211,153,0.08)] border border-[var(--success)]/30 rounded-lg px-4 py-2 mb-2 text-[15px] text-[var(--success)]">✓ Connected to Work Design Lab — gap targets derived from your task reconstruction</div>}
 
     <div className="grid grid-cols-5 gap-3 mb-5">
       <KpiCard label="Employees" value={employees.length} accent /><KpiCard label="Skills Tracked" value={skills.length} /><KpiCard label="Coverage" value={`${coverage}%`} accent /><KpiCard label="Critical Gaps" value={Number(gapSummary.critical_gaps || 0)} /><KpiCard label="Fillable" value={`${Number(adjSummary.fillable_internally || 0)}/${Number(adjSummary.target_roles || 0)}`} />
@@ -392,7 +392,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
         </div>
 
         {/* Dedup suggestions */}
-        {showDedup && dedupSuggestions.length > 0 && <div className="bg-[rgba(245,158,11,0.06)] border border-[var(--warning)]/20 rounded-lg p-3 mb-3"><div className="text-[15px] font-bold text-[var(--warning)] mb-2">Potential Duplicate Skills — Consider merging:</div>{dedupSuggestions.map((d, i) => <div key={i} className="flex items-center gap-2 text-[15px] py-1"><span className="text-[var(--text-primary)]">"{d.skill_a}"</span><span className="text-[var(--text-muted)]">↔</span><span className="text-[var(--text-primary)]">"{d.skill_b}"</span><Badge color="amber">{d.similarity}% similar</Badge></div>)}</div>}
+        {showDedup && dedupSuggestions.length > 0 && <div className="bg-[rgba(251,191,36,0.06)] border border-[var(--warning)]/20 rounded-lg p-3 mb-3"><div className="text-[15px] font-bold text-[var(--warning)] mb-2">Potential Duplicate Skills — Consider merging:</div>{dedupSuggestions.map((d, i) => <div key={i} className="flex items-center gap-2 text-[15px] py-1"><span className="text-[var(--text-primary)]">"{d.skill_a}"</span><span className="text-[var(--text-muted)]">↔</span><span className="text-[var(--text-primary)]">"{d.skill_b}"</span><Badge color="amber">{d.similarity}% similar</Badge></div>)}</div>}
 
         {/* Proficiency grid */}
         <div className="overflow-auto rounded-lg border border-[var(--border)]" style={{ maxHeight: 480 }}>
@@ -507,7 +507,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
           <div className="text-[14px] text-[var(--success)] mb-0.5 truncate">✓ {c.matching_skills.slice(0, 3).join(", ")}</div>
           {c.gap_skills.length > 0 && <div className="text-[14px] text-[var(--risk)] mb-1 truncate">✗ {c.gap_skills.slice(0, 3).join(", ")}</div>}
           {c.reskill_months > 0 && <div className="text-[15px] text-[var(--text-muted)]">~{c.reskill_months}mo reskilling</div>}
-          <button onClick={() => setShortlisted(prev => { const list = prev[a.target_role] || []; return { ...prev, [a.target_role]: isShortlisted ? list.filter(e => e !== c.employee) : [...list, c.employee] }; })} className="mt-1 text-[14px] font-semibold w-full py-1 rounded text-center" style={{ background: isShortlisted ? "rgba(16,185,129,0.1)" : "var(--surface-1)", color: isShortlisted ? "var(--success)" : "var(--text-muted)", border: `1px solid ${isShortlisted ? "var(--success)" : "var(--border)"}` }}>{isShortlisted ? "★ Shortlisted" : "☆ Shortlist"}</button>
+          <button onClick={() => setShortlisted(prev => { const list = prev[a.target_role] || []; return { ...prev, [a.target_role]: isShortlisted ? list.filter(e => e !== c.employee) : [...list, c.employee] }; })} className="mt-1 text-[14px] font-semibold w-full py-1 rounded text-center" style={{ background: isShortlisted ? "rgba(52,211,153,0.1)" : "var(--surface-1)", color: isShortlisted ? "var(--success)" : "var(--text-muted)", border: `1px solid ${isShortlisted ? "var(--success)" : "var(--border)"}` }}>{isShortlisted ? "★ Shortlisted" : "☆ Shortlist"}</button>
         </div>; })}</div>
         {(a.top_candidates || []).filter(c => c.adjacency_pct >= adjThreshold).length === 0 && <div className="text-[15px] text-[var(--text-muted)] py-4 text-center">No candidates above {adjThreshold}% — lower threshold or plan external hire</div>}
       </Card>)}
@@ -581,13 +581,13 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
           {/* Action panel */}
           {(criticals.length > 0 || shortages.length > 0) && <Card title="Recommended Talent Strategy">
             <div className="space-y-3">
-              {criticals.map((sd, i) => <div key={sd.skill} className="rounded-xl p-4 border-l-3" style={{ borderLeft: "3px solid var(--risk)", background: "rgba(239,68,68,0.04)" }}>
+              {criticals.map((sd, i) => <div key={sd.skill} className="rounded-xl p-4 border-l-3" style={{ borderLeft: "3px solid var(--risk)", background: "rgba(251,113,133,0.04)" }}>
                 <div className="flex items-center gap-2 mb-1"><span className="text-[14px] font-bold text-[var(--risk)]">Priority {i + 1} (URGENT)</span><Badge color="red">{sd.gapPct}% gap</Badge></div>
                 <div className="text-[15px] text-[var(--text-primary)] font-semibold mb-1">Launch {sd.skill} upskilling for {sd.demandCount - sd.supplyCount} employees</div>
                 <div className="text-[14px] text-[var(--text-muted)] mb-2">Current: {sd.supplyPct}% ({sd.supplyCount} people) → Need: {sd.demandPct}% ({sd.demandCount} people)</div>
                 <div className="flex gap-2">{onNavigate && <button onClick={() => onNavigate("reskill")} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold text-white" style={{ background: "var(--risk)" }}>Create Reskilling Pathway</button>}</div>
               </div>)}
-              {shortages.slice(0, 3).map((sd, i) => <div key={sd.skill} className="rounded-xl p-4 border-l-3" style={{ borderLeft: "3px solid var(--warning)", background: "rgba(245,158,11,0.04)" }}>
+              {shortages.slice(0, 3).map((sd, i) => <div key={sd.skill} className="rounded-xl p-4 border-l-3" style={{ borderLeft: "3px solid var(--warning)", background: "rgba(251,191,36,0.04)" }}>
                 <div className="flex items-center gap-2 mb-1"><span className="text-[14px] font-bold text-[var(--warning)]">Priority {criticals.length + i + 1}</span><Badge color="amber">{sd.gapPct}% gap</Badge></div>
                 <div className="text-[15px] text-[var(--text-primary)] font-semibold">{sd.skill}: strengthen through development programs</div>
                 <div className="text-[14px] text-[var(--text-muted)]">{sd.demandCount - sd.supplyCount} employees need this skill</div>
@@ -625,7 +625,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
             {selectedAdj && <div>
               {/* Center node */}
               <div className="flex justify-center mb-6">
-                <div className="rounded-2xl px-8 py-5 text-center" style={{ background: "rgba(212,134,10,0.1)", border: "2px solid var(--accent-primary)", boxShadow: "0 0 20px rgba(212,134,10,0.15)" }}>
+                <div className="rounded-2xl px-8 py-5 text-center" style={{ background: "rgba(34,211,238,0.1)", border: "2px solid var(--accent-primary)", boxShadow: "0 0 20px rgba(34,211,238,0.15)" }}>
                   <div className="text-[20px] font-extrabold text-[var(--accent-primary)] font-heading">{selectedAdj.target_role}</div>
                   <div className="flex gap-3 justify-center mt-2">
                     <Badge color="green">{selectedAdj.strong_matches || 0} strong</Badge>
@@ -660,8 +660,8 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
                     </div>
                     {/* Skills */}
                     <div className="flex flex-wrap gap-1">
-                      {(c.matching_skills || []).slice(0, 3).map(s => <span key={s} className="px-1.5 py-0.5 rounded text-[11px] bg-[rgba(16,185,129,0.1)] text-[var(--success)]">{s}</span>)}
-                      {(c.gap_skills || []).slice(0, 2).map(s => <span key={s} className="px-1.5 py-0.5 rounded text-[11px] bg-[rgba(239,68,68,0.1)] text-[var(--risk)]">+{s}</span>)}
+                      {(c.matching_skills || []).slice(0, 3).map(s => <span key={s} className="px-1.5 py-0.5 rounded text-[11px] bg-[rgba(52,211,153,0.1)] text-[var(--success)]">{s}</span>)}
+                      {(c.gap_skills || []).slice(0, 2).map(s => <span key={s} className="px-1.5 py-0.5 rounded text-[11px] bg-[rgba(251,113,133,0.1)] text-[var(--risk)]">+{s}</span>)}
                     </div>
                   </div>;
                 })}
@@ -867,9 +867,9 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
           {question.opts.map((opt, oi) => {
             const isSelected = answered === oi;
             return <button key={oi} onClick={() => { setAssessAnswers(prev => ({ ...prev, [`q${assessQ}`]: oi })); setTimeout(() => { if (assessQ < totalQuestions - 1) setAssessQ(assessQ + 1); else setAssessActive(false); }, 400); }} className="w-full text-left px-5 py-4 rounded-xl transition-all" style={{
-              background: isSelected ? "rgba(212,134,10,0.1)" : "var(--surface-1)",
+              background: isSelected ? "rgba(34,211,238,0.1)" : "var(--surface-1)",
               border: isSelected ? "2px solid var(--accent-primary)" : "1px solid var(--border)",
-              boxShadow: isSelected ? "0 0 12px rgba(212,134,10,0.15)" : "0 1px 4px rgba(0,0,0,0.06)",
+              boxShadow: isSelected ? "0 0 12px rgba(34,211,238,0.15)" : "0 1px 4px rgba(0,0,0,0.06)",
             }}>
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full flex items-center justify-center text-[14px] font-bold shrink-0" style={{ background: isSelected ? "var(--accent-primary)" : "var(--surface-2)", color: isSelected ? "white" : "var(--text-muted)" }}>{isSelected ? "✓" : oi + 1}</div>
@@ -908,7 +908,7 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
     {/* ─── RESULTS DASHBOARD ─── */}
     {hasData && <>
       {/* Assessment score header */}
-      {assessComplete && <div className="rounded-2xl border border-[var(--accent-primary)]/20 bg-[rgba(212,134,10,0.04)] p-6 mb-5 text-center">
+      {assessComplete && <div className="rounded-2xl border border-[var(--accent-primary)]/20 bg-[rgba(34,211,238,0.04)] p-6 mb-5 text-center">
         <div className="text-[14px] text-[var(--text-muted)] uppercase tracking-wider mb-1">Your AI Readiness Score</div>
         <div className="text-[48px] font-extrabold font-data" style={{ color: orgAvg >= 3.5 ? "var(--success)" : orgAvg >= 2.5 ? "var(--warning)" : "var(--risk)" }}>{orgAvg}/5</div>
         <div className="text-[16px] font-semibold" style={{ color: orgAvg >= 3.5 ? "var(--success)" : orgAvg >= 2.5 ? "var(--warning)" : "var(--risk)" }}>{orgAvg >= 4 ? "Exceptional" : orgAvg >= 3.5 ? "Strong" : orgAvg >= 2.5 ? "Moderate" : orgAvg >= 1.5 ? "Developing" : "Critical"}</div>
@@ -1040,7 +1040,7 @@ export function ManagerCapability({ model, f, onBack, onNavigate, viewCtx }: { m
               <div className="space-y-1">{catMgrs.slice(0, 8).map(m => <div key={m.manager} className="flex items-center gap-3 p-2 rounded-lg bg-[var(--surface-2)] cursor-pointer hover:border-[var(--accent-primary)]/30 border border-transparent transition-all" onClick={() => setExpandedMgr(expandedMgr === m.manager ? null : m.manager)}>
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[12px] font-bold text-white shrink-0" style={{ background: catColors[panel.cat] }}>{m.manager.split(" ").map(w => w[0]).join("").slice(0,2)}</div>
                 <div className="flex-1 min-w-0"><div className="text-[14px] font-semibold text-[var(--text-primary)] truncate">{m.manager}</div><div className="text-[12px] text-[var(--text-muted)]">{m.direct_reports} reports · Avg: {m.average}/5</div></div>
-                {panel.cat === "Flight Risk" && m.direct_reports > 5 && <span className="text-[11px] px-2 py-0.5 rounded-full bg-[rgba(239,68,68,0.1)] text-[var(--risk)] font-bold">High Impact</span>}
+                {panel.cat === "Flight Risk" && m.direct_reports > 5 && <span className="text-[11px] px-2 py-0.5 rounded-full bg-[rgba(251,113,133,0.1)] text-[var(--risk)] font-bold">High Impact</span>}
                 {expandedMgr === m.manager && <span className="text-[var(--text-muted)]">▾</span>}
               </div>)}
               </div>
@@ -1064,11 +1064,11 @@ export function ManagerCapability({ model, f, onBack, onNavigate, viewCtx }: { m
       {/* Correlation view — unchanged but with better KPIs */}
       <Card title="Manager Capability → Team Readiness">
         <div className="grid grid-cols-3 gap-4 mb-4">
-          <div className="rounded-xl p-5 text-center border" style={{ background: "rgba(16,185,129,0.06)", borderColor: "rgba(16,185,129,0.2)" }}><div className="text-[14px] text-[var(--text-muted)] mb-1">Champion Teams</div><div className="text-[28px] font-extrabold text-[var(--success)]">{Number(summary.high_mgr_team_readiness || 3.8)}<span className="text-[14px]">/5</span></div></div>
-          <div className="rounded-xl p-5 text-center border" style={{ background: "rgba(239,68,68,0.06)", borderColor: "rgba(239,68,68,0.2)" }}><div className="text-[14px] text-[var(--text-muted)] mb-1">At-Risk Teams</div><div className="text-[28px] font-extrabold text-[var(--risk)]">{Number(summary.low_mgr_team_readiness || 2.1)}<span className="text-[14px]">/5</span></div></div>
-          <div className="rounded-xl p-5 text-center border" style={{ background: "rgba(212,134,10,0.06)", borderColor: "rgba(212,134,10,0.2)" }}><div className="text-[14px] text-[var(--text-muted)] mb-1">Multiplier Effect</div><div className="text-[28px] font-extrabold text-[var(--accent-primary)]">{String(summary.correlation_multiplier || "2.1x")}</div></div>
+          <div className="rounded-xl p-5 text-center border" style={{ background: "rgba(52,211,153,0.06)", borderColor: "rgba(52,211,153,0.2)" }}><div className="text-[14px] text-[var(--text-muted)] mb-1">Champion Teams</div><div className="text-[28px] font-extrabold text-[var(--success)]">{Number(summary.high_mgr_team_readiness || 3.8)}<span className="text-[14px]">/5</span></div></div>
+          <div className="rounded-xl p-5 text-center border" style={{ background: "rgba(251,113,133,0.06)", borderColor: "rgba(251,113,133,0.2)" }}><div className="text-[14px] text-[var(--text-muted)] mb-1">At-Risk Teams</div><div className="text-[28px] font-extrabold text-[var(--risk)]">{Number(summary.low_mgr_team_readiness || 2.1)}<span className="text-[14px]">/5</span></div></div>
+          <div className="rounded-xl p-5 text-center border" style={{ background: "rgba(34,211,238,0.06)", borderColor: "rgba(34,211,238,0.2)" }}><div className="text-[14px] text-[var(--text-muted)] mb-1">Multiplier Effect</div><div className="text-[28px] font-extrabold text-[var(--accent-primary)]">{String(summary.correlation_multiplier || "2.1x")}</div></div>
         </div>
-        <div className="text-[14px] text-[var(--text-secondary)] mb-4 p-3 rounded-lg border-l-3" style={{ borderLeft: "3px solid var(--accent-primary)", background: "rgba(212,134,10,0.04)" }}>Manager capability has a <strong>{String(summary.correlation_multiplier || "2.1x")}</strong> multiplier effect on team readiness. Investing in manager development is the highest-leverage intervention.</div>
+        <div className="text-[14px] text-[var(--text-secondary)] mb-4 p-3 rounded-lg border-l-3" style={{ borderLeft: "3px solid var(--accent-primary)", background: "rgba(34,211,238,0.04)" }}>Manager capability has a <strong>{String(summary.correlation_multiplier || "2.1x")}</strong> multiplier effect on team readiness. Investing in manager development is the highest-leverage intervention.</div>
         <div className="space-y-2">{managers.slice(0, 15).map(m => <div key={m.manager} className="flex items-center gap-3 p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)]">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[12px] font-bold text-white shrink-0" style={{ background: catColors[m.category] || "#888" }}>{m.manager.split(" ").map(w => w[0]).join("").slice(0,2)}</div>
           <div className="flex-1"><div className="text-[14px] font-semibold text-[var(--text-primary)]">{m.manager}</div><div className="text-[12px] text-[var(--text-muted)]">{m.direct_reports} reports</div></div>
@@ -1169,7 +1169,7 @@ export function ChangeReadiness({ model, f, onBack, onNavigate, viewCtx, simStat
         </div>;
       })}
       <button onClick={() => setAddingCampaign(true)} className="w-full px-4 py-3 rounded-xl text-[14px] font-semibold text-[var(--text-muted)] border border-dashed border-[var(--border)] hover:border-[var(--accent-primary)] hover:text-[var(--accent-primary)] transition-all">+ New Campaign</button>
-      {addingCampaign && <div className="rounded-xl border border-[var(--accent-primary)]/30 bg-[rgba(212,134,10,0.04)] p-4 space-y-3">
+      {addingCampaign && <div className="rounded-xl border border-[var(--accent-primary)]/30 bg-[rgba(34,211,238,0.04)] p-4 space-y-3">
         <input id="cn" placeholder="Campaign name..." className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-[14px] outline-none placeholder:text-[var(--text-muted)]" />
         <div className="grid grid-cols-2 gap-3"><input id="ct" placeholder="Target audience..." className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-[14px] outline-none placeholder:text-[var(--text-muted)]" /><input id="co" placeholder="Campaign owner..." className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-[14px] outline-none placeholder:text-[var(--text-muted)]" /></div>
         <div className="flex gap-2"><button onClick={() => { const el = (id: string) => (document.getElementById(id) as HTMLInputElement)?.value || ""; const name = el("cn"); if (!name) return; setCampaigns(prev => [...prev, { id: `c${Date.now()}`, name, status: "Draft", target: el("ct"), owner: el("co"), start: "", end: "", activities: [] }]); setAddingCampaign(false); }} className="px-4 py-2 rounded-lg text-[14px] font-semibold text-white" style={{ background: "var(--accent-primary)" }}>Create</button><button onClick={() => setAddingCampaign(false)} className="px-4 py-2 rounded-lg text-[14px] text-[var(--text-muted)] border border-[var(--border)]">Cancel</button></div>
@@ -1200,7 +1200,7 @@ export function ChangeReadiness({ model, f, onBack, onNavigate, viewCtx, simStat
           </tr>)}
         </tbody></table></div>
         <button onClick={() => setAddingActivity(true)} className="mt-3 w-full px-4 py-2 rounded-xl text-[14px] font-semibold text-[var(--text-muted)] border border-dashed border-[var(--border)] hover:border-[var(--accent-primary)] hover:text-[var(--accent-primary)]">+ Add Activity</button>
-        {addingActivity && <div className="mt-3 rounded-xl border border-[var(--accent-primary)]/30 bg-[rgba(212,134,10,0.04)] p-4 grid grid-cols-3 gap-2">
+        {addingActivity && <div className="mt-3 rounded-xl border border-[var(--accent-primary)]/30 bg-[rgba(34,211,238,0.04)] p-4 grid grid-cols-3 gap-2">
           <input id="aa" placeholder="Activity description..." className="col-span-3 bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-[14px] outline-none" />
           <select id="at" className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-2 py-2 text-[13px] outline-none"><option>Workshop</option><option>Town Hall</option><option>1:1 Meeting</option><option>Communication</option><option>Training</option><option>Survey</option><option>Document</option><option>Drop-in</option></select>
           <select id="ac" className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-2 py-2 text-[13px] outline-none"><option>In-person</option><option>Virtual</option><option>Email</option><option>Intranet</option><option>Manager cascade</option></select>
@@ -1248,7 +1248,7 @@ export function ChangeReadiness({ model, f, onBack, onNavigate, viewCtx, simStat
         <div className="space-y-3">{phase.templates.map(tmpl => <div key={tmpl.title} className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4">
           <div className="flex items-center justify-between mb-2"><div className="text-[15px] font-bold text-[var(--text-primary)]">{tmpl.title}</div><button onClick={() => { navigator.clipboard.writeText(tmpl.body); showToast("Template copied to clipboard"); }} className="px-3 py-1 rounded-lg text-[13px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--accent-primary)]">Copy</button></div>
           <div className="text-[13px] text-[var(--text-muted)] mb-2">{tmpl.purpose}</div>
-          <pre className="text-[14px] text-[var(--text-secondary)] whitespace-pre-wrap leading-relaxed bg-[var(--bg)] rounded-lg p-3 border border-[var(--border)] max-h-[200px] overflow-y-auto" style={{ fontFamily: "'Outfit', sans-serif" }}>{tmpl.body}</pre>
+          <pre className="text-[14px] text-[var(--text-secondary)] whitespace-pre-wrap leading-relaxed bg-[var(--bg)] rounded-lg p-3 border border-[var(--border)] max-h-[200px] overflow-y-auto" style={{ fontFamily: "'Inter Tight', sans-serif" }}>{tmpl.body}</pre>
         </div>)}</div>
       </Card>)}
     </div>}
@@ -1854,7 +1854,7 @@ export function OrgHealthScorecard({ model, f, onBack, onNavigate, viewCtx }: { 
               <PolarAngleAxis dataKey="subject" tick={{ fontSize: 15, fill: "var(--text-muted)" }} />
               <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
               <Radar name="Your Org" dataKey="yours" stroke="var(--accent-primary)" fill="var(--accent-primary)" fillOpacity={0.25} strokeWidth={2} />
-              <Radar name="Industry Avg" dataKey="industry" stroke="#3B82F6" fill="#3B82F6" fillOpacity={0.08} strokeWidth={2} strokeDasharray="6 4" />
+              <Radar name="Industry Avg" dataKey="industry" stroke="#22d3ee" fill="#22d3ee" fillOpacity={0.08} strokeWidth={2} strokeDasharray="6 4" />
               <Radar name="Best in Class" dataKey="best" stroke="var(--success)" fill="var(--success)" fillOpacity={0.05} strokeWidth={1.5} strokeDasharray="3 3" />
               <Tooltip contentStyle={{ ...TT }} />
               <Legend wrapperStyle={{ fontSize: 15 }} />
@@ -1870,7 +1870,7 @@ export function OrgHealthScorecard({ model, f, onBack, onNavigate, viewCtx }: { 
               <span className="text-[15px] text-[var(--text-secondary)] w-16">{d.subject}</span>
               <div className="flex-1 h-2 bg-[var(--surface-2)] rounded-full overflow-hidden relative">
                 <div className="h-full rounded-full" style={{ width: `${d.yours}%`, background: "var(--accent-primary)" }} />
-                <div className="absolute top-0 h-full w-0.5" style={{ left: `${d.industry}%`, background: "#3B82F6" }} />
+                <div className="absolute top-0 h-full w-0.5" style={{ left: `${d.industry}%`, background: "#22d3ee" }} />
               </div>
               <span className="text-[15px] font-data w-12 text-right font-semibold" style={{ color }}>{delta >= 0 ? "+" : ""}{delta}%</span>
             </div>;
@@ -1924,7 +1924,7 @@ export function AIImpactHeatmap({ model, f, onBack, onNavigate, viewCtx }: { mod
   const functions = data?.functions ?? [];
   const families = data?.families ?? [];
 
-  const cellColor = (score: number) => score >= IMPACT_SCORE_HIGH ? "rgba(239,68,68,0.7)" : score >= IMPACT_SCORE_MEDIUM ? "rgba(245,158,11,0.6)" : "rgba(16,185,129,0.5)";
+  const cellColor = (score: number) => score >= IMPACT_SCORE_HIGH ? "rgba(251,113,133,0.7)" : score >= IMPACT_SCORE_MEDIUM ? "rgba(251,191,36,0.6)" : "rgba(52,211,153,0.5)";
   const getCell = (func: string, fam: string) => cells.find(c => c.function === func && c.family === fam);
 
   return <div>
@@ -1953,9 +1953,9 @@ export function AIImpactHeatmap({ model, f, onBack, onNavigate, viewCtx }: { mod
             </table>
           </div>
           <div className="flex items-center gap-4 mt-3 text-[15px] text-[var(--text-muted)]">
-            <span className="flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ background: "rgba(16,185,129,0.5)" }} /> Low (0-3.5)</span>
-            <span className="flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ background: "rgba(245,158,11,0.6)" }} /> Moderate (3.5-6)</span>
-            <span className="flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ background: "rgba(239,68,68,0.7)" }} /> High (6-10)</span>
+            <span className="flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ background: "rgba(52,211,153,0.5)" }} /> Low (0-3.5)</span>
+            <span className="flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ background: "rgba(251,191,36,0.6)" }} /> Moderate (3.5-6)</span>
+            <span className="flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ background: "rgba(251,113,133,0.7)" }} /> High (6-10)</span>
           </div>
         </Card>
       </div>
@@ -2009,11 +2009,11 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
   const summary = data?.summary ?? {};
   const pairs = data?.pairs ?? [];
 
-  const MONO = "'JetBrains Mono', 'IBM Plex Mono', monospace";
-  const TRACK_COLORS: Record<string, string> = { E: "#ef4444", M: "#F97316", P: "#3B82F6", S: "#22d3ee", T: "#a78bfa" };
-  const funcColors: Record<string, string> = { Technology: "#0891B2", Finance: "#D4860A", HR: "#8B5CF6", Operations: "#F59E0B", Marketing: "#EC4899", Legal: "#EF4444", Sales: "#6366F1", Product: "#10B981" };
+  const MONO = "'JetBrains Mono', monospace";
+  const TRACK_COLORS: Record<string, string> = { E: "#fb7185", M: "#fbbf24", P: "#22d3ee", S: "#22d3ee", T: "#a78bfa" };
+  const funcColors: Record<string, string> = { Technology: "#0891B2", Finance: "#22d3ee", HR: "#a78bfa", Operations: "#fbbf24", Marketing: "#EC4899", Legal: "#fb7185", Sales: "#6366F1", Product: "#34d399" };
 
-  const overlapColor = (pct: number) => pct >= 90 ? "#34d399" : pct >= 70 ? "#10B981" : pct >= 50 ? "#F59E0B" : pct >= 30 ? "#F97316" : "#64748b";
+  const overlapColor = (pct: number) => pct >= 90 ? "#34d399" : pct >= 70 ? "#34d399" : pct >= 50 ? "#fbbf24" : pct >= 30 ? "#22d3ee" : "#64748b";
 
   // Derive per-cluster savings from opportunities
   const clusterSavings = useMemo(() => {
@@ -2064,7 +2064,7 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
 
       {/* Synthesis paragraph */}
       <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.7, marginBottom: 20, padding: "12px 16px", background: "rgba(255,255,255,0.04)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.08)" }}>
-        Analysis identified <span style={{ fontWeight: 700, color: "var(--text-primary)", fontFamily: MONO }}>{consolidationCount}</span> consolidation opportunities across <span style={{ fontWeight: 700, color: "var(--text-primary)", fontFamily: MONO }}>{departments.length}</span> departments. Acting on the top {Math.min(3, consolidationCount)} would save approximately <span style={{ fontWeight: 700, color: "#10B981", fontFamily: MONO }}>{fmtNum(totalSavings * 0.6 || Number(summary.potential_savings || 0) * 0.6)}</span> annually and affect <span style={{ fontWeight: 700, color: "var(--text-primary)", fontFamily: MONO }}>{totalAffected.toLocaleString()}</span> employees. Review the clusters below, prioritized by impact.
+        Analysis identified <span style={{ fontWeight: 700, color: "var(--text-primary)", fontFamily: MONO }}>{consolidationCount}</span> consolidation opportunities across <span style={{ fontWeight: 700, color: "var(--text-primary)", fontFamily: MONO }}>{departments.length}</span> departments. Acting on the top {Math.min(3, consolidationCount)} would save approximately <span style={{ fontWeight: 700, color: "#34d399", fontFamily: MONO }}>{fmtNum(totalSavings * 0.6 || Number(summary.potential_savings || 0) * 0.6)}</span> annually and affect <span style={{ fontWeight: 700, color: "var(--text-primary)", fontFamily: MONO }}>{totalAffected.toLocaleString()}</span> employees. Review the clusters below, prioritized by impact.
         {topModest && <span style={{ display: "block", marginTop: 8, fontSize: 12, color: "var(--text-muted)", fontStyle: "italic" }}>Note: Consolidation opportunities in this organization are modest — consider focusing efforts on other diagnostic areas first.</span>}
       </div>
 
@@ -2072,7 +2072,7 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
         {/* View toggle */}
         <div style={{ display: "inline-flex", background: "rgba(255,255,255,0.04)", borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", padding: 3 }}>
-          {(["list", "matrix"] as const).map(m => <button key={m} onClick={() => setViewMode(m)} style={{ padding: "5px 16px", borderRadius: 6, fontSize: 13, fontWeight: 600, border: "none", cursor: "pointer", background: viewMode === m ? "rgba(59,130,246,0.15)" : "transparent", color: viewMode === m ? "#3B82F6" : "#64748b", transition: "all 0.15s" }}>{m === "list" ? "List View" : "Matrix View"}</button>)}
+          {(["list", "matrix"] as const).map(m => <button key={m} onClick={() => setViewMode(m)} style={{ padding: "5px 16px", borderRadius: 6, fontSize: 13, fontWeight: 600, border: "none", cursor: "pointer", background: viewMode === m ? "rgba(34,211,238,0.15)" : "transparent", color: viewMode === m ? "#22d3ee" : "#64748b", transition: "all 0.15s" }}>{m === "list" ? "List View" : "Matrix View"}</button>)}
         </div>
         {/* Department filter */}
         <select value={deptFilter} onChange={e => setDeptFilter(e.target.value)} style={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 8, padding: "5px 12px", fontSize: 13, color: "var(--text-primary)", outline: "none" }}>
@@ -2081,11 +2081,11 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
         </select>
         {/* Overlap threshold chips */}
         <div style={{ display: "flex", gap: 4 }}>
-          {[{ label: "All", v: 0 }, { label: ">50%", v: 50 }, { label: ">70%", v: 70 }, { label: ">90%", v: 90 }].map(chip => <button key={chip.v} onClick={() => setOverlapFilter(chip.v)} style={{ padding: "4px 12px", borderRadius: 6, fontSize: 12, fontWeight: 600, border: "1px solid " + (overlapFilter === chip.v ? "rgba(59,130,246,0.4)" : "rgba(255,255,255,0.08)"), background: overlapFilter === chip.v ? "rgba(59,130,246,0.1)" : "transparent", color: overlapFilter === chip.v ? "#3B82F6" : "#64748b", cursor: "pointer" }}>Overlap {chip.label}</button>)}
+          {[{ label: "All", v: 0 }, { label: ">50%", v: 50 }, { label: ">70%", v: 70 }, { label: ">90%", v: 90 }].map(chip => <button key={chip.v} onClick={() => setOverlapFilter(chip.v)} style={{ padding: "4px 12px", borderRadius: 6, fontSize: 12, fontWeight: 600, border: "1px solid " + (overlapFilter === chip.v ? "rgba(34,211,238,0.4)" : "rgba(255,255,255,0.08)"), background: overlapFilter === chip.v ? "rgba(34,211,238,0.1)" : "transparent", color: overlapFilter === chip.v ? "#22d3ee" : "#64748b", cursor: "pointer" }}>Overlap {chip.label}</button>)}
         </div>
         {/* Savings threshold chips */}
         <div style={{ display: "flex", gap: 4 }}>
-          {[{ label: "All", v: 0 }, { label: ">$1M", v: 1e6 }, { label: ">$5M", v: 5e6 }].map(chip => <button key={chip.v} onClick={() => setSavingsFilter(chip.v)} style={{ padding: "4px 12px", borderRadius: 6, fontSize: 12, fontWeight: 600, border: "1px solid " + (savingsFilter === chip.v ? "rgba(16,185,129,0.4)" : "rgba(255,255,255,0.08)"), background: savingsFilter === chip.v ? "rgba(16,185,129,0.1)" : "transparent", color: savingsFilter === chip.v ? "#10B981" : "#64748b", cursor: "pointer" }}>Savings {chip.label}</button>)}
+          {[{ label: "All", v: 0 }, { label: ">$1M", v: 1e6 }, { label: ">$5M", v: 5e6 }].map(chip => <button key={chip.v} onClick={() => setSavingsFilter(chip.v)} style={{ padding: "4px 12px", borderRadius: 6, fontSize: 12, fontWeight: 600, border: "1px solid " + (savingsFilter === chip.v ? "rgba(52,211,153,0.4)" : "rgba(255,255,255,0.08)"), background: savingsFilter === chip.v ? "rgba(52,211,153,0.1)" : "transparent", color: savingsFilter === chip.v ? "#34d399" : "#64748b", cursor: "pointer" }}>Savings {chip.label}</button>)}
         </div>
       </div>
 
@@ -2096,7 +2096,7 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
           <div style={{ position: "absolute", bottom: 8, left: "50%", transform: "translateX(-50%)", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b" }}>Overlap %</div>
           <div style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%) rotate(-90deg)", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b" }}>Savings ($M)</div>
           {/* High-impact quadrant label */}
-          <div style={{ position: "absolute", top: 12, right: 16, fontSize: 11, fontWeight: 700, color: "#10B981", opacity: 0.6 }}>HIGH IMPACT</div>
+          <div style={{ position: "absolute", top: 12, right: 16, fontSize: 11, fontWeight: 700, color: "#34d399", opacity: 0.6 }}>HIGH IMPACT</div>
           {/* Quadrant lines */}
           <div style={{ position: "absolute", left: "50%", top: 0, bottom: 0, width: 1, background: "rgba(255,255,255,0.06)" }} />
           <div style={{ position: "absolute", top: "50%", left: 0, right: 0, height: 1, background: "rgba(255,255,255,0.06)" }} />
@@ -2109,8 +2109,8 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
               const yPct = maxSav > 0 ? (c._savings / maxSav) * 100 : 0;
               const size = Math.max(20, Math.min(60, (c.headcount / maxHC) * 50 + 10));
               const isHighImpact = c.avg_overlap >= 60 && c._savings >= maxSav * 0.4;
-              const fc = funcColors[c.function] || "#3B82F6";
-              return <button key={i} onClick={() => { setViewMode("list"); setExpandedCluster(c._idx); }} title={`${c.name}: ${c.avg_overlap}% overlap, ${fmtNum(c._savings)} savings, ${c.headcount} people`} style={{ position: "absolute", left: `${8 + xPct * 0.84}%`, bottom: `${8 + yPct * 0.84}%`, width: size, height: size, borderRadius: "50%", background: fc, opacity: isHighImpact ? 0.9 : 0.5, border: isHighImpact ? "2px solid #10B981" : "1px solid rgba(255,255,255,0.15)", cursor: "pointer", transition: "all 0.2s", transform: "translate(-50%, 50%)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, fontFamily: MONO, color: "#fff" }}>{c.roles.length}</button>;
+              const fc = funcColors[c.function] || "#22d3ee";
+              return <button key={i} onClick={() => { setViewMode("list"); setExpandedCluster(c._idx); }} title={`${c.name}: ${c.avg_overlap}% overlap, ${fmtNum(c._savings)} savings, ${c.headcount} people`} style={{ position: "absolute", left: `${8 + xPct * 0.84}%`, bottom: `${8 + yPct * 0.84}%`, width: size, height: size, borderRadius: "50%", background: fc, opacity: isHighImpact ? 0.9 : 0.5, border: isHighImpact ? "2px solid #34d399" : "1px solid rgba(255,255,255,0.15)", cursor: "pointer", transition: "all 0.2s", transform: "translate(-50%, 50%)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, fontFamily: MONO, color: "#fff" }}>{c.roles.length}</button>;
             });
           })()}
         </div>
@@ -2128,14 +2128,14 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
         {sortedClusters.map((c) => {
           const idx = c._idx;
           const isExpanded = expandedCluster === idx;
-          const fc = funcColors[c.function] || "#3B82F6";
+          const fc = funcColors[c.function] || "#22d3ee";
           const savings = c._savings;
           const opp = clusterOpportunity(c);
           const isReviewed = reviewed.has(idx);
           const dominantTrack = c.roles[0]?.charAt(0) || "P";
           const trackColor = TRACK_COLORS[dominantTrack] || fc;
 
-          return <div key={idx} style={{ background: "var(--surface-1)", border: `1px solid ${isReviewed ? "rgba(16,185,129,0.2)" : "rgba(255,255,255,0.08)"}`, borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.08)", transition: "border-color 0.15s" }}>
+          return <div key={idx} style={{ background: "var(--surface-1)", border: `1px solid ${isReviewed ? "rgba(52,211,153,0.2)" : "rgba(255,255,255,0.08)"}`, borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.08)", transition: "border-color 0.15s" }}>
             {/* Collapsed header */}
             <button onClick={() => setExpandedCluster(isExpanded ? null : idx)} style={{ width: "100%", padding: "14px 20px", textAlign: "left", display: "flex", alignItems: "center", gap: 16, background: "transparent", border: "none", cursor: "pointer", transition: "background 0.15s" }} onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.02)")} onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
               {/* Role count badge */}
@@ -2150,9 +2150,9 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
               {/* Stat pills */}
               <div style={{ display: "flex", gap: 8, alignItems: "center", flexShrink: 0 }}>
                 <span style={{ padding: "3px 10px", borderRadius: 6, fontSize: 12, fontWeight: 700, fontFamily: MONO, background: `${overlapColor(c.avg_overlap)}15`, color: overlapColor(c.avg_overlap) }}>Overlap: {c.avg_overlap.toFixed(1)}%</span>
-                {savings > 0 && <span style={{ padding: "3px 10px", borderRadius: 6, fontSize: 12, fontWeight: 700, fontFamily: MONO, background: "rgba(16,185,129,0.1)", color: "#10B981" }}>Savings: {fmtNum(savings)}</span>}
+                {savings > 0 && <span style={{ padding: "3px 10px", borderRadius: 6, fontSize: 12, fontWeight: 700, fontFamily: MONO, background: "rgba(52,211,153,0.1)", color: "#34d399" }}>Savings: {fmtNum(savings)}</span>}
                 <span style={{ padding: "3px 10px", borderRadius: 6, fontSize: 12, fontWeight: 600, background: "rgba(255,255,255,0.04)", color: "#64748b" }}>Affects: {c.headcount}</span>
-                {isReviewed && <span style={{ padding: "3px 8px", borderRadius: 6, fontSize: 11, fontWeight: 600, background: "rgba(16,185,129,0.1)", color: "#10B981" }}>Reviewed</span>}
+                {isReviewed && <span style={{ padding: "3px 8px", borderRadius: 6, fontSize: 11, fontWeight: 600, background: "rgba(52,211,153,0.1)", color: "#34d399" }}>Reviewed</span>}
               </div>
 
               {/* Chevron */}
@@ -2176,9 +2176,9 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
                       const rolePair = pairs.find(p => (p.role_a === r || p.role_b === r) && (c.roles.includes(p.role_a) && c.roles.includes(p.role_b)));
                       const pairOverlap = rolePair?.similarity || c.avg_overlap;
                       const isCandidate = opp && (opp.role_a === r || opp.role_b === r);
-                      return <tr key={r} style={{ borderBottom: ri < c.roles.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none", background: isCandidate ? "rgba(249,115,22,0.06)" : "transparent" }}>
+                      return <tr key={r} style={{ borderBottom: ri < c.roles.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none", background: isCandidate ? "rgba(251,191,36,0.06)" : "transparent" }}>
                         <td style={{ padding: "8px 12px", fontWeight: 600, color: "var(--text-primary)" }}>
-                          {isCandidate && <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: 3, background: "#F97316", marginRight: 8 }} />}
+                          {isCandidate && <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: 3, background: "#fbbf24", marginRight: 8 }} />}
                           {r}
                         </td>
                         <td style={{ padding: "8px 12px", textAlign: "center", fontFamily: MONO, fontWeight: 700, color: "var(--text-secondary)" }}>{Math.round(c.headcount / c.roles.length)}</td>
@@ -2191,18 +2191,18 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
               </div>
 
               {/* Recommended action card */}
-              {opp && <div style={{ background: "rgba(59,130,246,0.04)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 12, padding: 16, marginBottom: 16 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#3B82F6", marginBottom: 8 }}>Recommended Action</div>
-                <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", marginBottom: 8 }}>Consolidate <span style={{ color: "#F97316" }}>{opp.role_a}</span> and <span style={{ color: "#F97316" }}>{opp.role_b}</span> into a single unified role</div>
+              {opp && <div style={{ background: "rgba(34,211,238,0.04)", border: "1px solid rgba(34,211,238,0.15)", borderRadius: 12, padding: 16, marginBottom: 16 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#22d3ee", marginBottom: 8 }}>Recommended Action</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", marginBottom: 8 }}>Consolidate <span style={{ color: "#fbbf24" }}>{opp.role_a}</span> and <span style={{ color: "#fbbf24" }}>{opp.role_b}</span> into a single unified role</div>
                 <div style={{ display: "flex", gap: 16, marginBottom: 12, flexWrap: "wrap" }}>
-                  <span style={{ fontSize: 12, color: "#64748b" }}>Estimated impact: <span style={{ fontFamily: MONO, fontWeight: 700, color: "#10B981" }}>-{fmtNum(opp.estimated_savings)}</span> cost</span>
+                  <span style={{ fontSize: 12, color: "#64748b" }}>Estimated impact: <span style={{ fontFamily: MONO, fontWeight: 700, color: "#34d399" }}>-{fmtNum(opp.estimated_savings)}</span> cost</span>
                   <span style={{ fontSize: 12, color: "#64748b" }}>Affects: <span style={{ fontFamily: MONO, fontWeight: 700, color: "var(--text-primary)" }}>{opp.headcount_affected}</span> people</span>
-                  <span style={{ fontSize: 12, color: "#64748b" }}>Risk: <span style={{ fontWeight: 700, color: opp.risk === "Low" ? "#10B981" : opp.risk === "High" ? "#EF4444" : "#F59E0B" }}>{opp.risk}</span></span>
+                  <span style={{ fontSize: 12, color: "#64748b" }}>Risk: <span style={{ fontWeight: 700, color: opp.risk === "Low" ? "#34d399" : opp.risk === "High" ? "#fb7185" : "#fbbf24" }}>{opp.risk}</span></span>
                 </div>
                 <div style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: 12 }}>Both roles share {opp.similarity}% identical skill requirements and overlapping responsibilities across {c.shared_skills.slice(0, 4).join(", ")}. Current title differences appear to be legacy organizational structure that can be rationalized.</div>
                 <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                  {onNavigate && <button onClick={() => onNavigate("build")} style={{ padding: "7px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600, background: "#3B82F6", color: "#fff", border: "none", cursor: "pointer" }}>Add to Design Scenario</button>}
-                  <button onClick={() => setReviewed(prev => { const s = new Set(prev); s.add(idx); return s; })} style={{ padding: "7px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600, background: "transparent", color: isReviewed ? "#10B981" : "#64748b", border: "1px solid rgba(255,255,255,0.08)", cursor: "pointer" }}>{isReviewed ? "Reviewed" : "Mark as Reviewed"}</button>
+                  {onNavigate && <button onClick={() => onNavigate("build")} style={{ padding: "7px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600, background: "#22d3ee", color: "#fff", border: "none", cursor: "pointer" }}>Add to Design Scenario</button>}
+                  <button onClick={() => setReviewed(prev => { const s = new Set(prev); s.add(idx); return s; })} style={{ padding: "7px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600, background: "transparent", color: isReviewed ? "#34d399" : "#64748b", border: "1px solid rgba(255,255,255,0.08)", cursor: "pointer" }}>{isReviewed ? "Reviewed" : "Mark as Reviewed"}</button>
                   {onNavigate && <button onClick={() => onNavigate("jobarch")} style={{ padding: "7px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600, background: "transparent", color: "#64748b", border: "none", cursor: "pointer" }}>View in Job Architecture Compare →</button>}
                 </div>
               </div>}

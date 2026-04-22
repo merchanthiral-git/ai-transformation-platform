@@ -29,11 +29,11 @@ const CHART_CONTAINER: React.CSSProperties = {
   padding: 20,
 };
 
-const TITLE: React.CSSProperties = { fontSize: 14, fontWeight: 500, color: "#1C2B3A" };
+const TITLE: React.CSSProperties = { fontSize: 14, fontWeight: 500, color: "#05070d" };
 const SUBTITLE: React.CSSProperties = { fontSize: 11, fontWeight: 400, color: "rgba(28,43,58,0.65)" };
 
 const GRAY_BAR = "rgba(28,43,58,0.25)";
-const BLUE_BAR = "#3B82F6";
+const BLUE_BAR = "#22d3ee";
 const DELTA_POS = "#16A34A";
 const DELTA_NEG = "#DC2626";
 
@@ -78,7 +78,7 @@ function ChangedLayerRow({
     <div style={{
       position: "absolute", top: "100%", left: 60, zIndex: 20,
       background: "#FFFFFF", border: "0.5px solid rgba(28,43,58,0.2)", borderRadius: 6,
-      padding: 10, fontSize: 11, color: "#1C2B3A", lineHeight: 1.8,
+      padding: 10, fontSize: 11, color: "#05070d", lineHeight: 1.8,
       boxShadow: "0 4px 12px rgba(0,0,0,0.08)", whiteSpace: "nowrap", pointerEvents: "none",
     }}>
       <div style={{ fontSize: 12, fontWeight: 500, marginBottom: 2 }}>{d.layer}</div>
@@ -108,12 +108,12 @@ function ChangedLayerRow({
         background: hovered || focused ? "rgba(247,245,240,0.5)" : "transparent",
         borderRadius: 4,
         transition: "background 0.15s ease",
-        outline: focused ? "2px solid #3B82F6" : "none",
+        outline: focused ? "2px solid #22d3ee" : "none",
         outlineOffset: 1,
       }}
     >
       {/* Layer badge */}
-      <div style={{ fontSize: 12, fontWeight: 500, color: "#1C2B3A", textAlign: "right" }}>{d.layer}</div>
+      <div style={{ fontSize: 12, fontWeight: 500, color: "#05070d", textAlign: "right" }}>{d.layer}</div>
 
       {/* Side-by-side bars */}
       <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
@@ -172,7 +172,7 @@ export default function LayerDistributionChart({ data }: { data?: LayerData[] })
           background: "rgba(247,245,240,0.5)", borderRadius: 8,
           border: "0.5px dashed rgba(28,43,58,0.15)",
         }}>
-          <div style={{ fontSize: 13, fontWeight: 500, color: "#1C2B3A", marginBottom: 4 }}>
+          <div style={{ fontSize: 13, fontWeight: 500, color: "#05070d", marginBottom: 4 }}>
             This scenario preserves the existing layer distribution.
           </div>
           <div style={{ fontSize: 11, color: "rgba(28,43,58,0.55)" }}>
@@ -198,7 +198,7 @@ export default function LayerDistributionChart({ data }: { data?: LayerData[] })
               fontSize: 12,
               fontWeight: 500,
               border: "0.5px solid rgba(28,43,58,0.15)",
-              background: mode === m ? "#1C2B3A" : "transparent",
+              background: mode === m ? "#05070d" : "transparent",
               color: mode === m ? "#fff" : "rgba(28,43,58,0.55)",
               cursor: "pointer",
               transition: "all 0.15s ease",
@@ -304,7 +304,7 @@ export default function LayerDistributionChart({ data }: { data?: LayerData[] })
           <div style={{ fontSize: 11, color: "rgba(28,43,58,0.55)", textTransform: "uppercase" as const, letterSpacing: "0.05em", marginBottom: 4 }}>
             Total Org
           </div>
-          <div style={{ fontSize: 15, fontWeight: 500, color: "#1C2B3A" }}>
+          <div style={{ fontSize: 15, fontWeight: 500, color: "#05070d" }}>
             {totalCur.toLocaleString()} {"\u2192"} {totalFut.toLocaleString()}
           </div>
         </div>
@@ -315,7 +315,7 @@ export default function LayerDistributionChart({ data }: { data?: LayerData[] })
           <div style={{ fontSize: 11, color: "rgba(28,43,58,0.55)", textTransform: "uppercase" as const, letterSpacing: "0.05em", marginBottom: 4 }}>
             Net Change
           </div>
-          <div style={{ fontSize: 15, fontWeight: 500, color: totalDelta < 0 ? DELTA_NEG : totalDelta > 0 ? DELTA_POS : "#1C2B3A" }}>
+          <div style={{ fontSize: 15, fontWeight: 500, color: totalDelta < 0 ? DELTA_NEG : totalDelta > 0 ? DELTA_POS : "#05070d" }}>
             {totalDelta >= 0 ? "+" : ""}{totalDelta.toLocaleString()} ({totalDeltaPct >= 0 ? "+" : ""}{totalDeltaPct.toFixed(1)}%)
           </div>
         </div>
@@ -326,7 +326,7 @@ export default function LayerDistributionChart({ data }: { data?: LayerData[] })
           <div style={{ fontSize: 11, color: "rgba(28,43,58,0.55)", textTransform: "uppercase" as const, letterSpacing: "0.05em", marginBottom: 4 }}>
             Layers Impacted
           </div>
-          <div style={{ fontSize: 15, fontWeight: 500, color: "#1C2B3A" }}>
+          <div style={{ fontSize: 15, fontWeight: 500, color: "#05070d" }}>
             {changedLayers.length} of {rows.length}
           </div>
         </div>

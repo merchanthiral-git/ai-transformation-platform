@@ -9,7 +9,7 @@ import { KNOWLEDGE_BASE, KnowledgeModal } from "./KnowledgeBase";
    ═══════════════════════════════════════════════════════════════ */
 
 const IS: React.CSSProperties = { width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid rgba(34,211,238,0.15)", background: "rgba(14,20,36,0.04)", color: "var(--text-primary)", fontSize: 15, fontFamily: "'Inter Tight', sans-serif", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s" };
-const LBL: React.CSSProperties = { display: "block", fontSize: 15, color: "var(--text-muted)", marginBottom: 5, fontFamily: "'IBM Plex Mono', monospace", textTransform: "uppercase", letterSpacing: "1.5px" };
+const LBL: React.CSSProperties = { display: "block", fontSize: 15, color: "var(--text-muted)", marginBottom: 5, fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", letterSpacing: "1.5px" };
 
 export function PlatformHub({ user, onBack, onUpdateUser }: { user: authApi.AuthUser; onBack: () => void; onUpdateUser: (u: authApi.AuthUser) => void }) {
   const [tab, setTab] = useState("account");
@@ -115,7 +115,7 @@ function AccountTab({ user, onUpdate }: { user: authApi.AuthUser; onUpdate: (u: 
         </div>
       </div>
       {err && <div className="rounded-xl px-4 py-2.5 mb-4 text-[15px] font-data" style={{ background: "rgba(220,50,50,0.06)", border: "1px solid rgba(220,50,50,0.15)", color: "#f08080" }}>{err}</div>}
-      {msg && <div className="rounded-xl px-4 py-2.5 mb-4 text-[15px] font-data" style={{ background: "rgba(16,185,129,0.06)", border: "1px solid rgba(16,185,129,0.15)", color: "#6ee7b7" }}>{msg}</div>}
+      {msg && <div className="rounded-xl px-4 py-2.5 mb-4 text-[15px] font-data" style={{ background: "rgba(52,211,153,0.06)", border: "1px solid rgba(52,211,153,0.15)", color: "#6ee7b7" }}>{msg}</div>}
       <div className="grid grid-cols-2 gap-5">
         <div><label style={LBL}>Display Name</label><input value={dn} onChange={e => setDn(e.target.value)} style={IS} onFocus={e => e.currentTarget.style.borderColor = "rgba(34,211,238,0.4)"} onBlur={e => e.currentTarget.style.borderColor = "rgba(34,211,238,0.15)"} /></div>
         <div><label style={LBL}>Email</label><input value={email} onChange={e => setEmail(e.target.value)} type="email" style={IS} onFocus={e => e.currentTarget.style.borderColor = "rgba(34,211,238,0.4)"} onBlur={e => e.currentTarget.style.borderColor = "rgba(34,211,238,0.15)"} /></div>
@@ -173,13 +173,13 @@ function AboutTab() {
       <div style={{ display: "flex", gap: 48, alignItems: "flex-start" }}>
         {/* Left: Bio (60%) */}
         <div style={{ flex: "0 0 58%", minWidth: 0 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "rgba(34,211,238,0.5)", textTransform: "uppercase", letterSpacing: 2.5, marginBottom: 12, fontFamily: "'IBM Plex Mono', monospace" }}>About</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "rgba(34,211,238,0.5)", textTransform: "uppercase", letterSpacing: 2.5, marginBottom: 12, fontFamily: "'JetBrains Mono', monospace" }}>About</div>
           <p style={{ fontSize: 18, lineHeight: 1.9, color: "rgba(136,146,171,0.55)", fontFamily: "'Inter Tight', sans-serif" }}>Born in Montreal and raised in the mountains of Western North Carolina, Hiral is now based in <strong style={{ color: "var(--accent-primary)" }}>New York</strong> as a Consultant at <strong style={{ color: "var(--accent-primary)" }}>Mercer</strong>. He holds a Bachelor of Science from the University of North Carolina at Charlotte.</p>
           <p style={{ fontSize: 18, lineHeight: 1.9, color: "rgba(136,146,171,0.55)", fontFamily: "'Inter Tight', sans-serif", marginTop: 20 }}>Passionate about the intersection of <strong style={{ color: "var(--accent-primary)" }}>AI and people</strong>, and the democratization of knowledge that enables a more confident workforce &mdash; this platform is a reflection of that mission. The AI Transformation Platform provides the analytical rigor of a top-tier consulting engagement in a self-service tool that any organization can use.</p>
         </div>
         {/* Right: At a Glance (40%) */}
         <div style={{ flex: "0 0 38%", minWidth: 0, borderRadius: 20, padding: "32px 28px", background: "rgba(255,255,255,0.02)", backdropFilter: "blur(16px)", border: "1px solid rgba(34,211,238,0.1)", boxShadow: "0 4px 32px rgba(0,0,0,0.1)" }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(34,211,238,0.5)", textTransform: "uppercase", letterSpacing: 2, marginBottom: 20, fontFamily: "'IBM Plex Mono', monospace" }}>At a Glance</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(34,211,238,0.5)", textTransform: "uppercase", letterSpacing: 2, marginBottom: 20, fontFamily: "'JetBrains Mono', monospace" }}>At a Glance</div>
           {[
             { icon: "\u{1F393}", label: "UNC Charlotte \u2014 BS" },
             { icon: "\u{1F4CD}", label: "New York, NY" },
@@ -211,9 +211,9 @@ function AboutTab() {
         <div key={quoteIdx} className="relative overflow-hidden" style={{ padding: "48px 56px", borderRadius: 24, background: "rgba(255,255,255,0.03)", backdropFilter: "blur(20px)", border: `1px solid rgba(136,146,171,0.08)`, borderLeft: `4px solid ${cur.accent}`, boxShadow: "0 8px 48px rgba(0,0,0,0.15)", animation: "quoteFade 0.5s ease" }}>
           <div className="absolute top-2 left-12 font-serif leading-none select-none" style={{ fontSize: 100, color: `${cur.accent}10` }}>{"\u201C"}</div>
           <div className="relative z-10">
-            <div style={{ fontSize: 13, textTransform: "uppercase", letterSpacing: 2.5, color: `${cur.accent}90`, marginBottom: 20, fontFamily: "'IBM Plex Mono', monospace", fontWeight: 600 }}>{cur.q}</div>
+            <div style={{ fontSize: 13, textTransform: "uppercase", letterSpacing: 2.5, color: `${cur.accent}90`, marginBottom: 20, fontFamily: "'JetBrains Mono', monospace", fontWeight: 600 }}>{cur.q}</div>
             <blockquote style={{ fontSize: 22, fontFamily: "'Inter Tight', sans-serif", lineHeight: 1.85, color: "rgba(232,236,245,0.7)", fontStyle: "italic", marginBottom: 28 }}>{cur.text}</blockquote>
-            <div style={{ textAlign: "right", fontFamily: "'IBM Plex Mono', monospace", fontSize: 14, fontWeight: 700, color: cur.accent }}>{"\u2014"} {cur.author}</div>
+            <div style={{ textAlign: "right", fontFamily: "'JetBrains Mono', monospace", fontSize: 14, fontWeight: 700, color: cur.accent }}>{"\u2014"} {cur.author}</div>
           </div>
         </div>
 
@@ -345,7 +345,7 @@ function UseCasesTab() {
       <div className="flex items-center gap-2 mb-2"><span className="text-2xl">{uc.icon}</span><span className="text-[15px] px-2.5 py-0.5 rounded-full font-semibold" style={{ background: "rgba(34,211,238,0.08)", color: "var(--accent-primary)" }}>{uc.industry}</span></div>
       <h2 className="text-[20px] font-bold font-heading text-[var(--text-primary)] mb-1">{uc.company}</h2>
       <div className="text-[15px] font-semibold mb-4" style={{ color: "var(--accent-primary)" }}>{uc.challenge}</div>
-      <div className="rounded-xl p-4 mb-5" style={{ background: "rgba(16,185,129,0.04)", border: "1px solid rgba(16,185,129,0.1)" }}><div className="text-[15px] font-bold uppercase tracking-wider mb-1" style={{ color: "var(--success)" }}>Outcome</div><div className="text-[15px] text-[var(--text-primary)] font-semibold">{uc.outcome}</div></div>
+      <div className="rounded-xl p-4 mb-5" style={{ background: "rgba(52,211,153,0.04)", border: "1px solid rgba(52,211,153,0.1)" }}><div className="text-[15px] font-bold uppercase tracking-wider mb-1" style={{ color: "var(--success)" }}>Outcome</div><div className="text-[15px] text-[var(--text-primary)] font-semibold">{uc.outcome}</div></div>
       <p className="text-[15px] text-[var(--text-secondary)] leading-[1.8]">{uc.detail}</p>
     </div>
   </div>;
@@ -435,7 +435,7 @@ function ReleasesTab() {
         <div className="flex items-center gap-3 mb-1">
           <span className="text-[16px] font-black font-data" style={{ color: "var(--accent-primary)" }}>v{r.ver}</span>
           <span className="text-[15px]" style={{ color: "rgba(34,211,238,0.35)" }}>{r.date}</span>
-          {r.badges.map(b => <span key={b} className="text-[15px] font-bold px-2 py-0.5 rounded-full" style={{ color: b === "New Feature" ? "var(--success)" : b === "Improvement" ? "var(--accent-primary)" : "var(--text-muted)", background: b === "New Feature" ? "rgba(16,185,129,0.08)" : b === "Improvement" ? "rgba(34,211,238,0.08)" : "rgba(255,255,255,0.03)" }}>{b}</span>)}
+          {r.badges.map(b => <span key={b} className="text-[15px] font-bold px-2 py-0.5 rounded-full" style={{ color: b === "New Feature" ? "var(--success)" : b === "Improvement" ? "var(--accent-primary)" : "var(--text-muted)", background: b === "New Feature" ? "rgba(52,211,153,0.08)" : b === "Improvement" ? "rgba(34,211,238,0.08)" : "rgba(255,255,255,0.03)" }}>{b}</span>)}
         </div>
         <div className="text-[14px] font-bold text-[var(--text-primary)] font-heading mb-1">{r.title}</div>
         <p className="text-[15px] text-[var(--text-secondary)] leading-relaxed">{r.desc}</p>
@@ -544,8 +544,8 @@ function AdminTab() {
         </tr></thead>
         <tbody>{users.map(u => {
           const activity = String(u.activity || "Never");
-          const actColors: Record<string, string> = { Online: "#10B981", Today: "#22d3ee", "This week": "#8B5CF6", "This month": "rgba(34,211,238,0.5)", Inactive: "#EF4444", Never: "rgba(34,211,238,0.3)" };
-          const actBgs: Record<string, string> = { Online: "rgba(16,185,129,0.1)", Today: "rgba(34,211,238,0.1)", "This week": "rgba(139,92,246,0.08)", "This month": "rgba(34,211,238,0.06)", Inactive: "rgba(239,68,68,0.08)", Never: "rgba(34,211,238,0.04)" };
+          const actColors: Record<string, string> = { Online: "#34d399", Today: "#22d3ee", "This week": "#a78bfa", "This month": "rgba(34,211,238,0.5)", Inactive: "#fb7185", Never: "rgba(34,211,238,0.3)" };
+          const actBgs: Record<string, string> = { Online: "rgba(52,211,153,0.1)", Today: "rgba(34,211,238,0.1)", "This week": "rgba(167,139,250,0.08)", "This month": "rgba(34,211,238,0.06)", Inactive: "rgba(251,113,133,0.08)", Never: "rgba(34,211,238,0.04)" };
           return <tr key={String(u.id)} className="transition-colors" style={{ borderBottom: "1px solid rgba(34,211,238,0.04)" }}>
           <td className="px-3 py-2.5">
             <div className="font-semibold text-[var(--text-primary)]">{String(u.username)}</div>
@@ -556,7 +556,7 @@ function AdminTab() {
           <td className="px-3 py-2.5 font-data" style={{ color: "rgba(34,211,238,0.4)" }}>{String(u.last_login || "Never")}</td>
           <td className="px-3 py-2.5"><span className="text-[12px] px-2 py-0.5 rounded-full font-semibold" style={{ color: actColors[activity] || actColors.Never, background: actBgs[activity] || actBgs.Never }}>{activity}</span></td>
           <td className="px-3 py-2.5 font-data text-center" style={{ color: "var(--accent-primary)" }}>{String(u.project_count || 0)}</td>
-          <td className="px-3 py-2.5"><span className="text-[12px] px-2 py-0.5 rounded-full font-semibold" style={{ color: u.is_active ? "var(--success)" : "var(--risk)", background: u.is_active ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)" }}>{u.is_active ? "Active" : "Disabled"}</span></td>
+          <td className="px-3 py-2.5"><span className="text-[12px] px-2 py-0.5 rounded-full font-semibold" style={{ color: u.is_active ? "var(--success)" : "var(--risk)", background: u.is_active ? "rgba(52,211,153,0.08)" : "rgba(251,113,133,0.08)" }}>{u.is_active ? "Active" : "Disabled"}</span></td>
           <td className="px-3 py-2.5">{String(u.email) !== "merchanthiral@gmail.com" && <button onClick={() => toggleStatus(String(u.id), !!u.is_active)} className="text-[13px] font-semibold transition-colors" style={{ color: u.is_active ? "var(--risk)" : "var(--success)" }}>{u.is_active ? "Disable" : "Enable"}</button>}</td>
         </tr>; })}</tbody>
       </table>

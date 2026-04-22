@@ -52,7 +52,7 @@ const defaultInsights: Insight[] = [
 
 /* Phase 4 color palette */
 const TEAL = "#14B8A6";
-const AMBER = "#F97316";
+const AMBER = "#fbbf24";
 const CORAL = "#D85A30";
 
 /* Navy reference for text */
@@ -108,7 +108,7 @@ function DeptRow({
         background: hovered || focused ? "rgba(28,43,58,0.03)" : "transparent",
         transition: "background 0.15s ease",
         position: "relative",
-        outline: focused ? "2px solid #3B82F6" : "none",
+        outline: focused ? "2px solid #22d3ee" : "none",
         outlineOffset: 1,
       }}
     >
@@ -154,7 +154,7 @@ function DeptRow({
                   color: isWide ? "#fff" : seg.color,
                   fontSize: 11,
                   fontWeight: 600,
-                  fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace",
+                  fontFamily: "'JetBrains Mono', monospace",
                 }}
               >
                 {isWide ? (showLabel ? `${seg.shortLabel} ${seg.count}` : seg.count) : null}
@@ -167,7 +167,7 @@ function DeptRow({
                       color: seg.color,
                       fontSize: 11,
                       fontWeight: 600,
-                      fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace",
+                      fontFamily: "'JetBrains Mono', monospace",
                       whiteSpace: "nowrap",
                     }}
                   >
@@ -187,7 +187,7 @@ function DeptRow({
           fontSize: 12,
           fontWeight: 500,
           color: NAVY,
-          fontFamily: "'IBM Plex Mono', monospace",
+          fontFamily: "monospace",
         }}
       >
         {impacted}
@@ -430,7 +430,7 @@ export default function RoleMigrationChart({
                 fontSize: 22,
                 fontWeight: 500,
                 color: NAVY,
-                fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace",
+                fontFamily: "'JetBrains Mono', monospace",
                 lineHeight: 1.2,
               }}
             >

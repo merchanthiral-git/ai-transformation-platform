@@ -88,7 +88,7 @@ export function ExportReport({ model, f, onBack, onNavigate, jobStates, simState
           { label: "Internal Fill", value: `${mp.internal_fill || 0} roles`, icon: "🏪" },
         ].map(k => <div key={k.label} className="bg-[var(--surface-2)] rounded-xl p-3 border border-[var(--border)] text-center transition-all hover:border-[var(--accent-primary)]/30 hover:translate-y-[-1px]">
           <div className="text-lg mb-1">{k.icon}</div>
-          <div className="text-[17px] font-extrabold text-[var(--text-primary)]" style={{ fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}>{String(k.value)}</div>
+          <div className="text-[17px] font-extrabold text-[var(--text-primary)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{String(k.value)}</div>
           <div className="text-[13px] text-[var(--text-muted)] uppercase">{k.label}</div>
         </div>)}
       </div>
@@ -99,7 +99,7 @@ export function ExportReport({ model, f, onBack, onNavigate, jobStates, simState
       <div className="grid grid-cols-4 gap-3 mb-2">
         <div className="bg-[var(--surface-2)] rounded-xl p-3 border border-[var(--border)] text-center">
           <div className="text-lg mb-1">✏️</div>
-          <div className="text-[17px] font-extrabold text-[var(--text-primary)]" style={{ fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}>{jobStates ? Object.values(jobStates).filter(s => s.deconSubmitted).length : 0}</div>
+          <div className="text-[17px] font-extrabold text-[var(--text-primary)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{jobStates ? Object.values(jobStates).filter(s => s.deconSubmitted).length : 0}</div>
           <div className="text-[13px] text-[var(--text-muted)] uppercase">Jobs Designed</div>
         </div>
         <div className="bg-[var(--surface-2)] rounded-xl p-3 border border-[var(--border)] text-center">
@@ -109,12 +109,12 @@ export function ExportReport({ model, f, onBack, onNavigate, jobStates, simState
         </div>
         <div className="bg-[var(--surface-2)] rounded-xl p-3 border border-[var(--border)] text-center">
           <div className="text-lg mb-1">📝</div>
-          <div className="text-[17px] font-extrabold text-[var(--text-primary)]" style={{ fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}>{decisionLog?.length || 0}</div>
+          <div className="text-[17px] font-extrabold text-[var(--text-primary)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{decisionLog?.length || 0}</div>
           <div className="text-[13px] text-[var(--text-muted)] uppercase">Decisions Logged</div>
         </div>
         <div className="bg-[var(--surface-2)] rounded-xl p-3 border border-[var(--border)] text-center">
           <div className="text-lg mb-1">⚠️</div>
-          <div className="text-[17px] font-extrabold text-[var(--text-primary)]" style={{ fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}>{riskRegister?.filter(r => r.status === "Open").length || 0}</div>
+          <div className="text-[17px] font-extrabold text-[var(--text-primary)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{riskRegister?.filter(r => r.status === "Open").length || 0}</div>
           <div className="text-[13px] text-[var(--text-muted)] uppercase">Open Risks</div>
         </div>
       </div>
@@ -277,17 +277,17 @@ Be specific with numbers from the data. Keep each item to 1-2 sentences max.`
     const printWin = window.open("", "_blank");
     if (!printWin) { showToast("Enable pop-ups to export PDF"); return; }
     printWin.document.write(`<!DOCTYPE html><html><head><title>Executive Summary — AI Transformation</title>
-      <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+      <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;600;700&display=swap" rel="stylesheet">
       <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Outfit', sans-serif; color: #1a1a2e; padding: 40px; max-width: 800px; margin: 0 auto; }
+        body { font-family: 'Inter Tight', sans-serif; color: #1a1a2e; padding: 40px; max-width: 800px; margin: 0 auto; }
         h1 { font-size: 22px; font-weight: 700; margin-bottom: 8px; color: #C07030; }
-        h2 { font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #D4860A; margin: 20px 0 8px; border-bottom: 2px solid #E8C547; padding-bottom: 4px; }
+        h2 { font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #22d3ee; margin: 20px 0 8px; border-bottom: 2px solid #E8C547; padding-bottom: 4px; }
         .subtitle { font-size: 12px; color: #666; margin-bottom: 16px; }
         .overview { font-size: 13px; line-height: 1.6; margin-bottom: 16px; color: #333; }
         .kpi-row { display: flex; gap: 12px; margin-bottom: 16px; }
-        .kpi { flex: 1; background: #f8f4ef; border-radius: 8px; padding: 12px; text-align: center; border-left: 3px solid #D4860A; }
-        .kpi-val { font-family: 'IBM Plex Mono', monospace; font-size: 18px; font-weight: 700; color: #C07030; }
+        .kpi { flex: 1; background: #e8ecf5; border-radius: 8px; padding: 12px; text-align: center; border-left: 3px solid #22d3ee; }
+        .kpi-val { font-family: monospace; font-size: 18px; font-weight: 700; color: #C07030; }
         .kpi-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; color: #888; margin-top: 2px; }
         ul { padding-left: 20px; margin-bottom: 12px; }
         li { font-size: 12px; line-height: 1.8; color: #333; }
@@ -324,7 +324,7 @@ Be specific with numbers from the data. Keep each item to 1-2 sentences max.`
 
       {/* Preview — this div gets exported */}
       <div id="exec-summary-print" className="bg-[var(--surface-2)] rounded-xl p-6 border border-[var(--border)]">
-        <h1 style={{ fontFamily: "'Outfit',sans-serif", fontSize: 20, fontWeight: 700, color: "var(--warning)", marginBottom: 4 }}>{summary.headline}</h1>
+        <h1 style={{ fontFamily: "'Inter Tight',sans-serif", fontSize: 20, fontWeight: 700, color: "var(--warning)", marginBottom: 4 }}>{summary.headline}</h1>
         <div style={{ fontSize: 15, color: "var(--text-muted)", marginBottom: 12 }}>{model} · {new Date().toLocaleDateString()} · Confidential</div>
 
         <div style={{ fontSize: 15, lineHeight: 1.6, color: "var(--text-secondary)", marginBottom: 16 }}>{summary.overview}</div>
@@ -338,7 +338,7 @@ Be specific with numbers from the data. Keep each item to 1-2 sentences max.`
             { label: "Net HC Δ", value: wf.net_change || 0 },
             { label: "Investment", value: fmtNum(bbba.total_investment || 0) },
           ].map(k => <div key={k.label} className="text-center bg-[var(--surface-1)] rounded-lg p-2 border border-[var(--border)]">
-            <div className="text-[15px] font-extrabold text-[var(--accent-primary)]" style={{ fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace" }}>{String(k.value)}</div>
+            <div className="text-[15px] font-extrabold text-[var(--accent-primary)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{String(k.value)}</div>
             <div className="text-[13px] text-[var(--text-muted)] uppercase">{k.label}</div>
           </div>)}
         </div>
@@ -346,19 +346,19 @@ Be specific with numbers from the data. Keep each item to 1-2 sentences max.`
         {/* Sections */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <h2 style={{ fontFamily: "'Outfit',sans-serif", fontSize: 15, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: 1, color: "var(--accent-primary)", borderBottom: "2px solid var(--warning)", paddingBottom: 4, marginBottom: 8 }}>Key Findings</h2>
+            <h2 style={{ fontFamily: "'Inter Tight',sans-serif", fontSize: 15, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: 1, color: "var(--accent-primary)", borderBottom: "2px solid var(--warning)", paddingBottom: 4, marginBottom: 8 }}>Key Findings</h2>
             <ul className="space-y-1 list-disc pl-4">{summary.findings.map((f, i) => <li key={i} className="text-[15px] text-[var(--text-secondary)] leading-relaxed">{f}</li>)}</ul>
           </div>
           <div>
-            <h2 style={{ fontFamily: "'Outfit',sans-serif", fontSize: 15, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: 1, color: "var(--accent-primary)", borderBottom: "2px solid var(--warning)", paddingBottom: 4, marginBottom: 8 }}>Recommendations</h2>
+            <h2 style={{ fontFamily: "'Inter Tight',sans-serif", fontSize: 15, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: 1, color: "var(--accent-primary)", borderBottom: "2px solid var(--warning)", paddingBottom: 4, marginBottom: 8 }}>Recommendations</h2>
             <ul className="space-y-1 list-disc pl-4">{summary.recommendations.map((r, i) => <li key={i} className="text-[15px] text-[var(--text-secondary)] leading-relaxed">{r}</li>)}</ul>
           </div>
           <div>
-            <h2 style={{ fontFamily: "'Outfit',sans-serif", fontSize: 15, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: 1, color: "var(--accent-primary)", borderBottom: "2px solid var(--warning)", paddingBottom: 4, marginBottom: 8 }}>Projected Impact</h2>
+            <h2 style={{ fontFamily: "'Inter Tight',sans-serif", fontSize: 15, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: 1, color: "var(--accent-primary)", borderBottom: "2px solid var(--warning)", paddingBottom: 4, marginBottom: 8 }}>Projected Impact</h2>
             <ul className="space-y-1 list-disc pl-4">{summary.projectedImpact.map((p, i) => <li key={i} className="text-[15px] text-[var(--text-secondary)] leading-relaxed">{p}</li>)}</ul>
           </div>
           <div>
-            <h2 style={{ fontFamily: "'Outfit',sans-serif", fontSize: 15, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: 1, color: "var(--accent-primary)", borderBottom: "2px solid var(--warning)", paddingBottom: 4, marginBottom: 8 }}>Risks & Next Steps</h2>
+            <h2 style={{ fontFamily: "'Inter Tight',sans-serif", fontSize: 15, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: 1, color: "var(--accent-primary)", borderBottom: "2px solid var(--warning)", paddingBottom: 4, marginBottom: 8 }}>Risks & Next Steps</h2>
             <ul className="space-y-1 list-disc pl-4">
               {summary.risks.map((r, i) => <li key={i} className="text-[15px] text-[var(--risk)] leading-relaxed">⚠ {r}</li>)}
               {summary.nextSteps.map((n, i) => <li key={i} className="text-[15px] text-[var(--success)] leading-relaxed">→ {n}</li>)}

@@ -7,16 +7,16 @@
 const DATA_FALLBACKS = ["#8B9DC3", "#C8A6DC", "#A8C8A4", "#E8B88F", "#7FB3C7", "#D4A574", "#B8A0C0", "#9FB8A0"];
 
 const SEMANTIC_FALLBACKS: Record<string, string> = {
-  success: "#10B981",
-  warn: "#F59E0B",
-  risk: "#EF4444",
-  info: "#3B82F6",
-  insight: "#8B5CF6",
+  success: "#34d399",
+  warn: "#fbbf24",
+  risk: "#fb7185",
+  info: "#22d3ee",
+  insight: "#a78bfa",
 };
 
 const TRACK_FALLBACKS: Record<string, string> = {
   E: "#DC2626",
-  M: "#D97706",
+  M: "#fbbf24",
   P: "#2563EB",
   S: "#0891B2",
   T: "#7C3AED",
