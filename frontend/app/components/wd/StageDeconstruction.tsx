@@ -5,7 +5,7 @@ import {
   AlertTriangle, Check, Search, Filter, FileText, Clock,
   Trash2, Copy, GitBranch,
 } from "@/lib/icons";
-import { TASK_DICTIONARY, findTaskDictEntries } from "../design/WorkDesignLab";
+import { TASK_DICTIONARY, findTaskDictEntries } from "../shared/taskDictionary";
 
 /* ═══════════════════════════════════════════════════════════════
    TYPES

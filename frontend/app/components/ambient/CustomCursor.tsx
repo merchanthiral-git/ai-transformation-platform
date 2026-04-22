@@ -10,15 +10,29 @@ export default function CustomCursor() {
   const pos = useRef({ x: -100, y: -100 });
   const ringPos = useRef({ x: -100, y: -100 });
   const [isTouch, setIsTouch] = useState(false);
-  const [hovering, setHovering] = useState(false);
+  const hoveringRef = useRef(false);
   const rafRef = useRef<number>(0);
 
   useEffect(() => {
-    // Detect touch device
     const mq = window.matchMedia('(hover: none)');
     if (mq.matches) { setIsTouch(true); return; }
     const onChange = (e: MediaQueryListEvent) => setIsTouch(e.matches);
     mq.addEventListener('change', onChange);
+
+    const applyHoverStyle = (hover: boolean) => {
+      const dot = dotRef.current;
+      const ring = ringRef.current;
+      if (dot) {
+        dot.style.width = hover ? '12px' : '8px';
+        dot.style.height = hover ? '12px' : '8px';
+        dot.style.background = hover ? 'var(--coral)' : 'var(--amber)';
+        dot.style.boxShadow = hover ? '0 0 12px rgba(232,122,93,0.4)' : '0 0 8px var(--amber-glow)';
+      }
+      if (ring) {
+        ring.style.width = hover ? '56px' : '36px';
+        ring.style.height = hover ? '56px' : '36px';
+      }
+    };
 
     const handleMove = (e: MouseEvent) => {
       pos.current.x = e.clientX;
@@ -30,11 +44,17 @@ export default function CustomCursor() {
 
     const handleOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (target.closest(HOVER_SELECTORS)) setHovering(true);
+      if (!hoveringRef.current && target.closest(HOVER_SELECTORS)) {
+        hoveringRef.current = true;
+        applyHoverStyle(true);
+      }
     };
     const handleOut = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (target.closest(HOVER_SELECTORS)) setHovering(false);
+      if (hoveringRef.current && target.closest(HOVER_SELECTORS)) {
+        hoveringRef.current = false;
+        applyHoverStyle(false);
+      }
     };
 
     const animateRing = () => {
@@ -71,13 +91,11 @@ export default function CustomCursor() {
           position: 'fixed',
           top: 0,
           left: 0,
-          width: hovering ? 12 : 8,
-          height: hovering ? 12 : 8,
+          width: 8,
+          height: 8,
           borderRadius: '50%',
-          background: hovering ? 'var(--coral)' : 'var(--amber)',
-          boxShadow: hovering
-            ? '0 0 12px rgba(232,122,93,0.4)'
-            : '0 0 8px var(--amber-glow)',
+          background: 'var(--amber)',
+          boxShadow: '0 0 8px var(--amber-glow)',
           mixBlendMode: 'screen',
           pointerEvents: 'none',
           zIndex: 99999,
@@ -91,8 +109,8 @@ export default function CustomCursor() {
           position: 'fixed',
           top: 0,
           left: 0,
-          width: hovering ? 56 : 36,
-          height: hovering ? 56 : 36,
+          width: 36,
+          height: 36,
           borderRadius: '50%',
           border: '1px solid var(--amber)',
           opacity: 0.5,
