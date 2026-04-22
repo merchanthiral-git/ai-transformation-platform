@@ -149,13 +149,13 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
 
   // Phase 2 Elevation: Reusable KPI card
   const OdsKpiCard = ({ label, value, delta, deltaColor, sub }: { label: string; value: string | number; delta?: string; deltaColor?: string; sub?: string }) => (
-    <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(22,24,34,0.15)', borderRadius: 8, padding: 14, minWidth: 0, flex: '1 1 160px', maxWidth: 200 }}>
-      <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'rgba(22,24,34,0.55)', marginBottom: 6 }}>{label}</div>
+    <div style={{ background: 'rgba(20, 24, 38, 0.95)', border: '1px solid var(--border)', borderRadius: 8, padding: 14, minWidth: 0, flex: '1 1 160px', maxWidth: 200 }}>
+      <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'var(--ink-faint)', marginBottom: 6 }}>{label}</div>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-        <span style={{ fontSize: 22, fontWeight: 500, color: 'var(--paper-solid)', lineHeight: 1.1 }}>{value}</span>
+        <span style={{ fontSize: 22, fontWeight: 500, color: 'var(--ink)', lineHeight: 1.1 }}>{value}</span>
         {delta && <span style={{ fontSize: 12, fontWeight: 500, color: deltaColor || 'rgba(22,24,34,0.55)' }}>{delta}</span>}
       </div>
-      {sub && <div style={{ fontSize: 11, color: 'rgba(22,24,34,0.55)', marginTop: 4 }}>{sub}</div>}
+      {sub && <div style={{ fontSize: 11, color: 'var(--ink-faint)', marginTop: 4 }}>{sub}</div>}
     </div>
   );
 
@@ -215,19 +215,19 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
     <InsightPanel title="What This Means" items={["Your org chart shows your reporting line, peers at your level, and any direct reports.", "During transformation, your reporting line may change as layers are adjusted.", "Use the Organization View to see how the full structure is being redesigned."]} icon={<Network />} />
   </div>;
 
-  return <div style={{ background: 'var(--ivory, var(--ink))', margin: '-24px -24px 0', padding: '24px 24px 0', minHeight: '100vh' }}>
+  return <div style={{ margin: '-24px -24px 0', padding: '24px 24px 0', minHeight: '100vh' }}>
     <ContextStrip items={["You're designing your future org. This is sample data — upload your own to make it real."]} />
     {/* Module header — elevated consulting style */}
     <div className="mb-6">
-      <button onClick={onBack} title="Go back (Escape)" className="text-[13px] hover:text-[var(--accent-primary)] mb-3 flex items-center gap-1 transition-colors" style={{ color: 'var(--navy-55, rgba(22,24,34,0.55))' }}>← Back</button>
+      <button onClick={onBack} title="Go back (Escape)" className="text-[13px] hover:text-[var(--accent-primary)] mb-3 flex items-center gap-1 transition-colors" style={{ color: 'var(--ink-faint)' }}>← Back</button>
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 500, color: 'var(--navy, var(--paper-solid))', letterSpacing: '-0.01em', margin: 0, lineHeight: 1.3 }} className="font-heading">Org Design Studio</h1>
-          <p style={{ fontSize: 13, color: 'var(--navy-65, rgba(22,24,34,0.65))', margin: '2px 0 0' }}>Current → Future State Modeling · Multi-Scenario Engine</p>
+          <h1 style={{ fontSize: 20, fontWeight: 500, color: 'var(--ink)', letterSpacing: '-0.01em', margin: 0, lineHeight: 1.3 }} className="font-heading">Org Design Studio</h1>
+          <p style={{ fontSize: 13, color: 'var(--ink-soft)', margin: '2px 0 0' }}>Current → Future State Modeling · Multi-Scenario Engine</p>
         </div>
         <div className="flex items-center gap-2">
           {/* Data freshness indicator */}
-          <span style={{ fontSize: 11, color: 'rgba(22,24,34,0.55)', fontStyle: 'italic' }}>Data as of: {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+          <span style={{ fontSize: 11, color: 'var(--ink-faint)', fontStyle: 'italic' }}>Data as of: {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
         </div>
       </div>
     </div>
@@ -428,11 +428,11 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
     })()}
 
     {/* Primary tabs — 5-tab consolidated navigation */}
-    <div style={{ display: 'flex', gap: 24, borderBottom: '1px solid var(--navy-12, rgba(22,24,34,0.12))', marginBottom: 0, paddingBottom: 0 }} className="tab-scroll">
+    <div style={{ display: 'flex', gap: 24, borderBottom: '1px solid var(--border)', marginBottom: 0, paddingBottom: 0 }} className="tab-scroll">
       {[{ id: "current", label: "Current State" }, { id: "design", label: "Design" }, { id: "analyze", label: "Analyze" }, { id: "compare", label: "Compare" }, { id: "present", label: "Present" }].map(t => (
         <button key={t.id} onClick={() => setView(t.id)} style={{
           fontSize: 13, fontWeight: 500, padding: '10px 0 10px', background: 'none', border: 'none',
-          borderBottom: view === t.id ? '2px solid var(--navy, var(--paper-solid))' : '2px solid transparent',
+          borderBottom: view === t.id ? '2px solid var(--amber)' : '2px solid transparent',
           color: view === t.id ? 'var(--navy, var(--paper-solid))' : 'var(--navy-65, rgba(22,24,34,0.65))',
           cursor: 'pointer', whiteSpace: 'nowrap', transition: 'color 0.15s, border-color 0.15s',
           marginBottom: -1,
@@ -441,11 +441,11 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
     </div>
     {/* Analyze sub-tabs — only visible when Analyze is active */}
     {view === "analyze" && (
-      <div style={{ display: 'flex', gap: 20, borderBottom: '1px solid var(--navy-08, rgba(22,24,34,0.08))', paddingTop: 8, marginBottom: 16 }} className="tab-scroll">
+      <div style={{ display: 'flex', gap: 20, borderBottom: '1px solid var(--border)', paddingTop: 8, marginBottom: 16 }} className="tab-scroll">
         {[{ id: "soc", label: "Span & Layers" }, { id: "cost", label: "Cost" }, { id: "roles", label: "Role Migration" }, { id: "insights", label: "People Impact" }, { id: "benchmarks", label: "Benchmarks" }].map(t => (
           <button key={t.id} onClick={() => setAnalyzeSubTab(t.id)} style={{
             fontSize: 12, fontWeight: 500, padding: '6px 0 8px', background: 'none', border: 'none',
-            borderBottom: analyzeSubTab === t.id ? '2px solid var(--navy, var(--paper-solid))' : '2px solid transparent',
+            borderBottom: analyzeSubTab === t.id ? '2px solid var(--amber)' : '2px solid transparent',
             color: analyzeSubTab === t.id ? 'var(--navy, var(--paper-solid))' : 'var(--navy-55, rgba(22,24,34,0.55))',
             cursor: 'pointer', whiteSpace: 'nowrap', transition: 'color 0.15s, border-color 0.15s',
             marginBottom: -1,
@@ -458,7 +458,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
     {aiOdsInsights.length > 0 && <div className="bg-gradient-to-r from-[rgba(224,144,64,0.06)] to-transparent border border-[rgba(224,144,64,0.15)] rounded-xl p-4 mb-4">
       <div className="flex items-center gap-2 mb-2 text-[15px] font-bold" style={{ color: "var(--sky-gold)" }}>✨ AI Restructuring Recommendations</div>
       <div className="space-y-1.5">{aiOdsInsights.map((ins, i) => <div key={i} className="text-[15px] text-[var(--text-secondary)] pl-4 relative"><span className="absolute left-0 text-[var(--sky-gold)] font-bold">{i+1}.</span>{ins}</div>)}</div>
-      <div style={{ marginTop: 10, fontSize: 11, color: 'rgba(22,24,34,0.55)', fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ fontSize: 13 }}>ⓘ</span> These recommendations were generated by AI and should be validated by a domain expert.</div>
+      <div style={{ marginTop: 10, fontSize: 11, color: 'var(--ink-faint)', fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ fontSize: 13 }}>ⓘ</span> These recommendations were generated by AI and should be validated by a domain expert.</div>
     </div>}
 
     {view === "current" && (() => {
@@ -515,31 +515,31 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
             { label: 'Manager ratio', met: fA.mgr / Math.max(fA.hc, 1) < 0.12 },
           ];
           const goalsMet = goalAlignItems.filter(g => g.met).length;
-          return <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(22,24,34,0.15)', borderRadius: 8, padding: 20, marginBottom: 16, display: 'flex', gap: 24, alignItems: 'flex-start' }}>
+          return <div style={{ background: 'rgba(20, 24, 38, 0.95)', border: '1px solid var(--border)', borderRadius: 8, padding: 20, marginBottom: 16, display: 'flex', gap: 24, alignItems: 'flex-start' }}>
             {/* Left: numeric score + gauge */}
             <div style={{ width: 240, flexShrink: 0 }}>
-              <div style={{ fontSize: 36, fontWeight: 500, color: 'var(--paper-solid)', lineHeight: 1.1, marginBottom: 2 }}>{heroImpactScore}</div>
-              <div style={{ fontSize: 11, color: 'rgba(22,24,34,0.55)', marginBottom: 10, fontWeight: 500 }}>Change Magnitude</div>
+              <div style={{ fontSize: 36, fontWeight: 500, color: 'var(--ink)', lineHeight: 1.1, marginBottom: 2 }}>{heroImpactScore}</div>
+              <div style={{ fontSize: 11, color: 'var(--ink-faint)', marginBottom: 10, fontWeight: 500 }}>Change Magnitude</div>
               {/* Horizontal gauge */}
               <div style={{ position: 'relative', height: 6, borderRadius: 3, background: 'rgba(22,24,34,0.08)', overflow: 'hidden' }}>
                 <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, borderRadius: 3, width: `${Math.min(heroImpactScore, 100)}%`, background: impactColor, transition: 'width 0.4s ease-out' }} />
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'rgba(22,24,34,0.65)', marginTop: 3 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--ink-soft)', marginTop: 3 }}>
                 <span>0</span><span>50</span><span>100</span>
               </div>
             </div>
             {/* Middle: narrative */}
-            <div style={{ flex: 1, fontSize: 13, color: 'rgba(22,24,34,0.65)', lineHeight: 1.7 }}>
-              The <span style={{ fontWeight: 500, color: 'var(--paper-solid)' }}>{sc.label}</span> scenario changes headcount from <span style={{ fontWeight: 500, color: 'var(--paper-solid)' }}>{cA.hc.toLocaleString()}</span> to <span style={{ fontWeight: 500, color: 'var(--paper-solid)' }}>{fA.hc.toLocaleString()}</span>{' '}
+            <div style={{ flex: 1, fontSize: 13, color: 'var(--ink-soft)', lineHeight: 1.7 }}>
+              The <span style={{ fontWeight: 500, color: 'var(--ink)' }}>{sc.label}</span> scenario changes headcount from <span style={{ fontWeight: 500, color: 'var(--ink)' }}>{cA.hc.toLocaleString()}</span> to <span style={{ fontWeight: 500, color: 'var(--ink)' }}>{fA.hc.toLocaleString()}</span>{' '}
               ({fA.hc - cA.hc >= 0 ? '+' : ''}{fA.hc - cA.hc}), {fA.avgL < cA.avgL ? <span>reduces average layers from <span style={{ fontWeight: 500 }}>{fmt(cA.avgL)}</span> to <span style={{ fontWeight: 500 }}>{fmt(fA.avgL)}</span></span> : <span>maintains layers at <span style={{ fontWeight: 500 }}>{fmt(fA.avgL)}</span></span>},{' '}
               and {fA.avgS > cA.avgS ? <span>widens average span from <span style={{ fontWeight: 500 }}>{fmt(cA.avgS)}</span> to <span style={{ fontWeight: 500 }}>{fmt(fA.avgS)}</span></span> : <span>adjusts span to <span style={{ fontWeight: 500 }}>{fmt(fA.avgS)}</span></span>}.{' '}
-              <span style={{ fontWeight: 500, color: 'var(--paper-solid)' }}>{deptImprovements}/{currentData.length}</span> departments move closer to the 6-8:1 benchmark.
+              <span style={{ fontWeight: 500, color: 'var(--ink)' }}>{deptImprovements}/{currentData.length}</span> departments move closer to the 6-8:1 benchmark.
               {' '}Total cost {Math.abs(fA.cost - cA.cost) < cA.cost * 0.01 ? 'remains neutral' : fA.cost < cA.cost ? <span style={{ color: 'var(--sage)' }}>decreases by {fmtNum(cA.cost - fA.cost)}</span> : <span style={{ color: 'var(--coral)' }}>increases by {fmtNum(fA.cost - cA.cost)}</span>} at <span style={{ fontWeight: 500 }}>{fmtNum(fA.cost)}</span>.
             </div>
             {/* Right: goal alignment */}
             <div style={{ width: 200, flexShrink: 0 }}>
-              <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'rgba(22,24,34,0.55)', marginBottom: 8 }}>Goal Alignment</div>
-              <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--paper-solid)', marginBottom: 8 }}>{goalsMet}/{goalAlignItems.length} met</div>
+              <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'var(--ink-faint)', marginBottom: 8 }}>Goal Alignment</div>
+              <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink)', marginBottom: 8 }}>{goalsMet}/{goalAlignItems.length} met</div>
               {goalAlignItems.map(g => (
                 <div key={g.label} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: g.met ? 'var(--sage)' : 'rgba(22,24,34,0.65)', marginBottom: 4 }}>
                   <span style={{ width: 14, height: 14, borderRadius: 7, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 600, background: g.met ? 'rgba(22,163,74,0.1)' : 'rgba(22,24,34,0.06)', color: g.met ? 'var(--sage)' : 'rgba(22,24,34,0.55)' }}>{g.met ? '\u2713' : '\u2013'}</span>
@@ -551,17 +551,17 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
         })()}
 
         {/* Span of Control by Department — diverging dot plot */}
-        <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(22,24,34,0.15)', borderRadius: 8, padding: 20 }}>
-          <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--paper-solid)', marginBottom: 2 }}>Span of Control by Department</div>
-          <div style={{ fontSize: 11, fontWeight: 400, color: 'rgba(22,24,34,0.65)', marginBottom: 4 }}>Current vs. {sc.label} scenario</div>
-          {(() => { const widest = sortedDepts.reduce((best, d) => { const delta = Math.abs((d.fut?.avgSpan || d.avgSpan) - d.avgSpan); return delta > best.delta ? { name: d.name, cur: d.avgSpan, fut: d.fut?.avgSpan || d.avgSpan, delta } : best; }, { name: '', cur: 0, fut: 0, delta: 0 }); return widest.delta > 0.05 ? <div style={{ fontSize: 12, fontStyle: 'italic', color: 'rgba(22,24,34,0.65)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ fontSize: 14 }}>&#x1F4A1;</span> Key insight: {widest.name} sees the largest span shift ({widest.cur.toFixed(1)} &rarr; {widest.fut.toFixed(1)})</div> : null; })()}
+        <div style={{ background: 'rgba(20, 24, 38, 0.95)', border: '1px solid var(--border)', borderRadius: 8, padding: 20 }}>
+          <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink)', marginBottom: 2 }}>Span of Control by Department</div>
+          <div style={{ fontSize: 11, fontWeight: 400, color: 'var(--ink-soft)', marginBottom: 4 }}>Current vs. {sc.label} scenario</div>
+          {(() => { const widest = sortedDepts.reduce((best, d) => { const delta = Math.abs((d.fut?.avgSpan || d.avgSpan) - d.avgSpan); return delta > best.delta ? { name: d.name, cur: d.avgSpan, fut: d.fut?.avgSpan || d.avgSpan, delta } : best; }, { name: '', cur: 0, fut: 0, delta: 0 }); return widest.delta > 0.05 ? <div style={{ fontSize: 12, fontStyle: 'italic', color: 'var(--ink-soft)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ fontSize: 14 }}>&#x1F4A1;</span> Key insight: {widest.name} sees the largest span shift ({widest.cur.toFixed(1)} &rarr; {widest.fut.toFixed(1)})</div> : null; })()}
           {/* X-axis header */}
           <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr 60px', gap: 8, padding: '0 0 6px', borderBottom: '0.5px solid rgba(22,24,34,0.15)' }}>
-            <div style={{ fontSize: 11, fontWeight: 500, color: 'rgba(22,24,34,0.65)' }}>Department</div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 400, color: 'rgba(22,24,34,0.55)' }}>
+            <div style={{ fontSize: 11, fontWeight: 500, color: 'var(--ink-soft)' }}>Department</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 400, color: 'var(--ink-faint)' }}>
               {[2, 4, 6, 8, 10, 12, 14].map(v => <span key={v}>{v}</span>)}
             </div>
-            <div style={{ fontSize: 11, fontWeight: 500, color: 'rgba(22,24,34,0.65)', textAlign: 'right' }}>Delta</div>
+            <div style={{ fontSize: 11, fontWeight: 500, color: 'var(--ink-soft)', textAlign: 'right' }}>Delta</div>
           </div>
           {sortedDepts.map(d => {
             const f = d.fut;
@@ -572,8 +572,8 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
             const scaleMax = 15;
             return <div key={d.name} style={{ display: 'grid', gridTemplateColumns: '120px 1fr 60px', alignItems: 'center', gap: 8, padding: '8px 0', borderBottom: '0.5px dashed rgba(22,24,34,0.08)' }}>
               <div>
-                <div style={{ fontSize: 11, fontWeight: 500, color: 'var(--paper-solid)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.name}</div>
-                <div style={{ fontSize: 11, fontWeight: 400, color: 'rgba(22,24,34,0.55)' }}>{d.headcount} HC</div>
+                <div style={{ fontSize: 11, fontWeight: 500, color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.name}</div>
+                <div style={{ fontSize: 11, fontWeight: 400, color: 'var(--ink-faint)' }}>{d.headcount} HC</div>
               </div>
               <div style={{ position: 'relative', height: 24 }}>
                 {/* Benchmark band */}
@@ -593,7 +593,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
             </div>;
           })}
           {/* Legend */}
-          <div style={{ display: 'flex', gap: 16, marginTop: 12, paddingTop: 8, borderTop: '0.5px solid rgba(22,24,34,0.08)', fontSize: 11, color: 'rgba(22,24,34,0.55)' }}>
+          <div style={{ display: 'flex', gap: 16, marginTop: 12, paddingTop: 8, borderTop: '0.5px solid rgba(22,24,34,0.08)', fontSize: 11, color: 'var(--ink-faint)' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 10, height: 10, borderRadius: 5, background: 'var(--amber)' }} />Current</span>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 10, height: 10, borderRadius: 5, background: 'var(--coral)' }} />Proposed</span>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 16, height: 10, borderRadius: 2, background: 'var(--ink)' }} />Benchmark (6-8:1)</span>
@@ -602,43 +602,43 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
         </div>
 
         {/* Priority Actions — white card */}
-        <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(22,24,34,0.15)', borderRadius: 8, padding: 20, marginBottom: 16 }}>
-          <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--paper-solid)', marginBottom: 14 }}>Priority Actions</div>
+        <div style={{ background: 'rgba(20, 24, 38, 0.95)', border: '1px solid var(--border)', borderRadius: 8, padding: 20, marginBottom: 16 }}>
+          <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink)', marginBottom: 14 }}>Priority Actions</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
             {actions.slice(0, 3).map((a, i) => <div key={i} style={{ display: 'flex', gap: 12, padding: '12px 0', borderTop: i > 0 ? '0.5px solid rgba(22,24,34,0.08)' : 'none', cursor: 'default', transition: 'background 0.15s' }}
               onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(247,245,240,0.5)'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = 'transparent'; }}>
-              <span style={{ width: 24, height: 24, borderRadius: 12, background: 'var(--ivory, var(--ink))', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 600, color: 'var(--paper-solid)', flexShrink: 0 }}>{i + 1}</span>
+              <span style={{ width: 24, height: 24, borderRadius: 12, background: 'var(--ivory, var(--ink))', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 600, color: 'var(--ink)', flexShrink: 0 }}>{i + 1}</span>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--paper-solid)', marginBottom: 2 }}>{a.title}</div>
-                <div style={{ fontSize: 11, color: 'rgba(22,24,34,0.65)', lineHeight: 1.5 }}>{a.desc}</div>
+                <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink)', marginBottom: 2 }}>{a.title}</div>
+                <div style={{ fontSize: 11, color: 'var(--ink-soft)', lineHeight: 1.5 }}>{a.desc}</div>
               </div>
-              {a.hc > 0 && <span style={{ fontSize: 11, fontWeight: 500, color: 'rgba(22,24,34,0.55)', flexShrink: 0, alignSelf: 'center' }}>{a.hc} HC</span>}
+              {a.hc > 0 && <span style={{ fontSize: 11, fontWeight: 500, color: 'var(--ink-faint)', flexShrink: 0, alignSelf: 'center' }}>{a.hc} HC</span>}
             </div>)}
           </div>
         </div>
 
         {/* Department Comparison — white card table */}
-        <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(22,24,34,0.15)', borderRadius: 8, overflow: 'hidden', marginBottom: 16 }}>
+        <div style={{ background: 'rgba(20, 24, 38, 0.95)', border: '1px solid var(--border)', borderRadius: 8, overflow: 'hidden', marginBottom: 16 }}>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse' }}>
               <thead><tr style={{ background: 'var(--ivory, #F1EFE8)' }}>
-                {['Department', 'HC', 'Span (C\u2192S)', 'Layers (C\u2192S)', 'Mgr Ratio', 'Health'].map(h => <th key={h} style={{ padding: '10px 12px', textAlign: h === 'Department' ? 'left' : 'right', fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'rgba(22,24,34,0.55)', borderBottom: '0.5px solid rgba(22,24,34,0.12)' }}>{h}</th>)}
+                {['Department', 'HC', 'Span (C\u2192S)', 'Layers (C\u2192S)', 'Mgr Ratio', 'Health'].map(h => <th key={h} style={{ padding: '10px 12px', textAlign: h === 'Department' ? 'left' : 'right', fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'var(--ink-faint)', borderBottom: '0.5px solid rgba(22,24,34,0.12)' }}>{h}</th>)}
               </tr></thead>
               <tbody>{sortedDepts.map((d, i) => {
                 const f = d.fut;
                 const mgrRatio = Math.round(d.managers / Math.max(d.headcount, 1) * 100);
                 return <tr key={d.name} style={{ borderBottom: '0.5px solid rgba(22,24,34,0.08)', background: i % 2 ? 'var(--ivory, var(--ink))' : '#FFFFFF' }}>
-                  <td style={{ padding: '8px 12px', fontWeight: 500, color: 'var(--paper-solid)', fontSize: 12 }}>
+                  <td style={{ padding: '8px 12px', fontWeight: 500, color: 'var(--ink)', fontSize: 12 }}>
                     <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: 3, background: d.health.color, marginRight: 8 }} />{d.name}
                   </td>
-                  <td style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 500, color: 'var(--paper-solid)', fontSize: 11 }}>{d.headcount} <span style={{ color: 'rgba(22,24,34,0.65)' }}>{'\u2192'}</span> {f?.headcount || d.headcount}</td>
+                  <td style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 500, color: 'var(--ink)', fontSize: 11 }}>{d.headcount} <span style={{ color: 'var(--ink-soft)' }}>{'\u2192'}</span> {f?.headcount || d.headcount}</td>
                   <td style={{ padding: '8px 12px', textAlign: 'right', fontSize: 11 }}>
                     <span style={{ fontWeight: 500, color: d.health.color }}>{d.avgSpan.toFixed(1)}</span>
-                    <span style={{ color: 'rgba(22,24,34,0.65)', margin: '0 4px' }}>{'\u2192'}</span>
+                    <span style={{ color: 'var(--ink-soft)', margin: '0 4px' }}>{'\u2192'}</span>
                     <span style={{ fontWeight: 500, color: d.futHealth.color }}>{(f?.avgSpan || d.avgSpan).toFixed(1)}</span>
                   </td>
-                  <td style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 500, color: 'var(--paper-solid)', fontSize: 11 }}>{d.layers} <span style={{ color: 'rgba(22,24,34,0.65)' }}>{'\u2192'}</span> {f?.layers || d.layers}</td>
+                  <td style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 500, color: 'var(--ink)', fontSize: 11 }}>{d.layers} <span style={{ color: 'var(--ink-soft)' }}>{'\u2192'}</span> {f?.layers || d.layers}</td>
                   <td style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 500, fontSize: 11, color: mgrRatio > 15 ? 'var(--coral)' : mgrRatio > 12 ? 'var(--amber)' : 'rgba(22,24,34,0.55)' }}>{mgrRatio}%</td>
                   <td style={{ padding: '8px 12px', textAlign: 'right' }}><span style={{ padding: '2px 6px', borderRadius: 4, fontSize: 11, fontWeight: 600, background: `${d.futHealth.color}15`, color: d.futHealth.color }}>{d.futHealth.badge} {d.futHealth.label.split(' ')[0]}</span></td>
                 </tr>;
@@ -668,17 +668,17 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
         {/* ═══ SPAN HEALTH SUMMARY ═══ */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 16 }}>
           {/* Org-wide avg span */}
-          <div style={{ background: '#FFFFFF', borderRadius: 8, padding: 14, border: '0.5px solid rgba(22,24,34,0.15)' }}>
+          <div style={{ background: 'rgba(20, 24, 38, 0.95)', borderRadius: 8, padding: 14, border: '1px solid var(--border)' }}>
             <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.05em", color: "rgba(22,24,34,0.55)", marginBottom: 6 }}>Org-Wide Average Span</div>
             <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-              <span style={{ fontSize: 22, fontWeight: 500, color: 'var(--paper-solid)' }}>{orgAvgCur.toFixed(1)}</span>
+              <span style={{ fontSize: 22, fontWeight: 500, color: 'var(--ink)' }}>{orgAvgCur.toFixed(1)}</span>
               <span style={{ fontSize: 12, color: "rgba(22,24,34,0.55)" }}>{"\u2192"}</span>
-              <span style={{ fontSize: 22, fontWeight: 500, color: 'var(--paper-solid)' }}>{orgAvgFut.toFixed(1)}</span>
+              <span style={{ fontSize: 22, fontWeight: 500, color: 'var(--ink)' }}>{orgAvgFut.toFixed(1)}</span>
               <span style={{ fontSize: 11, fontWeight: 500, color: spanImproving(orgAvgCur, orgAvgFut) ? "var(--sage)" : "var(--coral)", padding: "1px 5px", borderRadius: 4, background: spanImproving(orgAvgCur, orgAvgFut) ? "rgba(22,163,74,0.08)" : "rgba(220,38,38,0.08)" }}>{orgAvgFut > orgAvgCur ? "\u2191" : "\u2193"}{Math.abs(orgAvgFut - orgAvgCur).toFixed(1)}</span>
             </div>
           </div>
           {/* Departments in benchmark */}
-          <div style={{ background: '#FFFFFF', borderRadius: 8, padding: 14, border: '0.5px solid rgba(22,24,34,0.15)' }}>
+          <div style={{ background: 'rgba(20, 24, 38, 0.95)', borderRadius: 8, padding: 14, border: '1px solid var(--border)' }}>
             <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.05em", color: "rgba(22,24,34,0.55)", marginBottom: 6 }}>In Benchmark Range (6-8:1)</div>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <div style={{ position: "relative", width: 44, height: 44 }}>
@@ -695,7 +695,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
             </div>
           </div>
           {/* Widest span gap */}
-          <div style={{ background: '#FFFFFF', borderRadius: 8, padding: 14, border: '0.5px solid rgba(22,24,34,0.15)' }}>
+          <div style={{ background: 'rgba(20, 24, 38, 0.95)', borderRadius: 8, padding: 14, border: '1px solid var(--border)' }}>
             <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.05em", color: "rgba(22,24,34,0.55)", marginBottom: 6 }}>Widest Span Variance</div>
             {widestGap && <div>
               <div style={{ fontSize: 14, fontWeight: 500, color: "var(--paper-solid)" }}>{widestGap.name}</div>
@@ -710,18 +710,18 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
         </div>
 
         {/* ═══ DIVERGING DOT PLOT: Span of Control ═══ */}
-        <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(22,24,34,0.15)', borderRadius: 8, padding: 20 }}>
-          <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--paper-solid)', marginBottom: 2 }}>Span of Control by Department</div>
-          <div style={{ fontSize: 11, fontWeight: 400, color: 'rgba(22,24,34,0.65)', marginBottom: 4 }}>Current vs. proposed span with benchmark range</div>
-          {(() => { const widest = sorted.reduce((best, d) => { const delta = Math.abs((d.fut?.avgSpan || d.avgSpan) - d.avgSpan); return delta > best.delta ? { name: d.name, cur: d.avgSpan, fut: d.fut?.avgSpan || d.avgSpan, delta } : best; }, { name: '', cur: 0, fut: 0, delta: 0 }); return widest.delta > 0.05 ? <div style={{ fontSize: 12, fontStyle: 'italic', color: 'rgba(22,24,34,0.65)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ fontSize: 14 }}>&#x1F4A1;</span> Key insight: {widest.name} sees the largest span shift ({widest.cur.toFixed(1)} &rarr; {widest.fut.toFixed(1)})</div> : null; })()}
+        <div style={{ background: 'rgba(20, 24, 38, 0.95)', border: '1px solid var(--border)', borderRadius: 8, padding: 20 }}>
+          <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink)', marginBottom: 2 }}>Span of Control by Department</div>
+          <div style={{ fontSize: 11, fontWeight: 400, color: 'var(--ink-soft)', marginBottom: 4 }}>Current vs. proposed span with benchmark range</div>
+          {(() => { const widest = sorted.reduce((best, d) => { const delta = Math.abs((d.fut?.avgSpan || d.avgSpan) - d.avgSpan); return delta > best.delta ? { name: d.name, cur: d.avgSpan, fut: d.fut?.avgSpan || d.avgSpan, delta } : best; }, { name: '', cur: 0, fut: 0, delta: 0 }); return widest.delta > 0.05 ? <div style={{ fontSize: 12, fontStyle: 'italic', color: 'var(--ink-soft)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ fontSize: 14 }}>&#x1F4A1;</span> Key insight: {widest.name} sees the largest span shift ({widest.cur.toFixed(1)} &rarr; {widest.fut.toFixed(1)})</div> : null; })()}
 
           {/* X-axis header */}
           <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr 70px', gap: 12, padding: '0 4px 6px', borderBottom: '0.5px solid rgba(22,24,34,0.15)' }}>
-            <div style={{ fontSize: 11, fontWeight: 500, color: 'rgba(22,24,34,0.65)' }}>Department</div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 400, color: 'rgba(22,24,34,0.55)' }}>
+            <div style={{ fontSize: 11, fontWeight: 500, color: 'var(--ink-soft)' }}>Department</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 400, color: 'var(--ink-faint)' }}>
               {[2, 4, 6, 8, 10, 12, 14].map(v => <span key={v}>{v}</span>)}
             </div>
-            <div style={{ fontSize: 11, fontWeight: 500, color: 'rgba(22,24,34,0.65)', textAlign: 'right' }}>Delta</div>
+            <div style={{ fontSize: 11, fontWeight: 500, color: 'var(--ink-soft)', textAlign: 'right' }}>Delta</div>
           </div>
 
           {sorted.map((d) => {
@@ -743,8 +743,8 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
               }} onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(247,245,240,0.5)'; }} onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}>
                 {/* Department name + HC sub-text */}
                 <div>
-                  <div style={{ fontSize: 11, fontWeight: 500, color: 'var(--paper-solid)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.name}</div>
-                  <div style={{ fontSize: 11, fontWeight: 400, color: 'rgba(22,24,34,0.55)' }}>{d.headcount} HC</div>
+                  <div style={{ fontSize: 11, fontWeight: 500, color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.name}</div>
+                  <div style={{ fontSize: 11, fontWeight: 400, color: 'var(--ink-faint)' }}>{d.headcount} HC</div>
                 </div>
 
                 {/* Dot plot area */}
@@ -810,13 +810,13 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
                 const sr = spanRanges.find(r => r.name === d.name);
                 return <div style={{ padding: '8px 16px 12px', marginLeft: 8, borderLeft: '2px solid rgba(22,24,34,0.08)' }}>
                   {sr && <div style={{ marginBottom: 10 }}>
-                    <div style={{ fontSize: 11, fontWeight: 500, textTransform: 'uppercase' as const, letterSpacing: '0.04em', color: 'rgba(22,24,34,0.65)', marginBottom: 4 }}>Manager Span Distribution</div>
+                    <div style={{ fontSize: 11, fontWeight: 500, textTransform: 'uppercase' as const, letterSpacing: '0.04em', color: 'var(--ink-soft)', marginBottom: 4 }}>Manager Span Distribution</div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ fontSize: 11, color: 'rgba(22,24,34,0.55)' }}>{sr.min}:1</span>
+                      <span style={{ fontSize: 11, color: 'var(--ink-faint)' }}>{sr.min}:1</span>
                       <div style={{ flex: 1, height: 5, borderRadius: 3, background: 'rgba(22,24,34,0.04)', position: 'relative' }}>
                         <div style={{ position: 'absolute', left: `${(sr.min / 15) * 100}%`, width: `${((sr.max - sr.min) / 15) * 100}%`, top: 0, bottom: 0, borderRadius: 3, background: sr.range > 8 ? 'rgba(220,38,38,0.2)' : sr.range > 4 ? 'rgba(244,168,58,0.2)' : 'rgba(22,163,74,0.2)' }} />
                       </div>
-                      <span style={{ fontSize: 11, color: 'rgba(22,24,34,0.55)' }}>{sr.max}:1</span>
+                      <span style={{ fontSize: 11, color: 'var(--ink-faint)' }}>{sr.max}:1</span>
                       <span style={{ fontSize: 11, color: sr.range > 8 ? 'var(--coral)' : sr.range > 4 ? 'var(--amber)' : 'var(--sage)' }}>Range: {sr.range}</span>
                     </div>
                   </div>}
@@ -832,8 +832,8 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
                       { l: 'ICs', c: d.ics, fv: f?.ics },
                       { l: 'Layers', c: d.layers, fv: f?.layers },
                     ].map(m => <div key={m.l} style={{ padding: '5px 8px', borderRadius: 6, background: 'rgba(247,245,240,0.5)', textAlign: 'center' }}>
-                      <div style={{ fontSize: 11, color: 'rgba(22,24,34,0.65)', textTransform: 'uppercase' as const }}>{m.l}</div>
-                      <div style={{ fontSize: 12, fontWeight: 500, color: 'var(--paper-solid)' }}>{m.c} <span style={{ color: 'rgba(22,24,34,0.55)' }}>{'\u2192'}</span> {m.fv || m.c}</div>
+                      <div style={{ fontSize: 11, color: 'var(--ink-soft)', textTransform: 'uppercase' as const }}>{m.l}</div>
+                      <div style={{ fontSize: 12, fontWeight: 500, color: 'var(--ink)' }}>{m.c} <span style={{ color: 'var(--ink-faint)' }}>{'\u2192'}</span> {m.fv || m.c}</div>
                     </div>)}
                   </div>
                 </div>;
@@ -842,7 +842,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
           })}
 
           {/* Legend */}
-          <div style={{ display: 'flex', gap: 16, marginTop: 12, paddingTop: 8, borderTop: '0.5px solid rgba(22,24,34,0.08)', fontSize: 11, color: 'rgba(22,24,34,0.55)' }}>
+          <div style={{ display: 'flex', gap: 16, marginTop: 12, paddingTop: 8, borderTop: '0.5px solid rgba(22,24,34,0.08)', fontSize: 11, color: 'var(--ink-faint)' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 10, height: 10, borderRadius: 5, background: 'var(--amber)' }} />Current</span>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 10, height: 10, borderRadius: 5, background: 'var(--coral)' }} />Proposed</span>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 16, height: 10, borderRadius: 2, background: 'var(--ink)' }} />Benchmark (6-8:1)</span>
@@ -874,27 +874,27 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       return <div>
         {/* Scope selector */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-          <span style={{ fontSize: 11, fontWeight: 500, textTransform: 'uppercase' as const, letterSpacing: '0.04em', color: 'rgba(22,24,34,0.55)' }}>Scope:</span>
-          <select value={layerScope} onChange={e => setLayerScope(e.target.value)} style={{ background: '#FFFFFF', border: '0.5px solid rgba(22,24,34,0.15)', borderRadius: 6, padding: '5px 10px', fontSize: 12, color: 'var(--paper-solid)', outline: 'none' }}>
+          <span style={{ fontSize: 11, fontWeight: 500, textTransform: 'uppercase' as const, letterSpacing: '0.04em', color: 'var(--ink-faint)' }}>Scope:</span>
+          <select value={layerScope} onChange={e => setLayerScope(e.target.value)} style={{ background: 'rgba(20, 24, 38, 0.95)', border: '1px solid var(--border)', borderRadius: 6, padding: '5px 10px', fontSize: 12, color: 'var(--ink)', outline: 'none' }}>
             <option value="all">Entire Organization</option>
             {currentData.map(d => <option key={d.name} value={d.name}>{d.name}</option>)}
           </select>
         </div>
 
         {/* Layer Distribution chart */}
-        <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(22,24,34,0.15)', borderRadius: 8, padding: 20, marginBottom: 16 }}>
-          <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--paper-solid)', marginBottom: 2 }}>Layer Distribution</div>
-          <div style={{ fontSize: 11, fontWeight: 400, color: 'rgba(22,24,34,0.65)', marginBottom: 4 }}>Current vs. Proposed headcount by level</div>
-          {(() => { const changedLayers = layerChartData.filter(l => l.current !== l.future).length; const totalLayers = layerChartData.filter(l => l.current > 0 || l.future > 0).length; return <div style={{ fontSize: 12, fontStyle: 'italic', color: 'rgba(22,24,34,0.65)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ fontSize: 14 }}>&#x2139;&#xFE0F;</span> Key insight: {changedLayers > 0 ? `${changedLayers} of ${totalLayers} layers change in this scenario` : 'This scenario preserves all layers'}</div>; })()}
+        <div style={{ background: 'rgba(20, 24, 38, 0.95)', border: '1px solid var(--border)', borderRadius: 8, padding: 20, marginBottom: 16 }}>
+          <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink)', marginBottom: 2 }}>Layer Distribution</div>
+          <div style={{ fontSize: 11, fontWeight: 400, color: 'var(--ink-soft)', marginBottom: 4 }}>Current vs. Proposed headcount by level</div>
+          {(() => { const changedLayers = layerChartData.filter(l => l.current !== l.future).length; const totalLayers = layerChartData.filter(l => l.current > 0 || l.future > 0).length; return <div style={{ fontSize: 12, fontStyle: 'italic', color: 'var(--ink-soft)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ fontSize: 14 }}>&#x2139;&#xFE0F;</span> Key insight: {changedLayers > 0 ? `${changedLayers} of ${totalLayers} layers change in this scenario` : 'This scenario preserves all layers'}</div>; })()}
           <LayerDistributionChart data={layerChartData} />
           <div style={{ fontSize: 11, color: 'rgba(22,24,34,0.45)', marginTop: 8, textAlign: 'right' }}>Source: Industry benchmarks (illustrative ranges, 2024)</div>
         </div>
 
         {/* Cost model chart */}
-        <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(22,24,34,0.15)', borderRadius: 8, padding: 20, marginBottom: 16 }}>
-          <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--paper-solid)', marginBottom: 2 }}>Cost Model</div>
-          <div style={{ fontSize: 11, fontWeight: 400, color: 'rgba(22,24,34,0.65)', marginBottom: 4 }}>Current vs. Proposed compensation cost</div>
-          {(() => { const totalCur = costChartData.reduce((s, d) => s + d.currentHeadcount * (d.avgComp || 0), 0); const totalFut = costChartData.reduce((s, d) => s + d.futureHeadcount * (d.futureAvgComp || d.avgComp || 0), 0); const delta = totalFut - totalCur; const pct = totalCur > 0 ? ((delta / totalCur) * 100).toFixed(1) : '0.0'; const sign = delta >= 0 ? '+' : ''; return <div style={{ fontSize: 12, fontStyle: 'italic', color: 'rgba(22,24,34,0.65)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ fontSize: 14 }}>&#x1F4A1;</span> Key insight: Net cost impact is {sign}${Math.abs(delta / 1e6).toFixed(1)}M ({sign}{pct}%)</div>; })()}
+        <div style={{ background: 'rgba(20, 24, 38, 0.95)', border: '1px solid var(--border)', borderRadius: 8, padding: 20, marginBottom: 16 }}>
+          <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink)', marginBottom: 2 }}>Cost Model</div>
+          <div style={{ fontSize: 11, fontWeight: 400, color: 'var(--ink-soft)', marginBottom: 4 }}>Current vs. Proposed compensation cost</div>
+          {(() => { const totalCur = costChartData.reduce((s, d) => s + d.currentHeadcount * (d.avgComp || 0), 0); const totalFut = costChartData.reduce((s, d) => s + d.futureHeadcount * (d.futureAvgComp || d.avgComp || 0), 0); const delta = totalFut - totalCur; const pct = totalCur > 0 ? ((delta / totalCur) * 100).toFixed(1) : '0.0'; const sign = delta >= 0 ? '+' : ''; return <div style={{ fontSize: 12, fontStyle: 'italic', color: 'var(--ink-soft)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ fontSize: 14 }}>&#x1F4A1;</span> Key insight: Net cost impact is {sign}${Math.abs(delta / 1e6).toFixed(1)}M ({sign}{pct}%)</div>; })()}
           <CostModelChart data={costChartData} />
         </div>
       </div>;
@@ -911,10 +911,10 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       });
 
       return <div>
-        <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(22,24,34,0.15)', borderRadius: 8, padding: 20, marginBottom: 16 }}>
-          <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--paper-solid)', marginBottom: 2 }}>Cost Model</div>
-          <div style={{ fontSize: 11, fontWeight: 400, color: 'rgba(22,24,34,0.65)', marginBottom: 4 }}>Current vs. Proposed compensation cost</div>
-          {(() => { const totalCur = costChartData.reduce((s, d) => s + d.currentHeadcount * (d.avgComp || 0), 0); const totalFut = costChartData.reduce((s, d) => s + d.futureHeadcount * (d.futureAvgComp || d.avgComp || 0), 0); const delta = totalFut - totalCur; const pct = totalCur > 0 ? ((delta / totalCur) * 100).toFixed(1) : '0.0'; const sign = delta >= 0 ? '+' : ''; return <div style={{ fontSize: 12, fontStyle: 'italic', color: 'rgba(22,24,34,0.65)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ fontSize: 14 }}>&#x1F4A1;</span> Key insight: Net cost impact is {sign}${Math.abs(delta / 1e6).toFixed(1)}M ({sign}{pct}%)</div>; })()}
+        <div style={{ background: 'rgba(20, 24, 38, 0.95)', border: '1px solid var(--border)', borderRadius: 8, padding: 20, marginBottom: 16 }}>
+          <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink)', marginBottom: 2 }}>Cost Model</div>
+          <div style={{ fontSize: 11, fontWeight: 400, color: 'var(--ink-soft)', marginBottom: 4 }}>Current vs. Proposed compensation cost</div>
+          {(() => { const totalCur = costChartData.reduce((s, d) => s + d.currentHeadcount * (d.avgComp || 0), 0); const totalFut = costChartData.reduce((s, d) => s + d.futureHeadcount * (d.futureAvgComp || d.avgComp || 0), 0); const delta = totalFut - totalCur; const pct = totalCur > 0 ? ((delta / totalCur) * 100).toFixed(1) : '0.0'; const sign = delta >= 0 ? '+' : ''; return <div style={{ fontSize: 12, fontStyle: 'italic', color: 'var(--ink-soft)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ fontSize: 14 }}>&#x1F4A1;</span> Key insight: Net cost impact is {sign}${Math.abs(delta / 1e6).toFixed(1)}M ({sign}{pct}%)</div>; })()}
           <CostModelChart data={costChartData} />
         </div>
         <Card title="Cost by Department">
@@ -1022,9 +1022,9 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
 
       return <div>
         {/* Department selector — prominent white card */}
-        <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(22,24,34,0.15)', borderRadius: 8, padding: '0', marginBottom: 16, display: 'inline-flex', alignItems: 'center', minWidth: 280 }}>
+        <div style={{ background: 'rgba(20, 24, 38, 0.95)', border: '1px solid var(--border)', borderRadius: 8, padding: '0', marginBottom: 16, display: 'inline-flex', alignItems: 'center', minWidth: 280 }}>
           <select value={selDept} onChange={e => setSelDept(Number(e.target.value))} style={{
-            background: 'transparent', border: 'none', outline: 'none', padding: '12px 16px', fontSize: 14, fontWeight: 500, color: 'var(--paper-solid)',
+            background: 'transparent', border: 'none', outline: 'none', padding: '12px 16px', fontSize: 14, fontWeight: 500, color: 'var(--ink)',
             cursor: 'pointer', width: '100%', height: 48, appearance: 'auto' as const,
           }}>
             {currentData.map((d, i) => <option key={d.name} value={i}>{d.name} \u2014 {d.headcount} HC</option>)}
@@ -1049,9 +1049,9 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
           {/* Left: Pyramid visualization */}
           <div className="flex-1 min-w-0">
             {/* Level Distribution — white card */}
-            <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(22,24,34,0.15)', borderRadius: 8, padding: 20, marginBottom: 16 }}>
-              <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--paper-solid)', marginBottom: 2 }}>Level Distribution — {dept?.name || ""}</div>
-              <div style={{ fontSize: 11, color: 'rgba(22,24,34,0.65)', marginBottom: 14 }}>Current vs. scenario headcount by level</div>
+            <div style={{ background: 'rgba(20, 24, 38, 0.95)', border: '1px solid var(--border)', borderRadius: 8, padding: 20, marginBottom: 16 }}>
+              <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink)', marginBottom: 2 }}>Level Distribution — {dept?.name || ""}</div>
+              <div style={{ fontSize: 11, color: 'var(--ink-soft)', marginBottom: 14 }}>Current vs. scenario headcount by level</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                 {pyramidLevels.map(lv => {
                   const trackChar = lv.level.charAt(0);
@@ -1105,10 +1105,10 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
 
                     {/* Cost info */}
                     <div style={{ textAlign: "right" }}>
-                      <div style={{ fontSize: 11, fontFamily: DRILL_MONO, fontWeight: 500, color: 'rgba(22,24,34,0.55)' }}>
+                      <div style={{ fontSize: 11, fontFamily: DRILL_MONO, fontWeight: 500, color: 'var(--ink-faint)' }}>
                         ${Math.round(lv.comp / 1000)}K avg
                       </div>
-                      <div style={{ fontSize: 11, fontFamily: DRILL_MONO, fontWeight: 500, color: 'rgba(22,24,34,0.55)' }}>
+                      <div style={{ fontSize: 11, fontFamily: DRILL_MONO, fontWeight: 500, color: 'var(--ink-faint)' }}>
                         ${(lv.totalCost / 1e6).toFixed(1)}M total
                       </div>
                     </div>
@@ -1120,7 +1120,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
                           {lv.delta > 0 ? "+" : ""}{lv.delta}
                         </span>
                       ) : (
-                        <span style={{ fontSize: 12, color: 'rgba(22,24,34,0.65)' }}>{'\u2014'}</span>
+                        <span style={{ fontSize: 12, color: 'var(--ink-soft)' }}>{'\u2014'}</span>
                       )}
                     </div>
                   </div>;
@@ -1128,15 +1128,15 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
               </div>
 
               {/* Legend */}
-              <div style={{ display: "flex", gap: 16, marginTop: 12, paddingTop: 8, borderTop: "0.5px solid rgba(22,24,34,0.08)", fontSize: 11, color: 'rgba(22,24,34,0.55)' }}>
+              <div style={{ display: "flex", gap: 16, marginTop: 12, paddingTop: 8, borderTop: "0.5px solid rgba(22,24,34,0.08)", fontSize: 11, color: 'var(--ink-faint)' }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 16, height: 8, borderRadius: 3, background: "rgba(244,168,58,0.20)" }} />Current</span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 16, height: 8, borderRadius: 3, background: "rgba(244,168,58,0.75)" }} />Proposed</span>
               </div>
             </div>
 
             {/* Cost Concentration — white card */}
-            <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(22,24,34,0.15)', borderRadius: 8, padding: 20, marginBottom: 16 }}>
-              <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--paper-solid)', marginBottom: 14 }}>Cost Concentration — Top 3 Levels</div>
+            <div style={{ background: 'rgba(20, 24, 38, 0.95)', border: '1px solid var(--border)', borderRadius: 8, padding: 20, marginBottom: 16 }}>
+              <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink)', marginBottom: 14 }}>Cost Concentration — Top 3 Levels</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {costConcentration.map((lv, idx) => {
                   const pct = totalDeptLevelCost > 0 ? (lv.totalCost / totalDeptLevelCost) * 100 : 0;
@@ -1150,10 +1150,10 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
                           background: `${trackColor}15`, color: trackColor,
                           fontSize: 12, fontWeight: 500, fontFamily: DRILL_MONO,
                         }}>{lv.level}</span>
-                        <span style={{ fontSize: 11, color: 'rgba(22,24,34,0.55)' }}>{lv.current} heads</span>
+                        <span style={{ fontSize: 11, color: 'var(--ink-faint)' }}>{lv.current} heads</span>
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <span style={{ fontSize: 13, fontWeight: 500, fontFamily: DRILL_MONO, color: 'var(--paper-solid)' }}>
+                        <span style={{ fontSize: 13, fontWeight: 500, fontFamily: DRILL_MONO, color: 'var(--ink)' }}>
                           ${(lv.totalCost / 1e6).toFixed(1)}M
                         </span>
                         <span style={{ fontSize: 12, fontWeight: 500, fontFamily: DRILL_MONO, color: trackColor }}>
@@ -1178,50 +1178,50 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
           {/* Right: What-If Simulator side panel */}
           <div className="shrink-0" style={{ width: "clamp(260px, 22vw, 320px)", display: 'flex', flexDirection: 'column', gap: 16 }}>
             {/* What-If Simulator — white card */}
-            <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(22,24,34,0.15)', borderRadius: 8, padding: 20 }}>
-              <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--paper-solid)', marginBottom: 4 }}>What-If Simulator</div>
-              <div style={{ fontSize: 11, color: 'rgba(22,24,34,0.55)', marginBottom: 16 }}>Drag the sliders to reshape {dept?.name || "this department"} and see impact in real-time.</div>
+            <div style={{ background: 'rgba(20, 24, 38, 0.95)', border: '1px solid var(--border)', borderRadius: 8, padding: 20 }}>
+              <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink)', marginBottom: 4 }}>What-If Simulator</div>
+              <div style={{ fontSize: 11, color: 'var(--ink-faint)', marginBottom: 16 }}>Drag the sliders to reshape {dept?.name || "this department"} and see impact in real-time.</div>
 
               {/* Target Span slider */}
               <div style={{ marginBottom: 16 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ fontSize: 11, color: 'rgba(22,24,34,0.55)' }}>Target Span</span>
-                  <span style={{ fontSize: 16, fontWeight: 500, color: 'var(--paper-solid)' }}>{simTargetSpan}:1</span>
+                  <span style={{ fontSize: 11, color: 'var(--ink-faint)' }}>Target Span</span>
+                  <span style={{ fontSize: 16, fontWeight: 500, color: 'var(--ink)' }}>{simTargetSpan}:1</span>
                 </div>
                 <input type="range" min={3} max={12} step={0.5} value={simTargetSpan} onChange={e => setSimTargetSpan(Number(e.target.value))} className="w-full h-2 rounded-full appearance-none cursor-pointer" style={{ background: `linear-gradient(to right, var(--amber) ${((simTargetSpan - 3) / 9) * 100}%, rgba(22,24,34,0.15) ${((simTargetSpan - 3) / 9) * 100}%)` }} />
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'rgba(22,24,34,0.55)', marginTop: 2 }}><span>3</span><span>12</span></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--ink-faint)', marginTop: 2 }}><span>3</span><span>12</span></div>
               </div>
 
               {/* Max Layers slider */}
               <div style={{ marginBottom: 16 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ fontSize: 11, color: 'rgba(22,24,34,0.55)' }}>Max Layers</span>
-                  <span style={{ fontSize: 16, fontWeight: 500, color: 'var(--paper-solid)' }}>{simMaxLayers}</span>
+                  <span style={{ fontSize: 11, color: 'var(--ink-faint)' }}>Max Layers</span>
+                  <span style={{ fontSize: 16, fontWeight: 500, color: 'var(--ink)' }}>{simMaxLayers}</span>
                 </div>
                 <input type="range" min={2} max={8} step={1} value={simMaxLayers} onChange={e => setSimMaxLayers(Number(e.target.value))} className="w-full h-2 rounded-full appearance-none cursor-pointer" style={{ background: `linear-gradient(to right, var(--amber) ${((simMaxLayers - 2) / 6) * 100}%, rgba(22,24,34,0.15) ${((simMaxLayers - 2) / 6) * 100}%)` }} />
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'rgba(22,24,34,0.55)', marginTop: 2 }}><span>2</span><span>8</span></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--ink-faint)', marginTop: 2 }}><span>2</span><span>8</span></div>
               </div>
 
               {/* Simulated Impact box */}
               <div style={{ background: 'var(--ivory, var(--ink))', borderRadius: 6, padding: '12px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'rgba(22,24,34,0.55)', marginBottom: 2 }}>Simulated Impact</div>
+                <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'var(--ink-faint)', marginBottom: 2 }}>Simulated Impact</div>
                 {[
                   { label: "Headcount Change", value: `${simDept.hcDelta >= 0 ? "+" : ""}${simDept.hcDelta}`, good: simDept.hcDelta <= 0 },
                   { label: "Cost Impact", value: `${simDept.costPct >= 0 ? "+" : ""}${simDept.costPct.toFixed(1)}%`, good: simDept.costPct <= 0 },
                   { label: "New Span", value: `${simDept.span}:1`, good: simDept.span >= 6 && simDept.span <= 8 },
                   { label: "Layer Delta", value: `${simDept.layerDelta > 0 ? "-" : simDept.layerDelta < 0 ? "+" : ""}${Math.abs(simDept.layerDelta)}`, good: simDept.layerDelta >= 0 },
                 ].map(r => <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12 }}>
-                  <span style={{ color: 'rgba(22,24,34,0.55)' }}>{r.label}</span>
+                  <span style={{ color: 'var(--ink-faint)' }}>{r.label}</span>
                   <span style={{ fontWeight: 500, color: r.good ? 'var(--sage)' : 'var(--coral)' }}>{r.value}</span>
                 </div>)}
               </div>
             </div>
 
             {/* Shape Assessment — white card */}
-            <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(22,24,34,0.15)', borderRadius: 8, padding: 20 }}>
-              <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'rgba(22,24,34,0.55)', marginBottom: 12 }}>Shape Assessment</div>
-              <div style={{ fontSize: 16, fontWeight: 500, color: 'var(--paper-solid)', marginBottom: 4 }}>{shapeAssessment.shape}</div>
-              <div style={{ fontSize: 12, color: 'rgba(22,24,34,0.65)', marginBottom: 12, lineHeight: 1.5 }}>{shapeAssessment.desc}</div>
+            <div style={{ background: 'rgba(20, 24, 38, 0.95)', border: '1px solid var(--border)', borderRadius: 8, padding: 20 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'var(--ink-faint)', marginBottom: 12 }}>Shape Assessment</div>
+              <div style={{ fontSize: 16, fontWeight: 500, color: 'var(--ink)', marginBottom: 4 }}>{shapeAssessment.shape}</div>
+              <div style={{ fontSize: 12, color: 'var(--ink-soft)', marginBottom: 12, lineHeight: 1.5 }}>{shapeAssessment.desc}</div>
               {/* Bars with counts */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {[
@@ -1229,18 +1229,18 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
                   { label: "Mid", pct: shapeAssessment.midPct, count: shapeAssessment.mid },
                   { label: "IC", pct: shapeAssessment.bottomPct, count: shapeAssessment.bottom },
                 ].map(tier => <div key={tier.label} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontSize: 11, color: 'rgba(22,24,34,0.55)', width: 40, textAlign: 'right' }}>{tier.label}</span>
+                  <span style={{ fontSize: 11, color: 'var(--ink-faint)', width: 40, textAlign: 'right' }}>{tier.label}</span>
                   <div style={{ flex: 1, height: 16, borderRadius: 8, overflow: 'hidden', background: 'rgba(22,24,34,0.04)' }}>
                     <div style={{ height: '100%', borderRadius: 8, transition: 'width 0.3s ease-out', width: `${Math.max(tier.pct * 100, 6)}%`, background: shapeAssessment.color, opacity: 0.7 }} />
                   </div>
-                  <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--paper-solid)', minWidth: 32, textAlign: 'right' }}>{tier.count}</span>
+                  <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink)', minWidth: 32, textAlign: 'right' }}>{tier.count}</span>
                 </div>)}
               </div>
             </div>
 
             {/* vs. Industry Benchmark — white card */}
-            <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(22,24,34,0.15)', borderRadius: 8, padding: 20 }}>
-              <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'rgba(22,24,34,0.55)', marginBottom: 12 }}>vs. Industry Benchmark</div>
+            <div style={{ background: 'rgba(20, 24, 38, 0.95)', border: '1px solid var(--border)', borderRadius: 8, padding: 20 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'var(--ink-faint)', marginBottom: 12 }}>vs. Industry Benchmark</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {[
                   { label: "Span of Control", current: dept?.avgSpan || 0, benchmark: "6-8:1", min: 6, max: 8 },
@@ -1248,8 +1248,8 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
                   { label: "Manager Ratio", current: dept ? Math.round((dept.managers / Math.max(dept.headcount, 1)) * 100) : 0, benchmark: "10-12%", min: 10, max: 12 },
                 ].map(row => <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <div style={{ fontSize: 12, fontWeight: 500, color: 'var(--paper-solid)' }}>{row.label}</div>
-                    <div style={{ fontSize: 11, color: 'rgba(22,24,34,0.65)' }}>Benchmark: {row.benchmark}</div>
+                    <div style={{ fontSize: 12, fontWeight: 500, color: 'var(--ink)' }}>{row.label}</div>
+                    <div style={{ fontSize: 11, color: 'var(--ink-soft)' }}>Benchmark: {row.benchmark}</div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <div style={{ fontSize: 14, fontWeight: 500, color: benchColor(row.current, row.min, row.max) }}>{row.current}{row.label === "Manager Ratio" ? "%" : row.label === "Span of Control" ? ":1" : ""}</div>
@@ -1276,23 +1276,23 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       ];
       return <div>
         {/* Multi-scenario table */}
-        <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(22,24,34,0.15)', borderRadius: 8, padding: 20, marginBottom: 16 }}>
-          <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--paper-solid)', marginBottom: 2 }}>Multi-Scenario Comparison</div>
-          <div style={{ fontSize: 11, color: 'rgba(22,24,34,0.65)', marginBottom: 14 }}>All scenarios vs. current state</div>
+        <div style={{ background: 'rgba(20, 24, 38, 0.95)', border: '1px solid var(--border)', borderRadius: 8, padding: 20, marginBottom: 16 }}>
+          <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink)', marginBottom: 2 }}>Multi-Scenario Comparison</div>
+          <div style={{ fontSize: 11, color: 'var(--ink-soft)', marginBottom: 14 }}>All scenarios vs. current state</div>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse' }}>
               <thead><tr style={{ background: '#F1EFE8' }}>
-                <th style={{ padding: '10px 14px', textAlign: 'left', fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'rgba(22,24,34,0.55)', borderBottom: '0.5px solid rgba(22,24,34,0.12)' }}>Metric</th>
-                <th style={{ padding: '10px 14px', textAlign: 'center', fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'rgba(22,24,34,0.55)', borderBottom: '0.5px solid rgba(22,24,34,0.12)' }}>Current</th>
-                {scenarios.map((s, i) => <th key={s.id} style={{ padding: '10px 14px', textAlign: 'center', fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'var(--paper-solid)', borderBottom: '0.5px solid rgba(22,24,34,0.12)' }}>{s.label}</th>)}
+                <th style={{ padding: '10px 14px', textAlign: 'left', fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'var(--ink-faint)', borderBottom: '0.5px solid rgba(22,24,34,0.12)' }}>Metric</th>
+                <th style={{ padding: '10px 14px', textAlign: 'center', fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'var(--ink-faint)', borderBottom: '0.5px solid rgba(22,24,34,0.12)' }}>Current</th>
+                {scenarios.map((s, i) => <th key={s.id} style={{ padding: '10px 14px', textAlign: 'center', fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'var(--ink)', borderBottom: '0.5px solid rgba(22,24,34,0.12)' }}>{s.label}</th>)}
               </tr></thead>
               <tbody>{metrics.map((m, ri) => {
                 const cVal = cA[m.key as keyof typeof cA] as number;
                 return <tr key={m.label} style={{ background: ri % 2 ? 'var(--ivory, var(--ink))' : '#FFFFFF', transition: 'background 0.15s' }}
                   onMouseEnter={e => { (e.currentTarget as HTMLTableRowElement).style.background = 'var(--ink)'; }}
                   onMouseLeave={e => { (e.currentTarget as HTMLTableRowElement).style.background = ri % 2 ? 'var(--ivory, var(--ink))' : '#FFFFFF'; }}>
-                  <td style={{ padding: '10px 14px', fontWeight: 500, color: 'var(--paper-solid)', fontSize: 12, borderBottom: '0.5px solid rgba(22,24,34,0.06)' }}>{m.label}</td>
-                  <td style={{ padding: '10px 14px', textAlign: 'center', color: 'rgba(22,24,34,0.65)', fontSize: 12, fontWeight: 500, borderBottom: '0.5px solid rgba(22,24,34,0.06)' }}>{m.fmtFn ? m.fmtFn(cVal) : fmt(cVal)}</td>
+                  <td style={{ padding: '10px 14px', fontWeight: 500, color: 'var(--ink)', fontSize: 12, borderBottom: '0.5px solid rgba(22,24,34,0.06)' }}>{m.label}</td>
+                  <td style={{ padding: '10px 14px', textAlign: 'center', color: 'var(--ink-soft)', fontSize: 12, fontWeight: 500, borderBottom: '0.5px solid rgba(22,24,34,0.06)' }}>{m.fmtFn ? m.fmtFn(cVal) : fmt(cVal)}</td>
                   {scenarios.map((s, i) => {
                     const v = scAggs[i][m.key as keyof typeof cA] as number;
                     const diff = v - cVal;
@@ -1300,7 +1300,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
                     const neg = m.inv ? diff > 0 : diff < 0;
                     const dColor = pos ? 'var(--sage)' : neg ? 'var(--coral)' : 'rgba(22,24,34,0.65)';
                     return <td key={s.id} style={{ padding: '10px 14px', textAlign: 'center', borderBottom: '0.5px solid rgba(22,24,34,0.06)' }}>
-                      <span style={{ fontWeight: 500, color: 'var(--paper-solid)', fontSize: 12 }}>{m.fmtFn ? m.fmtFn(v) : fmt(v)}</span>
+                      <span style={{ fontWeight: 500, color: 'var(--ink)', fontSize: 12 }}>{m.fmtFn ? m.fmtFn(v) : fmt(v)}</span>
                       {Math.abs(diff) > 0.01 && <span style={{ fontSize: 11, fontWeight: 500, color: dColor, marginLeft: 4 }}>({diff > 0 ? '+' : ''}{m.fmtFn ? m.fmtFn(diff) : fmt(diff)})</span>}
                     </td>;
                   })}
@@ -1317,25 +1317,25 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
             const costDelta = a.cost - cA.cost;
             const hcDelta = a.hc - cA.hc;
             return <div key={s.id} style={{
-              background: '#FFFFFF', border: '0.5px solid rgba(22,24,34,0.15)', borderRadius: 8, padding: 16,
+              background: 'rgba(20, 24, 38, 0.95)', border: '1px solid var(--border)', borderRadius: 8, padding: 16,
               cursor: 'pointer', transition: 'border-color 0.15s, box-shadow 0.15s',
             }}
               onClick={() => setActiveScenario(i)}
               onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(22,24,34,0.40)'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 8px rgba(22,24,34,0.06)'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(22,24,34,0.15)'; (e.currentTarget as HTMLDivElement).style.boxShadow = 'none'; }}>
-              <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--paper-solid)', marginBottom: 8 }}>{s.label}</div>
+              <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink)', marginBottom: 8 }}>{s.label}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
-                  <span style={{ color: 'rgba(22,24,34,0.55)' }}>Headcount</span>
-                  <span style={{ fontWeight: 500, color: 'var(--paper-solid)' }}>{a.hc.toLocaleString()} <span style={{ fontSize: 11, color: hcDelta < 0 ? 'var(--sage)' : hcDelta > 0 ? 'var(--coral)' : 'rgba(22,24,34,0.65)' }}>({hcDelta >= 0 ? '+' : ''}{hcDelta})</span></span>
+                  <span style={{ color: 'var(--ink-faint)' }}>Headcount</span>
+                  <span style={{ fontWeight: 500, color: 'var(--ink)' }}>{a.hc.toLocaleString()} <span style={{ fontSize: 11, color: hcDelta < 0 ? 'var(--sage)' : hcDelta > 0 ? 'var(--coral)' : 'rgba(22,24,34,0.65)' }}>({hcDelta >= 0 ? '+' : ''}{hcDelta})</span></span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
-                  <span style={{ color: 'rgba(22,24,34,0.55)' }}>Avg Span</span>
-                  <span style={{ fontWeight: 500, color: 'var(--paper-solid)' }}>{fmt(a.avgS)}</span>
+                  <span style={{ color: 'var(--ink-faint)' }}>Avg Span</span>
+                  <span style={{ fontWeight: 500, color: 'var(--ink)' }}>{fmt(a.avgS)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
-                  <span style={{ color: 'rgba(22,24,34,0.55)' }}>Cost</span>
-                  <span style={{ fontWeight: 500, color: 'var(--paper-solid)' }}>{fmtNum(a.cost)}</span>
+                  <span style={{ color: 'var(--ink-faint)' }}>Cost</span>
+                  <span style={{ fontWeight: 500, color: 'var(--ink)' }}>{fmtNum(a.cost)}</span>
                 </div>
               </div>
               <div style={{ marginTop: 10, fontSize: 12, fontWeight: 500, color: 'var(--amber)', display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -1410,7 +1410,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       const filtered = insightFilter === "all" ? enrichedInsights : enrichedInsights.filter(i => i.severity === insightFilter);
 
       return <div>
-        <div style={{ fontSize: 12, color: 'rgba(22,24,34,0.65)', marginBottom: 12 }}>{enrichedInsights.length} insights from {currentData.length} departments, {fmt(cA.hc)} employees</div>
+        <div style={{ fontSize: 12, color: 'var(--ink-soft)', marginBottom: 12 }}>{enrichedInsights.length} insights from {currentData.length} departments, {fmt(cA.hc)} employees</div>
 
         {/* Filter pills */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
@@ -1439,7 +1439,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
           {filtered.map((ins, i) => (
             <div key={i} style={{
-              background: '#FFFFFF', border: '0.5px solid rgba(22,24,34,0.15)', borderRadius: 8, padding: 20,
+              background: 'rgba(20, 24, 38, 0.95)', border: '1px solid var(--border)', borderRadius: 8, padding: 20,
               transition: 'border-color 0.15s, box-shadow 0.15s',
             }}
               onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(22,24,34,0.40)'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 8px rgba(22,24,34,0.06)'; }}
@@ -1450,9 +1450,9 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
                 <span style={{ fontSize: 11, fontWeight: 500, color: ins.severityColor }}>{ins.severity}</span>
               </div>
               {/* Title */}
-              <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--paper-solid)', marginBottom: 6, lineHeight: 1.4 }}>{ins.title}</div>
+              <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink)', marginBottom: 6, lineHeight: 1.4 }}>{ins.title}</div>
               {/* Description */}
-              <div style={{ fontSize: 12, color: 'var(--paper-solid)', lineHeight: 1.6, marginBottom: 10, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>{ins.body}</div>
+              <div style={{ fontSize: 12, color: 'var(--ink)', lineHeight: 1.6, marginBottom: 10, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>{ins.body}</div>
               {/* Mini visualization — inline severity bar */}
               {ins.metric && <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
                 <div style={{ flex: 1, height: 4, borderRadius: 2, background: 'rgba(22,24,34,0.06)', overflow: 'hidden' }}>
@@ -1462,18 +1462,18 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
               </div>}
               {/* Recommendation box */}
               <div style={{ background: 'var(--ivory, var(--ink))', borderRadius: 6, padding: '10px 12px' }}>
-                <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'rgba(22,24,34,0.65)', marginBottom: 4 }}>Recommendation</div>
-                <div style={{ fontSize: 11, color: 'rgba(22,24,34,0.65)', lineHeight: 1.5 }}>{ins.recommendation}</div>
+                <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'var(--ink-soft)', marginBottom: 4 }}>Recommendation</div>
+                <div style={{ fontSize: 11, color: 'var(--ink-soft)', lineHeight: 1.5 }}>{ins.recommendation}</div>
               </div>
             </div>
           ))}
         </div>
 
         {filtered.length === 0 && (
-          <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(22,24,34,0.15)', borderRadius: 8, padding: '48px 24px', textAlign: 'center' }}>
+          <div style={{ background: 'rgba(20, 24, 38, 0.95)', border: '1px solid var(--border)', borderRadius: 8, padding: '48px 24px', textAlign: 'center' }}>
             <div style={{ fontSize: 32, color: 'rgba(22,24,34,0.15)', marginBottom: 8 }}>&#9783;</div>
-            <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--paper-solid)', marginBottom: 4 }}>No insights match this filter</div>
-            <div style={{ fontSize: 12, color: 'rgba(22,24,34,0.55)' }}>Try selecting a different category above</div>
+            <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink)', marginBottom: 4 }}>No insights match this filter</div>
+            <div style={{ fontSize: 12, color: 'var(--ink-faint)' }}>Try selecting a different category above</div>
           </div>
         )}
       </div>;
@@ -1534,10 +1534,10 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
 
     {/* Present tab — designed empty state */}
     {view === "present" && (
-      <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(22,24,34,0.15)', borderRadius: 8, padding: '56px 24px', textAlign: 'center' }}>
+      <div style={{ background: 'rgba(20, 24, 38, 0.95)', border: '1px solid var(--border)', borderRadius: 8, padding: '56px 24px', textAlign: 'center' }}>
         <div style={{ fontSize: 36, color: 'rgba(22,24,34,0.12)', marginBottom: 12 }}>{'\uD83D\uDCCA'}</div>
-        <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--paper-solid)', marginBottom: 6 }}>Presentation Mode</div>
-        <div style={{ fontSize: 12, color: 'rgba(22,24,34,0.55)', marginBottom: 16, maxWidth: 400, margin: '0 auto 16px' }}>Presentation mode is in development. In the meantime, export your analysis from the Compare tab or use your browser's print function.</div>
+        <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink)', marginBottom: 6 }}>Presentation Mode</div>
+        <div style={{ fontSize: 12, color: 'var(--ink-faint)', marginBottom: 16, maxWidth: 400, margin: '0 auto 16px' }}>Presentation mode is in development. In the meantime, export your analysis from the Compare tab or use your browser's print function.</div>
       </div>
     )}
 
