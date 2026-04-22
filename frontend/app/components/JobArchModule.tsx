@@ -675,7 +675,6 @@ function JobProfileLibrary({ jobs, model }: { jobs: Job[]; model: string }) {
     if (filterComplete === "Complete") result = result.filter(j => completeness(j.id) >= 90);
     else if (filterComplete === "Draft") result = result.filter(j => { const c = completeness(j.id); return c > 0 && c < 90; });
     else if (filterComplete === "Empty") result = result.filter(j => completeness(j.id) === 0);
-    return result;
     if (filterTrack !== "All") result = result.filter(j => j.track === filterTrack);
     return result;
   }, [jobs, searchQuery, filterFunc, filterTrack, filterComplete, profiles]); // eslint-disable-line react-hooks/exhaustive-deps
