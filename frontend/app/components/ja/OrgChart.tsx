@@ -353,6 +353,41 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
     return () => document.removeEventListener("click", close);
   }, []);
 
+  // ── Popout window ──
+  const openPopout = useCallback(() => {
+    // If already open and not closed, just focus it
+    if (popoutWindowRef.current && !popoutWindowRef.current.closed) {
+      popoutWindowRef.current.focus();
+      return;
+    }
+    const popoutUrl = `/ja/org-chart/popout?model=${encodeURIComponent(model)}`;
+    const win = window.open(
+      popoutUrl,
+      "orgchart_popout",
+      "width=1400,height=900,menubar=no,toolbar=no"
+    );
+    if (win) {
+      popoutWindowRef.current = win;
+      setIsPopoutOpen(true);
+    }
+  }, [model]);
+
+  // ── Fullscreen helpers ──
+  const toggleFullscreen = useCallback(() => {
+    setIsFullscreen(v => {
+      const next = !v;
+      saveModePreference(next ? "fullscreen" : "inline");
+      return next;
+    });
+  }, [saveModePreference]);
+  const toggleBrowserFullscreen = useCallback(() => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.();
+    } else {
+      document.exitFullscreen?.();
+    }
+  }, []);
+
   // ── Keyboard navigation ──
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -392,43 +427,8 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
     return () => document.removeEventListener("keydown", handler);
   }, [fitToView, isFullscreen, openPopout, saveModePreference]);
 
-  // ── Fullscreen helpers ──
-  const toggleFullscreen = useCallback(() => {
-    setIsFullscreen(v => {
-      const next = !v;
-      saveModePreference(next ? "fullscreen" : "inline");
-      return next;
-    });
-  }, [saveModePreference]);
-  const toggleBrowserFullscreen = useCallback(() => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen?.();
-    } else {
-      document.exitFullscreen?.();
-    }
-  }, []);
-
   // Re-fit after entering/exiting fullscreen (canvas size changes)
   useEffect(() => { requestAnimationFrame(() => fitToView()); }, [isFullscreen]);
-
-  // ── Popout window ──
-  const openPopout = useCallback(() => {
-    // If already open and not closed, just focus it
-    if (popoutWindowRef.current && !popoutWindowRef.current.closed) {
-      popoutWindowRef.current.focus();
-      return;
-    }
-    const popoutUrl = `/ja/org-chart/popout?model=${encodeURIComponent(model)}`;
-    const win = window.open(
-      popoutUrl,
-      "orgchart_popout",
-      "width=1400,height=900,menubar=no,toolbar=no"
-    );
-    if (win) {
-      popoutWindowRef.current = win;
-      setIsPopoutOpen(true);
-    }
-  }, [model]);
 
   // Poll to detect popout close
   useEffect(() => {
