@@ -1,117 +1,138 @@
-/* ═══ COMPUTED REALITY — Design Tokens ═══ */
+/* ═══ VISTA — Design Tokens ═══ */
 
 :root {
-  /* Backgrounds */
-  --bg-void: #05070d;
-  --bg-deep: #080b14;
-  --bg-panel: rgba(14, 20, 36, 0.4);
-  --bg-panel-hover: rgba(18, 26, 46, 0.6);
+  /* Sky — driven dynamically by Vista Engine, golden hour defaults */
+  --sky-top: #1a1f3a;
+  --sky-mid: #4a3a5e;
+  --sky-warm: #c76846;
+  --sky-gold: #e8a050;
+  --sky-peach: #f4c27a;
+  --sky-haze: rgba(244, 194, 122, 0.4);
+  --sun-opacity: 1;
+  --moon-opacity: 0;
+  --stars-opacity: 0.3;
+  --lamp-opacity: 0.8;
+  --ember-opacity: 0.6;
+  --fog-opacity: 0;
+
+  /* Landscape — fixed */
+  --ground: #05040a;
+
+  /* UI chrome — fixed */
+  --paper: rgba(22, 24, 34, 0.72);
+  --paper-solid: #161822;
+  --ink: #f4ebd9;
+  --ink-soft: #c9bfa8;
+  --ink-faint: #8a7f6d;
+  --ink-whisper: #5a5245;
+
+  /* Accents */
+  --amber: #f4a83a;
+  --amber-glow: rgba(244, 168, 58, 0.4);
+  --coral: #e87a5d;
+  --sage: #8ba87a;
+  --dusk: #a78bb8;
+  --lamp: #ffc870;
 
   /* Borders */
-  --cr-border: rgba(130, 180, 255, 0.06);
-  --cr-border-hot: rgba(130, 220, 255, 0.25);
-
-  /* Text */
-  --cr-text: #e8ecf5;
-  --cr-text-dim: #8892ab;
-  --cr-text-faint: #4a5370;
-
-  /* Primary accent — cyan */
-  --cyan: #22d3ee;
-  --cyan-glow: rgba(34, 211, 238, 0.5);
-
-  /* Secondary accent — violet */
-  --violet: #a78bfa;
-  --violet-glow: rgba(167, 139, 250, 0.5);
-
-  /* Semantic */
-  --cr-rose: #fb7185;
-  --cr-amber: #fbbf24;
-  --cr-emerald: #34d399;
+  --border: rgba(244, 235, 217, 0.08);
+  --border-hot: rgba(244, 168, 58, 0.3);
 
   /* Motion */
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-smooth: cubic-bezier(0.17, 0.84, 0.44, 1);
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* Surfaces (mapped for backwards compat with existing var references) */
-  --bg: var(--bg-void);
-  --surface-1: #0a0e1a;
-  --surface-2: #0e1424;
-  --surface-3: #131b2e;
-  --border: var(--cr-border);
-  --border-light: rgba(130, 180, 255, 0.03);
-  --border-hot: var(--cr-border-hot);
-  --text-primary: var(--cr-text);
-  --text-secondary: var(--cr-text-dim);
-  --text-muted: var(--cr-text-faint);
-  --accent-primary: var(--cyan);
-  --accent-light: rgba(34, 211, 238, 0.1);
+  /* ═══ Backwards-compatible mappings ═══ */
+  --bg: var(--paper-solid);
+  --bg-void: var(--sky-top);
+  --bg-deep: var(--paper-solid);
+  --bg-panel: var(--paper);
+  --bg-panel-hover: rgba(22, 24, 34, 0.85);
+  --cr-border: var(--border);
+  --cr-border-hot: var(--border-hot);
+  --cr-text: var(--ink);
+  --cr-text-dim: var(--ink-soft);
+  --cr-text-faint: var(--ink-faint);
+  --cyan: var(--amber);
+  --cyan-glow: var(--amber-glow);
+  --violet: var(--dusk);
+  --violet-glow: rgba(167, 139, 184, 0.4);
+  --cr-rose: var(--coral);
+  --cr-amber: var(--amber);
+  --cr-emerald: var(--sage);
 
-  /* Semantic mapping to existing var names */
-  --success: var(--cr-emerald);
-  --success-dim: rgba(52, 211, 153, 0.12);
-  --warning: var(--cr-amber);
-  --warning-dim: rgba(251, 191, 36, 0.12);
-  --risk: var(--cr-rose);
-  --risk-dim: rgba(251, 113, 133, 0.12);
+  /* Surface compat */
+  --surface-1: #1a1c28;
+  --surface-2: #1e2030;
+  --surface-3: #242638;
+  --border-light: rgba(244, 235, 217, 0.04);
+  --text-primary: var(--ink);
+  --text-secondary: var(--ink-soft);
+  --text-muted: var(--ink-faint);
+  --accent-primary: var(--amber);
+  --accent-light: rgba(244, 168, 58, 0.1);
 
-  /* Existing semantic tokens remapped */
-  --sem-success: var(--cr-emerald);
-  --sem-success-bg: rgba(52, 211, 153, 0.10);
-  --sem-success-border: rgba(52, 211, 153, 0.25);
-  --sem-warn: var(--cr-amber);
-  --sem-warn-bg: rgba(251, 191, 36, 0.10);
-  --sem-warn-border: rgba(251, 191, 36, 0.25);
-  --sem-risk: var(--cr-rose);
-  --sem-risk-bg: rgba(251, 113, 133, 0.10);
-  --sem-risk-border: rgba(251, 113, 133, 0.25);
-  --sem-info: var(--cyan);
-  --sem-info-bg: rgba(34, 211, 238, 0.10);
-  --sem-info-border: rgba(34, 211, 238, 0.25);
-  --sem-insight: var(--violet);
-  --sem-insight-bg: rgba(167, 139, 250, 0.10);
-  --sem-insight-border: rgba(167, 139, 250, 0.25);
+  /* Semantic */
+  --success: var(--sage);
+  --success-dim: rgba(139, 168, 122, 0.12);
+  --warning: var(--amber);
+  --warning-dim: rgba(244, 168, 58, 0.12);
+  --risk: var(--coral);
+  --risk-dim: rgba(232, 122, 93, 0.12);
 
-  /* Chart / data */
-  --data-human: #8892ab;
-  --data-ai: var(--cyan);
-  --data-augmented: var(--cr-emerald);
-  --data-risk: var(--cr-rose);
-  --data-scenario: var(--violet);
-  --hover: rgba(130, 180, 255, 0.04);
-  --active-bg: rgba(34, 211, 238, 0.08);
-  --disabled-bg: #0a0e1a;
-  --chart-grid: rgba(130, 180, 255, 0.06);
-  --chart-text: var(--cr-text-faint);
-  --glass-bg: var(--bg-panel);
-  --overlay-bg: rgba(0, 0, 0, 0.7);
+  --sem-success: var(--sage);
+  --sem-success-bg: rgba(139, 168, 122, 0.10);
+  --sem-success-border: rgba(139, 168, 122, 0.25);
+  --sem-warn: var(--amber);
+  --sem-warn-bg: rgba(244, 168, 58, 0.10);
+  --sem-warn-border: rgba(244, 168, 58, 0.25);
+  --sem-risk: var(--coral);
+  --sem-risk-bg: rgba(232, 122, 93, 0.10);
+  --sem-risk-border: rgba(232, 122, 93, 0.25);
+  --sem-info: var(--amber);
+  --sem-info-bg: rgba(244, 168, 58, 0.10);
+  --sem-info-border: rgba(244, 168, 58, 0.25);
+  --sem-insight: var(--dusk);
+  --sem-insight-bg: rgba(167, 139, 184, 0.10);
+  --sem-insight-border: rgba(167, 139, 184, 0.25);
 
-  /* Legacy aliases retired — map to new values */
-  --ivory: var(--cr-text);
-  --navy: var(--bg-void);
-  --navy-65: rgba(5, 7, 13, 0.65);
-  --navy-55: rgba(5, 7, 13, 0.55);
-  --navy-40: rgba(5, 7, 13, 0.40);
-  --navy-15: rgba(5, 7, 13, 0.15);
-  --navy-12: rgba(5, 7, 13, 0.12);
-  --navy-10: rgba(5, 7, 13, 0.10);
-  --navy-08: rgba(5, 7, 13, 0.08);
-  --blue-primary: var(--cyan);
-  --orange-attention: var(--cr-amber);
-  --consulting-teal: var(--cyan);
-  --coral: var(--cr-rose);
-  --accent-scenario: var(--violet);
-  --teal: var(--cyan);
-  --teal-dim: rgba(34, 211, 238, 0.12);
-  --green: var(--cr-emerald);
-  --green-dim: rgba(52, 211, 153, 0.12);
-  --amber: var(--cr-amber);
-  --amber-dim: rgba(251, 191, 36, 0.12);
-  --purple: var(--violet);
-  --purple-dim: rgba(167, 139, 250, 0.12);
+  /* Chart / data compat */
+  --data-human: var(--ink-faint);
+  --data-ai: var(--amber);
+  --data-augmented: var(--sage);
+  --data-risk: var(--coral);
+  --data-scenario: var(--dusk);
+  --hover: rgba(244, 168, 58, 0.04);
+  --active-bg: rgba(244, 168, 58, 0.08);
+  --disabled-bg: #1a1c28;
+  --chart-grid: rgba(244, 235, 217, 0.06);
+  --chart-text: var(--ink-faint);
+  --glass-bg: var(--paper);
+  --overlay-bg: rgba(0, 0, 0, 0.6);
 
-  /* Elevation (updated for darker theme) */
+  /* Legacy compat aliases */
+  --ivory: var(--ink);
+  --navy: var(--paper-solid);
+  --navy-65: rgba(22, 24, 34, 0.65);
+  --navy-55: rgba(22, 24, 34, 0.55);
+  --navy-40: rgba(22, 24, 34, 0.40);
+  --navy-15: rgba(22, 24, 34, 0.15);
+  --navy-12: rgba(22, 24, 34, 0.12);
+  --navy-10: rgba(22, 24, 34, 0.10);
+  --navy-08: rgba(22, 24, 34, 0.08);
+  --blue-primary: var(--amber);
+  --orange-attention: var(--amber);
+  --consulting-teal: var(--sage);
+  --accent-scenario: var(--dusk);
+  --teal: var(--sage);
+  --teal-dim: rgba(139, 168, 122, 0.12);
+  --green: var(--sage);
+  --green-dim: rgba(139, 168, 122, 0.12);
+  --purple: var(--dusk);
+  --purple-dim: rgba(167, 139, 184, 0.12);
+
+  /* Elevation */
   --shadow-0: none;
   --shadow-1: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
   --shadow-2: 0 4px 12px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.2);

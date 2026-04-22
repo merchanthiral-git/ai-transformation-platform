@@ -18,6 +18,18 @@
   --color-rose: var(--cr-rose);
   --color-cr-amber: var(--cr-amber);
   --color-emerald: var(--cr-emerald);
+  /* Vista palette */
+  --color-paper: var(--paper);
+  --color-paper-solid: var(--paper-solid);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-amber: var(--amber);
+  --color-amber-glow: var(--amber-glow);
+  --color-coral: var(--coral);
+  --color-sage: var(--sage);
+  --color-dusk: var(--dusk);
+  --color-lamp: var(--lamp);
 }
 
 /* ═══ DESIGN SYSTEM — §1 UPGRADE ═══ */
@@ -349,7 +361,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     -moz-osx-font-smoothing: grayscale;
   }
 
-  h1, h2, h3, h4, h5, h6, .font-heading { font-family: 'Instrument Serif', Georgia, serif; }
+  h1, h2, h3, h4, h5, h6, .font-heading { font-family: 'Fraunces', Georgia, serif; }
   .font-data, .font-mono, code, pre, [data-mono] { font-family: 'JetBrains Mono', ui-monospace, monospace; }
   body { min-height: 100vh; }
   ::selection { background: rgba(34,211,238,0.25); color: var(--cr-text); }
@@ -537,7 +549,7 @@ input[type="range"]::-moz-range-thumb {
 .font-jetbrains { font-family: 'JetBrains Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; }
 
 /* Elevation 9 — Editorial serif for deep content */
-.font-editorial { font-family: 'Instrument Serif', Georgia, serif; }
+.font-editorial { font-family: 'Fraunces', Georgia, serif; }
 
 /* Elevation 8 — Atmospheric gradient mesh background */
 @keyframes meshDrift {

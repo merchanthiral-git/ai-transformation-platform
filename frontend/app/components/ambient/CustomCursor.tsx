@@ -71,13 +71,13 @@ export default function CustomCursor() {
           position: 'fixed',
           top: 0,
           left: 0,
-          width: hovering ? 10 : 6,
-          height: hovering ? 10 : 6,
+          width: hovering ? 12 : 8,
+          height: hovering ? 12 : 8,
           borderRadius: '50%',
-          background: hovering ? 'var(--violet)' : 'var(--cyan)',
+          background: hovering ? 'var(--coral)' : 'var(--amber)',
           boxShadow: hovering
-            ? '0 0 12px var(--violet-glow)'
-            : '0 0 8px var(--cyan-glow)',
+            ? '0 0 12px rgba(232,122,93,0.4)'
+            : '0 0 8px var(--amber-glow)',
           mixBlendMode: 'screen',
           pointerEvents: 'none',
           zIndex: 99999,
@@ -94,7 +94,7 @@ export default function CustomCursor() {
           width: hovering ? 56 : 36,
           height: hovering ? 56 : 36,
           borderRadius: '50%',
-          border: '1px solid var(--cyan)',
+          border: '1px solid var(--amber)',
           opacity: 0.5,
           pointerEvents: 'none',
           zIndex: 99998,
