@@ -36,7 +36,7 @@ interface BotState {
 
 // ── Constants ──
 
-const COLORS = ["var(--accent-primary)", "var(--purple)", "#22d3ee", "var(--success)", "var(--warning)", "var(--risk)", "#EC4899", "#14B8A6"];
+const COLORS = ["var(--accent-primary)", "var(--purple)", "#f4a83a", "var(--success)", "var(--warning)", "var(--risk)", "#EC4899", "#14B8A6"];
 const TT: React.CSSProperties = { background: "rgba(15,12,8,0.95)", border: "1px solid rgba(255,200,150,0.1)", borderRadius: 10, fontSize: 12, color: "#f5e6d0" };
 
 const ACTION_LABELS: Record<string, string> = {
@@ -186,7 +186,7 @@ function ReadinessViz({ data }: { data: Record<string, unknown> }) {
       </RadarChart>
     </ResponsiveContainer>
     <div style={{ display: "flex", gap: 16, justifyContent: "center", marginTop: 8 }}>
-      {[["Technology", "var(--accent-primary)"], ["Process", "var(--purple)"], ["People", "var(--success)"], ["Data", "#22d3ee"]].map(([l, c]) => <Legend2 key={l} color={c as string} label={l as string} />)}
+      {[["Technology", "var(--accent-primary)"], ["Process", "var(--purple)"], ["People", "var(--success)"], ["Data", "#f4a83a"]].map(([l, c]) => <Legend2 key={l} color={c as string} label={l as string} />)}
     </div>
   </div>;
 }
@@ -236,7 +236,7 @@ function ScenariosViz({ data }: { data: Record<string, unknown> }) {
 function RoadmapViz({ data }: { data: Record<string, unknown> }) {
   const phases = data.phases as Array<Record<string, unknown>> | undefined;
   if (!phases) return <EmptyViz />;
-  const pc = ["var(--accent-primary)", "var(--purple)", "#22d3ee", "var(--success)"];
+  const pc = ["var(--accent-primary)", "var(--purple)", "#f4a83a", "var(--success)"];
   const totalEnd = Number((phases[phases.length - 1] as Record<string, unknown>).end_month || 18);
   return <div style={{ padding: 24, height: "100%", overflow: "auto" }}>
     <VizLabel>Implementation Roadmap</VizLabel>
@@ -312,7 +312,7 @@ h1{font-family:'Inter Tight',sans-serif;font-size:32px;color:var(--accent-primar
 h2{font-family:'Inter Tight',sans-serif;font-size:22px;color:#333;margin-top:32px;border-bottom:1px solid #eee;padding-bottom:6px}
 h3{font-family:'Inter Tight',sans-serif;font-size:16px;color:#555;margin-top:20px}
 .finding{padding:12px 16px;margin:8px 0;border-radius:8px;border-left:4px solid}
-.critical{border-color:var(--risk);background:#FEF2F2}.warning{border-color:var(--warning);background:#FFFBEB}.info{border-color:#22d3ee;background:#EFF6FF}
+.critical{border-color:var(--risk);background:#FEF2F2}.warning{border-color:var(--warning);background:#FFFBEB}.info{border-color:#f4a83a;background:#EFF6FF}
 .corrected{opacity:0.6;text-decoration:line-through}.acknowledged{opacity:0.8}
 .metric{font-family:monospace;font-weight:700;color:var(--accent-primary)}
 table{width:100%;border-collapse:collapse;margin:16px 0}th,td{padding:8px 12px;text-align:left;border-bottom:1px solid #eee}th{background:#f8f8f8;font-weight:600;font-size:13px}
@@ -717,13 +717,13 @@ export default function BotWorkspace({ projectId, modelId, onClose }: { projectI
             const isFinding = entry.type === "finding";
             const severity = entry.metadata?.severity as string;
             const findingType = entry.metadata?.finding_type as string | undefined;
-            const borderColor = severity === "critical" ? "var(--risk)" : severity === "warning" ? "var(--warning)" : isBot ? "var(--accent-primary)" : "#22d3ee";
+            const borderColor = severity === "critical" ? "var(--risk)" : severity === "warning" ? "var(--warning)" : isBot ? "var(--accent-primary)" : "#f4a83a";
             const isRecent = i >= (state.activity_log.length - 6);
             const linkedModule = isFinding && severity ? CATEGORY_MODULE[findingType || severity] || CATEGORY_MODULE[entry.metadata?.category as string || ""] : null;
 
             return <div key={entry.id} style={{ display: "flex", gap: 10, padding: "8px 0", borderBottom: "1px solid rgba(255,255,255,0.03)" }}>
               <div style={{ width: 3, borderRadius: 2, background: borderColor, flexShrink: 0, alignSelf: "stretch", opacity: 0.6 }} />
-              <div style={{ width: 22, height: 22, borderRadius: "50%", background: isBot ? "rgba(224,144,64,0.15)" : "rgba(34,211,238,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, flexShrink: 0, marginTop: 2, color: isBot ? "var(--accent-primary)" : "#22d3ee" }}>
+              <div style={{ width: 22, height: 22, borderRadius: "50%", background: isBot ? "rgba(224,144,64,0.15)" : "rgba(244,168,58,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, flexShrink: 0, marginTop: 2, color: isBot ? "var(--accent-primary)" : "#f4a83a" }}>
                 {isBot ? "🤖" : entry.actor === "system" ? "⚙" : "U"}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>

@@ -47,10 +47,10 @@ interface Props {
    ═══════════════════════════════════════════════════════════════ */
 
 const STATUS_COLORS: Record<string, string> = {
-  confirmed: "#34d399",
-  ai_suggested: "#fbbf24",
+  confirmed: "#8ba87a",
+  ai_suggested: "#f4a83a",
   unmapped: "#9CA3AF",
-  rejected: "#fb7185",
+  rejected: "#e87a5d",
   changes_requested: "#EAB308",
 };
 
@@ -59,32 +59,32 @@ const S = {
   filterBar: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" as const, marginBottom: 14 } as React.CSSProperties,
   searchBox: { display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 6, minWidth: 220 } as React.CSSProperties,
   searchInput: { flex: 1, background: "transparent", border: "none", color: "var(--text-primary)", fontSize: "var(--text-xs)", outline: "none" } as React.CSSProperties,
-  pill: (active: boolean) => ({ padding: "4px 12px", fontSize: 11, fontWeight: "var(--fw-medium)", border: `1px solid ${active ? "#22d3ee" : "var(--border)"}`, borderRadius: 14, background: active ? "rgba(34,211,238,0.1)" : "var(--surface-2)", color: active ? "#22d3ee" : "var(--text-muted)", cursor: "pointer", whiteSpace: "nowrap" as const }) as React.CSSProperties,
-  autoMapBtn: { display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 14px", fontSize: "var(--text-xs)", fontWeight: "var(--fw-semi)", border: "none", borderRadius: 6, background: "#22d3ee", color: "#fff", cursor: "pointer", marginLeft: "auto" } as React.CSSProperties,
-  bulkBar: { display: "flex", alignItems: "center", gap: 8, padding: "8px 14px", background: "rgba(34,211,238,0.06)", border: "1px solid rgba(34,211,238,0.15)", borderRadius: 8, marginBottom: 10, fontSize: "var(--text-xs)" } as React.CSSProperties,
+  pill: (active: boolean) => ({ padding: "4px 12px", fontSize: 11, fontWeight: "var(--fw-medium)", border: `1px solid ${active ? "#f4a83a" : "var(--border)"}`, borderRadius: 14, background: active ? "rgba(244,168,58,0.1)" : "var(--surface-2)", color: active ? "#f4a83a" : "var(--text-muted)", cursor: "pointer", whiteSpace: "nowrap" as const }) as React.CSSProperties,
+  autoMapBtn: { display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 14px", fontSize: "var(--text-xs)", fontWeight: "var(--fw-semi)", border: "none", borderRadius: 6, background: "#f4a83a", color: "#fff", cursor: "pointer", marginLeft: "auto" } as React.CSSProperties,
+  bulkBar: { display: "flex", alignItems: "center", gap: 8, padding: "8px 14px", background: "rgba(244,168,58,0.06)", border: "1px solid rgba(244,168,58,0.15)", borderRadius: 8, marginBottom: 10, fontSize: "var(--text-xs)" } as React.CSSProperties,
   table: { width: "100%", borderCollapse: "separate" as const, borderSpacing: 0 } as React.CSSProperties,
-  thRow: { background: "#05070d" } as React.CSSProperties,
-  th: { padding: "8px 10px", fontSize: 11, fontWeight: 600, color: "#fff", textTransform: "uppercase" as const, letterSpacing: "0.06em", whiteSpace: "nowrap" as const, cursor: "pointer", userSelect: "none" as const, borderBottom: "2px solid #05070d" } as React.CSSProperties,
-  groupHeader: { padding: "3px 10px", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.6)", textTransform: "uppercase" as const, letterSpacing: "0.08em", background: "#05070d", textAlign: "center" as const } as React.CSSProperties,
-  dividerTh: { width: 2, background: "#e8ecf5", padding: 0, borderBottom: "2px solid #05070d" } as React.CSSProperties,
+  thRow: { background: "#161822" } as React.CSSProperties,
+  th: { padding: "8px 10px", fontSize: 11, fontWeight: 600, color: "#fff", textTransform: "uppercase" as const, letterSpacing: "0.06em", whiteSpace: "nowrap" as const, cursor: "pointer", userSelect: "none" as const, borderBottom: "2px solid #161822" } as React.CSSProperties,
+  groupHeader: { padding: "3px 10px", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.6)", textTransform: "uppercase" as const, letterSpacing: "0.08em", background: "#161822", textAlign: "center" as const } as React.CSSProperties,
+  dividerTh: { width: 2, background: "#f4ebd9", padding: 0, borderBottom: "2px solid #161822" } as React.CSSProperties,
   td: { padding: "7px 10px", fontSize: "var(--text-xs)", color: "var(--text-secondary)", borderBottom: "1px solid var(--border)", verticalAlign: "middle" as const } as React.CSSProperties,
   statusStrip: (status: string) => ({ width: 4, padding: 0, background: STATUS_COLORS[status] || "#9CA3AF", borderBottom: "1px solid var(--border)" }) as React.CSSProperties,
-  dividerTd: { width: 2, background: "#05070d", padding: 0, borderBottom: "1px solid var(--border)" } as React.CSSProperties,
-  changedCell: { color: "#fbbf24", fontWeight: "var(--fw-semi)" } as React.CSSProperties,
-  changeArrow: { color: "#fbbf24", fontSize: 11, marginLeft: 3 } as React.CSSProperties,
+  dividerTd: { width: 2, background: "#161822", padding: 0, borderBottom: "1px solid var(--border)" } as React.CSSProperties,
+  changedCell: { color: "#f4a83a", fontWeight: "var(--fw-semi)" } as React.CSSProperties,
+  changeArrow: { color: "#f4a83a", fontSize: 11, marginLeft: 3 } as React.CSSProperties,
   row: (selected: boolean, aiPending: boolean) => ({
     cursor: "pointer",
-    background: selected ? "rgba(34,211,238,0.06)" : aiPending ? "#FFFEF7" : "transparent",
+    background: selected ? "rgba(244,168,58,0.06)" : aiPending ? "#FFFEF7" : "transparent",
     transition: "background 0.1s",
   }) as React.CSSProperties,
   actionBtn: (color: string) => ({ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 24, height: 24, border: "none", borderRadius: 4, background: "transparent", color, cursor: "pointer", fontSize: 13 }) as React.CSSProperties,
   patternBadge: (pattern: string) => {
-    const colors: Record<string, string> = { split: "#a78bfa", merge: "#14B8A6", new: "#22d3ee", sunset: "#fb7185" };
+    const colors: Record<string, string> = { split: "#a78bb8", merge: "#14B8A6", new: "#f4a83a", sunset: "#e87a5d" };
     return { display: "inline-flex", alignItems: "center", gap: 3, padding: "1px 6px", fontSize: 11, fontWeight: 600, borderRadius: 3, background: `${colors[pattern] || "var(--surface-2)"}20`, color: colors[pattern] || "var(--text-muted)" } as React.CSSProperties;
   },
   pager: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 0", fontSize: "var(--text-xs)", color: "var(--text-muted)" } as React.CSSProperties,
   pageBtn: (disabled: boolean) => ({ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 28, height: 28, border: "1px solid var(--border)", borderRadius: 4, background: "var(--surface-2)", color: disabled ? "var(--border)" : "var(--text-secondary)", cursor: disabled ? "default" : "pointer", opacity: disabled ? 0.5 : 1 }) as React.CSSProperties,
-  flagIcon: { color: "#fbbf24", marginLeft: 4, verticalAlign: "middle" } as React.CSSProperties,
+  flagIcon: { color: "#f4a83a", marginLeft: 4, verticalAlign: "middle" } as React.CSSProperties,
   summary: { display: "flex", gap: 16, marginBottom: 10, fontSize: "var(--text-xs)", color: "var(--text-muted)" } as React.CSSProperties,
   summaryDot: (color: string) => ({ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: color, marginRight: 4 }) as React.CSSProperties,
   kbd: { display: "inline-block", padding: "1px 5px", fontSize: 11, background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 3, fontFamily: "var(--ff-mono)", color: "var(--text-muted)" } as React.CSSProperties,
@@ -241,11 +241,11 @@ export default function MappingGrid({ model, projectId, scenarioId, onRoleClick,
     <div style={S.wrapper}>
       {/* Summary row */}
       <div style={S.summary}>
-        <span><span style={S.summaryDot("#34d399")} />{summary.mapped || 0} mapped</span>
-        <span><span style={S.summaryDot("#fbbf24")} />{summary.ai_suggested || 0} AI suggested</span>
+        <span><span style={S.summaryDot("#8ba87a")} />{summary.mapped || 0} mapped</span>
+        <span><span style={S.summaryDot("#f4a83a")} />{summary.ai_suggested || 0} AI suggested</span>
         <span><span style={S.summaryDot("#9CA3AF")} />{summary.unmapped || 0} unmapped</span>
-        <span><span style={S.summaryDot("#fb7185")} />{summary.rejected || 0} rejected</span>
-        {(summary.total_flags || 0) > 0 && <span><AlertTriangle size={11} style={{ color: "#fbbf24" }} /> {summary.total_flags} flags</span>}
+        <span><span style={S.summaryDot("#e87a5d")} />{summary.rejected || 0} rejected</span>
+        {(summary.total_flags || 0) > 0 && <span><AlertTriangle size={11} style={{ color: "#f4a83a" }} /> {summary.total_flags} flags</span>}
         <span style={{ marginLeft: "auto", fontSize: 11 }}>
           <span style={S.kbd}>j</span>/<span style={S.kbd}>k</span> navigate · <span style={S.kbd}>Enter</span> detail · <span style={S.kbd}>a</span> accept · <span style={S.kbd}>r</span> reject · <span style={S.kbd}>/</span> search
         </span>
@@ -321,7 +321,7 @@ export default function MappingGrid({ model, projectId, scenarioId, onRoleClick,
                 </button>
               </th>
               <th style={{ ...S.th, width: 4, padding: 0 }} />
-              <th style={{ ...S.th, position: "sticky", left: 0, background: "#05070d", zIndex: 2, minWidth: 200 }} onClick={() => toggleSort("title")}>
+              <th style={{ ...S.th, position: "sticky", left: 0, background: "#161822", zIndex: 2, minWidth: 200 }} onClick={() => toggleSort("title")}>
                 Role {sortBy === "title" && (sortDir === "asc" ? "↑" : "↓")}
               </th>
               <th style={S.th}>Function</th>
@@ -350,7 +350,7 @@ export default function MappingGrid({ model, projectId, scenarioId, onRoleClick,
                 <tr key={c.id}
                   style={{
                     ...S.row(isFocused, isAiPending),
-                    outline: isFocused ? "2px solid #22d3ee" : "none",
+                    outline: isFocused ? "2px solid #f4a83a" : "none",
                     outlineOffset: -2,
                   }}
                   onClick={() => { setFocusIdx(idx); onRoleClick?.(row); }}
@@ -359,13 +359,13 @@ export default function MappingGrid({ model, projectId, scenarioId, onRoleClick,
                   <td style={{ ...S.td, width: 32, textAlign: "center" }}>
                     <button style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer" }}
                       onClick={e => { e.stopPropagation(); toggleSelect(c.id); }}>
-                      {isSelected ? <CheckSquare size={13} style={{ color: "#22d3ee" }} /> : <Square size={13} />}
+                      {isSelected ? <CheckSquare size={13} style={{ color: "#f4a83a" }} /> : <Square size={13} />}
                     </button>
                   </td>
                   {/* Status strip */}
                   <td style={S.statusStrip(row.mapping_status)} />
                   {/* Role name (sticky) */}
-                  <td style={{ ...S.td, position: "sticky", left: 0, background: isFocused ? "rgba(34,211,238,0.06)" : isAiPending ? "#FFFEF7" : "var(--surface-1)", zIndex: 1, fontWeight: "var(--fw-medium)", color: "var(--text-primary)" }}>
+                  <td style={{ ...S.td, position: "sticky", left: 0, background: isFocused ? "rgba(244,168,58,0.06)" : isAiPending ? "#FFFEF7" : "var(--surface-1)", zIndex: 1, fontWeight: "var(--fw-medium)", color: "var(--text-primary)" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                       {c.title}
                       {row.flags.length > 0 && <AlertTriangle size={11} style={S.flagIcon} />}
@@ -380,7 +380,7 @@ export default function MappingGrid({ model, projectId, scenarioId, onRoleClick,
                     </div>
                     <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 1 }}>
                       {c.incumbent_count} incumbent{c.incumbent_count !== 1 ? "s" : ""}
-                      {row.track_change && <span style={{ marginLeft: 6, color: "#fbbf24", fontWeight: "var(--fw-semi)" }}>Track change</span>}
+                      {row.track_change && <span style={{ marginLeft: 6, color: "#f4a83a", fontWeight: "var(--fw-semi)" }}>Track change</span>}
                     </div>
                   </td>
                   {/* Current state cells */}
@@ -401,11 +401,11 @@ export default function MappingGrid({ model, projectId, scenarioId, onRoleClick,
                   <td style={{ ...S.td, whiteSpace: "nowrap" }}>
                     {isAiPending && (
                       <>
-                        <button style={S.actionBtn("#34d399")} title="Accept (a)"
+                        <button style={S.actionBtn("#8ba87a")} title="Accept (a)"
                           onClick={e => { e.stopPropagation(); if (row.mapping_group_id) apiFetch("/api/ja/mappings/bulk-action", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ group_ids: [row.mapping_group_id], action: "accept" }) }).then(fetchGrid); }}>
                           <Check size={14} />
                         </button>
-                        <button style={S.actionBtn("#fb7185")} title="Reject (r)"
+                        <button style={S.actionBtn("#e87a5d")} title="Reject (r)"
                           onClick={e => { e.stopPropagation(); if (row.mapping_group_id) apiFetch("/api/ja/mappings/bulk-action", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ group_ids: [row.mapping_group_id], action: "reject" }) }).then(fetchGrid); }}>
                           <X size={14} />
                         </button>

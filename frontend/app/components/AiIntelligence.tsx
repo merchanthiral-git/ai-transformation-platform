@@ -76,13 +76,13 @@ export function AiObservationsPanel({ module, dataSummary, context, filters, pro
   }, [expanded, insights, loading, fetchInsights]);
 
   const severityIcon = (s?: string) => s === "critical" ? "🔴" : s === "warning" ? "🟡" : "🔵";
-  const severityColor = (s?: string) => s === "critical" ? "rgba(251,113,133,0.7)" : s === "warning" ? "rgba(234,179,8,0.7)" : "rgba(34,211,238,0.6)";
+  const severityColor = (s?: string) => s === "critical" ? "rgba(232,122,93,0.7)" : s === "warning" ? "rgba(234,179,8,0.7)" : "rgba(244,168,58,0.6)";
 
   return (
     <div style={{
       borderRadius: 14,
-      border: "1px solid rgba(167,139,250,0.12)",
-      background: expanded ? "rgba(167,139,250,0.04)" : "transparent",
+      border: "1px solid rgba(167,139,184,0.12)",
+      background: expanded ? "rgba(167,139,184,0.04)" : "transparent",
       transition: "all 0.3s ease",
       marginBottom: 12,
     }}>
@@ -91,15 +91,15 @@ export function AiObservationsPanel({ module, dataSummary, context, filters, pro
         background: "none", border: "none", cursor: "pointer", textAlign: "left",
       }}>
         <span style={{ fontSize: 15, opacity: 0.8 }}>🧠</span>
-        <span style={{ fontSize: 13, fontWeight: 700, color: "rgba(167,139,250,0.8)", fontFamily: "'Inter Tight', sans-serif", flex: 1, letterSpacing: 0.3 }}>
+        <span style={{ fontSize: 13, fontWeight: 700, color: "rgba(167,139,184,0.8)", fontFamily: "'Inter Tight', sans-serif", flex: 1, letterSpacing: 0.3 }}>
           AI Observations
         </span>
         {insights && !expanded && (
-          <span style={{ fontSize: 11, color: "rgba(167,139,250,0.5)", fontFamily: "monospace" }}>
+          <span style={{ fontSize: 11, color: "rgba(167,139,184,0.5)", fontFamily: "monospace" }}>
             {insights.observations.length} insights
           </span>
         )}
-        <span style={{ fontSize: 12, color: "rgba(167,139,250,0.4)", transition: "transform 0.2s", transform: expanded ? "rotate(180deg)" : "none" }}>▾</span>
+        <span style={{ fontSize: 12, color: "rgba(167,139,184,0.4)", transition: "transform 0.2s", transform: expanded ? "rotate(180deg)" : "none" }}>▾</span>
       </button>
 
       <AnimatePresence>
@@ -114,8 +114,8 @@ export function AiObservationsPanel({ module, dataSummary, context, filters, pro
             <div style={{ padding: "0 16px 14px" }}>
               {loading && (
                 <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0" }}>
-                  <div style={{ width: 14, height: 14, border: "2px solid rgba(167,139,250,0.3)", borderTopColor: "var(--purple)", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
-                  <span style={{ fontSize: 13, color: "rgba(167,139,250,0.5)" }}>Analyzing...</span>
+                  <div style={{ width: 14, height: 14, border: "2px solid rgba(167,139,184,0.3)", borderTopColor: "var(--purple)", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+                  <span style={{ fontSize: 13, color: "rgba(167,139,184,0.5)" }}>Analyzing...</span>
                   <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
                 </div>
               )}
@@ -137,8 +137,8 @@ export function AiObservationsPanel({ module, dataSummary, context, filters, pro
                       {insights.actions.map((action, i) => (
                         <button key={i} onClick={() => action.module_link && onNavigate?.(action.module_link)} style={{
                           padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600,
-                          background: "rgba(167,139,250,0.1)", border: "1px solid rgba(167,139,250,0.2)",
-                          color: "#a78bfa", cursor: action.module_link ? "pointer" : "default",
+                          background: "rgba(167,139,184,0.1)", border: "1px solid rgba(167,139,184,0.2)",
+                          color: "#a78bb8", cursor: action.module_link ? "pointer" : "default",
                           fontFamily: "'Inter Tight', sans-serif", transition: "all 0.15s",
                         }}>{action.text} {action.module_link ? "→" : ""}</button>
                       ))}
@@ -146,13 +146,13 @@ export function AiObservationsPanel({ module, dataSummary, context, filters, pro
                   )}
 
                   <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 8 }}>
-                    <div style={{ width: 40, height: 3, borderRadius: 2, background: "rgba(167,139,250,0.1)", overflow: "hidden" }}>
+                    <div style={{ width: 40, height: 3, borderRadius: 2, background: "rgba(167,139,184,0.1)", overflow: "hidden" }}>
                       <div style={{ width: `${insights.confidence * 100}%`, height: "100%", background: "var(--purple)", borderRadius: 2 }} />
                     </div>
-                    <span style={{ fontSize: 11, color: "rgba(167,139,250,0.35)", fontFamily: "monospace" }}>
+                    <span style={{ fontSize: 11, color: "rgba(167,139,184,0.35)", fontFamily: "monospace" }}>
                       {insights.source === "ai" ? "AI-powered" : "Rule-based"} · {Math.round(insights.confidence * 100)}% confidence
                     </span>
-                    <button onClick={() => { fetchedRef.current = ""; setInsights(null); fetchInsights(); }} style={{ marginLeft: "auto", fontSize: 11, color: "rgba(167,139,250,0.4)", background: "none", border: "none", cursor: "pointer" }}>↻ Refresh</button>
+                    <button onClick={() => { fetchedRef.current = ""; setInsights(null); fetchInsights(); }} style={{ marginLeft: "auto", fontSize: 11, color: "rgba(167,139,184,0.4)", background: "none", border: "none", cursor: "pointer" }}>↻ Refresh</button>
                   </div>
                 </>
               )}

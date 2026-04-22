@@ -54,8 +54,8 @@ interface Props {
    ═══════════════════════════════════════════════════════════════ */
 
 const DECISION_COLORS: Record<string, string> = {
-  Retain: "#22C55E", Augment: "#22d3ee", Automate: "#fb7185",
-  Redesign: "#fbbf24", Transfer: "#a78bfa", Eliminate: "#9CA3AF",
+  Retain: "#22C55E", Augment: "#f4a83a", Automate: "#e87a5d",
+  Redesign: "#f4a83a", Transfer: "#a78bb8", Eliminate: "#9CA3AF",
 };
 
 const TECH_MAP: Record<string, string> = {
@@ -63,7 +63,7 @@ const TECH_MAP: Record<string, string> = {
   Retain: "Human-led", Transfer: "Shared Service", Eliminate: "N/A",
 };
 
-const WATERFALL_COLORS = ["#22d3ee", "#fb7185", "#fbbf24", "#22C55E", "#a78bfa"];
+const WATERFALL_COLORS = ["#f4a83a", "#e87a5d", "#f4a83a", "#22C55E", "#a78bb8"];
 
 /* ═══════════════════════════════════════════════════════════════
    STYLES
@@ -72,7 +72,7 @@ const WATERFALL_COLORS = ["#22d3ee", "#fb7185", "#fbbf24", "#22C55E", "#a78bfa"]
 const S = {
   locked: { textAlign: "center" as const, padding: "60px 24px", color: "var(--text-muted)" } as React.CSSProperties,
   scenarioBar: { display: "flex", alignItems: "center", gap: 8, marginBottom: 16 } as React.CSSProperties,
-  scenarioPill: (active: boolean) => ({ padding: "6px 18px", fontSize: 12, fontWeight: active ? "var(--fw-semi)" : "var(--fw-medium)", border: `1px solid ${active ? "#22d3ee" : "var(--border)"}`, borderRadius: 16, background: active ? "rgba(34,211,238,0.08)" : "var(--surface-2)", color: active ? "#22d3ee" : "var(--text-muted)", cursor: "pointer" }) as React.CSSProperties,
+  scenarioPill: (active: boolean) => ({ padding: "6px 18px", fontSize: 12, fontWeight: active ? "var(--fw-semi)" : "var(--fw-medium)", border: `1px solid ${active ? "#f4a83a" : "var(--border)"}`, borderRadius: 16, background: active ? "rgba(244,168,58,0.08)" : "var(--surface-2)", color: active ? "#f4a83a" : "var(--text-muted)", cursor: "pointer" }) as React.CSSProperties,
   kpiRow: { display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" as const } as React.CSSProperties,
   kpi: (accent: string) => ({ background: "var(--surface-1)", border: "1px solid var(--border)", borderLeft: `3px solid ${accent}`, borderRadius: 8, padding: "12px 16px", minWidth: 110 }) as React.CSSProperties,
   kpiLabel: { fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.05em" } as React.CSSProperties,
@@ -81,18 +81,18 @@ const S = {
   section: { background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 10, padding: "16px 20px", marginBottom: 16 } as React.CSSProperties,
   sectionTitle: { fontSize: "var(--text-sm)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)", marginBottom: 10, display: "flex", alignItems: "center", gap: 8 } as React.CSSProperties,
   table: { width: "100%", borderCollapse: "separate" as const, borderSpacing: 0, fontSize: "var(--text-xs)" } as React.CSSProperties,
-  th: { padding: "7px 8px", fontSize: 11, fontWeight: 600, color: "#fff", textTransform: "uppercase" as const, letterSpacing: "0.05em", borderBottom: "2px solid var(--border)", background: "#05070d", whiteSpace: "nowrap" as const } as React.CSSProperties,
+  th: { padding: "7px 8px", fontSize: 11, fontWeight: 600, color: "#fff", textTransform: "uppercase" as const, letterSpacing: "0.05em", borderBottom: "2px solid var(--border)", background: "#161822", whiteSpace: "nowrap" as const } as React.CSSProperties,
   td: { padding: "6px 8px", borderBottom: "1px solid var(--border)", verticalAlign: "middle" as const } as React.CSSProperties,
   select: { padding: "4px 6px", fontSize: "var(--text-xs)", background: "var(--surface-2)", border: "1px solid transparent", borderRadius: 4, color: "var(--text-primary)", outline: "none", appearance: "none" as const } as React.CSSProperties,
   inputNum: { width: 50, padding: "4px 6px", fontSize: "var(--text-xs)", fontFamily: "var(--ff-mono)", background: "var(--surface-2)", border: "1px solid transparent", borderRadius: 4, color: "var(--text-primary)", outline: "none", textAlign: "center" as const } as React.CSSProperties,
   input: { width: "100%", padding: "4px 6px", fontSize: "var(--text-xs)", background: "var(--surface-2)", border: "1px solid transparent", borderRadius: 4, color: "var(--text-primary)", outline: "none" } as React.CSSProperties,
   decisionBadge: (d: string) => ({ display: "inline-flex", alignItems: "center", gap: 3, padding: "2px 8px", fontSize: 11, fontWeight: 600, borderRadius: 4, background: `${DECISION_COLORS[d] || "#9CA3AF"}15`, color: DECISION_COLORS[d] || "#9CA3AF" }) as React.CSSProperties,
-  delta: (v: number) => ({ fontFamily: "var(--ff-mono)", fontSize: 11, color: v < 0 ? "#22C55E" : v > 0 ? "#fb7185" : "var(--text-muted)" }) as React.CSSProperties,
+  delta: (v: number) => ({ fontFamily: "var(--ff-mono)", fontSize: 11, color: v < 0 ? "#22C55E" : v > 0 ? "#e87a5d" : "var(--text-muted)" }) as React.CSSProperties,
   btn: { display: "inline-flex", alignItems: "center", gap: 4, padding: "5px 12px", fontSize: 11, fontWeight: "var(--fw-medium)", border: "1px solid var(--border)", borderRadius: 5, background: "var(--surface-2)", color: "var(--text-secondary)", cursor: "pointer" } as React.CSSProperties,
-  btnPrimary: { display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 14px", fontSize: 11, fontWeight: "var(--fw-semi)", border: "none", borderRadius: 5, background: "#22d3ee", color: "#fff", cursor: "pointer" } as React.CSSProperties,
+  btnPrimary: { display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 14px", fontSize: 11, fontWeight: "var(--fw-semi)", border: "none", borderRadius: 5, background: "#f4a83a", color: "#fff", cursor: "pointer" } as React.CSSProperties,
   btnSuccess: { display: "inline-flex", alignItems: "center", gap: 4, padding: "7px 16px", fontSize: 12, fontWeight: "var(--fw-semi)", border: "none", borderRadius: 6, background: "#22C55E", color: "#fff", cursor: "pointer" } as React.CSSProperties,
   btnAccent: { display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 14px", fontSize: 11, fontWeight: "var(--fw-semi)", border: "none", borderRadius: 5, background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", color: "#fff", cursor: "pointer" } as React.CSSProperties,
-  footer: { padding: "8px", background: "#05070d", fontWeight: "var(--fw-bold)", color: "#fff" } as React.CSSProperties,
+  footer: { padding: "8px", background: "#161822", fontWeight: "var(--fw-bold)", color: "#fff" } as React.CSSProperties,
   insightItem: { display: "flex", alignItems: "flex-start", gap: 6, padding: "6px 0", borderBottom: "1px solid var(--border)", fontSize: "var(--text-xs)", color: "var(--text-secondary)" } as React.CSSProperties,
   skillRow: { display: "flex", alignItems: "center", gap: 8, padding: "5px 0", borderBottom: "1px solid var(--border)", fontSize: "var(--text-xs)" } as React.CSSProperties,
   confidenceSelect: { padding: "3px 6px", fontSize: 11, background: "var(--surface-2)", border: "1px solid transparent", borderRadius: 3, color: "var(--text-muted)", outline: "none", appearance: "none" as const } as React.CSSProperties,
@@ -225,7 +225,7 @@ export default function StageReconstruction({
         ))}
         <div style={S.kpi("var(--text-muted)")}>
           <div style={S.kpiLabel}>New Time Total</div>
-          <div style={{ ...S.kpiValue, color: totalNewPct <= 100 ? "#22C55E" : "#fb7185" }}>{totalNewPct}%</div>
+          <div style={{ ...S.kpiValue, color: totalNewPct <= 100 ? "#22C55E" : "#e87a5d" }}>{totalNewPct}%</div>
         </div>
       </div>
 
@@ -250,7 +250,7 @@ export default function StageReconstruction({
                   const delta = newPct - curPct;
                   return (
                     <tr key={row["Task ID"] || idx}
-                      onMouseEnter={e => (e.currentTarget.style.background = "rgba(34,211,238,0.02)")}
+                      onMouseEnter={e => (e.currentTarget.style.background = "rgba(244,168,58,0.02)")}
                       onMouseLeave={e => (e.currentTarget.style.background = "")}>
                       <td style={{ ...S.td, fontFamily: "var(--ff-mono)", fontSize: 11, color: "var(--text-muted)", width: 44 }}>{row["Task ID"]}</td>
                       <td style={{ ...S.td, minWidth: 140, color: "var(--text-primary)", fontWeight: "var(--fw-medium)" }}>{row["Task Name"]}</td>
@@ -289,9 +289,9 @@ export default function StageReconstruction({
                   <td colSpan={2} style={S.footer}>Total</td>
                   <td style={{ ...S.footer, fontFamily: "var(--ff-mono)", textAlign: "center" }}>{totalCurrentPct}%</td>
                   <td colSpan={2} style={S.footer} />
-                  <td style={{ ...S.footer, fontFamily: "var(--ff-mono)", textAlign: "center", color: totalNewPct <= 100 ? "#22C55E" : "#fb7185" }}>{totalNewPct}%</td>
+                  <td style={{ ...S.footer, fontFamily: "var(--ff-mono)", textAlign: "center", color: totalNewPct <= 100 ? "#22C55E" : "#e87a5d" }}>{totalNewPct}%</td>
                   <td style={{ ...S.footer, fontFamily: "var(--ff-mono)" }}>
-                    <span style={{ color: totalNewPct - totalCurrentPct < 0 ? "#22C55E" : "#fb7185" }}>
+                    <span style={{ color: totalNewPct - totalCurrentPct < 0 ? "#22C55E" : "#e87a5d" }}>
                       {totalNewPct - totalCurrentPct < 0 ? `${totalNewPct - totalCurrentPct}` : `+${totalNewPct - totalCurrentPct}`}
                     </span>
                   </td>
@@ -334,8 +334,8 @@ export default function StageReconstruction({
                 <span style={{ flex: 1, color: "var(--text-primary)" }}>{skill}</span>
                 <span style={{
                   padding: "1px 6px", fontSize: 11, fontWeight: 600, borderRadius: 3,
-                  background: info.source === "New" ? "rgba(34,211,238,0.1)" : info.source === "Upgraded" ? "rgba(251,191,36,0.1)" : "rgba(34,197,94,0.1)",
-                  color: info.source === "New" ? "#22d3ee" : info.source === "Upgraded" ? "#fbbf24" : "#22C55E",
+                  background: info.source === "New" ? "rgba(244,168,58,0.1)" : info.source === "Upgraded" ? "rgba(244,168,58,0.1)" : "rgba(34,197,94,0.1)",
+                  color: info.source === "New" ? "#f4a83a" : info.source === "Upgraded" ? "#f4a83a" : "#22C55E",
                 }}>{info.source}</span>
               </div>
             )) : (
@@ -351,7 +351,7 @@ export default function StageReconstruction({
               <div style={S.sectionTitle}>Insights</div>
               {recs.slice(0, 5).map((r, i) => (
                 <div key={i} style={S.insightItem}>
-                  <Sparkles size={11} style={{ color: "#22d3ee", flexShrink: 0, marginTop: 1 }} />
+                  <Sparkles size={11} style={{ color: "#f4a83a", flexShrink: 0, marginTop: 1 }} />
                   <span>{r}</span>
                 </div>
               ))}

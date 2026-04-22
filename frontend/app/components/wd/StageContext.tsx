@@ -97,8 +97,8 @@ const S = {
   metaRow: { display: "flex", justifyContent: "space-between", padding: "5px 0", borderBottom: "1px solid var(--border)", fontSize: "var(--text-xs)" } as React.CSSProperties,
   metaLabel: { color: "var(--text-muted)" } as React.CSSProperties,
   metaValue: { color: "var(--text-primary)", fontWeight: "var(--fw-medium)" } as React.CSSProperties,
-  sourceBadge: { display: "inline-flex", alignItems: "center", gap: 3, padding: "1px 6px", fontSize: 11, background: "rgba(34,211,238,0.06)", border: "1px solid rgba(34,211,238,0.12)", borderRadius: 3, color: "#22d3ee", marginLeft: 6 } as React.CSSProperties,
-  inherited: { borderLeft: "2px solid rgba(34,211,238,0.15)", paddingLeft: 8 } as React.CSSProperties,
+  sourceBadge: { display: "inline-flex", alignItems: "center", gap: 3, padding: "1px 6px", fontSize: 11, background: "rgba(244,168,58,0.06)", border: "1px solid rgba(244,168,58,0.12)", borderRadius: 3, color: "#f4a83a", marginLeft: 6 } as React.CSSProperties,
+  inherited: { borderLeft: "2px solid rgba(244,168,58,0.15)", paddingLeft: 8 } as React.CSSProperties,
   scopeItem: { display: "flex", alignItems: "center", gap: 6, padding: "6px 8px", background: "var(--surface-2)", borderRadius: 5, marginBottom: 4, fontSize: "var(--text-xs)" } as React.CSSProperties,
   criteriaRow: { display: "flex", gap: 6, marginBottom: 6, alignItems: "center" } as React.CSSProperties,
   stakeholderRow: { display: "flex", gap: 6, marginBottom: 6, alignItems: "center" } as React.CSSProperties,
@@ -194,7 +194,7 @@ export default function StageContext({ contextData, jobMeta, showSources, onSave
           <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 10 }}>
             {CASE_TYPES.map(ct => (
               <button key={ct.key}
-                style={{ padding: "4px 12px", fontSize: 11, fontWeight: caseType === ct.key ? "var(--fw-semi)" : "var(--fw-medium)", border: `1px solid ${caseType === ct.key ? "#22d3ee" : "var(--border)"}`, borderRadius: 14, background: caseType === ct.key ? "rgba(34,211,238,0.08)" : "var(--surface-2)", color: caseType === ct.key ? "#22d3ee" : "var(--text-muted)", cursor: "pointer" }}
+                style={{ padding: "4px 12px", fontSize: 11, fontWeight: caseType === ct.key ? "var(--fw-semi)" : "var(--fw-medium)", border: `1px solid ${caseType === ct.key ? "#f4a83a" : "var(--border)"}`, borderRadius: 14, background: caseType === ct.key ? "rgba(244,168,58,0.08)" : "var(--surface-2)", color: caseType === ct.key ? "#f4a83a" : "var(--text-muted)", cursor: "pointer" }}
                 onClick={() => handleCaseType(ct.key)}>
                 {ct.label}
               </button>

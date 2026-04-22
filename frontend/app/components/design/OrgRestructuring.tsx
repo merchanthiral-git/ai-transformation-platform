@@ -1080,7 +1080,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
       const isExpanded = expandedNodes.has(node.id);
       const hiddenCount = node._hiddenCount || 0;
 
-      const borderColor = isSelected ? "#22d3ee"
+      const borderColor = isSelected ? "#f4a83a"
         : node.status === "added" ? "var(--success)"
         : node.status === "eliminated" ? "var(--risk)"
         : node.status === "modified" ? "var(--warning)"
@@ -1104,7 +1104,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
           </rect>
 
           {/* Name - 13px weight 500 */}
-          <text x={14} y={20} fontSize={13} fontWeight={500} fill="#05070d"
+          <text x={14} y={20} fontSize={13} fontWeight={500} fill="#161822"
             textDecoration={isEliminated ? "line-through" : "none"}>
             {node.name.length > 20 ? node.name.slice(0, 19) + "\u2026" : node.name}
           </text>
@@ -1123,9 +1123,9 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
           {node.status !== "current" && (
             <>
               <rect x={w - 60} y={4} width={52} height={14} rx={3}
-                fill={node.status === "added" ? "rgba(52,211,153,0.12)"
-                  : node.status === "eliminated" ? "rgba(251,113,133,0.12)"
-                  : node.status === "modified" ? "rgba(251,191,36,0.12)"
+                fill={node.status === "added" ? "rgba(139,168,122,0.12)"
+                  : node.status === "eliminated" ? "rgba(232,122,93,0.12)"
+                  : node.status === "modified" ? "rgba(244,168,58,0.12)"
                   : "rgba(14,165,233,0.12)"}
               />
               <text x={w - 55} y={14} fontSize={8} fontWeight={700}
@@ -1143,7 +1143,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
             <g transform={`translate(${w / 2 - 14}, ${h - 4})`}
               onClick={(e) => { e.stopPropagation(); toggleExpand(node.id); }}
               style={{ cursor: "pointer" }}>
-              <rect x={0} y={0} width={28} height={16} rx={8} fill="#05070d" />
+              <rect x={0} y={0} width={28} height={16} rx={8} fill="#161822" />
               <text x={14} y={12} textAnchor="middle" fontSize={9} fontWeight={600} fill="#fff">
                 {isExpanded ? "\u25B4" : (hiddenCount > 0 ? `+${hiddenCount}` : "\u25BE")}
               </text>
@@ -1231,18 +1231,18 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
             }}>
               <button
                 onClick={() => setCanvasZoom(z => Math.min(z + 0.1, 2.0))}
-                style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 24, height: 24, background: "none", border: "0.5px solid rgba(28,43,58,0.15)", borderRadius: 4, cursor: "pointer", color: "#05070d" }}
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 24, height: 24, background: "none", border: "0.5px solid rgba(28,43,58,0.15)", borderRadius: 4, cursor: "pointer", color: "#161822" }}
               ><Plus size={12} /></button>
               <button
                 onClick={() => setCanvasZoom(z => Math.max(z - 0.1, 0.3))}
-                style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 24, height: 24, background: "none", border: "0.5px solid rgba(28,43,58,0.15)", borderRadius: 4, cursor: "pointer", color: "#05070d" }}
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 24, height: 24, background: "none", border: "0.5px solid rgba(28,43,58,0.15)", borderRadius: 4, cursor: "pointer", color: "#161822" }}
               ><Minus size={12} /></button>
               <span style={{ padding: "0 6px", fontFamily: "var(--ff-mono)", fontSize: 11, color: "rgba(28,43,58,0.55)", minWidth: 32, textAlign: "center" }}>
                 {Math.round(canvasZoom * 100)}%
               </span>
               <button
                 onClick={fitCanvasToView}
-                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 3, padding: "2px 8px", height: 24, background: "none", border: "0.5px solid rgba(28,43,58,0.15)", borderRadius: 4, cursor: "pointer", color: "#05070d", fontSize: 11, fontWeight: 500 }}
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 3, padding: "2px 8px", height: 24, background: "none", border: "0.5px solid rgba(28,43,58,0.15)", borderRadius: 4, cursor: "pointer", color: "#161822", fontSize: 11, fontWeight: 500 }}
               ><Maximize2 size={11} /> Fit</button>
             </div>
           </div>
@@ -1273,11 +1273,11 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
               ><Plus size={12} /> Add Report</button>
               <button
                 onClick={() => { handleEliminate(selectedNode); setSelectedNodeId(null); setInlineNoteOpen(false); }}
-                style={{ display: "flex", alignItems: "center", gap: 4, padding: "6px 12px", fontSize: 12, fontWeight: 500, background: "rgba(251,113,133,0.08)", border: "1px solid rgba(251,113,133,0.2)", borderRadius: 6, cursor: "pointer", color: "var(--risk)" }}
+                style={{ display: "flex", alignItems: "center", gap: 4, padding: "6px 12px", fontSize: 12, fontWeight: 500, background: "rgba(232,122,93,0.08)", border: "1px solid rgba(232,122,93,0.2)", borderRadius: 6, cursor: "pointer", color: "var(--risk)" }}
               ><Trash2 size={12} /> Eliminate</button>
               <button
                 onClick={() => { setInlineNoteOpen(!inlineNoteOpen); setInlineNoteText(""); setInlineNoteCategory("observation"); }}
-                style={{ display: "flex", alignItems: "center", gap: 4, padding: "6px 12px", fontSize: 12, fontWeight: 500, background: inlineNoteOpen ? "rgba(34,211,238,0.08)" : "var(--surface-2)", border: `1px solid ${inlineNoteOpen ? "rgba(34,211,238,0.3)" : "var(--border)"}`, borderRadius: 6, cursor: "pointer", color: inlineNoteOpen ? "#22d3ee" : "var(--text-primary)" }}
+                style={{ display: "flex", alignItems: "center", gap: 4, padding: "6px 12px", fontSize: 12, fontWeight: 500, background: inlineNoteOpen ? "rgba(244,168,58,0.08)" : "var(--surface-2)", border: `1px solid ${inlineNoteOpen ? "rgba(244,168,58,0.3)" : "var(--border)"}`, borderRadius: 6, cursor: "pointer", color: inlineNoteOpen ? "#f4a83a" : "var(--text-primary)" }}
               ><MessageSquare size={12} /> Note</button>
             </div>
           )}
@@ -1292,7 +1292,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
               boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
-                <MessageSquare size={13} style={{ color: "#22d3ee" }} />
+                <MessageSquare size={13} style={{ color: "#f4a83a" }} />
                 <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}>
                   Note for {selectedNode.name} &mdash; {selectedNode.title}
                 </span>
@@ -1550,7 +1550,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
                   onClick={() => handleLoadScenario(s)}
                   onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "var(--accent-primary)"; }}
                   onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "var(--border)"; }}>
-                  <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(34,211,238,0.12)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(244,168,58,0.12)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                     <GitBranch size={16} style={{ color: "var(--accent-primary)" }} />
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
@@ -1583,7 +1583,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
                           <Copy size={13} /> Duplicate
                         </button>
                         <button onClick={() => handleDeleteScenario(s.id)} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "8px 14px", fontSize: 13, background: "none", border: "none", cursor: "pointer", color: "var(--risk)", textAlign: "left" }}
-                          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(251,113,133,0.06)"; }} onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "none"; }}>
+                          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(232,122,93,0.06)"; }} onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "none"; }}>
                           <Trash2 size={13} /> Delete
                         </button>
                       </div>
@@ -1652,7 +1652,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
                 {savedScenarios.map(s => {
                   const isSel = compareSelection.includes(s.id);
                   return (<button key={s.id} onClick={() => setCompareSelection(prev => { if (prev.includes(s.id)) return prev.filter(id => id !== s.id); if (prev.length >= 4) { showToast("Maximum 4 scenarios"); return prev; } return [...prev, s.id]; })}
-                    style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 8, fontSize: 13, border: isSel ? "2px solid var(--accent-primary)" : "1px solid var(--border)", background: isSel ? "rgba(34,211,238,0.08)" : "#fff", color: isSel ? "var(--accent-primary)" : "var(--text-primary)", fontWeight: isSel ? 600 : 400, cursor: "pointer" }}>
+                    style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 8, fontSize: 13, border: isSel ? "2px solid var(--accent-primary)" : "1px solid var(--border)", background: isSel ? "rgba(244,168,58,0.08)" : "#fff", color: isSel ? "var(--accent-primary)" : "var(--text-primary)", fontWeight: isSel ? 600 : 400, cursor: "pointer" }}>
                     {isSel && <Check size={13} />} {s.name} <span style={{ fontSize: 11, color: "var(--text-muted)" }}>({s.changes.length})</span>
                   </button>);
                 })}
@@ -1678,7 +1678,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
                         const isBest = !isB && best !== null && v === best && sv.length > 1;
                         const isWorst = !isB && worst !== null && v === worst && sv.length > 1 && best !== worst;
                         const fm = def.fmt === "currency" ? fmtNum(v, "currency") : def.fmt === "decimal" ? v.toFixed(1) : String(v);
-                        return <td key={i} style={{ textAlign: "right", padding: "10px 12px", fontFamily: "var(--ff-mono)", fontWeight: 600, borderLeft: "1px solid var(--border)", color: isB ? "var(--text-muted)" : isBest ? "var(--success)" : isWorst ? "var(--risk)" : "var(--text-primary)", background: isBest ? "rgba(52,211,153,0.06)" : isWorst ? "rgba(251,113,133,0.04)" : "transparent" }}>{fm}</td>;
+                        return <td key={i} style={{ textAlign: "right", padding: "10px 12px", fontFamily: "var(--ff-mono)", fontWeight: 600, borderLeft: "1px solid var(--border)", color: isB ? "var(--text-muted)" : isBest ? "var(--success)" : isWorst ? "var(--risk)" : "var(--text-primary)", background: isBest ? "rgba(139,168,122,0.06)" : isWorst ? "rgba(232,122,93,0.04)" : "transparent" }}>{fm}</td>;
                       })}
                     </tr>);
                   })}</tbody>
@@ -1952,7 +1952,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
               {(newNote.skills || []).length > 0 && (
                 <div className="flex flex-wrap gap-1.5 mt-2">
                   {(newNote.skills || []).map((s, i) => (
-                    <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold" style={{ background: "rgba(34,211,238,0.15)", color: "var(--accent-primary)" }}>
+                    <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold" style={{ background: "rgba(244,168,58,0.15)", color: "var(--accent-primary)" }}>
                       {s.name} (L{s.proficiency})
                       <button onClick={() => setNewNote(p => ({ ...p, skills: (p.skills || []).filter((_, j) => j !== i) }))} className="hover:text-[var(--risk)]">
                         <X size={10} />
@@ -2006,7 +2006,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
                       <span className="text-xs text-[var(--success)] font-semibold">Skills Updated</span>
                       <div className="flex flex-wrap gap-1">
                         {(note.skills || []).map((s, j) => (
-                          <span key={j} className="text-xs px-1.5 py-0.5 rounded" style={{ background: "rgba(52,211,153,0.1)", color: "var(--success)" }}>{s.name}</span>
+                          <span key={j} className="text-xs px-1.5 py-0.5 rounded" style={{ background: "rgba(139,168,122,0.1)", color: "var(--success)" }}>{s.name}</span>
                         ))}
                       </div>
                     </div>
@@ -2069,25 +2069,25 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
 
     const cards: { icon: React.ReactNode; title: string; desc: string; action: () => void }[] = [
       {
-        icon: <Eye size={24} style={{ color: "var(--navy, #05070d)" }} />,
+        icon: <Eye size={24} style={{ color: "var(--navy, #161822)" }} />,
         title: "Explore Current State",
         desc: "Load the org and see structure, patterns, and diagnostics",
         action: () => { setShowEntryPoint(false); setActiveTab("org"); },
       },
       {
-        icon: <GitBranch size={24} style={{ color: "var(--navy, #05070d)" }} />,
+        icon: <GitBranch size={24} style={{ color: "var(--navy, #161822)" }} />,
         title: "Restructure a Team",
         desc: "Select a manager and redesign their team structure",
         action: () => { setShowEntryPoint(false); setActiveTab("design"); },
       },
       {
-        icon: <Compass size={24} style={{ color: "var(--navy, #05070d)" }} />,
+        icon: <Compass size={24} style={{ color: "var(--navy, #161822)" }} />,
         title: "Design from Vision",
         desc: "Start from strategic direction and cascade top-down",
         action: () => { onNavigate?.("build"); },
       },
       {
-        icon: <BarChart3 size={24} style={{ color: "var(--navy, #05070d)" }} />,
+        icon: <BarChart3 size={24} style={{ color: "var(--navy, #161822)" }} />,
         title: "Apply a Template",
         desc: "Start from an industry benchmark template",
         action: () => { setShowEntryPoint(false); setActiveTab("org"); },
@@ -2106,7 +2106,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
 
         <div style={{ maxWidth: 1160, margin: "0 auto" }}>
           <h2 style={{
-            fontSize: 20, fontWeight: 600, color: "var(--navy, #05070d)",
+            fontSize: 20, fontWeight: 600, color: "var(--navy, #161822)",
             marginBottom: 24, marginTop: 16,
           }}>
             What are you trying to do?
@@ -2122,7 +2122,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
                 onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(28,43,58,0.15)"; }}
               >
                 {c.icon}
-                <div style={{ fontSize: 15, fontWeight: 500, color: "var(--navy, #05070d)" }}>
+                <div style={{ fontSize: 15, fontWeight: 500, color: "var(--navy, #161822)" }}>
                   {c.title}
                 </div>
                 <div style={{ fontSize: 13, color: "rgba(28,43,58,0.55)", lineHeight: 1.45 }}>
@@ -2135,7 +2135,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
           {/* Recently worked on */}
           <div style={{ marginBottom: 32 }}>
             <h3 style={{
-              fontSize: 14, fontWeight: 600, color: "var(--navy, #05070d)",
+              fontSize: 14, fontWeight: 600, color: "var(--navy, #161822)",
               marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.03em",
             }}>
               Recently worked on
@@ -2162,7 +2162,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
                   >
                     <Clock size={16} style={{ color: "rgba(28,43,58,0.45)", flexShrink: 0 }} />
                     <div>
-                      <div style={{ fontSize: 14, fontWeight: 500, color: "var(--navy, #05070d)" }}>
+                      <div style={{ fontSize: 14, fontWeight: 500, color: "var(--navy, #161822)" }}>
                         {s.name || "Untitled scenario"}
                       </div>
                       <div style={{ fontSize: 12, color: "rgba(28,43,58,0.55)", marginTop: 2 }}>
@@ -2187,7 +2187,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
             This module handles tactical team-level restructuring. For strategic org-wide design with cascading layers, use{" "}
             <span
               onClick={() => onNavigate?.("build")}
-              style={{ color: "var(--blue-primary, #22d3ee)", cursor: "pointer", fontWeight: 500 }}
+              style={{ color: "var(--blue-primary, #f4a83a)", cursor: "pointer", fontWeight: 500 }}
             >
               Org Design Studio &rarr;
             </span>
@@ -2215,7 +2215,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
         <span
           onClick={() => setShowEntryPoint(true)}
           style={{
-            fontSize: 13, color: "var(--blue-primary, #22d3ee)", cursor: "pointer",
+            fontSize: 13, color: "var(--blue-primary, #f4a83a)", cursor: "pointer",
             display: "inline-flex", alignItems: "center", gap: 4,
           }}
         >

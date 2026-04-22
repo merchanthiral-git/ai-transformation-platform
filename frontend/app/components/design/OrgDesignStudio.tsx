@@ -142,7 +142,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
     const diff = b - a; const pos = inv ? diff < 0 : diff > 0; const neg = inv ? diff > 0 : diff < 0;
     const c = pos ? "var(--success)" : neg ? "var(--risk)" : "var(--text-muted)";
     const ar = diff > 0 ? "↑" : diff < 0 ? "↓" : "→";
-    return <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[15px] font-bold" style={{ color: c, background: pos ? "rgba(52,211,153,0.1)" : neg ? "rgba(251,113,133,0.1)" : "transparent" }}>{ar}{fmt(Math.abs(diff))}</span>;
+    return <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[15px] font-bold" style={{ color: c, background: pos ? "rgba(139,168,122,0.1)" : neg ? "rgba(232,122,93,0.1)" : "transparent" }}>{ar}{fmt(Math.abs(diff))}</span>;
   };
 
   const HBar = ({ value, max, color }: { value: number; max: number; color: string }) => <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: `${color}12` }}><div className="h-full rounded-full transition-all" style={{ width: `${Math.min((value / max) * 100, 100)}%`, background: color }} /></div>;
@@ -152,7 +152,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
     <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: 14, minWidth: 0, flex: '1 1 160px', maxWidth: 200 }}>
       <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'rgba(28,43,58,0.55)', marginBottom: 6 }}>{label}</div>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-        <span style={{ fontSize: 22, fontWeight: 500, color: '#05070d', lineHeight: 1.1 }}>{value}</span>
+        <span style={{ fontSize: 22, fontWeight: 500, color: '#161822', lineHeight: 1.1 }}>{value}</span>
         {delta && <span style={{ fontSize: 12, fontWeight: 500, color: deltaColor || 'rgba(28,43,58,0.55)' }}>{delta}</span>}
       </div>
       {sub && <div style={{ fontSize: 11, color: 'rgba(28,43,58,0.55)', marginTop: 4 }}>{sub}</div>}
@@ -215,14 +215,14 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
     <InsightPanel title="What This Means" items={["Your org chart shows your reporting line, peers at your level, and any direct reports.", "During transformation, your reporting line may change as layers are adjusted.", "Use the Organization View to see how the full structure is being redesigned."]} icon={<Network />} />
   </div>;
 
-  return <div style={{ background: 'var(--ivory, #e8ecf5)', margin: '-24px -24px 0', padding: '24px 24px 0', minHeight: '100vh' }}>
+  return <div style={{ background: 'var(--ivory, #f4ebd9)', margin: '-24px -24px 0', padding: '24px 24px 0', minHeight: '100vh' }}>
     <ContextStrip items={["You're designing your future org. This is sample data — upload your own to make it real."]} />
     {/* Module header — elevated consulting style */}
     <div className="mb-6">
       <button onClick={onBack} title="Go back (Escape)" className="text-[13px] hover:text-[var(--accent-primary)] mb-3 flex items-center gap-1 transition-colors" style={{ color: 'var(--navy-55, rgba(28,43,58,0.55))' }}>← Back</button>
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 500, color: 'var(--navy, #05070d)', letterSpacing: '-0.01em', margin: 0, lineHeight: 1.3 }} className="font-heading">Org Design Studio</h1>
+          <h1 style={{ fontSize: 20, fontWeight: 500, color: 'var(--navy, #161822)', letterSpacing: '-0.01em', margin: 0, lineHeight: 1.3 }} className="font-heading">Org Design Studio</h1>
           <p style={{ fontSize: 13, color: 'var(--navy-65, rgba(28,43,58,0.65))', margin: '2px 0 0' }}>Current → Future State Modeling · Multi-Scenario Engine</p>
         </div>
         <div className="flex items-center gap-2">
@@ -231,7 +231,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
         </div>
       </div>
     </div>
-    {hasRealData ? <div className="bg-[rgba(52,211,153,0.08)] border border-[var(--success)]/30 rounded-lg px-4 py-2 mb-4 text-[15px] text-[var(--success)]">✓ Using your uploaded workforce data to model departments</div> : <div className="bg-[rgba(251,191,36,0.08)] border border-[var(--warning)]/30 rounded-lg px-4 py-2 mb-4 text-[15px] text-[var(--warning)]" style={{ display: 'flex', alignItems: 'center', gap: 10 }}><span style={{ background: 'rgba(251,191,36,0.15)', borderRadius: 4, padding: '2px 8px', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' as const }}>SAMPLE DATA</span><span>Upload your workforce data for real analysis — current charts use generated sample data</span></div>}
+    {hasRealData ? <div className="bg-[rgba(139,168,122,0.08)] border border-[var(--success)]/30 rounded-lg px-4 py-2 mb-4 text-[15px] text-[var(--success)]">✓ Using your uploaded workforce data to model departments</div> : <div className="bg-[rgba(244,168,58,0.08)] border border-[var(--warning)]/30 rounded-lg px-4 py-2 mb-4 text-[15px] text-[var(--warning)]" style={{ display: 'flex', alignItems: 'center', gap: 10 }}><span style={{ background: 'rgba(244,168,58,0.15)', borderRadius: 4, padding: '2px 8px', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' as const }}>SAMPLE DATA</span><span>Upload your workforce data for real analysis — current charts use generated sample data</span></div>}
 
     {/* Scenario selector — dropdown with Customize button */}
     <div className="flex gap-3 mb-4 items-center">
@@ -296,7 +296,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
             <span className="text-[var(--text-muted)] font-semibold">{label}</span>
             <span className="text-[var(--text-primary)] font-bold">{suffix === "$" ? `$${value}M` : `${value}${suffix || ""}`}</span>
           </div>
-          <input type="range" min={min} max={max} step={step} value={value} onChange={e => { onChange(Number(e.target.value)); setCustomPreset(""); }} className="w-full h-2 rounded-full appearance-none cursor-pointer" style={{ background: `linear-gradient(to right, #22d3ee ${((value - min) / (max - min)) * 100}%, rgba(34,211,238,0.15) ${((value - min) / (max - min)) * 100}%)` }} />
+          <input type="range" min={min} max={max} step={step} value={value} onChange={e => { onChange(Number(e.target.value)); setCustomPreset(""); }} className="w-full h-2 rounded-full appearance-none cursor-pointer" style={{ background: `linear-gradient(to right, #f4a83a ${((value - min) / (max - min)) * 100}%, rgba(244,168,58,0.15) ${((value - min) / (max - min)) * 100}%)` }} />
         </div>
       );
 
@@ -335,7 +335,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
             </div>
 
             {/* UX Guidance */}
-            <div className="rounded-lg bg-[rgba(34,211,238,0.06)] border border-[rgba(34,211,238,0.15)] p-3 mb-5 text-[12px] text-[var(--text-secondary)] leading-relaxed">
+            <div className="rounded-lg bg-[rgba(244,168,58,0.06)] border border-[rgba(244,168,58,0.15)] p-3 mb-5 text-[12px] text-[var(--text-secondary)] leading-relaxed">
               Every org design scenario is driven by a set of structural levers. Choose a preset to start, then adjust any lever to see how it changes the outcome. The impact preview at the bottom updates as you move each slider.
             </div>
 
@@ -349,8 +349,8 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
                     setCustomSpanMin(p.spanMin); setCustomSpanMax(p.spanMax); setCustomMaxLayers(p.maxL);
                     setCustomMinFte(p.minFte); setCustomCostCeiling(p.costCeil); setCustomMgrRatioCap(p.mgrCap);
                   }} className="rounded-lg p-3 text-left transition-all duration-200" style={{
-                    background: customPreset === name ? "rgba(34,211,238,0.1)" : "var(--surface-2)",
-                    border: customPreset === name ? "2px solid #22d3ee" : "2px solid var(--border)",
+                    background: customPreset === name ? "rgba(244,168,58,0.1)" : "var(--surface-2)",
+                    border: customPreset === name ? "2px solid #f4a83a" : "2px solid var(--border)",
                   }}>
                     <div className="text-[13px] font-bold text-[var(--text-primary)] mb-0.5">{name}</div>
                     <div className="text-[10px] text-[var(--text-muted)] leading-tight">{p.desc}</div>
@@ -411,7 +411,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
                 const agg = odsAgg(customSc.departments);
                 setCustomLabel(`Custom — ${agg.hc} HC, ${fmtNum(agg.cost)}`);
                 setDrawerOpen(false);
-              }} className="flex-1 px-4 py-2.5 rounded-lg text-[14px] font-bold text-white transition-all" style={{ background: "#22d3ee" }}>
+              }} className="flex-1 px-4 py-2.5 rounded-lg text-[14px] font-bold text-white transition-all" style={{ background: "#f4a83a" }}>
                 Apply Scenario
               </button>
               <button onClick={() => {
@@ -432,8 +432,8 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       {[{ id: "current", label: "Current State" }, { id: "design", label: "Design" }, { id: "analyze", label: "Analyze" }, { id: "compare", label: "Compare" }, { id: "present", label: "Present" }].map(t => (
         <button key={t.id} onClick={() => setView(t.id)} style={{
           fontSize: 13, fontWeight: 500, padding: '10px 0 10px', background: 'none', border: 'none',
-          borderBottom: view === t.id ? '2px solid var(--navy, #05070d)' : '2px solid transparent',
-          color: view === t.id ? 'var(--navy, #05070d)' : 'var(--navy-65, rgba(28,43,58,0.65))',
+          borderBottom: view === t.id ? '2px solid var(--navy, #161822)' : '2px solid transparent',
+          color: view === t.id ? 'var(--navy, #161822)' : 'var(--navy-65, rgba(28,43,58,0.65))',
           cursor: 'pointer', whiteSpace: 'nowrap', transition: 'color 0.15s, border-color 0.15s',
           marginBottom: -1,
         }} className="btn-press">{t.label}</button>
@@ -445,8 +445,8 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
         {[{ id: "soc", label: "Span & Layers" }, { id: "cost", label: "Cost" }, { id: "roles", label: "Role Migration" }, { id: "insights", label: "People Impact" }, { id: "benchmarks", label: "Benchmarks" }].map(t => (
           <button key={t.id} onClick={() => setAnalyzeSubTab(t.id)} style={{
             fontSize: 12, fontWeight: 500, padding: '6px 0 8px', background: 'none', border: 'none',
-            borderBottom: analyzeSubTab === t.id ? '2px solid var(--navy, #05070d)' : '2px solid transparent',
-            color: analyzeSubTab === t.id ? 'var(--navy, #05070d)' : 'var(--navy-55, rgba(28,43,58,0.55))',
+            borderBottom: analyzeSubTab === t.id ? '2px solid var(--navy, #161822)' : '2px solid transparent',
+            color: analyzeSubTab === t.id ? 'var(--navy, #161822)' : 'var(--navy-55, rgba(28,43,58,0.55))',
             cursor: 'pointer', whiteSpace: 'nowrap', transition: 'color 0.15s, border-color 0.15s',
             marginBottom: -1,
           }} className="btn-press">{t.label}</button>
@@ -463,7 +463,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
 
     {view === "current" && (() => {
       const OV_MONO = "'JetBrains Mono', monospace";
-      const spanHealth = (s: number) => s >= 6 && s <= 8 ? { label: "Optimal", color: "#34d399", badge: "✓" } : s >= 5 && s <= 10 ? { label: s < 6 ? "Narrow" : "Wide", color: "#fbbf24", badge: "◈" } : { label: s < 5 ? "Critically narrow" : "Critically wide", color: "#fb7185", badge: "⚠" };
+      const spanHealth = (s: number) => s >= 6 && s <= 8 ? { label: "Optimal", color: "#8ba87a", badge: "✓" } : s >= 5 && s <= 10 ? { label: s < 6 ? "Narrow" : "Wide", color: "#f4a83a", badge: "◈" } : { label: s < 5 ? "Critically narrow" : "Critically wide", color: "#e87a5d", badge: "⚠" };
       const spanImproving = (cur: number, fut: number) => Math.abs(fut - 7) < Math.abs(cur - 7);
       // Scenario impact score: 0-100 based on how much the scenario improves structure
       const deptImprovements = currentData.filter((d, i) => spanImproving(d.avgSpan, sc.departments[i]?.avgSpan || d.avgSpan)).length;
@@ -471,7 +471,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       const spanDelta = fA.avgS - cA.avgS;
       const costEfficiency = cA.cost > 0 ? Math.min(Math.abs(fA.cost - cA.cost) / cA.cost * 100, 20) : 0;
       const impactScore = Math.max(0, Math.min(100, Math.round(deptImprovements / Math.max(currentData.length, 1) * 40 + (layerDelta > 0 ? layerDelta * 20 : 0) + (spanDelta > 0 && cA.avgS < 6 ? spanDelta * 20 : 0) + costEfficiency)));
-      const impactColor = impactScore >= 70 ? "#34d399" : impactScore >= 40 ? "#fbbf24" : "#fb7185";
+      const impactColor = impactScore >= 70 ? "#8ba87a" : impactScore >= 40 ? "#f4a83a" : "#e87a5d";
       // Sorted departments by health (worst first)
       const sortedDepts = currentData.map((d, i) => ({ ...d, idx: i, fut: sc.departments[i], health: spanHealth(d.avgSpan), futHealth: spanHealth(sc.departments[i]?.avgSpan || d.avgSpan), improving: spanImproving(d.avgSpan, sc.departments[i]?.avgSpan || d.avgSpan) })).sort((a, b) => { const aD = Math.abs(a.avgSpan - 7); const bD = Math.abs(b.avgSpan - 7); return bD - aD; });
       // Top 3 actions
@@ -491,11 +491,11 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
           {(() => {
             const kpis: { label: string; value: string; delta?: string; deltaColor?: string; sub?: string }[] = [
               { label: 'Total Headcount', value: fmt(fA.hc), delta: fA.hc !== cA.hc ? `${fA.hc > cA.hc ? '+' : ''}${fA.hc - cA.hc}` : undefined, deltaColor: fA.hc < cA.hc ? '#16A34A' : fA.hc > cA.hc ? '#DC2626' : undefined, sub: `Current: ${fmt(cA.hc)}` },
-              { label: 'Avg Span', value: fmt(fA.avgS), delta: fA.avgS !== cA.avgS ? `${fA.avgS > cA.avgS ? '+' : ''}${fmt(fA.avgS - cA.avgS)}` : undefined, deltaColor: fA.avgS > cA.avgS && cA.avgS < 6 ? '#16A34A' : fA.avgS < cA.avgS ? '#DC2626' : '#fbbf24', sub: `Current: ${fmt(cA.avgS)}` },
-              { label: 'Avg Layers', value: fmt(fA.avgL), delta: fA.avgL !== cA.avgL ? `${fA.avgL > cA.avgL ? '+' : ''}${fmt(fA.avgL - cA.avgL)}` : undefined, deltaColor: fA.avgL < cA.avgL ? '#16A34A' : fA.avgL > cA.avgL ? '#DC2626' : '#fbbf24', sub: `Current: ${fmt(cA.avgL)}` },
-              { label: 'Managers', value: fmt(fA.mgr), delta: fA.mgr !== cA.mgr ? `${fA.mgr > cA.mgr ? '+' : ''}${fA.mgr - cA.mgr}` : undefined, deltaColor: fA.mgr < cA.mgr ? '#16A34A' : fA.mgr > cA.mgr ? '#DC2626' : '#fbbf24', sub: `Current: ${fmt(cA.mgr)}` },
-              { label: 'ICs', value: fmt(fA.ic), delta: fA.ic !== cA.ic ? `${fA.ic > cA.ic ? '+' : ''}${fA.ic - cA.ic}` : undefined, deltaColor: fA.ic > cA.ic ? '#16A34A' : fA.ic < cA.ic ? '#DC2626' : '#fbbf24', sub: `Current: ${fmt(cA.ic)}` },
-              { label: 'Est. Cost ($M)', value: `$${fmt(fA.cost / 1e6)}`, delta: Math.abs(fA.cost - cA.cost) > cA.cost * 0.01 ? `${fA.cost > cA.cost ? '+' : ''}$${fmt(Math.abs(fA.cost - cA.cost) / 1e6)}` : undefined, deltaColor: fA.cost < cA.cost ? '#16A34A' : fA.cost > cA.cost ? '#DC2626' : '#fbbf24', sub: `Current: $${fmt(cA.cost / 1e6)}` },
+              { label: 'Avg Span', value: fmt(fA.avgS), delta: fA.avgS !== cA.avgS ? `${fA.avgS > cA.avgS ? '+' : ''}${fmt(fA.avgS - cA.avgS)}` : undefined, deltaColor: fA.avgS > cA.avgS && cA.avgS < 6 ? '#16A34A' : fA.avgS < cA.avgS ? '#DC2626' : '#f4a83a', sub: `Current: ${fmt(cA.avgS)}` },
+              { label: 'Avg Layers', value: fmt(fA.avgL), delta: fA.avgL !== cA.avgL ? `${fA.avgL > cA.avgL ? '+' : ''}${fmt(fA.avgL - cA.avgL)}` : undefined, deltaColor: fA.avgL < cA.avgL ? '#16A34A' : fA.avgL > cA.avgL ? '#DC2626' : '#f4a83a', sub: `Current: ${fmt(cA.avgL)}` },
+              { label: 'Managers', value: fmt(fA.mgr), delta: fA.mgr !== cA.mgr ? `${fA.mgr > cA.mgr ? '+' : ''}${fA.mgr - cA.mgr}` : undefined, deltaColor: fA.mgr < cA.mgr ? '#16A34A' : fA.mgr > cA.mgr ? '#DC2626' : '#f4a83a', sub: `Current: ${fmt(cA.mgr)}` },
+              { label: 'ICs', value: fmt(fA.ic), delta: fA.ic !== cA.ic ? `${fA.ic > cA.ic ? '+' : ''}${fA.ic - cA.ic}` : undefined, deltaColor: fA.ic > cA.ic ? '#16A34A' : fA.ic < cA.ic ? '#DC2626' : '#f4a83a', sub: `Current: ${fmt(cA.ic)}` },
+              { label: 'Est. Cost ($M)', value: `$${fmt(fA.cost / 1e6)}`, delta: Math.abs(fA.cost - cA.cost) > cA.cost * 0.01 ? `${fA.cost > cA.cost ? '+' : ''}$${fmt(Math.abs(fA.cost - cA.cost) / 1e6)}` : undefined, deltaColor: fA.cost < cA.cost ? '#16A34A' : fA.cost > cA.cost ? '#DC2626' : '#f4a83a', sub: `Current: $${fmt(cA.cost / 1e6)}` },
               { label: 'Impact Score', value: `${impactScore}`, delta: impactScore >= 70 ? 'Strong' : impactScore >= 40 ? 'Moderate' : 'Minimal', deltaColor: impactColor, sub: `${deptImprovements}/${currentData.length} depts improving` },
             ];
             return kpis.map(k => <OdsKpiCard key={k.label} {...k} />);
@@ -518,7 +518,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
           return <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: 20, marginBottom: 16, display: 'flex', gap: 24, alignItems: 'flex-start' }}>
             {/* Left: numeric score + gauge */}
             <div style={{ width: 240, flexShrink: 0 }}>
-              <div style={{ fontSize: 36, fontWeight: 500, color: '#05070d', lineHeight: 1.1, marginBottom: 2 }}>{heroImpactScore}</div>
+              <div style={{ fontSize: 36, fontWeight: 500, color: '#161822', lineHeight: 1.1, marginBottom: 2 }}>{heroImpactScore}</div>
               <div style={{ fontSize: 11, color: 'rgba(28,43,58,0.55)', marginBottom: 10, fontWeight: 500 }}>Change Magnitude</div>
               {/* Horizontal gauge */}
               <div style={{ position: 'relative', height: 6, borderRadius: 3, background: 'rgba(28,43,58,0.08)', overflow: 'hidden' }}>
@@ -530,16 +530,16 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
             </div>
             {/* Middle: narrative */}
             <div style={{ flex: 1, fontSize: 13, color: 'rgba(28,43,58,0.65)', lineHeight: 1.7 }}>
-              The <span style={{ fontWeight: 500, color: '#05070d' }}>{sc.label}</span> scenario changes headcount from <span style={{ fontWeight: 500, color: '#05070d' }}>{cA.hc.toLocaleString()}</span> to <span style={{ fontWeight: 500, color: '#05070d' }}>{fA.hc.toLocaleString()}</span>{' '}
+              The <span style={{ fontWeight: 500, color: '#161822' }}>{sc.label}</span> scenario changes headcount from <span style={{ fontWeight: 500, color: '#161822' }}>{cA.hc.toLocaleString()}</span> to <span style={{ fontWeight: 500, color: '#161822' }}>{fA.hc.toLocaleString()}</span>{' '}
               ({fA.hc - cA.hc >= 0 ? '+' : ''}{fA.hc - cA.hc}), {fA.avgL < cA.avgL ? <span>reduces average layers from <span style={{ fontWeight: 500 }}>{fmt(cA.avgL)}</span> to <span style={{ fontWeight: 500 }}>{fmt(fA.avgL)}</span></span> : <span>maintains layers at <span style={{ fontWeight: 500 }}>{fmt(fA.avgL)}</span></span>},{' '}
               and {fA.avgS > cA.avgS ? <span>widens average span from <span style={{ fontWeight: 500 }}>{fmt(cA.avgS)}</span> to <span style={{ fontWeight: 500 }}>{fmt(fA.avgS)}</span></span> : <span>adjusts span to <span style={{ fontWeight: 500 }}>{fmt(fA.avgS)}</span></span>}.{' '}
-              <span style={{ fontWeight: 500, color: '#05070d' }}>{deptImprovements}/{currentData.length}</span> departments move closer to the 6-8:1 benchmark.
+              <span style={{ fontWeight: 500, color: '#161822' }}>{deptImprovements}/{currentData.length}</span> departments move closer to the 6-8:1 benchmark.
               {' '}Total cost {Math.abs(fA.cost - cA.cost) < cA.cost * 0.01 ? 'remains neutral' : fA.cost < cA.cost ? <span style={{ color: '#16A34A' }}>decreases by {fmtNum(cA.cost - fA.cost)}</span> : <span style={{ color: '#DC2626' }}>increases by {fmtNum(fA.cost - cA.cost)}</span>} at <span style={{ fontWeight: 500 }}>{fmtNum(fA.cost)}</span>.
             </div>
             {/* Right: goal alignment */}
             <div style={{ width: 200, flexShrink: 0 }}>
               <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'rgba(28,43,58,0.55)', marginBottom: 8 }}>Goal Alignment</div>
-              <div style={{ fontSize: 13, fontWeight: 500, color: '#05070d', marginBottom: 8 }}>{goalsMet}/{goalAlignItems.length} met</div>
+              <div style={{ fontSize: 13, fontWeight: 500, color: '#161822', marginBottom: 8 }}>{goalsMet}/{goalAlignItems.length} met</div>
               {goalAlignItems.map(g => (
                 <div key={g.label} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: g.met ? '#16A34A' : 'rgba(28,43,58,0.65)', marginBottom: 4 }}>
                   <span style={{ width: 14, height: 14, borderRadius: 7, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 600, background: g.met ? 'rgba(22,163,74,0.1)' : 'rgba(28,43,58,0.06)', color: g.met ? '#16A34A' : 'rgba(28,43,58,0.55)' }}>{g.met ? '\u2713' : '\u2013'}</span>
@@ -552,7 +552,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
 
         {/* Span of Control by Department — diverging dot plot */}
         <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: 20 }}>
-          <div style={{ fontSize: 14, fontWeight: 500, color: '#05070d', marginBottom: 2 }}>Span of Control by Department</div>
+          <div style={{ fontSize: 14, fontWeight: 500, color: '#161822', marginBottom: 2 }}>Span of Control by Department</div>
           <div style={{ fontSize: 11, fontWeight: 400, color: 'rgba(28,43,58,0.65)', marginBottom: 4 }}>Current vs. {sc.label} scenario</div>
           {(() => { const widest = sortedDepts.reduce((best, d) => { const delta = Math.abs((d.fut?.avgSpan || d.avgSpan) - d.avgSpan); return delta > best.delta ? { name: d.name, cur: d.avgSpan, fut: d.fut?.avgSpan || d.avgSpan, delta } : best; }, { name: '', cur: 0, fut: 0, delta: 0 }); return widest.delta > 0.05 ? <div style={{ fontSize: 12, fontStyle: 'italic', color: 'rgba(28,43,58,0.65)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ fontSize: 14 }}>&#x1F4A1;</span> Key insight: {widest.name} sees the largest span shift ({widest.cur.toFixed(1)} &rarr; {widest.fut.toFixed(1)})</div> : null; })()}
           {/* X-axis header */}
@@ -572,12 +572,12 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
             const scaleMax = 15;
             return <div key={d.name} style={{ display: 'grid', gridTemplateColumns: '120px 1fr 60px', alignItems: 'center', gap: 8, padding: '8px 0', borderBottom: '0.5px dashed rgba(28,43,58,0.08)' }}>
               <div>
-                <div style={{ fontSize: 11, fontWeight: 500, color: '#05070d', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.name}</div>
+                <div style={{ fontSize: 11, fontWeight: 500, color: '#161822', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.name}</div>
                 <div style={{ fontSize: 11, fontWeight: 400, color: 'rgba(28,43,58,0.55)' }}>{d.headcount} HC</div>
               </div>
               <div style={{ position: 'relative', height: 24 }}>
                 {/* Benchmark band */}
-                <div style={{ position: 'absolute', left: `${(6 / scaleMax) * 100}%`, width: `${((8 - 6) / scaleMax) * 100}%`, top: 0, bottom: 0, background: '#e8ecf5', borderRadius: 3 }} />
+                <div style={{ position: 'absolute', left: `${(6 / scaleMax) * 100}%`, width: `${((8 - 6) / scaleMax) * 100}%`, top: 0, bottom: 0, background: '#f4ebd9', borderRadius: 3 }} />
                 {/* Gridlines */}
                 {[2, 4, 6, 8, 10, 12, 14].map(v => <div key={v} style={{ position: 'absolute', left: `${(v / scaleMax) * 100}%`, top: 0, bottom: 0, width: 0, borderLeft: '0.5px dashed rgba(28,43,58,0.08)' }} />)}
                 {/* Connecting line */}
@@ -585,7 +585,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
                 {/* Current dot (gray) */}
                 <div style={{ position: 'absolute', left: `${Math.min(curSpan / scaleMax, 1) * 100}%`, top: '50%', transform: 'translate(-50%, -50%)', width: 10, height: 10, borderRadius: 5, background: 'rgba(28,43,58,0.35)', border: '1.5px solid #FFFFFF', zIndex: 2 }} />
                 {/* Proposed dot (blue) */}
-                <div style={{ position: 'absolute', left: `${Math.min(futSpan / scaleMax, 1) * 100}%`, top: '50%', transform: 'translate(-50%, -50%)', width: 10, height: 10, borderRadius: 5, background: '#22d3ee', border: '1.5px solid #FFFFFF', zIndex: 2 }} />
+                <div style={{ position: 'absolute', left: `${Math.min(futSpan / scaleMax, 1) * 100}%`, top: '50%', transform: 'translate(-50%, -50%)', width: 10, height: 10, borderRadius: 5, background: '#f4a83a', border: '1.5px solid #FFFFFF', zIndex: 2 }} />
               </div>
               <div style={{ textAlign: 'right', fontSize: 12, fontWeight: 500, color: deltaColor }}>
                 {Math.abs(delta) < 0.05 ? '\u2014' : `${delta > 0 ? '+' : ''}${delta.toFixed(1)}`}
@@ -595,22 +595,22 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
           {/* Legend */}
           <div style={{ display: 'flex', gap: 16, marginTop: 12, paddingTop: 8, borderTop: '0.5px solid rgba(28,43,58,0.08)', fontSize: 11, color: 'rgba(28,43,58,0.55)' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 10, height: 10, borderRadius: 5, background: 'rgba(28,43,58,0.35)' }} />Current</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 10, height: 10, borderRadius: 5, background: '#22d3ee' }} />Proposed</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 16, height: 10, borderRadius: 2, background: '#e8ecf5' }} />Benchmark (6-8:1)</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 10, height: 10, borderRadius: 5, background: '#f4a83a' }} />Proposed</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 16, height: 10, borderRadius: 2, background: '#f4ebd9' }} />Benchmark (6-8:1)</span>
           </div>
           <div style={{ fontSize: 11, color: 'rgba(28,43,58,0.45)', marginTop: 8, textAlign: 'right' }}>Source: Industry benchmarks (illustrative ranges, 2024)</div>
         </div>
 
         {/* Priority Actions — white card */}
         <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: 20, marginBottom: 16 }}>
-          <div style={{ fontSize: 14, fontWeight: 500, color: '#05070d', marginBottom: 14 }}>Priority Actions</div>
+          <div style={{ fontSize: 14, fontWeight: 500, color: '#161822', marginBottom: 14 }}>Priority Actions</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
             {actions.slice(0, 3).map((a, i) => <div key={i} style={{ display: 'flex', gap: 12, padding: '12px 0', borderTop: i > 0 ? '0.5px solid rgba(28,43,58,0.08)' : 'none', cursor: 'default', transition: 'background 0.15s' }}
               onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(247,245,240,0.5)'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = 'transparent'; }}>
-              <span style={{ width: 24, height: 24, borderRadius: 12, background: 'var(--ivory, #e8ecf5)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 600, color: '#05070d', flexShrink: 0 }}>{i + 1}</span>
+              <span style={{ width: 24, height: 24, borderRadius: 12, background: 'var(--ivory, #f4ebd9)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 600, color: '#161822', flexShrink: 0 }}>{i + 1}</span>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: 500, color: '#05070d', marginBottom: 2 }}>{a.title}</div>
+                <div style={{ fontSize: 13, fontWeight: 500, color: '#161822', marginBottom: 2 }}>{a.title}</div>
                 <div style={{ fontSize: 11, color: 'rgba(28,43,58,0.65)', lineHeight: 1.5 }}>{a.desc}</div>
               </div>
               {a.hc > 0 && <span style={{ fontSize: 11, fontWeight: 500, color: 'rgba(28,43,58,0.55)', flexShrink: 0, alignSelf: 'center' }}>{a.hc} HC</span>}
@@ -628,18 +628,18 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
               <tbody>{sortedDepts.map((d, i) => {
                 const f = d.fut;
                 const mgrRatio = Math.round(d.managers / Math.max(d.headcount, 1) * 100);
-                return <tr key={d.name} style={{ borderBottom: '0.5px solid rgba(28,43,58,0.08)', background: i % 2 ? 'var(--ivory, #e8ecf5)' : '#FFFFFF' }}>
-                  <td style={{ padding: '8px 12px', fontWeight: 500, color: '#05070d', fontSize: 12 }}>
+                return <tr key={d.name} style={{ borderBottom: '0.5px solid rgba(28,43,58,0.08)', background: i % 2 ? 'var(--ivory, #f4ebd9)' : '#FFFFFF' }}>
+                  <td style={{ padding: '8px 12px', fontWeight: 500, color: '#161822', fontSize: 12 }}>
                     <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: 3, background: d.health.color, marginRight: 8 }} />{d.name}
                   </td>
-                  <td style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 500, color: '#05070d', fontSize: 11 }}>{d.headcount} <span style={{ color: 'rgba(28,43,58,0.65)' }}>{'\u2192'}</span> {f?.headcount || d.headcount}</td>
+                  <td style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 500, color: '#161822', fontSize: 11 }}>{d.headcount} <span style={{ color: 'rgba(28,43,58,0.65)' }}>{'\u2192'}</span> {f?.headcount || d.headcount}</td>
                   <td style={{ padding: '8px 12px', textAlign: 'right', fontSize: 11 }}>
                     <span style={{ fontWeight: 500, color: d.health.color }}>{d.avgSpan.toFixed(1)}</span>
                     <span style={{ color: 'rgba(28,43,58,0.65)', margin: '0 4px' }}>{'\u2192'}</span>
                     <span style={{ fontWeight: 500, color: d.futHealth.color }}>{(f?.avgSpan || d.avgSpan).toFixed(1)}</span>
                   </td>
-                  <td style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 500, color: '#05070d', fontSize: 11 }}>{d.layers} <span style={{ color: 'rgba(28,43,58,0.65)' }}>{'\u2192'}</span> {f?.layers || d.layers}</td>
-                  <td style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 500, fontSize: 11, color: mgrRatio > 15 ? '#DC2626' : mgrRatio > 12 ? '#fbbf24' : 'rgba(28,43,58,0.55)' }}>{mgrRatio}%</td>
+                  <td style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 500, color: '#161822', fontSize: 11 }}>{d.layers} <span style={{ color: 'rgba(28,43,58,0.65)' }}>{'\u2192'}</span> {f?.layers || d.layers}</td>
+                  <td style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 500, fontSize: 11, color: mgrRatio > 15 ? '#DC2626' : mgrRatio > 12 ? '#f4a83a' : 'rgba(28,43,58,0.55)' }}>{mgrRatio}%</td>
                   <td style={{ padding: '8px 12px', textAlign: 'right' }}><span style={{ padding: '2px 6px', borderRadius: 4, fontSize: 11, fontWeight: 600, background: `${d.futHealth.color}15`, color: d.futHealth.color }}>{d.futHealth.badge} {d.futHealth.label.split(' ')[0]}</span></td>
                 </tr>;
               })}</tbody>
@@ -651,7 +651,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
 
     {view === "analyze" && analyzeSubTab === "soc" && (() => {
       const SPAN_MONO = "'JetBrains Mono', monospace";
-      const spanHealth = (s: number) => s >= 6 && s <= 8 ? { label: "Optimal", color: "#34d399", badge: "✓" } : s >= 5 && s <= 10 ? { label: s < 6 ? "Narrow" : "Wide", color: "#fbbf24", badge: "◈" } : { label: s < 5 ? "Critical-Narrow" : "Critical-Wide", color: "#fb7185", badge: "⚠" };
+      const spanHealth = (s: number) => s >= 6 && s <= 8 ? { label: "Optimal", color: "#8ba87a", badge: "✓" } : s >= 5 && s <= 10 ? { label: s < 6 ? "Narrow" : "Wide", color: "#f4a83a", badge: "◈" } : { label: s < 5 ? "Critical-Narrow" : "Critical-Wide", color: "#e87a5d", badge: "⚠" };
       const spanImproving = (cur: number, fut: number) => { const curDist = Math.abs(cur - 7); const futDist = Math.abs(fut - 7); return futDist < curDist; };
       const orgAvgCur = cA.hc > 0 ? cA.ic / Math.max(cA.mgr, 1) : 0;
       const orgAvgFut = fA.hc > 0 ? fA.ic / Math.max(fA.mgr, 1) : 0;
@@ -671,9 +671,9 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
           <div style={{ background: '#FFFFFF', borderRadius: 8, padding: 14, border: '0.5px solid rgba(28,43,58,0.15)' }}>
             <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.05em", color: "rgba(28,43,58,0.55)", marginBottom: 6 }}>Org-Wide Average Span</div>
             <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-              <span style={{ fontSize: 22, fontWeight: 500, color: '#05070d' }}>{orgAvgCur.toFixed(1)}</span>
+              <span style={{ fontSize: 22, fontWeight: 500, color: '#161822' }}>{orgAvgCur.toFixed(1)}</span>
               <span style={{ fontSize: 12, color: "rgba(28,43,58,0.55)" }}>{"\u2192"}</span>
-              <span style={{ fontSize: 22, fontWeight: 500, color: '#05070d' }}>{orgAvgFut.toFixed(1)}</span>
+              <span style={{ fontSize: 22, fontWeight: 500, color: '#161822' }}>{orgAvgFut.toFixed(1)}</span>
               <span style={{ fontSize: 11, fontWeight: 500, color: spanImproving(orgAvgCur, orgAvgFut) ? "#16A34A" : "#DC2626", padding: "1px 5px", borderRadius: 4, background: spanImproving(orgAvgCur, orgAvgFut) ? "rgba(22,163,74,0.08)" : "rgba(220,38,38,0.08)" }}>{orgAvgFut > orgAvgCur ? "\u2191" : "\u2193"}{Math.abs(orgAvgFut - orgAvgCur).toFixed(1)}</span>
             </div>
           </div>
@@ -686,10 +686,10 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
                   <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(28,43,58,0.06)" strokeWidth="4" />
                   <circle cx="24" cy="24" r="20" fill="none" stroke="#16A34A" strokeWidth="4" strokeLinecap="round" strokeDasharray={`${2 * Math.PI * 20}`} strokeDashoffset={`${2 * Math.PI * 20 * (1 - inBenchFut / Math.max(currentData.length, 1))}`} />
                 </svg>
-                <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 500, color: "#05070d" }}>{inBenchFut}</div>
+                <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 500, color: "#161822" }}>{inBenchFut}</div>
               </div>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 500, color: "#05070d" }}>{inBenchCur} {"\u2192"} {inBenchFut} <span style={{ fontSize: 11, color: "rgba(28,43,58,0.55)" }}>of {currentData.length}</span></div>
+                <div style={{ fontSize: 14, fontWeight: 500, color: "#161822" }}>{inBenchCur} {"\u2192"} {inBenchFut} <span style={{ fontSize: 11, color: "rgba(28,43,58,0.55)" }}>of {currentData.length}</span></div>
                 <div style={{ fontSize: 11, color: "rgba(28,43,58,0.55)" }}>{inBenchFut > inBenchCur ? "Improving" : inBenchFut < inBenchCur ? "Degrading" : "Stable"}</div>
               </div>
             </div>
@@ -698,20 +698,20 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
           <div style={{ background: '#FFFFFF', borderRadius: 8, padding: 14, border: '0.5px solid rgba(28,43,58,0.15)' }}>
             <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.05em", color: "rgba(28,43,58,0.55)", marginBottom: 6 }}>Widest Span Variance</div>
             {widestGap && <div>
-              <div style={{ fontSize: 14, fontWeight: 500, color: "#05070d" }}>{widestGap.name}</div>
+              <div style={{ fontSize: 14, fontWeight: 500, color: "#161822" }}>{widestGap.name}</div>
               <div style={{ fontSize: 12, fontWeight: 500, color: "#DC2626" }}>{widestGap.min}:1 to {widestGap.max}:1 <span style={{ fontSize: 11, color: "rgba(28,43,58,0.55)" }}>— range of {widestGap.range}</span></div>
             </div>}
           </div>
         </div>
 
         {/* Benchmark reference */}
-        <div style={{ padding: "8px 12px", marginBottom: 16, background: "rgba(34,211,238,0.04)", borderLeft: "3px solid #22d3ee", borderRadius: 6, fontSize: 11, color: "rgba(28,43,58,0.55)", lineHeight: 1.5 }}>
+        <div style={{ padding: "8px 12px", marginBottom: 16, background: "rgba(244,168,58,0.04)", borderLeft: "3px solid #f4a83a", borderRadius: 6, fontSize: 11, color: "rgba(28,43,58,0.55)", lineHeight: 1.5 }}>
           Industry benchmark for knowledge workers: 6-8 direct reports per manager. Below 5:1 indicates over-management. Above 10:1 may indicate insufficient oversight.
         </div>
 
         {/* ═══ DIVERGING DOT PLOT: Span of Control ═══ */}
         <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: 20 }}>
-          <div style={{ fontSize: 14, fontWeight: 500, color: '#05070d', marginBottom: 2 }}>Span of Control by Department</div>
+          <div style={{ fontSize: 14, fontWeight: 500, color: '#161822', marginBottom: 2 }}>Span of Control by Department</div>
           <div style={{ fontSize: 11, fontWeight: 400, color: 'rgba(28,43,58,0.65)', marginBottom: 4 }}>Current vs. proposed span with benchmark range</div>
           {(() => { const widest = sorted.reduce((best, d) => { const delta = Math.abs((d.fut?.avgSpan || d.avgSpan) - d.avgSpan); return delta > best.delta ? { name: d.name, cur: d.avgSpan, fut: d.fut?.avgSpan || d.avgSpan, delta } : best; }, { name: '', cur: 0, fut: 0, delta: 0 }); return widest.delta > 0.05 ? <div style={{ fontSize: 12, fontStyle: 'italic', color: 'rgba(28,43,58,0.65)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ fontSize: 14 }}>&#x1F4A1;</span> Key insight: {widest.name} sees the largest span shift ({widest.cur.toFixed(1)} &rarr; {widest.fut.toFixed(1)})</div> : null; })()}
 
@@ -743,7 +743,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
               }} onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(247,245,240,0.5)'; }} onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}>
                 {/* Department name + HC sub-text */}
                 <div>
-                  <div style={{ fontSize: 11, fontWeight: 500, color: '#05070d', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.name}</div>
+                  <div style={{ fontSize: 11, fontWeight: 500, color: '#161822', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.name}</div>
                   <div style={{ fontSize: 11, fontWeight: 400, color: 'rgba(28,43,58,0.55)' }}>{d.headcount} HC</div>
                 </div>
 
@@ -755,7 +755,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
                     left: `${(6 / scaleMax) * 100}%`,
                     width: `${((8 - 6) / scaleMax) * 100}%`,
                     top: 0, bottom: 0,
-                    background: '#e8ecf5',
+                    background: '#f4ebd9',
                     borderRadius: 3,
                   }} />
                   {/* Gridlines */}
@@ -793,7 +793,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
                     left: `${Math.min(futSpan / scaleMax, 1) * 100}%`,
                     top: '50%', transform: 'translate(-50%, -50%)',
                     width: 10, height: 10, borderRadius: 5,
-                    background: '#22d3ee',
+                    background: '#f4a83a',
                     border: '1.5px solid #FFFFFF',
                     zIndex: 2,
                   }} title={`Proposed: ${futSpan.toFixed(1)}:1`} />
@@ -814,14 +814,14 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <span style={{ fontSize: 11, color: 'rgba(28,43,58,0.55)' }}>{sr.min}:1</span>
                       <div style={{ flex: 1, height: 5, borderRadius: 3, background: 'rgba(28,43,58,0.04)', position: 'relative' }}>
-                        <div style={{ position: 'absolute', left: `${(sr.min / 15) * 100}%`, width: `${((sr.max - sr.min) / 15) * 100}%`, top: 0, bottom: 0, borderRadius: 3, background: sr.range > 8 ? 'rgba(220,38,38,0.2)' : sr.range > 4 ? 'rgba(251,191,36,0.2)' : 'rgba(22,163,74,0.2)' }} />
+                        <div style={{ position: 'absolute', left: `${(sr.min / 15) * 100}%`, width: `${((sr.max - sr.min) / 15) * 100}%`, top: 0, bottom: 0, borderRadius: 3, background: sr.range > 8 ? 'rgba(220,38,38,0.2)' : sr.range > 4 ? 'rgba(244,168,58,0.2)' : 'rgba(22,163,74,0.2)' }} />
                       </div>
                       <span style={{ fontSize: 11, color: 'rgba(28,43,58,0.55)' }}>{sr.max}:1</span>
-                      <span style={{ fontSize: 11, color: sr.range > 8 ? '#DC2626' : sr.range > 4 ? '#fbbf24' : '#16A34A' }}>Range: {sr.range}</span>
+                      <span style={{ fontSize: 11, color: sr.range > 8 ? '#DC2626' : sr.range > 4 ? '#f4a83a' : '#16A34A' }}>Range: {sr.range}</span>
                     </div>
                   </div>}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                    {curSpan < 5 && <div style={{ fontSize: 11, color: '#fbbf24', padding: '3px 8px', borderRadius: 4, background: 'rgba(251,191,36,0.06)' }}>Span below 5:1 indicates potential over-management</div>}
+                    {curSpan < 5 && <div style={{ fontSize: 11, color: '#f4a83a', padding: '3px 8px', borderRadius: 4, background: 'rgba(244,168,58,0.06)' }}>Span below 5:1 indicates potential over-management</div>}
                     {curSpan > 10 && <div style={{ fontSize: 11, color: '#DC2626', padding: '3px 8px', borderRadius: 4, background: 'rgba(220,38,38,0.06)' }}>Span above 10:1 — managers may be overextended</div>}
                     {improving && <div style={{ fontSize: 11, color: '#16A34A', padding: '3px 8px', borderRadius: 4, background: 'rgba(22,163,74,0.06)' }}>Scenario moves span toward benchmark (6-8:1)</div>}
                   </div>
@@ -833,7 +833,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
                       { l: 'Layers', c: d.layers, fv: f?.layers },
                     ].map(m => <div key={m.l} style={{ padding: '5px 8px', borderRadius: 6, background: 'rgba(247,245,240,0.5)', textAlign: 'center' }}>
                       <div style={{ fontSize: 11, color: 'rgba(28,43,58,0.65)', textTransform: 'uppercase' as const }}>{m.l}</div>
-                      <div style={{ fontSize: 12, fontWeight: 500, color: '#05070d' }}>{m.c} <span style={{ color: 'rgba(28,43,58,0.55)' }}>{'\u2192'}</span> {m.fv || m.c}</div>
+                      <div style={{ fontSize: 12, fontWeight: 500, color: '#161822' }}>{m.c} <span style={{ color: 'rgba(28,43,58,0.55)' }}>{'\u2192'}</span> {m.fv || m.c}</div>
                     </div>)}
                   </div>
                 </div>;
@@ -844,8 +844,8 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
           {/* Legend */}
           <div style={{ display: 'flex', gap: 16, marginTop: 12, paddingTop: 8, borderTop: '0.5px solid rgba(28,43,58,0.08)', fontSize: 11, color: 'rgba(28,43,58,0.55)' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 10, height: 10, borderRadius: 5, background: 'rgba(28,43,58,0.35)' }} />Current</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 10, height: 10, borderRadius: 5, background: '#22d3ee' }} />Proposed</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 16, height: 10, borderRadius: 2, background: '#e8ecf5' }} />Benchmark (6-8:1)</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 10, height: 10, borderRadius: 5, background: '#f4a83a' }} />Proposed</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 16, height: 10, borderRadius: 2, background: '#f4ebd9' }} />Benchmark (6-8:1)</span>
           </div>
           <div style={{ fontSize: 11, color: 'rgba(28,43,58,0.45)', marginTop: 8, textAlign: 'right' }}>Source: Industry benchmarks (illustrative ranges, 2024)</div>
         </div>
@@ -875,7 +875,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
         {/* Scope selector */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
           <span style={{ fontSize: 11, fontWeight: 500, textTransform: 'uppercase' as const, letterSpacing: '0.04em', color: 'rgba(28,43,58,0.55)' }}>Scope:</span>
-          <select value={layerScope} onChange={e => setLayerScope(e.target.value)} style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 6, padding: '5px 10px', fontSize: 12, color: '#05070d', outline: 'none' }}>
+          <select value={layerScope} onChange={e => setLayerScope(e.target.value)} style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 6, padding: '5px 10px', fontSize: 12, color: '#161822', outline: 'none' }}>
             <option value="all">Entire Organization</option>
             {currentData.map(d => <option key={d.name} value={d.name}>{d.name}</option>)}
           </select>
@@ -883,7 +883,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
 
         {/* Layer Distribution chart */}
         <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: 20, marginBottom: 16 }}>
-          <div style={{ fontSize: 14, fontWeight: 500, color: '#05070d', marginBottom: 2 }}>Layer Distribution</div>
+          <div style={{ fontSize: 14, fontWeight: 500, color: '#161822', marginBottom: 2 }}>Layer Distribution</div>
           <div style={{ fontSize: 11, fontWeight: 400, color: 'rgba(28,43,58,0.65)', marginBottom: 4 }}>Current vs. Proposed headcount by level</div>
           {(() => { const changedLayers = layerChartData.filter(l => l.current !== l.future).length; const totalLayers = layerChartData.filter(l => l.current > 0 || l.future > 0).length; return <div style={{ fontSize: 12, fontStyle: 'italic', color: 'rgba(28,43,58,0.65)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ fontSize: 14 }}>&#x2139;&#xFE0F;</span> Key insight: {changedLayers > 0 ? `${changedLayers} of ${totalLayers} layers change in this scenario` : 'This scenario preserves all layers'}</div>; })()}
           <LayerDistributionChart data={layerChartData} />
@@ -892,7 +892,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
 
         {/* Cost model chart */}
         <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: 20, marginBottom: 16 }}>
-          <div style={{ fontSize: 14, fontWeight: 500, color: '#05070d', marginBottom: 2 }}>Cost Model</div>
+          <div style={{ fontSize: 14, fontWeight: 500, color: '#161822', marginBottom: 2 }}>Cost Model</div>
           <div style={{ fontSize: 11, fontWeight: 400, color: 'rgba(28,43,58,0.65)', marginBottom: 4 }}>Current vs. Proposed compensation cost</div>
           {(() => { const totalCur = costChartData.reduce((s, d) => s + d.currentHeadcount * (d.avgComp || 0), 0); const totalFut = costChartData.reduce((s, d) => s + d.futureHeadcount * (d.futureAvgComp || d.avgComp || 0), 0); const delta = totalFut - totalCur; const pct = totalCur > 0 ? ((delta / totalCur) * 100).toFixed(1) : '0.0'; const sign = delta >= 0 ? '+' : ''; return <div style={{ fontSize: 12, fontStyle: 'italic', color: 'rgba(28,43,58,0.65)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ fontSize: 14 }}>&#x1F4A1;</span> Key insight: Net cost impact is {sign}${Math.abs(delta / 1e6).toFixed(1)}M ({sign}{pct}%)</div>; })()}
           <CostModelChart data={costChartData} />
@@ -912,7 +912,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
 
       return <div>
         <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: 20, marginBottom: 16 }}>
-          <div style={{ fontSize: 14, fontWeight: 500, color: '#05070d', marginBottom: 2 }}>Cost Model</div>
+          <div style={{ fontSize: 14, fontWeight: 500, color: '#161822', marginBottom: 2 }}>Cost Model</div>
           <div style={{ fontSize: 11, fontWeight: 400, color: 'rgba(28,43,58,0.65)', marginBottom: 4 }}>Current vs. Proposed compensation cost</div>
           {(() => { const totalCur = costChartData.reduce((s, d) => s + d.currentHeadcount * (d.avgComp || 0), 0); const totalFut = costChartData.reduce((s, d) => s + d.futureHeadcount * (d.futureAvgComp || d.avgComp || 0), 0); const delta = totalFut - totalCur; const pct = totalCur > 0 ? ((delta / totalCur) * 100).toFixed(1) : '0.0'; const sign = delta >= 0 ? '+' : ''; return <div style={{ fontSize: 12, fontStyle: 'italic', color: 'rgba(28,43,58,0.65)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ fontSize: 14 }}>&#x1F4A1;</span> Key insight: Net cost impact is {sign}${Math.abs(delta / 1e6).toFixed(1)}M ({sign}{pct}%)</div>; })()}
           <CostModelChart data={costChartData} />
@@ -981,19 +981,19 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
         const total = top + mid + bottom || 1;
         const topPct = top / total; const midPct = mid / total; const bottomPct = bottom / total;
         let shape: string, color: string, desc: string;
-        if (bottomPct > 0.55 && topPct < 0.15) { shape = "Pyramid"; color = "#34d399"; desc = "Healthy distribution — strong leverage model"; }
-        else if (midPct > 0.4) { shape = "Diamond"; color = "#fbbf24"; desc = "Bloated middle management — review mid-level consolidation"; }
-        else if (topPct > 0.25) { shape = "Top-Heavy"; color = "#fbbf24"; desc = "High senior concentration — review management overhead"; }
-        else if (Math.abs(topPct - bottomPct) < 0.15) { shape = "Column"; color = "#fbbf24"; desc = "Uniform distribution — lacks leverage, review career architecture"; }
-        else { shape = "Flat"; color = "#22d3ee"; desc = "Broad base with minimal hierarchy — verify coaching capacity"; }
+        if (bottomPct > 0.55 && topPct < 0.15) { shape = "Pyramid"; color = "#8ba87a"; desc = "Healthy distribution — strong leverage model"; }
+        else if (midPct > 0.4) { shape = "Diamond"; color = "#f4a83a"; desc = "Bloated middle management — review mid-level consolidation"; }
+        else if (topPct > 0.25) { shape = "Top-Heavy"; color = "#f4a83a"; desc = "High senior concentration — review management overhead"; }
+        else if (Math.abs(topPct - bottomPct) < 0.15) { shape = "Column"; color = "#f4a83a"; desc = "Uniform distribution — lacks leverage, review career architecture"; }
+        else { shape = "Flat"; color = "#f4a83a"; desc = "Broad base with minimal hierarchy — verify coaching capacity"; }
         return { shape, color, desc, top, mid, bottom, topPct, midPct, bottomPct };
       })() : { shape: "—", color: "#888", desc: "", top: 0, mid: 0, bottom: 0, topPct: 0, midPct: 0, bottomPct: 0 };
 
       // Benchmark check helper
-      const benchColor = (val: number, min: number, max: number) => val >= min && val <= max ? "#34d399" : "#fbbf24";
+      const benchColor = (val: number, min: number, max: number) => val >= min && val <= max ? "#8ba87a" : "#f4a83a";
 
       // Track colors for pyramid bars
-      const DRILL_TRACK_COLORS: Record<string, string> = { E: "#ef4444", M: "#fbbf24", P: "#22d3ee", S: "#22d3ee", T: "#a78bfa" };
+      const DRILL_TRACK_COLORS: Record<string, string> = { E: "#ef4444", M: "#f4a83a", P: "#f4a83a", S: "#f4a83a", T: "#a78bb8" };
       const DRILL_MONO = "'JetBrains Mono', monospace";
 
       // Build pyramid data — only levels with at least 1 person in current or scenario
@@ -1024,7 +1024,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
         {/* Department selector — prominent white card */}
         <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: '0', marginBottom: 16, display: 'inline-flex', alignItems: 'center', minWidth: 280 }}>
           <select value={selDept} onChange={e => setSelDept(Number(e.target.value))} style={{
-            background: 'transparent', border: 'none', outline: 'none', padding: '12px 16px', fontSize: 14, fontWeight: 500, color: '#05070d',
+            background: 'transparent', border: 'none', outline: 'none', padding: '12px 16px', fontSize: 14, fontWeight: 500, color: '#161822',
             cursor: 'pointer', width: '100%', height: 48, appearance: 'auto' as const,
           }}>
             {currentData.map((d, i) => <option key={d.name} value={i}>{d.name} \u2014 {d.headcount} HC</option>)}
@@ -1050,12 +1050,12 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
           <div className="flex-1 min-w-0">
             {/* Level Distribution — white card */}
             <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: 20, marginBottom: 16 }}>
-              <div style={{ fontSize: 14, fontWeight: 500, color: '#05070d', marginBottom: 2 }}>Level Distribution — {dept?.name || ""}</div>
+              <div style={{ fontSize: 14, fontWeight: 500, color: '#161822', marginBottom: 2 }}>Level Distribution — {dept?.name || ""}</div>
               <div style={{ fontSize: 11, color: 'rgba(28,43,58,0.65)', marginBottom: 14 }}>Current vs. scenario headcount by level</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                 {pyramidLevels.map(lv => {
                   const trackChar = lv.level.charAt(0);
-                  const trackColor = DRILL_TRACK_COLORS[trackChar] || "#22d3ee";
+                  const trackColor = DRILL_TRACK_COLORS[trackChar] || "#f4a83a";
                   const currentWidth = (lv.current / maxPyramidHC) * 100;
                   const scenarioWidth = (lv.scenario / maxPyramidHC) * 100;
                   const maxBarPct = 70;
@@ -1129,18 +1129,18 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
 
               {/* Legend */}
               <div style={{ display: "flex", gap: 16, marginTop: 12, paddingTop: 8, borderTop: "0.5px solid rgba(28,43,58,0.08)", fontSize: 11, color: 'rgba(28,43,58,0.55)' }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 16, height: 8, borderRadius: 3, background: "rgba(34,211,238,0.20)" }} />Current</span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 16, height: 8, borderRadius: 3, background: "rgba(34,211,238,0.75)" }} />Proposed</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 16, height: 8, borderRadius: 3, background: "rgba(244,168,58,0.20)" }} />Current</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 16, height: 8, borderRadius: 3, background: "rgba(244,168,58,0.75)" }} />Proposed</span>
               </div>
             </div>
 
             {/* Cost Concentration — white card */}
             <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: 20, marginBottom: 16 }}>
-              <div style={{ fontSize: 14, fontWeight: 500, color: '#05070d', marginBottom: 14 }}>Cost Concentration — Top 3 Levels</div>
+              <div style={{ fontSize: 14, fontWeight: 500, color: '#161822', marginBottom: 14 }}>Cost Concentration — Top 3 Levels</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {costConcentration.map((lv, idx) => {
                   const pct = totalDeptLevelCost > 0 ? (lv.totalCost / totalDeptLevelCost) * 100 : 0;
-                  const trackColor = DRILL_TRACK_COLORS[lv.level.charAt(0)] || "#22d3ee";
+                  const trackColor = DRILL_TRACK_COLORS[lv.level.charAt(0)] || "#f4a83a";
                   return <div key={lv.level}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -1153,7 +1153,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
                         <span style={{ fontSize: 11, color: 'rgba(28,43,58,0.55)' }}>{lv.current} heads</span>
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <span style={{ fontSize: 13, fontWeight: 500, fontFamily: DRILL_MONO, color: '#05070d' }}>
+                        <span style={{ fontSize: 13, fontWeight: 500, fontFamily: DRILL_MONO, color: '#161822' }}>
                           ${(lv.totalCost / 1e6).toFixed(1)}M
                         </span>
                         <span style={{ fontSize: 12, fontWeight: 500, fontFamily: DRILL_MONO, color: trackColor }}>
@@ -1179,16 +1179,16 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
           <div className="shrink-0" style={{ width: "clamp(260px, 22vw, 320px)", display: 'flex', flexDirection: 'column', gap: 16 }}>
             {/* What-If Simulator — white card */}
             <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: 20 }}>
-              <div style={{ fontSize: 14, fontWeight: 500, color: '#05070d', marginBottom: 4 }}>What-If Simulator</div>
+              <div style={{ fontSize: 14, fontWeight: 500, color: '#161822', marginBottom: 4 }}>What-If Simulator</div>
               <div style={{ fontSize: 11, color: 'rgba(28,43,58,0.55)', marginBottom: 16 }}>Drag the sliders to reshape {dept?.name || "this department"} and see impact in real-time.</div>
 
               {/* Target Span slider */}
               <div style={{ marginBottom: 16 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                   <span style={{ fontSize: 11, color: 'rgba(28,43,58,0.55)' }}>Target Span</span>
-                  <span style={{ fontSize: 16, fontWeight: 500, color: '#05070d' }}>{simTargetSpan}:1</span>
+                  <span style={{ fontSize: 16, fontWeight: 500, color: '#161822' }}>{simTargetSpan}:1</span>
                 </div>
-                <input type="range" min={3} max={12} step={0.5} value={simTargetSpan} onChange={e => setSimTargetSpan(Number(e.target.value))} className="w-full h-2 rounded-full appearance-none cursor-pointer" style={{ background: `linear-gradient(to right, #22d3ee ${((simTargetSpan - 3) / 9) * 100}%, rgba(28,43,58,0.15) ${((simTargetSpan - 3) / 9) * 100}%)` }} />
+                <input type="range" min={3} max={12} step={0.5} value={simTargetSpan} onChange={e => setSimTargetSpan(Number(e.target.value))} className="w-full h-2 rounded-full appearance-none cursor-pointer" style={{ background: `linear-gradient(to right, #f4a83a ${((simTargetSpan - 3) / 9) * 100}%, rgba(28,43,58,0.15) ${((simTargetSpan - 3) / 9) * 100}%)` }} />
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'rgba(28,43,58,0.55)', marginTop: 2 }}><span>3</span><span>12</span></div>
               </div>
 
@@ -1196,14 +1196,14 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
               <div style={{ marginBottom: 16 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                   <span style={{ fontSize: 11, color: 'rgba(28,43,58,0.55)' }}>Max Layers</span>
-                  <span style={{ fontSize: 16, fontWeight: 500, color: '#05070d' }}>{simMaxLayers}</span>
+                  <span style={{ fontSize: 16, fontWeight: 500, color: '#161822' }}>{simMaxLayers}</span>
                 </div>
-                <input type="range" min={2} max={8} step={1} value={simMaxLayers} onChange={e => setSimMaxLayers(Number(e.target.value))} className="w-full h-2 rounded-full appearance-none cursor-pointer" style={{ background: `linear-gradient(to right, #22d3ee ${((simMaxLayers - 2) / 6) * 100}%, rgba(28,43,58,0.15) ${((simMaxLayers - 2) / 6) * 100}%)` }} />
+                <input type="range" min={2} max={8} step={1} value={simMaxLayers} onChange={e => setSimMaxLayers(Number(e.target.value))} className="w-full h-2 rounded-full appearance-none cursor-pointer" style={{ background: `linear-gradient(to right, #f4a83a ${((simMaxLayers - 2) / 6) * 100}%, rgba(28,43,58,0.15) ${((simMaxLayers - 2) / 6) * 100}%)` }} />
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'rgba(28,43,58,0.55)', marginTop: 2 }}><span>2</span><span>8</span></div>
               </div>
 
               {/* Simulated Impact box */}
-              <div style={{ background: 'var(--ivory, #e8ecf5)', borderRadius: 6, padding: '12px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ background: 'var(--ivory, #f4ebd9)', borderRadius: 6, padding: '12px', display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'rgba(28,43,58,0.55)', marginBottom: 2 }}>Simulated Impact</div>
                 {[
                   { label: "Headcount Change", value: `${simDept.hcDelta >= 0 ? "+" : ""}${simDept.hcDelta}`, good: simDept.hcDelta <= 0 },
@@ -1220,7 +1220,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
             {/* Shape Assessment — white card */}
             <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: 20 }}>
               <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'rgba(28,43,58,0.55)', marginBottom: 12 }}>Shape Assessment</div>
-              <div style={{ fontSize: 16, fontWeight: 500, color: '#05070d', marginBottom: 4 }}>{shapeAssessment.shape}</div>
+              <div style={{ fontSize: 16, fontWeight: 500, color: '#161822', marginBottom: 4 }}>{shapeAssessment.shape}</div>
               <div style={{ fontSize: 12, color: 'rgba(28,43,58,0.65)', marginBottom: 12, lineHeight: 1.5 }}>{shapeAssessment.desc}</div>
               {/* Bars with counts */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -1233,7 +1233,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
                   <div style={{ flex: 1, height: 16, borderRadius: 8, overflow: 'hidden', background: 'rgba(28,43,58,0.04)' }}>
                     <div style={{ height: '100%', borderRadius: 8, transition: 'width 0.3s ease-out', width: `${Math.max(tier.pct * 100, 6)}%`, background: shapeAssessment.color, opacity: 0.7 }} />
                   </div>
-                  <span style={{ fontSize: 13, fontWeight: 500, color: '#05070d', minWidth: 32, textAlign: 'right' }}>{tier.count}</span>
+                  <span style={{ fontSize: 13, fontWeight: 500, color: '#161822', minWidth: 32, textAlign: 'right' }}>{tier.count}</span>
                 </div>)}
               </div>
             </div>
@@ -1248,7 +1248,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
                   { label: "Manager Ratio", current: dept ? Math.round((dept.managers / Math.max(dept.headcount, 1)) * 100) : 0, benchmark: "10-12%", min: 10, max: 12 },
                 ].map(row => <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <div style={{ fontSize: 12, fontWeight: 500, color: '#05070d' }}>{row.label}</div>
+                    <div style={{ fontSize: 12, fontWeight: 500, color: '#161822' }}>{row.label}</div>
                     <div style={{ fontSize: 11, color: 'rgba(28,43,58,0.65)' }}>Benchmark: {row.benchmark}</div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
@@ -1277,21 +1277,21 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       return <div>
         {/* Multi-scenario table */}
         <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: 20, marginBottom: 16 }}>
-          <div style={{ fontSize: 14, fontWeight: 500, color: '#05070d', marginBottom: 2 }}>Multi-Scenario Comparison</div>
+          <div style={{ fontSize: 14, fontWeight: 500, color: '#161822', marginBottom: 2 }}>Multi-Scenario Comparison</div>
           <div style={{ fontSize: 11, color: 'rgba(28,43,58,0.65)', marginBottom: 14 }}>All scenarios vs. current state</div>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse' }}>
               <thead><tr style={{ background: '#F1EFE8' }}>
                 <th style={{ padding: '10px 14px', textAlign: 'left', fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'rgba(28,43,58,0.55)', borderBottom: '0.5px solid rgba(28,43,58,0.12)' }}>Metric</th>
                 <th style={{ padding: '10px 14px', textAlign: 'center', fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'rgba(28,43,58,0.55)', borderBottom: '0.5px solid rgba(28,43,58,0.12)' }}>Current</th>
-                {scenarios.map((s, i) => <th key={s.id} style={{ padding: '10px 14px', textAlign: 'center', fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: '#05070d', borderBottom: '0.5px solid rgba(28,43,58,0.12)' }}>{s.label}</th>)}
+                {scenarios.map((s, i) => <th key={s.id} style={{ padding: '10px 14px', textAlign: 'center', fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: '#161822', borderBottom: '0.5px solid rgba(28,43,58,0.12)' }}>{s.label}</th>)}
               </tr></thead>
               <tbody>{metrics.map((m, ri) => {
                 const cVal = cA[m.key as keyof typeof cA] as number;
-                return <tr key={m.label} style={{ background: ri % 2 ? 'var(--ivory, #e8ecf5)' : '#FFFFFF', transition: 'background 0.15s' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLTableRowElement).style.background = '#e8ecf5'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLTableRowElement).style.background = ri % 2 ? 'var(--ivory, #e8ecf5)' : '#FFFFFF'; }}>
-                  <td style={{ padding: '10px 14px', fontWeight: 500, color: '#05070d', fontSize: 12, borderBottom: '0.5px solid rgba(28,43,58,0.06)' }}>{m.label}</td>
+                return <tr key={m.label} style={{ background: ri % 2 ? 'var(--ivory, #f4ebd9)' : '#FFFFFF', transition: 'background 0.15s' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLTableRowElement).style.background = '#f4ebd9'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLTableRowElement).style.background = ri % 2 ? 'var(--ivory, #f4ebd9)' : '#FFFFFF'; }}>
+                  <td style={{ padding: '10px 14px', fontWeight: 500, color: '#161822', fontSize: 12, borderBottom: '0.5px solid rgba(28,43,58,0.06)' }}>{m.label}</td>
                   <td style={{ padding: '10px 14px', textAlign: 'center', color: 'rgba(28,43,58,0.65)', fontSize: 12, fontWeight: 500, borderBottom: '0.5px solid rgba(28,43,58,0.06)' }}>{m.fmtFn ? m.fmtFn(cVal) : fmt(cVal)}</td>
                   {scenarios.map((s, i) => {
                     const v = scAggs[i][m.key as keyof typeof cA] as number;
@@ -1300,7 +1300,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
                     const neg = m.inv ? diff > 0 : diff < 0;
                     const dColor = pos ? '#16A34A' : neg ? '#DC2626' : 'rgba(28,43,58,0.65)';
                     return <td key={s.id} style={{ padding: '10px 14px', textAlign: 'center', borderBottom: '0.5px solid rgba(28,43,58,0.06)' }}>
-                      <span style={{ fontWeight: 500, color: '#05070d', fontSize: 12 }}>{m.fmtFn ? m.fmtFn(v) : fmt(v)}</span>
+                      <span style={{ fontWeight: 500, color: '#161822', fontSize: 12 }}>{m.fmtFn ? m.fmtFn(v) : fmt(v)}</span>
                       {Math.abs(diff) > 0.01 && <span style={{ fontSize: 11, fontWeight: 500, color: dColor, marginLeft: 4 }}>({diff > 0 ? '+' : ''}{m.fmtFn ? m.fmtFn(diff) : fmt(diff)})</span>}
                     </td>;
                   })}
@@ -1323,22 +1323,22 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
               onClick={() => setActiveScenario(i)}
               onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(28,43,58,0.40)'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 8px rgba(28,43,58,0.06)'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(28,43,58,0.15)'; (e.currentTarget as HTMLDivElement).style.boxShadow = 'none'; }}>
-              <div style={{ fontSize: 13, fontWeight: 500, color: '#05070d', marginBottom: 8 }}>{s.label}</div>
+              <div style={{ fontSize: 13, fontWeight: 500, color: '#161822', marginBottom: 8 }}>{s.label}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
                   <span style={{ color: 'rgba(28,43,58,0.55)' }}>Headcount</span>
-                  <span style={{ fontWeight: 500, color: '#05070d' }}>{a.hc.toLocaleString()} <span style={{ fontSize: 11, color: hcDelta < 0 ? '#16A34A' : hcDelta > 0 ? '#DC2626' : 'rgba(28,43,58,0.65)' }}>({hcDelta >= 0 ? '+' : ''}{hcDelta})</span></span>
+                  <span style={{ fontWeight: 500, color: '#161822' }}>{a.hc.toLocaleString()} <span style={{ fontSize: 11, color: hcDelta < 0 ? '#16A34A' : hcDelta > 0 ? '#DC2626' : 'rgba(28,43,58,0.65)' }}>({hcDelta >= 0 ? '+' : ''}{hcDelta})</span></span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
                   <span style={{ color: 'rgba(28,43,58,0.55)' }}>Avg Span</span>
-                  <span style={{ fontWeight: 500, color: '#05070d' }}>{fmt(a.avgS)}</span>
+                  <span style={{ fontWeight: 500, color: '#161822' }}>{fmt(a.avgS)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
                   <span style={{ color: 'rgba(28,43,58,0.55)' }}>Cost</span>
-                  <span style={{ fontWeight: 500, color: '#05070d' }}>{fmtNum(a.cost)}</span>
+                  <span style={{ fontWeight: 500, color: '#161822' }}>{fmtNum(a.cost)}</span>
                 </div>
               </div>
-              <div style={{ marginTop: 10, fontSize: 12, fontWeight: 500, color: '#22d3ee', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <div style={{ marginTop: 10, fontSize: 12, fontWeight: 500, color: '#f4a83a', display: 'flex', alignItems: 'center', gap: 4 }}>
                 View details <span style={{ fontSize: 11 }}>{'\u2192'}</span>
               </div>
             </div>;
@@ -1379,10 +1379,10 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       // Enrich insights with severity, recommendation
       const enrichedInsights = insights.map(ins => {
         let severity: string, severityIcon: string, severityColor: string;
-        if (ins.type === "alert") { severity = "Critical"; severityIcon = "\u26A0"; severityColor = "#fb7185"; }
-        else if (ins.type === "warning") { severity = "Needs Attention"; severityIcon = "\u25C8"; severityColor = "#fbbf24"; }
+        if (ins.type === "alert") { severity = "Critical"; severityIcon = "\u26A0"; severityColor = "#e87a5d"; }
+        else if (ins.type === "warning") { severity = "Needs Attention"; severityIcon = "\u25C8"; severityColor = "#f4a83a"; }
         else if (ins.type === "positive") { severity = "On Track"; severityIcon = "\u2713"; severityColor = "#16A34A"; }
-        else { severity = "Opportunity"; severityIcon = "\u2139"; severityColor = "#22d3ee"; }
+        else { severity = "Opportunity"; severityIcon = "\u2139"; severityColor = "#f4a83a"; }
 
         let recommendation = "";
         if (ins.title.includes("Over-Layered")) recommendation = "Consolidate one management layer in flagged functions. Target 6-8:1 span ratio.";
@@ -1425,7 +1425,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
               style={{
                 padding: '5px 12px', borderRadius: 20, fontSize: 12, fontWeight: 500,
                 border: insightFilter === pill.key ? 'none' : '0.5px solid rgba(28,43,58,0.15)',
-                background: insightFilter === pill.key ? '#05070d' : 'transparent',
+                background: insightFilter === pill.key ? '#161822' : 'transparent',
                 color: insightFilter === pill.key ? '#FFFFFF' : 'rgba(28,43,58,0.65)',
                 cursor: 'pointer', transition: 'all 0.15s',
               }}
@@ -1450,9 +1450,9 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
                 <span style={{ fontSize: 11, fontWeight: 500, color: ins.severityColor }}>{ins.severity}</span>
               </div>
               {/* Title */}
-              <div style={{ fontSize: 14, fontWeight: 500, color: '#05070d', marginBottom: 6, lineHeight: 1.4 }}>{ins.title}</div>
+              <div style={{ fontSize: 14, fontWeight: 500, color: '#161822', marginBottom: 6, lineHeight: 1.4 }}>{ins.title}</div>
               {/* Description */}
-              <div style={{ fontSize: 12, color: '#05070d', lineHeight: 1.6, marginBottom: 10, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>{ins.body}</div>
+              <div style={{ fontSize: 12, color: '#161822', lineHeight: 1.6, marginBottom: 10, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>{ins.body}</div>
               {/* Mini visualization — inline severity bar */}
               {ins.metric && <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
                 <div style={{ flex: 1, height: 4, borderRadius: 2, background: 'rgba(28,43,58,0.06)', overflow: 'hidden' }}>
@@ -1461,7 +1461,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
                 <span style={{ fontSize: 11, fontWeight: 500, color: ins.severityColor }}>{ins.metric}</span>
               </div>}
               {/* Recommendation box */}
-              <div style={{ background: 'var(--ivory, #e8ecf5)', borderRadius: 6, padding: '10px 12px' }}>
+              <div style={{ background: 'var(--ivory, #f4ebd9)', borderRadius: 6, padding: '10px 12px' }}>
                 <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'rgba(28,43,58,0.65)', marginBottom: 4 }}>Recommendation</div>
                 <div style={{ fontSize: 11, color: 'rgba(28,43,58,0.65)', lineHeight: 1.5 }}>{ins.recommendation}</div>
               </div>
@@ -1472,7 +1472,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
         {filtered.length === 0 && (
           <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: '48px 24px', textAlign: 'center' }}>
             <div style={{ fontSize: 32, color: 'rgba(28,43,58,0.15)', marginBottom: 8 }}>&#9783;</div>
-            <div style={{ fontSize: 14, fontWeight: 500, color: '#05070d', marginBottom: 4 }}>No insights match this filter</div>
+            <div style={{ fontSize: 14, fontWeight: 500, color: '#161822', marginBottom: 4 }}>No insights match this filter</div>
             <div style={{ fontSize: 12, color: 'rgba(28,43,58,0.55)' }}>Try selecting a different category above</div>
           </div>
         )}
@@ -1536,7 +1536,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
     {view === "present" && (
       <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: '56px 24px', textAlign: 'center' }}>
         <div style={{ fontSize: 36, color: 'rgba(28,43,58,0.12)', marginBottom: 12 }}>{'\uD83D\uDCCA'}</div>
-        <div style={{ fontSize: 14, fontWeight: 500, color: '#05070d', marginBottom: 6 }}>Presentation Mode</div>
+        <div style={{ fontSize: 14, fontWeight: 500, color: '#161822', marginBottom: 6 }}>Presentation Mode</div>
         <div style={{ fontSize: 12, color: 'rgba(28,43,58,0.55)', marginBottom: 16, maxWidth: 400, margin: '0 auto 16px' }}>Presentation mode is in development. In the meantime, export your analysis from the Compare tab or use your browser's print function.</div>
       </div>
     )}

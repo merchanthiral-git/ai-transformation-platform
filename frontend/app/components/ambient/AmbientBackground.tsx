@@ -137,13 +137,13 @@ export default function AmbientBackground() {
         .aurora-blob-2 {
           width: 800px; height: 800px;
           top: 30%; right: -15%;
-          background: radial-gradient(circle, rgba(167,139,250,0.12), transparent 70%);
+          background: radial-gradient(circle, rgba(167,139,184,0.12), transparent 70%);
           animation: drift2 28s ease-in-out infinite alternate;
         }
         .aurora-blob-3 {
           width: 700px; height: 700px;
           bottom: -15%; left: 30%;
-          background: radial-gradient(circle, rgba(34,211,238,0.10), transparent 70%);
+          background: radial-gradient(circle, rgba(244,168,58,0.10), transparent 70%);
           animation: drift3 34s ease-in-out infinite alternate;
         }
         @keyframes drift1 { from { transform: translate(0,0); } to { transform: translate(40px, 30px); } }
@@ -163,8 +163,8 @@ export default function AmbientBackground() {
 
         .ambient-grid {
           background-image:
-            linear-gradient(rgba(130,180,255,0.04) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(130,180,255,0.04) 1px, transparent 1px);
+            linear-gradient(rgba(244,235,217,0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(244,235,217,0.04) 1px, transparent 1px);
           background-size: 80px 80px;
           mask-image: radial-gradient(ellipse 60% 50% at 50% 50%, black, transparent);
           -webkit-mask-image: radial-gradient(ellipse 60% 50% at 50% 50%, black, transparent);
@@ -175,7 +175,7 @@ export default function AmbientBackground() {
           width: 600px;
           height: 600px;
           border-radius: 50%;
-          background: radial-gradient(circle, rgba(34,211,238,0.08), transparent 70%);
+          background: radial-gradient(circle, rgba(244,168,58,0.08), transparent 70%);
           mix-blend-mode: screen;
           pointer-events: none;
         }

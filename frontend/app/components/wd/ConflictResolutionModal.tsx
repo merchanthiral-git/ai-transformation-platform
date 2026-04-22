@@ -47,7 +47,7 @@ const FIELD_LABELS: Record<string, string> = {
 const S = {
   overlay: { position: "fixed" as const, inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 500, display: "flex", alignItems: "center", justifyContent: "center", animation: "fadeIn var(--duration-base) var(--ease-out)" } as React.CSSProperties,
   modal: { width: "min(680px, 94vw)", maxHeight: "80vh", background: "var(--surface-1)", borderRadius: 12, boxShadow: "var(--shadow-4)", display: "flex", flexDirection: "column" as const, overflow: "hidden", animation: "slideUp var(--duration-slow) var(--ease-out)" } as React.CSSProperties,
-  header: { display: "flex", alignItems: "center", gap: 10, padding: "16px 20px", borderBottom: "1px solid var(--border)", background: "#05070d", flexShrink: 0 } as React.CSSProperties,
+  header: { display: "flex", alignItems: "center", gap: 10, padding: "16px 20px", borderBottom: "1px solid var(--border)", background: "#161822", flexShrink: 0 } as React.CSSProperties,
   headerTitle: { flex: 1, fontSize: "var(--text-sm)", fontWeight: "var(--fw-semi)", color: "#fff" } as React.CSSProperties,
   headerSub: { fontSize: 11, color: "rgba(255,255,255,0.5)" } as React.CSSProperties,
   closeBtn: { display: "flex", alignItems: "center", justifyContent: "center", width: 28, height: 28, background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 6, color: "rgba(255,255,255,0.7)", cursor: "pointer" } as React.CSSProperties,
@@ -59,14 +59,14 @@ const S = {
   fieldName: { fontSize: "var(--text-xs)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)", flex: 1 } as React.CSSProperties,
   resolvedBadge: { fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 10, background: "rgba(34,197,94,0.1)", color: "#22C55E" } as React.CSSProperties,
   columns: { display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 0 } as React.CSSProperties,
-  col: (active: boolean) => ({ padding: "12px 14px", background: active ? "rgba(34,211,238,0.04)" : "transparent", borderRight: "1px solid var(--border)", cursor: "pointer", transition: "background 0.1s" }) as React.CSSProperties,
-  colLast: (active: boolean) => ({ padding: "12px 14px", background: active ? "rgba(34,211,238,0.04)" : "transparent", cursor: "pointer", transition: "background 0.1s" }) as React.CSSProperties,
+  col: (active: boolean) => ({ padding: "12px 14px", background: active ? "rgba(244,168,58,0.04)" : "transparent", borderRight: "1px solid var(--border)", cursor: "pointer", transition: "background 0.1s" }) as React.CSSProperties,
+  colLast: (active: boolean) => ({ padding: "12px 14px", background: active ? "rgba(244,168,58,0.04)" : "transparent", cursor: "pointer", transition: "background 0.1s" }) as React.CSSProperties,
   colLabel: { fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 4 } as React.CSSProperties,
   colValue: { fontSize: "var(--text-xs)", color: "var(--text-primary)", fontWeight: "var(--fw-medium)", wordBreak: "break-word" as const } as React.CSSProperties,
-  colAction: (selected: boolean) => ({ display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 8px", fontSize: 11, fontWeight: selected ? "var(--fw-semi)" : "var(--fw-medium)", border: `1px solid ${selected ? "#22d3ee" : "var(--border)"}`, borderRadius: 4, background: selected ? "rgba(34,211,238,0.08)" : "transparent", color: selected ? "#22d3ee" : "var(--text-muted)", cursor: "pointer", marginTop: 6 }) as React.CSSProperties,
+  colAction: (selected: boolean) => ({ display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 8px", fontSize: 11, fontWeight: selected ? "var(--fw-semi)" : "var(--fw-medium)", border: `1px solid ${selected ? "#f4a83a" : "var(--border)"}`, borderRadius: 4, background: selected ? "rgba(244,168,58,0.08)" : "transparent", color: selected ? "#f4a83a" : "var(--text-muted)", cursor: "pointer", marginTop: 6 }) as React.CSSProperties,
   footer: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 20px", borderTop: "1px solid var(--border)", flexShrink: 0 } as React.CSSProperties,
   footerInfo: { fontSize: 11, color: "var(--text-muted)" } as React.CSSProperties,
-  commitBtn: { display: "inline-flex", alignItems: "center", gap: 4, padding: "8px 18px", fontSize: 12, fontWeight: "var(--fw-semi)", border: "none", borderRadius: 6, background: "#22d3ee", color: "#fff", cursor: "pointer" } as React.CSSProperties,
+  commitBtn: { display: "inline-flex", alignItems: "center", gap: 4, padding: "8px 18px", fontSize: 12, fontWeight: "var(--fw-semi)", border: "none", borderRadius: 6, background: "#f4a83a", color: "#fff", cursor: "pointer" } as React.CSSProperties,
 };
 
 /* ═══════════════════════════════════════════════════════════════
@@ -142,7 +142,7 @@ export default function ConflictResolutionModal({ jobId, jobTitle, isOpen, onClo
       <div style={S.modal} onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div style={S.header}>
-          <AlertTriangle size={16} style={{ color: "#fbbf24" }} />
+          <AlertTriangle size={16} style={{ color: "#f4a83a" }} />
           <div style={{ flex: 1 }}>
             <div style={S.headerTitle}>Resolve Sync Conflicts — {jobTitle}</div>
             <div style={S.headerSub}>{conflicts.length} field{conflicts.length !== 1 ? "s" : ""} changed in JA since last sync</div>

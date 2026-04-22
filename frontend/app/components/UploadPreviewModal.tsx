@@ -17,8 +17,8 @@ interface PreviewData { fileName: string; fileSize: number; sheets: SheetPreview
 // ── Helpers ────────────────────────────────────────────────
 function fmtSize(b: number) { return b < 1024 ? `${b} B` : b < 1048576 ? `${(b / 1024).toFixed(1)} KB` : `${(b / 1048576).toFixed(1)} MB`; }
 const SEV = {
-  error:   { bg: "rgba(251,113,133,0.12)", text: "#f87171", border: "#dc2626", icon: "\u2717" },
-  warning: { bg: "rgba(251,191,36,0.12)", text: "#fbbf24", border: "#d97706", icon: "\u26A0" },
+  error:   { bg: "rgba(232,122,93,0.12)", text: "#f87171", border: "#dc2626", icon: "\u2717" },
+  warning: { bg: "rgba(244,168,58,0.12)", text: "#f4a83a", border: "#d97706", icon: "\u26A0" },
   info:    { bg: "rgba(96,165,250,0.12)", text: "#93c5fd", border: "#3b82f6", icon: "\u2139" },
 };
 const MONO = "monospace";
@@ -227,7 +227,7 @@ function DetectionCard({ sheet, onTypeChange }: { sheet: SheetPreview; onTypeCha
     <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 10, padding: "14px 18px", marginBottom: 16, border: "1px solid rgba(255,255,255,0.05)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
         {pct > 0
-          ? <span style={{ fontSize: 14 }}>This looks like <strong style={{ color: "#fbbf24" }}>{sheet.detectedType}</strong> data ({pct}% match)</span>
+          ? <span style={{ fontSize: 14 }}>This looks like <strong style={{ color: "#f4a83a" }}>{sheet.detectedType}</strong> data ({pct}% match)</span>
           : <span style={{ fontSize: 14, color: "#94a3b8" }}>Data type not detected</span>}
         {pct > 0 && (
           <div style={{ width: 100, height: 6, borderRadius: 3, background: "rgba(255,255,255,0.08)", overflow: "hidden" }}>

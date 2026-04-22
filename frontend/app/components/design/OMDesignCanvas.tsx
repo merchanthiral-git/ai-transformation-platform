@@ -51,9 +51,9 @@ export const OM_FUNCTION_PRESETS: Record<string, OMPreset[]> = {
   "HR": [
     { label: "HR Federated CoE", desc: "CoE-led centers of expertise + embedded HRBPs in business units. Most common in large multinationals.", industry: "General",
       layers: [
-        {label:"CHRO Office",y:16,height:80,color:"rgba(34,211,238,0.07)"},
+        {label:"CHRO Office",y:16,height:80,color:"rgba(244,168,58,0.07)"},
         {label:"Centres of Excellence",y:108,height:80,color:"rgba(74,130,196,0.07)"},
-        {label:"HR Business Partners",y:200,height:80,color:"rgba(167,139,250,0.07)"},
+        {label:"HR Business Partners",y:200,height:80,color:"rgba(167,139,184,0.07)"},
         {label:"Shared Services / GBS",y:292,height:80,color:"rgba(74,158,107,0.07)"},
         {label:"AI & Analytics Layer",y:384,height:70,color:"rgba(232,197,71,0.07)"},
       ],
@@ -73,7 +73,7 @@ export const OM_FUNCTION_PRESETS: Record<string, OMPreset[]> = {
       ],
     },
     { label: "HR Centralized GBS", desc: "Single global business services center with thin HRBP layer. Efficiency-first model.", industry: "Manufacturing",
-      layers: [{label:"HR Leadership",y:16,height:80,color:"rgba(34,211,238,0.07)"},{label:"Central HR Functions",y:108,height:90,color:"rgba(74,130,196,0.07)"},{label:"Global Business Services",y:210,height:90,color:"rgba(74,158,107,0.07)"}],
+      layers: [{label:"HR Leadership",y:16,height:80,color:"rgba(244,168,58,0.07)"},{label:"Central HR Functions",y:108,height:90,color:"rgba(74,130,196,0.07)"},{label:"Global Business Services",y:210,height:90,color:"rgba(74,158,107,0.07)"}],
       nodes: [
         {type:"governance",label:"CHRO",x:200,y:32,w:130,h:48,color:"var(--accent-primary)",currentFte:1,targetFte:1},
         {type:"coe",label:"Comp & Benefits",x:40,y:124,w:148,h:48,color:"var(--accent-primary)",currentFte:10,targetFte:7},
@@ -87,11 +87,11 @@ export const OM_FUNCTION_PRESETS: Record<string, OMPreset[]> = {
   "IT": [
     { label: "IT Operating Model (ITOC)", desc: "IT Operations Center model — NOC, SOC, service desk, platform teams. Standard for enterprise IT.", industry: "General",
       layers: [
-        {label:"CIO / CTO Office",y:16,height:70,color:"rgba(34,211,238,0.07)"},
+        {label:"CIO / CTO Office",y:16,height:70,color:"rgba(244,168,58,0.07)"},
         {label:"Platform & Architecture",y:98,height:80,color:"rgba(74,130,196,0.07)"},
-        {label:"IT Operations Center",y:190,height:80,color:"rgba(167,139,250,0.07)"},
+        {label:"IT Operations Center",y:190,height:80,color:"rgba(167,139,184,0.07)"},
         {label:"Service Delivery",y:282,height:80,color:"rgba(74,158,107,0.07)"},
-        {label:"Security Operations",y:374,height:70,color:"rgba(167,139,250,0.07)"},
+        {label:"Security Operations",y:374,height:70,color:"rgba(167,139,184,0.07)"},
       ],
       nodes: [
         {type:"governance",label:"CIO / CTO",x:200,y:28,w:130,h:44,color:"var(--accent-primary)",currentFte:1,targetFte:1},
@@ -110,7 +110,7 @@ export const OM_FUNCTION_PRESETS: Record<string, OMPreset[]> = {
   ],
   "Finance": [
     { label: "Finance Federated OM", desc: "CFO-led with FP&A CoE, treasury, controllership, and shared transactional processing.", industry: "General",
-      layers: [{label:"CFO Office",y:16,height:70,color:"rgba(34,211,238,0.07)"},{label:"Finance CoEs",y:98,height:80,color:"rgba(74,130,196,0.07)"},{label:"Business Finance",y:190,height:80,color:"rgba(167,139,250,0.07)"},{label:"Shared Services",y:282,height:80,color:"rgba(74,158,107,0.07)"}],
+      layers: [{label:"CFO Office",y:16,height:70,color:"rgba(244,168,58,0.07)"},{label:"Finance CoEs",y:98,height:80,color:"rgba(74,130,196,0.07)"},{label:"Business Finance",y:190,height:80,color:"rgba(167,139,184,0.07)"},{label:"Shared Services",y:282,height:80,color:"rgba(74,158,107,0.07)"}],
       nodes: [
         {type:"governance",label:"CFO",x:200,y:28,w:130,h:44,color:"var(--accent-primary)",currentFte:1,targetFte:1},
         {type:"coe",label:"FP&A CoE",x:40,y:110,w:130,h:48,color:"var(--accent-primary)",currentFte:10,targetFte:8},
@@ -124,7 +124,7 @@ export const OM_FUNCTION_PRESETS: Record<string, OMPreset[]> = {
       ],
     },
     { label: "Finance OM — Banking", desc: "Three Lines of Defense model with front/middle/back office. Regulatory-driven.", industry: "Financial Services", company: "jpmorgan",
-      layers: [{label:"CFO / Group Finance",y:16,height:70,color:"rgba(34,211,238,0.07)"},{label:"1st Line — Business",y:98,height:80,color:"rgba(74,130,196,0.07)"},{label:"2nd Line — Risk & Control",y:190,height:80,color:"rgba(167,139,250,0.07)"},{label:"3rd Line — Audit",y:282,height:70,color:"rgba(167,139,250,0.07)"},{label:"Shared / GBS",y:364,height:70,color:"rgba(74,158,107,0.07)"}],
+      layers: [{label:"CFO / Group Finance",y:16,height:70,color:"rgba(244,168,58,0.07)"},{label:"1st Line — Business",y:98,height:80,color:"rgba(74,130,196,0.07)"},{label:"2nd Line — Risk & Control",y:190,height:80,color:"rgba(167,139,184,0.07)"},{label:"3rd Line — Audit",y:282,height:70,color:"rgba(167,139,184,0.07)"},{label:"Shared / GBS",y:364,height:70,color:"rgba(74,158,107,0.07)"}],
       nodes: [
         {type:"governance",label:"Group CFO",x:200,y:28,w:130,h:44,color:"var(--accent-primary)",currentFte:1,targetFte:1},
         {type:"org-unit",label:"Front Office Finance",x:40,y:110,w:170,h:48,color:"var(--accent-primary)",currentFte:30,targetFte:25},
@@ -139,7 +139,7 @@ export const OM_FUNCTION_PRESETS: Record<string, OMPreset[]> = {
   ],
   "Legal": [
     { label: "Legal Ops OM", desc: "General Counsel led with practice groups, legal ops, and outsourced discovery.", industry: "General",
-      layers: [{label:"GC Office",y:16,height:70,color:"rgba(34,211,238,0.07)"},{label:"Practice Groups",y:98,height:80,color:"rgba(74,130,196,0.07)"},{label:"Legal Operations",y:190,height:80,color:"rgba(74,158,107,0.07)"}],
+      layers: [{label:"GC Office",y:16,height:70,color:"rgba(244,168,58,0.07)"},{label:"Practice Groups",y:98,height:80,color:"rgba(74,130,196,0.07)"},{label:"Legal Operations",y:190,height:80,color:"rgba(74,158,107,0.07)"}],
       nodes: [
         {type:"governance",label:"General Counsel",x:180,y:28,w:160,h:44,color:"var(--accent-primary)",currentFte:1,targetFte:1},
         {type:"coe",label:"Corporate / M&A",x:30,y:110,w:140,h:48,color:"var(--accent-primary)",currentFte:6,targetFte:5},
@@ -153,7 +153,7 @@ export const OM_FUNCTION_PRESETS: Record<string, OMPreset[]> = {
   ],
   "Supply Chain": [
     { label: "Supply Chain OM", desc: "End-to-end supply chain with planning, procurement, manufacturing, and logistics.", industry: "Manufacturing", company: "toyota",
-      layers: [{label:"SVP Supply Chain",y:16,height:70,color:"rgba(34,211,238,0.07)"},{label:"Planning & Procurement",y:98,height:80,color:"rgba(74,130,196,0.07)"},{label:"Manufacturing & Quality",y:190,height:80,color:"rgba(167,139,250,0.07)"},{label:"Logistics & Distribution",y:282,height:80,color:"rgba(74,158,107,0.07)"}],
+      layers: [{label:"SVP Supply Chain",y:16,height:70,color:"rgba(244,168,58,0.07)"},{label:"Planning & Procurement",y:98,height:80,color:"rgba(74,130,196,0.07)"},{label:"Manufacturing & Quality",y:190,height:80,color:"rgba(167,139,184,0.07)"},{label:"Logistics & Distribution",y:282,height:80,color:"rgba(74,158,107,0.07)"}],
       nodes: [
         {type:"governance",label:"SVP Supply Chain",x:180,y:28,w:160,h:44,color:"var(--accent-primary)",currentFte:1,targetFte:1},
         {type:"coe",label:"Demand Planning",x:40,y:110,w:140,h:48,color:"var(--accent-primary)",currentFte:10,targetFte:8},
@@ -170,7 +170,7 @@ export const OM_FUNCTION_PRESETS: Record<string, OMPreset[]> = {
   ],
   "Technology (Product)": [
     { label: "Product & Eng OM", desc: "Product-led org with squads, platform teams, and SRE. Spotify-influenced.", industry: "Technology", company: "spotify",
-      layers: [{label:"CPO / CTO",y:16,height:70,color:"rgba(34,211,238,0.07)"},{label:"Product Tribes",y:98,height:80,color:"rgba(74,130,196,0.07)"},{label:"Platform & SRE",y:190,height:80,color:"rgba(74,158,107,0.07)"},{label:"Enablement",y:282,height:70,color:"rgba(232,197,71,0.07)"}],
+      layers: [{label:"CPO / CTO",y:16,height:70,color:"rgba(244,168,58,0.07)"},{label:"Product Tribes",y:98,height:80,color:"rgba(74,130,196,0.07)"},{label:"Platform & SRE",y:190,height:80,color:"rgba(74,158,107,0.07)"},{label:"Enablement",y:282,height:70,color:"rgba(232,197,71,0.07)"}],
       nodes: [
         {type:"governance",label:"CPO / CTO",x:200,y:28,w:130,h:44,color:"var(--accent-primary)",currentFte:2,targetFte:2},
         {type:"org-unit",label:"Tribe: Growth",x:30,y:110,w:140,h:48,color:"var(--accent-primary)",currentFte:25,targetFte:28},
@@ -184,7 +184,7 @@ export const OM_FUNCTION_PRESETS: Record<string, OMPreset[]> = {
       ],
     },
     { label: "Netflix Tech OM", desc: "Full freedom & responsibility. Minimal hierarchy, strong platform.", industry: "Technology", company: "netflix",
-      layers: [{label:"Leadership",y:16,height:70,color:"rgba(34,211,238,0.07)"},{label:"Product Teams",y:98,height:90,color:"rgba(74,130,196,0.07)"},{label:"Platform",y:200,height:80,color:"rgba(74,158,107,0.07)"}],
+      layers: [{label:"Leadership",y:16,height:70,color:"rgba(244,168,58,0.07)"},{label:"Product Teams",y:98,height:90,color:"rgba(74,130,196,0.07)"},{label:"Platform",y:200,height:80,color:"rgba(74,158,107,0.07)"}],
       nodes: [
         {type:"governance",label:"VP Eng",x:200,y:28,w:130,h:44,color:"var(--accent-primary)",currentFte:3,targetFte:3},
         {type:"org-unit",label:"Studio Tech",x:30,y:116,w:140,h:48,color:"var(--accent-primary)",currentFte:60,targetFte:65},
@@ -197,7 +197,7 @@ export const OM_FUNCTION_PRESETS: Record<string, OMPreset[]> = {
   ],
   "Risk & Compliance": [
     { label: "Three Lines Model", desc: "Industry standard for financial services — business ownership, risk oversight, independent audit.", industry: "Financial Services", company: "jpmorgan",
-      layers: [{label:"Board / Risk Committee",y:16,height:60,color:"rgba(34,211,238,0.07)"},{label:"1st Line — Business",y:88,height:80,color:"rgba(74,130,196,0.07)"},{label:"2nd Line — Risk & Compliance",y:180,height:80,color:"rgba(167,139,250,0.07)"},{label:"3rd Line — Internal Audit",y:272,height:70,color:"rgba(167,139,250,0.07)"}],
+      layers: [{label:"Board / Risk Committee",y:16,height:60,color:"rgba(244,168,58,0.07)"},{label:"1st Line — Business",y:88,height:80,color:"rgba(74,130,196,0.07)"},{label:"2nd Line — Risk & Compliance",y:180,height:80,color:"rgba(167,139,184,0.07)"},{label:"3rd Line — Internal Audit",y:272,height:70,color:"rgba(167,139,184,0.07)"}],
       nodes: [
         {type:"governance",label:"CRO / Board",x:180,y:24,w:148,h:40,color:"var(--accent-primary)",currentFte:2,targetFte:2},
         {type:"org-unit",label:"Business Risk Owners",x:40,y:104,w:170,h:48,color:"var(--accent-primary)",currentFte:20,targetFte:18},
@@ -212,7 +212,7 @@ export const OM_FUNCTION_PRESETS: Record<string, OMPreset[]> = {
   ],
   "Clinical Operations": [
     { label: "Clinical OM", desc: "Hospital system operating model — clinical, administrative, revenue cycle.", industry: "Healthcare",
-      layers: [{label:"CMO / CNO Office",y:16,height:70,color:"rgba(34,211,238,0.07)"},{label:"Clinical Departments",y:98,height:80,color:"rgba(74,130,196,0.07)"},{label:"Clinical Support",y:190,height:80,color:"rgba(74,158,107,0.07)"},{label:"Revenue Cycle",y:282,height:70,color:"rgba(167,139,250,0.07)"}],
+      layers: [{label:"CMO / CNO Office",y:16,height:70,color:"rgba(244,168,58,0.07)"},{label:"Clinical Departments",y:98,height:80,color:"rgba(74,130,196,0.07)"},{label:"Clinical Support",y:190,height:80,color:"rgba(74,158,107,0.07)"},{label:"Revenue Cycle",y:282,height:70,color:"rgba(167,139,184,0.07)"}],
       nodes: [
         {type:"governance",label:"CMO / CNO",x:180,y:28,w:148,h:44,color:"var(--accent-primary)",currentFte:2,targetFte:2},
         {type:"org-unit",label:"Medicine",x:30,y:110,w:120,h:48,color:"var(--accent-primary)",currentFte:80,targetFte:80},
@@ -243,10 +243,10 @@ export const OM_ARCHETYPES_2: Record<string,{label:string;desc:string;layers:Omi
   federated: {
     label:"Federated",desc:"CoE guidance + BU autonomy",
     layers:[
-      {label:"Executive",           y:16, height:90,  color:"rgba(34,211,238,0.07)"},
+      {label:"Executive",           y:16, height:90,  color:"rgba(244,168,58,0.07)"},
       {label:"Centres of Excellence",y:122,height:90,  color:"rgba(74,130,196,0.07)"},
       {label:"Business Units",       y:228,height:90,  color:"rgba(74,158,107,0.07)"},
-      {label:"Shared Services",      y:334,height:90,  color:"rgba(167,139,250,0.07)"},
+      {label:"Shared Services",      y:334,height:90,  color:"rgba(167,139,184,0.07)"},
     ],
     nodes:[
       {type:"org-unit",label:"CHRO",         x:90,  y:38,  w:130,h:48,color:"var(--accent-primary)",currentFte:1, targetFte:1},
@@ -262,7 +262,7 @@ export const OM_ARCHETYPES_2: Record<string,{label:string;desc:string;layers:Omi
   centralized: {
     label:"Centralized",desc:"Central command model",
     layers:[
-      {label:"Leadership",         y:16, height:90,  color:"rgba(34,211,238,0.07)"},
+      {label:"Leadership",         y:16, height:90,  color:"rgba(244,168,58,0.07)"},
       {label:"Central Functions",  y:122,height:90,  color:"rgba(74,130,196,0.07)"},
       {label:"Delivery",           y:228,height:90,  color:"rgba(74,158,107,0.07)"},
     ],
@@ -276,10 +276,10 @@ export const OM_ARCHETYPES_2: Record<string,{label:string;desc:string;layers:Omi
   "hub-spoke": {
     label:"Hub & Spoke",desc:"Global hub + regional spokes",
     layers:[
-      {label:"Global Hub",    y:16, height:90,  color:"rgba(34,211,238,0.07)"},
-      {label:"Regional Hubs", y:122,height:90,  color:"rgba(167,139,250,0.07)"},
+      {label:"Global Hub",    y:16, height:90,  color:"rgba(244,168,58,0.07)"},
+      {label:"Regional Hubs", y:122,height:90,  color:"rgba(167,139,184,0.07)"},
       {label:"Local Spokes",  y:228,height:90,  color:"rgba(74,158,107,0.07)"},
-      {label:"Enablement",    y:334,height:90,  color:"rgba(167,139,250,0.07)"},
+      {label:"Enablement",    y:334,height:90,  color:"rgba(167,139,184,0.07)"},
     ],
     nodes:[
       {type:"org-unit",label:"Global HR Hub", x:194,y:38,  w:170,h:48,color:"var(--accent-primary)",currentFte:5,targetFte:5},
@@ -620,7 +620,7 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
           <OMPalSec label="Function Scope">
             <div style={{display:"flex",flexWrap:"wrap",gap:3}}>
               {Object.keys(OM_FUNCTION_PRESETS).map(f=>(
-                <button key={f} onClick={()=>setCanvasFunc(f)} style={{padding:"2px 7px",borderRadius:4,fontSize: 15,fontWeight:700,background:canvasFunc===f?"rgba(34,211,238,0.2)":"transparent",border:`1px solid ${canvasFunc===f?"var(--accent-primary)":"#2e2b24"}`,color:canvasFunc===f?"var(--accent-primary)":"#6B6355",cursor:"pointer"}}>{f}</button>
+                <button key={f} onClick={()=>setCanvasFunc(f)} style={{padding:"2px 7px",borderRadius:4,fontSize: 15,fontWeight:700,background:canvasFunc===f?"rgba(244,168,58,0.2)":"transparent",border:`1px solid ${canvasFunc===f?"var(--accent-primary)":"#2e2b24"}`,color:canvasFunc===f?"var(--accent-primary)":"#6B6355",cursor:"pointer"}}>{f}</button>
               ))}
             </div>
           </OMPalSec>
@@ -679,7 +679,7 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
               </div>
             ))}
           </OMPalSec>
-          {edgeMode&&<div style={{margin:"6px 8px",padding:"7px 9px",borderRadius:5,background:"rgba(34,211,238,0.1)",border:"1px solid rgba(34,211,238,0.3)",fontSize: 14,color:"var(--accent-primary)"}}>{edgeStart?"Click target":"Click source"}</div>}
+          {edgeMode&&<div style={{margin:"6px 8px",padding:"7px 9px",borderRadius:5,background:"rgba(244,168,58,0.1)",border:"1px solid rgba(244,168,58,0.3)",fontSize: 14,color:"var(--accent-primary)"}}>{edgeStart?"Click target":"Click source"}</div>}
         </div>
 
         {/* OM Dictionary Panel — slides over canvas */}
@@ -706,7 +706,7 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
                     <div style={{fontSize: 14,color:"#7a7368",lineHeight:1.4,marginBottom:4}}>{p.desc}</div>
                     <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
                       {p.industry && <span style={{fontSize: 15,fontWeight:700,padding:"1px 5px",borderRadius:3,background:"rgba(74,130,196,0.15)",color:"var(--accent-primary)"}}>{p.industry}</span>}
-                      {p.company && <span style={{fontSize: 15,fontWeight:700,padding:"1px 5px",borderRadius:3,background:"rgba(34,211,238,0.15)",color:"var(--accent-primary)"}}>{p.company}</span>}
+                      {p.company && <span style={{fontSize: 15,fontWeight:700,padding:"1px 5px",borderRadius:3,background:"rgba(244,168,58,0.15)",color:"var(--accent-primary)"}}>{p.company}</span>}
                       <span style={{fontSize: 15,fontWeight:700,padding:"1px 5px",borderRadius:3,background:"rgba(74,158,107,0.15)",color:"#4A9E6B"}}>{p.nodes.length} nodes · {p.layers.length} layers</span>
                       {(() => { const delta = p.nodes.reduce((s,n)=>(n.targetFte??0)-(n.currentFte??0)+s,0); return delta !== 0 ? <span style={{fontSize: 15,fontWeight:700,padding:"1px 5px",borderRadius:3,background:delta<0?"rgba(224,108,117,0.15)":"rgba(74,158,107,0.15)",color:delta<0?"#e06c75":"#4a9e6b"}}>{delta>0?"+":""}{delta} FTE</span> : null; })()}
                     </div>
@@ -775,7 +775,7 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
                 </div>
               ))}
               <button onClick={()=>{const lastY=layers.length?layers[layers.length-1].y+layers[layers.length-1].height+16:16;setLayers([...layers,{id:omUid(),label:"New Layer",y:lastY,height:90,color:"rgba(255,255,255,0.04)"}]);}}
-                style={{width:"100%",marginTop:4,padding:"5px 0",background:"rgba(34,211,238,0.12)",border:"1px solid rgba(34,211,238,0.4)",borderRadius:5,color:"var(--accent-primary)",fontSize: 15,fontWeight:700,cursor:"pointer",fontFamily:"'Inter Tight',sans-serif"}}>
+                style={{width:"100%",marginTop:4,padding:"5px 0",background:"rgba(244,168,58,0.12)",border:"1px solid rgba(244,168,58,0.4)",borderRadius:5,color:"var(--accent-primary)",fontSize: 15,fontWeight:700,cursor:"pointer",fontFamily:"'Inter Tight',sans-serif"}}>
                 + Add Layer
               </button>
             </div>
@@ -790,7 +790,7 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
               </div>
               <div style={{padding:"9px 10px",borderBottom:"1px solid #2e2b24",background:"#211f1b"}}>
                 <input value={vName} onChange={e=>setVName(e.target.value)} placeholder='Snapshot name…' style={{width:"100%",background:"#1a1814",border:"1px solid #2e2b24",borderRadius:4,color:"#f0ece4",padding:"4px 7px",fontSize: 15,outline:"none",boxSizing:"border-box",marginBottom:5}} />
-                <button onClick={saveVersion} disabled={!vName.trim()} style={{width:"100%",padding:"5px 0",borderRadius:4,background:vName.trim()?"rgba(34,211,238,0.15)":"transparent",border:`1px solid ${vName.trim()?"rgba(34,211,238,0.5)":"#2e2b24"}`,color:vName.trim()?"var(--accent-primary)":"#6B6355",fontSize: 15,fontWeight:700,cursor:vName.trim()?"pointer":"default",fontFamily:"'Inter Tight',sans-serif"}}>Save Snapshot</button>
+                <button onClick={saveVersion} disabled={!vName.trim()} style={{width:"100%",padding:"5px 0",borderRadius:4,background:vName.trim()?"rgba(244,168,58,0.15)":"transparent",border:`1px solid ${vName.trim()?"rgba(244,168,58,0.5)":"#2e2b24"}`,color:vName.trim()?"var(--accent-primary)":"#6B6355",fontSize: 15,fontWeight:700,cursor:vName.trim()?"pointer":"default",fontFamily:"'Inter Tight',sans-serif"}}>Save Snapshot</button>
               </div>
               <div style={{flex:1,overflowY:"auto",padding:8}}>
                 {versions.length===0&&<div style={{textAlign:"center",padding:"20px 0",color:"#6B6355",fontSize: 15}}>No snapshots yet</div>}
@@ -802,7 +802,7 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
                       {[{k:"N",val:v.nodes.length},{k:"E",val:v.edges.length}].map(({k,val})=><span key={k} style={{padding:"1px 5px",borderRadius:2,background:"#2e2b24",fontSize: 15,color:"#6B6355",fontFamily:"monospace"}}>{k}:{val}</span>)}
                     </div>
                     <button onClick={()=>{setNodes(v.nodes);setEdges(v.edges);setLayers(v.layers);setShowVers(false);}}
-                      style={{width:"100%",padding:"4px 0",borderRadius:4,background:"rgba(34,211,238,0.1)",border:"1px solid rgba(34,211,238,0.4)",color:"var(--accent-primary)",fontSize: 14,fontWeight:700,cursor:"pointer",fontFamily:"'Inter Tight',sans-serif"}}>
+                      style={{width:"100%",padding:"4px 0",borderRadius:4,background:"rgba(244,168,58,0.1)",border:"1px solid rgba(244,168,58,0.4)",color:"var(--accent-primary)",fontSize: 14,fontWeight:700,cursor:"pointer",fontFamily:"'Inter Tight',sans-serif"}}>
                       Restore
                     </button>
                   </div>
@@ -835,7 +835,7 @@ export function OMPalSec({label,children}:{label:string;children:React.ReactNode
 }
 export function OMPalBtn({children,onClick,active}:{children:React.ReactNode;onClick:()=>void;active?:boolean}) {
   return (
-    <button onClick={onClick} style={{width:"100%",padding:"5px 7px",marginBottom:2,borderRadius:5,textAlign:"left",display:"flex",alignItems:"center",background:active?"rgba(34,211,238,0.12)":"#211f1b",border:`1px solid ${active?"rgba(34,211,238,0.5)":"#2e2b24"}`,color:active?"var(--accent-primary)":"#b8b0a0",cursor:"pointer"}}>
+    <button onClick={onClick} style={{width:"100%",padding:"5px 7px",marginBottom:2,borderRadius:5,textAlign:"left",display:"flex",alignItems:"center",background:active?"rgba(244,168,58,0.12)":"#211f1b",border:`1px solid ${active?"rgba(244,168,58,0.5)":"#2e2b24"}`,color:active?"var(--accent-primary)":"#b8b0a0",cursor:"pointer"}}>
       {children}
     </button>
   );

@@ -89,7 +89,7 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
   const visibleSlice = filtered.slice(startIdx, endIdx);
 
   const priColor = (p: string) => p === "High" ? "var(--risk)" : p === "Medium" ? "var(--warning)" : "var(--success)";
-  const priBg = (p: string) => p === "High" ? "rgba(251,113,133,0.1)" : p === "Medium" ? "rgba(251,191,36,0.1)" : "rgba(52,211,153,0.1)";
+  const priBg = (p: string) => p === "High" ? "rgba(232,122,93,0.1)" : p === "Medium" ? "rgba(244,168,58,0.1)" : "rgba(139,168,122,0.1)";
 
   // Toggle chip helper
   const toggleChip = (arr: string[], val: string, setter: (v: string[]) => void) => {
@@ -117,7 +117,7 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
       {priorityOptions.map(p => <button key={p} onClick={() => toggleChip(fPriority, p, setFPriority)} className="px-2.5 py-1 rounded-full text-[12px] font-bold transition-all" style={{ background: fPriority.includes(p) ? priBg(p) : "var(--surface-2)", color: fPriority.includes(p) ? priColor(p) : "var(--text-muted)", border: `1px solid ${fPriority.includes(p) ? priColor(p) + "40" : "var(--border)"}` }}>{p}</button>)}
 
       {/* Wave chips */}
-      {waveOptions.length > 1 && waveOptions.map(w => <button key={w} onClick={() => toggleChip(fWave, w, setFWave)} className="px-2.5 py-1 rounded-full text-[12px] font-bold transition-all" style={{ background: fWave.includes(w) ? "rgba(167,139,250,0.1)" : "var(--surface-2)", color: fWave.includes(w) ? "var(--purple)" : "var(--text-muted)", border: `1px solid ${fWave.includes(w) ? "rgba(167,139,250,0.3)" : "var(--border)"}` }}>{w}</button>)}
+      {waveOptions.length > 1 && waveOptions.map(w => <button key={w} onClick={() => toggleChip(fWave, w, setFWave)} className="px-2.5 py-1 rounded-full text-[12px] font-bold transition-all" style={{ background: fWave.includes(w) ? "rgba(167,139,184,0.1)" : "var(--surface-2)", color: fWave.includes(w) ? "var(--purple)" : "var(--text-muted)", border: `1px solid ${fWave.includes(w) ? "rgba(167,139,184,0.3)" : "var(--border)"}` }}>{w}</button>)}
 
       {/* Function dropdown */}
       {funcOptions.length > 1 && <select value={fFunc.length === 1 ? fFunc[0] : ""} onChange={e => setFFunc(e.target.value ? [e.target.value] : [])} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-2 py-1.5 text-[12px] text-[var(--text-primary)] outline-none">
@@ -146,7 +146,7 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
             {visibleSlice.map((p, vi) => {
               const idx = startIdx + vi;
               const isSelected = selectedIdx === idx;
-              return <div key={p.employee_id || idx} onClick={() => setSelectedIdx(idx)} className="absolute left-0 right-0 flex items-center gap-3 px-3 cursor-pointer transition-colors" style={{ top: idx * ROW_H, height: ROW_H, background: isSelected ? "rgba(34,211,238,0.08)" : "transparent", borderLeft: isSelected ? "3px solid var(--accent-primary)" : "3px solid transparent", borderBottom: "1px solid var(--border)" }}>
+              return <div key={p.employee_id || idx} onClick={() => setSelectedIdx(idx)} className="absolute left-0 right-0 flex items-center gap-3 px-3 cursor-pointer transition-colors" style={{ top: idx * ROW_H, height: ROW_H, background: isSelected ? "rgba(244,168,58,0.08)" : "transparent", borderLeft: isSelected ? "3px solid var(--accent-primary)" : "3px solid transparent", borderBottom: "1px solid var(--border)" }}>
                 <div className="flex-1 min-w-0">
                   <div className="text-[13px] font-bold text-[var(--text-primary)] truncate">{p.employee}</div>
                   <div className="text-[11px] text-[var(--text-muted)] truncate">{p.current_role}{p.target_role !== p.current_role ? ` → ${p.target_role}` : ""}</div>
@@ -239,8 +239,8 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
             </div>
             <div className="flex gap-2">
               <span className="px-2 py-0.5 rounded-full text-[11px] font-bold" style={{ background: priBg(selected.priority), color: priColor(selected.priority) }}>{selected.priority} Priority</span>
-              <span className="px-2 py-0.5 rounded-full text-[11px] font-bold" style={{ background: selected.readiness_score >= 70 ? "rgba(52,211,153,0.1)" : selected.readiness_score >= 40 ? "rgba(251,191,36,0.1)" : "rgba(251,113,133,0.1)", color: selected.readiness_score >= 70 ? "var(--success)" : selected.readiness_score >= 40 ? "var(--warning)" : "var(--risk)" }}>{selected.readiness_band} ({selected.readiness_score})</span>
-              <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[rgba(167,139,250,0.1)] text-[var(--purple)]">{selected.wave}</span>
+              <span className="px-2 py-0.5 rounded-full text-[11px] font-bold" style={{ background: selected.readiness_score >= 70 ? "rgba(139,168,122,0.1)" : selected.readiness_score >= 40 ? "rgba(244,168,58,0.1)" : "rgba(232,122,93,0.1)", color: selected.readiness_score >= 70 ? "var(--success)" : selected.readiness_score >= 40 ? "var(--warning)" : "var(--risk)" }}>{selected.readiness_band} ({selected.readiness_score})</span>
+              <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[rgba(167,139,184,0.1)] text-[var(--purple)]">{selected.wave}</span>
             </div>
           </div>
 
@@ -266,7 +266,7 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
             <div className="space-y-2">{selected.skills_to_develop.map(s => <div key={s.skill} className="rounded-lg p-3 bg-[var(--surface-2)] border border-[var(--border)]">
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-[13px] font-bold text-[var(--text-primary)]">{s.skill}</span>
-                <span className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: s.intervention === "Course" ? "rgba(52,211,153,0.1)" : s.intervention === "Coaching" ? "rgba(251,191,36,0.1)" : "rgba(167,139,250,0.1)", color: s.intervention === "Course" ? "var(--success)" : s.intervention === "Coaching" ? "var(--warning)" : "var(--purple)" }}>{s.intervention} · {s.months}mo</span>
+                <span className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: s.intervention === "Course" ? "rgba(139,168,122,0.1)" : s.intervention === "Coaching" ? "rgba(244,168,58,0.1)" : "rgba(167,139,184,0.1)", color: s.intervention === "Course" ? "var(--success)" : s.intervention === "Coaching" ? "var(--warning)" : "var(--purple)" }}>{s.intervention} · {s.months}mo</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-[11px] font-bold w-6" style={{ color: "var(--warning)" }}>{s.current}</span>
@@ -353,7 +353,7 @@ export function TalentMarketplace({ model, f, onBack, onNavigate, viewCtx }: { m
         <div className="text-[15px] text-[var(--success)] truncate">✓ {c.matching_skills.slice(0,2).join(", ")}</div>
         {c.gap_skills.length > 0 && <div className="text-[15px] text-[var(--risk)] truncate">✗ {c.gap_skills.slice(0,2).join(", ")}</div>}
         {c.has_pathway && <div className="text-[15px] text-[var(--purple)]">📚 Pathway: {fmtNum(c.pathway_cost)}</div>}
-        <button onClick={() => setShortlisted(prev => { const l = prev[m.target_role]||[]; return {...prev, [m.target_role]: isSl ? l.filter(e=>e!==c.employee) : [...l, c.employee]}; })} className="mt-1 text-[14px] font-semibold w-full py-1 rounded text-center" style={{background:isSl?"rgba(52,211,153,0.1)":"var(--surface-1)",color:isSl?"var(--success)":"var(--text-muted)",border:`1px solid ${isSl?"var(--success)":"var(--border)"}`}}>{isSl?"★ Shortlisted":"☆ Shortlist"}</button>
+        <button onClick={() => setShortlisted(prev => { const l = prev[m.target_role]||[]; return {...prev, [m.target_role]: isSl ? l.filter(e=>e!==c.employee) : [...l, c.employee]}; })} className="mt-1 text-[14px] font-semibold w-full py-1 rounded text-center" style={{background:isSl?"rgba(139,168,122,0.1)":"var(--surface-1)",color:isSl?"var(--success)":"var(--text-muted)",border:`1px solid ${isSl?"var(--success)":"var(--border)"}`}}>{isSl?"★ Shortlisted":"☆ Shortlist"}</button>
       </div>; })}</div>
     </Card>)}
     {marketplace.length === 0 && !loading && <Card><Empty text="Talent Marketplace Not Yet Populated" subtitle="Complete the Skills Adjacency Map in the Design phase to populate the internal talent marketplace with role-matching candidates." action="Go to Design" onAction={() => onNavigate?.("design")} /></Card>}
@@ -707,7 +707,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
             {/* Phase bars */}
             <div className="space-y-2">
               {ganttPhases.map((p, pi) => {
-                const statusTint = p.status === "complete" ? "rgba(52,211,153,0.08)" : p.status === "at_risk" ? "rgba(251,113,133,0.06)" : "transparent";
+                const statusTint = p.status === "complete" ? "rgba(139,168,122,0.08)" : p.status === "at_risk" ? "rgba(232,122,93,0.06)" : "transparent";
                 return <div key={p.id} style={{ background: statusTint, borderRadius: 8, padding: "4px 0" }}>
                   <div className="flex items-center">
                     <div className="w-32 shrink-0 flex items-center gap-2 px-2">
@@ -833,7 +833,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
     {/* ═══ ADKAR ASSESSMENT ═══ */}
     {sub === "adkar" && <div className="animate-tab-enter space-y-5">
       {/* Intro */}
-      <div className="rounded-xl bg-[rgba(34,211,238,0.05)] border border-[rgba(34,211,238,0.15)] p-4">
+      <div className="rounded-xl bg-[rgba(244,168,58,0.05)] border border-[rgba(244,168,58,0.15)] p-4">
         <div className="text-[15px] font-bold text-[var(--accent-primary)] mb-2">ADKAR Change Management Framework<span style={{fontSize:10, color:'var(--text-muted)', marginLeft:4, cursor:'pointer'}}>Learn more</span></div>
         <div className="grid grid-cols-5 gap-2">
           {ADKAR_DIMS.map(dim => <div key={dim} className="rounded-lg p-2 text-center" style={{ background: `${ADKAR_COLORS[dim]}08`, border: `1px solid ${ADKAR_COLORS[dim]}20` }}>
@@ -851,7 +851,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
           { id: "heatmap" as const, label: "Heatmap", icon: "🗺" },
           { id: "actions" as const, label: "Action Plan", icon: "📋" },
           { id: "track" as const, label: "Progress", icon: "📈" },
-        ]).map(v => <button key={v.id} onClick={() => setAdkarView(v.id)} className="flex-1 px-3 py-2 rounded-lg text-[14px] font-semibold transition-all" style={{ background: adkarView === v.id ? "rgba(34,211,238,0.12)" : "transparent", color: adkarView === v.id ? "var(--accent-primary)" : "var(--text-muted)" }}>{v.icon} {v.label}</button>)}
+        ]).map(v => <button key={v.id} onClick={() => setAdkarView(v.id)} className="flex-1 px-3 py-2 rounded-lg text-[14px] font-semibold transition-all" style={{ background: adkarView === v.id ? "rgba(244,168,58,0.12)" : "transparent", color: adkarView === v.id ? "var(--accent-primary)" : "var(--text-muted)" }}>{v.icon} {v.label}</button>)}
       </div>
 
       {/* ─── ASSESSMENT ─── */}
@@ -866,7 +866,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
               return <div key={group} className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4">
                 <div className="flex items-center justify-between mb-3">
                   <div className="text-[15px] font-bold text-[var(--text-primary)]">{group}</div>
-                  {barrier && <span className="px-3 py-1 rounded-full text-[13px] font-bold bg-[rgba(251,113,133,0.1)] text-[var(--risk)]">Barrier: {barrier} ({getAdkarScore(group, barrier).score}/5)</span>}
+                  {barrier && <span className="px-3 py-1 rounded-full text-[13px] font-bold bg-[rgba(232,122,93,0.1)] text-[var(--risk)]">Barrier: {barrier} ({getAdkarScore(group, barrier).score}/5)</span>}
                 </div>
                 <div className="flex gap-2 mb-3">
                   {ADKAR_DIMS.map(dim => {
@@ -884,7 +884,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
                   })}
                 </div>
                 {/* Barrier recommendation */}
-                {barrier && <div className="rounded-lg bg-[rgba(251,113,133,0.04)] border border-[var(--risk)]/15 p-3">
+                {barrier && <div className="rounded-lg bg-[rgba(232,122,93,0.04)] border border-[var(--risk)]/15 p-3">
                   <div className="text-[13px] font-bold text-[var(--risk)] mb-1">{ADKAR_RECS[barrier].title}</div>
                   <div className="text-[13px] text-[var(--text-secondary)]">{ADKAR_RECS[barrier].actions[0]}</div>
                 </div>}
@@ -916,7 +916,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
                 const isBarrier = dim === barrier;
                 return <td key={dim} className="px-2 py-2 text-center" onClick={() => { setAdkarView("assess"); }}>
                   <div className="w-10 h-10 rounded-lg mx-auto flex items-center justify-center text-[16px] font-bold cursor-pointer transition-all" style={{
-                    background: s === 0 ? "var(--surface-2)" : s <= 2 ? "rgba(251,113,133,0.15)" : s <= 3 ? "rgba(251,191,36,0.15)" : "rgba(52,211,153,0.15)",
+                    background: s === 0 ? "var(--surface-2)" : s <= 2 ? "rgba(232,122,93,0.15)" : s <= 3 ? "rgba(244,168,58,0.15)" : "rgba(139,168,122,0.15)",
                     color: s === 0 ? "var(--text-muted)" : s <= 2 ? "var(--risk)" : s <= 3 ? "var(--warning)" : "var(--success)",
                     border: isBarrier ? "2px solid var(--risk)" : "none",
                   }}>{s || "—"}</div>
@@ -949,7 +949,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
         {(() => {
           const barriers = ADKAR_GROUPS.map(g => ({ group: g, barrier: getBarrierPoint(g), score: getBarrierPoint(g) ? getAdkarScore(g, getBarrierPoint(g)!).score : 5 })).filter(b => b.barrier).sort((a, b) => a.score - b.score);
           return <>
-            {barriers.length > 0 && adkarActions.length === 0 && <div className="rounded-xl bg-[rgba(34,211,238,0.06)] border border-[rgba(34,211,238,0.15)] p-4 mb-4">
+            {barriers.length > 0 && adkarActions.length === 0 && <div className="rounded-xl bg-[rgba(244,168,58,0.06)] border border-[rgba(244,168,58,0.15)] p-4 mb-4">
               <div className="text-[15px] font-bold text-[var(--accent-primary)] mb-2">Auto-Generated Priorities from Barrier Points</div>
               <div className="space-y-3">
                 {barriers.map((b, i) => <div key={b.group} className="rounded-lg bg-[var(--surface-2)] p-3">
@@ -1052,10 +1052,10 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
     {/* ═══ STAKEHOLDER MAP — Draggable ═══ */}
     {sub === "stakeholders" && (() => {
       const quads = [
-        { id: "manage", label: "Manage Closely", desc: "High Power + High Interest", color: "var(--risk)", bg: "rgba(251,113,133,0.05)" },
-        { id: "satisfy", label: "Keep Satisfied", desc: "High Power + Low Interest", color: "var(--accent-primary)", bg: "rgba(34,211,238,0.05)" },
+        { id: "manage", label: "Manage Closely", desc: "High Power + High Interest", color: "var(--risk)", bg: "rgba(232,122,93,0.05)" },
+        { id: "satisfy", label: "Keep Satisfied", desc: "High Power + Low Interest", color: "var(--accent-primary)", bg: "rgba(244,168,58,0.05)" },
         { id: "inform", label: "Keep Informed", desc: "Low Power + High Interest", color: "var(--amber)", bg: "rgba(217,119,6,0.05)" },
-        { id: "monitor", label: "Monitor", desc: "Low Power + Low Interest", color: "var(--success)", bg: "rgba(52,211,153,0.05)" },
+        { id: "monitor", label: "Monitor", desc: "Low Power + Low Interest", color: "var(--success)", bg: "rgba(139,168,122,0.05)" },
       ];
       const sentColor = (s: string) => s === "Champion" || s === "Supportive" ? "var(--success)" : s === "Resistant" || s === "Opposed" ? "var(--risk)" : s === "Concerned" || s === "Cautious" ? "var(--warning)" : "var(--text-muted)";
       const handleDrop = (quadId: string, e: React.DragEvent) => {
@@ -1153,7 +1153,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
                 <td className="px-2 py-2 text-center"><span style={{ fontFamily:"'JetBrains Mono', monospace", fontWeight:700, color: riskColor(score) }}>{score}</span></td>
                 <td className="px-2 py-2 text-[var(--text-secondary)] text-[15px] max-w-[200px]">{r.mitigation}</td>
                 <td className="px-2 py-2 text-[var(--text-secondary)]">{r.owner}</td>
-                <td className="px-2 py-2"><span className="text-[15px] px-2 py-0.5 rounded-full font-semibold" style={{ color: r.status === "Mitigating" ? "var(--success)" : r.status === "Closed" ? "var(--text-muted)" : "var(--warning)", background: r.status === "Mitigating" ? "rgba(52,211,153,0.1)" : r.status === "Closed" ? "var(--surface-2)" : "rgba(251,191,36,0.1)" }}>{r.status}</span></td>
+                <td className="px-2 py-2"><span className="text-[15px] px-2 py-0.5 rounded-full font-semibold" style={{ color: r.status === "Mitigating" ? "var(--success)" : r.status === "Closed" ? "var(--text-muted)" : "var(--warning)", background: r.status === "Mitigating" ? "rgba(139,168,122,0.1)" : r.status === "Closed" ? "var(--surface-2)" : "rgba(244,168,58,0.1)" }}>{r.status}</span></td>
                 <td className="px-2 py-1"><button onClick={() => deleteRisk(r.id)} className="text-[15px] text-[var(--text-muted)] hover:text-[var(--risk)] transition-colors">✕</button></td>
               </tr>;
             })}</tbody></table>
@@ -1263,7 +1263,7 @@ export function TransformationStoryBuilder({ model, f, onBack, onNavigate, viewC
   const exportPdf = () => {
     const w = window.open("", "_blank");
     if (!w) return;
-    w.document.write(`<html><head><title>Transformation Narrative</title><style>body{font-family:Inter Tight,sans-serif;max-width:700px;margin:40px auto;color:#333;line-height:1.8}h1{color:#22d3ee;font-size:22px}p{font-size:14px;margin-bottom:16px}</style></head><body><h1>AI Transformation Narrative</h1>${story.split("\n").filter(Boolean).map(p => `<p>${p}</p>`).join("")}<p style="font-size:10px;color:#999;margin-top:40px">Generated by AI Transformation Platform · ${new Date().toLocaleDateString()}</p></body></html>`);
+    w.document.write(`<html><head><title>Transformation Narrative</title><style>body{font-family:Inter Tight,sans-serif;max-width:700px;margin:40px auto;color:#333;line-height:1.8}h1{color:#f4a83a;font-size:22px}p{font-size:14px;margin-bottom:16px}</style></head><body><h1>AI Transformation Narrative</h1>${story.split("\n").filter(Boolean).map(p => `<p>${p}</p>`).join("")}<p style="font-size:10px;color:#999;margin-top:40px">Generated by AI Transformation Platform · ${new Date().toLocaleDateString()}</p></body></html>`);
     w.document.close();
     setTimeout(() => w.print(), 300);
   };
@@ -1335,10 +1335,10 @@ export function ReadinessArchetypes({ model, f, onBack, onNavigate }: { model: s
 
   type Archetype = { id: string; label: string; icon: string; color: string; bgColor: string; desc: string; engagement: string[]; pct: number };
   const archetypes: Archetype[] = [
-    { id: "early", label: "Early Adopter", icon: "🚀", color: "var(--success)", bgColor: "rgba(52,211,153,0.08)", desc: "High willingness + High ability — your champions", engagement: ["Empower as peer trainers and AI ambassadors", "Give early access to new AI tools", "Feature in internal success stories", "Involve in design decisions as co-creators"], pct: earlyPct },
-    { id: "eager", label: "Eager Learner", icon: "📚", color: "var(--accent-primary)", bgColor: "rgba(34,211,238,0.08)", desc: "High willingness + Low ability — motivated but need upskilling", engagement: ["Prioritize for training programs", "Pair with Early Adopters as mentors", "Provide sandbox environments", "Celebrate learning milestones"], pct: eagerPct },
-    { id: "skeptic", label: "Skeptic with Expertise", icon: "🔍", color: "var(--warning)", bgColor: "rgba(251,191,36,0.08)", desc: "Low willingness + High ability — critical group with deep knowledge", engagement: ["Involve in design decisions (ownership, not orders)", "Address specific concerns directly with data", "Position as quality gatekeepers for AI outputs", "Respect their expertise — they see risks others miss"], pct: skepticPct },
-    { id: "atrisk", label: "At-Risk Anchor", icon: "⚠️", color: "var(--risk)", bgColor: "rgba(251,113,133,0.08)", desc: "Low willingness + Low ability — highest intervention need", engagement: ["One-on-one career conversations", "Clear personal impact assessment", "Explore redeployment options early", "Connect with support resources (EAP, coaching)"], pct: atriskPct },
+    { id: "early", label: "Early Adopter", icon: "🚀", color: "var(--success)", bgColor: "rgba(139,168,122,0.08)", desc: "High willingness + High ability — your champions", engagement: ["Empower as peer trainers and AI ambassadors", "Give early access to new AI tools", "Feature in internal success stories", "Involve in design decisions as co-creators"], pct: earlyPct },
+    { id: "eager", label: "Eager Learner", icon: "📚", color: "var(--accent-primary)", bgColor: "rgba(244,168,58,0.08)", desc: "High willingness + Low ability — motivated but need upskilling", engagement: ["Prioritize for training programs", "Pair with Early Adopters as mentors", "Provide sandbox environments", "Celebrate learning milestones"], pct: eagerPct },
+    { id: "skeptic", label: "Skeptic with Expertise", icon: "🔍", color: "var(--warning)", bgColor: "rgba(244,168,58,0.08)", desc: "Low willingness + High ability — critical group with deep knowledge", engagement: ["Involve in design decisions (ownership, not orders)", "Address specific concerns directly with data", "Position as quality gatekeepers for AI outputs", "Respect their expertise — they see risks others miss"], pct: skepticPct },
+    { id: "atrisk", label: "At-Risk Anchor", icon: "⚠️", color: "var(--risk)", bgColor: "rgba(232,122,93,0.08)", desc: "Low willingness + Low ability — highest intervention need", engagement: ["One-on-one career conversations", "Clear personal impact assessment", "Explore redeployment options early", "Connect with support resources (EAP, coaching)"], pct: atriskPct },
   ];
 
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -1524,7 +1524,7 @@ export function SkillsNetwork({ model, f, onBack, onNavigate }: { model: string;
           <div className="space-y-3">
             <div>
               <div className="text-[11px] font-bold text-[var(--text-muted)] uppercase mb-1">Color by</div>
-              <div className="flex gap-1">{(["category", "ai", "employees"] as const).map(c => <button key={c} onClick={() => setColorBy(c)} className="px-2.5 py-1 rounded-lg text-[12px] font-semibold transition-all" style={{ background: colorBy === c ? "rgba(34,211,238,0.1)" : "var(--surface-2)", color: colorBy === c ? "var(--accent-primary)" : "var(--text-muted)", border: `1px solid ${colorBy === c ? "rgba(34,211,238,0.3)" : "var(--border)"}` }}>{c === "ai" ? "AI Relevance" : c === "employees" ? "Employee Count" : "Category"}</button>)}</div>
+              <div className="flex gap-1">{(["category", "ai", "employees"] as const).map(c => <button key={c} onClick={() => setColorBy(c)} className="px-2.5 py-1 rounded-lg text-[12px] font-semibold transition-all" style={{ background: colorBy === c ? "rgba(244,168,58,0.1)" : "var(--surface-2)", color: colorBy === c ? "var(--accent-primary)" : "var(--text-muted)", border: `1px solid ${colorBy === c ? "rgba(244,168,58,0.3)" : "var(--border)"}` }}>{c === "ai" ? "AI Relevance" : c === "employees" ? "Employee Count" : "Category"}</button>)}</div>
             </div>
             <div>
               <div className="text-[11px] font-bold text-[var(--text-muted)] uppercase mb-1">Min connection: {minWeight.toFixed(2)}</div>
@@ -1570,7 +1570,7 @@ export function SkillsNetwork({ model, f, onBack, onNavigate }: { model: string;
               <div className="flex items-center gap-2 py-1.5">
                 <div className="w-3 h-3 rounded-full" style={{ background: i === pathResult.steps.length - 1 ? "var(--accent-primary)" : "var(--surface-3)", border: `2px solid ${i === pathResult.steps.length - 1 ? "var(--accent-primary)" : "var(--border)"}` }} />
                 <span className="text-[12px] font-bold text-[var(--text-primary)]">{step.to_skill}</span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: step.learning_approach === "build" ? "rgba(52,211,153,0.1)" : step.learning_approach === "borrow" ? "rgba(251,191,36,0.1)" : "rgba(251,113,133,0.1)", color: step.learning_approach === "build" ? "var(--success)" : step.learning_approach === "borrow" ? "var(--warning)" : "var(--risk)" }}>{step.learning_approach}</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: step.learning_approach === "build" ? "rgba(139,168,122,0.1)" : step.learning_approach === "borrow" ? "rgba(244,168,58,0.1)" : "rgba(232,122,93,0.1)", color: step.learning_approach === "build" ? "var(--success)" : step.learning_approach === "borrow" ? "var(--warning)" : "var(--risk)" }}>{step.learning_approach}</span>
               </div>
             </div>)}</div>
             <div className="mt-3 p-3 rounded-lg bg-[var(--surface-2)] border border-[var(--border)]">
@@ -1619,7 +1619,7 @@ export function SkillsNetwork({ model, f, onBack, onNavigate }: { model: string;
             const isPathEdge = pathEdgeSet.has(`${e.source}→${e.target}`);
             const dim = hasPath && !isPathEdge;
             return <line key={i} x1={a.x} y1={a.y} x2={b.x} y2={b.y}
-              stroke={isPathEdge ? "var(--accent-primary)" : e.overlap_type === "task" ? "rgba(8,145,178,0.3)" : "rgba(167,139,250,0.25)"}
+              stroke={isPathEdge ? "var(--accent-primary)" : e.overlap_type === "task" ? "rgba(8,145,178,0.3)" : "rgba(167,139,184,0.25)"}
               strokeWidth={isPathEdge ? 3 : Math.max(0.5, e.weight * 4)}
               opacity={dim ? 0.08 : 1}
             />;

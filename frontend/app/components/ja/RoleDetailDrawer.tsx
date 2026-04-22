@@ -70,7 +70,7 @@ interface Props {
 const S = {
   overlay: { position: "fixed" as const, inset: 0, background: "rgba(0,0,0,0.3)", zIndex: 399, animation: "fadeIn var(--duration-base) var(--ease-out)" } as React.CSSProperties,
   drawer: { position: "fixed" as const, top: 0, right: 0, height: "100%", width: "min(600px, 94vw)", background: "var(--surface-1)", borderLeft: "1px solid var(--border)", boxShadow: "var(--shadow-4)", zIndex: 400, display: "flex", flexDirection: "column" as const, animation: "slideInRight var(--duration-slow) var(--ease-out)" } as React.CSSProperties,
-  header: { background: "#05070d", padding: "16px 20px", flexShrink: 0 } as React.CSSProperties,
+  header: { background: "#161822", padding: "16px 20px", flexShrink: 0 } as React.CSSProperties,
   headerTop: { display: "flex", alignItems: "center", justifyContent: "space-between" } as React.CSSProperties,
   roleName: { fontSize: "var(--text-base)", fontWeight: "var(--fw-semi)", color: "#fff" } as React.CSSProperties,
   headerMeta: { fontSize: 11, color: "rgba(255,255,255,0.6)", marginTop: 4, display: "flex", alignItems: "center", gap: 8 } as React.CSSProperties,
@@ -78,30 +78,30 @@ const S = {
   navBtn: { display: "inline-flex", alignItems: "center", gap: 3, padding: "3px 10px", fontSize: 11, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 4, color: "rgba(255,255,255,0.7)", cursor: "pointer" } as React.CSSProperties,
   closeBtn: { display: "flex", alignItems: "center", justifyContent: "center", width: 28, height: 28, background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 6, color: "rgba(255,255,255,0.7)", cursor: "pointer" } as React.CSSProperties,
   tabs: { display: "flex", borderBottom: "1px solid var(--border)", flexShrink: 0 } as React.CSSProperties,
-  tab: (active: boolean) => ({ flex: 1, padding: "10px 12px", fontSize: "var(--text-xs)", fontWeight: active ? "var(--fw-semi)" : "var(--fw-medium)", color: active ? "#22d3ee" : "var(--text-muted)", borderBottom: active ? "2px solid #22d3ee" : "2px solid transparent", background: "none", border: "none", cursor: "pointer", textAlign: "center" as const }) as React.CSSProperties,
+  tab: (active: boolean) => ({ flex: 1, padding: "10px 12px", fontSize: "var(--text-xs)", fontWeight: active ? "var(--fw-semi)" : "var(--fw-medium)", color: active ? "#f4a83a" : "var(--text-muted)", borderBottom: active ? "2px solid #f4a83a" : "2px solid transparent", background: "none", border: "none", cursor: "pointer", textAlign: "center" as const }) as React.CSSProperties,
   body: { flex: 1, overflowY: "auto" as const, padding: "18px 20px" } as React.CSSProperties,
   dimRow: { display: "flex", alignItems: "flex-start", gap: 12, padding: "10px 0", borderBottom: "1px solid var(--border)" } as React.CSSProperties,
   dimLabel: { fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.05em", width: 90, flexShrink: 0, marginTop: 3 } as React.CSSProperties,
   dimCurrent: { flex: 1, fontSize: "var(--text-xs)", color: "var(--text-secondary)", padding: "4px 0" } as React.CSSProperties,
-  dimFuture: (changed: boolean) => ({ flex: 1, fontSize: "var(--text-xs)", color: changed ? "#fbbf24" : "var(--text-secondary)", fontWeight: changed ? "var(--fw-semi)" : "normal", padding: "4px 0" }) as React.CSSProperties,
-  statusDot: (changed: boolean) => ({ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: changed ? "#fbbf24" : "#34d399", marginRight: 6, flexShrink: 0, marginTop: 6 }) as React.CSSProperties,
+  dimFuture: (changed: boolean) => ({ flex: 1, fontSize: "var(--text-xs)", color: changed ? "#f4a83a" : "var(--text-secondary)", fontWeight: changed ? "var(--fw-semi)" : "normal", padding: "4px 0" }) as React.CSSProperties,
+  statusDot: (changed: boolean) => ({ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: changed ? "#f4a83a" : "#8ba87a", marginRight: 6, flexShrink: 0, marginTop: 6 }) as React.CSSProperties,
   wasLabel: { fontSize: 11, color: "var(--text-muted)", marginTop: 2 } as React.CSSProperties,
-  aiBar: { background: "rgba(34,211,238,0.06)", border: "1px solid rgba(34,211,238,0.12)", borderRadius: 8, padding: "12px 14px", marginTop: 16 } as React.CSSProperties,
+  aiBar: { background: "rgba(244,168,58,0.06)", border: "1px solid rgba(244,168,58,0.12)", borderRadius: 8, padding: "12px 14px", marginTop: 16 } as React.CSSProperties,
   actionRow: { display: "flex", alignItems: "center", gap: 8, padding: "14px 0", marginTop: 12, borderTop: "1px solid var(--border)" } as React.CSSProperties,
-  btnPrimary: { display: "inline-flex", alignItems: "center", gap: 4, padding: "8px 16px", fontSize: "var(--text-xs)", fontWeight: "var(--fw-semi)", border: "none", borderRadius: 6, background: "#22d3ee", color: "#fff", cursor: "pointer" } as React.CSSProperties,
+  btnPrimary: { display: "inline-flex", alignItems: "center", gap: 4, padding: "8px 16px", fontSize: "var(--text-xs)", fontWeight: "var(--fw-semi)", border: "none", borderRadius: 6, background: "#f4a83a", color: "#fff", cursor: "pointer" } as React.CSSProperties,
   btnSecondary: { display: "inline-flex", alignItems: "center", gap: 4, padding: "8px 16px", fontSize: "var(--text-xs)", fontWeight: "var(--fw-medium)", border: "1px solid var(--border)", borderRadius: 6, background: "var(--surface-2)", color: "var(--text-secondary)", cursor: "pointer" } as React.CSSProperties,
-  btnDanger: { display: "inline-flex", alignItems: "center", gap: 4, padding: "8px 16px", fontSize: "var(--text-xs)", fontWeight: "var(--fw-medium)", border: "1px solid rgba(251,113,133,0.2)", borderRadius: 6, background: "rgba(251,113,133,0.05)", color: "#fb7185", cursor: "pointer" } as React.CSSProperties,
+  btnDanger: { display: "inline-flex", alignItems: "center", gap: 4, padding: "8px 16px", fontSize: "var(--text-xs)", fontWeight: "var(--fw-medium)", border: "1px solid rgba(232,122,93,0.2)", borderRadius: 6, background: "rgba(232,122,93,0.05)", color: "#e87a5d", cursor: "pointer" } as React.CSSProperties,
   textarea: { width: "100%", padding: "8px 10px", fontSize: "var(--text-xs)", background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 6, color: "var(--text-primary)", resize: "vertical" as const, outline: "none", fontFamily: "inherit", minHeight: 60 } as React.CSSProperties,
   fieldLabel: { fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.05em", marginBottom: 4, marginTop: 14 } as React.CSSProperties,
   empRow: { display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderBottom: "1px solid var(--border)", cursor: "pointer" } as React.CSSProperties,
-  avatar: { width: 32, height: 32, borderRadius: "50%", background: "#05070d", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "#fff", flexShrink: 0 } as React.CSSProperties,
+  avatar: { width: 32, height: 32, borderRadius: "50%", background: "#161822", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "#fff", flexShrink: 0 } as React.CSSProperties,
   empDetail: { padding: "18px 20px" } as React.CSSProperties,
   empSection: { marginBottom: 16 } as React.CSSProperties,
   empSectionTitle: { fontSize: "var(--text-xs)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)", marginBottom: 10 } as React.CSSProperties,
   empField: { display: "flex", padding: "6px 0", borderBottom: "1px solid var(--border)" } as React.CSSProperties,
   empFieldLabel: { width: 140, fontSize: "var(--text-xs)", color: "var(--text-muted)", flexShrink: 0 } as React.CSSProperties,
   empFieldValue: { fontSize: "var(--text-xs)", color: "var(--text-primary)" } as React.CSSProperties,
-  anchorBadge: { display: "inline-flex", alignItems: "center", gap: 3, padding: "2px 8px", fontSize: 11, background: "rgba(34,211,238,0.08)", border: "1px solid rgba(34,211,238,0.15)", borderRadius: 4, color: "#22d3ee", fontWeight: 600 } as React.CSSProperties,
+  anchorBadge: { display: "inline-flex", alignItems: "center", gap: 3, padding: "2px 8px", fontSize: 11, background: "rgba(244,168,58,0.08)", border: "1px solid rgba(244,168,58,0.15)", borderRadius: 4, color: "#f4a83a", fontWeight: 600 } as React.CSSProperties,
 };
 
 /* ═══════════════════════════════════════════════════════════════
@@ -248,7 +248,7 @@ export default function RoleDetailDrawer({ row, isOpen, onClose, onPrev, onNext,
                     <div style={S.empFieldValue}>
                       {value}
                       {label === "Working Title" && selectedEmployee.title !== c.title && (
-                        <span style={{ marginLeft: 8, fontSize: 11, color: "#fbbf24", fontWeight: "var(--fw-medium)" }}>
+                        <span style={{ marginLeft: 8, fontSize: 11, color: "#f4a83a", fontWeight: "var(--fw-medium)" }}>
                           <AlertTriangle size={10} style={{ verticalAlign: "middle", marginRight: 2 }} />
                           Title mismatch
                         </span>
@@ -304,7 +304,7 @@ export default function RoleDetailDrawer({ row, isOpen, onClose, onPrev, onNext,
                       {changed && <div style={S.wasLabel}>Was: {curVal}</div>}
                       {key === "track_code" && row.track_change && (
                         <div style={{ marginTop: 3 }}>
-                          <span style={{ padding: "2px 6px", fontSize: 11, background: "rgba(251,191,36,0.1)", border: "1px solid rgba(251,191,36,0.2)", borderRadius: 3, color: "#fbbf24", fontWeight: 600 }}>Track change</span>
+                          <span style={{ padding: "2px 6px", fontSize: 11, background: "rgba(244,168,58,0.1)", border: "1px solid rgba(244,168,58,0.2)", borderRadius: 3, color: "#f4a83a", fontWeight: 600 }}>Track change</span>
                         </div>
                       )}
                     </div>
@@ -333,7 +333,7 @@ export default function RoleDetailDrawer({ row, isOpen, onClose, onPrev, onNext,
               {row.ai_rationale && (row.ai_rationale as any).summary && (
                 <div style={S.aiBar}>
                   <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-                    <Sparkles size={13} style={{ color: "#22d3ee" }} />
+                    <Sparkles size={13} style={{ color: "#f4a83a" }} />
                     <span style={{ fontSize: 11, fontWeight: "var(--fw-semi)", color: "var(--text-primary)" }}>AI Rationale</span>
                     {row.confidence_score > 0 && (
                       <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--text-muted)" }}>
@@ -387,7 +387,7 @@ export default function RoleDetailDrawer({ row, isOpen, onClose, onPrev, onNext,
                 <>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <FileText size={15} style={{ color: "#22d3ee" }} />
+                      <FileText size={15} style={{ color: "#f4a83a" }} />
                       <span style={{ fontSize: "var(--text-xs)", fontWeight: "var(--fw-medium)", color: "var(--text-primary)" }}>{jd.filename}</span>
                       <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Uploaded {new Date(jd.uploaded_at).toLocaleDateString()}</span>
                     </div>

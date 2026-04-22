@@ -45,9 +45,9 @@ interface Props {
 
 const SEG_CONFIG: Record<string, { label: string; color: string; bg: string; icon: string }> = {
   champion: { label: "Champion", color: "#22C55E", bg: "rgba(34,197,94,0.08)", icon: "★" },
-  capable: { label: "Capable", color: "#22d3ee", bg: "rgba(34,211,238,0.06)", icon: "●" },
-  developing: { label: "Developing", color: "#fbbf24", bg: "rgba(251,191,36,0.06)", icon: "◐" },
-  blocker: { label: "Blocker", color: "#fb7185", bg: "rgba(251,113,133,0.08)", icon: "✕" },
+  capable: { label: "Capable", color: "#f4a83a", bg: "rgba(244,168,58,0.06)", icon: "●" },
+  developing: { label: "Developing", color: "#f4a83a", bg: "rgba(244,168,58,0.06)", icon: "◐" },
+  blocker: { label: "Blocker", color: "#e87a5d", bg: "rgba(232,122,93,0.08)", icon: "✕" },
   detached: { label: "Detached", color: "#9CA3AF", bg: "rgba(156,163,175,0.08)", icon: "○" },
 };
 
@@ -57,7 +57,7 @@ const DIM_LABELS: Record<string, string> = {
   digital_adoption: "Digital Adoption",
 };
 
-const DIM_COLORS = ["#22d3ee", "#fbbf24", "#22C55E", "#a78bfa", "#14B8A6"];
+const DIM_COLORS = ["#f4a83a", "#f4a83a", "#22C55E", "#a78bb8", "#14B8A6"];
 
 /* ═══════════════════════════════════════════════════════════════
    STYLES
@@ -83,7 +83,7 @@ const S = {
   section: { background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 10, padding: "16px 20px" } as React.CSSProperties,
   sectionTitle: { fontSize: "var(--text-sm)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)", marginBottom: 10, display: "flex", alignItems: "center", gap: 8 } as React.CSSProperties,
   table: { width: "100%", borderCollapse: "separate" as const, borderSpacing: 0, fontSize: "var(--text-xs)" } as React.CSSProperties,
-  th: { padding: "7px 10px", fontSize: 11, fontWeight: 600, color: "#fff", textTransform: "uppercase" as const, letterSpacing: "0.05em", background: "#05070d", borderBottom: "2px solid var(--border)", whiteSpace: "nowrap" as const, cursor: "pointer", userSelect: "none" as const } as React.CSSProperties,
+  th: { padding: "7px 10px", fontSize: 11, fontWeight: 600, color: "#fff", textTransform: "uppercase" as const, letterSpacing: "0.05em", background: "#161822", borderBottom: "2px solid var(--border)", whiteSpace: "nowrap" as const, cursor: "pointer", userSelect: "none" as const } as React.CSSProperties,
   td: { padding: "7px 10px", borderBottom: "1px solid var(--border)", verticalAlign: "middle" as const } as React.CSSProperties,
   segBadge: (seg: string) => {
     const c = SEG_CONFIG[seg] || SEG_CONFIG.capable;
@@ -92,9 +92,9 @@ const S = {
   dimBar: (score: number, color: string) => ({ width: `${score}%`, height: 6, background: color, borderRadius: 3, transition: "width 0.3s" }) as React.CSSProperties,
   dimBarBg: { width: "100%", height: 6, background: "var(--border)", borderRadius: 3 } as React.CSSProperties,
   devArea: { display: "flex", alignItems: "center", gap: 6, padding: "4px 0", fontSize: 11, borderBottom: "1px solid var(--border)" } as React.CSSProperties,
-  expandRow: { background: "rgba(34,211,238,0.02)", padding: "12px 16px" } as React.CSSProperties,
+  expandRow: { background: "rgba(244,168,58,0.02)", padding: "12px 16px" } as React.CSSProperties,
   btn: { display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 12px", fontSize: 11, fontWeight: "var(--fw-medium)", border: "1px solid var(--border)", borderRadius: 6, background: "var(--surface-2)", color: "var(--text-secondary)", cursor: "pointer" } as React.CSSProperties,
-  btnPrimary: { display: "inline-flex", alignItems: "center", gap: 4, padding: "7px 14px", fontSize: 11, fontWeight: "var(--fw-semi)", border: "none", borderRadius: 6, background: "#22d3ee", color: "#fff", cursor: "pointer" } as React.CSSProperties,
+  btnPrimary: { display: "inline-flex", alignItems: "center", gap: 4, padding: "7px 14px", fontSize: 11, fontWeight: "var(--fw-semi)", border: "none", borderRadius: 6, background: "#f4a83a", color: "#fff", cursor: "pointer" } as React.CSSProperties,
   emptyState: { textAlign: "center" as const, padding: "60px 24px", color: "var(--text-muted)" } as React.CSSProperties,
 };
 
@@ -192,7 +192,7 @@ export default function ManagerCapabilityModule({ model, projectId }: Props) {
       {/* ── KPI row ── */}
       {s && (
         <div style={S.kpiRow}>
-          <div style={S.kpi("#22d3ee")}>
+          <div style={S.kpi("#f4a83a")}>
             <div style={S.kpiLabel}>Total Managers</div>
             <div style={S.kpiValue}>{s.total_managers}</div>
           </div>
@@ -201,17 +201,17 @@ export default function ManagerCapabilityModule({ model, projectId }: Props) {
             <div style={S.kpiValue}>{s.champions}</div>
             <div style={S.kpiSub}>{s.total_managers > 0 ? `${Math.round(s.champions / s.total_managers * 100)}%` : "0%"} of managers</div>
           </div>
-          <div style={S.kpi("#fb7185")}>
+          <div style={S.kpi("#e87a5d")}>
             <div style={S.kpiLabel}>Blockers</div>
             <div style={S.kpiValue}>{s.blockers}</div>
             <div style={S.kpiSub}>need intervention</div>
           </div>
-          <div style={S.kpi("#fbbf24")}>
+          <div style={S.kpi("#f4a83a")}>
             <div style={S.kpiLabel}>Avg Composite</div>
             <div style={S.kpiValue}>{s.avg_composite}</div>
             <div style={S.kpiSub}>out of 100</div>
           </div>
-          <div style={S.kpi("#a78bfa")}>
+          <div style={S.kpi("#a78bb8")}>
             <div style={S.kpiLabel}>Weakest Dimension</div>
             <div style={{ ...S.kpiValue, fontSize: 13 }}>
               {dimChartData.length > 0 ? dimChartData.sort((a, b) => a.value - b.value)[0].name : "—"}
@@ -267,7 +267,7 @@ export default function ManagerCapabilityModule({ model, projectId }: Props) {
 
       {/* ── Segment filter pills ── */}
       <div style={S.segPills}>
-        <button style={S.segPill(segFilter === "", "#22d3ee")} onClick={() => setSegFilter("")}>All ({s?.total_managers || 0})</button>
+        <button style={S.segPill(segFilter === "", "#f4a83a")} onClick={() => setSegFilter("")}>All ({s?.total_managers || 0})</button>
         {Object.entries(SEG_CONFIG).map(([key, cfg]) => (
           <button key={key} style={S.segPill(segFilter === key, cfg.color)} onClick={() => setSegFilter(segFilter === key ? "" : key)}>
             {cfg.icon} {cfg.label} ({s?.segments?.[key] || 0})
@@ -324,17 +324,17 @@ export default function ManagerCapabilityModule({ model, projectId }: Props) {
                   <React.Fragment key={a.id}>
                     <tr style={{ cursor: "pointer" }}
                       onClick={() => setExpandedId(isExpanded ? null : a.id)}
-                      onMouseEnter={e => (e.currentTarget.style.background = "rgba(34,211,238,0.02)")}
+                      onMouseEnter={e => (e.currentTarget.style.background = "rgba(244,168,58,0.02)")}
                       onMouseLeave={e => (e.currentTarget.style.background = "")}>
                       <td style={{ ...S.td, fontWeight: "var(--fw-medium)", color: "var(--text-primary)" }}>
                         {a.employee_name}
                         {a.is_champion_candidate && <Star size={10} style={{ color: "#22C55E", marginLeft: 4 }} />}
-                        {a.is_blocker_flagged && <AlertTriangle size={10} style={{ color: "#fb7185", marginLeft: 4 }} />}
+                        {a.is_blocker_flagged && <AlertTriangle size={10} style={{ color: "#e87a5d", marginLeft: 4 }} />}
                       </td>
                       <td style={{ ...S.td, color: "var(--text-secondary)" }}>{a.job_title}</td>
                       <td style={{ ...S.td, color: "var(--text-muted)" }}>{a.function}</td>
                       <td style={S.td}><span style={S.segBadge(a.segment)}>{sc.icon} {sc.label}</span></td>
-                      <td style={{ ...S.td, fontFamily: "var(--ff-mono)", fontWeight: "var(--fw-bold)", color: a.composite_score >= 70 ? "#22C55E" : a.composite_score >= 50 ? "#fbbf24" : "#fb7185" }}>{a.composite_score}</td>
+                      <td style={{ ...S.td, fontFamily: "var(--ff-mono)", fontWeight: "var(--fw-bold)", color: a.composite_score >= 70 ? "#22C55E" : a.composite_score >= 50 ? "#f4a83a" : "#e87a5d" }}>{a.composite_score}</td>
                       {["ai_fluency", "change_leadership", "coaching_development", "strategic_thinking", "digital_adoption"].map((dim, i) => (
                         <td key={dim} style={{ ...S.td, width: 50 }}>
                           <div style={S.dimBarBg}><div style={S.dimBar((a as any)[dim], DIM_COLORS[i])} /></div>
@@ -344,8 +344,8 @@ export default function ManagerCapabilityModule({ model, projectId }: Props) {
                       <td style={{ ...S.td, fontFamily: "var(--ff-mono)", textAlign: "center" }}>{a.direct_reports_count}</td>
                       <td style={S.td}>
                         <span style={{ fontSize: 11, fontWeight: 600, padding: "1px 5px", borderRadius: 3,
-                          background: a.development_priority === "high" ? "rgba(251,113,133,0.1)" : a.development_priority === "medium" ? "rgba(251,191,36,0.1)" : "rgba(34,197,94,0.1)",
-                          color: a.development_priority === "high" ? "#fb7185" : a.development_priority === "medium" ? "#fbbf24" : "#22C55E",
+                          background: a.development_priority === "high" ? "rgba(232,122,93,0.1)" : a.development_priority === "medium" ? "rgba(244,168,58,0.1)" : "rgba(34,197,94,0.1)",
+                          color: a.development_priority === "high" ? "#e87a5d" : a.development_priority === "medium" ? "#f4a83a" : "#22C55E",
                         }}>{a.development_priority}</span>
                       </td>
                     </tr>
@@ -369,7 +369,7 @@ export default function ManagerCapabilityModule({ model, projectId }: Props) {
                                 {a.development_areas.length > 0 ? a.development_areas.map((da, i) => (
                                   <div key={i} style={S.devArea}>
                                     <span style={{ flex: 1, color: "var(--text-secondary)" }}>{da.area}</span>
-                                    <span style={{ fontFamily: "var(--ff-mono)", fontSize: 11, color: "#fb7185" }}>gap: {da.gap}</span>
+                                    <span style={{ fontFamily: "var(--ff-mono)", fontSize: 11, color: "#e87a5d" }}>gap: {da.gap}</span>
                                     <span style={{ fontFamily: "var(--ff-mono)", fontSize: 11, color: "var(--text-muted)" }}>{da.current}→{da.target}</span>
                                   </div>
                                 )) : <div style={{ fontSize: 11, color: "var(--text-muted)" }}>No development gaps identified</div>}
@@ -378,8 +378,8 @@ export default function ManagerCapabilityModule({ model, projectId }: Props) {
                               <div>
                                 <div style={{ fontSize: 11, fontWeight: "var(--fw-semi)", color: "var(--text-primary)", marginBottom: 6 }}>Actions</div>
                                 {a.segment === "champion" && <div style={{ fontSize: 11, color: "#22C55E", marginBottom: 4 }}>★ Assign as change champion · Pair with developing managers</div>}
-                                {a.segment === "blocker" && <div style={{ fontSize: 11, color: "#fb7185", marginBottom: 4 }}>⚠ {a.blocker_reason || "Requires targeted intervention"}</div>}
-                                {a.development_priority === "high" && <div style={{ fontSize: 11, color: "#fbbf24", marginBottom: 4 }}>Priority development needed before transformation wave</div>}
+                                {a.segment === "blocker" && <div style={{ fontSize: 11, color: "#e87a5d", marginBottom: 4 }}>⚠ {a.blocker_reason || "Requires targeted intervention"}</div>}
+                                {a.development_priority === "high" && <div style={{ fontSize: 11, color: "#f4a83a", marginBottom: 4 }}>Priority development needed before transformation wave</div>}
                               </div>
                             </div>
                           </div>

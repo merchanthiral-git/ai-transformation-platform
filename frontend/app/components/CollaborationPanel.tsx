@@ -88,7 +88,7 @@ export function PresenceAvatars({ users }: { users: CollabUser[] }) {
             style={{
               position: "absolute", top: 36, right: 0, minWidth: 240,
               background: "rgba(15,12,8,0.95)", backdropFilter: "blur(20px)",
-              border: "1px solid rgba(34,211,238,0.12)",
+              border: "1px solid rgba(244,168,58,0.12)",
               borderRadius: 14, padding: 8, zIndex: 100,
               boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
             }}
@@ -141,8 +141,8 @@ export function EditingIndicator({ users }: { users: CollabUser[] }) {
         animate={{ opacity: 1, height: "auto" }}
         exit={{ opacity: 0, height: 0 }}
         style={{
-          background: "rgba(52,211,153,0.08)",
-          borderBottom: "1px solid rgba(52,211,153,0.15)",
+          background: "rgba(139,168,122,0.08)",
+          borderBottom: "1px solid rgba(139,168,122,0.15)",
           padding: "6px 20px",
           display: "flex", alignItems: "center", gap: 8,
           fontSize: 13, color: "var(--success)",
@@ -179,7 +179,7 @@ export function RemoteChangeToast({ change, onDismiss }: { change: RemoteChange 
           style={{
             position: "fixed", bottom: 24, left: "50%",
             background: "rgba(15,12,8,0.95)", backdropFilter: "blur(20px)",
-            border: "1px solid rgba(34,211,238,0.2)",
+            border: "1px solid rgba(244,168,58,0.2)",
             borderRadius: 12, padding: "10px 20px",
             zIndex: 10000, cursor: "pointer",
             boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
@@ -242,7 +242,7 @@ export function ActivityFeedPanel({ activity, onClose }: { activity: ActivityEnt
       transition={{ duration: 0.25, ease: "easeOut" }}
     >
       <div className="px-4 py-3 flex items-center justify-between border-b border-[var(--border)]"
-        style={{ background: "linear-gradient(135deg, rgba(34,211,238,0.06), transparent)" }}>
+        style={{ background: "linear-gradient(135deg, rgba(244,168,58,0.06), transparent)" }}>
         <div className="flex items-center gap-2">
           <span style={{ fontSize: 16 }}>📡</span>
           <div>

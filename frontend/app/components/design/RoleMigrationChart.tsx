@@ -52,7 +52,7 @@ const defaultInsights: Insight[] = [
 
 /* Phase 4 color palette */
 const TEAL = "#14B8A6";
-const AMBER = "#fbbf24";
+const AMBER = "#f4a83a";
 const CORAL = "#D85A30";
 
 /* Navy reference for text */
@@ -108,7 +108,7 @@ function DeptRow({
         background: hovered || focused ? "rgba(28,43,58,0.03)" : "transparent",
         transition: "background 0.15s ease",
         position: "relative",
-        outline: focused ? "2px solid #22d3ee" : "none",
+        outline: focused ? "2px solid #f4a83a" : "none",
         outlineOffset: 1,
       }}
     >

@@ -48,7 +48,7 @@ export function HeadcountPlanning({ model, f, onBack, onNavigate, jobStates, vie
       { label: "Attrition", value: -Number(src.natural_attrition || 0), delta: -Number(src.natural_attrition || 0), color: getSemanticColor("warn") },
       { label: "Redeployed", value: Number(src.redeployments || 0), delta: Number(src.redeployments || 0), color: getSemanticColor("info") },
       { label: "New Hires", value: Number(src.new_hires || 0), delta: Number(src.new_hires || 0), color: getSemanticColor("success") },
-      { label: "Contractors", value: Number(src.contractors || 0), delta: Number(src.contractors || 0), color: "#a78bfa" },
+      { label: "Contractors", value: Number(src.contractors || 0), delta: Number(src.contractors || 0), color: "#a78bb8" },
       { label: "Target", value: Number(src.target_headcount || 0), delta: 0, color: getSemanticColor("success") },
     ];
   }, [hasData, wf]);

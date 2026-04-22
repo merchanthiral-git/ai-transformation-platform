@@ -27,7 +27,7 @@ const SKILL_TABS = [
 ];
 
 const CAT_COLORS: Record<string, string> = {
-  technical: "#22d3ee", functional: "#fbbf24", leadership: "#a78bfa", adaptive: "#34d399",
+  technical: "#f4a83a", functional: "#f4a83a", leadership: "#a78bb8", adaptive: "#8ba87a",
 };
 
 const PROFICIENCY_LEVELS = [
@@ -801,10 +801,10 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
                     <div>
                       {/* Quadrant labels */}
                       <div className="grid grid-cols-2 gap-2 mb-3">
-                        <div className="text-center text-[13px] text-[var(--text-muted)] py-1 rounded" style={{ background: "rgba(251,113,133,0.1)" }}>Phase Out (High Risk, Low Importance)</div>
-                        <div className="text-center text-[13px] text-[var(--text-muted)] py-1 rounded" style={{ background: "rgba(251,191,36,0.1)" }}>Augment (High Risk, High Importance)</div>
+                        <div className="text-center text-[13px] text-[var(--text-muted)] py-1 rounded" style={{ background: "rgba(232,122,93,0.1)" }}>Phase Out (High Risk, Low Importance)</div>
+                        <div className="text-center text-[13px] text-[var(--text-muted)] py-1 rounded" style={{ background: "rgba(244,168,58,0.1)" }}>Augment (High Risk, High Importance)</div>
                         <div className="text-center text-[13px] text-[var(--text-muted)] py-1 rounded" style={{ background: "rgba(107,114,128,0.1)" }}>Maintain (Low Risk, Low Importance)</div>
-                        <div className="text-center text-[13px] text-[var(--text-muted)] py-1 rounded" style={{ background: "rgba(52,211,153,0.1)" }}>Protect (Low Risk, High Importance)</div>
+                        <div className="text-center text-[13px] text-[var(--text-muted)] py-1 rounded" style={{ background: "rgba(139,168,122,0.1)" }}>Protect (Low Risk, High Importance)</div>
                       </div>
                       {/* Scatter plot */}
                       <div className="flex justify-center">

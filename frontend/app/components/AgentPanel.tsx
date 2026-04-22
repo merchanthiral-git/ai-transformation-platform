@@ -100,11 +100,11 @@ export function AgentPanel({ agentName, projectId, sessionData, title, dataChang
     <div className="px-4 py-3 border-b border-[var(--border)] flex items-center gap-2">
       <span className="text-[16px]">{config.icon}</span>
       <span className="text-[14px] font-bold text-[var(--text-primary)] font-heading flex-1">{title || config.label}</span>
-      {findings?.from_memory && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[rgba(167,139,250,0.1)] text-[var(--purple)]">from memory</span>}
+      {findings?.from_memory && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[rgba(167,139,184,0.1)] text-[var(--purple)]">from memory</span>}
     </div>
 
     {/* Data changed banner */}
-    {dataChanged && state !== "loading" && <div className="px-4 py-2.5 bg-[rgba(251,191,36,0.08)] border-b border-[var(--warning)]/20 flex items-center gap-2">
+    {dataChanged && state !== "loading" && <div className="px-4 py-2.5 bg-[rgba(244,168,58,0.08)] border-b border-[var(--warning)]/20 flex items-center gap-2">
       <span className="text-[13px] text-[var(--warning)] flex-1">New data detected — your last analysis may be outdated.</span>
       <button onClick={runAgent} className="text-[12px] font-bold text-[var(--warning)] hover:text-[var(--amber)] transition-colors">Re-run</button>
     </div>}
@@ -112,7 +112,7 @@ export function AgentPanel({ agentName, projectId, sessionData, title, dataChang
     <div className="p-4">
       {/* Idle state */}
       {state === "idle" && <div className="text-center py-6">
-        <button onClick={runAgent} className="px-5 py-2.5 rounded-xl text-[14px] font-bold transition-all hover:scale-[1.02]" style={{ background: "linear-gradient(135deg, rgba(34,211,238,0.15), rgba(192,112,48,0.15))", color: "var(--accent-primary)", border: "1px solid rgba(34,211,238,0.2)" }}>
+        <button onClick={runAgent} className="px-5 py-2.5 rounded-xl text-[14px] font-bold transition-all hover:scale-[1.02]" style={{ background: "linear-gradient(135deg, rgba(244,168,58,0.15), rgba(192,112,48,0.15))", color: "var(--accent-primary)", border: "1px solid rgba(244,168,58,0.2)" }}>
           Run Analysis
         </button>
         <div className="text-[12px] text-[var(--text-muted)] mt-2">Powered by Claude Sonnet</div>
@@ -131,12 +131,12 @@ export function AgentPanel({ agentName, projectId, sessionData, title, dataChang
       {/* Complete state */}
       {state === "complete" && findings && <>
         {/* Error */}
-        {findings.error && <div className="text-[13px] text-[var(--risk)] bg-[rgba(251,113,133,0.06)] rounded-lg p-3 border border-[var(--risk)]/20">
+        {findings.error && <div className="text-[13px] text-[var(--risk)] bg-[rgba(232,122,93,0.06)] rounded-lg p-3 border border-[var(--risk)]/20">
           {findings.message || "Analysis failed"}
         </div>}
 
         {/* Clarifying question — show before findings */}
-        {findings.clarifying_question && !findings.error && <div className="mb-4 rounded-lg border border-[var(--warning)]/30 bg-[rgba(251,191,36,0.06)] p-3">
+        {findings.clarifying_question && !findings.error && <div className="mb-4 rounded-lg border border-[var(--warning)]/30 bg-[rgba(244,168,58,0.06)] p-3">
           <div className="text-[12px] font-bold text-[var(--warning)] uppercase mb-1">Clarifying Question</div>
           <div className="text-[13px] text-[var(--text-primary)] mb-3">{findings.clarifying_question}</div>
           <div className="flex gap-2">
@@ -284,13 +284,13 @@ function Section({ title, items }: { title: string; items: { label: string; deta
     <div className="text-[12px] font-bold text-[var(--text-muted)] uppercase mb-2">{title}</div>
     <div className="space-y-1.5">
       {items.map((item, i) => <div key={i} className="flex items-start gap-2 text-[12px]">
-        {typeof item.score === "number" && item.score > 0 && <span className="shrink-0 w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold" style={{ background: "rgba(34,211,238,0.1)", color: "var(--accent-primary)" }}>{item.score}</span>}
+        {typeof item.score === "number" && item.score > 0 && <span className="shrink-0 w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold" style={{ background: "rgba(244,168,58,0.1)", color: "var(--accent-primary)" }}>{item.score}</span>}
         <div className="flex-1 min-w-0">
           <div className="font-semibold text-[var(--text-primary)]">{item.label}</div>
           {item.detail && <div className="text-[var(--text-muted)] mt-0.5">{item.detail}</div>}
         </div>
         {item.badge && <span className="shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded" style={{
-          background: item.badge === "Quick Win" ? "rgba(52,211,153,0.1)" : item.badge === "critical" || item.badge === "high" ? "rgba(251,113,133,0.1)" : "rgba(251,191,36,0.1)",
+          background: item.badge === "Quick Win" ? "rgba(139,168,122,0.1)" : item.badge === "critical" || item.badge === "high" ? "rgba(232,122,93,0.1)" : "rgba(244,168,58,0.1)",
           color: item.badge === "Quick Win" ? "var(--success)" : item.badge === "critical" || item.badge === "high" ? "var(--risk)" : "var(--warning)",
         }}>{item.badge}</span>}
       </div>)}
@@ -350,7 +350,7 @@ export function AgentOrchestrator({ projectId, sessionData }: OrchestratorProps)
   };
 
   if (!open) {
-    return <button onClick={() => setOpen(true)} className="fixed bottom-24 right-6 z-30 w-12 h-12 rounded-full flex items-center justify-center text-[18px] shadow-lg transition-all hover:scale-110" style={{ background: "linear-gradient(135deg, rgba(34,211,238,0.9), rgba(192,112,48,0.9))", color: "white" }} title="AI Analysis">
+    return <button onClick={() => setOpen(true)} className="fixed bottom-24 right-6 z-30 w-12 h-12 rounded-full flex items-center justify-center text-[18px] shadow-lg transition-all hover:scale-110" style={{ background: "linear-gradient(135deg, rgba(244,168,58,0.9), rgba(192,112,48,0.9))", color: "white" }} title="AI Analysis">
       🤖
     </button>;
   }
@@ -398,7 +398,7 @@ export function AgentOrchestrator({ projectId, sessionData }: OrchestratorProps)
           {/* Chain log */}
           {result.chain_log && result.chain_log.length > 0 && <div className="flex items-center gap-2 mb-4 flex-wrap">
             {result.chain_log.map((entry, i) => <React.Fragment key={entry.agent}>
-              <div className="flex items-center gap-1.5 px-3 py-2 rounded-lg" style={{ background: entry.status === "complete" ? "rgba(52,211,153,0.08)" : "rgba(251,113,133,0.08)" }}>
+              <div className="flex items-center gap-1.5 px-3 py-2 rounded-lg" style={{ background: entry.status === "complete" ? "rgba(139,168,122,0.08)" : "rgba(232,122,93,0.08)" }}>
                 <span className="text-[14px]">{AGENT_ICONS[entry.agent] || "✓"}</span>
                 <span className="text-[12px] font-semibold" style={{ color: entry.status === "complete" ? "var(--success)" : "var(--risk)" }}>{entry.agent}</span>
                 <span className="text-[10px] text-[var(--text-muted)]">{entry.duration_ms}ms</span>
@@ -416,7 +416,7 @@ export function AgentOrchestrator({ projectId, sessionData }: OrchestratorProps)
           </div>}
 
           {/* Clarifying question */}
-          {result.clarifying_question && <div className="mb-4 p-3 rounded-lg border border-[var(--warning)]/30 bg-[rgba(251,191,36,0.06)]">
+          {result.clarifying_question && <div className="mb-4 p-3 rounded-lg border border-[var(--warning)]/30 bg-[rgba(244,168,58,0.06)]">
             <div className="text-[12px] font-bold text-[var(--warning)] mb-1">Agent has a question</div>
             <div className="text-[13px] text-[var(--text-primary)]">{result.clarifying_question}</div>
           </div>}
@@ -459,7 +459,7 @@ export function AgentOrchestrator({ projectId, sessionData }: OrchestratorProps)
           {result.findings.actions && <div className="p-4 rounded-lg bg-[var(--surface-2)]">
             <div className="text-[13px] text-[var(--text-secondary)] leading-relaxed mb-3">{String((result.findings.actions as Record<string, unknown>).narrative || "")}</div>
             {Array.isArray((result.findings.actions as Record<string, unknown>).priority_actions) && ((result.findings.actions as Record<string, unknown>).priority_actions as Record<string, unknown>[]).map((a, i) => <div key={i} className="flex items-start gap-2 text-[12px] py-1.5 border-t border-[var(--border)]">
-              <span className="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold bg-[rgba(34,211,238,0.1)] text-[var(--accent-primary)] shrink-0">{i + 1}</span>
+              <span className="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold bg-[rgba(244,168,58,0.1)] text-[var(--accent-primary)] shrink-0">{i + 1}</span>
               <div><div className="font-semibold text-[var(--text-primary)]">{String(a.action || "")}</div>{a.rationale && <div className="text-[var(--text-muted)] mt-0.5">{String(a.rationale)}</div>}</div>
             </div>)}
           </div>}

@@ -37,14 +37,14 @@ interface Props {
    STYLES
    ═══════════════════════════════════════════════════════════════ */
 
-const SEV_COLORS: Record<string, string> = { error: "#fb7185", warning: "#fbbf24", info: "#22d3ee" };
+const SEV_COLORS: Record<string, string> = { error: "#e87a5d", warning: "#f4a83a", info: "#f4a83a" };
 
 const S = {
   page: { padding: "24px 28px", maxWidth: 1100, margin: "0 auto" } as React.CSSProperties,
   h2: { fontSize: "var(--text-lg)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)", margin: "0 0 4px" } as React.CSSProperties,
   subtitle: { fontSize: "var(--text-xs)", color: "var(--text-muted)", marginBottom: 20 } as React.CSSProperties,
   tabs: { display: "flex", borderBottom: "1px solid var(--border)", marginBottom: 20, gap: 0 } as React.CSSProperties,
-  tab: (active: boolean) => ({ padding: "8px 16px", fontSize: "var(--text-xs)", fontWeight: active ? "var(--fw-semi)" : "var(--fw-medium)", color: active ? "#22d3ee" : "var(--text-muted)", borderBottom: active ? "2px solid #22d3ee" : "2px solid transparent", background: "none", border: "none", cursor: "pointer" }) as React.CSSProperties,
+  tab: (active: boolean) => ({ padding: "8px 16px", fontSize: "var(--text-xs)", fontWeight: active ? "var(--fw-semi)" : "var(--fw-medium)", color: active ? "#f4a83a" : "var(--text-muted)", borderBottom: active ? "2px solid #f4a83a" : "2px solid transparent", background: "none", border: "none", cursor: "pointer" }) as React.CSSProperties,
   section: { background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 10, marginBottom: 16, overflow: "hidden" } as React.CSSProperties,
   ruleRow: { display: "flex", alignItems: "center", gap: 12, padding: "12px 18px", borderBottom: "1px solid var(--border)" } as React.CSSProperties,
   sevDot: (sev: string) => ({ width: 8, height: 8, borderRadius: "50%", background: SEV_COLORS[sev] || "#9CA3AF", flexShrink: 0 }) as React.CSSProperties,
@@ -55,7 +55,7 @@ const S = {
   toggleBtn: { background: "none", border: "none", cursor: "pointer", padding: 2, display: "flex" } as React.CSSProperties,
   groupHeader: (sev: string) => ({
     display: "flex", alignItems: "center", gap: 8, padding: "10px 18px",
-    background: sev === "error" ? "rgba(251,113,133,0.06)" : sev === "warning" ? "rgba(251,191,36,0.06)" : "rgba(34,211,238,0.04)",
+    background: sev === "error" ? "rgba(232,122,93,0.06)" : sev === "warning" ? "rgba(244,168,58,0.06)" : "rgba(244,168,58,0.04)",
     borderBottom: "1px solid var(--border)", cursor: "pointer",
   }) as React.CSSProperties,
   violationRow: { display: "flex", alignItems: "center", gap: 10, padding: "8px 18px 8px 44px", borderBottom: "1px solid var(--border)", fontSize: "var(--text-xs)" } as React.CSSProperties,
@@ -159,16 +159,16 @@ export default function FlagRules({ projectId, scenarioId, onRoleClick }: Props)
 
       {/* Summary */}
       <div style={S.summaryBar}>
-        <div style={S.summaryItem("#fb7185")}>
-          <span style={{ fontSize: "var(--text-base)", fontWeight: "var(--fw-bold)", color: "#fb7185" }}>{errorCount}</span>
+        <div style={S.summaryItem("#e87a5d")}>
+          <span style={{ fontSize: "var(--text-base)", fontWeight: "var(--fw-bold)", color: "#e87a5d" }}>{errorCount}</span>
           <span style={{ color: "var(--text-muted)" }}>Errors</span>
         </div>
-        <div style={S.summaryItem("#fbbf24")}>
-          <span style={{ fontSize: "var(--text-base)", fontWeight: "var(--fw-bold)", color: "#fbbf24" }}>{warnCount}</span>
+        <div style={S.summaryItem("#f4a83a")}>
+          <span style={{ fontSize: "var(--text-base)", fontWeight: "var(--fw-bold)", color: "#f4a83a" }}>{warnCount}</span>
           <span style={{ color: "var(--text-muted)" }}>Warnings</span>
         </div>
-        <div style={S.summaryItem("#22d3ee")}>
-          <span style={{ fontSize: "var(--text-base)", fontWeight: "var(--fw-bold)", color: "#22d3ee" }}>{infoCount}</span>
+        <div style={S.summaryItem("#f4a83a")}>
+          <span style={{ fontSize: "var(--text-base)", fontWeight: "var(--fw-bold)", color: "#f4a83a" }}>{infoCount}</span>
           <span style={{ color: "var(--text-muted)" }}>Info</span>
         </div>
       </div>
@@ -209,7 +209,7 @@ export default function FlagRules({ projectId, scenarioId, onRoleClick }: Props)
                     <div style={{ flex: 1, color: "var(--text-secondary)" }}>
                       {v.detail}
                     </div>
-                    <button style={{ ...S.suppressBtn, color: "#22d3ee" }}
+                    <button style={{ ...S.suppressBtn, color: "#f4a83a" }}
                       onClick={() => onRoleClick?.(v.role_id)}>
                       View
                     </button>
@@ -217,7 +217,7 @@ export default function FlagRules({ projectId, scenarioId, onRoleClick }: Props)
                       <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                         <input style={{ ...S.thresholdInput, width: 160 }} value={suppressNote}
                           onChange={e => setSuppressNote(e.target.value)} placeholder="Required: reason for exception" autoFocus />
-                        <button style={{ ...S.suppressBtn, color: "#34d399" }} onClick={() => suppressViolation(v.id)} disabled={!suppressNote.trim()}>
+                        <button style={{ ...S.suppressBtn, color: "#8ba87a" }} onClick={() => suppressViolation(v.id)} disabled={!suppressNote.trim()}>
                           <Check size={10} />
                         </button>
                         <button style={S.suppressBtn} onClick={() => { setSuppressingId(null); setSuppressNote(""); }}>
@@ -259,7 +259,7 @@ export default function FlagRules({ projectId, scenarioId, onRoleClick }: Props)
               </span>
               <button style={S.toggleBtn} onClick={() => toggleRule(rule.id, !rule.enabled)}>
                 {rule.enabled
-                  ? <ToggleRight size={20} style={{ color: "#34d399" }} />
+                  ? <ToggleRight size={20} style={{ color: "#8ba87a" }} />
                   : <ToggleLeft size={20} style={{ color: "var(--text-muted)" }} />}
               </button>
             </div>

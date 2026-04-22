@@ -47,14 +47,14 @@ interface Props {
    ═══════════════════════════════════════════════════════════════ */
 
 const FUNC_COLORS: Record<string, { main: string; light: string; dark: string }> = {
-  Technology: { main: "#22d3ee", light: "#EFF6FF", dark: "#1E3A8A" },
-  Engineering: { main: "#22d3ee", light: "#EFF6FF", dark: "#1E3A8A" },
-  Product: { main: "#a78bfa", light: "#EEEDFE", dark: "#3C3489" },
+  Technology: { main: "#f4a83a", light: "#EFF6FF", dark: "#1E3A8A" },
+  Engineering: { main: "#f4a83a", light: "#EFF6FF", dark: "#1E3A8A" },
+  Product: { main: "#a78bb8", light: "#EEEDFE", dark: "#3C3489" },
   Finance: { main: "#14B8A6", light: "#E1F5EE", dark: "#085041" },
   HR: { main: "#639922", light: "#ECFCCB", dark: "#365314" },
-  "Sales & Marketing": { main: "#fbbf24", light: "#FEF1E8", dark: "#7C2D12" },
-  Commercial: { main: "#a78bfa", light: "#EEEDFE", dark: "#3C3489" },
-  Operations: { main: "#fbbf24", light: "#FEF1E8", dark: "#7C2D12" },
+  "Sales & Marketing": { main: "#f4a83a", light: "#FEF1E8", dark: "#7C2D12" },
+  Commercial: { main: "#a78bb8", light: "#EEEDFE", dark: "#3C3489" },
+  Operations: { main: "#f4a83a", light: "#FEF1E8", dark: "#7C2D12" },
   Legal: { main: "#D4537E", light: "#FBEAF0", dark: "#72243E" },
 };
 
@@ -68,23 +68,23 @@ function getFuncColor(func: string) {
 
 const S = {
   wrapper: { display: "flex", flexDirection: "column" as const, height: "calc(100vh - 120px)", overflow: "hidden", position: "relative" as const } as React.CSSProperties,
-  toolbar: { display: "flex", alignItems: "center", gap: 10, padding: "8px 16px", background: "#fff", borderBottom: "0.5px solid rgba(5,7,13,0.12)", flexShrink: 0, zIndex: 10 } as React.CSSProperties,
-  searchBox: { display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", background: "#e8ecf5", border: "0.5px solid rgba(5,7,13,0.15)", borderRadius: 6, width: 240 } as React.CSSProperties,
-  searchInput: { flex: 1, background: "transparent", border: "none", color: "#05070d", fontSize: 12, outline: "none" } as React.CSSProperties,
-  select: { padding: "6px 10px", fontSize: 12, background: "#fff", border: "0.5px solid rgba(5,7,13,0.15)", borderRadius: 6, color: "#05070d", outline: "none" } as React.CSSProperties,
-  pill: (active: boolean, color: string) => ({ padding: "4px 12px", fontSize: 11, fontWeight: active ? 600 : 400, border: `1px solid ${active ? color : "rgba(5,7,13,0.15)"}`, borderRadius: 14, background: active ? `${color}12` : "#fff", color: active ? color : "rgba(5,7,13,0.65)", cursor: "pointer" }) as React.CSSProperties,
-  btn: { display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 10px", fontSize: 11, fontWeight: 500, border: "0.5px solid rgba(5,7,13,0.15)", borderRadius: 6, background: "#fff", color: "#05070d", cursor: "pointer" } as React.CSSProperties,
-  btnPrimary: { display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 14px", fontSize: 11, fontWeight: 600, border: "none", borderRadius: 6, background: "#05070d", color: "#fff", cursor: "pointer" } as React.CSSProperties,
-  metaStats: { display: "flex", alignItems: "center", gap: 8, padding: "6px 16px", background: "#e8ecf5", borderBottom: "0.5px solid rgba(5,7,13,0.08)", fontSize: 11, color: "rgba(5,7,13,0.65)", flexShrink: 0 } as React.CSSProperties,
-  canvas: { flex: 1, background: "#e8ecf5", overflow: "hidden", position: "relative" as const, cursor: "grab" } as React.CSSProperties,
-  zoomControls: { position: "absolute" as const, bottom: 12, left: 12, display: "flex", alignItems: "center", gap: 2, padding: "4px 6px", background: "#fff", border: "0.5px solid rgba(5,7,13,0.12)", borderRadius: 6, zIndex: 5, fontSize: 11 } as React.CSSProperties,
-  minimap: { position: "absolute" as const, bottom: 12, right: 12, width: 200, height: 84, background: "#fff", border: "0.5px solid rgba(5,7,13,0.15)", borderRadius: 6, zIndex: 5, padding: 6 } as React.CSSProperties,
-  breadcrumb: { position: "absolute" as const, top: 8, left: 8, display: "flex", alignItems: "center", gap: 4, padding: "4px 10px", background: "#fff", border: "0.5px solid rgba(5,7,13,0.12)", borderRadius: 6, zIndex: 5, fontSize: 11 } as React.CSSProperties,
-  searchDropdown: { position: "absolute" as const, top: 44, left: 16, width: 300, maxHeight: 320, background: "#fff", border: "0.5px solid rgba(5,7,13,0.15)", borderRadius: 8, boxShadow: "0 4px 12px rgba(0,0,0,0.1)", zIndex: 20, overflowY: "auto" as const } as React.CSSProperties,
-  searchResult: { display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", cursor: "pointer", fontSize: 12, borderBottom: "1px solid rgba(5,7,13,0.06)" } as React.CSSProperties,
-  contextMenu: { position: "fixed" as const, background: "#fff", border: "0.5px solid rgba(5,7,13,0.15)", borderRadius: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", zIndex: 30, padding: "4px 0", minWidth: 200 } as React.CSSProperties,
-  contextItem: { display: "flex", alignItems: "center", gap: 8, padding: "7px 14px", fontSize: 12, color: "#05070d", cursor: "pointer" } as React.CSSProperties,
-  emptyState: { display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", height: "100%", color: "rgba(5,7,13,0.4)" } as React.CSSProperties,
+  toolbar: { display: "flex", alignItems: "center", gap: 10, padding: "8px 16px", background: "#fff", borderBottom: "0.5px solid rgba(22,24,34,0.12)", flexShrink: 0, zIndex: 10 } as React.CSSProperties,
+  searchBox: { display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", background: "#f4ebd9", border: "0.5px solid rgba(22,24,34,0.15)", borderRadius: 6, width: 240 } as React.CSSProperties,
+  searchInput: { flex: 1, background: "transparent", border: "none", color: "#161822", fontSize: 12, outline: "none" } as React.CSSProperties,
+  select: { padding: "6px 10px", fontSize: 12, background: "#fff", border: "0.5px solid rgba(22,24,34,0.15)", borderRadius: 6, color: "#161822", outline: "none" } as React.CSSProperties,
+  pill: (active: boolean, color: string) => ({ padding: "4px 12px", fontSize: 11, fontWeight: active ? 600 : 400, border: `1px solid ${active ? color : "rgba(22,24,34,0.15)"}`, borderRadius: 14, background: active ? `${color}12` : "#fff", color: active ? color : "rgba(22,24,34,0.65)", cursor: "pointer" }) as React.CSSProperties,
+  btn: { display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 10px", fontSize: 11, fontWeight: 500, border: "0.5px solid rgba(22,24,34,0.15)", borderRadius: 6, background: "#fff", color: "#161822", cursor: "pointer" } as React.CSSProperties,
+  btnPrimary: { display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 14px", fontSize: 11, fontWeight: 600, border: "none", borderRadius: 6, background: "#161822", color: "#fff", cursor: "pointer" } as React.CSSProperties,
+  metaStats: { display: "flex", alignItems: "center", gap: 8, padding: "6px 16px", background: "#f4ebd9", borderBottom: "0.5px solid rgba(22,24,34,0.08)", fontSize: 11, color: "rgba(22,24,34,0.65)", flexShrink: 0 } as React.CSSProperties,
+  canvas: { flex: 1, background: "#f4ebd9", overflow: "hidden", position: "relative" as const, cursor: "grab" } as React.CSSProperties,
+  zoomControls: { position: "absolute" as const, bottom: 12, left: 12, display: "flex", alignItems: "center", gap: 2, padding: "4px 6px", background: "#fff", border: "0.5px solid rgba(22,24,34,0.12)", borderRadius: 6, zIndex: 5, fontSize: 11 } as React.CSSProperties,
+  minimap: { position: "absolute" as const, bottom: 12, right: 12, width: 200, height: 84, background: "#fff", border: "0.5px solid rgba(22,24,34,0.15)", borderRadius: 6, zIndex: 5, padding: 6 } as React.CSSProperties,
+  breadcrumb: { position: "absolute" as const, top: 8, left: 8, display: "flex", alignItems: "center", gap: 4, padding: "4px 10px", background: "#fff", border: "0.5px solid rgba(22,24,34,0.12)", borderRadius: 6, zIndex: 5, fontSize: 11 } as React.CSSProperties,
+  searchDropdown: { position: "absolute" as const, top: 44, left: 16, width: 300, maxHeight: 320, background: "#fff", border: "0.5px solid rgba(22,24,34,0.15)", borderRadius: 8, boxShadow: "0 4px 12px rgba(0,0,0,0.1)", zIndex: 20, overflowY: "auto" as const } as React.CSSProperties,
+  searchResult: { display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", cursor: "pointer", fontSize: 12, borderBottom: "1px solid rgba(22,24,34,0.06)" } as React.CSSProperties,
+  contextMenu: { position: "fixed" as const, background: "#fff", border: "0.5px solid rgba(22,24,34,0.15)", borderRadius: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", zIndex: 30, padding: "4px 0", minWidth: 200 } as React.CSSProperties,
+  contextItem: { display: "flex", alignItems: "center", gap: 8, padding: "7px 14px", fontSize: 12, color: "#161822", cursor: "pointer" } as React.CSSProperties,
+  emptyState: { display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", height: "100%", color: "rgba(22,24,34,0.4)" } as React.CSSProperties,
   legendItem: { display: "inline-flex", alignItems: "center", gap: 3, cursor: "pointer" } as React.CSSProperties,
 };
 
@@ -473,31 +473,31 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
         {/* Card background */}
         <rect width={w} height={h} rx={8} ry={8}
           fill="#fff"
-          stroke={isSelected ? "#22d3ee" : isHovered ? "rgba(5,7,13,0.4)" : "rgba(5,7,13,0.18)"}
+          stroke={isSelected ? "#f4a83a" : isHovered ? "rgba(22,24,34,0.4)" : "rgba(22,24,34,0.18)"}
           strokeWidth={isSelected ? 1.5 : 0.5}
         />
         {/* Function accent stripe */}
         <rect x={0} y={0} width={4} height={h} rx={2} ry={0}
-          fill={isRoot ? "#05070d" : fc.main}
+          fill={isRoot ? "#161822" : fc.main}
           clipPath={`inset(0 0 0 0 round 8px 0 0 8px)`}
         />
         {/* Clip for left radius */}
         <clipPath id={`clip-${node.id}`}>
           <rect width={4} height={h} rx={2} />
         </clipPath>
-        <rect x={0} y={0} width={4} height={h} fill={isRoot ? "#05070d" : fc.main} clipPath={`url(#clip-${node.id})`} />
+        <rect x={0} y={0} width={4} height={h} fill={isRoot ? "#161822" : fc.main} clipPath={`url(#clip-${node.id})`} />
 
         {/* Avatar */}
         <circle cx={24} cy={20} r={13} fill={fc.light} />
         <text x={24} y={24} textAnchor="middle" fontSize={9} fontWeight={600} fill={fc.dark}>{initials(node.name)}</text>
 
         {/* Name */}
-        <text x={44} y={18} fontSize={13} fontWeight={500} fill="#05070d">
+        <text x={44} y={18} fontSize={13} fontWeight={500} fill="#161822">
           {node.name.length > 18 ? node.name.slice(0, 17) + "…" : node.name}
         </text>
 
         {/* Title */}
-        <text x={44} y={32} fontSize={11} fill="rgba(5,7,13,0.65)">
+        <text x={44} y={32} fontSize={11} fill="rgba(22,24,34,0.65)">
           {node.title.length > 22 ? node.title.slice(0, 21) + "…" : node.title}
         </text>
 
@@ -512,10 +512,10 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
         )}
 
         {/* Separator */}
-        <line x1={12} y1={56} x2={w - 12} y2={56} stroke="rgba(5,7,13,0.08)" strokeWidth={0.5} />
+        <line x1={12} y1={56} x2={w - 12} y2={56} stroke="rgba(22,24,34,0.08)" strokeWidth={0.5} />
 
         {/* Metadata row */}
-        <text x={12} y={70} fontSize={10} fill="rgba(5,7,13,0.55)">
+        <text x={12} y={70} fontSize={10} fill="rgba(22,24,34,0.55)">
           {node.direct_report_count > 0
             ? `${node.total_subtree_count} people · span ${node.direct_report_count}`
             : node.geography || "IC"}
@@ -526,7 +526,7 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
           <g transform={`translate(${w - 32}, 4)`}
             onClick={(e) => { e.stopPropagation(); expandNode(node.id); }}
             style={{ cursor: "pointer" }}>
-            <rect width={28} height={16} rx={8} fill="#05070d" />
+            <rect width={28} height={16} rx={8} fill="#161822" />
             <text x={7} y={12} fontSize={9} fontWeight={600} fill="#fff">
               {isExpanded ? "▴" : "▾"} {node.direct_report_count || ""}
             </text>
@@ -535,7 +535,7 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
 
         {/* Focus ring for keyboard */}
         {isSelected && (
-          <rect width={w} height={h} rx={8} fill="none" stroke="#22d3ee" strokeWidth={2} strokeDasharray="none" />
+          <rect width={w} height={h} rx={8} fill="none" stroke="#f4a83a" strokeWidth={2} strokeDasharray="none" />
         )}
       </g>
     );
@@ -548,7 +548,7 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
     return (
       <path key={idx}
         d={`M${source.x},${source.y + CARD_H} L${source.x},${midY} L${target.x},${midY} L${target.x},${target.y}`}
-        fill="none" stroke="rgba(5,7,13,0.25)" strokeWidth={1}
+        fill="none" stroke="rgba(22,24,34,0.25)" strokeWidth={1}
       />
     );
   };
@@ -570,9 +570,9 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
   if (loading) {
     return (
       <div style={S.wrapper}>
-        <div style={S.toolbar}><span style={{ fontSize: 12, color: "rgba(5,7,13,0.5)" }}>Loading org chart…</span></div>
+        <div style={S.toolbar}><span style={{ fontSize: 12, color: "rgba(22,24,34,0.5)" }}>Loading org chart…</span></div>
         <div style={{ ...S.canvas, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div style={{ textAlign: "center", color: "rgba(5,7,13,0.3)" }}>
+          <div style={{ textAlign: "center", color: "rgba(22,24,34,0.3)" }}>
             <Users size={36} style={{ marginBottom: 8, opacity: 0.4 }} />
             <div style={{ fontSize: 13 }}>Building organization tree…</div>
           </div>
@@ -587,7 +587,7 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
         <div style={S.toolbar}><span style={{ fontSize: 12 }}>Org Chart</span></div>
         <div style={S.emptyState}>
           <Users size={40} style={{ marginBottom: 12, opacity: 0.3 }} />
-          <div style={{ fontSize: 14, fontWeight: 500, color: "#05070d", marginBottom: 4 }}>No employees loaded</div>
+          <div style={{ fontSize: 14, fontWeight: 500, color: "#161822", marginBottom: 4 }}>No employees loaded</div>
           <div style={{ fontSize: 12 }}>Import your employee data to view the org chart.</div>
         </div>
       </div>
@@ -598,12 +598,12 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
   const searchFilterControls = (
     <>
       <div style={{ ...S.searchBox, position: "relative" }}>
-        <Search size={12} style={{ color: "rgba(5,7,13,0.4)" }} />
+        <Search size={12} style={{ color: "rgba(22,24,34,0.4)" }} />
         <input id="oc-search" style={S.searchInput} value={search}
           onChange={e => setSearch(e.target.value)}
           onFocus={() => search.length >= 2 && setShowSearch(true)}
           placeholder="Search employee, role, team" />
-        {search && <button title="Clear search" style={{ background: "none", border: "none", color: "rgba(5,7,13,0.4)", cursor: "pointer", padding: 0 }} onClick={() => { setSearch(""); setShowSearch(false); }}><X size={11} /></button>}
+        {search && <button title="Clear search" style={{ background: "none", border: "none", color: "rgba(22,24,34,0.4)", cursor: "pointer", padding: 0 }} onClick={() => { setSearch(""); setShowSearch(false); }}><X size={11} /></button>}
       </div>
 
       {/* Root selector */}
@@ -629,7 +629,7 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
 
       {/* Status pills */}
       {meta && meta.unmapped_count > 0 && (
-        <button style={S.pill(statusFilter === "unmapped", "#fbbf24")}
+        <button style={S.pill(statusFilter === "unmapped", "#f4a83a")}
           onClick={() => setStatusFilter(statusFilter === "unmapped" ? "" : "unmapped")}>
           Unmapped ({meta.unmapped_count})
         </button>
@@ -646,12 +646,12 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
   return (
     <div style={{
       ...S.wrapper,
-      ...(isFullscreen ? { position: "fixed" as const, inset: 0, zIndex: 50, background: "#e8ecf5", height: "100vh", transition: "all 0.15s ease-in-out" } : { transition: "all 0.15s ease-in-out" }),
+      ...(isFullscreen ? { position: "fixed" as const, inset: 0, zIndex: 50, background: "#f4ebd9", height: "100vh", transition: "all 0.15s ease-in-out" } : { transition: "all 0.15s ease-in-out" }),
     }}>
       {/* ── Fullscreen top bar ── */}
       {isFullscreen && (
-        <div style={{ display: "flex", alignItems: "center", height: 48, padding: "0 16px", background: "#fff", borderBottom: "0.5px solid rgba(5,7,13,0.12)", flexShrink: 0, zIndex: 10 }}>
-          <span style={{ fontSize: 13, fontWeight: 600, color: "#05070d", whiteSpace: "nowrap", marginRight: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", height: 48, padding: "0 16px", background: "#fff", borderBottom: "0.5px solid rgba(22,24,34,0.12)", flexShrink: 0, zIndex: 10 }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: "#161822", whiteSpace: "nowrap", marginRight: 16 }}>
             Job Architecture &middot; Org Chart
           </span>
           <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
@@ -670,7 +670,7 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
           onClick={dismissHint}
           style={{
             display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-            padding: "6px 16px", background: "#EFF6FF", borderBottom: "0.5px solid rgba(34,211,238,0.2)",
+            padding: "6px 16px", background: "#EFF6FF", borderBottom: "0.5px solid rgba(244,168,58,0.2)",
             fontSize: 11, color: "#1E40AF", cursor: "pointer", flexShrink: 0,
           }}
         >
@@ -689,8 +689,8 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
           <button style={S.btn} title="Open in new window (Shift+F)" onClick={() => { openPopout(); saveModePreference("popout"); }}><ExternalLink size={11} /></button>
           {isPopoutOpen && (
             <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#34d399" }} />
-              <span style={{ fontSize: 11, color: "rgba(5,7,13,0.5)" }}>Popout active</span>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#8ba87a" }} />
+              <span style={{ fontSize: 11, color: "rgba(22,24,34,0.5)" }}>Popout active</span>
             </span>
           )}
           <button style={S.btnPrimary}><Download size={11} /> Export</button>
@@ -701,7 +701,7 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
       {meta && (
         <div style={S.metaStats}>
           <span>{meta.total_people.toLocaleString()} people · {meta.total_layers} layers · median span {meta.median_span}</span>
-          <span style={{ width: 1, height: 16, background: "rgba(5,7,13,0.12)" }} />
+          <span style={{ width: 1, height: 16, background: "rgba(22,24,34,0.12)" }} />
           {allFunctions.slice(0, 8).map(f => {
             const fc = getFuncColor(f);
             return (
@@ -710,7 +710,7 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
                 next.has(f) ? next.delete(f) : next.add(f);
                 return next;
               })}>
-                <span style={{ width: 8, height: 8, borderRadius: 1, background: fc.main, border: funcFilter.has(f) ? "1px solid #05070d" : "none" }} />
+                <span style={{ width: 8, height: 8, borderRadius: 1, background: fc.main, border: funcFilter.has(f) ? "1px solid #161822" : "none" }} />
                 <span style={{ fontSize: 11 }}>{f}</span>
               </span>
             );
@@ -723,15 +723,15 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
         <div style={S.searchDropdown}>
           {searchResults.map(r => (
             <div key={r.id} style={S.searchResult}
-              onMouseEnter={e => (e.currentTarget.style.background = "rgba(34,211,238,0.04)")}
+              onMouseEnter={e => (e.currentTarget.style.background = "rgba(244,168,58,0.04)")}
               onMouseLeave={e => (e.currentTarget.style.background = "")}
               onClick={() => { setRootId(r.id); setShowSearch(false); setSearch(""); }}>
               <div style={{ width: 26, height: 26, borderRadius: "50%", background: getFuncColor(r.function).light, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 600, color: getFuncColor(r.function).dark, flexShrink: 0 }}>
                 {initials(r.name)}
               </div>
               <div>
-                <div style={{ fontSize: 12, fontWeight: 500, color: "#05070d" }}>{r.name}</div>
-                <div style={{ fontSize: 11, color: "rgba(5,7,13,0.55)" }}>{r.title} · {r.function} · {r.level}</div>
+                <div style={{ fontSize: 12, fontWeight: 500, color: "#161822" }}>{r.name}</div>
+                <div style={{ fontSize: 11, color: "rgba(22,24,34,0.55)" }}>{r.title} · {r.function} · {r.level}</div>
               </div>
             </div>
           ))}
@@ -740,12 +740,12 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
 
       {/* ── Phase 4: Large org popout placeholder ── */}
       {showPopoutPlaceholder && (
-        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", background: "#e8ecf5" }}>
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", background: "#f4ebd9" }}>
           <div style={{
             background: "#fff", borderRadius: 10, padding: "32px 48px", textAlign: "center",
-            border: "0.5px solid rgba(5,7,13,0.12)", boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+            border: "0.5px solid rgba(22,24,34,0.12)", boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
           }}>
-            <div style={{ fontSize: 14, fontWeight: 500, color: "#05070d", marginBottom: 8 }}>Chart is in popout window</div>
+            <div style={{ fontSize: 14, fontWeight: 500, color: "#161822", marginBottom: 8 }}>Chart is in popout window</div>
             <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
               <button style={S.btn} onClick={() => popoutWindowRef.current?.focus()}>Focus popout</button>
               <button style={S.btn} onClick={() => {
@@ -783,12 +783,12 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
         {/* Breadcrumb (when drilled in) */}
         {rootId && rootNode && (
           <div style={S.breadcrumb}>
-            <button style={{ background: "none", border: "none", color: "#22d3ee", fontSize: 11, cursor: "pointer" }}
+            <button style={{ background: "none", border: "none", color: "#f4a83a", fontSize: 11, cursor: "pointer" }}
               onClick={() => setRootId("")}>
               Home
             </button>
-            <span style={{ color: "rgba(5,7,13,0.4)" }}>›</span>
-            <span style={{ fontWeight: 500, color: "#05070d" }}>{rootNode.name}</span>
+            <span style={{ color: "rgba(22,24,34,0.4)" }}>›</span>
+            <span style={{ fontWeight: 500, color: "#161822" }}>{rootNode.name}</span>
           </div>
         )}
 
@@ -796,16 +796,16 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
         <div style={S.zoomControls}>
           <button title="Zoom in" style={{ ...S.btn, padding: "2px 6px" }} onClick={() => setZoom(z => Math.min(z + 0.1, 2))}><Plus size={12} /></button>
           <button title="Zoom out" style={{ ...S.btn, padding: "2px 6px" }} onClick={() => setZoom(z => Math.max(z - 0.1, 0.2))}><MinusIcon size={12} /></button>
-          <span style={{ padding: "0 6px", fontFamily: "var(--ff-mono)", fontSize: 11, color: "rgba(5,7,13,0.55)", minWidth: 32, textAlign: "center" }}>{Math.round(zoom * 100)}%</span>
+          <span style={{ padding: "0 6px", fontFamily: "var(--ff-mono)", fontSize: 11, color: "rgba(22,24,34,0.55)", minWidth: 32, textAlign: "center" }}>{Math.round(zoom * 100)}%</span>
           <button title="Fit to view" style={{ ...S.btn, padding: "2px 6px" }} onClick={fitToView}><Maximize2 size={11} /></button>
-          <button style={{ ...S.btn, padding: "2px 6px", color: showMinimap ? "#22d3ee" : "rgba(5,7,13,0.4)" }}
+          <button style={{ ...S.btn, padding: "2px 6px", color: showMinimap ? "#f4a83a" : "rgba(22,24,34,0.4)" }}
             onClick={() => setShowMinimap(v => !v)}>Map</button>
         </div>
 
         {/* Minimap */}
         {showMinimap && layoutData.nodes.length > 3 && (
           <div style={S.minimap}>
-            <svg width="188" height="72" style={{ background: "#e8ecf5", borderRadius: 3 }}>
+            <svg width="188" height="72" style={{ background: "#f4ebd9", borderRadius: 3 }}>
               {layoutData.nodes.map((n, i) => {
                 const xs = layoutData.nodes.map(nn => nn.x);
                 const ys = layoutData.nodes.map(nn => nn.y);
@@ -837,7 +837,7 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
             { label: "Show in grid view", icon: <ExternalLink size={12} />, action: () => onRoleClick?.(contextMenu.node.title) },
           ].map((item, i) => (
             <div key={i} style={S.contextItem}
-              onMouseEnter={e => (e.currentTarget.style.background = "rgba(34,211,238,0.04)")}
+              onMouseEnter={e => (e.currentTarget.style.background = "rgba(244,168,58,0.04)")}
               onMouseLeave={e => (e.currentTarget.style.background = "")}
               onClick={(e) => { e.stopPropagation(); item.action(); setContextMenu(null); }}>
               {item.icon}

@@ -57,15 +57,15 @@ const S = {
   issueRow: (sev: string) => ({
     display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 14px",
     borderRadius: 6, marginBottom: 6,
-    background: sev === "critical" ? "rgba(251,113,133,0.08)" : sev === "warning" ? "rgba(251,191,36,0.08)" : "rgba(34,211,238,0.06)",
-    borderLeft: `3px solid ${sev === "critical" ? "#fb7185" : sev === "warning" ? "#fbbf24" : "#22d3ee"}`,
+    background: sev === "critical" ? "rgba(232,122,93,0.08)" : sev === "warning" ? "rgba(244,168,58,0.08)" : "rgba(244,168,58,0.06)",
+    borderLeft: `3px solid ${sev === "critical" ? "#e87a5d" : sev === "warning" ? "#f4a83a" : "#f4a83a"}`,
   }) as React.CSSProperties,
   clusterRow: { display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", borderBottom: "1px solid var(--border)" } as React.CSSProperties,
   variant: { display: "inline-block", padding: "2px 8px", fontSize: 11, background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 4, marginRight: 4, marginBottom: 2 } as React.CSSProperties,
-  arrow: { fontSize: "var(--text-sm)", color: "#22d3ee", fontWeight: "var(--fw-semi)" } as React.CSSProperties,
+  arrow: { fontSize: "var(--text-sm)", color: "#f4a83a", fontWeight: "var(--fw-semi)" } as React.CSSProperties,
   canonical: { fontSize: "var(--text-sm)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)" } as React.CSSProperties,
   familyBar: { display: "flex", alignItems: "center", gap: 8, marginBottom: 6 } as React.CSSProperties,
-  bar: (pct: number) => ({ width: `${Math.max(pct, 2)}%`, height: 18, background: "#22d3ee", borderRadius: 3, transition: "width 0.3s" }) as React.CSSProperties,
+  bar: (pct: number) => ({ width: `${Math.max(pct, 2)}%`, height: 18, background: "#f4a83a", borderRadius: 3, transition: "width 0.3s" }) as React.CSSProperties,
 };
 
 /* ═══════════════════════════════════════════════════════════════
@@ -133,7 +133,7 @@ export default function CatalogueHealth({ model, projectId }: Props) {
   if (d.roles_missing_level > 0) healthScore -= 10;
   healthScore = Math.max(healthScore, 0);
 
-  const scoreColor = healthScore >= 70 ? "#34d399" : healthScore >= 40 ? "#fbbf24" : "#fb7185";
+  const scoreColor = healthScore >= 70 ? "#8ba87a" : healthScore >= 40 ? "#f4a83a" : "#e87a5d";
   const scoreLabel = healthScore >= 70 ? "Good — ready to map" : healthScore >= 40 ? "Moderate — cleanup needed first" : "Poor — significant cleanup required";
 
   return (
@@ -154,30 +154,30 @@ export default function CatalogueHealth({ model, projectId }: Props) {
 
       {/* KPI row */}
       <div style={S.grid}>
-        <div style={S.kpi("#22d3ee")}>
+        <div style={S.kpi("#f4a83a")}>
           <div style={S.kpiLabel}>Total Roles</div>
           <div style={S.kpiValue}>{d.total_roles}</div>
           <div style={S.kpiDetail}>across {d.families_count} families</div>
         </div>
-        <div style={S.kpi("#22d3ee")}>
+        <div style={S.kpi("#f4a83a")}>
           <div style={S.kpiLabel}>Total Incumbents</div>
           <div style={S.kpiValue}>{d.total_incumbents.toLocaleString()}</div>
         </div>
-        <div style={S.kpi(d.title_inflation_rate > 30 ? "#fb7185" : "#34d399")}>
+        <div style={S.kpi(d.title_inflation_rate > 30 ? "#e87a5d" : "#8ba87a")}>
           <div style={S.kpiLabel}>Title Inflation</div>
           <div style={S.kpiValue}>{d.title_inflation_rate.toFixed(0)}</div>
           <div style={S.kpiDetail}>titles per 100 employees (healthy: 15–25)</div>
         </div>
-        <div style={S.kpi(d.ghost_roles_count > 0 ? "#fbbf24" : "#34d399")}>
+        <div style={S.kpi(d.ghost_roles_count > 0 ? "#f4a83a" : "#8ba87a")}>
           <div style={S.kpiLabel}>Ghost Roles</div>
           <div style={S.kpiValue}>{d.ghost_roles_count}</div>
           <div style={S.kpiDetail}>roles with zero incumbents</div>
         </div>
-        <div style={S.kpi(d.duplicate_titles_count > 5 ? "#fbbf24" : "#34d399")}>
+        <div style={S.kpi(d.duplicate_titles_count > 5 ? "#f4a83a" : "#8ba87a")}>
           <div style={S.kpiLabel}>Duplicate Titles</div>
           <div style={S.kpiValue}>{d.duplicate_titles_count}</div>
         </div>
-        <div style={S.kpi(d.roles_missing_family > 0 ? "#fbbf24" : "#34d399")}>
+        <div style={S.kpi(d.roles_missing_family > 0 ? "#f4a83a" : "#8ba87a")}>
           <div style={S.kpiLabel}>Missing Data</div>
           <div style={S.kpiValue}>{d.roles_missing_family + d.roles_missing_level + d.roles_missing_track}</div>
           <div style={S.kpiDetail}>{d.roles_missing_family} no family · {d.roles_missing_level} no level · {d.roles_missing_track} no track</div>
@@ -187,11 +187,11 @@ export default function CatalogueHealth({ model, projectId }: Props) {
       {/* Issues */}
       {issues.length > 0 && (
         <div style={S.section}>
-          <div style={S.sectionTitle}><AlertTriangle size={15} style={{ color: "#fbbf24" }} /> Issues Found</div>
+          <div style={S.sectionTitle}><AlertTriangle size={15} style={{ color: "#f4a83a" }} /> Issues Found</div>
           {issues.map((issue, i) => (
             <div key={i} style={S.issueRow(issue.severity)}>
               <div style={{ flexShrink: 0, marginTop: 1 }}>
-                {issue.severity === "critical" ? <AlertTriangle size={14} style={{ color: "#fb7185" }} /> : <FileWarning size={14} style={{ color: "#fbbf24" }} />}
+                {issue.severity === "critical" ? <AlertTriangle size={14} style={{ color: "#e87a5d" }} /> : <FileWarning size={14} style={{ color: "#f4a83a" }} />}
               </div>
               <div>
                 <div style={{ fontSize: "var(--text-xs)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)" }}>{issue.title}</div>
@@ -223,9 +223,9 @@ export default function CatalogueHealth({ model, projectId }: Props) {
         <div style={{ ...S.sectionTitle, justifyContent: "space-between" }}>
           <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <Tag size={15} /> Title-to-Role Collapse Preview
-            {clusters.length > 0 && <span style={{ fontSize: 11, color: "#fbbf24", fontWeight: "var(--fw-medium)" }}>{clusters.length} clusters found</span>}
+            {clusters.length > 0 && <span style={{ fontSize: 11, color: "#f4a83a", fontWeight: "var(--fw-medium)" }}>{clusters.length} clusters found</span>}
           </span>
-          <button style={{ background: "none", border: "none", fontSize: "var(--text-xs)", color: "#22d3ee", cursor: "pointer", fontWeight: "var(--fw-medium)" }}
+          <button style={{ background: "none", border: "none", fontSize: "var(--text-xs)", color: "#f4a83a", cursor: "pointer", fontWeight: "var(--fw-medium)" }}
             onClick={() => setShowCollapse(!showCollapse)}>
             {showCollapse ? "Hide" : "Show"} Collapse Suggestions
           </button>
@@ -247,7 +247,7 @@ export default function CatalogueHealth({ model, projectId }: Props) {
                       ))}
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <ChevronRight size={12} style={{ color: "#22d3ee" }} />
+                      <ChevronRight size={12} style={{ color: "#f4a83a" }} />
                       <span style={S.canonical}>{cluster.canonical}</span>
                     </div>
                   </div>

@@ -284,7 +284,7 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
           {projectName}
         </button>}
         {onBackToSplash && <span style={{ opacity: 0.3 }}>/</span>}
-        <span style={{ color: "rgba(34,211,238,0.7)", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>Journey</span>
+        <span style={{ color: "rgba(244,168,58,0.7)", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>Journey</span>
       </div>
       <h1 style={{ fontSize: 32, fontWeight: 800, fontFamily: "'Inter Tight', sans-serif", color: "#fff", textShadow: "0 2px 12px rgba(0,0,0,0.6)" }}>Your Transformation Journey</h1>
       <p style={{ fontSize: 15, color: "rgba(255,255,255,0.5)", textShadow: "0 1px 6px rgba(0,0,0,0.4)" }}>Click a milestone to explore its modules</p>
@@ -303,7 +303,7 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
           pointerEvents: "auto", cursor: "pointer",
         }}>
           {/* Icon image with solid navy circle background */}
-          <div className="milestone-icon" style={{ width: 96, height: 96, borderRadius: "50%", background: "#05070d", display: "flex", alignItems: "center", justifyContent: "center", filter: isCurrent ? "drop-shadow(0 0 16px rgba(34,211,238,0.5))" : isReached ? "drop-shadow(0 4px 16px rgba(0,0,0,0.5))" : "grayscale(0.5) drop-shadow(0 4px 16px rgba(0,0,0,0.5))", transition: "transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease" }}>
+          <div className="milestone-icon" style={{ width: 96, height: 96, borderRadius: "50%", background: "#161822", display: "flex", alignItems: "center", justifyContent: "center", filter: isCurrent ? "drop-shadow(0 0 16px rgba(244,168,58,0.5))" : isReached ? "drop-shadow(0 4px 16px rgba(0,0,0,0.5))" : "grayscale(0.5) drop-shadow(0 4px 16px rgba(0,0,0,0.5))", transition: "transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease" }}>
             <img src={cb(`${CDN_BASE}/icon_${phase.id}.png`)} alt={phase.label} style={{ width: 96, height: 96, objectFit: "contain", borderRadius: "50%" }} />
           </div>
           {/* Label — frosted navy pill */}
@@ -319,7 +319,7 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
 
     {/* Bottom: CTA + progress */}
     <div className="absolute bottom-0 left-0 right-0 text-center pb-6 pt-10" style={{ zIndex: 5, background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)" }}>
-      <button onClick={() => setSelectedPhase(PHASES[activeIdx].id)} className="transition-all hover:translate-y-[-2px] mb-3" style={{ padding: "14px 40px", borderRadius: 14, fontSize: 16, fontWeight: 700, color: "#fff", background: "rgba(34,211,238,0.15)", backdropFilter: "blur(12px)", border: "1px solid rgba(34,211,238,0.4)", cursor: "pointer", textShadow: "0 1px 4px rgba(0,0,0,0.4)" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(34,211,238,0.25)"; e.currentTarget.style.borderColor = "rgba(34,211,238,0.7)"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(34,211,238,0.15)"; e.currentTarget.style.borderColor = "rgba(34,211,238,0.4)"; }}>
+      <button onClick={() => setSelectedPhase(PHASES[activeIdx].id)} className="transition-all hover:translate-y-[-2px] mb-3" style={{ padding: "14px 40px", borderRadius: 14, fontSize: 16, fontWeight: 700, color: "#fff", background: "rgba(244,168,58,0.15)", backdropFilter: "blur(12px)", border: "1px solid rgba(244,168,58,0.4)", cursor: "pointer", textShadow: "0 1px 4px rgba(0,0,0,0.4)" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(244,168,58,0.25)"; e.currentTarget.style.borderColor = "rgba(244,168,58,0.7)"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(244,168,58,0.15)"; e.currentTarget.style.borderColor = "rgba(244,168,58,0.4)"; }}>
         {activeIdx === 0 ? "Begin with Discovery \u2192" : `Continue ${PHASES[activeIdx].label} \u2192`}
       </button>
       <div className="inline-flex items-center gap-4 px-5 py-2 rounded-full" style={{ background: "rgba(0,0,0,0.3)", backdropFilter: "blur(4px)" }}>
@@ -332,7 +332,7 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
     </div>
 
     <style>{`
-      @keyframes nodePulse { 0%,100% { box-shadow: 0 0 24px rgba(34,211,238,0.2), 0 0 48px rgba(34,211,238,0.08); } 50% { box-shadow: 0 0 32px rgba(34,211,238,0.3), 0 0 64px rgba(34,211,238,0.12); } }
+      @keyframes nodePulse { 0%,100% { box-shadow: 0 0 24px rgba(244,168,58,0.2), 0 0 48px rgba(244,168,58,0.08); } 50% { box-shadow: 0 0 32px rgba(244,168,58,0.3), 0 0 64px rgba(244,168,58,0.12); } }
       .milestone-btn:hover .milestone-icon { transform: scale(1.1); box-shadow: 0 0 20px rgba(212,168,67,0.4); filter: brightness(1.1) drop-shadow(0 0 16px rgba(212,168,67,0.4)) !important; }
       .milestone-btn:hover .milestone-label { filter: brightness(1.15); }
     `}</style>
@@ -421,7 +421,7 @@ export function EmployeeOrgChart({ employee, model, f }: { employee: string; mod
       {/* Skip level */}
       {skip && <><PersonNode name={skip.name} title={skip.title} color="var(--surface-3)" /><div className="w-px h-4 bg-[var(--border)]" /></>}
       {/* Manager */}
-      {mgr && <><PersonNode name={mgr.name} title={mgr.title} color="rgba(34,211,238,0.3)" /><div className="w-px h-4 bg-[var(--border)]" /></>}
+      {mgr && <><PersonNode name={mgr.name} title={mgr.title} color="rgba(244,168,58,0.3)" /><div className="w-px h-4 bg-[var(--border)]" /></>}
       {/* Self + peers row */}
       <div className="flex items-start gap-6">
         {peers.slice(0, 2).map((p, i) => <PersonNode key={i} name={p.name} title={p.title} />)}
@@ -455,7 +455,7 @@ export function PersonalImpactCard({ employee, jobStates, simState }: { employee
         <div className="text-[15px] text-[var(--text-muted)]">new skills you will develop</div>
       </div>
     </div>
-    <div className="mt-4 bg-[rgba(52,211,153,0.06)] border border-[var(--success)]/20 rounded-xl p-4">
+    <div className="mt-4 bg-[rgba(139,168,122,0.06)] border border-[var(--success)]/20 rounded-xl p-4">
       <div className="text-[15px] text-[var(--text-secondary)] leading-relaxed">Under the <strong className="text-[var(--text-primary)]">{simState.scenario || "Balanced"}</strong> scenario, your role will evolve. Repetitive tasks will be automated, freeing your time for strategic work, relationship building, and innovation. You will receive training on new AI tools relevant to your function.</div>
     </div>
   </Card>;
@@ -771,9 +771,9 @@ function UploadIntelligencePanel({ insights, funcDist, onNavigate }: {
   const qualityColor = insights.completeness_pct >= 90 ? "var(--success)" : insights.completeness_pct >= 60 ? "var(--warning)" : "var(--risk)";
   const qualityLabel = insights.completeness_pct >= 90 ? "Complete" : insights.completeness_pct >= 60 ? "Some Gaps" : "Needs Attention";
 
-  return <div className="mb-5 rounded-2xl border overflow-hidden transition-all" style={{ borderColor: "rgba(34,211,238,0.15)", background: "linear-gradient(135deg, rgba(34,211,238,0.03), rgba(232,197,71,0.02))" }}>
+  return <div className="mb-5 rounded-2xl border overflow-hidden transition-all" style={{ borderColor: "rgba(244,168,58,0.15)", background: "linear-gradient(135deg, rgba(244,168,58,0.03), rgba(232,197,71,0.02))" }}>
     {/* Header — always visible */}
-    <button onClick={() => setCollapsed(!collapsed)} className="w-full flex items-center justify-between px-5 py-3 hover:bg-[rgba(34,211,238,0.04)] transition-all">
+    <button onClick={() => setCollapsed(!collapsed)} className="w-full flex items-center justify-between px-5 py-3 hover:bg-[rgba(244,168,58,0.04)] transition-all">
       <div className="flex items-center gap-3">
         <span className="text-lg">🔍</span>
         <div className="text-left">

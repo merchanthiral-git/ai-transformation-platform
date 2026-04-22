@@ -18,7 +18,7 @@ interface SkillDef { id: string; name: string; elementId: string }
 interface SkillCategory { name: string; color: string; skills: SkillDef[] }
 
 const SKILL_CATEGORIES: SkillCategory[] = [
-  { name: "Basic Skills", color: "#22d3ee", skills: [
+  { name: "Basic Skills", color: "#f4a83a", skills: [
     { id: "bs1", name: "Reading Comprehension", elementId: "2.A.1.a" },
     { id: "bs2", name: "Active Listening", elementId: "2.A.1.b" },
     { id: "bs3", name: "Writing", elementId: "2.A.1.c" },
@@ -26,13 +26,13 @@ const SKILL_CATEGORIES: SkillCategory[] = [
     { id: "bs5", name: "Mathematics", elementId: "2.A.1.e" },
     { id: "bs6", name: "Science", elementId: "2.A.1.f" },
   ]},
-  { name: "Process Skills", color: "#a78bfa", skills: [
+  { name: "Process Skills", color: "#a78bb8", skills: [
     { id: "ps1", name: "Critical Thinking", elementId: "2.A.2.a" },
     { id: "ps2", name: "Active Learning", elementId: "2.A.2.b" },
     { id: "ps3", name: "Learning Strategies", elementId: "2.A.2.c" },
     { id: "ps4", name: "Monitoring", elementId: "2.A.2.d" },
   ]},
-  { name: "Social Skills", color: "#34d399", skills: [
+  { name: "Social Skills", color: "#8ba87a", skills: [
     { id: "ss1", name: "Social Perceptiveness", elementId: "2.B.1.a" },
     { id: "ss2", name: "Coordination", elementId: "2.B.1.b" },
     { id: "ss3", name: "Persuasion", elementId: "2.B.1.c" },
@@ -40,10 +40,10 @@ const SKILL_CATEGORIES: SkillCategory[] = [
     { id: "ss5", name: "Instructing", elementId: "2.B.1.e" },
     { id: "ss6", name: "Service Orientation", elementId: "2.B.1.f" },
   ]},
-  { name: "Complex Problem Solving", color: "#fbbf24", skills: [
+  { name: "Complex Problem Solving", color: "#f4a83a", skills: [
     { id: "cp1", name: "Complex Problem Solving", elementId: "2.B.2.i" },
   ]},
-  { name: "Technical Skills", color: "#fb7185", skills: [
+  { name: "Technical Skills", color: "#e87a5d", skills: [
     { id: "ts1", name: "Operations Analysis", elementId: "2.B.3.a" },
     { id: "ts2", name: "Technology Design", elementId: "2.B.3.b" },
     { id: "ts3", name: "Equipment Selection", elementId: "2.B.3.c" },
@@ -61,7 +61,7 @@ const SKILL_CATEGORIES: SkillCategory[] = [
     { id: "sy2", name: "Systems Analysis", elementId: "2.B.4.f" },
     { id: "sy3", name: "Systems Evaluation", elementId: "2.B.4.g" },
   ]},
-  { name: "Resource Management", color: "#fbbf24", skills: [
+  { name: "Resource Management", color: "#f4a83a", skills: [
     { id: "rm1", name: "Time Management", elementId: "2.B.5.a" },
     { id: "rm2", name: "Management of Financial Resources", elementId: "2.B.5.b" },
     { id: "rm3", name: "Management of Material Resources", elementId: "2.B.5.c" },
@@ -341,7 +341,7 @@ export function SkillsMapEngine({ model, f, onBack, onNavigate }: {
   }, [occupations, majorGroupFilter, jobZoneFilter, searchQ]);
 
   const JZ_LABELS: Record<string, string> = { "1": "Little or No Preparation", "2": "Some Preparation", "3": "Medium Preparation", "4": "Considerable Preparation", "5": "Extensive Preparation" };
-  const JZ_COLORS: Record<string, string> = { "1": "#34d399", "2": "#22d3ee", "3": "#fbbf24", "4": "#fb7185", "5": "#a78bfa" };
+  const JZ_COLORS: Record<string, string> = { "1": "#8ba87a", "2": "#f4a83a", "3": "#f4a83a", "4": "#e87a5d", "5": "#a78bb8" };
 
   // ── Render ──
   return React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 0, minHeight: "100%" } },
@@ -411,7 +411,7 @@ export function SkillsMapEngine({ model, f, onBack, onNavigate }: {
                   onClick: () => handleSelectOcc(code),
                   style: {
                     padding: "8px 10px", borderRadius: 8, cursor: "pointer", marginBottom: 2,
-                    background: isActive ? "rgba(34,211,238,0.1)" : "transparent",
+                    background: isActive ? "rgba(244,168,58,0.1)" : "transparent",
                     borderLeft: isActive ? "3px solid var(--accent-primary)" : "3px solid transparent",
                     transition: "all 0.12s",
                   },
@@ -548,9 +548,9 @@ export function SkillsMapEngine({ model, f, onBack, onNavigate }: {
             const hot = t.hot_technology as boolean;
             return React.createElement("span", { key: i, style: {
               fontSize: 12, padding: "4px 10px", borderRadius: 6,
-              background: hot ? "rgba(251,113,133,0.1)" : "var(--surface-2)",
+              background: hot ? "rgba(232,122,93,0.1)" : "var(--surface-2)",
               color: hot ? "var(--risk)" : "var(--text-secondary)",
-              border: `1px solid ${hot ? "rgba(251,113,133,0.2)" : "var(--border)"}`,
+              border: `1px solid ${hot ? "rgba(232,122,93,0.2)" : "var(--border)"}`,
               fontWeight: hot ? 600 : 400,
             } }, name + (hot ? " \uD83D\uDD25" : ""));
           }),

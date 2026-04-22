@@ -326,7 +326,7 @@ export function MusicPlayer({ projectActive = false }: { projectActive?: boolean
             const x = i * (barW + 2) + 1;
             const gradient = ctx2d.createLinearGradient(0, h - barH, 0, h);
             gradient.addColorStop(0, `rgba(232,197,71,${0.4 + val / 500})`);
-            gradient.addColorStop(1, `rgba(34,211,238,${0.6 + val / 400})`);
+            gradient.addColorStop(1, `rgba(244,168,58,${0.6 + val / 400})`);
             ctx2d.fillStyle = gradient;
             ctx2d.beginPath();
             ctx2d.roundRect(x, h - barH, barW, barH, [3, 3, 0, 0]);
@@ -344,7 +344,7 @@ export function MusicPlayer({ projectActive = false }: { projectActive?: boolean
           for (let i = 0; i < bars; i++) {
             const val = fd[i * 3] || 0;
             const barH = (val / 255) * h * 0.85;
-            ctx2d.fillStyle = `rgba(34,211,238,${0.4 + val / 400})`;
+            ctx2d.fillStyle = `rgba(244,168,58,${0.4 + val / 400})`;
             ctx2d.beginPath();
             ctx2d.roundRect(i * (barW + 1), h - barH, barW, barH, [2, 2, 0, 0]);
             ctx2d.fill();
@@ -621,7 +621,7 @@ export function MusicPlayer({ projectActive = false }: { projectActive?: boolean
 
 
   // ── Collapsed state: slim bar with mini visualizer ──
-  if (viewState === "collapsed") return <div onClick={() => setViewState("expanded")} style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 40, height: 44, background: "rgba(15,12,8,0.85)", backdropFilter: "blur(20px)", borderTop: "1px solid rgba(34,211,238,0.1)", display: "flex", alignItems: "center", paddingLeft: 12, paddingRight: 12, gap: 10, cursor: "pointer" }}>
+  if (viewState === "collapsed") return <div onClick={() => setViewState("expanded")} style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 40, height: 44, background: "rgba(15,12,8,0.85)", backdropFilter: "blur(20px)", borderTop: "1px solid rgba(244,168,58,0.1)", display: "flex", alignItems: "center", paddingLeft: 12, paddingRight: 12, gap: 10, cursor: "pointer" }}>
     {/* Mini visualizer */}
     <canvas ref={miniCanvasRef} width={60} height={24} style={{ width: 60, height: 24, flexShrink: 0, borderRadius: 4 }} />
     <div style={{ flex: 1, minWidth: 0 }}>
@@ -639,7 +639,7 @@ export function MusicPlayer({ projectActive = false }: { projectActive?: boolean
   </div>;
 
   // ── Expanded state: full player panel ──
-  return <>{null}<div ref={expandedRef} style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 40, background: "rgba(10,8,6,0.92)", backdropFilter: "blur(24px)", borderTop: "1px solid rgba(34,211,238,0.12)", transition: "all 0.4s cubic-bezier(0.16,1,0.3,1)" }}>
+  return <>{null}<div ref={expandedRef} style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 40, background: "rgba(10,8,6,0.92)", backdropFilter: "blur(24px)", borderTop: "1px solid rgba(244,168,58,0.12)", transition: "all 0.4s cubic-bezier(0.16,1,0.3,1)" }}>
     {/* Visible collapse/close buttons at top-right of panel */}
     <div style={{ position: "absolute", top: 10, right: 16, display: "flex", gap: 6, zIndex: 1 }}>
       <button onClick={() => setViewState("collapsed")} title="Minimize to bar" style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)", fontSize: 15, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.12)"; e.currentTarget.style.color = "#f5e6d0"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; e.currentTarget.style.color = "rgba(255,255,255,0.5)"; }}>▾</button>
@@ -650,7 +650,7 @@ export function MusicPlayer({ projectActive = false }: { projectActive?: boolean
       {/* Top row: visualizer + info + controls */}
       <div style={{ display: "flex", gap: 16, alignItems: "center", marginBottom: 12 }}>
         {/* 3D Audio Orb Visualizer */}
-        <div style={{ width: 80, height: 80, borderRadius: 16, overflow: "hidden", flexShrink: 0, background: "radial-gradient(circle, rgba(34,211,238,0.08), rgba(0,0,0,0.3))", boxShadow: `0 4px 20px rgba(34,211,238,${0.1 + amplitude * 0.2})`, position: "relative", cursor: "pointer" }} onClick={() => setImmersive(true)} title="Enter Immersive Mode">
+        <div style={{ width: 80, height: 80, borderRadius: 16, overflow: "hidden", flexShrink: 0, background: "radial-gradient(circle, rgba(244,168,58,0.08), rgba(0,0,0,0.3))", boxShadow: `0 4px 20px rgba(244,168,58,${0.1 + amplitude * 0.2})`, position: "relative", cursor: "pointer" }} onClick={() => setImmersive(true)} title="Enter Immersive Mode">
           <OrbScene freqData={freqDataRef.current} bassEnergy={bassEnergy} midEnergy={midEnergy} highEnergy={highEnergy} amplitude={amplitude} />
           {focusActive && <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.6)", borderRadius: 16 }}>
             <div style={{ fontSize: 16, fontWeight: 800, color: "var(--warning)", fontFamily: "monospace" }}>{Math.floor(focusRemaining / 60)}:{String(focusRemaining % 60).padStart(2, "0")}</div>
@@ -664,7 +664,7 @@ export function MusicPlayer({ projectActive = false }: { projectActive?: boolean
             {!audioError && <button onClick={() => track && toggleFav(track.id)} style={{ ...btnBase, fontSize: 14, color: track && favorites.has(track.id) ? "var(--risk)" : "rgba(255,255,255,0.2)" }}>{track && favorites.has(track.id) ? "♥" : "♡"}</button>}
           </div>
           <div style={{ fontSize: 14, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>
-            {audioError ? "Click play to retry" : <>{activeMood ? <span style={{ color: "rgba(34,211,238,0.7)" }}>{MOODS.find(m => m.id === activeMood)?.icon} {MOODS.find(m => m.id === activeMood)?.label} · </span> : ""}{GENRES.find(g => g.id === genre)?.icon} {GENRES.find(g => g.id === genre)?.label} · {(trackIdx % genreTracks.length) + 1}/{genreTracks.length}</>}
+            {audioError ? "Click play to retry" : <>{activeMood ? <span style={{ color: "rgba(244,168,58,0.7)" }}>{MOODS.find(m => m.id === activeMood)?.icon} {MOODS.find(m => m.id === activeMood)?.label} · </span> : ""}{GENRES.find(g => g.id === genre)?.icon} {GENRES.find(g => g.id === genre)?.label} · {(trackIdx % genreTracks.length) + 1}/{genreTracks.length}</>}
           </div>
         </div>
 
@@ -695,7 +695,7 @@ export function MusicPlayer({ projectActive = false }: { projectActive?: boolean
 
       {/* Mood pills + Focus timer */}
       <div style={{ display: "flex", gap: 5, alignItems: "center", marginBottom: 8, flexWrap: "wrap" }}>
-        {MOODS.map(m => <button key={m.id} onClick={() => selectMood(m.id)} style={{ padding: "3px 10px", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", border: activeMood === m.id ? "1px solid rgba(34,211,238,0.4)" : "1px solid rgba(255,255,255,0.06)", background: activeMood === m.id ? "rgba(34,211,238,0.12)" : "transparent", color: activeMood === m.id ? "var(--accent-primary)" : "rgba(255,255,255,0.3)", transition: "all 0.2s", fontFamily: "'Inter Tight', sans-serif" }}>{m.icon} {m.label}</button>)}
+        {MOODS.map(m => <button key={m.id} onClick={() => selectMood(m.id)} style={{ padding: "3px 10px", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", border: activeMood === m.id ? "1px solid rgba(244,168,58,0.4)" : "1px solid rgba(255,255,255,0.06)", background: activeMood === m.id ? "rgba(244,168,58,0.12)" : "transparent", color: activeMood === m.id ? "var(--accent-primary)" : "rgba(255,255,255,0.3)", transition: "all 0.2s", fontFamily: "'Inter Tight', sans-serif" }}>{m.icon} {m.label}</button>)}
         <div style={{ flex: 1 }} />
         {/* Focus timer button */}
         {!focusActive ? <div style={{ display: "flex", gap: 3 }}>
@@ -707,15 +707,15 @@ export function MusicPlayer({ projectActive = false }: { projectActive?: boolean
       {/* Genre pills + track list */}
       <div style={{ display: "flex", gap: 5, alignItems: "center" }}>
         {GENRES.map(g => <button key={g.id} onClick={() => { setGenre(g.id); setTrackIdx(0); setActiveMood(null); }}
-          style={{ padding: "3px 10px", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", border: genre === g.id && !activeMood ? "1px solid rgba(34,211,238,0.4)" : "1px solid rgba(255,255,255,0.06)", background: genre === g.id && !activeMood ? "rgba(34,211,238,0.12)" : "transparent", color: genre === g.id && !activeMood ? "var(--accent-primary)" : "rgba(255,255,255,0.3)", transition: "all 0.2s", fontFamily: "'Inter Tight', sans-serif" }}>{g.icon} {g.label}</button>)}
-        {favorites.size > 0 && <button onClick={() => { const favTracks = ALL_TRACKS.filter(t => favorites.has(t.id)); if (favTracks.length) { const picked = favTracks[0]; setGenre(picked.genre); const gt = ALL_TRACKS.filter(t => t.genre === picked.genre); setTrackIdx(gt.findIndex(t => t.id === picked.id)); setActiveMood(null); } }} style={{ padding: "3px 10px", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", border: "1px solid rgba(251,113,133,0.15)", background: "transparent", color: "rgba(251,113,133,0.5)", fontFamily: "'Inter Tight', sans-serif" }}>♥ {favorites.size}</button>}
+          style={{ padding: "3px 10px", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", border: genre === g.id && !activeMood ? "1px solid rgba(244,168,58,0.4)" : "1px solid rgba(255,255,255,0.06)", background: genre === g.id && !activeMood ? "rgba(244,168,58,0.12)" : "transparent", color: genre === g.id && !activeMood ? "var(--accent-primary)" : "rgba(255,255,255,0.3)", transition: "all 0.2s", fontFamily: "'Inter Tight', sans-serif" }}>{g.icon} {g.label}</button>)}
+        {favorites.size > 0 && <button onClick={() => { const favTracks = ALL_TRACKS.filter(t => favorites.has(t.id)); if (favTracks.length) { const picked = favTracks[0]; setGenre(picked.genre); const gt = ALL_TRACKS.filter(t => t.genre === picked.genre); setTrackIdx(gt.findIndex(t => t.id === picked.id)); setActiveMood(null); } }} style={{ padding: "3px 10px", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", border: "1px solid rgba(232,122,93,0.15)", background: "transparent", color: "rgba(232,122,93,0.5)", fontFamily: "'Inter Tight', sans-serif" }}>♥ {favorites.size}</button>}
         <div style={{ flex: 1 }} />
         <button onClick={() => setShowList(!showList)} style={{ ...btnBase, fontSize: 13, color: "rgba(255,255,255,0.35)", fontFamily: "monospace" }}>{showList ? "Hide" : "Tracks"} ▾</button>
       </div>
 
       {showList && <div style={{ marginTop: 6, maxHeight: 130, overflowY: "auto", borderRadius: 8, border: "1px solid rgba(255,255,255,0.06)" }}>
         {genreTracks.map((t, i) => <button key={t.id} onClick={() => changeTrack(i)}
-          style={{ width: "100%", padding: "5px 10px", background: i === trackIdx % genreTracks.length ? "rgba(34,211,238,0.1)" : "transparent", border: "none", borderBottom: "1px solid rgba(255,255,255,0.04)", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: i === trackIdx % genreTracks.length ? "var(--accent-primary)" : "rgba(255,255,255,0.45)", transition: "all 0.15s", fontFamily: "'Inter Tight', sans-serif" }}
+          style={{ width: "100%", padding: "5px 10px", background: i === trackIdx % genreTracks.length ? "rgba(244,168,58,0.1)" : "transparent", border: "none", borderBottom: "1px solid rgba(255,255,255,0.04)", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: i === trackIdx % genreTracks.length ? "var(--accent-primary)" : "rgba(255,255,255,0.45)", transition: "all 0.15s", fontFamily: "'Inter Tight', sans-serif" }}
           onMouseEnter={e => { if (i !== trackIdx % genreTracks.length) e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }}
           onMouseLeave={e => { if (i !== trackIdx % genreTracks.length) e.currentTarget.style.background = "transparent"; }}>
           <span style={{ width: 14, fontSize: 13, textAlign: "right", opacity: 0.4, fontFamily: "monospace" }}>{i === trackIdx % genreTracks.length && playing ? "♫" : `${i + 1}`}</span>

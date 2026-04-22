@@ -173,7 +173,7 @@ export function CommandPalette({ actions, recentIds, onClose }: { actions: CmdAc
           actionIdx++;
           const idx = actionIdx;
           const isSelected = idx === selectedIdx;
-          return <div key={item.id} data-idx={idx} className="px-3 mx-2 py-2.5 rounded-xl flex items-center gap-3 cursor-pointer transition-colors" style={{ background: isSelected ? "rgba(34,211,238,0.1)" : "transparent", borderLeft: isSelected ? "2px solid var(--accent-primary)" : "2px solid transparent" }} onClick={() => { item.action(); onClose(); }} onMouseEnter={() => setSelectedIdx(idx)}>
+          return <div key={item.id} data-idx={idx} className="px-3 mx-2 py-2.5 rounded-xl flex items-center gap-3 cursor-pointer transition-colors" style={{ background: isSelected ? "rgba(244,168,58,0.1)" : "transparent", borderLeft: isSelected ? "2px solid var(--accent-primary)" : "2px solid transparent" }} onClick={() => { item.action(); onClose(); }} onMouseEnter={() => setSelectedIdx(idx)}>
             <span className="text-[18px] w-7 text-center shrink-0">{item.icon}</span>
             <div className="flex-1 min-w-0">
               <div className="text-[15px] font-semibold text-[var(--text-primary)] truncate">{item.label}</div>
@@ -198,7 +198,7 @@ const ANNO_COLORS = [
   { id: "amber", hex: "var(--accent-primary)", label: "Insight" },
   { id: "red", hex: "var(--risk)", label: "Risk" },
   { id: "green", hex: "var(--success)", label: "Opportunity" },
-  { id: "blue", hex: "#22d3ee", label: "Question" },
+  { id: "blue", hex: "#f4a83a", label: "Question" },
   { id: "purple", hex: "var(--purple)", label: "Action" },
 ];
 
@@ -307,7 +307,7 @@ export function AnnotationPanel({ annotations, onUpdate, onDelete, onClose, onSc
       <button onClick={onClose} className="text-[16px] text-[var(--text-muted)] hover:text-[var(--text-primary)]">×</button>
     </div>
     <div className="flex gap-1 px-4 py-2 border-b border-[var(--border)]">
-      {(["all", "open", "resolved"] as const).map(f => <button key={f} onClick={() => setFilter(f)} className="px-2 py-1 rounded text-[12px] font-semibold transition-all" style={{ background: filter === f ? "rgba(34,211,238,0.12)" : "transparent", color: filter === f ? "var(--accent-primary)" : "var(--text-muted)" }}>{f === "all" ? "All" : f === "open" ? "Open" : "Resolved"}</button>)}
+      {(["all", "open", "resolved"] as const).map(f => <button key={f} onClick={() => setFilter(f)} className="px-2 py-1 rounded text-[12px] font-semibold transition-all" style={{ background: filter === f ? "rgba(244,168,58,0.12)" : "transparent", color: filter === f ? "var(--accent-primary)" : "var(--text-muted)" }}>{f === "all" ? "All" : f === "open" ? "Open" : "Resolved"}</button>)}
       <div className="ml-auto flex gap-0.5">{ANNO_COLORS.map(c => <button key={c.id} onClick={() => setColorFilter(colorFilter === c.id ? "all" : c.id)} className="w-4 h-4 rounded-full transition-all" style={{ background: c.hex, opacity: colorFilter === "all" || colorFilter === c.id ? 1 : 0.3, border: colorFilter === c.id ? "2px solid white" : "none" }} />)}</div>
     </div>
     <div className="flex-1 overflow-y-auto p-3 space-y-2">
@@ -509,7 +509,7 @@ export function Empty({ text, icon = "📭", action, onAction, subtitle, seconda
 }
 
 export function Badge({ children, color = "gray" }: { children: React.ReactNode; color?: string }) {
-  const s: Record<string, string> = { indigo: "bg-[rgba(34,211,238,0.15)] text-[var(--accent-primary)]", green: "bg-[rgba(52,211,153,0.15)] text-[var(--success)]", amber: "bg-[rgba(251,191,36,0.15)] text-[var(--warning)]", red: "bg-[rgba(251,113,133,0.15)] text-[var(--risk)]", purple: "bg-[rgba(167,139,250,0.15)] text-[var(--purple)]", gray: "bg-[rgba(163,177,198,0.12)] text-[var(--text-muted)]", teal: "bg-[rgba(14,165,233,0.15)] text-[#0EA5E9]" };
+  const s: Record<string, string> = { indigo: "bg-[rgba(244,168,58,0.15)] text-[var(--accent-primary)]", green: "bg-[rgba(139,168,122,0.15)] text-[var(--success)]", amber: "bg-[rgba(244,168,58,0.15)] text-[var(--warning)]", red: "bg-[rgba(232,122,93,0.15)] text-[var(--risk)]", purple: "bg-[rgba(167,139,184,0.15)] text-[var(--purple)]", gray: "bg-[rgba(163,177,198,0.12)] text-[var(--text-muted)]", teal: "bg-[rgba(14,165,233,0.15)] text-[#0EA5E9]" };
   return <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[14px] font-semibold tracking-wide ${s[color] || s.gray}`}>{children}</span>;
 }
 
@@ -565,18 +565,18 @@ export function InfoButton({ moduleId }: { moduleId: string }) {
   };
   if (!hasOldHelp) return null;
   return <>
-    <button onClick={loadModal} className="inline-flex items-center justify-center w-5 h-5 rounded-full text-[15px] cursor-pointer transition-all hover:scale-110" style={{ background: "rgba(34,211,238,0.1)", border: "1px solid rgba(34,211,238,0.2)", color: "var(--accent-primary)" }} title={`Help: ${title}`}>ℹ</button>
+    <button onClick={loadModal} className="inline-flex items-center justify-center w-5 h-5 rounded-full text-[15px] cursor-pointer transition-all hover:scale-110" style={{ background: "rgba(244,168,58,0.1)", border: "1px solid rgba(244,168,58,0.2)", color: "var(--accent-primary)" }} title={`Help: ${title}`}>ℹ</button>
     {open && KnowledgeModal && <KnowledgeModal moduleId={moduleId} onClose={() => setOpen(false)} />}
   </>;
 }
 
 
 export function NarrativePanel({ title, items }: { title: string; items: string[] }) {
-  return <div className="bg-gradient-to-br from-[var(--surface-2)] via-[rgba(34,211,238,0.06)] to-[var(--surface-1)] rounded-2xl px-7 py-6 text-[var(--text-primary)] border border-[var(--border)] mb-4"><div className="text-sm font-bold mb-3">{title}</div>{items.map((t, i) => <div key={i} className="text-[15px] text-[var(--text-secondary)] mb-1.5 pl-4 relative"><span className="absolute left-0 text-[var(--accent-primary)] font-bold">›</span>{t}</div>)}</div>;
+  return <div className="bg-gradient-to-br from-[var(--surface-2)] via-[rgba(244,168,58,0.06)] to-[var(--surface-1)] rounded-2xl px-7 py-6 text-[var(--text-primary)] border border-[var(--border)] mb-4"><div className="text-sm font-bold mb-3">{title}</div>{items.map((t, i) => <div key={i} className="text-[15px] text-[var(--text-secondary)] mb-1.5 pl-4 relative"><span className="absolute left-0 text-[var(--accent-primary)] font-bold">›</span>{t}</div>)}</div>;
 }
 
 export function TabBar({ tabs, active, onChange }: { tabs: { id: string; label: string }[]; active: string; onChange: (id: string) => void }) {
-  return <div className="flex mb-6 gap-1 tab-scroll">{tabs.map(t => <button key={t.id} onClick={() => onChange(t.id)} className={`px-4 py-2.5 text-[15px] font-medium whitespace-nowrap transition-all btn-press ${active === t.id ? "text-[var(--accent-primary)] font-semibold" : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"}`} style={active === t.id ? { background: 'rgba(34,211,238,0.08)', borderRadius: 8 } : undefined}>{t.label}</button>)}</div>;
+  return <div className="flex mb-6 gap-1 tab-scroll">{tabs.map(t => <button key={t.id} onClick={() => onChange(t.id)} className={`px-4 py-2.5 text-[15px] font-medium whitespace-nowrap transition-all btn-press ${active === t.id ? "text-[var(--accent-primary)] font-semibold" : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"}`} style={active === t.id ? { background: 'rgba(244,168,58,0.08)', borderRadius: 8 } : undefined}>{t.label}</button>)}</div>;
 }
 
 export function SidebarSelect({ label, options, value, onChange }: { label?: string; options: string[]; value: string; onChange: (v: string) => void }) {
@@ -753,7 +753,7 @@ export function ConfidenceBadge({ score, dataPoints, label }: { score: number; d
   const clamped = Math.max(0, Math.min(1, score));
   const color = clamped >= 0.8 ? "var(--success)" : clamped >= 0.6 ? "var(--warning)" : "var(--risk)";
   const levelLabel = clamped >= 0.8 ? "High" : clamped >= 0.6 ? "Moderate" : "Low";
-  const bg = clamped >= 0.8 ? "rgba(52,211,153,0.1)" : clamped >= 0.6 ? "rgba(251,191,36,0.1)" : "rgba(251,113,133,0.1)";
+  const bg = clamped >= 0.8 ? "rgba(139,168,122,0.1)" : clamped >= 0.6 ? "rgba(244,168,58,0.1)" : "rgba(232,122,93,0.1)";
 
   return <div className="inline-flex flex-col items-start" title="This score reflects the amount and quality of data available for this analysis. Higher data coverage produces more reliable results.">
     <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-semibold" style={{ background: bg, color }}>
@@ -860,14 +860,14 @@ export function AiEspressoPanel({ moduleId, contextData, isGlobal = false }: { m
       <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">{isGlobal ? "Platform-wide actions" : "Quick actions"}</div>
       <div className="space-y-1.5">
         {prompts.map((p, i) => <div key={i}>
-          <button onClick={() => handlePromptClick(i)} className="w-full text-left px-3 py-2.5 rounded-xl text-[15px] transition-all flex items-center justify-between group" style={{ background: activePrompt === i ? "rgba(34,211,238,0.1)" : "var(--surface-2)", border: activePrompt === i ? "1px solid rgba(34,211,238,0.3)" : "1px solid var(--border)" }} onMouseEnter={e => { if (activePrompt !== i) e.currentTarget.style.borderColor = "rgba(34,211,238,0.15)"; }} onMouseLeave={e => { if (activePrompt !== i) e.currentTarget.style.borderColor = "var(--border)"; }}>
-            <span className="font-semibold" style={{ color: activePrompt === i ? "#22d3ee" : "var(--text-primary)" }}>{p.label}</span>
+          <button onClick={() => handlePromptClick(i)} className="w-full text-left px-3 py-2.5 rounded-xl text-[15px] transition-all flex items-center justify-between group" style={{ background: activePrompt === i ? "rgba(244,168,58,0.1)" : "var(--surface-2)", border: activePrompt === i ? "1px solid rgba(244,168,58,0.3)" : "1px solid var(--border)" }} onMouseEnter={e => { if (activePrompt !== i) e.currentTarget.style.borderColor = "rgba(244,168,58,0.15)"; }} onMouseLeave={e => { if (activePrompt !== i) e.currentTarget.style.borderColor = "var(--border)"; }}>
+            <span className="font-semibold" style={{ color: activePrompt === i ? "#f4a83a" : "var(--text-primary)" }}>{p.label}</span>
             <span className="text-[16px] opacity-0 group-hover:opacity-100 transition-opacity">{p.needsInput ? "✎" : "→"}</span>
           </button>
           {/* Input dialog for prompts that need user input */}
-          {activePrompt === i && p.needsInput && <div className="mt-1.5 ml-3 mr-1 p-3 rounded-xl" style={{ background: "var(--surface-2)", border: "1px solid rgba(34,211,238,0.2)" }}>
+          {activePrompt === i && p.needsInput && <div className="mt-1.5 ml-3 mr-1 p-3 rounded-xl" style={{ background: "var(--surface-2)", border: "1px solid rgba(244,168,58,0.2)" }}>
             <div className="text-[15px] font-semibold text-[var(--text-muted)] mb-1.5">{p.inputLabel}</div>
-            <input value={promptInput} onChange={e => setPromptInput(e.target.value)} placeholder={p.inputPlaceholder} className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-lg px-3 py-2 text-[15px] text-[var(--text-primary)] outline-none focus:border-[rgba(34,211,238,0.3)] placeholder:text-[var(--text-muted)] mb-2" onKeyDown={e => { if (e.key === "Enter" && promptInput.trim()) sendMessage(`${p.prompt} ${p.inputLabel}: ${promptInput.trim()}`); }} />
+            <input value={promptInput} onChange={e => setPromptInput(e.target.value)} placeholder={p.inputPlaceholder} className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-lg px-3 py-2 text-[15px] text-[var(--text-primary)] outline-none focus:border-[rgba(244,168,58,0.3)] placeholder:text-[var(--text-muted)] mb-2" onKeyDown={e => { if (e.key === "Enter" && promptInput.trim()) sendMessage(`${p.prompt} ${p.inputLabel}: ${promptInput.trim()}`); }} />
             <div className="text-[15px] text-[var(--text-muted)] mb-2 italic">Prompt: {p.prompt}</div>
             <div className="flex justify-end gap-2">
               <button onClick={() => setActivePrompt(null)} className="px-3 py-1.5 rounded-lg text-[15px] text-[var(--text-muted)]">Cancel</button>
@@ -891,7 +891,7 @@ export function AiEspressoPanel({ moduleId, contextData, isGlobal = false }: { m
 
     {/* Free-form input */}
     <div className="px-4 py-3 flex gap-2" style={{ borderTop: "1px solid var(--border)" }}>
-      <input ref={inputRef} value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === "Enter") sendMessage(input); }} placeholder={messages.length ? "Follow up..." : "Or type your own question..."} className="flex-1 bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-[15px] text-[var(--text-primary)] outline-none focus:border-[rgba(34,211,238,0.3)] placeholder:text-[var(--text-muted)]" />
+      <input ref={inputRef} value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === "Enter") sendMessage(input); }} placeholder={messages.length ? "Follow up..." : "Or type your own question..."} className="flex-1 bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-[15px] text-[var(--text-primary)] outline-none focus:border-[rgba(244,168,58,0.3)] placeholder:text-[var(--text-muted)]" />
       <button onClick={() => sendMessage(input)} disabled={loading || !input.trim()} className="px-4 py-2.5 rounded-xl text-[15px] font-semibold text-white transition-all disabled:opacity-40" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>☕</button>
     </div>
   </div>;
@@ -906,19 +906,19 @@ function PlaygroundIcon() {
     {/* Top bar */}
     <line x1="6" y1="2" x2="26" y2="2" stroke="rgba(255,255,255,0.4)" strokeWidth="1" strokeLinecap="round" />
     {/* Swing seat */}
-    <line x1="12" y1="17" x2="20" y2="17" stroke="#22d3ee" strokeWidth="1.5" strokeLinecap="round" />
+    <line x1="12" y1="17" x2="20" y2="17" stroke="#f4a83a" strokeWidth="1.5" strokeLinecap="round" />
     {/* Figure group — swings */}
     <g style={{ transformOrigin: "16px 2px", animation: "playgroundSwing 2.5s ease-in-out infinite alternate" }}>
       {/* Head */}
-      <circle cx="16" cy="9" r="2.5" fill="#22d3ee" />
+      <circle cx="16" cy="9" r="2.5" fill="#f4a83a" />
       {/* Body */}
-      <line x1="16" y1="11.5" x2="16" y2="17" stroke="#22d3ee" strokeWidth="1.2" strokeLinecap="round" />
+      <line x1="16" y1="11.5" x2="16" y2="17" stroke="#f4a83a" strokeWidth="1.2" strokeLinecap="round" />
       {/* Arms — holding ropes */}
-      <line x1="16" y1="13" x2="12" y2="10" stroke="#22d3ee" strokeWidth="1" strokeLinecap="round" />
-      <line x1="16" y1="13" x2="20" y2="10" stroke="#22d3ee" strokeWidth="1" strokeLinecap="round" />
+      <line x1="16" y1="13" x2="12" y2="10" stroke="#f4a83a" strokeWidth="1" strokeLinecap="round" />
+      <line x1="16" y1="13" x2="20" y2="10" stroke="#f4a83a" strokeWidth="1" strokeLinecap="round" />
       {/* Legs — extended forward on swing */}
-      <line x1="16" y1="17" x2="12" y2="21" stroke="#22d3ee" strokeWidth="1" strokeLinecap="round" />
-      <line x1="16" y1="17" x2="20" y2="21" stroke="#22d3ee" strokeWidth="1" strokeLinecap="round" />
+      <line x1="16" y1="17" x2="12" y2="21" stroke="#f4a83a" strokeWidth="1" strokeLinecap="round" />
+      <line x1="16" y1="17" x2="20" y2="21" stroke="#f4a83a" strokeWidth="1" strokeLinecap="round" />
     </g>
     {/* Swing frame legs */}
     <line x1="6" y1="2" x2="4" y2="28" stroke="rgba(255,255,255,0.3)" strokeWidth="0.8" />
@@ -933,7 +933,7 @@ export function AiEspressoButton({ moduleId, contextData, viewMode: vMode }: { m
 
   return <>
     {/* Floating playground assistant button */}
-    <button onClick={() => setOpen(!open)} className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-2xl flex items-center justify-center shadow-xl transition-all duration-300 group" style={{ background: open ? "var(--risk)" : "linear-gradient(135deg, #22d3ee, var(--accent-primary))", boxShadow: open ? "0 8px 30px rgba(251,113,133,0.3)" : "0 8px 30px rgba(251,191,36,0.3)", transform: "scale(1)", }} onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.1)"; e.currentTarget.style.boxShadow = open ? "0 8px 30px rgba(251,113,133,0.4)" : "0 0 20px rgba(251,191,36,0.3)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = open ? "0 8px 30px rgba(251,113,133,0.3)" : "0 8px 30px rgba(251,191,36,0.3)"; }} title="Digital Playground Assistant">
+    <button onClick={() => setOpen(!open)} className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-2xl flex items-center justify-center shadow-xl transition-all duration-300 group" style={{ background: open ? "var(--risk)" : "linear-gradient(135deg, #f4a83a, var(--accent-primary))", boxShadow: open ? "0 8px 30px rgba(232,122,93,0.3)" : "0 8px 30px rgba(244,168,58,0.3)", transform: "scale(1)", }} onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.1)"; e.currentTarget.style.boxShadow = open ? "0 8px 30px rgba(232,122,93,0.4)" : "0 0 20px rgba(244,168,58,0.3)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = open ? "0 8px 30px rgba(232,122,93,0.3)" : "0 8px 30px rgba(244,168,58,0.3)"; }} title="Digital Playground Assistant">
       {open ? <span style={{ fontSize: 20, color: "#fff" }}>✕</span> : <PlaygroundIcon />}
       <style>{`@keyframes playgroundSwing { 0% { transform: rotate(-12deg); } 100% { transform: rotate(12deg); } }`}</style>
     </button>
@@ -941,7 +941,7 @@ export function AiEspressoButton({ moduleId, contextData, viewMode: vMode }: { m
     {/* Panel */}
     {open && <div className="fixed bottom-24 right-6 z-40 w-[420px] rounded-2xl overflow-hidden shadow-2xl flex flex-col" style={{ background: "var(--surface-1)", border: "1px solid var(--border)", maxHeight: "75vh" }}>
       {/* Header with mode toggle */}
-      <div className="px-5 py-3.5 flex items-center justify-between" style={{ background: "linear-gradient(135deg, rgba(34,211,238,0.08), rgba(34,211,238,0.03))", borderBottom: "1px solid var(--border)" }}>
+      <div className="px-5 py-3.5 flex items-center justify-between" style={{ background: "linear-gradient(135deg, rgba(244,168,58,0.08), rgba(244,168,58,0.03))", borderBottom: "1px solid var(--border)" }}>
         <div className="flex items-center gap-2.5">
           <span className="text-xl">☕</span>
           <div>
@@ -951,8 +951,8 @@ export function AiEspressoButton({ moduleId, contextData, viewMode: vMode }: { m
         </div>
         {/* Mode toggle */}
         <div className="flex rounded-lg overflow-hidden border border-[var(--border)]">
-          <button onClick={() => setMode("module")} className="px-2.5 py-1 text-[15px] font-semibold transition-all" style={{ background: mode === "module" ? "rgba(34,211,238,0.15)" : "transparent", color: mode === "module" ? "#22d3ee" : "var(--text-muted)" }}>This Module</button>
-          <button onClick={() => setMode("global")} className="px-2.5 py-1 text-[15px] font-semibold transition-all" style={{ background: mode === "global" ? "rgba(34,211,238,0.15)" : "transparent", color: mode === "global" ? "#22d3ee" : "var(--text-muted)" }}>Full Platform</button>
+          <button onClick={() => setMode("module")} className="px-2.5 py-1 text-[15px] font-semibold transition-all" style={{ background: mode === "module" ? "rgba(244,168,58,0.15)" : "transparent", color: mode === "module" ? "#f4a83a" : "var(--text-muted)" }}>This Module</button>
+          <button onClick={() => setMode("global")} className="px-2.5 py-1 text-[15px] font-semibold transition-all" style={{ background: mode === "global" ? "rgba(244,168,58,0.15)" : "transparent", color: mode === "global" ? "#f4a83a" : "var(--text-muted)" }}>Full Platform</button>
         </div>
       </div>
 
@@ -1039,7 +1039,7 @@ export function AiCoPilot({ moduleId, contextData, open, onClose, onNavigate }: 
 
   return <motion.div className="fixed top-0 right-0 bottom-0 z-[9997] flex flex-col" style={{ width: 380, background: "var(--surface-1)", borderLeft: "1px solid var(--border)", boxShadow: "-4px 0 24px rgba(0,0,0,0.15)" }} initial={{ x: 380 }} animate={{ x: 0 }} exit={{ x: 380 }} transition={{ duration: 0.25, ease: "easeOut" }}>
     {/* Header */}
-    <div className="px-4 py-3 flex items-center justify-between border-b border-[var(--border)]" style={{ background: "linear-gradient(135deg, rgba(34,211,238,0.06), transparent)" }}>
+    <div className="px-4 py-3 flex items-center justify-between border-b border-[var(--border)]" style={{ background: "linear-gradient(135deg, rgba(244,168,58,0.06), transparent)" }}>
       <div className="flex items-center gap-2.5">
         <span className="text-[18px]">🤖</span>
         <div><div className="text-[15px] font-bold text-[var(--text-primary)] font-heading">AI Co-Pilot</div><div className="text-[12px] text-[var(--text-muted)]">{moduleName}{aiSugLoading ? " · Thinking..." : ""}</div></div>
@@ -1062,7 +1062,7 @@ export function AiCoPilot({ moduleId, contextData, open, onClose, onNavigate }: 
           </div>
         </div>
       </motion.div>)}
-      {aiSuggestion && <motion.div className="rounded-xl p-3" style={{ background: "rgba(34,211,238,0.06)", border: "1px solid rgba(34,211,238,0.15)" }} initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
+      {aiSuggestion && <motion.div className="rounded-xl p-3" style={{ background: "rgba(244,168,58,0.06)", border: "1px solid rgba(244,168,58,0.15)" }} initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
         <div className="flex items-start gap-2">
           <span className="text-[16px] shrink-0 mt-0.5">✨</span>
           <div className="text-[13px] text-[var(--text-secondary)] leading-relaxed">{aiSuggestion}</div>
@@ -1073,7 +1073,7 @@ export function AiCoPilot({ moduleId, contextData, open, onClose, onNavigate }: 
 
     {/* Quick prompts */}
     {messages.length === 0 && <div className="px-3 py-2 flex gap-1.5 flex-wrap border-b border-[var(--border)]">
-      {COPILOT_QUICK_PROMPTS.map(p => <button key={p.label} onClick={() => sendMessage(p.prompt)} className="px-2.5 py-1 rounded-full text-[12px] font-semibold transition-all" style={{ background: "var(--surface-2)", color: "var(--text-muted)", border: "1px solid var(--border)" }} onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(34,211,238,0.3)"; e.currentTarget.style.color = "var(--accent-primary)"; }} onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--text-muted)"; }}>{p.label}</button>)}
+      {COPILOT_QUICK_PROMPTS.map(p => <button key={p.label} onClick={() => sendMessage(p.prompt)} className="px-2.5 py-1 rounded-full text-[12px] font-semibold transition-all" style={{ background: "var(--surface-2)", color: "var(--text-muted)", border: "1px solid var(--border)" }} onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(244,168,58,0.3)"; e.currentTarget.style.color = "var(--accent-primary)"; }} onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--text-muted)"; }}>{p.label}</button>)}
     </div>}
 
     {/* Chat messages */}
@@ -1173,7 +1173,7 @@ export function StoryEngine({ projectName, model, contextData, onClose, onNaviga
     <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
     <motion.div className="relative mx-auto my-4 w-full max-w-[900px] rounded-2xl border border-[var(--border)] overflow-hidden flex flex-col" style={{ background: "var(--bg)", boxShadow: "var(--shadow-4)", maxHeight: "calc(100vh - 32px)" }} initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.3 }}>
       {/* Header */}
-      <div className="flex items-center justify-between px-8 py-5 border-b border-[var(--border)]" style={{ background: "linear-gradient(135deg, rgba(34,211,238,0.06), transparent)" }}>
+      <div className="flex items-center justify-between px-8 py-5 border-b border-[var(--border)]" style={{ background: "linear-gradient(135deg, rgba(244,168,58,0.06), transparent)" }}>
         <div>
           <div className="text-[22px] font-extrabold text-[var(--text-primary)] font-heading">Executive Narrative</div>
           <div className="text-[14px] text-[var(--text-muted)]">{projectName} · AI-generated data story</div>
@@ -1223,8 +1223,8 @@ export function StoryEngine({ projectName, model, contextData, onClose, onNaviga
             </div>
             {/* Section content */}
             <div className={`rounded-2xl p-6 ${isSummary ? "border-l-4" : ""}`} style={{
-              background: isSummary ? "rgba(34,211,238,0.04)" : "var(--surface-1)",
-              border: `1px solid ${isSummary ? "rgba(34,211,238,0.15)" : "var(--border)"}`,
+              background: isSummary ? "rgba(244,168,58,0.04)" : "var(--surface-1)",
+              border: `1px solid ${isSummary ? "rgba(244,168,58,0.15)" : "var(--border)"}`,
               borderLeftColor: isSummary ? "var(--accent-primary)" : undefined,
               boxShadow: "var(--shadow-1)",
             }}>
@@ -1313,7 +1313,7 @@ export function GuideModal({ type, onClose }: { type: "consultant" | "hr"; onClo
       </div>
       {/* Tabs */}
       <div style={{ display: "flex", gap: 4, padding: "8px 16px", borderBottom: "1px solid var(--border)", flexShrink: 0, overflowX: "auto" }}>
-        {tabs.map((t, i) => <button key={t.label} onClick={() => setTab(i)} style={{ padding: "6px 14px", borderRadius: 10, fontSize: 14, fontWeight: tab === i ? 700 : 500, background: tab === i ? "rgba(34,211,238,0.1)" : "transparent", color: tab === i ? "var(--accent-primary)" : "var(--text-muted)", border: "none", cursor: "pointer", whiteSpace: "nowrap" }}>{t.icon} {t.label}</button>)}
+        {tabs.map((t, i) => <button key={t.label} onClick={() => setTab(i)} style={{ padding: "6px 14px", borderRadius: 10, fontSize: 14, fontWeight: tab === i ? 700 : 500, background: tab === i ? "rgba(244,168,58,0.1)" : "transparent", color: tab === i ? "var(--accent-primary)" : "var(--text-muted)", border: "none", cursor: "pointer", whiteSpace: "nowrap" }}>{t.icon} {t.label}</button>)}
       </div>
       {/* Content */}
       <div style={{ flex: 1, overflowY: "auto", padding: "20px 24px" }}>
@@ -1343,14 +1343,14 @@ export function ViewSelector({ onSelect, employees, jobs, filterOptions, onBack 
     { id: "org", icon: "🏢", title: "Organization", desc: "Full org analysis — all functions, roles, and employees", color: "var(--accent-primary)", ready: true },
     { id: "job", icon: "💼", title: "Job Focus", desc: "Deep dive into a single role", color: "var(--success)", ready: jobs.length > 0 },
     { id: "employee", icon: "👤", title: "Employee", desc: "One person's world — profile, org chart, impact", color: "var(--purple)", ready: employees.length > 0 },
-    { id: "custom", icon: "⚙️", title: "Custom Slice", desc: "Filter by function, family, level, or track", color: "#22d3ee", ready: true },
+    { id: "custom", icon: "⚙️", title: "Custom Slice", desc: "Filter by function, family, level, or track", color: "#f4a83a", ready: true },
     { id: "consultant", icon: "📋", title: "Consultant Guide", desc: "Guided pathway for external consultants — frameworks and deliverables", color: "#0891B2", ready: true },
     { id: "hr", icon: "👥", title: "HR Professional Guide", desc: "Tailored for HR and People Analytics — workforce planning and talent strategy", color: "#EC4899", ready: true },
   ];
 
-  return <div style={{ position: "fixed", inset: 0, overflow: "auto", background: "#05070d", animation: "pageCrossfade 0.2s ease-out", willChange: "opacity" }}>
+  return <div style={{ position: "fixed", inset: 0, overflow: "auto", background: "#161822", animation: "pageCrossfade 0.2s ease-out", willChange: "opacity" }}>
     {/* Full bleed background */}
-    <VideoBackground name="view_bg" overlay={0.2} poster={`${CDN_BASE}/view_bg.png`} fallbackGradient="linear-gradient(135deg, #05070d 0%, #1a1530 35%, #0f1525 65%, #0a0f1a 100%)" className="absolute inset-0 w-full h-full" />
+    <VideoBackground name="view_bg" overlay={0.2} poster={`${CDN_BASE}/view_bg.png`} fallbackGradient="linear-gradient(135deg, #161822 0%, #1a1530 35%, #0f1525 65%, #0a0f1a 100%)" className="absolute inset-0 w-full h-full" />
     <div style={{ position: "absolute", inset: 0, zIndex: 1, background: revealed ? "rgba(8,12,24,0.75)" : "radial-gradient(ellipse at center, rgba(8,12,24,0.2) 0%, rgba(8,12,24,0.5) 60%, rgba(8,12,24,0.7) 100%)", transition: "background 0.6s ease", width: "100%", height: "100%" }} />
 
     {/* Back button */}
@@ -1391,13 +1391,13 @@ export function ViewSelector({ onSelect, employees, jobs, filterOptions, onBack 
               <span className="text-[16px] font-bold" style={{ color: "rgba(255,245,235,0.92)" }}>{v.title}</span>
             </div>
             <div className="text-[15px]" style={{ color: "rgba(255,220,190,0.4)" }}>{v.desc}</div>
-            {!v.ready && <div className="text-[15px] mt-2" style={{ color: "rgba(251,191,36,0.6)" }}>Upload data to enable</div>}
+            {!v.ready && <div className="text-[15px] mt-2" style={{ color: "rgba(244,168,58,0.6)" }}>Upload data to enable</div>}
             <div className="absolute top-4 right-4 text-[14px] opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: v.color }}>→</div>
           </button>)}
         </div>
 
         {/* Custom filter expansion */}
-        {customExpanded && <div className="rounded-xl p-5 mb-3 animate-[slideUp_0.3s_ease]" style={{ background: "rgba(15,20,35,0.8)", backdropFilter: "blur(20px)", border: "1px solid rgba(251,191,36,0.2)" }}>
+        {customExpanded && <div className="rounded-xl p-5 mb-3 animate-[slideUp_0.3s_ease]" style={{ background: "rgba(15,20,35,0.8)", backdropFilter: "blur(20px)", border: "1px solid rgba(244,168,58,0.2)" }}>
           <div className="grid grid-cols-5 gap-3 mb-4">
             {[{ key: "func", label: "Function", options: filterOptions.functions || ["All"] },
               { key: "jf", label: "Job Family", options: filterOptions.job_families || ["All"] },
@@ -1412,7 +1412,7 @@ export function ViewSelector({ onSelect, employees, jobs, filterOptions, onBack 
             </div>)}
           </div>
           <div className="flex justify-end">
-            <button onClick={() => onSelect("custom", customFilters)} className="px-5 py-2.5 rounded-xl text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #22d3ee, #06b6d4)" }}>Apply Filters & Enter →</button>
+            <button onClick={() => onSelect("custom", customFilters)} className="px-5 py-2.5 rounded-xl text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #f4a83a, #f4a83a)" }}>Apply Filters & Enter →</button>
           </div>
         </div>}
 
@@ -1434,7 +1434,7 @@ export function ViewJobPicker({ jobs, onSelect, onBack }: { jobs: string[]; onSe
       <div className="text-xl font-extrabold text-[var(--text-primary)] mb-1">Select a Job</div>
       <p className="text-[15px] text-[var(--text-secondary)] mb-4">The entire platform will focus on this role</p>
       <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search jobs..." className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-3 text-[15px] text-[var(--text-primary)] outline-none focus:border-[var(--accent-primary)] mb-3 placeholder:text-[var(--text-muted)]" />
-      <div className="space-y-1.5 max-h-[50vh] overflow-y-auto">{filtered.map(j => <button key={j} onClick={() => onSelect(j)} className="w-full text-left px-4 py-3 rounded-xl text-[15px] transition-all hover:bg-[rgba(34,211,238,0.06)] border border-transparent hover:border-[var(--accent-primary)]/20" style={{ background: "var(--surface-1)" }}>
+      <div className="space-y-1.5 max-h-[50vh] overflow-y-auto">{filtered.map(j => <button key={j} onClick={() => onSelect(j)} className="w-full text-left px-4 py-3 rounded-xl text-[15px] transition-all hover:bg-[rgba(244,168,58,0.06)] border border-transparent hover:border-[var(--accent-primary)]/20" style={{ background: "var(--surface-1)" }}>
         <span className="font-semibold text-[var(--text-primary)]">{j}</span>
       </button>)}</div>
       {filtered.length === 0 && <div className="text-center py-8 text-[var(--text-muted)]">No matching jobs</div>}
@@ -1451,7 +1451,7 @@ export function ViewEmployeePicker({ employees, onSelect, onBack }: { employees:
       <div className="text-xl font-extrabold text-[var(--text-primary)] mb-1">Select an Employee</div>
       <p className="text-[15px] text-[var(--text-secondary)] mb-4">See their world — role, team, org chart, and how AI affects them</p>
       <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search employees..." className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-3 text-[15px] text-[var(--text-primary)] outline-none focus:border-[var(--accent-primary)] mb-3 placeholder:text-[var(--text-muted)]" />
-      <div className="space-y-1.5 max-h-[50vh] overflow-y-auto">{filtered.slice(0, 50).map(e => <button key={e} onClick={() => onSelect(e)} className="w-full text-left px-4 py-3 rounded-xl text-[15px] transition-all hover:bg-[rgba(167,139,250,0.06)] border border-transparent hover:border-[var(--purple)]/20" style={{ background: "var(--surface-1)" }}>
+      <div className="space-y-1.5 max-h-[50vh] overflow-y-auto">{filtered.slice(0, 50).map(e => <button key={e} onClick={() => onSelect(e)} className="w-full text-left px-4 py-3 rounded-xl text-[15px] transition-all hover:bg-[rgba(167,139,184,0.06)] border border-transparent hover:border-[var(--purple)]/20" style={{ background: "var(--surface-1)" }}>
         <span className="font-semibold text-[var(--text-primary)]">{e}</span>
       </button>)}</div>
       {filtered.length > 50 && <div className="text-center py-3 text-[15px] text-[var(--text-muted)]">Showing 50 of {filtered.length} — narrow your search</div>}
