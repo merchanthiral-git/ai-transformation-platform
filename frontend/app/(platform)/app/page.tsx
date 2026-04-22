@@ -28,6 +28,7 @@ import {
   AiCoPilot, StoryEngine, Breadcrumb,
 } from "../../components/shared";
 import { motion, AnimatePresence } from "framer-motion";
+import { Eye, EyeOff } from "lucide-react";
 
 // ── Tab Module Components — dynamic imports for code-splitting ──
 import dynamic from "next/dynamic";
@@ -84,8 +85,8 @@ const ExportReport = dynamic(() => import("../../components/ExportModule").then(
 
 // Guides — loaded on demand (large content files)
 const GuideViewer = dynamic(() => import("../../components/guides/GuideViewer"), { ssr: false });
-import { consultantGuide } from "../../components/guides/consultantGuide";
-import { hrGuide } from "../../components/guides/hrGuide";
+const consultantGuideLoader = () => import("../../components/guides/consultantGuide").then(m => m.consultantGuide);
+const hrGuideLoader = () => import("../../components/guides/hrGuide").then(m => m.hrGuide);
 
 // Job Architecture, PlatformHub, supporting modules — loaded on demand
 const JobArchitectureModule = dynamic(() => import("../../components/JobArchModule").then(m => ({ default: m.JobArchitectureModule })), { ssr: false, loading: ModuleLoadingSkeleton });
@@ -102,7 +103,7 @@ import { useCollaboration } from "../../../lib/collaboration";
 import type { RemoteChange } from "../../../lib/collaboration";
 import { PresenceAvatars, EditingIndicator, RemoteChangeToast, ActivityFeedPanel } from "../../components/CollaborationPanel";
 import { AiObservationsPanel } from "../../components/AiIntelligence";
-import { MusicPlayer } from "../../components/platform/MusicPlayer";
+const MusicPlayer = dynamic(() => import("../../components/platform/MusicPlayer").then(m => ({ default: m.MusicPlayer })), { ssr: false });
 import { ProfileModal, isValidEmail } from "../../components/platform/ProfileModal";
 import { ProjectHub, TutorialOverlay, TutorialBadge, buildTutorialSteps } from "../../components/platform/ProjectHub";
 
@@ -201,6 +202,11 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
     try { const g = sessionStorage.getItem(`${projectId}_openGuide`); if (g === "consultant" || g === "hr") { sessionStorage.removeItem(`${projectId}_openGuide`); return g; } } catch (e) { console.error("[Storage]", e); }
     return null;
   });
+  const [loadedGuideData, setLoadedGuideData] = useState<import("../../components/guides/types").GuideData | null>(null);
+  useEffect(() => {
+    if (!sidebarGuide) { setLoadedGuideData(null); return; }
+    (sidebarGuide === "consultant" ? consultantGuideLoader() : hrGuideLoader()).then(setLoadedGuideData);
+  }, [sidebarGuide]);
   const [showSplash, setShowSplash] = useState(() => {
     if (typeof window === "undefined") return false;
     try { return !sessionStorage.getItem(`${projectId}_splashSeen`); } catch (e) { console.error("[Storage]", e); return true; }
@@ -275,7 +281,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
   const [simState, setSimState] = usePersisted(`${projectId}_simState`, { scenario: "balanced", custom: false, custAdopt: 55, custTimeline: 10, investment: 45000 });
 
   // ── Persistent ODS state — scoped to project ──
-  const [odsState, setOdsState] = usePersisted(`${projectId}_odsState`, { activeScenario: 0, view: "overview" });
+  const [odsState, setOdsState] = usePersisted(`${projectId}_odsState`, { activeScenario: 0, view: "current" });
   const [omNodes] = usePersisted<Record<string, unknown>[]>(`${projectId}_om_nodes`, []);
 
   // ── Track visited modules — scoped to project ──
@@ -411,6 +417,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
           const missing = Number(summary?.missing ?? 0);
           const issues = Number(summary?.total_issues ?? 0);
           if (missing > 0) toast(`${missing} dataset(s) still missing — check Data Quality in AI Opportunity Scan`, "warning");
+          else if (issues === 0 && missing === 0) toast("Great data coverage — your analysis will be well-grounded.", "success");
           else if (issues > 0) toast(`${issues} data issue(s) detected — review in AI Opportunity Scan > Data Quality`, "warning");
         } catch (e) { console.error("[API]", e); }
       }
@@ -471,12 +478,12 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
 
   // Agent system
   const AGENT_DEFS = [
-    { id: "watcher", name: "The Watcher", icon: "👁️", desc: "Monitors data changes and inconsistencies" },
-    { id: "analyst", name: "The Analyst", icon: "🔬", desc: "Detects patterns and surfaces insights" },
-    { id: "designer", name: "The Designer", icon: "✏️", desc: "Autonomously redesigns roles and structures" },
-    { id: "planner", name: "The Planner", icon: "📋", desc: "Maintains the living transformation plan" },
-    { id: "narrator", name: "The Narrator", icon: "📖", desc: "Keeps the executive narrative current" },
-    { id: "quality", name: "Quality Controller", icon: "✅", desc: "Validates consistency across all modules" },
+    { id: "watcher", name: "Monitor", icon: "W", desc: "Monitors data changes and inconsistencies" },
+    { id: "analyst", name: "Analyze", icon: "A", desc: "Detects patterns and surfaces insights" },
+    { id: "designer", name: "Design", icon: "D", desc: "Autonomously redesigns roles and structures" },
+    { id: "planner", name: "Plan", icon: "P", desc: "Maintains the living transformation plan" },
+    { id: "narrator", name: "Summarize", icon: "N", desc: "Keeps the executive narrative current" },
+    { id: "quality", name: "Validate", icon: "Q", desc: "Validates consistency across all modules" },
   ];
   const runAgent = useCallback(async (agentId: string) => {
     if (agentRunning) return;
@@ -486,12 +493,12 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
     try {
       const ctx = buildAiContext();
       const prompts: Record<string, string> = {
-        watcher: `As The Watcher, analyze for changes and anomalies. Context: ${ctx}. Return 2 observations.`,
-        analyst: `As The Analyst, detect patterns in this data. Context: ${ctx}. Return 3 insights with specific numbers.`,
-        designer: `As The Designer, identify top 3 roles for AI redesign. Context: ${ctx}. Return role names and reasons.`,
-        planner: `As The Planner, check if the plan needs updates. Context: ${ctx}. Return 2 recommendations.`,
-        narrator: `As The Narrator, generate a 3-sentence executive summary update. Context: ${ctx}.`,
-        quality: `As Quality Controller, check for data inconsistencies. Context: ${ctx}. Return 2 issues found.`,
+        watcher: `As the Monitor agent, analyze for changes and anomalies. Context: ${ctx}. Return 2 observations.`,
+        analyst: `As the Analyze agent, detect patterns in this data. Context: ${ctx}. Return 3 insights with specific numbers.`,
+        designer: `As the Design agent, identify top 3 roles for AI redesign. Context: ${ctx}. Return role names and reasons.`,
+        planner: `As the Plan agent, check if the plan needs updates. Context: ${ctx}. Return 2 recommendations.`,
+        narrator: `As the Summarize agent, generate a 3-sentence executive summary update. Context: ${ctx}.`,
+        quality: `As the Validate agent, check for data inconsistencies. Context: ${ctx}. Return 2 issues found.`,
       };
       const result = await callAI(`You are ${agent.name}, a specialized AI agent. Be specific and concise.`, prompts[agentId] || ctx);
       const entry = { id: `ar_${Date.now()}`, agent: agentId, agentName: agent.name, result: result.slice(0, 500), time: new Date().toISOString(), reviewed: false };
@@ -605,7 +612,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
     { key: "/", ctrl: true, label: "Show keyboard shortcuts", action: () => setShowShortcuts(true), category: "Tools" },
     { key: "?", label: "Show keyboard shortcuts", action: () => setShowShortcuts(true), category: "Tools" },
     { key: "f", ctrl: true, label: "Focus search/filter", action: () => { const el = document.querySelector<HTMLInputElement>("input[placeholder*='earch'], input[placeholder*='ilter']"); if (el) el.focus(); }, category: "Tools" },
-    { key: "s", ctrl: true, label: "Save current state", action: () => { showToast("State saved"); }, category: "Tools" },
+    { key: "s", ctrl: true, label: "Save current state", action: () => { showToast("State saved — your work is preserved"); }, category: "Tools" },
   ], [navigate, setPage, toggleTheme, showShortcuts, showImportWizard, showCmdPalette, page]); // eslint-disable-line react-hooks/exhaustive-deps
   useKeyboardShortcuts(shortcutDefs);
 
@@ -619,26 +626,26 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
     const items: CmdAction[] = [
       // Navigation — all modules
       ...MODULES.map(m => navAction(m.id, m.title, m.icon, m.desc, undefined, `${m.phase} ${m.id}`)),
-      navAction("home", "Home", "🏠", "Go to the landing page", "Cmd+H"),
+      navAction("home", "Home", "\u2302", "Go to the landing page", "Cmd+H"),
       // Phase shortcuts
-      { id: "phase_discover", icon: "🔍", label: "Discover Phase", desc: "Workforce snapshot, job architecture, skill shift", category: "Navigation", shortcut: "Cmd+1", action: () => navigate("snapshot"), keywords: "discover phase 1" },
-      { id: "phase_diagnose", icon: "🩺", label: "Diagnose Phase", desc: "AI scan, heatmap, org health, readiness", category: "Navigation", shortcut: "Cmd+2", action: () => navigate("scan"), keywords: "diagnose phase 2" },
-      { id: "phase_design", icon: "✏️", label: "Design Phase", desc: "Work design, operating model, BBBA, headcount", category: "Navigation", shortcut: "Cmd+3", action: () => navigate("design"), keywords: "design phase 3" },
-      { id: "phase_simulate", icon: "⚡", label: "Simulate Phase", desc: "Impact modeling, scenarios, ROI", category: "Navigation", shortcut: "Cmd+4", action: () => navigate("simulate"), keywords: "simulate phase 4" },
-      { id: "phase_mobilize", icon: "🚀", label: "Mobilize Phase", desc: "Change planner, reskilling, talent marketplace", category: "Navigation", shortcut: "Cmd+5", action: () => navigate("plan"), keywords: "mobilize phase 5" },
+      { id: "phase_discover", icon: "\u2315", label: "Discover Phase", desc: "Workforce snapshot, job architecture, skill shift", category: "Navigation", shortcut: "Cmd+1", action: () => navigate("snapshot"), keywords: "discover phase 1" },
+      { id: "phase_diagnose", icon: "\u2695", label: "Diagnose Phase", desc: "AI scan, heatmap, org health, readiness", category: "Navigation", shortcut: "Cmd+2", action: () => navigate("scan"), keywords: "diagnose phase 2" },
+      { id: "phase_design", icon: "\u270E", label: "Design Phase", desc: "Work design, operating model, BBBA, headcount", category: "Navigation", shortcut: "Cmd+3", action: () => navigate("design"), keywords: "design phase 3" },
+      { id: "phase_simulate", icon: "\u26A1", label: "Simulate Phase", desc: "Impact modeling, scenarios, ROI", category: "Navigation", shortcut: "Cmd+4", action: () => navigate("simulate"), keywords: "simulate phase 4" },
+      { id: "phase_mobilize", icon: "\u2192", label: "Mobilize Phase", desc: "Change planner, reskilling, talent marketplace", category: "Navigation", shortcut: "Cmd+5", action: () => navigate("plan"), keywords: "mobilize phase 5" },
       // Actions
-      { id: "act_upload", icon: "📂", label: "Upload Data", desc: "Open the smart import wizard", category: "Actions", action: () => { setShowImportWizard(true); setShowCmdPalette(false); } },
-      { id: "act_theme", icon: theme === "dark" ? "☀️" : "🌙", label: theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode", desc: "Toggle the color theme", category: "Actions", shortcut: "Cmd+D", action: toggleTheme, keywords: "dark light mode theme toggle" },
-      { id: "act_shortcuts", icon: "⌨️", label: "Keyboard Shortcuts", desc: "View all keyboard shortcuts", category: "Actions", shortcut: "Cmd+/", action: () => { setShowCmdPalette(false); setShowShortcuts(true); } },
-      { id: "act_export", icon: "📤", label: "Export Report", desc: "Generate and download deliverables", category: "Actions", action: () => navigate("export"), keywords: "export download pdf pptx docx" },
-      { id: "act_agents", icon: "🤖", label: "Open Agent Hub", desc: "Multi-agent AI system for autonomous analysis", category: "Actions", action: () => { setShowAgentHub(true); setShowCmdPalette(false); }, keywords: "agent hub AI autonomous watcher analyst designer planner" },
-      { id: "act_agents_run", icon: "▶️", label: "Run All Agents", desc: "Trigger all AI agents to analyze your project", category: "Actions", action: () => { setShowCmdPalette(false); runAllAgents(); }, keywords: "run agents analyze AI" },
-      { id: "act_story", icon: "📖", label: "Generate Executive Story", desc: "AI-generated data narrative for client presentation", category: "Actions", action: () => { setShowStoryEngine(true); setShowCmdPalette(false); }, keywords: "story narrative executive report generate AI" },
-      { id: "act_present", icon: "🖥️", label: "Enter Presentation Mode", desc: "Full-screen client-ready presentation", category: "Actions", shortcut: "Cmd+P", action: () => { setPresentMode(true); setPresentStartTime(Date.now()); setShowCmdPalette(false); setShowCoPilot(false); if (page === "home") navigate("snapshot"); }, keywords: "present presentation slides client meeting" },
-      { id: "act_reset", icon: "🔄", label: "Reset Data", desc: "Clear all data and start fresh", category: "Actions", action: () => { if (confirm("Reset all data? This cannot be undone.")) reset(); }, keywords: "reset clear" },
+      { id: "act_upload", icon: "\u21E7", label: "Upload Data", desc: "Open the smart import wizard", category: "Actions", action: () => { setShowImportWizard(true); setShowCmdPalette(false); } },
+      { id: "act_theme", icon: theme === "dark" ? "\u263C" : "\u263E", label: theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode", desc: "Toggle the color theme", category: "Actions", shortcut: "Cmd+D", action: toggleTheme, keywords: "dark light mode theme toggle" },
+      { id: "act_shortcuts", icon: "\u2328", label: "Keyboard Shortcuts", desc: "View all keyboard shortcuts", category: "Actions", shortcut: "Cmd+/", action: () => { setShowCmdPalette(false); setShowShortcuts(true); } },
+      { id: "act_export", icon: "\u21E9", label: "Export Report", desc: "Generate and download deliverables", category: "Actions", action: () => navigate("export"), keywords: "export download pdf pptx docx" },
+      { id: "act_agents", icon: "\u2699", label: "Open Agent Hub", desc: "Multi-agent AI system for autonomous analysis", category: "Actions", action: () => { setShowAgentHub(true); setShowCmdPalette(false); }, keywords: "agent hub AI autonomous watcher analyst designer planner" },
+      { id: "act_agents_run", icon: "\u25B6", label: "Run All Agents", desc: "Trigger all AI agents to analyze your project", category: "Actions", action: () => { setShowCmdPalette(false); runAllAgents(); }, keywords: "run agents analyze AI" },
+      { id: "act_story", icon: "\u2261", label: "Generate Executive Story", desc: "AI-generated data narrative for client presentation", category: "Actions", action: () => { setShowStoryEngine(true); setShowCmdPalette(false); }, keywords: "story narrative executive report generate AI" },
+      { id: "act_present", icon: "\u25A3", label: "Enter Presentation Mode", desc: "Full-screen client-ready presentation", category: "Actions", shortcut: "Cmd+P", action: () => { setPresentMode(true); setPresentStartTime(Date.now()); setShowCmdPalette(false); setShowCoPilot(false); if (page === "home") navigate("snapshot"); }, keywords: "present presentation slides client meeting" },
+      { id: "act_reset", icon: "\u21BA", label: "Reset Data", desc: "Clear all data and start fresh", category: "Actions", action: () => { if (confirm("Reset all data? This cannot be undone.")) reset(); }, keywords: "reset clear" },
       // Data — jobs
       ...jobs.slice(0, 50).map(j => ({
-        id: `job_${j}`, icon: "💼", label: j, desc: "Job title — click to view in Work Design Lab", category: "Data",
+        id: `job_${j}`, icon: "\u2630", label: j, desc: "Job title — click to view in Work Design Lab", category: "Data",
         action: () => { setJob(j); navigate("design"); setCmdRecentIds(prev => [`job_${j}`, ...prev.filter(x => x !== `job_${j}`)].slice(0, 8)); },
         keywords: `job role title ${j}`,
       })),
@@ -914,7 +921,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       <input ref={fileRef} type="file" multiple accept=".xlsx,.xls,.csv,.tsv" onChange={e => e.target.files && upload(e.target.files)} className="hidden" />
       <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={() => { setShowImportWizard(true); setWizStep(1); setWizFiles([]); setWizPreview(null); setWizMappings({}); setWizValidation([]); }} className="w-full text-white text-[13px] font-semibold py-1.5 rounded-lg mb-1.5" style={{ background: "#F97316" }}>Upload data</motion.button>
       <a href="/api/template" download className="block w-full bg-[var(--surface-3)] hover:bg-[var(--hover)] border border-[var(--accent-primary)] text-[var(--accent-primary)] text-[13px] font-semibold py-1.5 rounded-lg mb-1.5 text-center no-underline">Download Excel template</a>
-      <button onClick={reset} className="w-full bg-[var(--surface-2)] hover:bg-[var(--hover)] border border-[var(--border)] text-[var(--text-secondary)] text-[13px] font-semibold py-1 rounded-lg">Reset to default</button>
+      <button onClick={reset} className="w-full bg-[var(--surface-2)] hover:bg-[var(--hover)] border border-[var(--border)] text-[var(--text-secondary)] text-[13px] font-semibold py-1 rounded-lg">Reset to original data</button>
       {msg && <div className="mt-1.5 text-[15px] text-[var(--accent-primary)] bg-[rgba(212,134,10,0.1)] rounded px-2 py-1">{msg}</div>}
       {!backendOk && <div className="mt-1.5 text-[15px] text-[var(--risk)] bg-[rgba(239,68,68,0.1)] rounded px-2 py-1.5 border border-[var(--risk)]/20">⚠ Can't reach the server<br/><span className="text-[15px] text-[var(--text-muted)]">Start the backend: cd backend && python3 main.py</span></div>}
       {backendOk && model && <div className="mt-1.5 text-[15px] text-[var(--success)] bg-[rgba(16,185,129,0.1)] rounded px-2 py-1">✓ Connected · {model}</div>}
@@ -1021,7 +1028,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
         </button>}
         <div className="text-center text-[14px] text-[var(--text-muted)] mt-1 opacity-50">v4.0</div>
         {aiProviders && <div className="text-center text-[12px] mt-0.5 opacity-40" style={{ color: aiProviders.claude ? "var(--success)" : "var(--risk)" }}>{aiProviders.claude ? "🟢 AI: Claude" : "🔴 AI: Offline"}</div>}
-        <button onClick={() => setShowShortcuts(true)} className="text-[12px] text-[var(--text-muted)] opacity-40 hover:opacity-80 transition-opacity mt-1 flex items-center justify-center gap-1"><span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: 18, height: 16, padding: "0 4px", borderRadius: 4, background: "var(--surface-2)", border: "1px solid var(--border)", fontSize: 10, fontFamily: "'IBM Plex Mono', monospace" }}>⌘/</span> shortcuts</button>
+        <button onClick={() => setShowShortcuts(true)} className="text-[12px] text-[var(--text-muted)] opacity-40 hover:opacity-80 transition-opacity mt-1 flex items-center justify-center gap-1"><span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: 18, height: 16, padding: "0 4px", borderRadius: 4, background: "var(--surface-2)", border: "1px solid var(--border)", fontSize: 11, fontFamily: "'IBM Plex Mono', monospace" }}>⌘/</span> shortcuts</button>
       </div>
     </aside>
 
@@ -1193,7 +1200,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       </div>
     </div>}
 
-    {sidebarGuide && <GuideViewer guide={sidebarGuide === "consultant" ? consultantGuide : hrGuide} onBack={() => setSidebarGuide(null)} onNavigate={(moduleId) => { setSidebarGuide(null); navigate(moduleId); }} />}
+    {sidebarGuide && loadedGuideData && <GuideViewer guide={loadedGuideData} onBack={() => setSidebarGuide(null)} onNavigate={(moduleId) => { setSidebarGuide(null); navigate(moduleId); }} />}
     <ToastContainer />
   </div>;
 }
@@ -1423,15 +1430,15 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
           {/* ── LOGIN ── */}
           {mode === "login" && (
             <form onSubmit={e => { e.preventDefault(); handleLogin(); }} style={{ display: "flex", flexDirection: "column", gap: 14 }} autoComplete="on" noValidate>
-              <div><label style={labelStyle}>Username</label><input value={username} onChange={e => setUsername(e.target.value)} onInvalid={e => e.preventDefault()} formNoValidate placeholder="Enter username" style={inputStyle} autoComplete="username" name="username" onFocus={e => e.currentTarget.style.borderColor = focusBorder} onBlur={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"} /></div>
-              <div><label style={labelStyle}>Password</label>
+              <div><label htmlFor="login-username" style={labelStyle}>Username</label><input id="login-username" value={username} onChange={e => setUsername(e.target.value)} onInvalid={e => e.preventDefault()} formNoValidate placeholder="Enter username" style={inputStyle} autoComplete="username" name="username" onFocus={e => e.currentTarget.style.borderColor = focusBorder} onBlur={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"} /></div>
+              <div><label htmlFor="login-password" style={labelStyle}>Password</label>
                 <div style={{ position: "relative" }}>
-                  <input type={showPw ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} onInvalid={e => e.preventDefault()} formNoValidate placeholder="Enter password" style={{ ...inputStyle, paddingRight: 44 }} autoComplete="off" name="password" onFocus={e => e.currentTarget.style.borderColor = focusBorder} onBlur={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"} />
-                  <button type="button" onClick={() => setShowPw(!showPw)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "rgba(255,255,255,0.3)", cursor: "pointer", fontSize: 15 }}>{showPw ? "🙈" : "👁"}</button>
+                  <input id="login-password" type={showPw ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} onInvalid={e => e.preventDefault()} formNoValidate placeholder="Enter password" style={{ ...inputStyle, paddingRight: 44 }} autoComplete="off" name="password" onFocus={e => e.currentTarget.style.borderColor = focusBorder} onBlur={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"} />
+                  <button type="button" onClick={() => setShowPw(!showPw)} aria-label={showPw ? "Hide password" : "Show password"} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "rgba(255,255,255,0.3)", cursor: "pointer", fontSize: 15, display: "flex", alignItems: "center" }}>{showPw ? <EyeOff size={16} /> : <Eye size={16} />}</button>
                 </div>
               </div>
               <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
-                <input type="checkbox" checked={rememberMe} onChange={e => { setRememberMe(e.target.checked); if (!e.target.checked) authApi.clearRememberedCredentials(); }} style={{ accentColor: "var(--accent-primary)", width: 14, height: 14 }} />
+                <input id="login-remember" type="checkbox" checked={rememberMe} onChange={e => { setRememberMe(e.target.checked); if (!e.target.checked) authApi.clearRememberedCredentials(); }} style={{ accentColor: "var(--accent-primary)", width: 14, height: 14 }} />
                 <span style={{ fontSize: 15, color: "rgba(255,255,255,0.4)", fontFamily: "'IBM Plex Mono', monospace" }}>Remember me</span>
               </label>
               <button type="submit" disabled={loading || !username || !password} style={{ ...btnStyle, opacity: loading ? 0.5 : 1, marginTop: 2 }}>{loading ? "Signing in..." : "Sign In"}</button>
@@ -1444,9 +1451,9 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               {/* Email */}
               <div>
-                <label style={labelStyle}>Email</label>
+                <label htmlFor="reg-email" style={labelStyle}>Email</label>
                 <div style={{ position: "relative" }}>
-                  <input value={email} onChange={e => { setEmail(e.target.value); if (!emailTouched) setEmailTouched(true); }} onBlur={() => setEmailTouched(true)} placeholder="your@email.com" type="email" style={{ ...inputStyle, paddingRight: 36, borderColor: showEmailFormatError || emailAvailable === "taken" ? "rgba(239,68,68,0.5)" : showEmailFormatOk && emailAvailable === "available" ? "rgba(16,185,129,0.4)" : undefined }} autoComplete="email" onFocus={e => { if (!showEmailFormatError) e.currentTarget.style.borderColor = focusBorder; }} />
+                  <input id="reg-email" value={email} onChange={e => { setEmail(e.target.value); if (!emailTouched) setEmailTouched(true); }} onBlur={() => setEmailTouched(true)} placeholder="your@email.com" type="email" style={{ ...inputStyle, paddingRight: 36, borderColor: showEmailFormatError || emailAvailable === "taken" ? "rgba(239,68,68,0.5)" : showEmailFormatOk && emailAvailable === "available" ? "rgba(16,185,129,0.4)" : undefined }} autoComplete="email" onFocus={e => { if (!showEmailFormatError) e.currentTarget.style.borderColor = focusBorder; }} />
                   {emailAvailable === "checking" && <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#f59e0b", fontSize: 15 }}>...</span>}
                   {emailAvailable === "available" && showEmailFormatOk && <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#10b981", fontSize: 15 }}>✓</span>}
                   {showEmailFormatError && <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#ef4444", fontSize: 15 }}>✕</span>}
@@ -1459,9 +1466,9 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
 
               {/* Username */}
               <div>
-                <label style={labelStyle}>Username</label>
+                <label htmlFor="reg-username" style={labelStyle}>Username</label>
                 <div style={{ position: "relative" }}>
-                  <input value={username} onChange={e => setUsername(e.target.value)} placeholder="Choose a username" style={{ ...inputStyle, paddingRight: 36, borderColor: usernameStatus === "taken" || usernameStatus === "invalid" ? "rgba(239,68,68,0.5)" : usernameStatus === "available" ? "rgba(16,185,129,0.4)" : undefined }} autoComplete="username" name="username" onFocus={e => { if (usernameStatus !== "taken" && usernameStatus !== "invalid") e.currentTarget.style.borderColor = focusBorder; }} />
+                  <input id="reg-username" value={username} onChange={e => setUsername(e.target.value)} placeholder="Choose a username" style={{ ...inputStyle, paddingRight: 36, borderColor: usernameStatus === "taken" || usernameStatus === "invalid" ? "rgba(239,68,68,0.5)" : usernameStatus === "available" ? "rgba(16,185,129,0.4)" : undefined }} autoComplete="username" name="username" onFocus={e => { if (usernameStatus !== "taken" && usernameStatus !== "invalid") e.currentTarget.style.borderColor = focusBorder; }} />
                   {usernameStatus === "checking" && <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#f59e0b", fontSize: 15 }}>...</span>}
                   {usernameStatus === "available" && <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#10b981", fontSize: 15 }}>✓</span>}
                   {usernameStatus === "taken" && <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#ef4444", fontSize: 15 }}>✕</span>}
@@ -1477,16 +1484,16 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
 
               {/* Display Name */}
               <div>
-                <label style={labelStyle}>Display Name</label>
-                <input value={displayName} onChange={e => setDisplayName(e.target.value)} placeholder="How others will see you" style={inputStyle} onFocus={e => e.currentTarget.style.borderColor = focusBorder} onBlur={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"} />
+                <label htmlFor="reg-displayname" style={labelStyle}>Display Name</label>
+                <input id="reg-displayname" value={displayName} onChange={e => setDisplayName(e.target.value)} placeholder="How others will see you" style={inputStyle} onFocus={e => e.currentTarget.style.borderColor = focusBorder} onBlur={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"} />
               </div>
 
               {/* Password */}
               <div>
-                <label style={labelStyle}>Password</label>
+                <label htmlFor="reg-password" style={labelStyle}>Password</label>
                 <div style={{ position: "relative" }}>
-                  <input type={showPw ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="Create a strong password" style={{ ...inputStyle, paddingRight: 44 }} autoComplete="new-password" name="password" onFocus={e => e.currentTarget.style.borderColor = focusBorder} onBlur={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"} />
-                  <button type="button" onClick={() => setShowPw(!showPw)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "rgba(255,255,255,0.3)", cursor: "pointer", fontSize: 15 }}>{showPw ? "🙈" : "👁"}</button>
+                  <input id="reg-password" type={showPw ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="Create a strong password" style={{ ...inputStyle, paddingRight: 44 }} autoComplete="new-password" name="password" onFocus={e => e.currentTarget.style.borderColor = focusBorder} onBlur={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"} />
+                  <button type="button" onClick={() => setShowPw(!showPw)} aria-label={showPw ? "Hide password" : "Show password"} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "rgba(255,255,255,0.3)", cursor: "pointer", fontSize: 15, display: "flex", alignItems: "center" }}>{showPw ? <EyeOff size={16} /> : <Eye size={16} />}</button>
                 </div>
                 {password.length > 0 && <>
                   <div style={{ display: "flex", gap: 3, marginTop: 6 }}>
@@ -1503,18 +1510,18 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
 
               {/* Confirm Password */}
               <div>
-                <label style={labelStyle}>Confirm Password</label>
+                <label htmlFor="reg-password-confirm" style={labelStyle}>Confirm Password</label>
                 <div style={{ position: "relative" }}>
-                  <input type={showPwC ? "text" : "password"} value={passwordConfirm} onChange={e => setPasswordConfirm(e.target.value)} placeholder="Type password again" style={{ ...inputStyle, paddingRight: 44, borderColor: pwMismatch ? "rgba(239,68,68,0.5)" : pwMatch ? "rgba(16,185,129,0.4)" : undefined }} autoComplete="new-password" name="password_confirm" onFocus={e => { if (!pwMismatch) e.currentTarget.style.borderColor = focusBorder; }} />
-                  <button type="button" onClick={() => setShowPwC(!showPwC)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "rgba(255,255,255,0.3)", cursor: "pointer", fontSize: 15 }}>{showPwC ? "🙈" : "👁"}</button>
+                  <input id="reg-password-confirm" type={showPwC ? "text" : "password"} value={passwordConfirm} onChange={e => setPasswordConfirm(e.target.value)} placeholder="Type password again" style={{ ...inputStyle, paddingRight: 44, borderColor: pwMismatch ? "rgba(239,68,68,0.5)" : pwMatch ? "rgba(16,185,129,0.4)" : undefined }} autoComplete="new-password" name="password_confirm" onFocus={e => { if (!pwMismatch) e.currentTarget.style.borderColor = focusBorder; }} />
+                  <button type="button" onClick={() => setShowPwC(!showPwC)} aria-label={showPwC ? "Hide password confirmation" : "Show password confirmation"} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "rgba(255,255,255,0.3)", cursor: "pointer", fontSize: 15, display: "flex", alignItems: "center" }}>{showPwC ? <EyeOff size={16} /> : <Eye size={16} />}</button>
                 </div>
                 {pwMatch && <span style={{ ...hintStyle, color: "#10b981" }}>Passwords match</span>}
                 {pwMismatch && <span style={{ ...hintStyle, color: "#ef4444" }}>Passwords don&apos;t match</span>}
               </div>
 
               {/* Terms */}
-              <label style={{ display: "flex", alignItems: "flex-start", gap: 8, cursor: "pointer", marginTop: 2 }}>
-                <input type="checkbox" checked={agreeTerms} onChange={e => setAgreeTerms(e.target.checked)} style={{ accentColor: "var(--accent-primary)", width: 14, height: 14, marginTop: 1 }} />
+              <label htmlFor="reg-terms" style={{ display: "flex", alignItems: "flex-start", gap: 8, cursor: "pointer", marginTop: 2 }}>
+                <input id="reg-terms" type="checkbox" checked={agreeTerms} onChange={e => setAgreeTerms(e.target.checked)} style={{ accentColor: "var(--accent-primary)", width: 14, height: 14, marginTop: 1 }} />
                 <span style={{ fontSize: 15, color: "rgba(255,255,255,0.4)", fontFamily: "'IBM Plex Mono', monospace", lineHeight: 1.5 }}>I agree to the <span style={{ color: "var(--accent-primary)", cursor: "pointer" }}>Terms of Service</span> and <span style={{ color: "var(--accent-primary)", cursor: "pointer" }}>Privacy Policy</span></span>
               </label>
 
@@ -1535,9 +1542,9 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
           {/* ── FORGOT ── */}
           {mode === "forgot" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <div><label style={labelStyle}>Email</label>
+              <div><label htmlFor="forgot-email" style={labelStyle}>Email</label>
                 <div style={{ position: "relative" }}>
-                  <input value={email} onChange={e => { setEmail(e.target.value); if (!emailTouched) setEmailTouched(true); }} onBlur={() => setEmailTouched(true)} placeholder="Enter your account email" type="email" style={{ ...inputStyle, paddingRight: 36, borderColor: showEmailFormatError ? "rgba(239,68,68,0.5)" : showEmailFormatOk ? "rgba(16,185,129,0.4)" : undefined }} />
+                  <input id="forgot-email" value={email} onChange={e => { setEmail(e.target.value); if (!emailTouched) setEmailTouched(true); }} onBlur={() => setEmailTouched(true)} placeholder="Enter your account email" type="email" style={{ ...inputStyle, paddingRight: 36, borderColor: showEmailFormatError ? "rgba(239,68,68,0.5)" : showEmailFormatOk ? "rgba(16,185,129,0.4)" : undefined }} />
                   {showEmailFormatOk && <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#10b981", fontSize: 15 }}>✓</span>}
                   {showEmailFormatError && <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#ef4444", fontSize: 15 }}>✕</span>}
                 </div>
@@ -1550,9 +1557,9 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
           {/* ── RESET ── */}
           {mode === "reset" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <div><label style={labelStyle}>Reset Token</label><input value={resetToken} onChange={e => setResetToken(e.target.value)} placeholder="Paste reset token" style={{ ...inputStyle, fontFamily: "'IBM Plex Mono', monospace" }} /></div>
-              <div><label style={labelStyle}>New Password</label><input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Enter new password" style={inputStyle} /></div>
-              <div><label style={labelStyle}>Confirm New Password</label><input type="password" value={passwordConfirm} onChange={e => setPasswordConfirm(e.target.value)} placeholder="Type again" style={inputStyle} /></div>
+              <div><label htmlFor="reset-token" style={labelStyle}>Reset Token</label><input id="reset-token" value={resetToken} onChange={e => setResetToken(e.target.value)} placeholder="Paste reset token" style={{ ...inputStyle, fontFamily: "'IBM Plex Mono', monospace" }} /></div>
+              <div><label htmlFor="reset-password" style={labelStyle}>New Password</label><input id="reset-password" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Enter new password" style={inputStyle} /></div>
+              <div><label htmlFor="reset-password-confirm" style={labelStyle}>Confirm New Password</label><input id="reset-password-confirm" type="password" value={passwordConfirm} onChange={e => setPasswordConfirm(e.target.value)} placeholder="Type again" style={inputStyle} /></div>
               <button onClick={handleReset} disabled={loading || !resetToken || !password || password !== passwordConfirm} style={{ ...btnStyle, opacity: loading ? 0.5 : 1 }}>{loading ? "..." : "Reset Password"}</button>
               <p style={{ fontSize: 14, color: "rgba(255,255,255,0.25)", fontFamily: "'IBM Plex Mono', monospace" }}>Token expires after 30 minutes</p>
             </div>
@@ -1673,7 +1680,7 @@ export default function Page() {
   const appContent = !activeProject
     ? <>{hubAccountBar}{profileModal}<ProjectHub user={user} onOpenProject={setActiveProject} onStartTutorial={() => setShowTutorial(true)} onOpenSandbox={() => setShowSandboxPicker(true)} showSandboxPicker={showSandboxPicker} onCloseSandbox={() => setShowSandboxPicker(false)} /></>
     : <>{profileModal}<Home key={activeProject.id} projectId={activeProject.id} projectName={activeProject.name} projectMeta={activeProject.meta} onBackToHub={() => setActiveProject(null)} user={user} onShowProfile={() => setShowProfile(true)} onShowPlatformHub={() => setShowPlatformHub(true)} /></>;
-  return <>{appContent}<MusicPlayer projectActive={!!activeProject} /></>;
+  return <>{appContent}{!activeProject && <MusicPlayer projectActive={false} />}</>;
 }
 
 

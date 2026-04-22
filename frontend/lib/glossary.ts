@@ -18,7 +18,7 @@ export const GLOSSARY: Record<string, { definition: string; action?: string }> =
   },
   "FTE Impact": {
     definition: "Full-Time Equivalent hours freed by AI automation. 160 hours/month = 1 FTE.",
-    action: "Freed FTEs can be redeployed to higher-value work, not necessarily eliminated."
+    action: "Freed FTEs can be redeployed to higher-value work, not necessarily transitioned out."
   },
   "Span of Control": {
     definition: "Number of direct reports per manager. Industry norm: 6-10 for knowledge work, 10-15 for operational roles.",

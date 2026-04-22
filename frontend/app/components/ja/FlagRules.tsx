@@ -59,11 +59,11 @@ const S = {
     borderBottom: "1px solid var(--border)", cursor: "pointer",
   }) as React.CSSProperties,
   violationRow: { display: "flex", alignItems: "center", gap: 10, padding: "8px 18px 8px 44px", borderBottom: "1px solid var(--border)", fontSize: "var(--text-xs)" } as React.CSSProperties,
-  suppressBtn: { display: "inline-flex", alignItems: "center", gap: 3, padding: "3px 8px", fontSize: 10, background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 4, color: "var(--text-muted)", cursor: "pointer" } as React.CSSProperties,
+  suppressBtn: { display: "inline-flex", alignItems: "center", gap: 3, padding: "3px 8px", fontSize: 11, background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 4, color: "var(--text-muted)", cursor: "pointer" } as React.CSSProperties,
   badge: (count: number, sev: string) => ({
     display: "inline-flex", alignItems: "center", justifyContent: "center",
     minWidth: 20, height: 18, padding: "0 5px", borderRadius: 9,
-    fontSize: 10, fontWeight: 700,
+    fontSize: 11, fontWeight: 700,
     background: `${SEV_COLORS[sev] || "#9CA3AF"}18`,
     color: SEV_COLORS[sev] || "#9CA3AF",
   }) as React.CSSProperties,
@@ -249,12 +249,12 @@ export default function FlagRules({ projectId, scenarioId, onRoleClick }: Props)
               </div>
               {rule.threshold !== null && (
                 <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                  <span style={{ fontSize: 10, color: "var(--text-muted)" }}>Threshold:</span>
+                  <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Threshold:</span>
                   <input style={S.thresholdInput} type="number" value={rule.threshold}
                     onChange={e => updateThreshold(rule.id, Number(e.target.value))} />
                 </div>
               )}
-              <span style={{ fontSize: 10, color: "var(--text-muted)", padding: "2px 6px", border: "1px solid var(--border)", borderRadius: 3 }}>
+              <span style={{ fontSize: 11, color: "var(--text-muted)", padding: "2px 6px", border: "1px solid var(--border)", borderRadius: 3 }}>
                 {rule.severity}
               </span>
               <button style={S.toggleBtn} onClick={() => toggleRule(rule.id, !rule.enabled)}>

@@ -419,7 +419,7 @@ export function SkillsMapEngine({ model, f, onBack, onNavigate }: {
                   React.createElement("div", { style: { fontSize: 13, fontWeight: isActive ? 600 : 400, color: isActive ? "var(--text-primary)" : "var(--text-secondary)", lineHeight: 1.3 } }, title),
                   React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6, marginTop: 2 } },
                     React.createElement("span", { style: { fontSize: 11, color: "var(--text-muted)", fontFamily: "'IBM Plex Mono', monospace" } }, code),
-                    jz ? React.createElement("span", { style: { fontSize: 10, fontWeight: 600, padding: "1px 5px", borderRadius: 4, background: `${JZ_COLORS[jz] || "#888"}15`, color: JZ_COLORS[jz] || "#888" } }, `Zone ${jz}`) : null,
+                    jz ? React.createElement("span", { style: { fontSize: 11, fontWeight: 600, padding: "1px 5px", borderRadius: 4, background: `${JZ_COLORS[jz] || "#888"}15`, color: JZ_COLORS[jz] || "#888" } }, `Zone ${jz}`) : null,
                   ),
                 );
               }),
@@ -827,7 +827,7 @@ export function SkillsMapEngine({ model, f, onBack, onNavigate }: {
       React.createElement("div", { style: { display: "flex", gap: 12 } },
         React.createElement("button", {
           style: S.btn("primary"),
-          onClick: () => showToast("Export coming soon"),
+          onClick: () => showToast("Excel export is in development — use Copy as Charter for now"),
         }, "Download Excel"),
       ),
     );

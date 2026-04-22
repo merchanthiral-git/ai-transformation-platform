@@ -80,11 +80,11 @@ const S = {
   topBar: { display: "flex", alignItems: "center", gap: 10, padding: "10px 20px", borderBottom: "1px solid var(--border)", flexShrink: 0, background: "var(--surface-1)" } as React.CSSProperties,
   breadcrumb: { display: "flex", alignItems: "center", gap: 4, fontSize: "var(--text-xs)", color: "var(--text-muted)", flex: 1 } as React.CSSProperties,
   breadLink: { color: "#3B82F6", cursor: "pointer", background: "none", border: "none", fontSize: "var(--text-xs)" } as React.CSSProperties,
-  breadSep: { color: "var(--text-muted)", fontSize: 10 } as React.CSSProperties,
+  breadSep: { color: "var(--text-muted)", fontSize: 11 } as React.CSSProperties,
   breadCurrent: { color: "var(--text-primary)", fontWeight: "var(--fw-semi)" } as React.CSSProperties,
   topActions: { display: "flex", alignItems: "center", gap: 6 } as React.CSSProperties,
   topBtn: { display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 10px", fontSize: 11, fontWeight: "var(--fw-medium)", border: "1px solid var(--border)", borderRadius: 5, background: "var(--surface-2)", color: "var(--text-secondary)", cursor: "pointer" } as React.CSSProperties,
-  syncPill: (color: string, bg: string) => ({ display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 10px", fontSize: 10, fontWeight: 600, borderRadius: 10, background: bg, color, cursor: "pointer" }) as React.CSSProperties,
+  syncPill: (color: string, bg: string) => ({ display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 10px", fontSize: 11, fontWeight: 600, borderRadius: 10, background: bg, color, cursor: "pointer" }) as React.CSSProperties,
 
   // Stale/conflict banner
   banner: (color: string) => ({ display: "flex", alignItems: "center", gap: 10, padding: "8px 20px", background: `${color}08`, borderBottom: `2px solid ${color}`, fontSize: "var(--text-xs)", color: "var(--text-primary)", flexShrink: 0 }) as React.CSSProperties,
@@ -98,9 +98,9 @@ const S = {
     const color = state === "current" ? "#fff" : state === "complete" ? "#22C55E" : state === "locked" ? "var(--border)" : "var(--text-muted)";
     return { display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 6, border: `1px solid ${border}`, background: bg, cursor: state === "locked" ? "default" : "pointer", transition: "all 0.15s", minWidth: 0, whiteSpace: "nowrap" as const } as React.CSSProperties;
   },
-  spineNum: (state: "current" | "complete" | "incomplete" | "locked") => ({ width: 20, height: 20, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, background: state === "current" ? "rgba(255,255,255,0.2)" : "transparent", color: state === "current" ? "#fff" : state === "complete" ? "#22C55E" : "var(--text-muted)", flexShrink: 0 }) as React.CSSProperties,
+  spineNum: (state: "current" | "complete" | "incomplete" | "locked") => ({ width: 20, height: 20, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, background: state === "current" ? "rgba(255,255,255,0.2)" : "transparent", color: state === "current" ? "#fff" : state === "complete" ? "#22C55E" : "var(--text-muted)", flexShrink: 0 }) as React.CSSProperties,
   spineLabel: { fontSize: 11, fontWeight: "var(--fw-medium)" } as React.CSSProperties,
-  spinePct: { fontSize: 9, marginLeft: 2, opacity: 0.7 } as React.CSSProperties,
+  spinePct: { fontSize: 11, marginLeft: 2, opacity: 0.7 } as React.CSSProperties,
   spineConnector: { width: 16, height: 1, background: "var(--border)", flexShrink: 0 } as React.CSSProperties,
 
   // Main content area
@@ -110,16 +110,16 @@ const S = {
   // Right rail
   rail: (open: boolean) => ({ width: open ? 280 : 0, flexShrink: 0, borderLeft: open ? "1px solid var(--border)" : "none", background: "var(--surface-1)", overflowY: "auto" as const, overflowX: "hidden" as const, transition: "width 0.2s", padding: open ? "16px" : 0 }) as React.CSSProperties,
   railSection: { marginBottom: 16 } as React.CSSProperties,
-  railTitle: { fontSize: 10, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 8 } as React.CSSProperties,
+  railTitle: { fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 8 } as React.CSSProperties,
   railField: { display: "flex", justifyContent: "space-between", padding: "4px 0", fontSize: "var(--text-xs)", borderBottom: "1px solid var(--border)" } as React.CSSProperties,
   railLabel: { color: "var(--text-muted)" } as React.CSSProperties,
   railValue: { color: "var(--text-primary)", fontWeight: "var(--fw-medium)" } as React.CSSProperties,
-  railBtn: { display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 10px", fontSize: 10, fontWeight: "var(--fw-medium)", border: "1px solid var(--border)", borderRadius: 4, background: "var(--surface-2)", color: "var(--text-secondary)", cursor: "pointer", width: "100%", justifyContent: "center", marginTop: 4 } as React.CSSProperties,
+  railBtn: { display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 10px", fontSize: 11, fontWeight: "var(--fw-medium)", border: "1px solid var(--border)", borderRadius: 4, background: "var(--surface-2)", color: "var(--text-secondary)", cursor: "pointer", width: "100%", justifyContent: "center", marginTop: 4 } as React.CSSProperties,
   relatedJob: { padding: "6px 8px", borderRadius: 4, fontSize: 11, color: "var(--text-secondary)", cursor: "pointer", marginBottom: 3 } as React.CSSProperties,
 
   // Stage placeholder
   placeholder: { textAlign: "center" as const, padding: "60px 24px", color: "var(--text-muted)" } as React.CSSProperties,
-  kbd: { display: "inline-block", padding: "1px 5px", fontSize: 10, background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 3, fontFamily: "var(--ff-mono)", color: "var(--text-muted)" } as React.CSSProperties,
+  kbd: { display: "inline-block", padding: "1px 5px", fontSize: 11, background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 3, fontFamily: "var(--ff-mono)", color: "var(--text-muted)" } as React.CSSProperties,
 };
 
 /* ═══════════════════════════════════════════════════════════════
@@ -322,7 +322,7 @@ export default function WorkflowCanvas({ jobId, jobTitle, projectId, model, onBa
         })}
 
         {/* Keyboard hint */}
-        <div style={{ marginLeft: "auto", fontSize: 10, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 6, flexShrink: 0, paddingLeft: 12 }}>
+        <div style={{ marginLeft: "auto", fontSize: 11, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 6, flexShrink: 0, paddingLeft: 12 }}>
           <span style={S.kbd}>⌘←</span><span style={S.kbd}>⌘→</span> stages
           <span style={S.kbd}>⌘P</span> sources
           <span style={S.kbd}>Esc</span> queue

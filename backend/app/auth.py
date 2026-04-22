@@ -13,7 +13,9 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 # ── Config ──────────────────────────────────────────────────────
-SECRET_KEY = os.environ.get("JWT_SECRET", "change-me-in-production-" + uuid.uuid4().hex)
+SECRET_KEY = os.environ.get("JWT_SECRET", "dev-only-secret-change-in-production")
+if not os.environ.get("JWT_SECRET"):
+    print("[SECURITY WARNING] JWT_SECRET not set — using insecure default. Set JWT_SECRET in production.")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
 
@@ -179,7 +181,11 @@ except Exception as e:
 
 # ── Seed admin user if not exists ─────────────────────────────
 def _seed_admin():
-    """Create the admin user on first startup if it doesn't exist."""
+    """Create the admin user on first startup if ADMIN_SEED_PASSWORD env var is set."""
+    seed_password = os.environ.get("ADMIN_SEED_PASSWORD")
+    if not seed_password:
+        print("[Seed] ADMIN_SEED_PASSWORD not set — skipping admin seed")
+        return
     db = SessionLocal()
     try:
         existing = db.query(UserDB).filter(UserDB.username == "hiral").first()
@@ -188,7 +194,7 @@ def _seed_admin():
                 username="hiral",
                 email="merchanthiral@gmail.com",
                 display_name="Hiral",
-                password_hash=hash_password("Montreal1980!"),
+                password_hash=hash_password(seed_password),
                 is_active="true",
                 email_verified="true",
                 created_at=datetime.now(timezone.utc),

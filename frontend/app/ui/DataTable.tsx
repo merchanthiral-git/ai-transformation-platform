@@ -166,7 +166,7 @@ export function DataTable({
             {loading ? (
               <tr><td colSpan={colSpan} style={{ padding: 32, textAlign: "center", color: "var(--text-muted)" }}>Loading...</td></tr>
             ) : pageData.length === 0 ? (
-              <tr><td colSpan={colSpan} style={{ padding: 32, textAlign: "center" }}>{emptyState ?? <span style={{ color: "var(--text-muted)", fontSize: "var(--text-sm)" }}>No data to display</span>}</td></tr>
+              <tr><td colSpan={colSpan} style={{ padding: 32, textAlign: "center" }}>{emptyState ?? <span style={{ color: "var(--text-muted)", fontSize: "var(--text-sm)" }}>No rows match your filters. Try broadening your search or clearing filters.</span>}</td></tr>
             ) : pageData.map((row, idx) => {
               const id = rowId(row);
               const isSelected = selection?.selected.includes(id) ?? false;

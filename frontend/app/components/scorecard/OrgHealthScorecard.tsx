@@ -76,7 +76,7 @@ const S = {
   scoreSub: { fontSize: "var(--text-xs)", color: "var(--text-muted)", marginTop: 2 } as React.CSSProperties,
   issueList: { display: "flex", gap: 12, flex: 1, marginLeft: 24 } as React.CSSProperties,
   issueCol: { flex: 1 } as React.CSSProperties,
-  issueTitle: { fontSize: 10, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.05em", marginBottom: 6 } as React.CSSProperties,
+  issueTitle: { fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.05em", marginBottom: 6 } as React.CSSProperties,
   issueItem: (isIssue: boolean) => ({ display: "flex", alignItems: "flex-start", gap: 6, padding: "4px 0", fontSize: "var(--text-xs)", color: "var(--text-secondary)" }) as React.CSSProperties,
   cardGrid: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14, marginBottom: 20 } as React.CSSProperties,
   card: (color: string) => ({ background: "var(--surface-1)", border: "1px solid var(--border)", borderTop: `3px solid ${color}`, borderRadius: 10, padding: "18px 20px" }) as React.CSSProperties,
@@ -86,7 +86,7 @@ const S = {
   metricRow: { display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: "1px solid var(--border)", fontSize: "var(--text-xs)" } as React.CSSProperties,
   metricName: { flex: 1, color: "var(--text-secondary)" } as React.CSSProperties,
   metricValue: { fontFamily: "var(--ff-mono)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)", minWidth: 50, textAlign: "right" as const } as React.CSSProperties,
-  metricBench: { fontSize: 10, color: "var(--text-muted)", minWidth: 40, textAlign: "right" as const } as React.CSSProperties,
+  metricBench: { fontSize: 11, color: "var(--text-muted)", minWidth: 40, textAlign: "right" as const } as React.CSSProperties,
   statusDot: (status: string) => ({ width: 8, height: 8, borderRadius: "50%", background: STATUS_COLORS[status] || "#9CA3AF", flexShrink: 0 }) as React.CSSProperties,
   snapList: { background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 10, padding: "16px 20px" } as React.CSSProperties,
   snapRow: { display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: "1px solid var(--border)", fontSize: "var(--text-xs)", cursor: "pointer" } as React.CSSProperties,
@@ -129,7 +129,7 @@ export default function OrgHealthScorecard({ model, projectId }: Props) {
       <div style={S.page}>
         <h2 style={S.h2}>Org Health Scorecard</h2>
         <div style={{ textAlign: "center", padding: 60, color: "var(--text-muted)" }}>
-          {loading ? "Computing scorecard from workforce data…" : "No data available. Upload workforce data to compute."}
+          {loading ? "Computing scorecard from workforce data…" : "No scorecard yet. Upload workforce data from the Overview tab to generate health scores."}
         </div>
       </div>
     );
@@ -210,7 +210,7 @@ export default function OrgHealthScorecard({ model, projectId }: Props) {
                 </div>
               ))}
               {dim.metrics.length > 3 && (
-                <button style={{ background: "none", border: "none", fontSize: 10, color: "#3B82F6", cursor: "pointer", marginTop: 6, padding: 0 }}
+                <button style={{ background: "none", border: "none", fontSize: 11, color: "#3B82F6", cursor: "pointer", marginTop: 6, padding: 0 }}
                   onClick={() => setExpandedDim(isExpanded ? null : key)}>
                   {isExpanded ? "Show less" : `+${dim.metrics.length - 3} more metrics`}
                 </button>
@@ -230,7 +230,7 @@ export default function OrgHealthScorecard({ model, projectId }: Props) {
             <div key={snap.id} style={S.snapRow}>
               <span style={{ fontWeight: "var(--fw-medium)", color: "var(--text-primary)", flex: 1 }}>{snap.tag}</span>
               <span style={{ fontFamily: "var(--ff-mono)", fontWeight: "var(--fw-bold)", color: snap.overall_score >= 70 ? "#22C55E" : snap.overall_score >= 40 ? "#F59E0B" : "#EF4444" }}>{Math.round(snap.overall_score)}</span>
-              <span style={{ fontSize: 10, color: "var(--text-muted)", minWidth: 80 }}>{new Date(snap.created_at).toLocaleDateString()}</span>
+              <span style={{ fontSize: 11, color: "var(--text-muted)", minWidth: 80 }}>{new Date(snap.created_at).toLocaleDateString()}</span>
               <ChevronRight size={12} style={{ color: "var(--text-muted)" }} />
             </div>
           ))}

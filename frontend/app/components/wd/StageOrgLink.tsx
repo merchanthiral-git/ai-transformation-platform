@@ -36,7 +36,7 @@ const S = {
   section: { background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 10, padding: "18px 22px", marginBottom: 16 } as React.CSSProperties,
   sectionTitle: { fontSize: "var(--text-sm)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)", marginBottom: 12, display: "flex", alignItems: "center", gap: 8 } as React.CSSProperties,
   fieldRow: { display: "flex", alignItems: "center", gap: 12, marginBottom: 10 } as React.CSSProperties,
-  label: { fontSize: 10, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.05em", width: 120, flexShrink: 0 } as React.CSSProperties,
+  label: { fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.05em", width: 120, flexShrink: 0 } as React.CSSProperties,
   input: { flex: 1, padding: "7px 10px", fontSize: "var(--text-xs)", background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 6, color: "var(--text-primary)", outline: "none" } as React.CSSProperties,
   checkRow: { display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", borderRadius: 6, marginBottom: 4, fontSize: "var(--text-xs)" } as React.CSSProperties,
   checkOk: { background: "rgba(34,197,94,0.06)", color: "#22C55E" } as React.CSSProperties,
@@ -108,7 +108,7 @@ export default function StageOrgLink({ orgLinkData, jobTitle, trackCode, levelCo
             <div style={S.label}>Track / Level</div>
             <div style={{ ...S.input, background: "transparent", border: "none", color: "var(--text-primary)", fontWeight: "var(--fw-semi)" }}>
               {trackCode || "—"} {levelCode || ""}
-              {showSources && <span style={{ marginLeft: 6, padding: "1px 6px", fontSize: 9, background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.12)", borderRadius: 3, color: "#3B82F6" }}>JA</span>}
+              {showSources && <span style={{ marginLeft: 6, padding: "1px 6px", fontSize: 11, background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.12)", borderRadius: 3, color: "#3B82F6" }}>JA</span>}
             </div>
           </div>
           <div style={S.fieldRow}>
@@ -139,7 +139,7 @@ export default function StageOrgLink({ orgLinkData, jobTitle, trackCode, levelCo
             {managerRole && (
               <>
                 <div style={S.orgNode(false)}>
-                  <div style={{ fontSize: 10, color: "var(--text-muted)" }}>Reports to</div>
+                  <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Reports to</div>
                   <div style={{ fontWeight: "var(--fw-semi)", color: "var(--text-primary)", marginTop: 2 }}>{managerRole}</div>
                 </div>
                 <div style={S.orgLine} />
@@ -147,9 +147,9 @@ export default function StageOrgLink({ orgLinkData, jobTitle, trackCode, levelCo
             )}
             {/* Current role */}
             <div style={S.orgNode(true)}>
-              <div style={{ fontSize: 10, color: "#3B82F6" }}>This Role</div>
+              <div style={{ fontSize: 11, color: "#3B82F6" }}>This Role</div>
               <div style={{ fontWeight: "var(--fw-semi)", color: "var(--text-primary)", marginTop: 2 }}>{finalTitle || jobTitle}</div>
-              <div style={{ fontSize: 9, color: "var(--text-muted)", marginTop: 2 }}>{trackCode} {levelCode} · {function_name}</div>
+              <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>{trackCode} {levelCode} · {function_name}</div>
             </div>
             {/* Direct reports */}
             {drList.length > 0 && (
@@ -208,7 +208,7 @@ export default function StageOrgLink({ orgLinkData, jobTitle, trackCode, levelCo
               {c.ok ? <Check size={12} /> : <AlertTriangle size={12} />}
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: "var(--fw-medium)", color: "var(--text-primary)" }}>{c.text}</div>
-                <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 1 }}>{c.detail}</div>
+                <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 1 }}>{c.detail}</div>
               </div>
             </div>
           ))}

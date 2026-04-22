@@ -722,7 +722,7 @@ function JobProfileLibrary({ jobs, model }: { jobs: Job[]; model: string }) {
     return <div onClick={() => setEditingField(`${jid}_${field}`)} className="text-[13px] cursor-pointer hover:bg-[var(--surface-2)] rounded-lg px-2 py-1 -mx-2 transition-all" style={{ color: value ? "var(--text-secondary)" : "var(--text-muted)", lineHeight: 1.6 }}>{value || placeholder}</div>;
   };
   const EmptyPlaceholder = ({ text }: { text: string }) => <div style={{ border: "1px dashed rgba(255,255,255,0.12)", borderRadius: 8, padding: "20px 16px", textAlign: "center", color: "var(--text-muted)", fontSize: 12 }}>{text}</div>;
-  const SectionHead = ({ label }: { label: string }) => <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12, marginTop: 20 }}><span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.08em", color: "#64748b", whiteSpace: "nowrap" }}>{label}</span><div style={{ flex: 1, height: 1, background: "linear-gradient(to right, rgba(255,255,255,0.08), transparent)" }} /></div>;
+  const SectionHead = ({ label }: { label: string }) => <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12, marginTop: 20 }}><span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.08em", color: "#64748b", whiteSpace: "nowrap" }}>{label}</span><div style={{ flex: 1, height: 1, background: "linear-gradient(to right, rgba(255,255,255,0.08), transparent)" }} /></div>;
 
   // Compare view
   if (showCompare && compareJobs.length >= 2) {
@@ -754,7 +754,7 @@ function JobProfileLibrary({ jobs, model }: { jobs: Job[]; model: string }) {
       <div className="grid grid-cols-2 gap-3">{Object.entries(JP_TEMPLATES).map(([key, tmpl]) => <div key={key} style={{ borderRadius: 12, border: "1px solid var(--border)", background: "var(--surface-2)", padding: 16 }}>
         <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", marginBottom: 4 }}>{key}</div>
         <div style={{ fontSize: 12, color: "#64748b", marginBottom: 8 }}>{(tmpl.purpose || "").slice(0, 100)}</div>
-        <select onChange={e => { if (e.target.value) { applyTemplate(e.target.value, key); setShowTemplates(false); } }} className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-lg px-2 py-1.5 text-[12px] text-[var(--text-primary)] outline-none"><option value="">Apply to job...</option>{jobs.map(j => <option key={j.id} value={j.id}>{j.title}</option>)}</select>
+        <select onChange={e => { if (e.target.value) { applyTemplate(e.target.value, key); setShowTemplates(false); } }} className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-lg px-2 py-1.5 text-[12px] text-[var(--text-primary)] outline-none"><option value="">Apply template to job...</option>{jobs.map(j => <option key={j.id} value={j.id}>{j.title}</option>)}</select>
       </div>)}</div>
     </div>
   </div> : null;
@@ -778,8 +778,8 @@ function JobProfileLibrary({ jobs, model }: { jobs: Job[]; model: string }) {
       </div>
       {/* Group by toggle */}
       <div style={{ display: "flex", gap: 2, padding: "0 12px 8px" }}>
-        {(["flat", "function", "level"] as const).map(g => <button key={g} onClick={() => setGroupBy(g)} style={{ padding: "2px 8px", borderRadius: 4, fontSize: 10, fontWeight: 600, border: "none", cursor: "pointer", background: groupBy === g ? "rgba(59,130,246,0.12)" : "transparent", color: groupBy === g ? "#3B82F6" : "#64748b" }}>{g === "flat" ? "Flat" : g === "function" ? "By Function" : "By Level"}</button>)}
-        <div style={{ marginLeft: "auto" }}><button onClick={() => setCompareMode(!compareMode)} style={{ padding: "2px 8px", borderRadius: 4, fontSize: 10, fontWeight: 600, border: "none", cursor: "pointer", background: compareMode ? "rgba(139,92,246,0.12)" : "transparent", color: compareMode ? "#8B5CF6" : "#64748b" }}>{compareMode ? "Exit Compare" : "Compare"}</button></div>
+        {(["flat", "function", "level"] as const).map(g => <button key={g} onClick={() => setGroupBy(g)} style={{ padding: "2px 8px", borderRadius: 4, fontSize: 11, fontWeight: 600, border: "none", cursor: "pointer", background: groupBy === g ? "rgba(59,130,246,0.12)" : "transparent", color: groupBy === g ? "#3B82F6" : "#64748b" }}>{g === "flat" ? "Flat" : g === "function" ? "By Function" : "By Level"}</button>)}
+        <div style={{ marginLeft: "auto" }}><button onClick={() => setCompareMode(!compareMode)} style={{ padding: "2px 8px", borderRadius: 4, fontSize: 11, fontWeight: 600, border: "none", cursor: "pointer", background: compareMode ? "rgba(139,92,246,0.12)" : "transparent", color: compareMode ? "#8B5CF6" : "#64748b" }}>{compareMode ? "Exit Compare" : "Compare"}</button></div>
       </div>
       {/* Summary line */}
       <div style={{ padding: "0 12px 8px", fontSize: 11, color: "#64748b" }}>
@@ -788,18 +788,18 @@ function JobProfileLibrary({ jobs, model }: { jobs: Job[]; model: string }) {
       {/* Role list */}
       <div style={{ flex: 1, overflowY: "auto", padding: "0 4px" }}>
         {groupedJobs.map(group => <div key={group.key || "_flat"}>
-          {group.label && <div style={{ padding: "8px 8px 4px", fontSize: 9, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.08em", color: "#64748b", position: "sticky", top: 0, background: "rgba(15,17,32,0.95)", zIndex: 2 }}>{group.label} <span style={{ fontFamily: MONO, fontWeight: 700 }}>({group.jobs.length})</span></div>}
+          {group.label && <div style={{ padding: "8px 8px 4px", fontSize: 11, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.08em", color: "#64748b", position: "sticky", top: 0, background: "rgba(15,17,32,0.95)", zIndex: 2 }}>{group.label} <span style={{ fontFamily: MONO, fontWeight: 700 }}>({group.jobs.length})</span></div>}
           {group.jobs.map(job => {
             const badge = statusBadge(job.id);
             const isActive = selectedJobId === job.id;
             const trackDot = TRACK_DOTS[job.track?.charAt(0) || "P"] || "#3B82F6";
             const isChecked = compareJobs.includes(job.id);
             return <button key={job.id} onClick={() => { if (compareMode) { setCompareJobs(prev => isChecked ? prev.filter(id => id !== job.id) : prev.length < 4 ? [...prev, job.id] : prev); } else { setSelectedJobId(job.id); } }} style={{ width: "100%", display: "flex", alignItems: "center", gap: 8, padding: "6px 8px", borderRadius: 8, cursor: "pointer", background: isActive ? "rgba(59,130,246,0.08)" : "transparent", borderLeft: isActive ? "3px solid #3B82F6" : "3px solid transparent", transition: "all 0.15s", border: "none", textAlign: "left", minHeight: 44 }}>
-              {compareMode && <div style={{ width: 14, height: 14, borderRadius: 4, border: `1.5px solid ${isChecked ? "#8B5CF6" : "rgba(255,255,255,0.15)"}`, background: isChecked ? "#8B5CF6" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 10, color: "#fff" }}>{isChecked ? "✓" : ""}</div>}
+              {compareMode && <div style={{ width: 14, height: 14, borderRadius: 4, border: `1.5px solid ${isChecked ? "#8B5CF6" : "rgba(255,255,255,0.15)"}`, background: isChecked ? "#8B5CF6" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 11, color: "#fff" }}>{isChecked ? "✓" : ""}</div>}
               <div style={{ width: 6, height: 6, borderRadius: 3, background: trackDot, boxShadow: `0 0 4px ${trackDot}60`, flexShrink: 0 }} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: isActive ? "var(--text-primary)" : "var(--text-secondary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{job.title}</div>
-                <div style={{ fontSize: 10, color: "#64748b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{job.function} · {job.level}</div>
+                <div style={{ fontSize: 11, color: "#64748b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{job.function} · {job.level}</div>
               </div>
               <div style={{ width: 8, height: 8, borderRadius: 4, flexShrink: 0, background: badge.color === "var(--success)" ? "#10B981" : badge.color === "var(--warning)" ? "#F59E0B" : "transparent", border: badge.color === "var(--text-muted)" ? "1.5px solid #475569" : "none" }} />
             </button>;
@@ -870,7 +870,7 @@ function JobProfileLibrary({ jobs, model }: { jobs: Job[]; model: string }) {
             {selectedProfile.careerPath.slice(0, 3).map((cp, i) => {
               const colors = ["#10B981", "#3B82F6", "#F97316"];
               return <div key={i} style={{ flex: 1, padding: "10px 12px", borderRadius: 8, background: `${colors[i % 3]}08`, border: `1px solid ${colors[i % 3]}20` }}>
-                <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.06em", color: colors[i % 3], marginBottom: 4 }}>{i === 0 ? "Promotion" : i === 1 ? "Lateral" : "Cross-Track"}</div>
+                <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.06em", color: colors[i % 3], marginBottom: 4 }}>{i === 0 ? "Promotion" : i === 1 ? "Lateral" : "Cross-Track"}</div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>{cp}</div>
               </div>;
             })}
@@ -880,9 +880,9 @@ function JobProfileLibrary({ jobs, model }: { jobs: Job[]; model: string }) {
           <SectionHead label="Qualifications" />
           <button onClick={() => setExpandedSections(p => ({ ...p, qualifications: !p.qualifications }))} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 12, color: "#64748b", background: "none", border: "none", cursor: "pointer", marginBottom: 8 }}>{expandedSections.qualifications ? "▾" : "▸"} {selectedProfile.experience ? "View qualifications" : "No qualifications set"}</button>
           {expandedSections.qualifications && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
-            <div style={{ padding: "10px 12px", borderRadius: 8, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}><div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase" as const, color: "#64748b", marginBottom: 4 }}>Experience</div><EditableText value={selectedProfile.experience} field="experience" placeholder="Add experience requirements..." /></div>
-            <div style={{ padding: "10px 12px", borderRadius: 8, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}><div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase" as const, color: "#64748b", marginBottom: 4 }}>Reports To</div><EditableText value={selectedProfile.reportsTo} field="reportsTo" placeholder="Manager title..." /></div>
-            <div style={{ padding: "10px 12px", borderRadius: 8, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}><div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase" as const, color: "#64748b", marginBottom: 4 }}>AI Impact</div><EditableText value={selectedProfile.aiImpact} field="aiImpact" placeholder="AI impact assessment..." /></div>
+            <div style={{ padding: "10px 12px", borderRadius: 8, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}><div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase" as const, color: "#64748b", marginBottom: 4 }}>Experience</div><EditableText value={selectedProfile.experience} field="experience" placeholder="Add experience requirements..." /></div>
+            <div style={{ padding: "10px 12px", borderRadius: 8, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}><div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase" as const, color: "#64748b", marginBottom: 4 }}>Reports To</div><EditableText value={selectedProfile.reportsTo} field="reportsTo" placeholder="Manager title..." /></div>
+            <div style={{ padding: "10px 12px", borderRadius: 8, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}><div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase" as const, color: "#64748b", marginBottom: 4 }}>AI Impact</div><EditableText value={selectedProfile.aiImpact} field="aiImpact" placeholder="AI impact assessment..." /></div>
           </div>}
 
           {/* Role Metadata — collapsed */}
@@ -1180,14 +1180,14 @@ function CareerLatticeTab({ jobs, model }: { jobs: Job[]; model: string }) {
       <table style={{ width: "100%", minWidth: tracks.length * 180, borderCollapse: "separate", borderSpacing: 0 }}>
         <thead><tr>
           <th style={{ padding: "8px 8px", textAlign: "left", position: "sticky", left: 0, zIndex: 10, background: "#0f172a", width: 80, borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-            <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b" }}>Level</div>
+            <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b" }}>Level</div>
           </th>
           {tracks.map(t => {
             const tc = TRACK_COLORS[t] || "#888";
             const trackHC = filteredJobs.filter(j => j.track === t).reduce((s, j) => s + j.headcount, 0);
             return <th key={t} style={{ padding: "8px 12px", textAlign: "center", background: `${tc}08`, borderBottom: `2px solid ${tc}30` }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: tc }}>{t}</div>
-              <div style={{ fontSize: 9, fontFamily: MONO, fontWeight: 700, color: "#64748b" }}>{trackHC.toLocaleString()} HC · {totalHC > 0 ? (trackHC / totalHC * 100).toFixed(1) : 0}%</div>
+              <div style={{ fontSize: 11, fontFamily: MONO, fontWeight: 700, color: "#64748b" }}>{trackHC.toLocaleString()} HC · {totalHC > 0 ? (trackHC / totalHC * 100).toFixed(1) : 0}%</div>
             </th>;
           })}
         </tr></thead>
@@ -1198,7 +1198,7 @@ function CareerLatticeTab({ jobs, model }: { jobs: Job[]; model: string }) {
             return <tr key={level}>
               <td style={{ padding: "6px 8px", position: "sticky", left: 0, zIndex: 10, background: "#0f172a", borderBottom: "1px solid rgba(255,255,255,0.06)", verticalAlign: "top" }}>
                 <div style={{ fontSize: 13, fontWeight: 700, fontFamily: MONO, color: "#94a3b8" }}>{levelNum}</div>
-                {levelLabel && <div style={{ fontSize: 9, color: "#475569", marginTop: 1, lineHeight: 1.2 }}>{levelLabel}</div>}
+                {levelLabel && <div style={{ fontSize: 11, color: "#475569", marginTop: 1, lineHeight: 1.2 }}>{levelLabel}</div>}
               </td>
               {tracks.map(track => {
                 const tc = TRACK_COLORS[track] || "#888";
@@ -1238,15 +1238,15 @@ function CareerLatticeTab({ jobs, model }: { jobs: Job[]; model: string }) {
                         transition: "all 0.15s ease-out",
                       }}>
                         <div style={{ fontSize: 11, fontWeight: 700, color: isSelected ? tc : "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{j.title}</div>
-                        <div style={{ fontSize: 9, fontFamily: MONO, fontWeight: 700, color: "#64748b" }} title="Headcount">{j.headcount.toLocaleString()} HC</div>
-                        {isPath && <div style={{ fontSize: 9, fontWeight: 700, marginTop: 1, color: pathType === "promotion" ? "#34d399" : pathType === "lateral" ? "#a78bfa" : "#3B82F6" }}>{pathType === "promotion" ? "↑ Promotion" : pathType === "lateral" ? "→ Lateral" : "↗ Cross"}</div>}
+                        <div style={{ fontSize: 11, fontFamily: MONO, fontWeight: 700, color: "#64748b" }} title="Headcount">{j.headcount.toLocaleString()} HC</div>
+                        {isPath && <div style={{ fontSize: 11, fontWeight: 700, marginTop: 1, color: pathType === "promotion" ? "#34d399" : pathType === "lateral" ? "#a78bfa" : "#3B82F6" }}>{pathType === "promotion" ? "↑ Promotion" : pathType === "lateral" ? "→ Lateral" : "↗ Cross"}</div>}
                       </button>;
                     })}
-                    {cellJobs.length > 3 && !isExpanded && <button onClick={(e) => { e.stopPropagation(); setExpandedCells(prev => { const s = new Set(prev); s.add(cellKey); return s; }); }} style={{ width: "100%", padding: "3px 8px", borderRadius: 6, fontSize: 9, fontWeight: 600, color: "#64748b", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", cursor: "pointer", textAlign: "center" }}>+{cellJobs.length - 3} more</button>}
-                    {isExpanded && cellJobs.length > 3 && <button onClick={(e) => { e.stopPropagation(); setExpandedCells(prev => { const s = new Set(prev); s.delete(cellKey); return s; }); }} style={{ width: "100%", padding: "2px 8px", borderRadius: 6, fontSize: 9, fontWeight: 600, color: "#3B82F6", background: "transparent", border: "none", cursor: "pointer", textAlign: "center" }}>Show less</button>}
+                    {cellJobs.length > 3 && !isExpanded && <button onClick={(e) => { e.stopPropagation(); setExpandedCells(prev => { const s = new Set(prev); s.add(cellKey); return s; }); }} style={{ width: "100%", padding: "3px 8px", borderRadius: 6, fontSize: 11, fontWeight: 600, color: "#64748b", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", cursor: "pointer", textAlign: "center" }}>+{cellJobs.length - 3} more</button>}
+                    {isExpanded && cellJobs.length > 3 && <button onClick={(e) => { e.stopPropagation(); setExpandedCells(prev => { const s = new Set(prev); s.delete(cellKey); return s; }); }} style={{ width: "100%", padding: "2px 8px", borderRadius: 6, fontSize: 11, fontWeight: 600, color: "#3B82F6", background: "transparent", border: "none", cursor: "pointer", textAlign: "center" }}>Show less</button>}
                     {/* Compression indicator */}
-                    {showCompression && compression && compression > 2 && <div style={{ fontSize: 9, fontFamily: MONO, fontWeight: 700, color: compression > 4 ? "#ef4444" : compression > 3 ? "#F97316" : "#F59E0B", textAlign: "center", marginTop: 2 }}>{compression}:1 ▲</div>}
-                  </div> : <div style={{ textAlign: "center", padding: 4, fontSize: 10, color: "rgba(255,255,255,0.08)" }}>—</div>}
+                    {showCompression && compression && compression > 2 && <div style={{ fontSize: 11, fontFamily: MONO, fontWeight: 700, color: compression > 4 ? "#ef4444" : compression > 3 ? "#F97316" : "#F59E0B", textAlign: "center", marginTop: 2 }}>{compression}:1 ▲</div>}
+                  </div> : <div style={{ textAlign: "center", padding: 4, fontSize: 11, color: "rgba(255,255,255,0.08)" }}>—</div>}
                 </td>;
               })}
             </tr>;
@@ -1293,29 +1293,29 @@ function CareerLatticeTab({ jobs, model }: { jobs: Job[]; model: string }) {
           <div style={{ flex: 1, display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
             {/* Promotion */}
             <div style={{ padding: 12, borderRadius: 8, background: "rgba(52,211,153,0.04)", border: "1px solid rgba(52,211,153,0.15)" }}>
-              <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#34d399", marginBottom: 8 }}>↑ Promotion Path</div>
+              <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#34d399", marginBottom: 8 }}>↑ Promotion Path</div>
               {promotionRoles.length > 0 ? <>
                 {promotionRoles.slice(0, 2).map(r => <div key={r.id} style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)", marginBottom: 2 }}>{r.title}</div>)}
-                <div style={{ fontSize: 9, fontFamily: MONO, fontWeight: 700, color: "#64748b", marginTop: 4 }}>{promotionHC} people at that level</div>
-                {compressionRatio > 0 && <div style={{ fontSize: 9, fontFamily: MONO, fontWeight: 700, color: compressionRatio > 4 ? "#ef4444" : compressionRatio > 3 ? "#F97316" : "#64748b", marginTop: 2 }}>Compression: {compressionRatio}:1</div>}
+                <div style={{ fontSize: 11, fontFamily: MONO, fontWeight: 700, color: "#64748b", marginTop: 4 }}>{promotionHC} people at that level</div>
+                {compressionRatio > 0 && <div style={{ fontSize: 11, fontFamily: MONO, fontWeight: 700, color: compressionRatio > 4 ? "#ef4444" : compressionRatio > 3 ? "#F97316" : "#64748b", marginTop: 2 }}>Compression: {compressionRatio}:1</div>}
               </> : <div style={{ fontSize: 11, color: "#475569" }}>Top of {selectedJob.track} track — consider cross-track</div>}
               {paths?.nextMoves?.length ? <div style={{ marginTop: 6, paddingTop: 6, borderTop: "1px solid rgba(255,255,255,0.06)" }}>{paths.nextMoves.map(t => <div key={t} style={{ fontSize: 11, color: "#cbd5e1", marginBottom: 1 }}>• {t}</div>)}</div> : null}
-              <div style={{ fontSize: 9, color: "#475569", marginTop: 4 }}>~12-18 months typical</div>
+              <div style={{ fontSize: 11, color: "#475569", marginTop: 4 }}>~12-18 months typical</div>
             </div>
             {/* Lateral */}
             <div style={{ padding: 12, borderRadius: 8, background: "rgba(59,130,246,0.04)", border: "1px solid rgba(59,130,246,0.15)" }}>
-              <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#3B82F6", marginBottom: 8 }}>→ Lateral Move</div>
-              {lateralRoles.length > 0 ? lateralRoles.map(r => <div key={r.id} style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)", marginBottom: 2 }}>{r.title} <span style={{ fontSize: 9, color: "#64748b" }}>({r.track})</span></div>) : <div style={{ fontSize: 11, color: "#475569" }}>No lateral options at this level</div>}
+              <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#3B82F6", marginBottom: 8 }}>→ Lateral Move</div>
+              {lateralRoles.length > 0 ? lateralRoles.map(r => <div key={r.id} style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)", marginBottom: 2 }}>{r.title} <span style={{ fontSize: 11, color: "#64748b" }}>({r.track})</span></div>) : <div style={{ fontSize: 11, color: "#475569" }}>No lateral options at this level</div>}
               {paths?.lateralMoves?.length ? <div style={{ marginTop: 6, paddingTop: 6, borderTop: "1px solid rgba(255,255,255,0.06)" }}>{paths.lateralMoves.map(t => <div key={t} style={{ fontSize: 11, color: "#cbd5e1", marginBottom: 1 }}>• {t}</div>)}</div> : null}
-              <div style={{ fontSize: 9, color: "#475569", marginTop: 4 }}>Broadens cross-functional experience</div>
+              <div style={{ fontSize: 11, color: "#475569", marginTop: 4 }}>Broadens cross-functional experience</div>
             </div>
             {/* Cross-Track */}
             <div style={{ padding: 12, borderRadius: 8, background: "rgba(249,115,22,0.04)", border: "1px solid rgba(249,115,22,0.15)" }}>
-              <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#F97316", marginBottom: 8 }}>↗ Track Change</div>
+              <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#F97316", marginBottom: 8 }}>↗ Track Change</div>
               {crossAvailable ? <>
                 <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}>{trackLetter}→M transition</div>
                 {crossTarget && <div style={{ fontSize: 11, color: "#cbd5e1", marginTop: 2 }}>→ {crossTarget.title}</div>}
-                <div style={{ fontSize: 9, color: "#475569", marginTop: 4 }}>Requires: people leadership readiness</div>
+                <div style={{ fontSize: 11, color: "#475569", marginTop: 4 }}>Requires: people leadership readiness</div>
               </> : <div style={{ fontSize: 11, color: "#475569" }}>Not typical from this position</div>}
               {paths?.crossTrack?.length ? <div style={{ marginTop: 6, paddingTop: 6, borderTop: "1px solid rgba(255,255,255,0.06)" }}>{paths.crossTrack.map(t => <div key={t} style={{ fontSize: 11, color: "#cbd5e1", marginBottom: 1 }}>• {t}</div>)}</div> : null}
             </div>
@@ -1870,14 +1870,14 @@ function RoleNetworkTab({ jobs, model }: { jobs: Job[]; model: string }) {
     {netView === "overlap" && <>
       {/* Bubble chart */}
       <div style={{ borderRadius: 12, padding: 16, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", minHeight: isFullScreen ? "50vh" : 300 }}>
-        <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", marginBottom: 12 }}>Role Network by Family — sized by headcount, colored by track</div>
+        <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", marginBottom: 12 }}>Role Network by Family — sized by headcount, colored by track</div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 12, justifyContent: "center", alignItems: "flex-start" }}>
           {(() => {
             const families = [...new Set(jobs.map(j => j.family))];
             return families.slice(0, 10).map(fam => {
               const famJobs = jobs.filter(j => j.family === fam).slice(0, 8);
               return <div key={fam} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: 8, borderRadius: 8, background: "rgba(255,255,255,0.02)", minWidth: 100 }}>
-                <div style={{ fontSize: 10, color: "#64748b", fontWeight: 600, textAlign: "center", maxWidth: 100, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{fam}</div>
+                <div style={{ fontSize: 11, color: "#64748b", fontWeight: 600, textAlign: "center", maxWidth: 100, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{fam}</div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 4, justifyContent: "center", maxWidth: 120 }}>
                   {famJobs.map(j => {
                     const size = Math.max(16, Math.min(40, j.headcount * 0.9 + 8));
@@ -1899,7 +1899,7 @@ function RoleNetworkTab({ jobs, model }: { jobs: Job[]; model: string }) {
             });
           })()}
         </div>
-        <div style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 12, fontSize: 9, color: "#64748b" }}>
+        <div style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 12, fontSize: 11, color: "#64748b" }}>
           {Object.entries(TRACK_COLORS).filter(([k]) => k.length === 1).map(([k, c]) => <span key={k} style={{ display: "flex", alignItems: "center", gap: 3 }}><span style={{ width: 8, height: 8, borderRadius: 4, background: c }} />{k}</span>)}
         </div>
       </div>
@@ -1936,7 +1936,7 @@ function RoleNetworkTab({ jobs, model }: { jobs: Job[]; model: string }) {
               </div>
               <div style={{ textAlign: "right", flexShrink: 0, width: 80 }}>
                 <div style={{ fontSize: 15, fontFamily: MONO, fontWeight: 700, color: oc }}>{pair.overlap.toFixed(1)}%</div>
-                <div style={{ fontSize: 9, color: oc }}>{overlapLabel(pair.type)}</div>
+                <div style={{ fontSize: 11, color: oc }}>{overlapLabel(pair.type)}</div>
               </div>
               <span style={{ fontSize: 12, color: "#475569", transition: "transform 0.2s", transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)" }}>▾</span>
             </button>
@@ -1944,7 +1944,7 @@ function RoleNetworkTab({ jobs, model }: { jobs: Job[]; model: string }) {
             {isExpanded && <div style={{ padding: "0 12px 12px", borderTop: "1px solid rgba(255,255,255,0.04)" }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 8 }}>
                 <div>
-                  <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "#64748b", marginBottom: 4 }}>Shared Characteristics</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "#64748b", marginBottom: 4 }}>Shared Characteristics</div>
                   <div style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.6 }}>
                     {pair.a.family === pair.b.family && <div>Same family: {pair.a.family}</div>}
                     {pair.a.sub_family === pair.b.sub_family && pair.a.sub_family && <div>Same sub-family: {pair.a.sub_family}</div>}
@@ -1953,7 +1953,7 @@ function RoleNetworkTab({ jobs, model }: { jobs: Job[]; model: string }) {
                   </div>
                 </div>
                 <div>
-                  <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "#64748b", marginBottom: 4 }}>Differences</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "#64748b", marginBottom: 4 }}>Differences</div>
                   <div style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.6 }}>
                     {pair.a.function !== pair.b.function && <div>Functions: {pair.a.function} vs {pair.b.function}</div>}
                     {pair.a.level !== pair.b.level && <div>Levels: {pair.a.level} vs {pair.b.level}</div>}
@@ -1979,7 +1979,7 @@ function RoleNetworkTab({ jobs, model }: { jobs: Job[]; model: string }) {
       <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 8 }}>Roles that share skills are &quot;skill neighbors&quot; — ideal candidates for internal mobility and reskilling pathways.</div>
       {/* Skill cluster visualization */}
       <div style={{ borderRadius: 12, padding: 16, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", minHeight: isFullScreen ? "40vh" : 200 }}>
-        <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", marginBottom: 12 }}>Skill Clusters — roles grouped by shared skill profiles</div>
+        <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", marginBottom: 12 }}>Skill Clusters — roles grouped by shared skill profiles</div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 16, justifyContent: "center" }}>
           {(() => {
             // Group by family as proxy for skill cluster
@@ -1988,8 +1988,8 @@ function RoleNetworkTab({ jobs, model }: { jobs: Job[]; model: string }) {
               const famJobs = jobs.filter(j => j.family === fam).slice(0, 5);
               const clusterColor = [TRACK_COLORS.P, TRACK_COLORS.M, TRACK_COLORS.T, TRACK_COLORS.E, TRACK_COLORS.S, "#F59E0B"][fi % 6];
               return <div key={fam} style={{ padding: 12, borderRadius: 12, background: `${clusterColor}06`, border: `1px solid ${clusterColor}15`, minWidth: 120 }}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: clusterColor, marginBottom: 6, textAlign: "center" }}>{fam}</div>
-                {famJobs.map(j => <div key={j.id} style={{ fontSize: 11, color: "var(--text-secondary)", padding: "2px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>{j.title} <span style={{ fontSize: 9, fontFamily: MONO, color: "#64748b" }}>{j.headcount}</span></div>)}
+                <div style={{ fontSize: 11, fontWeight: 700, color: clusterColor, marginBottom: 6, textAlign: "center" }}>{fam}</div>
+                {famJobs.map(j => <div key={j.id} style={{ fontSize: 11, color: "var(--text-secondary)", padding: "2px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>{j.title} <span style={{ fontSize: 11, fontFamily: MONO, color: "#64748b" }}>{j.headcount}</span></div>)}
               </div>;
             });
           })()}
@@ -1999,7 +1999,7 @@ function RoleNetworkTab({ jobs, model }: { jobs: Job[]; model: string }) {
       <div className="overflow-x-auto" style={{ borderRadius: 8, border: "1px solid rgba(255,255,255,0.06)" }}>
         <table style={{ width: "100%", fontSize: 13, borderCollapse: "collapse" }}>
           <thead><tr style={{ background: "rgba(255,255,255,0.03)" }}>
-            {["From Role", "To Role", "Shared Skills", "Gap", "Move Type"].map(h => <th key={h} style={{ padding: "8px 12px", textAlign: "left", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>{h}</th>)}
+            {["From Role", "To Role", "Shared Skills", "Gap", "Move Type"].map(h => <th key={h} style={{ padding: "8px 12px", textAlign: "left", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>{h}</th>)}
           </tr></thead>
           <tbody>{overlapPairs.slice(0, 12).map((pair, i) => {
             const shared = Math.round(pair.overlap * 0.8);
@@ -2034,15 +2034,15 @@ function RoleNetworkTab({ jobs, model }: { jobs: Job[]; model: string }) {
       </div>
       {/* Scatter plot — AI risk vs HC (proxy for succession risk) */}
       <div style={{ borderRadius: 12, padding: 16, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", position: "relative", height: isFullScreen ? "40vh" : 250, marginBottom: 16 }}>
-        <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", marginBottom: 8 }}>AI Risk × Bench Depth — top-right = knowledge at risk</div>
+        <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", marginBottom: 8 }}>AI Risk × Bench Depth — top-right = knowledge at risk</div>
         {/* Quadrant highlight */}
         <div style={{ position: "absolute", top: 32, right: 16, width: "45%", height: "45%", background: "rgba(239,68,68,0.04)", borderRadius: 8, border: "1px dashed rgba(239,68,68,0.15)" }}>
-          <span style={{ position: "absolute", top: 4, right: 8, fontSize: 9, fontWeight: 700, color: "rgba(239,68,68,0.5)" }}>KNOWLEDGE AT RISK</span>
+          <span style={{ position: "absolute", top: 4, right: 8, fontSize: 11, fontWeight: 700, color: "rgba(239,68,68,0.5)" }}>KNOWLEDGE AT RISK</span>
         </div>
-        <div style={{ position: "absolute", bottom: 32, left: 80, fontSize: 9, color: "rgba(16,185,129,0.4)", fontWeight: 600 }}>STABLE & GROWING</div>
+        <div style={{ position: "absolute", bottom: 32, left: 80, fontSize: 11, color: "rgba(16,185,129,0.4)", fontWeight: 600 }}>STABLE & GROWING</div>
         {/* Axis labels */}
-        <div style={{ position: "absolute", bottom: 4, left: "50%", transform: "translateX(-50%)", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "#475569" }}>AI Automation Risk →</div>
-        <div style={{ position: "absolute", left: 4, top: "50%", transform: "translateY(-50%) rotate(-90deg)", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "#475569" }}>← Single Incumbent</div>
+        <div style={{ position: "absolute", bottom: 4, left: "50%", transform: "translateX(-50%)", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "#475569" }}>AI Automation Risk →</div>
+        <div style={{ position: "absolute", left: 4, top: "50%", transform: "translateY(-50%) rotate(-90deg)", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "#475569" }}>← Single Incumbent</div>
         {/* Dots */}
         {jobs.slice(0, 40).map(j => {
           const xPct = Math.min(j.ai_score * 10, 100);
@@ -2058,7 +2058,7 @@ function RoleNetworkTab({ jobs, model }: { jobs: Job[]; model: string }) {
         })}
       </div>
       {/* Top succession risks */}
-      <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", marginBottom: 8 }}>Top Succession Risks</div>
+      <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", marginBottom: 8 }}>Top Succession Risks</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
         {jobs.filter(j => j.headcount <= 2 && (j.track === "Manager" || j.track === "Executive")).sort((a, b) => a.headcount - b.headcount || b.ai_score - a.ai_score).slice(0, 10).map((j, i) => {
           const risk = j.headcount === 1 ? "Critical" : "Watch";
@@ -2072,7 +2072,7 @@ function RoleNetworkTab({ jobs, model }: { jobs: Job[]; model: string }) {
             </div>
             <div style={{ textAlign: "right", flexShrink: 0 }}>
               <div style={{ fontSize: 13, fontFamily: MONO, fontWeight: 700, color: rc }}>{j.headcount} person{j.headcount > 1 ? "s" : ""}</div>
-              <div style={{ fontSize: 9, color: rc }}>{risk}</div>
+              <div style={{ fontSize: 11, color: rc }}>{risk}</div>
             </div>
             <div style={{ textAlign: "right", flexShrink: 0, width: 60 }}>
               <div style={{ fontSize: 11, fontFamily: MONO, fontWeight: 700, color: j.ai_score >= 6 ? "#EF4444" : j.ai_score >= 3 ? "#F59E0B" : "#64748b" }}>AI: {j.ai_score.toFixed(1)}</div>

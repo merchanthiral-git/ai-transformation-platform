@@ -149,7 +149,7 @@ export function AiObservationsPanel({ module, dataSummary, context, filters, pro
                     <div style={{ width: 40, height: 3, borderRadius: 2, background: "rgba(139,92,246,0.1)", overflow: "hidden" }}>
                       <div style={{ width: `${insights.confidence * 100}%`, height: "100%", background: "var(--purple)", borderRadius: 2 }} />
                     </div>
-                    <span style={{ fontSize: 10, color: "rgba(139,92,246,0.35)", fontFamily: "'IBM Plex Mono', monospace" }}>
+                    <span style={{ fontSize: 11, color: "rgba(139,92,246,0.35)", fontFamily: "'IBM Plex Mono', monospace" }}>
                       {insights.source === "ai" ? "AI-powered" : "Rule-based"} · {Math.round(insights.confidence * 100)}% confidence
                     </span>
                     <button onClick={() => { fetchedRef.current = ""; setInsights(null); fetchInsights(); }} style={{ marginLeft: "auto", fontSize: 11, color: "rgba(139,92,246,0.4)", background: "none", border: "none", cursor: "pointer" }}>↻ Refresh</button>

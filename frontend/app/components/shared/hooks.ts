@@ -99,9 +99,9 @@ export function KeyboardShortcutsPanel({ shortcuts, onClose }: { shortcuts: { ke
 }
 
 // ── Global toast/decision wiring ──
-let _globalToast: ((msg: string) => void) | null = null;
-export function setGlobalToast(fn: (msg: string) => void) { _globalToast = fn; }
-export function showToast(msg: string) { if (_globalToast) _globalToast(msg); }
+let _globalToast: ((msg: string, variant?: "success" | "error" | "info" | "warning") => void) | null = null;
+export function setGlobalToast(fn: (msg: string, variant?: "success" | "error" | "info" | "warning") => void) { _globalToast = fn; }
+export function showToast(msg: string, variant?: "success" | "error" | "info" | "warning") { if (_globalToast) _globalToast(msg, variant); }
 let _globalLogDecision: ((module: string, action: string, detail: string) => void) | null = null;
 export function setGlobalLogDecision(fn: (module: string, action: string, detail: string) => void) { _globalLogDecision = fn; }
 export function logDec(module: string, action: string, detail: string) { if (_globalLogDecision) _globalLogDecision(module, action, detail); }
@@ -204,11 +204,13 @@ export function useRiskRegister(projectId: string) {
 export function Toast({ message, type = "info", onDismiss }: { message: string; type?: "info" | "success" | "error" | "warning"; onDismiss: () => void }) {
   useEffect(() => { const t = setTimeout(onDismiss, 4000); return () => clearTimeout(t); }, [onDismiss]);
   const colors = { info: "var(--accent-primary)", success: "var(--success)", error: "var(--risk)", warning: "var(--warning)" };
+  const dotColors = { info: "#3B82F6", success: "#16A34A", error: "#DC2626", warning: "#F59E0B" };
   const icons = { info: "\u2139\uFE0F", success: "\u2713", error: "\u2715", warning: "\u26A0" };
-  return React.createElement("div", { className: "fixed bottom-6 right-6 z-50 animate-[slideUp_0.3s_ease] flex items-center gap-3 px-5 py-3 rounded-xl shadow-xl", style: { background: "var(--surface-1)", border: `1px solid ${colors[type]}30`, minWidth: 280, maxWidth: 420 } },
+  return React.createElement("div", { role: "alert", "aria-live": "polite", className: "fixed bottom-6 right-6 z-50 animate-[slideUp_0.3s_ease] flex items-center gap-3 px-5 py-3 rounded-xl shadow-xl", style: { background: "var(--surface-1)", border: `1px solid ${colors[type]}30`, minWidth: 280, maxWidth: 420 } },
+    React.createElement("span", { style: { width: 8, height: 8, borderRadius: "50%", background: dotColors[type], flexShrink: 0 } }),
     React.createElement("span", { className: "text-lg", style: { color: colors[type] } }, icons[type]),
     React.createElement("span", { className: "text-[15px] text-[var(--text-primary)] flex-1" }, message),
-    React.createElement("button", { onClick: onDismiss, className: "text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm ml-2" }, "\u2715")
+    React.createElement("button", { onClick: onDismiss, "aria-label": "Dismiss notification", className: "text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm ml-2" }, "\u2715")
   );
 }
 

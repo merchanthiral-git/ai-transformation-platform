@@ -53,10 +53,11 @@ export function computeScenarioDelta(base: Record<string, number>, scenario: Rec
 }
 
 export function computeImpactScore(delta: Record<string, number>): number {
-  // 0-100 score — higher means more change
-  const hcImpact = Math.min(Math.abs(delta.headcountDelta || 0) / 50, 1) * 30;
-  const costImpact = Math.min(Math.abs(delta.costDelta || 0) / 5000000, 1) * 30;
-  const spanImpact = Math.min(Math.abs(delta.spanDelta || 0) / 3, 1) * 20;
-  const layerImpact = Math.min(Math.abs(delta.layerDelta || 0) / 2, 1) * 20;
+  // 0-100 score — 0 = no change, 100 = maximum structural transformation
+  // No base offset: zero-change scenarios score 0.
+  const hcImpact = Math.min(Math.abs(delta.headcountDelta || 0) / 50, 1) * 20;
+  const costImpact = Math.min(Math.abs(delta.costDelta || 0) / 5000000, 1) * 20;
+  const spanImpact = Math.min(Math.abs(delta.spanDelta || 0) / 3, 1) * 30;
+  const layerImpact = Math.min(Math.abs(delta.layerDelta || 0) / 2, 1) * 30;
   return Math.round(hcImpact + costImpact + spanImpact + layerImpact);
 }

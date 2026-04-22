@@ -55,24 +55,24 @@ const S = {
   locked: { textAlign: "center" as const, padding: "60px 24px", color: "var(--text-muted)" } as React.CSSProperties,
   summaryBar: { display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" as const } as React.CSSProperties,
   metric: (accent: string) => ({ background: "var(--surface-1)", border: "1px solid var(--border)", borderLeft: `3px solid ${accent}`, borderRadius: 8, padding: "12px 16px", minWidth: 120 }) as React.CSSProperties,
-  metricLabel: { fontSize: 10, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.05em" } as React.CSSProperties,
+  metricLabel: { fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.05em" } as React.CSSProperties,
   metricValue: { fontSize: "var(--text-lg)", fontWeight: "var(--fw-bold)", fontFamily: "var(--ff-mono)", color: "var(--text-primary)", marginTop: 2 } as React.CSSProperties,
-  metricSub: { fontSize: 10, color: "var(--text-muted)", marginTop: 1 } as React.CSSProperties,
+  metricSub: { fontSize: 11, color: "var(--text-muted)", marginTop: 1 } as React.CSSProperties,
   grid: { display: "grid", gridTemplateColumns: "1fr 320px", gap: 16, marginBottom: 16 } as React.CSSProperties,
   section: { background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 10, padding: "16px 20px", marginBottom: 16 } as React.CSSProperties,
   sectionTitle: { fontSize: "var(--text-sm)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)", marginBottom: 10, display: "flex", alignItems: "center", gap: 8 } as React.CSSProperties,
   table: { width: "100%", borderCollapse: "separate" as const, borderSpacing: 0, fontSize: "var(--text-xs)" } as React.CSSProperties,
-  th: { padding: "7px 8px", fontSize: 10, fontWeight: 600, color: "#fff", textTransform: "uppercase" as const, letterSpacing: "0.05em", borderBottom: "2px solid var(--border)", background: "#1C2B3A", whiteSpace: "nowrap" as const } as React.CSSProperties,
+  th: { padding: "7px 8px", fontSize: 11, fontWeight: 600, color: "#fff", textTransform: "uppercase" as const, letterSpacing: "0.05em", borderBottom: "2px solid var(--border)", background: "#1C2B3A", whiteSpace: "nowrap" as const } as React.CSSProperties,
   td: { padding: "6px 8px", borderBottom: "1px solid var(--border)", verticalAlign: "middle" as const, fontSize: "var(--text-xs)" } as React.CSSProperties,
   destDot: (color: string) => ({ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: color, marginRight: 6 }) as React.CSSProperties,
   skillBadge: (intensity: number) => ({
     display: "inline-flex", alignItems: "center", justifyContent: "center",
-    width: 28, height: 22, borderRadius: 3, fontSize: 9, fontWeight: 600,
+    width: 28, height: 22, borderRadius: 3, fontSize: 11, fontWeight: 600,
     background: intensity > 0.6 ? "rgba(59,130,246,0.2)" : intensity > 0.3 ? "rgba(59,130,246,0.1)" : intensity > 0 ? "rgba(59,130,246,0.05)" : "var(--surface-2)",
     color: intensity > 0 ? "#3B82F6" : "var(--border)",
   }) as React.CSSProperties,
   insightItem: { display: "flex", alignItems: "flex-start", gap: 6, padding: "6px 0", borderBottom: "1px solid var(--border)", fontSize: "var(--text-xs)", color: "var(--text-secondary)" } as React.CSSProperties,
-  legend: { display: "flex", gap: 12, marginTop: 8, fontSize: 10, color: "var(--text-muted)", flexWrap: "wrap" as const } as React.CSSProperties,
+  legend: { display: "flex", gap: 12, marginTop: 8, fontSize: 11, color: "var(--text-muted)", flexWrap: "wrap" as const } as React.CSSProperties,
 };
 
 /* ═══════════════════════════════════════════════════════════════
@@ -282,7 +282,7 @@ export default function StageRedeployment({ reconData, redeployRows, isRedeployS
               </div>
             </>
           ) : (
-            <div style={{ textAlign: "center", padding: 32, fontSize: 11, color: "var(--text-muted)" }}>No flow data available</div>
+            <div style={{ textAlign: "center", padding: 32, fontSize: 11, color: "var(--text-muted)" }}>No redeployment flows yet. Complete the Reconstruct stage to generate capacity flow data.</div>
           )}
         </div>
 
@@ -292,7 +292,7 @@ export default function StageRedeployment({ reconData, redeployRows, isRedeployS
             <div style={S.sectionTitle}>Skill Shift Matrix</div>
             {skillShift.current.length > 0 && skillShift.future.length > 0 ? (
               <div style={{ overflowX: "auto" }}>
-                <table style={{ borderCollapse: "separate", borderSpacing: 2, fontSize: 9 }}>
+                <table style={{ borderCollapse: "separate", borderSpacing: 2, fontSize: 11 }}>
                   <thead>
                     <tr>
                       <th style={{ padding: 4, fontSize: 8, color: "var(--text-muted)", textAlign: "left" }}>Current ↓ / Future →</th>
@@ -367,7 +367,7 @@ export default function StageRedeployment({ reconData, redeployRows, isRedeployS
                 </tr>
               ))}
               {detailRows.length === 0 && (
-                <tr><td colSpan={8} style={{ ...S.td, textAlign: "center", padding: 24, color: "var(--text-muted)" }}>No redeployment data available</td></tr>
+                <tr><td colSpan={8} style={{ ...S.td, textAlign: "center", padding: 24, color: "var(--text-muted)" }}>No redeployment matches yet. Complete the Reconstruct stage to generate role transition data.</td></tr>
               )}
             </tbody>
           </table>

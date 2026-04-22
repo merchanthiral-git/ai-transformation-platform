@@ -225,6 +225,37 @@ def get_overview(model_id: str, fn: str = Query("All", alias="func"), jf: str = 
     })
 
 
+@router.get("/overview/employees")
+def get_employee_records(model_id: str = "Demo_Model", fn: str = Query("All", alias="func"), jf: str = "All", sf: str = "All", cl: str = "All"):
+    """Return full employee records for org restructuring, org chart, and similar tools."""
+    model_id = store.resolve_model_id(model_id)
+    if model_id not in store.datasets:
+        raise HTTPException(404, "Model not found")
+    data = store.get_filtered_data(model_id, _f(fn, jf, sf, cl))
+    wf = data["workforce"]
+    org = data["org_design"]
+    source = wf if not wf.empty else org
+    if source.empty:
+        return _safe({"employees": [], "total": 0})
+    records = []
+    for _, r in source.iterrows():
+        records.append({
+            "id": str(r.get("Employee ID", "")),
+            "name": str(r.get("Employee Name", "")),
+            "title": str(r.get("Job Title", "")),
+            "function": str(r.get("Function ID", "")),
+            "level": str(r.get("Career Level", "")),
+            "track": str(r.get("Career Track", "P")),
+            "manager_id": str(r.get("Manager ID", "")),
+            "comp": float(pd.to_numeric(r.get("Base Pay", 0), errors="coerce") or 0),
+            "tenure": float(pd.to_numeric(r.get("Tenure", r.get("tenure", 0)), errors="coerce") or 0),
+            "geography": str(r.get("Geography", "")),
+            "department": str(r.get("Department", "")),
+            "sub_family": str(r.get("Sub-Family", "")),
+        })
+    return _safe({"employees": records, "total": len(records)})
+
+
 @router.get("/benchmarks")
 def get_benchmark_data(industry: str = "technology", employees: int = 200):
     """Return industry benchmark comparison data."""

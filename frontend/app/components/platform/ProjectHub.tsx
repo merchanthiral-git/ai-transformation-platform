@@ -69,7 +69,7 @@ function seedTutorialData(projectId: string, industry: string = "technology") {
   localStorage.setItem(`${projectId}_simState`, JSON.stringify({ scenario: "balanced", custom: false, custAdopt: 55, custTimeline: 10, investment: 45000 }));
   localStorage.setItem(`${projectId}_omFn`, JSON.stringify(ind.omFn));
   localStorage.setItem(`${projectId}_omArch`, JSON.stringify("platform"));
-  localStorage.setItem(`${projectId}_odsState`, JSON.stringify({ activeScenario: 0, view: "overview" }));
+  localStorage.setItem(`${projectId}_odsState`, JSON.stringify({ activeScenario: 0, view: "current" }));
   localStorage.setItem(`${projectId}_skillsConfirmed`, JSON.stringify(true));
   // Pre-seed gap dispositions with industry-specific skills
   const gapDisp: Record<string, string> = {};
@@ -186,8 +186,8 @@ function buildTutorialSteps(projectId: string): TutorialStep[] {
     tip: "High AI impact doesn't mean job loss. Most roles shift from execution to oversight. Frame it as 'role evolution' not 'role elimination.'" },
 
   { page: "changeready", icon: "🔄", title: "Change Readiness — Is Your Org Ready?", subtitle: "Phase 2: Diagnose",
-    body: `Change Readiness segments your workforce into readiness archetypes: Champions (eager early adopters), Early Adopters, Pragmatists (need proof), Skeptics (need support), and Resistors (need intensive intervention). Each group requires a different engagement strategy. The assessment also feeds into the ADKAR analysis in the Mobilize phase.`,
-    tip: "You only need 15-20% Champions to reach critical mass. Focus on activating them as change agents, not converting Resistors." },
+    body: `Change Readiness segments your workforce into readiness archetypes: Champions (eager early adopters), Early Adopters, Pragmatists (need proof), Skeptics (need support), and Support-First Adopters (need intensive intervention). Each group requires a different engagement strategy. The assessment also feeds into the ADKAR analysis in the Mobilize phase.`,
+    tip: "You only need 15-20% Champions to reach critical mass. Focus on activating them as change agents, not converting Support-First Adopters." },
 
   { page: "jobs", icon: "🏗️", title: "Job Architecture — Your Organizational Blueprint", subtitle: "Phase 2: Diagnose",
     body: `Job Architecture is the structural framework of your organization: functions, job family groups, job families, sub-families, career tracks, and levels. Browse the Job Catalogue to explore roles. Use the Org Chart for visual hierarchy. Run Validation to auto-detect structural issues like orphaned roles, inconsistent leveling, or title inflation. The Job Profiles tab lets you generate AI-powered job descriptions.`,

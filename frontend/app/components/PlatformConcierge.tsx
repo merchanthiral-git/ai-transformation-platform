@@ -294,7 +294,7 @@ export function PlatformConcierge({ projectId, currentPage, onNavigate }: {
     /* No questions edge case */
     if (totalQ === 0) return (
       <div style={{ padding: "40px 20px", textAlign: "center" }}>
-        <p style={{ color: C.txt2 }}>No questions available.</p>
+        <p style={{ color: C.txt2 }}>All questions answered. Tap "Start over" to retake the assessment.</p>
         <button onClick={reset} style={linkBtn}>Start over</button>
       </div>
     );
@@ -494,7 +494,7 @@ export function PlatformConcierge({ projectId, currentPage, onNavigate }: {
       {/* Keyboard hint */}
       <div style={{ fontSize: 11, color: C.txt2, marginBottom: 16 }}>
         Tip: Press{" "}
-        <kbd style={{ padding: "1px 5px", borderRadius: 3, background: C.surf, border: `1px solid ${C.brd}`, fontSize: 10 }}>
+        <kbd style={{ padding: "1px 5px", borderRadius: 3, background: C.surf, border: `1px solid ${C.brd}`, fontSize: 11 }}>
           {typeof navigator !== "undefined" && /Mac/.test(navigator.userAgent) ? "Cmd" : "Ctrl"}+K
         </kbd>{" "}
         to open this from anywhere.

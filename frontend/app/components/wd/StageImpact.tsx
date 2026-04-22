@@ -39,9 +39,9 @@ const S = {
   locked: { textAlign: "center" as const, padding: "60px 24px", color: "var(--text-muted)" } as React.CSSProperties,
   heroRow: { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginBottom: 20 } as React.CSSProperties,
   hero: (accent: string) => ({ background: "var(--surface-1)", border: "1px solid var(--border)", borderLeft: `4px solid ${accent}`, borderRadius: 10, padding: "20px 22px" }) as React.CSSProperties,
-  heroLabel: { fontSize: 10, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 6 } as React.CSSProperties,
+  heroLabel: { fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 6 } as React.CSSProperties,
   heroValue: { fontSize: 36, fontWeight: 700, fontFamily: "var(--ff-mono)", color: "var(--text-primary)", lineHeight: 1 } as React.CSSProperties,
-  heroBench: { fontSize: 10, color: "var(--text-muted)", marginTop: 6, display: "flex", alignItems: "center", gap: 4 } as React.CSSProperties,
+  heroBench: { fontSize: 11, color: "var(--text-muted)", marginTop: 6, display: "flex", alignItems: "center", gap: 4 } as React.CSSProperties,
   heroDir: (up: boolean) => ({ color: up ? "#22C55E" : "#EF4444", display: "inline-flex", alignItems: "center", gap: 2 }) as React.CSSProperties,
   chartGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 20 } as React.CSSProperties,
   section: { background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 10, padding: "18px 22px" } as React.CSSProperties,
@@ -176,8 +176,8 @@ export default function StageImpact({ reconData, redeployRows, contextData, isRe
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={waterfallData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis dataKey="name" tick={{ fontSize: 9, fill: "var(--text-muted)" }} />
-                <YAxis tick={{ fontSize: 9, fill: "var(--text-muted)" }} unit="h" />
+                <XAxis dataKey="name" tick={{ fontSize: 11, fill: "var(--text-muted)" }} />
+                <YAxis tick={{ fontSize: 11, fill: "var(--text-muted)" }} unit="h" />
                 <Tooltip contentStyle={{ background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 6, fontSize: 11 }} />
                 <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                   {waterfallData.map((_, i) => <Cell key={i} fill={WATERFALL_COLORS[i % WATERFALL_COLORS.length]} />)}
@@ -207,18 +207,18 @@ export default function StageImpact({ reconData, redeployRows, contextData, isRe
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
             {[{ label: "Before", data: valueMix.before }, { label: "After", data: valueMix.after }].map(({ label, data }) => (
               <div key={label}>
-                <div style={{ fontSize: 10, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "center", marginBottom: 6 }}>{label}</div>
+                <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "center", marginBottom: 6 }}>{label}</div>
                 {data.length > 0 ? (
                   <ResponsiveContainer width="100%" height={120}>
                     <PieChart>
                       <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={50} innerRadius={25} paddingAngle={2}>
                         {data.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
                       </Pie>
-                      <Tooltip contentStyle={{ background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 6, fontSize: 10 }} />
+                      <Tooltip contentStyle={{ background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 6, fontSize: 11 }} />
                     </PieChart>
                   </ResponsiveContainer>
-                ) : <div style={{ textAlign: "center", padding: 20, fontSize: 10, color: "var(--text-muted)" }}>No data</div>}
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "center", fontSize: 9, color: "var(--text-muted)" }}>
+                ) : <div style={{ textAlign: "center", padding: 20, fontSize: 11, color: "var(--text-muted)" }}>Complete the Reconstruct stage to see impact breakdown</div>}
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "center", fontSize: 11, color: "var(--text-muted)" }}>
                   {data.map((d, i) => (
                     <span key={d.name}><span style={{ display: "inline-block", width: 6, height: 6, borderRadius: "50%", background: PIE_COLORS[i % PIE_COLORS.length], marginRight: 3 }} />{d.name} {d.value}%</span>
                   ))}
@@ -239,7 +239,7 @@ export default function StageImpact({ reconData, redeployRows, contextData, isRe
             </div>
           )) : recs.length > 0 ? recs.map((r, i) => (
             <div key={i} style={S.insightRow}><ArrowUpRight size={11} style={{ color: "#3B82F6", flexShrink: 0 }} /><span>{r}</span></div>
-          )) : <div style={{ textAlign: "center", padding: 16, fontSize: 11, color: "var(--text-muted)" }}>No insights available</div>}
+          )) : <div style={{ textAlign: "center", padding: 16, fontSize: 11, color: "var(--text-muted)" }}>Run the Impact analysis to surface transformation insights</div>}
         </div>
       </div>
 

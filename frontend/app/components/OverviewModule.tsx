@@ -827,7 +827,7 @@ function UploadIntelligencePanel({ insights, funcDist, onNavigate }: {
                   <span className="font-data text-[var(--text-muted)]">{pct}%</span>
                 </div>;
               })}
-            </div> : <span className="text-[15px] text-[var(--text-muted)]">No data</span>}
+            </div> : <span className="text-[15px] text-[var(--text-muted)]">Upload workforce data to see function breakdown</span>}
           </div>
 
           {/* Grouped bar chart — career levels by track */}

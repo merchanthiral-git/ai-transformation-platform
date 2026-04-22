@@ -70,9 +70,9 @@ const S = {
   subtitle: { fontSize: "var(--text-xs)", color: "var(--text-muted)", marginBottom: 16 } as React.CSSProperties,
   kpiRow: { display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 10, marginBottom: 16 } as React.CSSProperties,
   kpi: (accent: string) => ({ background: "var(--surface-1)", border: "1px solid var(--border)", borderLeft: `3px solid ${accent}`, borderRadius: 8, padding: "14px 16px" }) as React.CSSProperties,
-  kpiLabel: { fontSize: 10, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.05em" } as React.CSSProperties,
+  kpiLabel: { fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.05em" } as React.CSSProperties,
   kpiValue: { fontSize: 22, fontWeight: 700, fontFamily: "var(--ff-mono)", color: "var(--text-primary)", marginTop: 2 } as React.CSSProperties,
-  kpiSub: { fontSize: 10, color: "var(--text-muted)", marginTop: 1 } as React.CSSProperties,
+  kpiSub: { fontSize: 11, color: "var(--text-muted)", marginTop: 1 } as React.CSSProperties,
   segPills: { display: "flex", gap: 6, marginBottom: 14 } as React.CSSProperties,
   segPill: (active: boolean, color: string) => ({ padding: "5px 14px", fontSize: 11, fontWeight: active ? "var(--fw-semi)" : "var(--fw-medium)", border: `1px solid ${active ? color : "var(--border)"}`, borderRadius: 14, background: active ? `${color}12` : "var(--surface-2)", color: active ? color : "var(--text-muted)", cursor: "pointer" }) as React.CSSProperties,
   filterBar: { display: "flex", alignItems: "center", gap: 8, marginBottom: 10, flexWrap: "wrap" as const } as React.CSSProperties,
@@ -83,15 +83,15 @@ const S = {
   section: { background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 10, padding: "16px 20px" } as React.CSSProperties,
   sectionTitle: { fontSize: "var(--text-sm)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)", marginBottom: 10, display: "flex", alignItems: "center", gap: 8 } as React.CSSProperties,
   table: { width: "100%", borderCollapse: "separate" as const, borderSpacing: 0, fontSize: "var(--text-xs)" } as React.CSSProperties,
-  th: { padding: "7px 10px", fontSize: 10, fontWeight: 600, color: "#fff", textTransform: "uppercase" as const, letterSpacing: "0.05em", background: "#1C2B3A", borderBottom: "2px solid var(--border)", whiteSpace: "nowrap" as const, cursor: "pointer", userSelect: "none" as const } as React.CSSProperties,
+  th: { padding: "7px 10px", fontSize: 11, fontWeight: 600, color: "#fff", textTransform: "uppercase" as const, letterSpacing: "0.05em", background: "#1C2B3A", borderBottom: "2px solid var(--border)", whiteSpace: "nowrap" as const, cursor: "pointer", userSelect: "none" as const } as React.CSSProperties,
   td: { padding: "7px 10px", borderBottom: "1px solid var(--border)", verticalAlign: "middle" as const } as React.CSSProperties,
   segBadge: (seg: string) => {
     const c = SEG_CONFIG[seg] || SEG_CONFIG.capable;
-    return { display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 8px", fontSize: 10, fontWeight: 600, borderRadius: 10, background: c.bg, color: c.color } as React.CSSProperties;
+    return { display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 8px", fontSize: 11, fontWeight: 600, borderRadius: 10, background: c.bg, color: c.color } as React.CSSProperties;
   },
   dimBar: (score: number, color: string) => ({ width: `${score}%`, height: 6, background: color, borderRadius: 3, transition: "width 0.3s" }) as React.CSSProperties,
   dimBarBg: { width: "100%", height: 6, background: "var(--border)", borderRadius: 3 } as React.CSSProperties,
-  devArea: { display: "flex", alignItems: "center", gap: 6, padding: "4px 0", fontSize: 10, borderBottom: "1px solid var(--border)" } as React.CSSProperties,
+  devArea: { display: "flex", alignItems: "center", gap: 6, padding: "4px 0", fontSize: 11, borderBottom: "1px solid var(--border)" } as React.CSSProperties,
   expandRow: { background: "rgba(59,130,246,0.02)", padding: "12px 16px" } as React.CSSProperties,
   btn: { display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 12px", fontSize: 11, fontWeight: "var(--fw-medium)", border: "1px solid var(--border)", borderRadius: 6, background: "var(--surface-2)", color: "var(--text-secondary)", cursor: "pointer" } as React.CSSProperties,
   btnPrimary: { display: "inline-flex", alignItems: "center", gap: 4, padding: "7px 14px", fontSize: 11, fontWeight: "var(--fw-semi)", border: "none", borderRadius: 6, background: "#3B82F6", color: "#fff", cursor: "pointer" } as React.CSSProperties,
@@ -238,7 +238,7 @@ export default function ManagerCapabilityModule({ model, projectId }: Props) {
                   <Tooltip contentStyle={{ background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 6, fontSize: 11 }} />
                 </PieChart>
               </ResponsiveContainer>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", fontSize: 10, color: "var(--text-muted)" }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", fontSize: 11, color: "var(--text-muted)" }}>
                 {segChartData.filter(d => d.value > 0).map(d => (
                   <span key={d.name}><span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: d.color, marginRight: 3 }} />{d.name}: {d.value}</span>
                 ))}
@@ -253,8 +253,8 @@ export default function ManagerCapabilityModule({ model, projectId }: Props) {
             <ResponsiveContainer width="100%" height={180}>
               <BarChart data={dimChartData} layout="vertical" margin={{ top: 5, right: 20, left: 80, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 9, fill: "var(--text-muted)" }} />
-                <YAxis type="category" dataKey="name" tick={{ fontSize: 10, fill: "var(--text-secondary)" }} width={75} />
+                <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11, fill: "var(--text-muted)" }} />
+                <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: "var(--text-secondary)" }} width={75} />
                 <Tooltip contentStyle={{ background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 6, fontSize: 11 }} />
                 <Bar dataKey="value" radius={[0, 4, 4, 0]}>
                   {dimChartData.map((d, i) => <Cell key={i} fill={d.color} />)}
@@ -338,12 +338,12 @@ export default function ManagerCapabilityModule({ model, projectId }: Props) {
                       {["ai_fluency", "change_leadership", "coaching_development", "strategic_thinking", "digital_adoption"].map((dim, i) => (
                         <td key={dim} style={{ ...S.td, width: 50 }}>
                           <div style={S.dimBarBg}><div style={S.dimBar((a as any)[dim], DIM_COLORS[i])} /></div>
-                          <div style={{ fontSize: 9, fontFamily: "var(--ff-mono)", color: "var(--text-muted)", textAlign: "center", marginTop: 1 }}>{(a as any)[dim]}</div>
+                          <div style={{ fontSize: 11, fontFamily: "var(--ff-mono)", color: "var(--text-muted)", textAlign: "center", marginTop: 1 }}>{(a as any)[dim]}</div>
                         </td>
                       ))}
                       <td style={{ ...S.td, fontFamily: "var(--ff-mono)", textAlign: "center" }}>{a.direct_reports_count}</td>
                       <td style={S.td}>
-                        <span style={{ fontSize: 9, fontWeight: 600, padding: "1px 5px", borderRadius: 3,
+                        <span style={{ fontSize: 11, fontWeight: 600, padding: "1px 5px", borderRadius: 3,
                           background: a.development_priority === "high" ? "rgba(239,68,68,0.1)" : a.development_priority === "medium" ? "rgba(249,115,22,0.1)" : "rgba(34,197,94,0.1)",
                           color: a.development_priority === "high" ? "#EF4444" : a.development_priority === "medium" ? "#F97316" : "#22C55E",
                         }}>{a.development_priority}</span>
@@ -369,8 +369,8 @@ export default function ManagerCapabilityModule({ model, projectId }: Props) {
                                 {a.development_areas.length > 0 ? a.development_areas.map((da, i) => (
                                   <div key={i} style={S.devArea}>
                                     <span style={{ flex: 1, color: "var(--text-secondary)" }}>{da.area}</span>
-                                    <span style={{ fontFamily: "var(--ff-mono)", fontSize: 9, color: "#EF4444" }}>gap: {da.gap}</span>
-                                    <span style={{ fontFamily: "var(--ff-mono)", fontSize: 9, color: "var(--text-muted)" }}>{da.current}→{da.target}</span>
+                                    <span style={{ fontFamily: "var(--ff-mono)", fontSize: 11, color: "#EF4444" }}>gap: {da.gap}</span>
+                                    <span style={{ fontFamily: "var(--ff-mono)", fontSize: 11, color: "var(--text-muted)" }}>{da.current}→{da.target}</span>
                                   </div>
                                 )) : <div style={{ fontSize: 11, color: "var(--text-muted)" }}>No development gaps identified</div>}
                               </div>

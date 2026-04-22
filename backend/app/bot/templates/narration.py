@@ -84,8 +84,8 @@ ANALYZE_ORG_STRUCTURE = {
             "Overall average span: {avg_span:.1f} direct reports per manager. {interpretation}",
         ],
         "layer_opportunity": [
-            "Reducing from {current_layers} to {target_layers} layers could eliminate approximately {eliminated_managers} management positions, saving an estimated ${savings:,.0f} annually in management overhead.",
-            "There's a delayering opportunity here. Going from {current_layers} to {target_layers} layers would remove roughly {eliminated_managers} management roles — that's ${savings:,.0f}/year in savings, plus faster decision-making.",
+            "Reducing from {current_layers} to {target_layers} layers could transition approximately {eliminated_managers} management positions, saving an estimated ${savings:,.0f} annually in management overhead.",
+            "There's a delayering opportunity here. Going from {current_layers} to {target_layers} layers would sunset roughly {eliminated_managers} management roles — that's ${savings:,.0f}/year in savings, plus faster decision-making.",
         ],
         "span_by_function": [
             "{function} has an average span of {avg_span:.1f}. {comparison_text}",

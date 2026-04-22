@@ -976,7 +976,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
                 const raw = await callAI("Return ONLY valid JSON array.", `Generate 12 specific change management actions to address these ADKAR barriers: ${context}. Each action: {"priority":1,"group":"group name","dim":"ADKAR dimension","action":"specific action","owner":"suggested role","timeline":"Week X-Y","status":"Not Started"}. Be specific and practical.`);
                 const actions = JSON.parse(raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim());
                 if (Array.isArray(actions)) { setAdkarActions(actions.map((a: Record<string, unknown>, i: number) => ({ ...a, id: `adkar_ai_${i}` })) as typeof adkarActions); showToast(`Generated ${actions.length} AI actions`); }
-              } catch { showToast("AI couldn't complete the generation — try again"); }
+              } catch { showToast("That took longer than expected. Try again in a moment."); }
               setAdkarAiGenerating(false);
             }} disabled={adkarAiGenerating || barriers.length === 0} className="px-4 py-2 rounded-lg text-[14px] font-semibold text-white mb-4" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", opacity: adkarAiGenerating || barriers.length === 0 ? 0.4 : 1 }}>{adkarAiGenerating ? "Generating..." : "✨ AI Generate Actions"}</button>
           </>;
@@ -1255,8 +1255,8 @@ export function TransformationStoryBuilder({ model, f, onBack, onNavigate, viewC
       );
       setStory(raw);
       setEdited(false);
-      showToast("Narrative generated");
-    } catch { showToast("Couldn't generate content — try again in a moment"); }
+      showToast("Narrative generated — review and edit below");
+    } catch { showToast("Couldn't generate the narrative — try again in a moment"); }
     setLoading(false);
   };
 

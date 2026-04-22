@@ -81,18 +81,18 @@ const S = {
   tab: (active: boolean) => ({ flex: 1, padding: "10px 12px", fontSize: "var(--text-xs)", fontWeight: active ? "var(--fw-semi)" : "var(--fw-medium)", color: active ? "#3B82F6" : "var(--text-muted)", borderBottom: active ? "2px solid #3B82F6" : "2px solid transparent", background: "none", border: "none", cursor: "pointer", textAlign: "center" as const }) as React.CSSProperties,
   body: { flex: 1, overflowY: "auto" as const, padding: "18px 20px" } as React.CSSProperties,
   dimRow: { display: "flex", alignItems: "flex-start", gap: 12, padding: "10px 0", borderBottom: "1px solid var(--border)" } as React.CSSProperties,
-  dimLabel: { fontSize: 10, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.05em", width: 90, flexShrink: 0, marginTop: 3 } as React.CSSProperties,
+  dimLabel: { fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.05em", width: 90, flexShrink: 0, marginTop: 3 } as React.CSSProperties,
   dimCurrent: { flex: 1, fontSize: "var(--text-xs)", color: "var(--text-secondary)", padding: "4px 0" } as React.CSSProperties,
   dimFuture: (changed: boolean) => ({ flex: 1, fontSize: "var(--text-xs)", color: changed ? "#F97316" : "var(--text-secondary)", fontWeight: changed ? "var(--fw-semi)" : "normal", padding: "4px 0" }) as React.CSSProperties,
   statusDot: (changed: boolean) => ({ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: changed ? "#F97316" : "#22C55E", marginRight: 6, flexShrink: 0, marginTop: 6 }) as React.CSSProperties,
-  wasLabel: { fontSize: 10, color: "var(--text-muted)", marginTop: 2 } as React.CSSProperties,
+  wasLabel: { fontSize: 11, color: "var(--text-muted)", marginTop: 2 } as React.CSSProperties,
   aiBar: { background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.12)", borderRadius: 8, padding: "12px 14px", marginTop: 16 } as React.CSSProperties,
   actionRow: { display: "flex", alignItems: "center", gap: 8, padding: "14px 0", marginTop: 12, borderTop: "1px solid var(--border)" } as React.CSSProperties,
   btnPrimary: { display: "inline-flex", alignItems: "center", gap: 4, padding: "8px 16px", fontSize: "var(--text-xs)", fontWeight: "var(--fw-semi)", border: "none", borderRadius: 6, background: "#3B82F6", color: "#fff", cursor: "pointer" } as React.CSSProperties,
   btnSecondary: { display: "inline-flex", alignItems: "center", gap: 4, padding: "8px 16px", fontSize: "var(--text-xs)", fontWeight: "var(--fw-medium)", border: "1px solid var(--border)", borderRadius: 6, background: "var(--surface-2)", color: "var(--text-secondary)", cursor: "pointer" } as React.CSSProperties,
   btnDanger: { display: "inline-flex", alignItems: "center", gap: 4, padding: "8px 16px", fontSize: "var(--text-xs)", fontWeight: "var(--fw-medium)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 6, background: "rgba(239,68,68,0.05)", color: "#EF4444", cursor: "pointer" } as React.CSSProperties,
   textarea: { width: "100%", padding: "8px 10px", fontSize: "var(--text-xs)", background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 6, color: "var(--text-primary)", resize: "vertical" as const, outline: "none", fontFamily: "inherit", minHeight: 60 } as React.CSSProperties,
-  fieldLabel: { fontSize: 10, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.05em", marginBottom: 4, marginTop: 14 } as React.CSSProperties,
+  fieldLabel: { fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.05em", marginBottom: 4, marginTop: 14 } as React.CSSProperties,
   empRow: { display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderBottom: "1px solid var(--border)", cursor: "pointer" } as React.CSSProperties,
   avatar: { width: 32, height: 32, borderRadius: "50%", background: "#1C2B3A", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "#fff", flexShrink: 0 } as React.CSSProperties,
   empDetail: { padding: "18px 20px" } as React.CSSProperties,
@@ -101,7 +101,7 @@ const S = {
   empField: { display: "flex", padding: "6px 0", borderBottom: "1px solid var(--border)" } as React.CSSProperties,
   empFieldLabel: { width: 140, fontSize: "var(--text-xs)", color: "var(--text-muted)", flexShrink: 0 } as React.CSSProperties,
   empFieldValue: { fontSize: "var(--text-xs)", color: "var(--text-primary)" } as React.CSSProperties,
-  anchorBadge: { display: "inline-flex", alignItems: "center", gap: 3, padding: "2px 8px", fontSize: 10, background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 4, color: "#3B82F6", fontWeight: 600 } as React.CSSProperties,
+  anchorBadge: { display: "inline-flex", alignItems: "center", gap: 3, padding: "2px 8px", fontSize: 11, background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 4, color: "#3B82F6", fontWeight: 600 } as React.CSSProperties,
 };
 
 /* ═══════════════════════════════════════════════════════════════
@@ -199,7 +199,7 @@ export default function RoleDetailDrawer({ row, isOpen, onClose, onPrev, onNext,
             <button style={S.navBtn} onClick={onPrev} disabled={!onPrev}><ChevronLeft size={12} /> Prev</button>
             <button style={S.navBtn} onClick={onNext} disabled={!onNext}>Next <ChevronRight size={12} /></button>
             {currentIndex !== undefined && allRows && (
-              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", marginLeft: 8 }}>
+              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginLeft: 8 }}>
                 {currentIndex + 1} of {allRows.length}
               </span>
             )}
@@ -248,7 +248,7 @@ export default function RoleDetailDrawer({ row, isOpen, onClose, onPrev, onNext,
                     <div style={S.empFieldValue}>
                       {value}
                       {label === "Working Title" && selectedEmployee.title !== c.title && (
-                        <span style={{ marginLeft: 8, fontSize: 10, color: "#F97316", fontWeight: "var(--fw-medium)" }}>
+                        <span style={{ marginLeft: 8, fontSize: 11, color: "#F97316", fontWeight: "var(--fw-medium)" }}>
                           <AlertTriangle size={10} style={{ verticalAlign: "middle", marginRight: 2 }} />
                           Title mismatch
                         </span>
@@ -282,9 +282,9 @@ export default function RoleDetailDrawer({ row, isOpen, onClose, onPrev, onNext,
               {/* Column headers */}
               <div style={{ display: "flex", gap: 12, marginBottom: 4 }}>
                 <div style={{ width: 90 }} />
-                <div style={{ flex: 1, fontSize: 10, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Current State</div>
+                <div style={{ flex: 1, fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Current State</div>
                 <div style={{ width: 20 }} />
-                <div style={{ flex: 1, fontSize: 10, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Target State</div>
+                <div style={{ flex: 1, fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Target State</div>
               </div>
 
               {/* Dimension rows */}
@@ -304,7 +304,7 @@ export default function RoleDetailDrawer({ row, isOpen, onClose, onPrev, onNext,
                       {changed && <div style={S.wasLabel}>Was: {curVal}</div>}
                       {key === "track_code" && row.track_change && (
                         <div style={{ marginTop: 3 }}>
-                          <span style={{ padding: "2px 6px", fontSize: 9, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.2)", borderRadius: 3, color: "#F97316", fontWeight: 600 }}>Track change</span>
+                          <span style={{ padding: "2px 6px", fontSize: 11, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.2)", borderRadius: 3, color: "#F97316", fontWeight: 600 }}>Track change</span>
                         </div>
                       )}
                     </div>
@@ -315,7 +315,7 @@ export default function RoleDetailDrawer({ row, isOpen, onClose, onPrev, onNext,
               {/* Level criteria reference */}
               {f?.level_code && levelCriteria && (
                 <div style={{ marginTop: 12, padding: "10px 12px", background: "var(--surface-2)", borderRadius: 6, fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>
-                  <div style={{ fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
                     {f.track_code}{f.level_code} Criteria Reference
                   </div>
                   {Object.entries(levelCriteria).filter(([k]) => k.startsWith(`${f.track_code}|${f.level_code}|`)).map(([k, v]) => (
@@ -336,7 +336,7 @@ export default function RoleDetailDrawer({ row, isOpen, onClose, onPrev, onNext,
                     <Sparkles size={13} style={{ color: "#3B82F6" }} />
                     <span style={{ fontSize: 11, fontWeight: "var(--fw-semi)", color: "var(--text-primary)" }}>AI Rationale</span>
                     {row.confidence_score > 0 && (
-                      <span style={{ marginLeft: "auto", fontSize: 10, color: "var(--text-muted)" }}>
+                      <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--text-muted)" }}>
                         Confidence: {Math.round(row.confidence_score * 100)}%
                       </span>
                     )}
@@ -348,7 +348,7 @@ export default function RoleDetailDrawer({ row, isOpen, onClose, onPrev, onNext,
                     <div style={{ marginTop: 8 }}>
                       {((row.ai_rationale as any).signals as any[]).map((sig, i) => (
                         <div key={i} style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 3 }}>
-                          • {sig.detail} <span style={{ color: "var(--text-muted)", fontSize: 10 }}>({Math.round((sig.weight || 0) * 100)}%)</span>
+                          • {sig.detail} <span style={{ color: "var(--text-muted)", fontSize: 11 }}>({Math.round((sig.weight || 0) * 100)}%)</span>
                         </div>
                       ))}
                     </div>
@@ -389,7 +389,7 @@ export default function RoleDetailDrawer({ row, isOpen, onClose, onPrev, onNext,
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <FileText size={15} style={{ color: "#3B82F6" }} />
                       <span style={{ fontSize: "var(--text-xs)", fontWeight: "var(--fw-medium)", color: "var(--text-primary)" }}>{jd.filename}</span>
-                      <span style={{ fontSize: 10, color: "var(--text-muted)" }}>Uploaded {new Date(jd.uploaded_at).toLocaleDateString()}</span>
+                      <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Uploaded {new Date(jd.uploaded_at).toLocaleDateString()}</span>
                     </div>
                     <div style={{ display: "flex", gap: 4 }}>
                       <button style={S.btnSecondary}><Download size={12} /> Download</button>
@@ -433,9 +433,9 @@ export default function RoleDetailDrawer({ row, isOpen, onClose, onPrev, onNext,
                       <div style={S.avatar}>{initials(emp.name)}</div>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: "var(--text-xs)", fontWeight: "var(--fw-medium)", color: "var(--text-primary)" }}>{emp.name}</div>
-                        <div style={{ fontSize: 10, color: "var(--text-muted)" }}>{emp.id} · {emp.manager && `Reports to ${emp.manager}`}</div>
+                        <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{emp.id} · {emp.manager && `Reports to ${emp.manager}`}</div>
                       </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 10, color: "var(--text-muted)" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, color: "var(--text-muted)" }}>
                         {emp.location && <span><MapPin size={10} style={{ verticalAlign: "middle" }} /> {emp.location}</span>}
                         <span><Clock size={10} style={{ verticalAlign: "middle" }} /> {emp.tenure}y</span>
                       </div>

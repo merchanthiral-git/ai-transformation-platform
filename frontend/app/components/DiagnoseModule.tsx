@@ -2093,8 +2093,8 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
       {viewMode === "matrix" && <Card title="Consolidation Impact Matrix">
         <div style={{ position: "relative", height: 400, border: "1px solid rgba(255,255,255,0.06)", borderRadius: 12, background: "rgba(255,255,255,0.02)", overflow: "hidden" }}>
           {/* Axis labels */}
-          <div style={{ position: "absolute", bottom: 8, left: "50%", transform: "translateX(-50%)", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b" }}>Overlap %</div>
-          <div style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%) rotate(-90deg)", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b" }}>Savings ($M)</div>
+          <div style={{ position: "absolute", bottom: 8, left: "50%", transform: "translateX(-50%)", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b" }}>Overlap %</div>
+          <div style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%) rotate(-90deg)", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b" }}>Savings ($M)</div>
           {/* High-impact quadrant label */}
           <div style={{ position: "absolute", top: 12, right: 16, fontSize: 11, fontWeight: 700, color: "#10B981", opacity: 0.6 }}>HIGH IMPACT</div>
           {/* Quadrant lines */}
@@ -2110,7 +2110,7 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
               const size = Math.max(20, Math.min(60, (c.headcount / maxHC) * 50 + 10));
               const isHighImpact = c.avg_overlap >= 60 && c._savings >= maxSav * 0.4;
               const fc = funcColors[c.function] || "#3B82F6";
-              return <button key={i} onClick={() => { setViewMode("list"); setExpandedCluster(c._idx); }} title={`${c.name}: ${c.avg_overlap}% overlap, ${fmtNum(c._savings)} savings, ${c.headcount} people`} style={{ position: "absolute", left: `${8 + xPct * 0.84}%`, bottom: `${8 + yPct * 0.84}%`, width: size, height: size, borderRadius: "50%", background: fc, opacity: isHighImpact ? 0.9 : 0.5, border: isHighImpact ? "2px solid #10B981" : "1px solid rgba(255,255,255,0.15)", cursor: "pointer", transition: "all 0.2s", transform: "translate(-50%, 50%)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 700, fontFamily: MONO, color: "#fff" }}>{c.roles.length}</button>;
+              return <button key={i} onClick={() => { setViewMode("list"); setExpandedCluster(c._idx); }} title={`${c.name}: ${c.avg_overlap}% overlap, ${fmtNum(c._savings)} savings, ${c.headcount} people`} style={{ position: "absolute", left: `${8 + xPct * 0.84}%`, bottom: `${8 + yPct * 0.84}%`, width: size, height: size, borderRadius: "50%", background: fc, opacity: isHighImpact ? 0.9 : 0.5, border: isHighImpact ? "2px solid #10B981" : "1px solid rgba(255,255,255,0.15)", cursor: "pointer", transition: "all 0.2s", transform: "translate(-50%, 50%)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, fontFamily: MONO, color: "#fff" }}>{c.roles.length}</button>;
             });
           })()}
         </div>
@@ -2163,14 +2163,14 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
             {isExpanded && <div style={{ padding: "0 20px 20px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
               {/* Roles mini-table */}
               <div style={{ marginTop: 16, marginBottom: 16 }}>
-                <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", marginBottom: 8 }}>Roles in this cluster</div>
+                <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", marginBottom: 8 }}>Roles in this cluster</div>
                 <div style={{ borderRadius: 8, border: "1px solid rgba(255,255,255,0.06)", overflow: "hidden" }}>
                   <table style={{ width: "100%", fontSize: 13, borderCollapse: "collapse" }}>
                     <thead><tr style={{ background: "rgba(255,255,255,0.03)" }}>
-                      <th style={{ padding: "8px 12px", textAlign: "left", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>Role</th>
-                      <th style={{ padding: "8px 12px", textAlign: "center", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", borderBottom: "1px solid rgba(255,255,255,0.06)" }} title="Headcount">HC</th>
-                      <th style={{ padding: "8px 12px", textAlign: "center", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>Overlap</th>
-                      <th style={{ padding: "8px 12px", textAlign: "left", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>Shared Skills</th>
+                      <th style={{ padding: "8px 12px", textAlign: "left", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>Role</th>
+                      <th style={{ padding: "8px 12px", textAlign: "center", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", borderBottom: "1px solid rgba(255,255,255,0.06)" }} title="Headcount">HC</th>
+                      <th style={{ padding: "8px 12px", textAlign: "center", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>Overlap</th>
+                      <th style={{ padding: "8px 12px", textAlign: "left", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>Shared Skills</th>
                     </tr></thead>
                     <tbody>{c.roles.map((r, ri) => {
                       const rolePair = pairs.find(p => (p.role_a === r || p.role_b === r) && (c.roles.includes(p.role_a) && c.roles.includes(p.role_b)));
@@ -2192,7 +2192,7 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
 
               {/* Recommended action card */}
               {opp && <div style={{ background: "rgba(59,130,246,0.04)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 12, padding: 16, marginBottom: 16 }}>
-                <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#3B82F6", marginBottom: 8 }}>Recommended Action</div>
+                <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#3B82F6", marginBottom: 8 }}>Recommended Action</div>
                 <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", marginBottom: 8 }}>Consolidate <span style={{ color: "#F97316" }}>{opp.role_a}</span> and <span style={{ color: "#F97316" }}>{opp.role_b}</span> into a single unified role</div>
                 <div style={{ display: "flex", gap: 16, marginBottom: 12, flexWrap: "wrap" }}>
                   <span style={{ fontSize: 12, color: "#64748b" }}>Estimated impact: <span style={{ fontFamily: MONO, fontWeight: 700, color: "#10B981" }}>-{fmtNum(opp.estimated_savings)}</span> cost</span>

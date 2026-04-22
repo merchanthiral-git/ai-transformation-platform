@@ -839,7 +839,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
                 <td className="px-3 py-2 text-center text-[15px] font-bold font-data">{fmtNum(s.totals.savings)}</td>
                 <td className="px-3 py-2 text-center text-[15px] font-data">{s.totals.breakEven <= 36 ? `${s.totals.breakEven}mo` : "36mo+"}</td>
                 <td className="px-3 py-2 text-center">{delta ? <span className={`text-[15px] font-bold ${delta.savings > 0 ? "text-[var(--success)]" : "text-[var(--risk)]"}`}>{fmtNum(delta.savings)} / {fmt(delta.fte, "delta")} FTE</span> : <span className="text-[15px] text-[var(--text-muted)]">baseline</span>}</td>
-                <td className="px-3 py-2 text-center"><button onClick={() => { setSavedScenarios(prev => prev.filter((_, j) => j !== i)); showToast("Removed"); }} className="text-[15px] text-[var(--text-muted)] hover:text-[var(--risk)]">✕</button></td>
+                <td className="px-3 py-2 text-center"><button onClick={() => { setSavedScenarios(prev => prev.filter((_, j) => j !== i)); showToast("Scenario removed from comparison"); }} className="text-[15px] text-[var(--text-muted)] hover:text-[var(--risk)]">✕</button></td>
               </tr>;
             })}</tbody></table>
           </div>

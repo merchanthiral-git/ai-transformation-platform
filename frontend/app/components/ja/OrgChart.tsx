@@ -2,12 +2,13 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import {
   Search, ChevronDown, ChevronUp, ChevronRight, ChevronLeft,
-  Plus, Minus as MinusIcon, Maximize2, X, Users, AlertTriangle,
+  Plus, Minus as MinusIcon, Maximize2, Minimize2, X, Users, AlertTriangle,
   Check, ExternalLink, Eye, Layers3, Download, Filter,
   MoreHorizontal, ArrowLeft, Sparkles, Star,
 } from "@/lib/icons";
 import { hierarchy, tree as d3tree } from "d3-hierarchy";
 import { apiFetch } from "../../../lib/api";
+import { useOrgChartSync } from "./useOrgChartSync";
 
 /* ═══════════════════════════════════════════════════════════════
    TYPES
@@ -35,6 +36,10 @@ interface SearchResult {
 interface Props {
   model: string;
   onRoleClick?: (roleTitle: string) => void;
+  /** When true, the component is rendered inside the popout page */
+  isPopout?: boolean;
+  /** Callback to report sync status to popout wrapper */
+  onSyncStatus?: (synced: boolean) => void;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -98,19 +103,24 @@ const SIBLING_GAP = 14;
    COMPONENT
    ═══════════════════════════════════════════════════════════════ */
 
-export default function OrgChart({ model, onRoleClick }: Props) {
+export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }: Props) {
   // Data
   const [rootNode, setRootNode] = useState<OrgNode | null>(null);
   const [meta, setMeta] = useState<OrgMeta | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // View state
+  // View state (NOT synced — per-window)
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [showMinimap, setShowMinimap] = useState(true);
+
+  // Synced state
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [rootId, setRootId] = useState("");
+  const [funcFilter, setFuncFilter] = useState<Set<string>>(new Set());
+  const [statusFilter, setStatusFilter] = useState("");
   const [isPanning, setIsPanning] = useState(false);
   const panStart = useRef({ x: 0, y: 0, panX: 0, panY: 0 });
 
@@ -118,15 +128,82 @@ export default function OrgChart({ model, onRoleClick }: Props) {
   const [search, setSearch] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [showSearch, setShowSearch] = useState(false);
-  const [funcFilter, setFuncFilter] = useState<Set<string>>(new Set());
-  const [statusFilter, setStatusFilter] = useState("");
-  const [showMinimap, setShowMinimap] = useState(true);
+
+  // Fullscreen
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Popout
+  const [isPopoutOpen, setIsPopoutOpen] = useState(false);
+  const popoutWindowRef = useRef<Window | null>(null);
+
+  // Phase 4: First-run discovery hint
+  const [showHint, setShowHint] = useState(false);
 
   // Context menu
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; node: OrgNode } | null>(null);
 
   const svgRef = useRef<SVGSVGElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
+
+  // ── Phase 3: BroadcastChannel sync ──
+  const syncActions = useMemo(() => ({
+    setSelectedId,
+    setExpandedIds,
+    setFuncFilter,
+    setStatusFilter,
+    setRootId,
+  }), []);
+
+  const { publish, isConnected, peerCount, isRemoteUpdate } = useOrgChartSync(model, syncActions);
+
+  // Publish synced state changes
+  useEffect(() => { publish("NODE_SELECTED", selectedId); }, [selectedId, publish]);
+  useEffect(() => { publish("NODES_EXPANDED", Array.from(expandedIds)); }, [expandedIds, publish]);
+  useEffect(() => { publish("FILTER_CHANGED", Array.from(funcFilter)); }, [funcFilter, publish]);
+  useEffect(() => { publish("STATUS_FILTER_CHANGED", statusFilter); }, [statusFilter, publish]);
+  useEffect(() => { publish("ROOT_CHANGED", rootId); }, [rootId, publish]);
+
+  // Report sync status to popout wrapper
+  useEffect(() => {
+    onSyncStatus?.(peerCount > 0);
+  }, [peerCount, onSyncStatus]);
+
+  // ── Phase 4: Mode preference persistence ──
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const pref = localStorage.getItem("orgchart_preferred_mode");
+    if (pref === "fullscreen" && !isPopout) {
+      setIsFullscreen(true);
+    }
+    // "popout" preference is handled by auto-opening popout below
+  }, [isPopout]);
+
+  const saveModePreference = useCallback((mode: "inline" | "fullscreen" | "popout") => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("orgchart_preferred_mode", mode);
+    }
+  }, []);
+
+  // ── Phase 4: First-run discovery hint ──
+  useEffect(() => {
+    if (typeof window === "undefined" || isPopout) return;
+    const shown = localStorage.getItem("orgchart_hint_shown");
+    if (!shown) {
+      setShowHint(true);
+      const timer = setTimeout(() => {
+        setShowHint(false);
+        localStorage.setItem("orgchart_hint_shown", "1");
+      }, 8000);
+      return () => clearTimeout(timer);
+    }
+  }, [isPopout]);
+
+  const dismissHint = useCallback(() => {
+    setShowHint(false);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("orgchart_hint_shown", "1");
+    }
+  }, []);
 
   // ── Fetch tree data ──
   const fetchTree = useCallback(async () => {
@@ -285,12 +362,85 @@ export default function OrgChart({ model, onRoleClick }: Props) {
         case "0": fitToView(); break;
         case "=": case "+": setZoom(z => Math.min(z + 0.1, 2)); break;
         case "-": setZoom(z => Math.max(z - 0.1, 0.2)); break;
-        case "Escape": setSelectedId(null); setContextMenu(null); setShowSearch(false); break;
+        case "F":
+          if (e.shiftKey) {
+            e.preventDefault();
+            openPopout();
+            saveModePreference("popout");
+          } else {
+            setIsFullscreen(v => {
+              const next = !v;
+              saveModePreference(next ? "fullscreen" : "inline");
+              return next;
+            });
+          }
+          break;
+        case "f":
+          setIsFullscreen(v => {
+            const next = !v;
+            saveModePreference(next ? "fullscreen" : "inline");
+            return next;
+          });
+          break;
+        case "Escape":
+          if (isFullscreen) { setIsFullscreen(false); saveModePreference("inline"); }
+          else { setSelectedId(null); setContextMenu(null); setShowSearch(false); }
+          break;
       }
     };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, [fitToView]);
+  }, [fitToView, isFullscreen, openPopout, saveModePreference]);
+
+  // ── Fullscreen helpers ──
+  const toggleFullscreen = useCallback(() => {
+    setIsFullscreen(v => {
+      const next = !v;
+      saveModePreference(next ? "fullscreen" : "inline");
+      return next;
+    });
+  }, [saveModePreference]);
+  const toggleBrowserFullscreen = useCallback(() => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.();
+    } else {
+      document.exitFullscreen?.();
+    }
+  }, []);
+
+  // Re-fit after entering/exiting fullscreen (canvas size changes)
+  useEffect(() => { requestAnimationFrame(() => fitToView()); }, [isFullscreen]);
+
+  // ── Popout window ──
+  const openPopout = useCallback(() => {
+    // If already open and not closed, just focus it
+    if (popoutWindowRef.current && !popoutWindowRef.current.closed) {
+      popoutWindowRef.current.focus();
+      return;
+    }
+    const popoutUrl = `/ja/org-chart/popout?model=${encodeURIComponent(model)}`;
+    const win = window.open(
+      popoutUrl,
+      "orgchart_popout",
+      "width=1400,height=900,menubar=no,toolbar=no"
+    );
+    if (win) {
+      popoutWindowRef.current = win;
+      setIsPopoutOpen(true);
+    }
+  }, [model]);
+
+  // Poll to detect popout close
+  useEffect(() => {
+    if (!isPopoutOpen) return;
+    const interval = setInterval(() => {
+      if (popoutWindowRef.current?.closed) {
+        setIsPopoutOpen(false);
+        popoutWindowRef.current = null;
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isPopoutOpen]);
 
   // ── Render helpers ──
   const initials = (name: string) => name.split(" ").map(w => w[0] || "").join("").toUpperCase().slice(0, 2);
@@ -406,6 +556,17 @@ export default function OrgChart({ model, onRoleClick }: Props) {
   // Functions list
   const allFunctions = useMemo(() => meta?.functions || [], [meta]);
 
+  // ── Phase 4: Large org performance — count total nodes ──
+  const totalNodeCount = useMemo(() => {
+    if (!rootNode) return 0;
+    function count(n: OrgNode): number {
+      return 1 + (n.children || []).reduce((s, c) => s + count(c), 0);
+    }
+    return count(rootNode);
+  }, [rootNode]);
+
+  const showPopoutPlaceholder = isPopoutOpen && totalNodeCount > 5000 && !isPopout;
+
   if (loading) {
     return (
       <div style={S.wrapper}>
@@ -433,59 +594,108 @@ export default function OrgChart({ model, onRoleClick }: Props) {
     );
   }
 
-  return (
-    <div style={S.wrapper}>
-      {/* ── Toolbar ── */}
-      <div style={S.toolbar}>
-        <div style={{ ...S.searchBox, position: "relative" }}>
-          <Search size={12} style={{ color: "rgba(28,43,58,0.4)" }} />
-          <input id="oc-search" style={S.searchInput} value={search}
-            onChange={e => setSearch(e.target.value)}
-            onFocus={() => search.length >= 2 && setShowSearch(true)}
-            placeholder="Search employee, role, team" />
-          {search && <button style={{ background: "none", border: "none", color: "rgba(28,43,58,0.4)", cursor: "pointer", padding: 0 }} onClick={() => { setSearch(""); setShowSearch(false); }}><X size={11} /></button>}
-        </div>
-
-        {/* Root selector */}
-        {rootId && (
-          <button style={S.btn} onClick={() => setRootId("")}>
-            <ArrowLeft size={11} /> Back to Top
-          </button>
-        )}
-
-        {/* Function filter */}
-        <select style={S.select} value="" onChange={e => {
-          const v = e.target.value;
-          if (!v) { setFuncFilter(new Set()); return; }
-          setFuncFilter(prev => {
-            const next = new Set(prev);
-            next.has(v) ? next.delete(v) : next.add(v);
-            return next;
-          });
-        }}>
-          <option value="">All Functions ({allFunctions.length})</option>
-          {allFunctions.map(f => <option key={f} value={f}>{f}{funcFilter.has(f) ? " ✓" : ""}</option>)}
-        </select>
-
-        {/* Status pills */}
-        {meta && meta.unmapped_count > 0 && (
-          <button style={S.pill(statusFilter === "unmapped", "#F97316")}
-            onClick={() => setStatusFilter(statusFilter === "unmapped" ? "" : "unmapped")}>
-            Unmapped ({meta.unmapped_count})
-          </button>
-        )}
-        {meta && meta.flagged_count > 0 && (
-          <button style={S.pill(statusFilter === "flagged", "#DC2626")}
-            onClick={() => setStatusFilter(statusFilter === "flagged" ? "" : "flagged")}>
-            Flags ({meta.flagged_count})
-          </button>
-        )}
-
-        <div style={{ flex: 1 }} />
-
-        <button style={S.btn} onClick={fitToView}><Maximize2 size={11} /> Fit</button>
-        <button style={S.btnPrimary}><Download size={11} /> Export</button>
+  /* ── Search/filter controls (reused in both modes) ── */
+  const searchFilterControls = (
+    <>
+      <div style={{ ...S.searchBox, position: "relative" }}>
+        <Search size={12} style={{ color: "rgba(28,43,58,0.4)" }} />
+        <input id="oc-search" style={S.searchInput} value={search}
+          onChange={e => setSearch(e.target.value)}
+          onFocus={() => search.length >= 2 && setShowSearch(true)}
+          placeholder="Search employee, role, team" />
+        {search && <button title="Clear search" style={{ background: "none", border: "none", color: "rgba(28,43,58,0.4)", cursor: "pointer", padding: 0 }} onClick={() => { setSearch(""); setShowSearch(false); }}><X size={11} /></button>}
       </div>
+
+      {/* Root selector */}
+      {rootId && (
+        <button style={S.btn} onClick={() => setRootId("")}>
+          <ArrowLeft size={11} /> Back to Top
+        </button>
+      )}
+
+      {/* Function filter */}
+      <select style={S.select} value="" onChange={e => {
+        const v = e.target.value;
+        if (!v) { setFuncFilter(new Set()); return; }
+        setFuncFilter(prev => {
+          const next = new Set(prev);
+          next.has(v) ? next.delete(v) : next.add(v);
+          return next;
+        });
+      }}>
+        <option value="">All Functions ({allFunctions.length})</option>
+        {allFunctions.map(f => <option key={f} value={f}>{f}{funcFilter.has(f) ? " ✓" : ""}</option>)}
+      </select>
+
+      {/* Status pills */}
+      {meta && meta.unmapped_count > 0 && (
+        <button style={S.pill(statusFilter === "unmapped", "#F97316")}
+          onClick={() => setStatusFilter(statusFilter === "unmapped" ? "" : "unmapped")}>
+          Unmapped ({meta.unmapped_count})
+        </button>
+      )}
+      {meta && meta.flagged_count > 0 && (
+        <button style={S.pill(statusFilter === "flagged", "#DC2626")}
+          onClick={() => setStatusFilter(statusFilter === "flagged" ? "" : "flagged")}>
+          Flags ({meta.flagged_count})
+        </button>
+      )}
+    </>
+  );
+
+  return (
+    <div style={{
+      ...S.wrapper,
+      ...(isFullscreen ? { position: "fixed" as const, inset: 0, zIndex: 50, background: "#F7F5F0", height: "100vh", transition: "all 0.15s ease-in-out" } : { transition: "all 0.15s ease-in-out" }),
+    }}>
+      {/* ── Fullscreen top bar ── */}
+      {isFullscreen && (
+        <div style={{ display: "flex", alignItems: "center", height: 48, padding: "0 16px", background: "#fff", borderBottom: "0.5px solid rgba(28,43,58,0.12)", flexShrink: 0, zIndex: 10 }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: "#1C2B3A", whiteSpace: "nowrap", marginRight: 16 }}>
+            Job Architecture &middot; Org Chart
+          </span>
+          <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
+            {searchFilterControls}
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginLeft: 16 }}>
+            <button style={S.btn} title="Browser Fullscreen" onClick={toggleBrowserFullscreen}><Maximize2 size={11} /></button>
+            <button style={S.btn} title="Exit fullscreen (Escape)" onClick={toggleFullscreen}><Minimize2 size={11} /> Exit</button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Phase 4: First-run discovery hint ── */}
+      {showHint && !isFullscreen && !isPopout && (
+        <div
+          onClick={dismissHint}
+          style={{
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+            padding: "6px 16px", background: "#EFF6FF", borderBottom: "0.5px solid rgba(59,130,246,0.2)",
+            fontSize: 11, color: "#1E40AF", cursor: "pointer", flexShrink: 0,
+          }}
+        >
+          <span>Tip: Press F for fullscreen or Shift+F to open in a new window</span>
+          <X size={10} style={{ opacity: 0.6 }} />
+        </div>
+      )}
+
+      {/* ── Normal toolbar ── */}
+      {!isFullscreen && (
+        <div style={S.toolbar}>
+          {searchFilterControls}
+          <div style={{ flex: 1 }} />
+          <button style={S.btn} title="Fit to view" onClick={fitToView}><Maximize2 size={11} /> Fit</button>
+          <button style={S.btn} title="Fullscreen (F)" onClick={toggleFullscreen}><Maximize2 size={11} /></button>
+          <button style={S.btn} title="Open in new window (Shift+F)" onClick={() => { openPopout(); saveModePreference("popout"); }}><ExternalLink size={11} /></button>
+          {isPopoutOpen && (
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#22C55E" }} />
+              <span style={{ fontSize: 11, color: "rgba(28,43,58,0.5)" }}>Popout active</span>
+            </span>
+          )}
+          <button style={S.btnPrimary}><Download size={11} /> Export</button>
+        </div>
+      )}
 
       {/* ── Meta-stats row ── */}
       {meta && (
@@ -501,7 +711,7 @@ export default function OrgChart({ model, onRoleClick }: Props) {
                 return next;
               })}>
                 <span style={{ width: 8, height: 8, borderRadius: 1, background: fc.main, border: funcFilter.has(f) ? "1px solid #1C2B3A" : "none" }} />
-                <span style={{ fontSize: 10 }}>{f}</span>
+                <span style={{ fontSize: 11 }}>{f}</span>
               </span>
             );
           })}
@@ -516,20 +726,41 @@ export default function OrgChart({ model, onRoleClick }: Props) {
               onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.04)")}
               onMouseLeave={e => (e.currentTarget.style.background = "")}
               onClick={() => { setRootId(r.id); setShowSearch(false); setSearch(""); }}>
-              <div style={{ width: 26, height: 26, borderRadius: "50%", background: getFuncColor(r.function).light, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 600, color: getFuncColor(r.function).dark, flexShrink: 0 }}>
+              <div style={{ width: 26, height: 26, borderRadius: "50%", background: getFuncColor(r.function).light, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 600, color: getFuncColor(r.function).dark, flexShrink: 0 }}>
                 {initials(r.name)}
               </div>
               <div>
                 <div style={{ fontSize: 12, fontWeight: 500, color: "#1C2B3A" }}>{r.name}</div>
-                <div style={{ fontSize: 10, color: "rgba(28,43,58,0.55)" }}>{r.title} · {r.function} · {r.level}</div>
+                <div style={{ fontSize: 11, color: "rgba(28,43,58,0.55)" }}>{r.title} · {r.function} · {r.level}</div>
               </div>
             </div>
           ))}
         </div>
       )}
 
+      {/* ── Phase 4: Large org popout placeholder ── */}
+      {showPopoutPlaceholder && (
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", background: "#F7F5F0" }}>
+          <div style={{
+            background: "#fff", borderRadius: 10, padding: "32px 48px", textAlign: "center",
+            border: "0.5px solid rgba(28,43,58,0.12)", boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+          }}>
+            <div style={{ fontSize: 14, fontWeight: 500, color: "#1C2B3A", marginBottom: 8 }}>Chart is in popout window</div>
+            <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+              <button style={S.btn} onClick={() => popoutWindowRef.current?.focus()}>Focus popout</button>
+              <button style={S.btn} onClick={() => {
+                popoutWindowRef.current?.close();
+                setIsPopoutOpen(false);
+                popoutWindowRef.current = null;
+              }}>Close popout</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── Canvas ── */}
-      <div ref={canvasRef} style={{ ...S.canvas, cursor: isPanning ? "grabbing" : "grab" }}
+      {!showPopoutPlaceholder && (
+      <div ref={canvasRef} style={{ ...S.canvas, cursor: isPanning ? "grabbing" : "grab", ...(isFullscreen ? { height: "calc(100vh - 48px)" } : {}) }}
         onWheel={handleWheel}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
@@ -563,10 +794,10 @@ export default function OrgChart({ model, onRoleClick }: Props) {
 
         {/* Zoom controls */}
         <div style={S.zoomControls}>
-          <button style={{ ...S.btn, padding: "2px 6px" }} onClick={() => setZoom(z => Math.min(z + 0.1, 2))}><Plus size={12} /></button>
-          <button style={{ ...S.btn, padding: "2px 6px" }} onClick={() => setZoom(z => Math.max(z - 0.1, 0.2))}><MinusIcon size={12} /></button>
+          <button title="Zoom in" style={{ ...S.btn, padding: "2px 6px" }} onClick={() => setZoom(z => Math.min(z + 0.1, 2))}><Plus size={12} /></button>
+          <button title="Zoom out" style={{ ...S.btn, padding: "2px 6px" }} onClick={() => setZoom(z => Math.max(z - 0.1, 0.2))}><MinusIcon size={12} /></button>
           <span style={{ padding: "0 6px", fontFamily: "var(--ff-mono)", fontSize: 11, color: "rgba(28,43,58,0.55)", minWidth: 32, textAlign: "center" }}>{Math.round(zoom * 100)}%</span>
-          <button style={{ ...S.btn, padding: "2px 6px" }} onClick={fitToView}><Maximize2 size={11} /></button>
+          <button title="Fit to view" style={{ ...S.btn, padding: "2px 6px" }} onClick={fitToView}><Maximize2 size={11} /></button>
           <button style={{ ...S.btn, padding: "2px 6px", color: showMinimap ? "#3B82F6" : "rgba(28,43,58,0.4)" }}
             onClick={() => setShowMinimap(v => !v)}>Map</button>
         </div>
@@ -594,6 +825,7 @@ export default function OrgChart({ model, onRoleClick }: Props) {
           </div>
         )}
       </div>
+      )}
 
       {/* ── Context menu ── */}
       {contextMenu && (

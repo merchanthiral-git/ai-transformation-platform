@@ -49,9 +49,9 @@ const IMPACT_COLORS: Record<string, string> = { High: "#EF4444", Moderate: "#F59
 const S = {
   summaryBar: { display: "flex", gap: 16, marginBottom: 16, flexWrap: "wrap" as const } as React.CSSProperties,
   metric: { background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 8, padding: "12px 16px", minWidth: 100 } as React.CSSProperties,
-  metricLabel: { fontSize: 10, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.05em" } as React.CSSProperties,
+  metricLabel: { fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.05em" } as React.CSSProperties,
   metricValue: { fontSize: "var(--text-lg)", fontWeight: "var(--fw-bold)", fontFamily: "var(--ff-mono)", color: "var(--text-primary)", marginTop: 2 } as React.CSSProperties,
-  metricSub: { fontSize: 10, color: "var(--text-muted)", marginTop: 1 } as React.CSSProperties,
+  metricSub: { fontSize: 11, color: "var(--text-muted)", marginTop: 1 } as React.CSSProperties,
   section: { background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 10, padding: "16px 20px", marginBottom: 16 } as React.CSSProperties,
   sectionTitle: { fontSize: "var(--text-sm)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)", marginBottom: 10, display: "flex", alignItems: "center", gap: 8 } as React.CSSProperties,
   toolbar: { display: "flex", alignItems: "center", gap: 6, marginBottom: 10, flexWrap: "wrap" as const } as React.CSSProperties,
@@ -59,7 +59,7 @@ const S = {
   btnPrimary: { display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 14px", fontSize: 11, fontWeight: "var(--fw-semi)", border: "none", borderRadius: 5, background: "#3B82F6", color: "#fff", cursor: "pointer" } as React.CSSProperties,
   btnAccent: { display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 14px", fontSize: 11, fontWeight: "var(--fw-semi)", border: "none", borderRadius: 5, background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", color: "#fff", cursor: "pointer" } as React.CSSProperties,
   table: { width: "100%", borderCollapse: "separate" as const, borderSpacing: 0, fontSize: "var(--text-xs)" } as React.CSSProperties,
-  th: { padding: "7px 8px", fontSize: 10, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.05em", borderBottom: "2px solid var(--border)", background: "#1C2B3A", color2: "#fff", whiteSpace: "nowrap" as const, cursor: "pointer", userSelect: "none" as const } as React.CSSProperties,
+  th: { padding: "7px 8px", fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.05em", borderBottom: "2px solid var(--border)", background: "#1C2B3A", color2: "#fff", whiteSpace: "nowrap" as const, cursor: "pointer", userSelect: "none" as const } as React.CSSProperties,
   td: { padding: "6px 8px", borderBottom: "1px solid var(--border)", verticalAlign: "middle" as const } as React.CSSProperties,
   input: { width: "100%", padding: "4px 6px", fontSize: "var(--text-xs)", background: "var(--surface-2)", border: "1px solid transparent", borderRadius: 4, color: "var(--text-primary)", outline: "none" } as React.CSSProperties,
   inputNum: { width: 52, padding: "4px 6px", fontSize: "var(--text-xs)", fontFamily: "var(--ff-mono)", background: "var(--surface-2)", border: "1px solid transparent", borderRadius: 4, color: "var(--text-primary)", outline: "none", textAlign: "center" as const } as React.CSSProperties,
@@ -72,7 +72,7 @@ const S = {
   progressTrack: { height: 8, background: "var(--surface-2)", borderRadius: 4, overflow: "hidden", display: "flex" } as React.CSSProperties,
   progressSeg: (pct: number, color: string) => ({ width: `${pct}%`, height: "100%", background: color, transition: "width 0.3s" }) as React.CSSProperties,
   chartGrid: { display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 16 } as React.CSSProperties,
-  treemapCell: (pct: number, color: string) => ({ flex: `${Math.max(pct, 3)}`, height: 32, background: color, borderRadius: 3, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 600, color: "#fff", overflow: "hidden", whiteSpace: "nowrap" as const, padding: "0 4px", minWidth: 0 }) as React.CSSProperties,
+  treemapCell: (pct: number, color: string) => ({ flex: `${Math.max(pct, 3)}`, height: 32, background: color, borderRadius: 3, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 600, color: "#fff", overflow: "hidden", whiteSpace: "nowrap" as const, padding: "0 4px", minWidth: 0 }) as React.CSSProperties,
   ringContainer: { position: "relative" as const, width: 100, height: 100, margin: "0 auto" } as React.CSSProperties,
   emptyPrompt: { textAlign: "center" as const, padding: "32px 20px", background: "rgba(249,115,22,0.04)", border: "1px solid rgba(249,115,22,0.15)", borderRadius: 10, marginBottom: 16 } as React.CSSProperties,
   dictPanel: { background: "rgba(139,92,246,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, padding: "16px 18px", marginBottom: 16 } as React.CSSProperties,
@@ -262,7 +262,7 @@ export default function StageDeconstruction({
           {hoursByImpact.Moderate > 0 && <div style={S.progressSeg(hoursByImpact.Moderate / weeklyHours * 100, "#F59E0B")} />}
           {hoursByImpact.High > 0 && <div style={S.progressSeg(hoursByImpact.High / weeklyHours * 100, "#EF4444")} />}
         </div>
-        <div style={{ display: "flex", gap: 12, marginTop: 4, fontSize: 10, color: "var(--text-muted)" }}>
+        <div style={{ display: "flex", gap: 12, marginTop: 4, fontSize: 11, color: "var(--text-muted)" }}>
           <span><span style={{ display: "inline-block", width: 6, height: 6, borderRadius: "50%", background: "#22C55E", marginRight: 3 }} />Human: {hoursByImpact.Low.toFixed(1)}h</span>
           <span><span style={{ display: "inline-block", width: 6, height: 6, borderRadius: "50%", background: "#F59E0B", marginRight: 3 }} />AI-Augmented: {hoursByImpact.Moderate.toFixed(1)}h</span>
           <span><span style={{ display: "inline-block", width: 6, height: 6, borderRadius: "50%", background: "#EF4444", marginRight: 3 }} />Automated: {hoursByImpact.High.toFixed(1)}h</span>
@@ -282,7 +282,7 @@ export default function StageDeconstruction({
               </div>
             ))}
           </div>
-          <div style={{ fontSize: 10, color: "var(--text-muted)" }}>
+          <div style={{ fontSize: 11, color: "var(--text-muted)" }}>
             {wsByHours.map(([ws, pct], i) => (
               <span key={ws} style={{ marginRight: 8 }}>
                 <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: 2, background: TREEMAP_COLORS[i % TREEMAP_COLORS.length], marginRight: 3 }} />
@@ -301,7 +301,7 @@ export default function StageDeconstruction({
               <div style={{ flex: 1, height: 6, background: "var(--border)", borderRadius: 3 }}>
                 <div style={{ width: `${pct}%`, height: "100%", background: type === "Repetitive" ? "#EF4444" : "#3B82F6", borderRadius: 3, transition: "width 0.3s" }} />
               </div>
-              <span style={{ width: 32, fontSize: 10, fontFamily: "var(--ff-mono)", color: "var(--text-muted)", textAlign: "right" }}>{pct}%</span>
+              <span style={{ width: 32, fontSize: 11, fontFamily: "var(--ff-mono)", color: "var(--text-muted)", textAlign: "right" }}>{pct}%</span>
             </div>
           ))}
         </div>
@@ -353,14 +353,14 @@ export default function StageDeconstruction({
             <div key={ei} style={S.dictEntry}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ padding: "2px 8px", fontSize: 10, background: "rgba(139,92,246,0.1)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 4, color: "#8B5CF6", fontWeight: 600 }}>{entry.industry}</span>
+                  <span style={{ padding: "2px 8px", fontSize: 11, background: "rgba(139,92,246,0.1)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 4, color: "#8B5CF6", fontWeight: 600 }}>{entry.industry}</span>
                   <span style={{ fontSize: 11, color: "var(--text-muted)" }}>{entry.tasks.length} tasks</span>
                 </div>
                 <button style={{ ...S.btn, color: "#8B5CF6", borderColor: "rgba(139,92,246,0.3)" }} onClick={() => loadDict(entry)}>Load Tasks</button>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
                 {entry.tasks.map((t, ti) => (
-                  <div key={ti} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 10, color: "var(--text-muted)" }}>
+                  <div key={ti} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: "var(--text-muted)" }}>
                     <span style={S.impactDot(t.impact)} />
                     <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>{t.name}</span>
                     <span style={{ fontFamily: "var(--ff-mono)", flexShrink: 0 }}>{t.pct}%</span>
@@ -439,7 +439,7 @@ export default function StageDeconstruction({
                     <tr key={row["Task ID"] || idx} style={{ borderBottom: "1px solid var(--border)" }}
                       onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.02)")}
                       onMouseLeave={e => (e.currentTarget.style.background = "")}>
-                      <td style={{ ...S.td, fontFamily: "var(--ff-mono)", fontSize: 10, color: "var(--text-muted)" }}>{row["Task ID"]}</td>
+                      <td style={{ ...S.td, fontFamily: "var(--ff-mono)", fontSize: 11, color: "var(--text-muted)" }}>{row["Task ID"]}</td>
                       <td style={S.td}><input style={{ ...S.input, minWidth: 160 }} value={row["Task Name"] || ""} onChange={e => updateCell(idx, "Task Name", e.target.value)} /></td>
                       <td style={S.td}><input style={{ ...S.input, width: 80 }} value={row.Workstream || ""} onChange={e => updateCell(idx, "Workstream", e.target.value)} /></td>
                       <td style={S.td}>

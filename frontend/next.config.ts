@@ -4,11 +4,12 @@ const backendUrl = process.env.BACKEND_URL || "http://localhost:8000";
 
 const nextConfig: NextConfig = {
   env: {
-    NEXT_PUBLIC_CACHE_BUST: Date.now().toString(),
-    NEXT_PUBLIC_BUILD_ID: Date.now().toString(),
+    NEXT_PUBLIC_CACHE_BUST: process.env.VERCEL_GIT_COMMIT_SHA || process.env.RAILWAY_GIT_COMMIT_SHA || Date.now().toString(),
+    NEXT_PUBLIC_BUILD_ID: process.env.VERCEL_GIT_COMMIT_SHA || process.env.RAILWAY_GIT_COMMIT_SHA || Date.now().toString(),
   },
   devIndicators: false,
   typescript: {
+    // TODO: Set to false once all type errors are resolved (Wave 1 audit)
     ignoreBuildErrors: true,
   },
   compiler: {

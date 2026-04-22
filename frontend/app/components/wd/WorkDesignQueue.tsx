@@ -91,10 +91,10 @@ const S = {
   jobRowHover: { background: "rgba(59,130,246,0.03)" } as React.CSSProperties,
   statusIcon: (color: string) => ({ fontSize: 13, color, flexShrink: 0, width: 16, textAlign: "center" as const }) as React.CSSProperties,
   jobTitle: { fontSize: "var(--text-xs)", fontWeight: "var(--fw-medium)", color: "var(--text-primary)", flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const } as React.CSSProperties,
-  trackBadge: { display: "inline-flex", padding: "1px 6px", fontSize: 10, fontWeight: 600, borderRadius: 3, background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text-muted)" } as React.CSSProperties,
-  syncBadge: (color: string) => ({ fontSize: 10, fontWeight: "var(--fw-medium)", color, whiteSpace: "nowrap" as const }) as React.CSSProperties,
-  waveBadge: { fontSize: 10, color: "var(--text-muted)", whiteSpace: "nowrap" as const } as React.CSSProperties,
-  stageBadge: { fontSize: 10, color: "var(--text-muted)", padding: "1px 6px", background: "var(--surface-2)", borderRadius: 3 } as React.CSSProperties,
+  trackBadge: { display: "inline-flex", padding: "1px 6px", fontSize: 11, fontWeight: 600, borderRadius: 3, background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text-muted)" } as React.CSSProperties,
+  syncBadge: (color: string) => ({ fontSize: 11, fontWeight: "var(--fw-medium)", color, whiteSpace: "nowrap" as const }) as React.CSSProperties,
+  waveBadge: { fontSize: 11, color: "var(--text-muted)", whiteSpace: "nowrap" as const } as React.CSSProperties,
+  stageBadge: { fontSize: 11, color: "var(--text-muted)", padding: "1px 6px", background: "var(--surface-2)", borderRadius: 3 } as React.CSSProperties,
   sparkline: { width: 48, height: 14, display: "flex", alignItems: "flex-end", gap: 1 } as React.CSSProperties,
   sparkBar: (pct: number) => ({ width: 4, height: `${Math.max(pct * 100, 5)}%`, background: "#3B82F6", borderRadius: 1, opacity: 0.6 }) as React.CSSProperties,
   miniProgress: { display: "flex", gap: 2, alignItems: "center" } as React.CSSProperties,
@@ -104,7 +104,7 @@ const S = {
   bulkBar: { display: "flex", alignItems: "center", gap: 8, padding: "8px 14px", background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 8, marginBottom: 10, fontSize: "var(--text-xs)" } as React.CSSProperties,
   emptyState: { textAlign: "center" as const, padding: "60px 24px", color: "var(--text-muted)" } as React.CSSProperties,
   quickActions: { display: "flex", gap: 3, opacity: 0, transition: "opacity 0.15s" } as React.CSSProperties,
-  quickBtn: { padding: "2px 6px", fontSize: 10, background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 3, color: "var(--text-muted)", cursor: "pointer" } as React.CSSProperties,
+  quickBtn: { padding: "2px 6px", fontSize: 11, background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 3, color: "var(--text-muted)", cursor: "pointer" } as React.CSSProperties,
 };
 
 /* ═══════════════════════════════════════════════════════════════
@@ -268,7 +268,7 @@ export default function WorkDesignQueue({ projectId, model, onJobSelect }: Props
           <option value="csv">CSV Upload</option>
         </select>
 
-        <button style={{ ...S.btn, marginLeft: "auto", fontSize: 10 }} onClick={expanded.size > 0 ? collapseAll : expandAll}>
+        <button style={{ ...S.btn, marginLeft: "auto", fontSize: 11 }} onClick={expanded.size > 0 ? collapseAll : expandAll}>
           {expanded.size > 0 ? "Collapse All" : "Expand All"}
         </button>
       </div>
@@ -355,7 +355,7 @@ export default function WorkDesignQueue({ projectId, model, onJobSelect }: Props
               {func.in_progress > 0 && <> · <span style={{ color: "#3B82F6" }}>{func.in_progress} in progress</span></>}
               {func.not_started > 0 && <> · {func.not_started} not started</>}
             </span>
-            <button style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", padding: 2, fontSize: 10 }}
+            <button style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", padding: 2, fontSize: 11 }}
               onClick={e => { e.stopPropagation(); selectAllInFunction(func); }}>
               {func.jobs.every(j => selected.has(j.id)) ? <CheckSquare size={13} style={{ color: "#3B82F6" }} /> : <Square size={13} />}
             </button>
@@ -412,7 +412,7 @@ export default function WorkDesignQueue({ projectId, model, onJobSelect }: Props
 
                 {/* Sparkline (hours freed) */}
                 {job.hours_freed > 0 && (
-                  <div style={{ fontSize: 10, fontFamily: "var(--ff-mono)", color: "#22C55E", minWidth: 40, textAlign: "right" }}>
+                  <div style={{ fontSize: 11, fontFamily: "var(--ff-mono)", color: "#22C55E", minWidth: 40, textAlign: "right" }}>
                     {job.hours_freed.toFixed(1)}h
                   </div>
                 )}

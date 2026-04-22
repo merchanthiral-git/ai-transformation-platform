@@ -128,7 +128,7 @@ export function NLQBar({ projectId, modelId, currentModule }: { projectId: strin
         onChange={e => { setQuery(e.target.value); if (!e.target.value) setShowSuggestions(true); }}
         onFocus={() => { setFocused(true); if (!query && !showResults) setShowSuggestions(true); }}
         onBlur={() => setFocused(false)}
-        placeholder="Ask anything about your workforce... e.g. 'Which functions have the highest AI risk?'"
+        placeholder="Ask anything about your workforce (⌘K)... e.g. 'Which functions have the highest AI risk?'"
         className="nlq-placeholder"
         style={{
           width: "100%", height: 48, paddingLeft: 40, paddingRight: 72, borderRadius: 12, fontSize: 13,

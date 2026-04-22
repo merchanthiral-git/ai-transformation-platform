@@ -49,7 +49,7 @@ export const MODULE_HELP: Record<string, { title: string; summary: string; pages
     { heading: "How to use", body: "Review the 6 KPI cards for a quick health check. Drill into any function bar to filter downstream modules. Use the data quality indicator to identify gaps before designing." },
   ]},
   jobs: { title: "Job Architecture", summary: "Explore job families, career tracks, levels, and role clusters across your organization." },
-  jobarch: { title: "Job Architecture", summary: "Enterprise job catalogue, hierarchy framework, career path design, and structural validation — the foundation of organizational design.", pages: [
+  jobarch: { title: "Job Architecture", summary: "Build your job framework, career paths, and org structure.", pages: [
     { heading: "What is Job Architecture?", body: "A structured framework organizing all jobs into a coherent hierarchy: Enterprise → Function → Job Family Group → Job Family → Sub-Family → Job Title → Level. It defines how roles relate, what career paths exist, and how leveling and compensation align across the enterprise." },
     { heading: "Key Components", body: "Job families and sub-families group related roles. Career tracks (IC, Manager, Executive) define progression paths. Career levels define scope, complexity, and autonomy at each band. Job profiles document purpose, responsibilities, skills, and KPIs. Job codes enable HRIS integration and market benchmarking." },
     { heading: "The Hierarchy", body: "Enterprise → Function (Finance, Technology, HR) → Job Family Group (Financial Operations) → Job Family (FP&A, Accounting, Treasury) → Sub-Family (AP, AR, GL) → Job Title (Senior Accountant) → Level (L4). Each layer adds specificity. Most enterprises have 8-15 functions, 40-80 families, and 200-500 unique titles." },
@@ -60,27 +60,27 @@ export const MODULE_HELP: Record<string, { title: string; summary: string; pages
     { heading: "Glossary", body: "Span of Control: number of direct reports per manager. Career Lattice: non-linear career movement (lateral, diagonal, not just up). Dual-Track: parallel IC and Manager paths at senior levels. Broadbanding: combining multiple narrow pay grades into fewer wide bands. Job Evaluation: systematic process to determine relative worth of roles. Market Pricing: setting compensation based on external market data rather than internal equity alone." },
     { heading: "Why It Matters for AI Transformation", body: "AI transformation redesigns roles at the task level — the job architecture determines which roles exist to be redesigned, how they relate to each other, and where career paths need to be rebuilt. Without a clean architecture, you cannot accurately model the impact of automation, plan reskilling pathways, or design the future-state organization. The architecture is the skeleton; AI transformation reshapes the muscles." },
   ]},
-  scan: { title: "AI Opportunity Scan", summary: "Identifies where AI creates the most value by scoring tasks on automation potential, time savings, and complexity." },
-  readiness: { title: "AI Readiness", summary: "Individual and team readiness scores based on skill proficiency, change disposition, and current AI tool adoption." },
-  mgrcap: { title: "Manager Capability", summary: "Assesses manager readiness to lead transformation — identifies champions, at-risk managers, and development needs." },
-  skills: { title: "Skills & Talent", summary: "Skill inventory, gap analysis, and adjacency mapping. Identifies critical gaps and reskilling opportunities." },
-  bbba: { title: "Build/Buy/Borrow/Automate", summary: "Talent sourcing strategy framework — recommends whether to reskill, hire, contract, or automate each redesigned role." },
+  scan: { title: "AI Opportunity Scan", summary: "Find where AI creates the most value across your tasks." },
+  readiness: { title: "AI Readiness", summary: "Score individual and team readiness for AI adoption." },
+  mgrcap: { title: "Manager Capability", summary: "Identify which managers can lead transformation and who needs support." },
+  skills: { title: "Skills & Talent", summary: "Map skill gaps and find reskilling opportunities." },
+  bbba: { title: "Build/Buy/Borrow/Automate", summary: "Decide whether to reskill, hire, contract, or automate each role." },
   headcount: { title: "Headcount Planning", summary: "Current-to-future workforce waterfall showing net FTE impact of AI transformation." },
-  design: { title: "Work Design Lab", summary: "Redesign jobs task-by-task. Deconstruct roles into tasks, apply AI impact scores, reconstruct new role profiles.", pages: [
+  design: { title: "Work Design Lab", summary: "Break roles into tasks, score AI impact, rebuild smarter.", pages: [
     { heading: "Step 1: Context", body: "Select a job from the sidebar. Review the job description, incumbent count, and current task portfolio." },
     { heading: "Step 2: Deconstruct", body: "Break the role into its component tasks. Each task gets scored on type (repetitive/variable), logic (deterministic/probabilistic/judgment), and AI impact." },
     { heading: "Step 3: Reconstruct", body: "Apply an AI scenario (Conservative/Moderate/Aggressive) to see how tasks redistribute. The reconstructed role shows new time allocation." },
     { heading: "Step 4: Redeployment", body: "Freed capacity from AI automation flows into redeployment options — higher-value work, new roles, or cross-functional assignments." },
   ]},
-  simulate: { title: "Impact Simulator", summary: "Model scenarios, costs, and redeployment outcomes. Compare conservative vs. aggressive AI adoption paths." },
-  build: { title: "Org Design Studio", summary: "Reshape spans, layers, and org structure. Visualize reporting lines and identify structural inefficiencies." },
+  simulate: { title: "Impact Simulator", summary: "Model scenarios and compare AI adoption paths side by side." },
+  build: { title: "Org Design Studio", summary: "Reshape spans, layers, and reporting lines visually." },
   reskill: { title: "Reskilling Pathways", summary: "Per-employee learning plans with timelines, investment estimates, and skill gap closure tracking." },
   marketplace: { title: "Talent Marketplace", summary: "Match internal candidates to redesigned roles based on skill adjacency and readiness scores." },
   changeready: { title: "Change Readiness", summary: "4-quadrant workforce segmentation — maps willingness vs. ability to adopt AI-driven changes." },
   mgrdev: { title: "Manager Development", summary: "Targeted development plans for people managers based on their capability assessment results." },
   plan: { title: "Change Planner", summary: "Sequence transformation initiatives into waves. Manage dependencies, risks, and milestone tracking." },
   export: { title: "Export & Report", summary: "Generate board-ready .docx transformation report with all findings, data, and recommendations." },
-  opmodel: { title: "Operating Model Lab", summary: "Explore and design operating model architectures across functions, archetypes, and governance patterns.", pages: [
+  opmodel: { title: "Operating Model Lab", summary: "Design your operating model architecture and governance.", pages: [
     { heading: "Function & Archetype", body: "Select a function (Finance, Technology, HR, etc.) and an archetype (Functional, Divisional, Matrix, Platform, Network) to generate a capability blueprint." },
     { heading: "Company Sandbox", body: "Click a company name (Toyota, Netflix, etc.) to seed full organizational data that flows through all platform tabs. The backend generates employees, tasks, skills, and operating model data." },
     { heading: "Blueprint Tab", body: "Shows the 5-layer architecture: Governance → Core → Shared → Enabling → Interface. Each capability auto-classifies into an AI service tier." },
@@ -119,9 +119,9 @@ export const MODULE_HELP: Record<string, { title: string; summary: string; pages
     { heading: "Tone options", body: "Choose between Board Presentation (formal, data-heavy, ROI-focused), All-Hands (motivational, employee-centric, change-positive), or Investor Update (strategic, market-positioning, growth-oriented). Each tone reshapes the same data into different storytelling frameworks." },
     { heading: "How to use", body: "Select a tone, click Generate, then review and edit the output. Export as text for inclusion in slide decks or documents. Regenerate with a different tone for different audiences." },
   ]},
-  archetypes: { title: "Readiness Archetypes", summary: "Segments the workforce into behavioral profiles with tailored engagement strategies — from Early Adopters to Active Resistors.", pages: [
-    { heading: "The four archetypes", body: "Early Adopters (high readiness, embrace change), Pragmatic Majority (willing but need evidence), Skeptics (resistant but persuadable with data), Active Resistors (need intensive, personalized intervention). Each group requires a fundamentally different approach." },
-    { heading: "Engagement strategies", body: "Early Adopters become Champions — deploy them to lead pilots. Pragmatics need proof points and peer testimonials. Skeptics respond to data, transparency, and small wins. Resistors need one-on-one coaching and gradual exposure." },
+  archetypes: { title: "Readiness Archetypes", summary: "Segments the workforce into behavioral profiles with tailored engagement strategies — from Early Adopters to Support-First Adopters.", pages: [
+    { heading: "The four archetypes", body: "Early Adopters (high readiness, embrace change), Pragmatic Majority (willing but need evidence), Skeptics (resistant but persuadable with data), Support-First Adopters (need intensive, personalized support). Each group requires a fundamentally different approach." },
+    { heading: "Engagement strategies", body: "Early Adopters become Champions — deploy them to lead pilots. Pragmatics need proof points and peer testimonials. Skeptics respond to data, transparency, and small wins. Support-First Adopters need one-on-one coaching and gradual exposure." },
     { heading: "How to use", body: "Review the distribution of your workforce across archetypes. Use the engagement playbooks to design communication and change management plans targeted to each group. Cross-reference with Change Readiness quadrants for a complete picture." },
   ]},
   skillshift: { title: "Skill Shift Index", summary: "Tracks how skill demand is changing across the organization as AI transformation progresses — shows which skills are growing, declining, or emerging.", pages: [

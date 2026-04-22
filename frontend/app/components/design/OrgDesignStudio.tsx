@@ -117,6 +117,9 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
   // Span Detail state (must be at top level — not inside conditional IIFE)
   const [expandedDept, setExpandedDept] = useState<string | null>(null);
 
+  // Phase 1 Elevation: Analyze sub-tab state
+  const [analyzeSubTab, setAnalyzeSubTab] = useState<string>("soc");
+
   // Upgrade 1: What-If Simulator state
   const [simTargetSpan, setSimTargetSpan] = useState(7);
   const [simMaxLayers, setSimMaxLayers] = useState(5);
@@ -132,19 +135,8 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
   const [customMgrRatioCap, setCustomMgrRatioCap] = useState(12);
   const [customLabel, setCustomLabel] = useState<string | null>(null);
 
-  // Upgrade 3: Insights slideshow state
-  const [insightSlide, setInsightSlide] = useState(0);
-
-  // Keyboard navigation for insights slideshow
-  useEffect(() => {
-    if (view !== "insights") return;
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); setInsightSlide(prev => prev + 1); }
-      if (e.key === "ArrowLeft") { e.preventDefault(); setInsightSlide(prev => Math.max(0, prev - 1)); }
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [view]);
+  // Upgrade 3: Insights filter state
+  const [insightFilter, setInsightFilter] = useState<string>("all");
 
   const DChip = ({ a, b, inv }: { a: number; b: number; inv?: boolean }) => {
     const diff = b - a; const pos = inv ? diff < 0 : diff > 0; const neg = inv ? diff > 0 : diff < 0;
@@ -155,13 +147,25 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
 
   const HBar = ({ value, max, color }: { value: number; max: number; color: string }) => <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: `${color}12` }}><div className="h-full rounded-full transition-all" style={{ width: `${Math.min((value / max) * 100, 100)}%`, background: color }} /></div>;
 
+  // Phase 2 Elevation: Reusable KPI card
+  const OdsKpiCard = ({ label, value, delta, deltaColor, sub }: { label: string; value: string | number; delta?: string; deltaColor?: string; sub?: string }) => (
+    <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: 14, minWidth: 0, flex: '1 1 160px', maxWidth: 200 }}>
+      <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'rgba(28,43,58,0.55)', marginBottom: 6 }}>{label}</div>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+        <span style={{ fontSize: 22, fontWeight: 500, color: '#1C2B3A', lineHeight: 1.1 }}>{value}</span>
+        {delta && <span style={{ fontSize: 12, fontWeight: 500, color: deltaColor || 'rgba(28,43,58,0.55)' }}>{delta}</span>}
+      </div>
+      {sub && <div style={{ fontSize: 11, color: 'rgba(28,43,58,0.55)', marginTop: 4 }}>{sub}</div>}
+    </div>
+  );
+
   const OdsKpi = ({ label, current, future, inv }: { label: string; current: number; future: number; inv?: boolean }) => (
     <div className="bg-[var(--surface-2)] rounded-xl p-4 border border-[var(--border)]">
       <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">{label}</div>
       <div className="flex items-baseline gap-3">
         <div><div className="text-[15px] text-[var(--text-muted)]">Current</div><div className="text-xl font-extrabold text-[var(--accent-primary)]">{fmt(current)}</div></div>
         <span className="text-[var(--text-muted)]">→</span>
-        <div><div className="text-[15px] text-[var(--text-muted)]">Scenario</div><div className="text-xl font-extrabold text-[var(--success)]">{fmt(future)}</div></div>
+        <div><div className="text-[15px] text-[var(--text-muted)]">Proposed</div><div className="text-xl font-extrabold text-[var(--success)]">{fmt(future)}</div></div>
       </div>
       <div className="mt-1"><DChip a={current} b={future} inv={inv} /></div>
     </div>
@@ -211,10 +215,23 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
     <InsightPanel title="What This Means" items={["Your org chart shows your reporting line, peers at your level, and any direct reports.", "During transformation, your reporting line may change as layers are adjusted.", "Use the Organization View to see how the full structure is being redesigned."]} icon={<Network />} />
   </div>;
 
-  return <div>
-    <ContextStrip items={["Phase 2: Design — Model your future org structure. Data is generated for modeling — upload workforce data to ground in reality."]} />
-    <PageHeader icon={<Network />} title="Org Design Studio" subtitle="Current → Future State Modeling · Multi-Scenario Engine" onBack={onBack} moduleId="build" />
-    {hasRealData ? <div className="bg-[rgba(16,185,129,0.08)] border border-[var(--success)]/30 rounded-lg px-4 py-2 mb-4 text-[15px] text-[var(--success)]">✓ Using your uploaded workforce data to model departments</div> : <div className="bg-[rgba(245,158,11,0.08)] border border-[var(--warning)]/30 rounded-lg px-4 py-2 mb-4 text-[15px] text-[var(--warning)]">Using generated sample data — upload workforce data for your real org structure</div>}
+  return <div style={{ background: 'var(--ivory, #F7F5F0)', margin: '-24px -24px 0', padding: '24px 24px 0', minHeight: '100vh' }}>
+    <ContextStrip items={["You're designing your future org. This is sample data — upload your own to make it real."]} />
+    {/* Module header — elevated consulting style */}
+    <div className="mb-6">
+      <button onClick={onBack} title="Go back (Escape)" className="text-[13px] hover:text-[var(--accent-primary)] mb-3 flex items-center gap-1 transition-colors" style={{ color: 'var(--navy-55, rgba(28,43,58,0.55))' }}>← Back</button>
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <h1 style={{ fontSize: 20, fontWeight: 500, color: 'var(--navy, #1C2B3A)', letterSpacing: '-0.01em', margin: 0, lineHeight: 1.3 }} className="font-heading">Org Design Studio</h1>
+          <p style={{ fontSize: 13, color: 'var(--navy-65, rgba(28,43,58,0.65))', margin: '2px 0 0' }}>Current → Future State Modeling · Multi-Scenario Engine</p>
+        </div>
+        <div className="flex items-center gap-2">
+          {/* Data freshness indicator */}
+          <span style={{ fontSize: 11, color: 'rgba(28,43,58,0.55)', fontStyle: 'italic' }}>Data as of: {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+        </div>
+      </div>
+    </div>
+    {hasRealData ? <div className="bg-[rgba(16,185,129,0.08)] border border-[var(--success)]/30 rounded-lg px-4 py-2 mb-4 text-[15px] text-[var(--success)]">✓ Using your uploaded workforce data to model departments</div> : <div className="bg-[rgba(245,158,11,0.08)] border border-[var(--warning)]/30 rounded-lg px-4 py-2 mb-4 text-[15px] text-[var(--warning)]" style={{ display: 'flex', alignItems: 'center', gap: 10 }}><span style={{ background: 'rgba(245,158,11,0.15)', borderRadius: 4, padding: '2px 8px', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' as const }}>SAMPLE DATA</span><span>Upload your workforce data for real analysis — current charts use generated sample data</span></div>}
 
     {/* Scenario selector — dropdown with Customize button */}
     <div className="flex gap-3 mb-4 items-center">
@@ -283,11 +300,30 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
         </div>
       );
 
+      const drawerRef = React.createRef<HTMLDivElement>();
+      const handleDrawerKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === "Escape") { setDrawerOpen(false); return; }
+        if (e.key !== "Tab") return;
+        const container = drawerRef.current;
+        if (!container) return;
+        const focusable = container.querySelectorAll<HTMLElement>(
+          'input, button, [tabindex]:not([tabindex="-1"]), select, textarea, a[href]'
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey) {
+          if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+        } else {
+          if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+        }
+      };
+
       return <>
         {/* Backdrop */}
         <div className="fixed inset-0 bg-black/40 z-40 transition-opacity duration-300" onClick={() => setDrawerOpen(false)} />
         {/* Drawer */}
-        <div className="fixed top-0 right-0 h-full w-[400px] z-50 bg-[#0f172a] border-l border-[var(--border)] shadow-2xl overflow-y-auto transition-transform duration-300" style={{ boxShadow: "0 0 60px rgba(0,0,0,0.5)" }}>
+        <div ref={drawerRef} onKeyDown={handleDrawerKeyDown} role="dialog" aria-label="Scenario Builder" className="fixed top-0 right-0 h-full w-[400px] z-50 bg-[#0f172a] border-l border-[var(--border)] shadow-2xl overflow-y-auto transition-transform duration-300" style={{ boxShadow: "0 0 60px rgba(0,0,0,0.5)" }}>
           <div className="p-6">
             {/* Header */}
             <div className="flex items-center justify-between mb-2">
@@ -295,7 +331,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
                 <div className="text-[18px] font-bold text-[var(--text-primary)]">Scenario Builder</div>
                 <div className="text-[13px] text-[var(--text-muted)]">Presets are starting points — customize every lever to build your scenario</div>
               </div>
-              <button onClick={() => setDrawerOpen(false)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-xl font-bold px-2">×</button>
+              <button onClick={() => setDrawerOpen(false)} aria-label="Close scenario builder" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-xl font-bold px-2">×</button>
             </div>
 
             {/* UX Guidance */}
@@ -391,15 +427,41 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       </>;
     })()}
 
-    {/* View tabs */}
-    <TabBar tabs={[{ id: "overview", label: "Overview" }, { id: "soc", label: "Span Detail" }, { id: "layers", label: "Layers" }, { id: "cost", label: "Cost Model" }, { id: "roles", label: "Role Migration" }, { id: "drill", label: "Dept Drill-Down" }, { id: "compare", label: "Compare All" }, { id: "insights", label: "Insights" }, { id: "benchmarks", label: "Benchmarks" }]} active={view} onChange={setView} />
+    {/* Primary tabs — 5-tab consolidated navigation */}
+    <div style={{ display: 'flex', gap: 24, borderBottom: '1px solid var(--navy-12, rgba(28,43,58,0.12))', marginBottom: 0, paddingBottom: 0 }} className="tab-scroll">
+      {[{ id: "current", label: "Current State" }, { id: "design", label: "Design" }, { id: "analyze", label: "Analyze" }, { id: "compare", label: "Compare" }, { id: "present", label: "Present" }].map(t => (
+        <button key={t.id} onClick={() => setView(t.id)} style={{
+          fontSize: 13, fontWeight: 500, padding: '10px 0 10px', background: 'none', border: 'none',
+          borderBottom: view === t.id ? '2px solid var(--navy, #1C2B3A)' : '2px solid transparent',
+          color: view === t.id ? 'var(--navy, #1C2B3A)' : 'var(--navy-65, rgba(28,43,58,0.65))',
+          cursor: 'pointer', whiteSpace: 'nowrap', transition: 'color 0.15s, border-color 0.15s',
+          marginBottom: -1,
+        }} className="btn-press">{t.label}</button>
+      ))}
+    </div>
+    {/* Analyze sub-tabs — only visible when Analyze is active */}
+    {view === "analyze" && (
+      <div style={{ display: 'flex', gap: 20, borderBottom: '1px solid var(--navy-08, rgba(28,43,58,0.08))', paddingTop: 8, marginBottom: 16 }} className="tab-scroll">
+        {[{ id: "soc", label: "Span & Layers" }, { id: "cost", label: "Cost" }, { id: "roles", label: "Role Migration" }, { id: "insights", label: "People Impact" }, { id: "benchmarks", label: "Benchmarks" }].map(t => (
+          <button key={t.id} onClick={() => setAnalyzeSubTab(t.id)} style={{
+            fontSize: 12, fontWeight: 500, padding: '6px 0 8px', background: 'none', border: 'none',
+            borderBottom: analyzeSubTab === t.id ? '2px solid var(--navy, #1C2B3A)' : '2px solid transparent',
+            color: analyzeSubTab === t.id ? 'var(--navy, #1C2B3A)' : 'var(--navy-55, rgba(28,43,58,0.55))',
+            cursor: 'pointer', whiteSpace: 'nowrap', transition: 'color 0.15s, border-color 0.15s',
+            marginBottom: -1,
+          }} className="btn-press">{t.label}</button>
+        ))}
+      </div>
+    )}
+    {view !== "analyze" && <div style={{ marginBottom: 16 }} />}
 
     {aiOdsInsights.length > 0 && <div className="bg-gradient-to-r from-[rgba(224,144,64,0.06)] to-transparent border border-[rgba(224,144,64,0.15)] rounded-xl p-4 mb-4">
       <div className="flex items-center gap-2 mb-2 text-[15px] font-bold" style={{ color: "#f0a050" }}>✨ AI Restructuring Recommendations</div>
       <div className="space-y-1.5">{aiOdsInsights.map((ins, i) => <div key={i} className="text-[15px] text-[var(--text-secondary)] pl-4 relative"><span className="absolute left-0 text-[#f0a050] font-bold">{i+1}.</span>{ins}</div>)}</div>
+      <div style={{ marginTop: 10, fontSize: 11, color: 'rgba(28,43,58,0.55)', fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ fontSize: 13 }}>ⓘ</span> These recommendations were generated by AI and should be validated by a domain expert.</div>
     </div>}
 
-    {view === "overview" && (() => {
+    {view === "current" && (() => {
       const OV_MONO = "'JetBrains Mono', 'IBM Plex Mono', monospace";
       const spanHealth = (s: number) => s >= 6 && s <= 8 ? { label: "Optimal", color: "#10B981", badge: "✓" } : s >= 5 && s <= 10 ? { label: s < 6 ? "Narrow" : "Wide", color: "#F59E0B", badge: "◈" } : { label: s < 5 ? "Critically narrow" : "Critically wide", color: "#EF4444", badge: "⚠" };
       const spanImproving = (cur: number, fut: number) => Math.abs(fut - 7) < Math.abs(cur - 7);
@@ -407,7 +469,8 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       const deptImprovements = currentData.filter((d, i) => spanImproving(d.avgSpan, sc.departments[i]?.avgSpan || d.avgSpan)).length;
       const layerDelta = cA.avgL - fA.avgL;
       const spanDelta = fA.avgS - cA.avgS;
-      const impactScore = Math.max(0, Math.min(100, Math.round(deptImprovements / Math.max(currentData.length, 1) * 40 + (layerDelta > 0 ? layerDelta * 15 : 0) + (spanDelta > 0 && cA.avgS < 6 ? spanDelta * 10 : 0) + 30)));
+      const costEfficiency = cA.cost > 0 ? Math.min(Math.abs(fA.cost - cA.cost) / cA.cost * 100, 20) : 0;
+      const impactScore = Math.max(0, Math.min(100, Math.round(deptImprovements / Math.max(currentData.length, 1) * 40 + (layerDelta > 0 ? layerDelta * 20 : 0) + (spanDelta > 0 && cA.avgS < 6 ? spanDelta * 20 : 0) + costEfficiency)));
       const impactColor = impactScore >= 70 ? "#10B981" : impactScore >= 40 ? "#F59E0B" : "#EF4444";
       // Sorted departments by health (worst first)
       const sortedDepts = currentData.map((d, i) => ({ ...d, idx: i, fut: sc.departments[i], health: spanHealth(d.avgSpan), futHealth: spanHealth(sc.departments[i]?.avgSpan || d.avgSpan), improving: spanImproving(d.avgSpan, sc.departments[i]?.avgSpan || d.avgSpan) })).sort((a, b) => { const aD = Math.abs(a.avgSpan - 7); const bD = Math.abs(b.avgSpan - 7); return bD - aD; });
@@ -423,154 +486,170 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       const maxSpan = Math.max(...currentData.map(d => d.avgSpan), ...sc.departments.map(d => d.avgSpan), 12) * 1.1;
 
       return <div>
-        {/* KPI strip with impact score */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 12, marginBottom: 20 }}>
-          {[
-            { label: "Total Headcount", current: cA.hc, future: fA.hc, inv: true },
-            { label: "Avg Span", current: cA.avgS, future: fA.avgS, inv: false },
-            { label: "Avg Layers", current: cA.avgL, future: fA.avgL, inv: true },
-            { label: "Managers", current: cA.mgr, future: fA.mgr, inv: true },
-            { label: "ICs", current: cA.ic, future: fA.ic, inv: false },
-            { label: "Est. Cost ($M)", current: cA.cost / 1e6, future: fA.cost / 1e6, inv: true },
-          ].map(k => {
-            const diff = k.future - k.current;
-            const isImproving = k.inv ? diff < 0 : diff > 0;
-            const isSignificant = Math.abs(diff) / Math.max(Math.abs(k.current), 1) > 0.05;
-            return <div key={k.label} style={{ background: "rgba(255,255,255,0.04)", borderRadius: 12, padding: 16, border: "1px solid rgba(255,255,255,0.08)", borderLeft: isSignificant ? `3px solid ${isImproving ? "#10B981" : "#F97316"}` : "1px solid rgba(255,255,255,0.08)" }}>
-              <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.08em", color: "#64748b", marginBottom: 8 }}>{k.label}</div>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-                <span style={{ fontSize: 13, fontFamily: OV_MONO, fontWeight: 700, color: "#64748b" }}>{fmt(k.current)}</span>
-                <span style={{ fontSize: 11, color: "#475569" }}>→</span>
-                <span style={{ fontSize: 20, fontFamily: OV_MONO, fontWeight: 700, color: "var(--text-primary)" }}>{fmt(k.future)}</span>
-              </div>
-              {diff !== 0 && <span style={{ display: "inline-flex", alignItems: "center", gap: 3, marginTop: 6, padding: "2px 8px", borderRadius: 6, fontSize: 12, fontFamily: OV_MONO, fontWeight: 700, background: isImproving ? "rgba(16,185,129,0.1)" : "rgba(249,115,22,0.1)", color: isImproving ? "#10B981" : "#F97316" }}>{diff > 0 ? "↑" : "↓"}{fmt(Math.abs(diff))}</span>}
-            </div>;
-          })}
-          {/* Impact Score card */}
-          <div style={{ background: `${impactColor}08`, borderRadius: 12, padding: 16, border: `1px solid ${impactColor}25`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-            <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.08em", color: "#64748b", marginBottom: 4 }}>Impact Score</div>
-            <div style={{ fontSize: 32, fontFamily: OV_MONO, fontWeight: 700, color: impactColor }}>{impactScore}</div>
-            <div style={{ fontSize: 9, color: impactColor, fontWeight: 600 }}>{impactScore >= 70 ? "Strong improvement" : impactScore >= 40 ? "Moderate change" : "Minimal impact"}</div>
-          </div>
+        {/* KPI strip — elevated white cards */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 20 }}>
+          {(() => {
+            const kpis: { label: string; value: string; delta?: string; deltaColor?: string; sub?: string }[] = [
+              { label: 'Total Headcount', value: fmt(fA.hc), delta: fA.hc !== cA.hc ? `${fA.hc > cA.hc ? '+' : ''}${fA.hc - cA.hc}` : undefined, deltaColor: fA.hc < cA.hc ? '#16A34A' : fA.hc > cA.hc ? '#DC2626' : undefined, sub: `Current: ${fmt(cA.hc)}` },
+              { label: 'Avg Span', value: fmt(fA.avgS), delta: fA.avgS !== cA.avgS ? `${fA.avgS > cA.avgS ? '+' : ''}${fmt(fA.avgS - cA.avgS)}` : undefined, deltaColor: fA.avgS > cA.avgS && cA.avgS < 6 ? '#16A34A' : fA.avgS < cA.avgS ? '#DC2626' : '#F59E0B', sub: `Current: ${fmt(cA.avgS)}` },
+              { label: 'Avg Layers', value: fmt(fA.avgL), delta: fA.avgL !== cA.avgL ? `${fA.avgL > cA.avgL ? '+' : ''}${fmt(fA.avgL - cA.avgL)}` : undefined, deltaColor: fA.avgL < cA.avgL ? '#16A34A' : fA.avgL > cA.avgL ? '#DC2626' : '#F59E0B', sub: `Current: ${fmt(cA.avgL)}` },
+              { label: 'Managers', value: fmt(fA.mgr), delta: fA.mgr !== cA.mgr ? `${fA.mgr > cA.mgr ? '+' : ''}${fA.mgr - cA.mgr}` : undefined, deltaColor: fA.mgr < cA.mgr ? '#16A34A' : fA.mgr > cA.mgr ? '#DC2626' : '#F59E0B', sub: `Current: ${fmt(cA.mgr)}` },
+              { label: 'ICs', value: fmt(fA.ic), delta: fA.ic !== cA.ic ? `${fA.ic > cA.ic ? '+' : ''}${fA.ic - cA.ic}` : undefined, deltaColor: fA.ic > cA.ic ? '#16A34A' : fA.ic < cA.ic ? '#DC2626' : '#F59E0B', sub: `Current: ${fmt(cA.ic)}` },
+              { label: 'Est. Cost ($M)', value: `$${fmt(fA.cost / 1e6)}`, delta: Math.abs(fA.cost - cA.cost) > cA.cost * 0.01 ? `${fA.cost > cA.cost ? '+' : ''}$${fmt(Math.abs(fA.cost - cA.cost) / 1e6)}` : undefined, deltaColor: fA.cost < cA.cost ? '#16A34A' : fA.cost > cA.cost ? '#DC2626' : '#F59E0B', sub: `Current: $${fmt(cA.cost / 1e6)}` },
+              { label: 'Impact Score', value: `${impactScore}`, delta: impactScore >= 70 ? 'Strong' : impactScore >= 40 ? 'Moderate' : 'Minimal', deltaColor: impactColor, sub: `${deptImprovements}/${currentData.length} depts improving` },
+            ];
+            return kpis.map(k => <OdsKpiCard key={k.label} {...k} />);
+          })()}
         </div>
 
-        {/* HeroMetric — Impact Score from scenario delta */}
+        {/* Impact Score — featured full-width white card */}
         {(() => {
           const baseAgg = odsAgg(currentData);
           const scnAgg = odsAgg(sc?.departments || currentData);
           const delta = computeScenarioDelta(baseAgg as unknown as Record<string, number>, scnAgg as unknown as Record<string, number>);
           const heroImpactScore = computeImpactScore(delta);
-          return <div className="mb-4">
-            <HeroMetric
-              label="Impact Score"
-              value={`${heroImpactScore}`}
-              delta={heroImpactScore > 60 ? "Significant change" : heroImpactScore > 30 ? "Moderate change" : "Minimal change"}
-              status={heroImpactScore > 60 ? "risk" : heroImpactScore > 30 ? "warn" : "success"}
-              sources={[{ label: `${sc?.label || "Optimized"} scenario` }]}
-            />
+          const goalAlignItems = [
+            { label: 'Span benchmark', met: fA.avgS >= 6 && fA.avgS <= 8 },
+            { label: 'Layer reduction', met: fA.avgL < cA.avgL },
+            { label: 'Cost efficiency', met: fA.cost <= cA.cost },
+            { label: 'Manager ratio', met: fA.mgr / Math.max(fA.hc, 1) < 0.12 },
+          ];
+          const goalsMet = goalAlignItems.filter(g => g.met).length;
+          return <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: 20, marginBottom: 16, display: 'flex', gap: 24, alignItems: 'flex-start' }}>
+            {/* Left: numeric score + gauge */}
+            <div style={{ width: 240, flexShrink: 0 }}>
+              <div style={{ fontSize: 36, fontWeight: 500, color: '#1C2B3A', lineHeight: 1.1, marginBottom: 2 }}>{heroImpactScore}</div>
+              <div style={{ fontSize: 11, color: 'rgba(28,43,58,0.55)', marginBottom: 10, fontWeight: 500 }}>Change Magnitude</div>
+              {/* Horizontal gauge */}
+              <div style={{ position: 'relative', height: 6, borderRadius: 3, background: 'rgba(28,43,58,0.08)', overflow: 'hidden' }}>
+                <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, borderRadius: 3, width: `${Math.min(heroImpactScore, 100)}%`, background: impactColor, transition: 'width 0.4s ease-out' }} />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'rgba(28,43,58,0.65)', marginTop: 3 }}>
+                <span>0</span><span>50</span><span>100</span>
+              </div>
+            </div>
+            {/* Middle: narrative */}
+            <div style={{ flex: 1, fontSize: 13, color: 'rgba(28,43,58,0.65)', lineHeight: 1.7 }}>
+              The <span style={{ fontWeight: 500, color: '#1C2B3A' }}>{sc.label}</span> scenario changes headcount from <span style={{ fontWeight: 500, color: '#1C2B3A' }}>{cA.hc.toLocaleString()}</span> to <span style={{ fontWeight: 500, color: '#1C2B3A' }}>{fA.hc.toLocaleString()}</span>{' '}
+              ({fA.hc - cA.hc >= 0 ? '+' : ''}{fA.hc - cA.hc}), {fA.avgL < cA.avgL ? <span>reduces average layers from <span style={{ fontWeight: 500 }}>{fmt(cA.avgL)}</span> to <span style={{ fontWeight: 500 }}>{fmt(fA.avgL)}</span></span> : <span>maintains layers at <span style={{ fontWeight: 500 }}>{fmt(fA.avgL)}</span></span>},{' '}
+              and {fA.avgS > cA.avgS ? <span>widens average span from <span style={{ fontWeight: 500 }}>{fmt(cA.avgS)}</span> to <span style={{ fontWeight: 500 }}>{fmt(fA.avgS)}</span></span> : <span>adjusts span to <span style={{ fontWeight: 500 }}>{fmt(fA.avgS)}</span></span>}.{' '}
+              <span style={{ fontWeight: 500, color: '#1C2B3A' }}>{deptImprovements}/{currentData.length}</span> departments move closer to the 6-8:1 benchmark.
+              {' '}Total cost {Math.abs(fA.cost - cA.cost) < cA.cost * 0.01 ? 'remains neutral' : fA.cost < cA.cost ? <span style={{ color: '#16A34A' }}>decreases by {fmtNum(cA.cost - fA.cost)}</span> : <span style={{ color: '#DC2626' }}>increases by {fmtNum(fA.cost - cA.cost)}</span>} at <span style={{ fontWeight: 500 }}>{fmtNum(fA.cost)}</span>.
+            </div>
+            {/* Right: goal alignment */}
+            <div style={{ width: 200, flexShrink: 0 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'rgba(28,43,58,0.55)', marginBottom: 8 }}>Goal Alignment</div>
+              <div style={{ fontSize: 13, fontWeight: 500, color: '#1C2B3A', marginBottom: 8 }}>{goalsMet}/{goalAlignItems.length} met</div>
+              {goalAlignItems.map(g => (
+                <div key={g.label} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: g.met ? '#16A34A' : 'rgba(28,43,58,0.65)', marginBottom: 4 }}>
+                  <span style={{ width: 14, height: 14, borderRadius: 7, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 600, background: g.met ? 'rgba(22,163,74,0.1)' : 'rgba(28,43,58,0.06)', color: g.met ? '#16A34A' : 'rgba(28,43,58,0.55)' }}>{g.met ? '\u2713' : '\u2013'}</span>
+                  {g.label}
+                </div>
+              ))}
+            </div>
           </div>;
         })()}
 
-        {/* Scenario Impact Summary */}
-        <div style={{ padding: "16px 20px", marginBottom: 16, background: "rgba(59,130,246,0.04)", borderLeft: "3px solid #3B82F6", borderRadius: 12, border: "1px solid rgba(59,130,246,0.1)", fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.7 }}>
-          The <strong style={{ color: "var(--text-primary)" }}>{sc.label}</strong> scenario changes headcount from <span style={{ fontFamily: OV_MONO, fontWeight: 700, color: "var(--text-primary)" }}>{cA.hc.toLocaleString()}</span> → <span style={{ fontFamily: OV_MONO, fontWeight: 700, color: "var(--text-primary)" }}>{fA.hc.toLocaleString()}</span>{" "}
-          ({fA.hc - cA.hc >= 0 ? "+" : ""}{fA.hc - cA.hc}), {fA.avgL < cA.avgL ? <span style={{ color: "#10B981" }}>reduces average layers from {fmt(cA.avgL)} → {fmt(fA.avgL)} (-{fmt(cA.avgL - fA.avgL)})</span> : <span>maintains layers at {fmt(fA.avgL)}</span>},{" "}
-          and {fA.avgS > cA.avgS ? <span style={{ color: "#10B981" }}>widens average span from {fmt(cA.avgS)} → {fmt(fA.avgS)} (+{fmt(fA.avgS - cA.avgS)})</span> : <span>adjusts span to {fmt(fA.avgS)}</span>}.{" "}
-          <span style={{ fontFamily: OV_MONO, fontWeight: 700, color: "#10B981" }}>{deptImprovements}/{currentData.length}</span> departments move closer to the 6-8:1 benchmark.
-          {" "}Total cost {Math.abs(fA.cost - cA.cost) < cA.cost * 0.01 ? "remains neutral" : fA.cost < cA.cost ? <span style={{ color: "#10B981" }}>decreases by {fmtNum(cA.cost - fA.cost)}</span> : <span style={{ color: "#F97316" }}>increases by {fmtNum(fA.cost - cA.cost)}</span>} at <span style={{ fontFamily: OV_MONO, fontWeight: 700 }}>{fmtNum(fA.cost)}</span>.
+        {/* Span of Control by Department — diverging dot plot */}
+        <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: 20 }}>
+          <div style={{ fontSize: 14, fontWeight: 500, color: '#1C2B3A', marginBottom: 2 }}>Span of Control by Department</div>
+          <div style={{ fontSize: 11, fontWeight: 400, color: 'rgba(28,43,58,0.65)', marginBottom: 4 }}>Current vs. {sc.label} scenario</div>
+          {(() => { const widest = sortedDepts.reduce((best, d) => { const delta = Math.abs((d.fut?.avgSpan || d.avgSpan) - d.avgSpan); return delta > best.delta ? { name: d.name, cur: d.avgSpan, fut: d.fut?.avgSpan || d.avgSpan, delta } : best; }, { name: '', cur: 0, fut: 0, delta: 0 }); return widest.delta > 0.05 ? <div style={{ fontSize: 12, fontStyle: 'italic', color: 'rgba(28,43,58,0.65)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ fontSize: 14 }}>&#x1F4A1;</span> Key insight: {widest.name} sees the largest span shift ({widest.cur.toFixed(1)} &rarr; {widest.fut.toFixed(1)})</div> : null; })()}
+          {/* X-axis header */}
+          <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr 60px', gap: 8, padding: '0 0 6px', borderBottom: '0.5px solid rgba(28,43,58,0.15)' }}>
+            <div style={{ fontSize: 11, fontWeight: 500, color: 'rgba(28,43,58,0.65)' }}>Department</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 400, color: 'rgba(28,43,58,0.55)' }}>
+              {[2, 4, 6, 8, 10, 12, 14].map(v => <span key={v}>{v}</span>)}
+            </div>
+            <div style={{ fontSize: 11, fontWeight: 500, color: 'rgba(28,43,58,0.65)', textAlign: 'right' }}>Delta</div>
+          </div>
+          {sortedDepts.map(d => {
+            const f = d.fut;
+            const curSpan = d.avgSpan;
+            const futSpan = f?.avgSpan || curSpan;
+            const delta = futSpan - curSpan;
+            const deltaColor = Math.abs(delta) < 0.05 ? 'rgba(28,43,58,0.65)' : d.improving ? '#16A34A' : '#DC2626';
+            const scaleMax = 15;
+            return <div key={d.name} style={{ display: 'grid', gridTemplateColumns: '120px 1fr 60px', alignItems: 'center', gap: 8, padding: '8px 0', borderBottom: '0.5px dashed rgba(28,43,58,0.08)' }}>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 500, color: '#1C2B3A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.name}</div>
+                <div style={{ fontSize: 11, fontWeight: 400, color: 'rgba(28,43,58,0.55)' }}>{d.headcount} HC</div>
+              </div>
+              <div style={{ position: 'relative', height: 24 }}>
+                {/* Benchmark band */}
+                <div style={{ position: 'absolute', left: `${(6 / scaleMax) * 100}%`, width: `${((8 - 6) / scaleMax) * 100}%`, top: 0, bottom: 0, background: '#F7F5F0', borderRadius: 3 }} />
+                {/* Gridlines */}
+                {[2, 4, 6, 8, 10, 12, 14].map(v => <div key={v} style={{ position: 'absolute', left: `${(v / scaleMax) * 100}%`, top: 0, bottom: 0, width: 0, borderLeft: '0.5px dashed rgba(28,43,58,0.08)' }} />)}
+                {/* Connecting line */}
+                {Math.abs(curSpan - futSpan) > 0.05 && <div style={{ position: 'absolute', top: '50%', left: `${(Math.min(curSpan, futSpan) / scaleMax) * 100}%`, width: `${(Math.abs(futSpan - curSpan) / scaleMax) * 100}%`, height: 2, borderRadius: 1, background: d.improving ? 'rgba(22,163,74,0.3)' : 'rgba(220,38,38,0.3)', transform: 'translateY(-50%)' }} />}
+                {/* Current dot (gray) */}
+                <div style={{ position: 'absolute', left: `${Math.min(curSpan / scaleMax, 1) * 100}%`, top: '50%', transform: 'translate(-50%, -50%)', width: 10, height: 10, borderRadius: 5, background: 'rgba(28,43,58,0.35)', border: '1.5px solid #FFFFFF', zIndex: 2 }} />
+                {/* Proposed dot (blue) */}
+                <div style={{ position: 'absolute', left: `${Math.min(futSpan / scaleMax, 1) * 100}%`, top: '50%', transform: 'translate(-50%, -50%)', width: 10, height: 10, borderRadius: 5, background: '#3B82F6', border: '1.5px solid #FFFFFF', zIndex: 2 }} />
+              </div>
+              <div style={{ textAlign: 'right', fontSize: 12, fontWeight: 500, color: deltaColor }}>
+                {Math.abs(delta) < 0.05 ? '\u2014' : `${delta > 0 ? '+' : ''}${delta.toFixed(1)}`}
+              </div>
+            </div>;
+          })}
+          {/* Legend */}
+          <div style={{ display: 'flex', gap: 16, marginTop: 12, paddingTop: 8, borderTop: '0.5px solid rgba(28,43,58,0.08)', fontSize: 11, color: 'rgba(28,43,58,0.55)' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 10, height: 10, borderRadius: 5, background: 'rgba(28,43,58,0.35)' }} />Current</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 10, height: 10, borderRadius: 5, background: '#3B82F6' }} />Proposed</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 16, height: 10, borderRadius: 2, background: '#F7F5F0' }} />Benchmark (6-8:1)</span>
+          </div>
+          <div style={{ fontSize: 11, color: 'rgba(28,43,58,0.45)', marginTop: 8, textAlign: 'right' }}>Source: Industry benchmarks (illustrative ranges, 2024)</div>
         </div>
 
-        {/* Span of Control by Department — improved bar chart */}
-        <Card title="Span of Control by Department">
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            {sortedDepts.map(d => {
-              const f = d.fut;
-              const curSpan = d.avgSpan;
-              const futSpan = f?.avgSpan || curSpan;
-              const ch = d.health;
-              const fh = d.futHealth;
-              const barScale = maxSpan;
-              return <div key={d.name} style={{ display: "grid", gridTemplateColumns: "120px 1fr 60px 60px 50px", alignItems: "center", gap: 8, padding: "4px 0" }}>
-                {/* Department name + HC */}
-                <div style={{ textAlign: "right" }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-secondary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{d.name}</div>
-                  <div style={{ fontSize: 9, fontFamily: OV_MONO, fontWeight: 700, color: "#64748b" }}>{d.headcount} HC</div>
-                </div>
-                {/* Dual bar with benchmark zone */}
-                <div style={{ position: "relative", height: 24 }}>
-                  {/* Benchmark zone (6-8) */}
-                  <div style={{ position: "absolute", left: `${(6 / barScale) * 100}%`, width: `${((8 - 6) / barScale) * 100}%`, top: 0, bottom: 0, background: "rgba(52,211,153,0.06)", borderRadius: 4, borderLeft: "1px dashed rgba(52,211,153,0.2)", borderRight: "1px dashed rgba(52,211,153,0.2)" }} />
-                  {/* Current bar (background) */}
-                  <div style={{ position: "absolute", top: 2, height: 9, borderRadius: 4, width: `${Math.min(curSpan / barScale * 100, 100)}%`, background: "rgba(212,134,10,0.3)", transition: "width 0.5s ease-out" }} />
-                  {/* Scenario bar (foreground) */}
-                  <div style={{ position: "absolute", top: 13, height: 9, borderRadius: 4, width: `${Math.min(futSpan / barScale * 100, 100)}%`, background: "rgba(16,185,129,0.6)", transition: "width 0.5s ease-out" }} />
-                </div>
-                {/* Current value */}
-                <div style={{ textAlign: "right", fontSize: 13, fontFamily: OV_MONO, fontWeight: 700, color: ch.color }}>{curSpan.toFixed(1)}</div>
-                {/* Future value */}
-                <div style={{ textAlign: "right", fontSize: 13, fontFamily: OV_MONO, fontWeight: 700, color: fh.color }}>{futSpan.toFixed(1)}</div>
-                {/* Delta + health */}
-                <div style={{ textAlign: "center" }}>
-                  {curSpan !== futSpan ? <span style={{ fontSize: 12, fontFamily: OV_MONO, fontWeight: 700, padding: "1px 6px", borderRadius: 4, background: d.improving ? "rgba(16,185,129,0.1)" : "rgba(249,115,22,0.1)", color: d.improving ? "#10B981" : "#F97316" }}>{futSpan > curSpan ? "↑" : "↓"}{Math.abs(futSpan - curSpan).toFixed(1)}</span> : <span style={{ fontSize: 11, color: "#475569" }}>—</span>}
-                </div>
-              </div>;
-            })}
-          </div>
-          {/* Legend */}
-          <div style={{ display: "flex", gap: 16, marginTop: 12, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.06)", fontSize: 11, color: "#64748b" }}>
-            <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 16, height: 6, borderRadius: 3, background: "rgba(212,134,10,0.3)" }} />Current</span>
-            <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 16, height: 6, borderRadius: 3, background: "rgba(16,185,129,0.6)" }} />{sc.label}</span>
-            <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 16, height: 8, borderRadius: 2, background: "rgba(52,211,153,0.08)", border: "1px dashed rgba(52,211,153,0.25)" }} />Benchmark (6-8:1)</span>
-          </div>
-        </Card>
-
-        {/* Top 3 Actions */}
-        <div style={{ marginBottom: 16 }}>
-          <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.08em", color: "#64748b", marginBottom: 12 }}>Priority Actions</div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {actions.slice(0, 3).map((a, i) => <div key={i} style={{ display: "flex", gap: 12, padding: "12px 16px", borderRadius: 12, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderLeft: "3px solid #3B82F6" }}>
-              <span style={{ fontSize: 15, fontFamily: OV_MONO, fontWeight: 700, color: "#3B82F6", flexShrink: 0 }}>{i + 1}.</span>
+        {/* Priority Actions — white card */}
+        <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: 20, marginBottom: 16 }}>
+          <div style={{ fontSize: 14, fontWeight: 500, color: '#1C2B3A', marginBottom: 14 }}>Priority Actions</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+            {actions.slice(0, 3).map((a, i) => <div key={i} style={{ display: 'flex', gap: 12, padding: '12px 0', borderTop: i > 0 ? '0.5px solid rgba(28,43,58,0.08)' : 'none', cursor: 'default', transition: 'background 0.15s' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(247,245,240,0.5)'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = 'transparent'; }}>
+              <span style={{ width: 24, height: 24, borderRadius: 12, background: 'var(--ivory, #F7F5F0)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 600, color: '#1C2B3A', flexShrink: 0 }}>{i + 1}</span>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)", marginBottom: 2 }}>{a.title}</div>
-                <div style={{ fontSize: 12, color: "#64748b", lineHeight: 1.5 }}>{a.desc}</div>
+                <div style={{ fontSize: 13, fontWeight: 500, color: '#1C2B3A', marginBottom: 2 }}>{a.title}</div>
+                <div style={{ fontSize: 11, color: 'rgba(28,43,58,0.65)', lineHeight: 1.5 }}>{a.desc}</div>
               </div>
-              {a.hc > 0 && <span style={{ fontSize: 11, fontFamily: OV_MONO, fontWeight: 700, color: "#64748b", flexShrink: 0, alignSelf: "center" }}>{a.hc} HC</span>}
+              {a.hc > 0 && <span style={{ fontSize: 11, fontWeight: 500, color: 'rgba(28,43,58,0.55)', flexShrink: 0, alignSelf: 'center' }}>{a.hc} HC</span>}
             </div>)}
           </div>
         </div>
 
-        {/* Department Health Table */}
-        <Card title="Department Comparison">
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", fontSize: 13, borderCollapse: "collapse" }}>
-              <thead><tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-                {["Department", "HC", "Span (C→S)", "Layers (C→S)", "Mgr Ratio", "Health"].map(h => <th key={h} style={{ padding: "8px 12px", textAlign: h === "Department" ? "left" : "right", fontSize: 9, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.08em", color: "#64748b" }}>{h}</th>)}
+        {/* Department Comparison — white card table */}
+        <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, overflow: 'hidden', marginBottom: 16 }}>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse' }}>
+              <thead><tr style={{ background: 'var(--ivory, #F1EFE8)' }}>
+                {['Department', 'HC', 'Span (C\u2192S)', 'Layers (C\u2192S)', 'Mgr Ratio', 'Health'].map(h => <th key={h} style={{ padding: '10px 12px', textAlign: h === 'Department' ? 'left' : 'right', fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'rgba(28,43,58,0.55)', borderBottom: '0.5px solid rgba(28,43,58,0.12)' }}>{h}</th>)}
               </tr></thead>
               <tbody>{sortedDepts.map((d, i) => {
                 const f = d.fut;
                 const mgrRatio = Math.round(d.managers / Math.max(d.headcount, 1) * 100);
-                return <tr key={d.name} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)", background: i % 2 ? "rgba(255,255,255,0.01)" : "transparent" }}>
-                  <td style={{ padding: "8px 12px", fontWeight: 600, color: "var(--text-primary)" }}>
-                    <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: 3, background: d.health.color, marginRight: 8 }} />{d.name}
+                return <tr key={d.name} style={{ borderBottom: '0.5px solid rgba(28,43,58,0.08)', background: i % 2 ? 'var(--ivory, #F7F5F0)' : '#FFFFFF' }}>
+                  <td style={{ padding: '8px 12px', fontWeight: 500, color: '#1C2B3A', fontSize: 12 }}>
+                    <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: 3, background: d.health.color, marginRight: 8 }} />{d.name}
                   </td>
-                  <td style={{ padding: "8px 12px", textAlign: "right", fontFamily: OV_MONO, fontWeight: 700 }}>{d.headcount} <span style={{ color: "#475569" }}>→</span> {f?.headcount || d.headcount}</td>
-                  <td style={{ padding: "8px 12px", textAlign: "right" }}>
-                    <span style={{ fontFamily: OV_MONO, fontWeight: 700, color: d.health.color }}>{d.avgSpan.toFixed(1)}</span>
-                    <span style={{ color: "#475569", margin: "0 4px" }}>→</span>
-                    <span style={{ fontFamily: OV_MONO, fontWeight: 700, color: d.futHealth.color }}>{(f?.avgSpan || d.avgSpan).toFixed(1)}</span>
+                  <td style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 500, color: '#1C2B3A', fontSize: 11 }}>{d.headcount} <span style={{ color: 'rgba(28,43,58,0.65)' }}>{'\u2192'}</span> {f?.headcount || d.headcount}</td>
+                  <td style={{ padding: '8px 12px', textAlign: 'right', fontSize: 11 }}>
+                    <span style={{ fontWeight: 500, color: d.health.color }}>{d.avgSpan.toFixed(1)}</span>
+                    <span style={{ color: 'rgba(28,43,58,0.65)', margin: '0 4px' }}>{'\u2192'}</span>
+                    <span style={{ fontWeight: 500, color: d.futHealth.color }}>{(f?.avgSpan || d.avgSpan).toFixed(1)}</span>
                   </td>
-                  <td style={{ padding: "8px 12px", textAlign: "right", fontFamily: OV_MONO, fontWeight: 700 }}>{d.layers} <span style={{ color: "#475569" }}>→</span> {f?.layers || d.layers}</td>
-                  <td style={{ padding: "8px 12px", textAlign: "right", fontFamily: OV_MONO, fontWeight: 700, color: mgrRatio > 15 ? "#F97316" : mgrRatio > 12 ? "#F59E0B" : "#64748b" }}>{mgrRatio}%</td>
-                  <td style={{ padding: "8px 12px", textAlign: "right" }}><span style={{ padding: "2px 6px", borderRadius: 4, fontSize: 9, fontWeight: 700, background: `${d.futHealth.color}15`, color: d.futHealth.color }}>{d.futHealth.badge} {d.futHealth.label.split(" ")[0]}</span></td>
+                  <td style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 500, color: '#1C2B3A', fontSize: 11 }}>{d.layers} <span style={{ color: 'rgba(28,43,58,0.65)' }}>{'\u2192'}</span> {f?.layers || d.layers}</td>
+                  <td style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 500, fontSize: 11, color: mgrRatio > 15 ? '#DC2626' : mgrRatio > 12 ? '#F59E0B' : 'rgba(28,43,58,0.55)' }}>{mgrRatio}%</td>
+                  <td style={{ padding: '8px 12px', textAlign: 'right' }}><span style={{ padding: '2px 6px', borderRadius: 4, fontSize: 11, fontWeight: 600, background: `${d.futHealth.color}15`, color: d.futHealth.color }}>{d.futHealth.badge} {d.futHealth.label.split(' ')[0]}</span></td>
                 </tr>;
               })}</tbody>
             </table>
           </div>
-        </Card>
+        </div>
       </div>;
     })()}
 
-    {view === "soc" && (() => {
+    {view === "analyze" && analyzeSubTab === "soc" && (() => {
       const SPAN_MONO = "'JetBrains Mono', 'IBM Plex Mono', monospace";
       const spanHealth = (s: number) => s >= 6 && s <= 8 ? { label: "Optimal", color: "#10B981", badge: "✓" } : s >= 5 && s <= 10 ? { label: s < 6 ? "Narrow" : "Wide", color: "#F59E0B", badge: "◈" } : { label: s < 5 ? "Critical-Narrow" : "Critical-Wide", color: "#EF4444", badge: "⚠" };
       const spanImproving = (cur: number, fut: number) => { const curDist = Math.abs(cur - 7); const futDist = Math.abs(fut - 7); return futDist < curDist; };
@@ -589,145 +668,191 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
         {/* ═══ SPAN HEALTH SUMMARY ═══ */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 16 }}>
           {/* Org-wide avg span */}
-          <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 12, padding: 16, border: "1px solid rgba(255,255,255,0.08)" }}>
-            <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", marginBottom: 8 }}>Org-Wide Average Span</div>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-              <span style={{ fontSize: 28, fontFamily: SPAN_MONO, fontWeight: 700, color: spanHealth(orgAvgCur).color }}>{orgAvgCur.toFixed(1)}</span>
-              <span style={{ fontSize: 13, color: "#64748b" }}>→</span>
-              <span style={{ fontSize: 28, fontFamily: SPAN_MONO, fontWeight: 700, color: spanHealth(orgAvgFut).color }}>{orgAvgFut.toFixed(1)}</span>
-              <span style={{ fontSize: 12, fontFamily: SPAN_MONO, fontWeight: 700, color: spanImproving(orgAvgCur, orgAvgFut) ? "#10B981" : "#F97316", padding: "2px 6px", borderRadius: 4, background: spanImproving(orgAvgCur, orgAvgFut) ? "rgba(16,185,129,0.1)" : "rgba(249,115,22,0.1)" }}>{orgAvgFut > orgAvgCur ? "↑" : "↓"}{Math.abs(orgAvgFut - orgAvgCur).toFixed(1)}</span>
+          <div style={{ background: '#FFFFFF', borderRadius: 8, padding: 14, border: '0.5px solid rgba(28,43,58,0.15)' }}>
+            <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.05em", color: "rgba(28,43,58,0.55)", marginBottom: 6 }}>Org-Wide Average Span</div>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+              <span style={{ fontSize: 22, fontWeight: 500, color: '#1C2B3A' }}>{orgAvgCur.toFixed(1)}</span>
+              <span style={{ fontSize: 12, color: "rgba(28,43,58,0.55)" }}>{"\u2192"}</span>
+              <span style={{ fontSize: 22, fontWeight: 500, color: '#1C2B3A' }}>{orgAvgFut.toFixed(1)}</span>
+              <span style={{ fontSize: 11, fontWeight: 500, color: spanImproving(orgAvgCur, orgAvgFut) ? "#16A34A" : "#DC2626", padding: "1px 5px", borderRadius: 4, background: spanImproving(orgAvgCur, orgAvgFut) ? "rgba(22,163,74,0.08)" : "rgba(220,38,38,0.08)" }}>{orgAvgFut > orgAvgCur ? "\u2191" : "\u2193"}{Math.abs(orgAvgFut - orgAvgCur).toFixed(1)}</span>
             </div>
           </div>
           {/* Departments in benchmark */}
-          <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 12, padding: 16, border: "1px solid rgba(255,255,255,0.08)" }}>
-            <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", marginBottom: 8 }}>In Benchmark Range (6-8:1)</div>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <div style={{ position: "relative", width: 48, height: 48 }}>
-                <svg viewBox="0 0 48 48" style={{ width: 48, height: 48, transform: "rotate(-90deg)" }}>
-                  <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="4" />
-                  <circle cx="24" cy="24" r="20" fill="none" stroke="#10B981" strokeWidth="4" strokeLinecap="round" strokeDasharray={`${2 * Math.PI * 20}`} strokeDashoffset={`${2 * Math.PI * 20 * (1 - inBenchFut / Math.max(currentData.length, 1))}`} />
+          <div style={{ background: '#FFFFFF', borderRadius: 8, padding: 14, border: '0.5px solid rgba(28,43,58,0.15)' }}>
+            <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.05em", color: "rgba(28,43,58,0.55)", marginBottom: 6 }}>In Benchmark Range (6-8:1)</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ position: "relative", width: 44, height: 44 }}>
+                <svg viewBox="0 0 48 48" style={{ width: 44, height: 44, transform: "rotate(-90deg)" }}>
+                  <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(28,43,58,0.06)" strokeWidth="4" />
+                  <circle cx="24" cy="24" r="20" fill="none" stroke="#16A34A" strokeWidth="4" strokeLinecap="round" strokeDasharray={`${2 * Math.PI * 20}`} strokeDashoffset={`${2 * Math.PI * 20 * (1 - inBenchFut / Math.max(currentData.length, 1))}`} />
                 </svg>
-                <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontFamily: SPAN_MONO, fontWeight: 700, color: "#e8ecf4" }}>{inBenchFut}</div>
+                <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 500, color: "#1C2B3A" }}>{inBenchFut}</div>
               </div>
               <div>
-                <div style={{ fontSize: 15, fontFamily: SPAN_MONO, fontWeight: 700, color: "#e8ecf4" }}>{inBenchCur} → {inBenchFut} <span style={{ fontSize: 11, color: "#64748b" }}>of {currentData.length}</span></div>
-                <div style={{ fontSize: 11, color: "#64748b" }}>{inBenchFut > inBenchCur ? "Improving" : inBenchFut < inBenchCur ? "Degrading" : "Stable"}</div>
+                <div style={{ fontSize: 14, fontWeight: 500, color: "#1C2B3A" }}>{inBenchCur} {"\u2192"} {inBenchFut} <span style={{ fontSize: 11, color: "rgba(28,43,58,0.55)" }}>of {currentData.length}</span></div>
+                <div style={{ fontSize: 11, color: "rgba(28,43,58,0.55)" }}>{inBenchFut > inBenchCur ? "Improving" : inBenchFut < inBenchCur ? "Degrading" : "Stable"}</div>
               </div>
             </div>
           </div>
           {/* Widest span gap */}
-          <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 12, padding: 16, border: "1px solid rgba(255,255,255,0.08)" }}>
-            <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", marginBottom: 8 }}>Widest Span Variance</div>
+          <div style={{ background: '#FFFFFF', borderRadius: 8, padding: 14, border: '0.5px solid rgba(28,43,58,0.15)' }}>
+            <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.05em", color: "rgba(28,43,58,0.55)", marginBottom: 6 }}>Widest Span Variance</div>
             {widestGap && <div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: "#e8ecf4" }}>{widestGap.name}</div>
-              <div style={{ fontSize: 13, fontFamily: SPAN_MONO, fontWeight: 700, color: "#F97316" }}>{widestGap.min}:1 to {widestGap.max}:1 <span style={{ fontSize: 11, color: "#64748b" }}>— range of {widestGap.range}</span></div>
+              <div style={{ fontSize: 14, fontWeight: 500, color: "#1C2B3A" }}>{widestGap.name}</div>
+              <div style={{ fontSize: 12, fontWeight: 500, color: "#DC2626" }}>{widestGap.min}:1 to {widestGap.max}:1 <span style={{ fontSize: 11, color: "rgba(28,43,58,0.55)" }}>— range of {widestGap.range}</span></div>
             </div>}
           </div>
         </div>
 
         {/* Benchmark reference */}
-        <div style={{ padding: "8px 12px", marginBottom: 16, background: "rgba(59,130,246,0.04)", borderLeft: "3px solid #3B82F6", borderRadius: 8, fontSize: 11, color: "#94a3b8", lineHeight: 1.5 }}>
+        <div style={{ padding: "8px 12px", marginBottom: 16, background: "rgba(59,130,246,0.04)", borderLeft: "3px solid #3B82F6", borderRadius: 6, fontSize: 11, color: "rgba(28,43,58,0.55)", lineHeight: 1.5 }}>
           Industry benchmark for knowledge workers: 6-8 direct reports per manager. Below 5:1 indicates over-management. Above 10:1 may indicate insufficient oversight.
         </div>
 
-        {/* ═══ VISUAL SPAN COMPARISON ═══ */}
-        <Card title="Span of Control by Department">
+        {/* ═══ DIVERGING DOT PLOT: Span of Control ═══ */}
+        <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: 20 }}>
+          <div style={{ fontSize: 14, fontWeight: 500, color: '#1C2B3A', marginBottom: 2 }}>Span of Control by Department</div>
+          <div style={{ fontSize: 11, fontWeight: 400, color: 'rgba(28,43,58,0.65)', marginBottom: 4 }}>Current vs. proposed span with benchmark range</div>
+          {(() => { const widest = sorted.reduce((best, d) => { const delta = Math.abs((d.fut?.avgSpan || d.avgSpan) - d.avgSpan); return delta > best.delta ? { name: d.name, cur: d.avgSpan, fut: d.fut?.avgSpan || d.avgSpan, delta } : best; }, { name: '', cur: 0, fut: 0, delta: 0 }); return widest.delta > 0.05 ? <div style={{ fontSize: 12, fontStyle: 'italic', color: 'rgba(28,43,58,0.65)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ fontSize: 14 }}>&#x1F4A1;</span> Key insight: {widest.name} sees the largest span shift ({widest.cur.toFixed(1)} &rarr; {widest.fut.toFixed(1)})</div> : null; })()}
+
+          {/* X-axis header */}
+          <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr 70px', gap: 12, padding: '0 4px 6px', borderBottom: '0.5px solid rgba(28,43,58,0.15)' }}>
+            <div style={{ fontSize: 11, fontWeight: 500, color: 'rgba(28,43,58,0.65)' }}>Department</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 400, color: 'rgba(28,43,58,0.55)' }}>
+              {[2, 4, 6, 8, 10, 12, 14].map(v => <span key={v}>{v}</span>)}
+            </div>
+            <div style={{ fontSize: 11, fontWeight: 500, color: 'rgba(28,43,58,0.65)', textAlign: 'right' }}>Delta</div>
+          </div>
+
           {sorted.map((d) => {
             const f = d.fut;
             const curSpan = d.avgSpan;
             const futSpan = f?.avgSpan || curSpan;
-            const curH = spanHealth(curSpan);
-            const futH = spanHealth(futSpan);
             const improving = spanImproving(curSpan, futSpan);
-            const barScale = 14; // max scale
+            const delta = futSpan - curSpan;
+            const deltaColor = Math.abs(delta) < 0.1 ? 'rgba(28,43,58,0.65)' : improving ? '#16A34A' : '#DC2626';
+            const scaleMax = 15;
             const isExpanded = expandedDept === d.name;
-            const sr = spanRanges.find(r => r.name === d.name);
 
-            return <div key={d.name} style={{ marginBottom: 4 }}>
-              <button onClick={() => setExpandedDept(isExpanded ? null : d.name)} style={{ width: "100%", display: "grid", gridTemplateColumns: "140px 1fr 120px 60px", gap: 12, alignItems: "center", padding: "8px 12px", borderRadius: 8, background: "transparent", border: "none", cursor: "pointer", textAlign: "left", transition: "background 0.15s" }} onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.02)")} onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
-                {/* Department name */}
+            return <div key={d.name} style={{ borderBottom: '0.5px dashed rgba(28,43,58,0.08)' }}>
+              <button onClick={() => setExpandedDept(isExpanded ? null : d.name)} style={{
+                width: '100%', display: 'grid', gridTemplateColumns: '150px 1fr 70px',
+                gap: 12, alignItems: 'center', padding: '10px 4px', borderRadius: 4,
+                background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left',
+                transition: 'background 0.15s',
+              }} onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(247,245,240,0.5)'; }} onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}>
+                {/* Department name + HC sub-text */}
                 <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ width: 6, height: 6, borderRadius: 3, background: curH.color, flexShrink: 0 }} />
-                    <span style={{ fontSize: 13, fontWeight: 600, color: "#e8ecf4", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{d.name}</span>
-                  </div>
-                  <div style={{ fontSize: 9, fontFamily: SPAN_MONO, fontWeight: 700, color: "#64748b", marginLeft: 12 }}>{d.headcount} HC · {d.managers} mgrs</div>
+                  <div style={{ fontSize: 11, fontWeight: 500, color: '#1C2B3A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.name}</div>
+                  <div style={{ fontSize: 11, fontWeight: 400, color: 'rgba(28,43,58,0.55)' }}>{d.headcount} HC</div>
                 </div>
-                {/* Span bar */}
-                <div style={{ position: "relative", height: 24 }}>
-                  {/* Benchmark zone */}
-                  <div style={{ position: "absolute", left: `${(6 / barScale) * 100}%`, width: `${((8 - 6) / barScale) * 100}%`, top: 4, bottom: 4, background: "rgba(16,185,129,0.08)", borderRadius: 4, border: "1px dashed rgba(16,185,129,0.2)" }} />
-                  {/* Current span marker */}
-                  <div style={{ position: "absolute", left: `${Math.min(curSpan / barScale, 1) * 100}%`, top: "50%", transform: "translate(-50%, -50%)", width: 10, height: 10, borderRadius: 5, background: curH.color, border: "2px solid rgba(255,255,255,0.2)", zIndex: 2 }} title={`Current: ${curSpan.toFixed(1)}:1`} />
-                  {/* Future span marker */}
-                  <div style={{ position: "absolute", left: `${Math.min(futSpan / barScale, 1) * 100}%`, top: "50%", transform: "translate(-50%, -50%) rotate(45deg)", width: 8, height: 8, background: futH.color, border: "1px solid rgba(255,255,255,0.3)", zIndex: 2 }} title={`Future: ${futSpan.toFixed(1)}:1`} />
-                  {/* Connecting line */}
-                  {curSpan !== futSpan && <div style={{ position: "absolute", top: "50%", left: `${Math.min(Math.min(curSpan, futSpan) / barScale, 1) * 100}%`, width: `${Math.abs(futSpan - curSpan) / barScale * 100}%`, height: 1, background: improving ? "#10B981" : "#F97316", opacity: 0.4, transform: "translateY(-50%)" }} />}
-                  {/* Axis line */}
-                  <div style={{ position: "absolute", left: 0, right: 0, top: "50%", height: 1, background: "rgba(255,255,255,0.06)", transform: "translateY(-50%)", zIndex: 0 }} />
+
+                {/* Dot plot area */}
+                <div style={{ position: 'relative', height: 28 }}>
+                  {/* Benchmark band (6-8) */}
+                  <div style={{
+                    position: 'absolute',
+                    left: `${(6 / scaleMax) * 100}%`,
+                    width: `${((8 - 6) / scaleMax) * 100}%`,
+                    top: 0, bottom: 0,
+                    background: '#F7F5F0',
+                    borderRadius: 3,
+                  }} />
+                  {/* Gridlines */}
+                  {[2, 4, 6, 8, 10, 12, 14].map(v => (
+                    <div key={v} style={{
+                      position: 'absolute', left: `${(v / scaleMax) * 100}%`,
+                      top: 0, bottom: 0, width: 0,
+                      borderLeft: '0.5px dashed rgba(28,43,58,0.08)',
+                    }} />
+                  ))}
+                  {/* Connecting line between dots */}
+                  {Math.abs(curSpan - futSpan) > 0.05 && (
+                    <div style={{
+                      position: 'absolute', top: '50%',
+                      left: `${(Math.min(curSpan, futSpan) / scaleMax) * 100}%`,
+                      width: `${(Math.abs(futSpan - curSpan) / scaleMax) * 100}%`,
+                      height: 2, borderRadius: 1,
+                      background: improving ? 'rgba(22,163,74,0.3)' : 'rgba(220,38,38,0.3)',
+                      transform: 'translateY(-50%)',
+                    }} />
+                  )}
+                  {/* Current dot (gray) */}
+                  <div style={{
+                    position: 'absolute',
+                    left: `${Math.min(curSpan / scaleMax, 1) * 100}%`,
+                    top: '50%', transform: 'translate(-50%, -50%)',
+                    width: 10, height: 10, borderRadius: 5,
+                    background: 'rgba(28,43,58,0.35)',
+                    border: '1.5px solid #FFFFFF',
+                    zIndex: 2,
+                  }} title={`Current: ${curSpan.toFixed(1)}:1`} />
+                  {/* Proposed dot (blue) */}
+                  <div style={{
+                    position: 'absolute',
+                    left: `${Math.min(futSpan / scaleMax, 1) * 100}%`,
+                    top: '50%', transform: 'translate(-50%, -50%)',
+                    width: 10, height: 10, borderRadius: 5,
+                    background: '#3B82F6',
+                    border: '1.5px solid #FFFFFF',
+                    zIndex: 2,
+                  }} title={`Proposed: ${futSpan.toFixed(1)}:1`} />
                 </div>
-                {/* Values */}
-                <div style={{ textAlign: "right" }}>
-                  <span style={{ fontSize: 13, fontFamily: SPAN_MONO, fontWeight: 700, color: curH.color }}>{curSpan.toFixed(1)}</span>
-                  <span style={{ fontSize: 11, color: "#64748b", margin: "0 4px" }}>→</span>
-                  <span style={{ fontSize: 13, fontFamily: SPAN_MONO, fontWeight: 700, color: futH.color }}>{futSpan.toFixed(1)}</span>
-                  <span style={{ fontSize: 11, fontFamily: SPAN_MONO, fontWeight: 700, color: improving ? "#10B981" : "#F97316", marginLeft: 4 }}>{futSpan > curSpan ? "↑" : "↓"}{Math.abs(futSpan - curSpan).toFixed(1)}</span>
-                </div>
-                {/* Health badge */}
-                <div style={{ textAlign: "center" }}>
-                  <span style={{ padding: "2px 6px", borderRadius: 4, fontSize: 9, fontWeight: 700, background: `${futH.color}15`, color: futH.color }}>{futH.badge} {futH.label.split("-")[0]}</span>
+
+                {/* Delta label */}
+                <div style={{ textAlign: 'right', fontSize: 12, fontWeight: 500, color: deltaColor }}>
+                  {Math.abs(delta) < 0.05 ? '\u2014' : `${delta > 0 ? '+' : ''}${delta.toFixed(1)}`}
                 </div>
               </button>
 
               {/* Expanded detail */}
-              {isExpanded && <div style={{ padding: "12px 16px 16px", marginLeft: 12, borderLeft: "2px solid rgba(255,255,255,0.06)" }}>
-                {/* Span distribution */}
-                {sr && <div style={{ marginBottom: 12 }}>
-                  <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", marginBottom: 6 }}>Manager Span Distribution</div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <span style={{ fontSize: 11, fontFamily: SPAN_MONO, fontWeight: 700, color: "#64748b" }}>{sr.min}:1</span>
-                    <div style={{ flex: 1, height: 6, borderRadius: 3, background: "rgba(255,255,255,0.04)", position: "relative" }}>
-                      <div style={{ position: "absolute", left: `${(sr.min / barScale) * 100}%`, width: `${((sr.max - sr.min) / barScale) * 100}%`, top: 0, bottom: 0, borderRadius: 3, background: sr.range > 8 ? "rgba(239,68,68,0.3)" : sr.range > 4 ? "rgba(249,115,22,0.3)" : "rgba(16,185,129,0.3)" }} />
-                      <div style={{ position: "absolute", left: `${(curSpan / barScale) * 100}%`, top: -2, width: 4, height: 10, borderRadius: 2, background: "#e8ecf4", transform: "translateX(-50%)" }} />
+              {isExpanded && (() => {
+                const sr = spanRanges.find(r => r.name === d.name);
+                return <div style={{ padding: '8px 16px 12px', marginLeft: 8, borderLeft: '2px solid rgba(28,43,58,0.08)' }}>
+                  {sr && <div style={{ marginBottom: 10 }}>
+                    <div style={{ fontSize: 11, fontWeight: 500, textTransform: 'uppercase' as const, letterSpacing: '0.04em', color: 'rgba(28,43,58,0.65)', marginBottom: 4 }}>Manager Span Distribution</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontSize: 11, color: 'rgba(28,43,58,0.55)' }}>{sr.min}:1</span>
+                      <div style={{ flex: 1, height: 5, borderRadius: 3, background: 'rgba(28,43,58,0.04)', position: 'relative' }}>
+                        <div style={{ position: 'absolute', left: `${(sr.min / 15) * 100}%`, width: `${((sr.max - sr.min) / 15) * 100}%`, top: 0, bottom: 0, borderRadius: 3, background: sr.range > 8 ? 'rgba(220,38,38,0.2)' : sr.range > 4 ? 'rgba(245,158,11,0.2)' : 'rgba(22,163,74,0.2)' }} />
+                      </div>
+                      <span style={{ fontSize: 11, color: 'rgba(28,43,58,0.55)' }}>{sr.max}:1</span>
+                      <span style={{ fontSize: 11, color: sr.range > 8 ? '#DC2626' : sr.range > 4 ? '#F59E0B' : '#16A34A' }}>Range: {sr.range}</span>
                     </div>
-                    <span style={{ fontSize: 11, fontFamily: SPAN_MONO, fontWeight: 700, color: "#64748b" }}>{sr.max}:1</span>
-                    <span style={{ fontSize: 9, color: sr.range > 8 ? "#EF4444" : sr.range > 4 ? "#F97316" : "#10B981" }}>Range: {sr.range}</span>
+                  </div>}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                    {curSpan < 5 && <div style={{ fontSize: 11, color: '#F59E0B', padding: '3px 8px', borderRadius: 4, background: 'rgba(245,158,11,0.06)' }}>Span below 5:1 indicates potential over-management</div>}
+                    {curSpan > 10 && <div style={{ fontSize: 11, color: '#DC2626', padding: '3px 8px', borderRadius: 4, background: 'rgba(220,38,38,0.06)' }}>Span above 10:1 — managers may be overextended</div>}
+                    {improving && <div style={{ fontSize: 11, color: '#16A34A', padding: '3px 8px', borderRadius: 4, background: 'rgba(22,163,74,0.06)' }}>Scenario moves span toward benchmark (6-8:1)</div>}
                   </div>
-                </div>}
-                {/* Flags */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  {curSpan < 5 && <div style={{ fontSize: 12, color: "#F59E0B", padding: "4px 8px", borderRadius: 6, background: "rgba(245,158,11,0.06)" }}>⚠ Span below 5:1 indicates potential over-management — consider removing a management layer</div>}
-                  {curSpan > 10 && <div style={{ fontSize: 12, color: "#EF4444", padding: "4px 8px", borderRadius: 6, background: "rgba(239,68,68,0.06)" }}>⚠ Span above 10:1 — managers may be overextended. Consider splitting teams or adding team leads.</div>}
-                  {sr && sr.range > 6 && <div style={{ fontSize: 12, color: "#F97316", padding: "4px 8px", borderRadius: 6, background: "rgba(249,115,22,0.06)" }}>◈ High span variance ({sr.range}) — redistribute reports to equalize manager workloads</div>}
-                  {improving && <div style={{ fontSize: 12, color: "#10B981", padding: "4px 8px", borderRadius: 6, background: "rgba(16,185,129,0.06)" }}>✓ Scenario moves span toward benchmark (6-8:1)</div>}
-                </div>
-                {/* Detail stats */}
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginTop: 12 }}>
-                  {[
-                    { l: "Headcount", c: d.headcount, f: f?.headcount },
-                    { l: "Managers", c: d.managers, f: f?.managers },
-                    { l: "ICs", c: d.ics, f: f?.ics },
-                    { l: "Layers", c: d.layers, f: f?.layers },
-                  ].map(m => <div key={m.l} style={{ padding: "6px 8px", borderRadius: 6, background: "rgba(255,255,255,0.02)", textAlign: "center" }}>
-                    <div style={{ fontSize: 9, color: "#64748b", textTransform: "uppercase" }}>{m.l}</div>
-                    <div style={{ fontSize: 13, fontFamily: SPAN_MONO, fontWeight: 700, color: "#e8ecf4" }}>{m.c} <span style={{ color: "#64748b" }}>→</span> {m.f || m.c}</div>
-                  </div>)}
-                </div>
-              </div>}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginTop: 10 }}>
+                    {[
+                      { l: 'Headcount', c: d.headcount, fv: f?.headcount },
+                      { l: 'Managers', c: d.managers, fv: f?.managers },
+                      { l: 'ICs', c: d.ics, fv: f?.ics },
+                      { l: 'Layers', c: d.layers, fv: f?.layers },
+                    ].map(m => <div key={m.l} style={{ padding: '5px 8px', borderRadius: 6, background: 'rgba(247,245,240,0.5)', textAlign: 'center' }}>
+                      <div style={{ fontSize: 11, color: 'rgba(28,43,58,0.65)', textTransform: 'uppercase' as const }}>{m.l}</div>
+                      <div style={{ fontSize: 12, fontWeight: 500, color: '#1C2B3A' }}>{m.c} <span style={{ color: 'rgba(28,43,58,0.55)' }}>{'\u2192'}</span> {m.fv || m.c}</div>
+                    </div>)}
+                  </div>
+                </div>;
+              })()}
             </div>;
           })}
 
           {/* Legend */}
-          <div style={{ display: "flex", gap: 16, marginTop: 12, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.06)", fontSize: 11, color: "#64748b" }}>
-            <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 10, height: 10, borderRadius: 5, background: "#10B981" }} />Current</span>
-            <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: 1, background: "#3B82F6", transform: "rotate(45deg)" }} />Future</span>
-            <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 16, height: 8, borderRadius: 2, background: "rgba(16,185,129,0.2)", border: "1px dashed rgba(16,185,129,0.3)" }} />Benchmark (6-8:1)</span>
+          <div style={{ display: 'flex', gap: 16, marginTop: 12, paddingTop: 8, borderTop: '0.5px solid rgba(28,43,58,0.08)', fontSize: 11, color: 'rgba(28,43,58,0.55)' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 10, height: 10, borderRadius: 5, background: 'rgba(28,43,58,0.35)' }} />Current</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 10, height: 10, borderRadius: 5, background: '#3B82F6' }} />Proposed</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 16, height: 10, borderRadius: 2, background: '#F7F5F0' }} />Benchmark (6-8:1)</span>
           </div>
-        </Card>
+          <div style={{ fontSize: 11, color: 'rgba(28,43,58,0.45)', marginTop: 8, textAlign: 'right' }}>Source: Industry benchmarks (illustrative ranges, 2024)</div>
+        </div>
       </div>;
     })()}
 
-    {view === "layers" && (() => {
+    {view === "analyze" && analyzeSubTab === "soc" && (() => {
       // Aggregate level distribution across current & future
       const srcCurrent = layerScope === "all" ? currentData : currentData.filter(d => d.name === layerScope);
       const srcFuture = layerScope === "all" ? (sc.departments || []) : (sc.departments || []).filter((d: ReturnType<typeof odsGenDept>[0]) => d.name === layerScope);
@@ -748,27 +873,34 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
 
       return <div>
         {/* Scope selector */}
-        <div className="flex items-center gap-3 mb-5">
-          <span className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Scope:</span>
-          <select value={layerScope} onChange={e => setLayerScope(e.target.value)} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-[15px] text-[var(--text-primary)] outline-none">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+          <span style={{ fontSize: 11, fontWeight: 500, textTransform: 'uppercase' as const, letterSpacing: '0.04em', color: 'rgba(28,43,58,0.55)' }}>Scope:</span>
+          <select value={layerScope} onChange={e => setLayerScope(e.target.value)} style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 6, padding: '5px 10px', fontSize: 12, color: '#1C2B3A', outline: 'none' }}>
             <option value="all">Entire Organization</option>
             {currentData.map(d => <option key={d.name} value={d.name}>{d.name}</option>)}
           </select>
         </div>
 
-        {/* New bracketed delta chart */}
-        <Card title="Layer Distribution — Current vs. Future">
+        {/* Layer Distribution chart */}
+        <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: 20, marginBottom: 16 }}>
+          <div style={{ fontSize: 14, fontWeight: 500, color: '#1C2B3A', marginBottom: 2 }}>Layer Distribution</div>
+          <div style={{ fontSize: 11, fontWeight: 400, color: 'rgba(28,43,58,0.65)', marginBottom: 4 }}>Current vs. Proposed headcount by level</div>
+          {(() => { const changedLayers = layerChartData.filter(l => l.current !== l.future).length; const totalLayers = layerChartData.filter(l => l.current > 0 || l.future > 0).length; return <div style={{ fontSize: 12, fontStyle: 'italic', color: 'rgba(28,43,58,0.65)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ fontSize: 14 }}>&#x2139;&#xFE0F;</span> Key insight: {changedLayers > 0 ? `${changedLayers} of ${totalLayers} layers change in this scenario` : 'This scenario preserves all layers'}</div>; })()}
           <LayerDistributionChart data={layerChartData} />
-        </Card>
+          <div style={{ fontSize: 11, color: 'rgba(28,43,58,0.45)', marginTop: 8, textAlign: 'right' }}>Source: Industry benchmarks (illustrative ranges, 2024)</div>
+        </div>
 
-        {/* Cost model below layer distribution */}
-        <Card title="Cost Model — Current vs. Future">
+        {/* Cost model chart */}
+        <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: 20, marginBottom: 16 }}>
+          <div style={{ fontSize: 14, fontWeight: 500, color: '#1C2B3A', marginBottom: 2 }}>Cost Model</div>
+          <div style={{ fontSize: 11, fontWeight: 400, color: 'rgba(28,43,58,0.65)', marginBottom: 4 }}>Current vs. Proposed compensation cost</div>
+          {(() => { const totalCur = costChartData.reduce((s, d) => s + d.currentHeadcount * (d.avgComp || 0), 0); const totalFut = costChartData.reduce((s, d) => s + d.futureHeadcount * (d.futureAvgComp || d.avgComp || 0), 0); const delta = totalFut - totalCur; const pct = totalCur > 0 ? ((delta / totalCur) * 100).toFixed(1) : '0.0'; const sign = delta >= 0 ? '+' : ''; return <div style={{ fontSize: 12, fontStyle: 'italic', color: 'rgba(28,43,58,0.65)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ fontSize: 14 }}>&#x1F4A1;</span> Key insight: Net cost impact is {sign}${Math.abs(delta / 1e6).toFixed(1)}M ({sign}{pct}%)</div>; })()}
           <CostModelChart data={costChartData} />
-        </Card>
+        </div>
       </div>;
     })()}
 
-    {view === "cost" && (() => {
+    {view === "analyze" && analyzeSubTab === "cost" && (() => {
       // Build cost data from current scenario
       const srcCurrent = layerScope === "all" ? currentData : currentData.filter(d => d.name === layerScope);
       const srcFuture = layerScope === "all" ? (sc.departments || []) : (sc.departments || []).filter((d: ReturnType<typeof odsGenDept>[0]) => d.name === layerScope);
@@ -779,16 +911,19 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       });
 
       return <div>
-        <Card title="Cost Model — Current vs. Future">
+        <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: 20, marginBottom: 16 }}>
+          <div style={{ fontSize: 14, fontWeight: 500, color: '#1C2B3A', marginBottom: 2 }}>Cost Model</div>
+          <div style={{ fontSize: 11, fontWeight: 400, color: 'rgba(28,43,58,0.65)', marginBottom: 4 }}>Current vs. Proposed compensation cost</div>
+          {(() => { const totalCur = costChartData.reduce((s, d) => s + d.currentHeadcount * (d.avgComp || 0), 0); const totalFut = costChartData.reduce((s, d) => s + d.futureHeadcount * (d.futureAvgComp || d.avgComp || 0), 0); const delta = totalFut - totalCur; const pct = totalCur > 0 ? ((delta / totalCur) * 100).toFixed(1) : '0.0'; const sign = delta >= 0 ? '+' : ''; return <div style={{ fontSize: 12, fontStyle: 'italic', color: 'rgba(28,43,58,0.65)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ fontSize: 14 }}>&#x1F4A1;</span> Key insight: Net cost impact is {sign}${Math.abs(delta / 1e6).toFixed(1)}M ({sign}{pct}%)</div>; })()}
           <CostModelChart data={costChartData} />
-        </Card>
+        </div>
         <Card title="Cost by Department">
           {(() => { const cCosts = currentData.map(d => { let c = 0; if (d.levelDist) Object.entries(d.levelDist).forEach(([l, n]) => { c += n * (ODS_AVG_COMP[l] || 85000); }); return c; }); const fCosts = (sc.departments || []).map(d => { let c = 0; if (d.levelDist) Object.entries(d.levelDist).forEach(([l, n]) => { c += n * (ODS_AVG_COMP[l] || 85000); }); return c; }); const maxCost = Math.max(...cCosts, ...fCosts, 1); return <div className="space-y-3">{currentData.map((d, i) => { const delta = (fCosts[i] ?? 0) - (cCosts[i] ?? 0); return <div key={d.name} className="flex items-center gap-3"><div className="w-36 text-[15px] font-semibold text-[var(--text-secondary)] text-right shrink-0">{d.name}</div><div className="flex-1 space-y-1"><HBar value={cCosts[i] ?? 0} max={maxCost} color="var(--accent-primary)" /><HBar value={fCosts[i] ?? 0} max={maxCost} color="var(--success)" /></div><div className="w-24 text-right shrink-0"><div className="text-[15px] font-semibold text-[var(--text-primary)]">{fmtNum(cCosts[i] ?? 0)}</div><div className="text-[15px]" style={{ color: delta < 0 ? "var(--success)" : delta > 0 ? "var(--risk)" : "var(--text-muted)" }}>{delta < 0 ? "↓" : delta > 0 ? "↑" : "→"} ${Math.abs(delta / 1e3).toFixed(0)}K</div></div></div>; })}</div>; })()}
         </Card>
       </div>;
     })()}
 
-    {view === "roles" && (() => {
+    {view === "analyze" && analyzeSubTab === "roles" && (() => {
       // Build migration data from scenario
       const migrationData: DepartmentMigration[] = currentData.map((d, i) => {
         const f = sc.departments[i];
@@ -810,7 +945,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
     })()}
 
     {/* Dept Drill-Down — expanded with What-If Simulator */}
-    {view === "drill" && (() => {
+    {view === "design" && (() => {
       const dept = currentData[selDept];
       const deptFuture = sc.departments[selDept];
       const deptCost = Object.entries(dept?.levelDist || {}).reduce((s, [l, n]) => s + n * (ODS_AVG_COMP[l] || 85000), 0);
@@ -886,63 +1021,58 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       ];
 
       return <div>
-        <Card title="Department Deep Dive">
-          <div className="flex items-center gap-2 mb-5">
-            <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.08em", color: "#64748b" }}>Department:</span>
-            <select value={selDept} onChange={e => setSelDept(Number(e.target.value))} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-[15px] font-semibold text-[var(--text-primary)] outline-none focus:border-[var(--accent-primary)] min-w-[200px]">
-              {currentData.map((d, i) => <option key={d.name} value={i}>{d.name} — {d.headcount} HC</option>)}
-            </select>
-          </div>
-          {/* KPI cards — Current → Scenario with scenario emphasized */}
-          <div className="grid grid-cols-3 lg:grid-cols-6 gap-3 mb-5">
-            {kpiData.map(kpi => {
-              const diff = kpi.scenario - kpi.current;
-              const isGood = kpi.inv ? diff <= 0 : diff >= 0;
-              const changed = Math.abs(diff) > 0.01;
-              return <div key={kpi.label} style={{ background: "rgba(255,255,255,0.04)", borderRadius: 12, padding: "16px", border: "1px solid rgba(255,255,255,0.08)" }}>
-                <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.08em", color: "#64748b", marginBottom: 8 }}>{kpi.label}</div>
-                <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-                  <span style={{ fontSize: 14, color: "#64748b", fontFamily: DRILL_MONO, fontWeight: 700 }}>{fmt(kpi.current)}</span>
-                  <span style={{ color: "#64748b", fontSize: 12 }}>→</span>
-                  <span style={{ fontSize: 24, fontWeight: 700, fontFamily: DRILL_MONO, color: changed ? (isGood ? "#34d399" : "#F97316") : "#e8ecf4" }}>{fmt(kpi.scenario)}</span>
-                </div>
-                {changed && <span style={{
-                  display: "inline-flex", alignItems: "center", gap: 3,
-                  marginTop: 4, padding: "2px 8px", borderRadius: 6,
-                  fontSize: 11, fontWeight: 700, fontFamily: DRILL_MONO,
-                  background: isGood ? "rgba(52,211,153,0.1)" : "rgba(249,115,22,0.1)",
-                  color: isGood ? "#34d399" : "#F97316",
-                }}>{diff > 0 ? "+" : ""}{fmt(diff)}</span>}
-              </div>;
-            })}
-          </div>
-        </Card>
+        {/* Department selector — prominent white card */}
+        <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: '0', marginBottom: 16, display: 'inline-flex', alignItems: 'center', minWidth: 280 }}>
+          <select value={selDept} onChange={e => setSelDept(Number(e.target.value))} style={{
+            background: 'transparent', border: 'none', outline: 'none', padding: '12px 16px', fontSize: 14, fontWeight: 500, color: '#1C2B3A',
+            cursor: 'pointer', width: '100%', height: 48, appearance: 'auto' as const,
+          }}>
+            {currentData.map((d, i) => <option key={d.name} value={i}>{d.name} \u2014 {d.headcount} HC</option>)}
+          </select>
+        </div>
+
+        {/* KPI cards — white OdsKpiCard style */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 20 }}>
+          {kpiData.map(kpi => {
+            const diff = kpi.scenario - kpi.current;
+            const isGood = kpi.inv ? diff <= 0 : diff >= 0;
+            const changed = Math.abs(diff) > 0.01;
+            return <OdsKpiCard key={kpi.label} label={kpi.label} value={fmt(kpi.scenario)}
+              delta={changed ? `${diff > 0 ? "+" : ""}${fmt(diff)}` : undefined}
+              deltaColor={changed ? (isGood ? '#16A34A' : '#DC2626') : undefined}
+              sub={`Current: ${fmt(kpi.current)}`} />;
+          })}
+        </div>
 
         {/* Main content area with simulator side panel */}
         <div className="flex gap-4">
           {/* Left: Pyramid visualization */}
           <div className="flex-1 min-w-0">
-            <Card title={`Level Distribution — ${dept?.name || ""}`}>
-              {/* Centered horizontal bar pyramid */}
+            {/* Level Distribution — white card */}
+            <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: 20, marginBottom: 16 }}>
+              <div style={{ fontSize: 14, fontWeight: 500, color: '#1C2B3A', marginBottom: 2 }}>Level Distribution — {dept?.name || ""}</div>
+              <div style={{ fontSize: 11, color: 'rgba(28,43,58,0.65)', marginBottom: 14 }}>Current vs. scenario headcount by level</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                 {pyramidLevels.map(lv => {
                   const trackChar = lv.level.charAt(0);
                   const trackColor = DRILL_TRACK_COLORS[trackChar] || "#3B82F6";
                   const currentWidth = (lv.current / maxPyramidHC) * 100;
                   const scenarioWidth = (lv.scenario / maxPyramidHC) * 100;
-                  const maxBarPct = 70; // max bar width percentage
+                  const maxBarPct = 70;
 
                   return <div key={lv.level} style={{
                     display: "grid", gridTemplateColumns: "60px 1fr 120px 60px",
                     alignItems: "center", gap: 8, padding: "4px 0",
                     transition: "background 0.15s ease-out",
-                  }}>
+                  }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(247,245,240,0.5)'; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = 'transparent'; }}>
                     {/* Level badge */}
                     <div style={{
                       display: "inline-flex", alignItems: "center", justifyContent: "center",
                       padding: "3px 10px", borderRadius: 8,
                       background: `${trackColor}15`, color: trackColor,
-                      fontSize: 12, fontWeight: 700, fontFamily: DRILL_MONO,
+                      fontSize: 12, fontWeight: 500, fontFamily: DRILL_MONO,
                       letterSpacing: "0.03em", width: "fit-content",
                     }}>
                       {lv.level}
@@ -950,38 +1080,35 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
 
                     {/* Centered bar */}
                     <div style={{ position: "relative", height: 28, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      {/* Current state — faded background bar */}
                       <div style={{
                         position: "absolute", height: 24, borderRadius: 6,
                         width: `${(currentWidth / 100) * maxBarPct}%`,
-                        background: `${trackColor}25`,
+                        background: `${trackColor}20`,
                         transition: "width 0.5s ease-out",
                       }} />
-                      {/* Scenario state — solid bar overlaid */}
                       <div style={{
                         position: "absolute", height: 24, borderRadius: 6,
                         width: `${(scenarioWidth / 100) * maxBarPct}%`,
                         background: trackColor,
-                        opacity: 0.8,
+                        opacity: 0.75,
                         transition: "width 0.5s ease-out",
                       }} />
-                      {/* HC count centered on bar */}
                       <span style={{
                         position: "relative", zIndex: 2,
-                        fontSize: 12, fontWeight: 700, fontFamily: DRILL_MONO,
-                        color: "rgba(255,255,255,0.9)",
-                        textShadow: "0 1px 3px rgba(0,0,0,0.5)",
+                        fontSize: 12, fontWeight: 500, fontFamily: DRILL_MONO,
+                        color: "#FFFFFF",
+                        textShadow: "0 1px 2px rgba(0,0,0,0.3)",
                       }}>
                         {lv.current}
                       </span>
                     </div>
 
-                    {/* Cost info — muted mono */}
+                    {/* Cost info */}
                     <div style={{ textAlign: "right" }}>
-                      <div style={{ fontSize: 10, fontFamily: DRILL_MONO, fontWeight: 700, color: "#64748b" }}>
+                      <div style={{ fontSize: 11, fontFamily: DRILL_MONO, fontWeight: 500, color: 'rgba(28,43,58,0.55)' }}>
                         ${Math.round(lv.comp / 1000)}K avg
                       </div>
-                      <div style={{ fontSize: 10, fontFamily: DRILL_MONO, fontWeight: 700, color: "#64748b" }}>
+                      <div style={{ fontSize: 11, fontFamily: DRILL_MONO, fontWeight: 500, color: 'rgba(28,43,58,0.55)' }}>
                         ${(lv.totalCost / 1e6).toFixed(1)}M total
                       </div>
                     </div>
@@ -989,14 +1116,11 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
                     {/* Delta */}
                     <div style={{ textAlign: "right" }}>
                       {lv.delta !== 0 ? (
-                        <span style={{
-                          fontSize: 12, fontWeight: 700, fontFamily: DRILL_MONO,
-                          color: lv.delta < 0 ? "#34d399" : "#F97316",
-                        }}>
+                        <span style={{ fontSize: 12, fontWeight: 500, fontFamily: DRILL_MONO, color: lv.delta < 0 ? "#16A34A" : "#DC2626" }}>
                           {lv.delta > 0 ? "+" : ""}{lv.delta}
                         </span>
                       ) : (
-                        <span style={{ fontSize: 12, color: "#64748b" }}>—</span>
+                        <span style={{ fontSize: 12, color: 'rgba(28,43,58,0.65)' }}>{'\u2014'}</span>
                       )}
                     </div>
                   </div>;
@@ -1004,20 +1128,15 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
               </div>
 
               {/* Legend */}
-              <div style={{ display: "flex", gap: 16, marginTop: 12, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <div style={{ width: 16, height: 8, borderRadius: 3, background: "rgba(59,130,246,0.25)" }} />
-                  <span style={{ fontSize: 11, color: "#64748b" }}>Current</span>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <div style={{ width: 16, height: 8, borderRadius: 3, background: "rgba(59,130,246,0.8)" }} />
-                  <span style={{ fontSize: 11, color: "#64748b" }}>Scenario</span>
-                </div>
+              <div style={{ display: "flex", gap: 16, marginTop: 12, paddingTop: 8, borderTop: "0.5px solid rgba(28,43,58,0.08)", fontSize: 11, color: 'rgba(28,43,58,0.55)' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 16, height: 8, borderRadius: 3, background: "rgba(59,130,246,0.20)" }} />Current</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 16, height: 8, borderRadius: 3, background: "rgba(59,130,246,0.75)" }} />Proposed</span>
               </div>
-            </Card>
+            </div>
 
-            {/* Cost Concentration section */}
-            <Card title="Cost Concentration — Top 3 Levels">
+            {/* Cost Concentration — white card */}
+            <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: 20, marginBottom: 16 }}>
+              <div style={{ fontSize: 14, fontWeight: 500, color: '#1C2B3A', marginBottom: 14 }}>Cost Concentration — Top 3 Levels</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {costConcentration.map((lv, idx) => {
                   const pct = totalDeptLevelCost > 0 ? (lv.totalCost / totalDeptLevelCost) * 100 : 0;
@@ -1025,24 +1144,24 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
                   return <div key={lv.level}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: "#64748b" }}>#{idx + 1}</span>
+                        <span style={{ fontSize: 12, fontWeight: 500, color: 'rgba(28,43,58,0.45)' }}>#{idx + 1}</span>
                         <span style={{
                           padding: "2px 8px", borderRadius: 6,
                           background: `${trackColor}15`, color: trackColor,
-                          fontSize: 12, fontWeight: 700, fontFamily: DRILL_MONO,
+                          fontSize: 12, fontWeight: 500, fontFamily: DRILL_MONO,
                         }}>{lv.level}</span>
-                        <span style={{ fontSize: 12, color: "#a3b1c6" }}>{lv.current} heads</span>
+                        <span style={{ fontSize: 11, color: 'rgba(28,43,58,0.55)' }}>{lv.current} heads</span>
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <span style={{ fontSize: 13, fontWeight: 700, fontFamily: DRILL_MONO, color: "#e8ecf4" }}>
+                        <span style={{ fontSize: 13, fontWeight: 500, fontFamily: DRILL_MONO, color: '#1C2B3A' }}>
                           ${(lv.totalCost / 1e6).toFixed(1)}M
                         </span>
-                        <span style={{ fontSize: 12, fontWeight: 700, fontFamily: DRILL_MONO, color: trackColor }}>
+                        <span style={{ fontSize: 12, fontWeight: 500, fontFamily: DRILL_MONO, color: trackColor }}>
                           {pct.toFixed(1)}%
                         </span>
                       </div>
                     </div>
-                    <div style={{ height: 8, borderRadius: 4, background: "rgba(255,255,255,0.04)", overflow: "hidden" }}>
+                    <div style={{ height: 8, borderRadius: 4, background: "rgba(28,43,58,0.04)", overflow: "hidden" }}>
                       <div style={{
                         height: "100%", borderRadius: 4,
                         width: `${pct}%`,
@@ -1053,93 +1172,88 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
                   </div>;
                 })}
               </div>
-            </Card>
+            </div>
           </div>
 
           {/* Right: What-If Simulator side panel */}
-          <div className="shrink-0 space-y-4" style={{ width: "clamp(260px, 22vw, 320px)" }}>
-            {/* What-If Simulator */}
-            <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-1)] p-5" style={{ boxShadow: "var(--shadow-1)" }}>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-lg">🔬</span>
-                <span className="text-[15px] font-bold text-[var(--text-primary)]">What-If Simulator</span>
-              </div>
-              <div className="text-[12px] text-[var(--text-muted)] mb-4">Drag the sliders to reshape {dept?.name || "this department"} and see the impact in real-time.</div>
+          <div className="shrink-0" style={{ width: "clamp(260px, 22vw, 320px)", display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {/* What-If Simulator — white card */}
+            <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: 20 }}>
+              <div style={{ fontSize: 14, fontWeight: 500, color: '#1C2B3A', marginBottom: 4 }}>What-If Simulator</div>
+              <div style={{ fontSize: 11, color: 'rgba(28,43,58,0.55)', marginBottom: 16 }}>Drag the sliders to reshape {dept?.name || "this department"} and see impact in real-time.</div>
 
               {/* Target Span slider */}
-              <div className="mb-4">
-                <div className="flex justify-between text-[13px] mb-1">
-                  <span className="text-[var(--text-muted)] font-semibold">Target Span</span>
-                  <span className="text-[var(--text-primary)] font-bold">{simTargetSpan}:1</span>
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <span style={{ fontSize: 11, color: 'rgba(28,43,58,0.55)' }}>Target Span</span>
+                  <span style={{ fontSize: 16, fontWeight: 500, color: '#1C2B3A' }}>{simTargetSpan}:1</span>
                 </div>
-                <input type="range" min={3} max={12} step={0.5} value={simTargetSpan} onChange={e => setSimTargetSpan(Number(e.target.value))} className="w-full h-2 rounded-full appearance-none cursor-pointer" style={{ background: `linear-gradient(to right, #3B82F6 ${((simTargetSpan - 3) / 9) * 100}%, rgba(59,130,246,0.15) ${((simTargetSpan - 3) / 9) * 100}%)` }} />
-                <div className="flex justify-between text-[11px] text-[var(--text-muted)] mt-0.5"><span>3</span><span>12</span></div>
+                <input type="range" min={3} max={12} step={0.5} value={simTargetSpan} onChange={e => setSimTargetSpan(Number(e.target.value))} className="w-full h-2 rounded-full appearance-none cursor-pointer" style={{ background: `linear-gradient(to right, #3B82F6 ${((simTargetSpan - 3) / 9) * 100}%, rgba(28,43,58,0.15) ${((simTargetSpan - 3) / 9) * 100}%)` }} />
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'rgba(28,43,58,0.55)', marginTop: 2 }}><span>3</span><span>12</span></div>
               </div>
 
               {/* Max Layers slider */}
-              <div className="mb-4">
-                <div className="flex justify-between text-[13px] mb-1">
-                  <span className="text-[var(--text-muted)] font-semibold">Max Layers</span>
-                  <span className="text-[var(--text-primary)] font-bold">{simMaxLayers}</span>
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <span style={{ fontSize: 11, color: 'rgba(28,43,58,0.55)' }}>Max Layers</span>
+                  <span style={{ fontSize: 16, fontWeight: 500, color: '#1C2B3A' }}>{simMaxLayers}</span>
                 </div>
-                <input type="range" min={2} max={8} step={1} value={simMaxLayers} onChange={e => setSimMaxLayers(Number(e.target.value))} className="w-full h-2 rounded-full appearance-none cursor-pointer" style={{ background: `linear-gradient(to right, #3B82F6 ${((simMaxLayers - 2) / 6) * 100}%, rgba(59,130,246,0.15) ${((simMaxLayers - 2) / 6) * 100}%)` }} />
-                <div className="flex justify-between text-[11px] text-[var(--text-muted)] mt-0.5"><span>2</span><span>8</span></div>
+                <input type="range" min={2} max={8} step={1} value={simMaxLayers} onChange={e => setSimMaxLayers(Number(e.target.value))} className="w-full h-2 rounded-full appearance-none cursor-pointer" style={{ background: `linear-gradient(to right, #3B82F6 ${((simMaxLayers - 2) / 6) * 100}%, rgba(28,43,58,0.15) ${((simMaxLayers - 2) / 6) * 100}%)` }} />
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'rgba(28,43,58,0.55)', marginTop: 2 }}><span>2</span><span>8</span></div>
               </div>
 
-              {/* Simulated Impact box — colored values */}
-              <div className="rounded-xl bg-[var(--surface-2)] border border-[var(--border)] p-3 space-y-2">
-                <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.08em", color: "#64748b", marginBottom: 4 }}>Simulated Impact</div>
+              {/* Simulated Impact box */}
+              <div style={{ background: 'var(--ivory, #F7F5F0)', borderRadius: 6, padding: '12px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'rgba(28,43,58,0.55)', marginBottom: 2 }}>Simulated Impact</div>
                 {[
                   { label: "Headcount Change", value: `${simDept.hcDelta >= 0 ? "+" : ""}${simDept.hcDelta}`, good: simDept.hcDelta <= 0 },
                   { label: "Cost Impact", value: `${simDept.costPct >= 0 ? "+" : ""}${simDept.costPct.toFixed(1)}%`, good: simDept.costPct <= 0 },
                   { label: "New Span", value: `${simDept.span}:1`, good: simDept.span >= 6 && simDept.span <= 8 },
                   { label: "Layer Delta", value: `${simDept.layerDelta > 0 ? "-" : simDept.layerDelta < 0 ? "+" : ""}${Math.abs(simDept.layerDelta)}`, good: simDept.layerDelta >= 0 },
-                ].map(r => <div key={r.label} className="flex justify-between items-center text-[13px]">
-                  <span className="text-[var(--text-muted)]">{r.label}</span>
-                  <span style={{ fontWeight: 700, fontFamily: DRILL_MONO, color: r.good ? "#34d399" : "#F97316" }}>{r.value}</span>
+                ].map(r => <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12 }}>
+                  <span style={{ color: 'rgba(28,43,58,0.55)' }}>{r.label}</span>
+                  <span style={{ fontWeight: 500, color: r.good ? '#16A34A' : '#DC2626' }}>{r.value}</span>
                 </div>)}
               </div>
             </div>
 
-            {/* Shape Assessment — larger bars with counts */}
-            <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-1)] p-5" style={{ boxShadow: "var(--shadow-1)" }}>
-              <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.08em", color: "#64748b", marginBottom: 12 }}>Shape Assessment</div>
-              <div className="flex items-center gap-2 mb-4">
-                <span className="px-2.5 py-1 rounded-full text-[13px] font-bold" style={{ background: `${shapeAssessment.color}20`, color: shapeAssessment.color }}>{shapeAssessment.shape}</span>
-              </div>
-              {/* Larger shape visualization with counts */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 12 }}>
+            {/* Shape Assessment — white card */}
+            <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: 20 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'rgba(28,43,58,0.55)', marginBottom: 12 }}>Shape Assessment</div>
+              <div style={{ fontSize: 16, fontWeight: 500, color: '#1C2B3A', marginBottom: 4 }}>{shapeAssessment.shape}</div>
+              <div style={{ fontSize: 12, color: 'rgba(28,43,58,0.65)', marginBottom: 12, lineHeight: 1.5 }}>{shapeAssessment.desc}</div>
+              {/* Bars with counts */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {[
                   { label: "Senior", pct: shapeAssessment.topPct, count: shapeAssessment.top },
                   { label: "Mid", pct: shapeAssessment.midPct, count: shapeAssessment.mid },
                   { label: "IC", pct: shapeAssessment.bottomPct, count: shapeAssessment.bottom },
-                ].map(tier => <div key={tier.label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ fontSize: 11, color: "#64748b", width: 40, textAlign: "right" }}>{tier.label}</span>
-                  <div style={{ flex: 1, height: 16, borderRadius: 8, overflow: "hidden", background: `${shapeAssessment.color}12` }}>
-                    <div style={{ height: "100%", borderRadius: 8, transition: "width 0.3s ease-out", width: `${Math.max(tier.pct * 100, 6)}%`, background: shapeAssessment.color }} />
+                ].map(tier => <div key={tier.label} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 11, color: 'rgba(28,43,58,0.55)', width: 40, textAlign: 'right' }}>{tier.label}</span>
+                  <div style={{ flex: 1, height: 16, borderRadius: 8, overflow: 'hidden', background: 'rgba(28,43,58,0.04)' }}>
+                    <div style={{ height: '100%', borderRadius: 8, transition: 'width 0.3s ease-out', width: `${Math.max(tier.pct * 100, 6)}%`, background: shapeAssessment.color, opacity: 0.7 }} />
                   </div>
-                  <span style={{ fontSize: 13, fontWeight: 700, fontFamily: DRILL_MONO, color: "#e8ecf4", minWidth: 32, textAlign: "right" }}>{tier.count}</span>
+                  <span style={{ fontSize: 13, fontWeight: 500, color: '#1C2B3A', minWidth: 32, textAlign: 'right' }}>{tier.count}</span>
                 </div>)}
               </div>
-              <div className="text-[12px] text-[var(--text-secondary)] leading-relaxed">{shapeAssessment.desc}</div>
             </div>
 
-            {/* vs. Industry Benchmark */}
-            <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-1)] p-5" style={{ boxShadow: "var(--shadow-1)" }}>
-              <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.08em", color: "#64748b", marginBottom: 12 }}>vs. Industry Benchmark</div>
-              <div className="space-y-3">
+            {/* vs. Industry Benchmark — white card */}
+            <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: 20 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'rgba(28,43,58,0.55)', marginBottom: 12 }}>vs. Industry Benchmark</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {[
                   { label: "Span of Control", current: dept?.avgSpan || 0, benchmark: "6-8:1", min: 6, max: 8 },
                   { label: "Layer Count", current: dept?.layers || 0, benchmark: "4-5", min: 4, max: 5 },
                   { label: "Manager Ratio", current: dept ? Math.round((dept.managers / Math.max(dept.headcount, 1)) * 100) : 0, benchmark: "10-12%", min: 10, max: 12 },
-                ].map(row => <div key={row.label} className="flex items-center justify-between text-[13px]">
+                ].map(row => <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <div className="text-[var(--text-muted)] font-semibold">{row.label}</div>
-                    <div className="text-[11px] text-[var(--text-muted)]">Benchmark: {row.benchmark}</div>
+                    <div style={{ fontSize: 12, fontWeight: 500, color: '#1C2B3A' }}>{row.label}</div>
+                    <div style={{ fontSize: 11, color: 'rgba(28,43,58,0.65)' }}>Benchmark: {row.benchmark}</div>
                   </div>
-                  <div className="text-right">
-                    <div className="font-bold" style={{ color: benchColor(row.current, row.min, row.max) }}>{row.current}{row.label === "Manager Ratio" ? "%" : row.label === "Span of Control" ? ":1" : ""}</div>
-                    <div className="text-[11px]" style={{ color: benchColor(row.current, row.min, row.max) }}>{row.current >= row.min && row.current <= row.max ? "✓ In range" : "⚠ Out of range"}</div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: 14, fontWeight: 500, color: benchColor(row.current, row.min, row.max) }}>{row.current}{row.label === "Manager Ratio" ? "%" : row.label === "Span of Control" ? ":1" : ""}</div>
+                    <div style={{ fontSize: 11, color: benchColor(row.current, row.min, row.max) }}>{row.current >= row.min && row.current <= row.max ? "\u2713 In range" : "\u26A0 Out of range"}</div>
                   </div>
                 </div>)}
               </div>
@@ -1149,253 +1263,223 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
       </div>;
     })()}
 
-    {/* Scenario Compare — all scenarios side by side */}
-    {view === "compare" && <Card title="Multi-Scenario Comparison">
-      <div className="overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full"><thead><tr className="bg-[var(--surface-2)]"><th className="px-3 py-2 text-left text-[15px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Metric</th><th className="px-3 py-2 text-center text-[15px] font-semibold text-[var(--text-muted)] uppercase border-b border-[var(--border)]">Current</th>{scenarios.map((s, i) => <th key={s.id} className="px-3 py-2 text-center text-[15px] font-semibold border-b border-[var(--border)]" style={{ color: COLORS[i % COLORS.length] }}>{s.label}</th>)}</tr></thead>
-      <tbody>{[{ label: "Headcount", key: "hc", inv: true }, { label: "Avg Span", key: "avgS" }, { label: "Avg Layers", key: "avgL", inv: true }, { label: "Managers", key: "mgr", inv: true }, { label: "Est. Cost ($M)", key: "cost", inv: true, fmtFn: (v: number) => `${fmtNum(v)}` }].map(m => {
-        const cVal = cA[m.key as keyof typeof cA] as number;
-        return <tr key={m.label} className="border-b border-[var(--border)]"><td className="px-3 py-2 text-[15px] font-semibold">{m.label}</td><td className="px-3 py-2 text-center text-[var(--text-secondary)]">{m.fmtFn ? m.fmtFn(cVal) : fmt(cVal)}</td>{scenarios.map((s, i) => { const a = odsAgg(s.departments); const v = a[m.key as keyof typeof a] as number; return <td key={s.id} className="px-3 py-2 text-center"><span className="font-bold" style={{ color: COLORS[i % COLORS.length] }}>{m.fmtFn ? m.fmtFn(v) : fmt(v)}</span> <DChip a={cVal} b={v} inv={m.inv} /></td>; })}</tr>;
-      })}</tbody></table></div>
-    </Card>}
-
-    {/* Insights Engine — comprehensive */}
-    {view === "insights" && (() => {
-      const insights: { type: string; title: string; body: string; color: string; metric?: string }[] = [];
-      const narrow = currentData.filter(d => d.avgSpan < 5);
-      if (narrow.length > 0) insights.push({ type: "warning", title: "Over-Layered Functions", body: `${narrow.map(d => `${d.name} (${d.avgSpan}:1)`).join(", ")} — spans below 5:1 indicate excessive management overhead. Industry benchmark is 6-8:1 for knowledge workers. Consider removing one management layer in these functions.`, color: "var(--warning)", metric: `${narrow.length} dept${narrow.length > 1 ? "s" : ""}` });
-      const wide = currentData.filter(d => d.avgSpan > 12);
-      if (wide.length > 0) insights.push({ type: "alert", title: "Overextended Spans", body: `${wide.map(d => `${d.name} (${d.avgSpan}:1)`).join(", ")} — spans above 12:1 risk insufficient coaching and development. Managers lose ability to provide meaningful 1:1s above ~10 direct reports.`, color: "var(--risk)", metric: `${wide.length} dept${wide.length > 1 ? "s" : ""}` });
-      const optimalSpan = currentData.filter(d => d.avgSpan >= 6 && d.avgSpan <= 10);
-      if (optimalSpan.length > 0) insights.push({ type: "positive", title: "Healthy Span Functions", body: `${optimalSpan.map(d => d.name).join(", ")} — 6-10:1 span range is optimal. These functions have the right balance of oversight and autonomy.`, color: "var(--success)", metric: `${optimalSpan.length}/${currentData.length}` });
-      const layerReductions = currentData.filter((d, i) => sc.departments[i]?.layers != null && sc.departments[i].layers < d.layers);
-      if (layerReductions.length > 0) { const totalRemoved = layerReductions.reduce((s, d, i) => s + d.layers - (sc.departments[currentData.indexOf(d)]?.layers || d.layers), 0); insights.push({ type: "positive", title: `${totalRemoved} Layers Removed in ${sc.label}`, body: `De-layering ${layerReductions.map(d => d.name).join(", ")} compresses decision-making distance by ~${Math.round(totalRemoved / currentData.reduce((s, d) => s + d.layers, 0) * 100)}%. Expected impact: 20-30% faster decision cycles and reduced escalation burden.`, color: "var(--success)", metric: `${totalRemoved} layers` }); }
-      // Manager ratio analysis
-      const mgrRatio = cA.mgr / Math.max(cA.hc, 1) * 100;
-      const fMgrRatio = fA.mgr / Math.max(fA.hc, 1) * 100;
-      insights.push({ type: mgrRatio > 15 ? "warning" : "info", title: `Manager Ratio: ${fmt(mgrRatio, "pct")} → ${fmt(fMgrRatio, "pct")}`, body: `Current org has 1 manager per ${fmt(Math.round(cA.hc / Math.max(cA.mgr, 1)))} employees. ${mgrRatio > 15 ? "Above the 12-15% benchmark — indicates over-management." : mgrRatio < 8 ? "Below 8% — may indicate insufficient leadership coverage." : "Within healthy 8-15% range."} The ${sc.label} scenario ${fMgrRatio < mgrRatio ? "improves" : "maintains"} this to ${fmt(fMgrRatio, "pct")}.`, color: mgrRatio > 15 ? "var(--warning)" : "var(--accent-primary)", metric: `${fmt(mgrRatio, "pct")}` });
-      // Cost insights
-      if (fA.cost < cA.cost) { const savings = cA.cost - fA.cost; const pct = (savings / Math.max(cA.cost, 1) * 100); insights.push({ type: "positive", title: `${fmtNum(savings)} Annual Savings (${pct.toFixed(0)}%)`, body: `The ${sc.label} scenario achieves labor cost reduction through structural efficiency. At current compensation levels, removing ${cA.hc - fA.hc} positions saves ${fmtNum(savings)}/year. Break-even on restructuring costs (est. ${fmtNum((cA.hc - fA.hc) * 50000)} severance) within ${Math.ceil(((cA.hc - fA.hc) * 50000) / Math.max(savings, 1) * 12)} months.`, color: "var(--success)", metric: `${fmtNum(savings)}` }); }
-      if (fA.cost > cA.cost) { const increase = fA.cost - cA.cost; insights.push({ type: "warning", title: `${fmtNum(increase)} Cost Increase`, body: `The ${sc.label} scenario adds ${fA.hc - cA.hc} headcount costing ${fmtNum(increase)}/year. Verify this represents strategic investment (new capabilities, growth functions) rather than structural bloat.`, color: "var(--warning)", metric: `+${fmtNum(increase)}` }); }
-      // Largest department
-      const largest = [...currentData].sort((a, b) => b.headcount - a.headcount)[0] || { name: "—", headcount: 0 };
-      const smallest = [...currentData].sort((a, b) => a.headcount - b.headcount)[0] || { name: "—", headcount: 0 };
-      insights.push({ type: "info", title: `Concentration Risk: ${largest.name}`, body: `${largest.name} holds ${Math.round(largest.headcount / Math.max(cA.hc, 1) * 100)}% of total headcount (${largest.headcount}/${cA.hc}). ${largest.headcount / Math.max(cA.hc, 1) > 0.3 ? "This concentration exceeds 30% — consider whether this function warrants sub-division to improve resilience." : "Concentration is within acceptable range."} Smallest function: ${smallest.name} (${smallest.headcount}, ${Math.round(smallest.headcount / Math.max(cA.hc, 1) * 100)}%).`, color: "var(--accent-primary)", metric: `${Math.round(largest.headcount / Math.max(cA.hc, 1) * 100)}%` });
-      // IC to Manager ratio by department
-      const worstIMRatio = [...currentData].sort((a, b) => (a.ics / Math.max(a.managers, 1)) - (b.ics / Math.max(b.managers, 1)))[0] || { name: "—", ics: 0, managers: 1 };
-      const bestIMRatio = [...currentData].sort((a, b) => (b.ics / Math.max(b.managers, 1)) - (a.ics / Math.max(a.managers, 1)))[0] || { name: "—", ics: 0, managers: 1 };
-      insights.push({ type: "info", title: "IC-to-Manager Disparity", body: `Widest gap: ${bestIMRatio.name} has ${(bestIMRatio.ics / Math.max(bestIMRatio.managers, 1)).toFixed(1)} ICs per manager vs ${worstIMRatio.name} at ${(worstIMRatio.ics / Math.max(worstIMRatio.managers, 1)).toFixed(1)}. Standardizing ratios could improve equity and reduce role confusion.`, color: "var(--accent-primary)" });
-      // FTE ratio
-      const avgFte = currentData.reduce((s, d) => s + d.fteRatio, 0) / currentData.length;
-      const lowFte = currentData.filter(d => d.fteRatio < 0.8);
-      if (lowFte.length > 0) insights.push({ type: "warning", title: `High Contractor Reliance`, body: `${lowFte.map(d => `${d.name} (${Math.round(d.fteRatio * 100)}% FTE)`).join(", ")} — FTE ratio below 80% indicates dependency on contingent workforce. Consider converting key contractor roles to FTE for knowledge retention.`, color: "var(--warning)", metric: `${Math.round(avgFte * 100)}% avg` });
-      // Scenario-specific
-      insights.push({ type: "info", title: `${sc.label} Scenario Summary`, body: `This scenario changes headcount from ${fmt(cA.hc)} → ${fmt(fA.hc)} (${fmt(fA.hc - cA.hc, "delta")}), adjusts average span from ${fmt(cA.avgS)} → ${fmt(fA.avgS)}, and shifts cost from ${fmtNum(cA.cost)} → ${fmtNum(fA.cost)}. The primary lever is ${fA.avgL < cA.avgL ? "layer compression" : fA.hc < cA.hc ? "headcount reduction" : "span optimization"}.`, color: "var(--accent-primary)" });
-
-      if (!insights.length) insights.push({ type: "info", title: "No Major Flags", body: "Current scenario changes are within normal ranges.", color: "var(--accent-primary)" });
-
-      // Add recommendation and headline to each insight for the slideshow
-      const enrichedInsights = insights.map(ins => {
-        let severity: string, severityIcon: string, severityColor: string;
-        if (ins.type === "alert") { severity = "Critical"; severityIcon = "⚠"; severityColor = "var(--risk)"; }
-        else if (ins.type === "warning") { severity = "Warning"; severityIcon = "◈"; severityColor = "var(--warning)"; }
-        else if (ins.type === "positive") { severity = "On Track"; severityIcon = "✓"; severityColor = "var(--success)"; }
-        else if (ins.title.includes("Summary")) { severity = "Summary"; severityIcon = "◎"; severityColor = "#6b7280"; }
-        else { severity = "Insight"; severityIcon = "ℹ"; severityColor = "#3B82F6"; }
-
-        // Extract a headline from the body (first sentence)
-        const headline = ins.body.split(". ")[0] + ".";
-        const bodyRest = ins.body.split(". ").slice(1).join(". ");
-
-        // Generate recommendation based on type
-        let recommendation = "";
-        if (ins.title.includes("Over-Layered")) recommendation = "Consolidate one management layer in flagged functions. Target 6-8:1 span ratio through attrition or redeployment.";
-        else if (ins.title.includes("Overextended")) recommendation = "Add team leads or split teams to bring spans below 10:1 for effective coaching and development.";
-        else if (ins.title.includes("Healthy")) recommendation = "Preserve current structure. Use these functions as benchmarks for restructuring other departments.";
-        else if (ins.title.includes("Layers Removed")) recommendation = "Implement de-layering through attrition cycles. Reassign decision rights to remaining layers.";
-        else if (ins.title.includes("Manager Ratio")) recommendation = "Review manager-to-IC ratios across all departments. Standardize toward 1:8 target.";
-        else if (ins.title.includes("Savings")) recommendation = "Phase savings realization over 12-18 months to minimize disruption. Reinvest 20% in upskilling.";
-        else if (ins.title.includes("Cost Increase")) recommendation = "Validate that cost increases map to strategic capabilities. Tag each new role to a revenue or efficiency outcome.";
-        else if (ins.title.includes("Concentration")) recommendation = "Assess single-point-of-failure risk. Consider functional splits if concentration exceeds 30%.";
-        else if (ins.title.includes("IC-to-Manager")) recommendation = "Standardize IC-to-Manager ratios across comparable functions to improve equity and clarity.";
-        else if (ins.title.includes("Contractor")) recommendation = "Convert critical contractor roles to FTE. Prioritize roles with institutional knowledge requirements.";
-        else if (ins.title.includes("Summary")) recommendation = "Review all scenario parameters before stakeholder presentation. Validate key assumptions with department heads.";
-        else recommendation = "Review and validate these findings with relevant department heads before taking action.";
-
-        return { ...ins, severity, severityIcon, severityColor, headline, bodyRest, recommendation };
-      });
-
-      // Sort: positive first, then info, then warnings, then critical — builds narrative tension
-      enrichedInsights.sort((a, b) => {
-        const order: Record<string, number> = { positive: 0, info: 1, warning: 2, alert: 3 };
-        return (order[a.type] ?? 1) - (order[b.type] ?? 1);
-      });
-
-      // Final action synthesis slide
-      enrichedInsights.push({
-        type: "info", title: "Your 3 Highest-Impact Actions",
-        body: `1. ${enrichedInsights.find(i => i.type === "alert" || i.type === "warning")?.recommendation || "Address structural issues first"}. 2. ${enrichedInsights.find(i => i.title.includes("Savings") || i.title.includes("Cost"))?.recommendation || "Review cost optimization opportunities"}. 3. ${enrichedInsights.find(i => i.title.includes("Span") || i.title.includes("Ratio"))?.recommendation || "Standardize management ratios across functions"}.`,
-        color: "#3B82F6", metric: "3", severity: "Action Plan", severityIcon: "\uD83C\uDFAF", severityColor: "#3B82F6",
-        headline: "Based on all insights, these three actions have the highest estimated ROI.",
-        bodyRest: "Prioritize in this order for maximum organizational impact.",
-        recommendation: "Present these to the executive team with supporting data from each insight slide."
-      });
-
-      const currentInsight = enrichedInsights[insightSlide] || enrichedInsights[0];
-      const totalSlides = enrichedInsights.length;
-      const clampedSlide = Math.min(insightSlide, totalSlides - 1);
-
-      // Visualization renderer for right column
-      const renderViz = (ins: typeof currentInsight) => {
-        if (ins.title.includes("Over-Layered") || ins.title.includes("Overextended") || ins.title.includes("Healthy")) {
-          // Horizontal comparison bars (current vs benchmark range)
-          const depts = ins.title.includes("Healthy") ? currentData.filter(d => d.avgSpan >= 6 && d.avgSpan <= 10).slice(0, 5) : ins.title.includes("Over-Layered") ? currentData.filter(d => d.avgSpan < 5).slice(0, 5) : currentData.filter(d => d.avgSpan > 12).slice(0, 5);
-          return <div className="space-y-2 mt-4">{depts.map(d => <div key={d.name}>
-            <div className="flex justify-between text-[11px] text-[var(--text-muted)] mb-0.5"><span>{d.name}</span><span>{d.avgSpan}:1</span></div>
-            <div className="relative h-4 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
-              <div className="absolute top-0 h-full rounded-full transition-all" style={{ width: `${Math.min((d.avgSpan / 15) * 100, 100)}%`, background: d.avgSpan >= 6 && d.avgSpan <= 8 ? "#34d399" : "#F97316" }} />
-              {/* Benchmark range marker */}
-              <div className="absolute top-0 h-full border-l-2 border-r-2 border-dashed" style={{ left: `${(6 / 15) * 100}%`, width: `${((8 - 6) / 15) * 100}%`, borderColor: "rgba(52,211,153,0.4)" }} />
-            </div>
-          </div>)}</div>;
-        }
-        if (ins.title.includes("Layers Removed")) {
-          // Small bar chart showing layers removed per dept
-          return <div className="space-y-1.5 mt-4">{currentData.filter((d, i) => sc.departments[i]?.layers < d.layers).slice(0, 6).map((d, i) => {
-            const removed = d.layers - (sc.departments[currentData.indexOf(d)]?.layers || d.layers);
-            return <div key={d.name} className="flex items-center gap-2">
-              <span className="text-[10px] text-[var(--text-muted)] w-16 text-right truncate">{d.name.split(" ")[0]}</span>
-              <div className="flex-1 h-3 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
-                <div className="h-full rounded-full" style={{ width: `${(removed / 3) * 100}%`, background: "#34d399" }} />
-              </div>
-              <span className="text-[10px] font-bold text-[var(--success)]">-{removed}</span>
-            </div>;
-          })}</div>;
-        }
-        if (ins.title.includes("Concentration")) {
-          // Mini treemap showing dept headcount proportions
-          return <div className="grid grid-cols-3 gap-1 mt-4">{[...currentData].sort((a, b) => b.headcount - a.headcount).slice(0, 6).map((d, i) => {
-            const pct = Math.round(d.headcount / Math.max(cA.hc, 1) * 100);
-            return <div key={d.name} className="rounded-lg p-2 text-center" style={{ background: `${COLORS[i % COLORS.length]}15` }}>
-              <div className="text-[10px] text-[var(--text-muted)] truncate">{d.name.split(" ")[0]}</div>
-              <div className="text-[13px] font-bold" style={{ color: COLORS[i % COLORS.length] }}>{pct}%</div>
-            </div>;
-          })}</div>;
-        }
-        if (ins.title.includes("IC-to-Manager")) {
-          // Horizontal bar chart with department IC:Manager ratios
-          return <div className="space-y-1.5 mt-4">{[...currentData].sort((a, b) => (b.ics / Math.max(b.managers, 1)) - (a.ics / Math.max(a.managers, 1))).slice(0, 6).map(d => {
-            const ratio = d.ics / Math.max(d.managers, 1);
-            const inRange = ratio >= 6 && ratio <= 8;
-            return <div key={d.name} className="flex items-center gap-2">
-              <span className="text-[10px] text-[var(--text-muted)] w-14 text-right truncate">{d.name.split(" ")[0]}</span>
-              <div className="flex-1 h-3 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
-                <div className="h-full rounded-full" style={{ width: `${Math.min((ratio / 15) * 100, 100)}%`, background: inRange ? "#34d399" : "#F97316" }} />
-              </div>
-              <span className="text-[10px] font-bold" style={{ color: inRange ? "#34d399" : "#F97316" }}>{ratio.toFixed(1)}</span>
-            </div>;
-          })}</div>;
-        }
-        if (ins.title.includes("Contractor") || ins.title.includes("FTE")) {
-          // Dot plot per department showing FTE % vs 80% threshold
-          return <div className="space-y-2 mt-4">{currentData.filter(d => d.fteRatio < 0.95).slice(0, 6).map(d => {
-            const pct = Math.round(d.fteRatio * 100);
-            return <div key={d.name}>
-              <div className="flex justify-between text-[10px] text-[var(--text-muted)] mb-0.5"><span>{d.name.split(" ")[0]}</span><span>{pct}%</span></div>
-              <div className="relative h-3 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
-                <div className="h-full rounded-full" style={{ width: `${pct}%`, background: pct >= 80 ? "#34d399" : "#F97316" }} />
-                {/* 80% threshold line */}
-                <div className="absolute top-0 h-full w-0.5 bg-red-400/50" style={{ left: "80%" }} />
-              </div>
-            </div>;
-          })}</div>;
-        }
-        if (ins.title.includes("Summary")) {
-          // Three large "from → to" metrics
-          return <div className="space-y-3 mt-4">
-            {[
-              { label: "Headcount", from: fmt(cA.hc), to: fmt(fA.hc) },
-              { label: "Avg Span", from: fmt(cA.avgS), to: fmt(fA.avgS) },
-              { label: "Est. Cost", from: fmtNum(cA.cost), to: fmtNum(fA.cost) },
-            ].map(m => <div key={m.label} className="text-center">
-              <div className="text-[10px] text-[var(--text-muted)] uppercase mb-0.5">{m.label}</div>
-              <div className="text-[15px] font-bold">
-                <span className="text-[var(--accent-primary)]">{m.from}</span>
-                <span className="text-[var(--text-muted)] mx-1">→</span>
-                <span className="text-[var(--success)]">{m.to}</span>
-              </div>
-            </div>)}
-          </div>;
-        }
-        // Default: cost bar
-        return <div className="mt-4 text-center text-[11px] text-[var(--text-muted)]">Structural analysis metric</div>;
-      };
-
+    {/* Scenario Compare — elevated white card table + micro-summary */}
+    {view === "compare" && (() => {
+      const scAggs = scenarios.map(s => odsAgg(s.departments));
+      const metrics = [
+        { label: "Headcount", key: "hc", inv: true },
+        { label: "Avg Span", key: "avgS" },
+        { label: "Avg Layers", key: "avgL", inv: true },
+        { label: "Managers", key: "mgr", inv: true },
+        { label: "ICs", key: "ic" },
+        { label: "Est. Cost ($M)", key: "cost", inv: true, fmtFn: (v: number) => `${fmtNum(v)}` },
+      ];
       return <div>
-        <div className="text-[15px] text-[var(--text-secondary)] mb-4">{totalSlides} insights generated from structural analysis of {currentData.length} departments, {fmt(cA.hc)} employees</div>
-
-        {/* Navigation controls */}
-        <div className="flex items-center justify-end gap-2 mb-3">
-          <button onClick={() => setInsightSlide(Math.max(0, clampedSlide - 1))} disabled={clampedSlide === 0} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold border border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--accent-primary)] disabled:opacity-30 transition-all">←</button>
-          <span className="text-[13px] text-[var(--text-muted)] font-semibold px-2">{clampedSlide + 1} / {totalSlides}</span>
-          <button onClick={() => setInsightSlide(Math.min(totalSlides - 1, clampedSlide + 1))} disabled={clampedSlide === totalSlides - 1} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold border border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--accent-primary)] disabled:opacity-30 transition-all">→</button>
-        </div>
-
-        {/* Slide */}
-        <div className="flex justify-center">
-          <div className="w-full max-w-[900px] min-h-[380px] rounded-2xl border border-[var(--border)] p-8 transition-all duration-500" style={{
-            background: "linear-gradient(135deg, #131b2e 0%, #1a2340 50%, #131b2e 100%)",
-            boxShadow: "0 24px 48px rgba(0,0,0,0.25)",
-          }}>
-            {currentInsight && <div className="flex gap-8 h-full" key={clampedSlide}>
-              {/* Left Column (55%) */}
-              <div className="flex-[55] flex flex-col">
-                {/* Severity badge */}
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[12px] font-bold w-fit mb-4" style={{ background: `${currentInsight.severityColor}15`, color: currentInsight.severityColor }}>
-                  {currentInsight.severityIcon} {currentInsight.severity}
-                </span>
-                {/* Title */}
-                <h2 className="text-[20px] font-bold text-[var(--text-primary)] mb-2 leading-tight">{currentInsight.title}</h2>
-                {/* Headline */}
-                <p className="text-[13px] text-[var(--text-secondary)] mb-3 leading-relaxed">{currentInsight.headline}</p>
-                {/* Body */}
-                <p className="text-[12px] text-[var(--text-muted)] mb-auto leading-relaxed">{currentInsight.bodyRest}</p>
-                {/* Recommendation box */}
-                <div className="mt-4 rounded-lg p-3 border-l-3" style={{ background: "rgba(59,130,246,0.06)", borderLeft: "3px solid #3B82F6" }}>
-                  <div className="text-[10px] font-bold text-[#3B82F6] uppercase tracking-wider mb-1">Recommendation</div>
-                  <div className="text-[12px] text-[var(--text-secondary)] leading-relaxed">{currentInsight.recommendation}</div>
-                </div>
-              </div>
-
-              {/* Right Column (45%) */}
-              <div className="flex-[45] flex flex-col items-center">
-                {/* Large stat number */}
-                {currentInsight.metric && <>
-                  <div className="text-[52px] font-extrabold mt-4" style={{ color: currentInsight.severityColor }}>{currentInsight.metric}</div>
-                  <div className="text-[12px] text-[var(--text-muted)] uppercase tracking-wider mb-2">{currentInsight.title.split(":")[0]}</div>
-                </>}
-                {/* Contextual visualization */}
-                <div className="w-full px-2">
-                  {renderViz(currentInsight)}
-                </div>
-              </div>
-            </div>}
+        {/* Multi-scenario table */}
+        <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: 20, marginBottom: 16 }}>
+          <div style={{ fontSize: 14, fontWeight: 500, color: '#1C2B3A', marginBottom: 2 }}>Multi-Scenario Comparison</div>
+          <div style={{ fontSize: 11, color: 'rgba(28,43,58,0.65)', marginBottom: 14 }}>All scenarios vs. current state</div>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse' }}>
+              <thead><tr style={{ background: '#F1EFE8' }}>
+                <th style={{ padding: '10px 14px', textAlign: 'left', fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'rgba(28,43,58,0.55)', borderBottom: '0.5px solid rgba(28,43,58,0.12)' }}>Metric</th>
+                <th style={{ padding: '10px 14px', textAlign: 'center', fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'rgba(28,43,58,0.55)', borderBottom: '0.5px solid rgba(28,43,58,0.12)' }}>Current</th>
+                {scenarios.map((s, i) => <th key={s.id} style={{ padding: '10px 14px', textAlign: 'center', fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: '#1C2B3A', borderBottom: '0.5px solid rgba(28,43,58,0.12)' }}>{s.label}</th>)}
+              </tr></thead>
+              <tbody>{metrics.map((m, ri) => {
+                const cVal = cA[m.key as keyof typeof cA] as number;
+                return <tr key={m.label} style={{ background: ri % 2 ? 'var(--ivory, #F7F5F0)' : '#FFFFFF', transition: 'background 0.15s' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLTableRowElement).style.background = '#F7F5F0'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLTableRowElement).style.background = ri % 2 ? 'var(--ivory, #F7F5F0)' : '#FFFFFF'; }}>
+                  <td style={{ padding: '10px 14px', fontWeight: 500, color: '#1C2B3A', fontSize: 12, borderBottom: '0.5px solid rgba(28,43,58,0.06)' }}>{m.label}</td>
+                  <td style={{ padding: '10px 14px', textAlign: 'center', color: 'rgba(28,43,58,0.65)', fontSize: 12, fontWeight: 500, borderBottom: '0.5px solid rgba(28,43,58,0.06)' }}>{m.fmtFn ? m.fmtFn(cVal) : fmt(cVal)}</td>
+                  {scenarios.map((s, i) => {
+                    const v = scAggs[i][m.key as keyof typeof cA] as number;
+                    const diff = v - cVal;
+                    const pos = m.inv ? diff < 0 : diff > 0;
+                    const neg = m.inv ? diff > 0 : diff < 0;
+                    const dColor = pos ? '#16A34A' : neg ? '#DC2626' : 'rgba(28,43,58,0.65)';
+                    return <td key={s.id} style={{ padding: '10px 14px', textAlign: 'center', borderBottom: '0.5px solid rgba(28,43,58,0.06)' }}>
+                      <span style={{ fontWeight: 500, color: '#1C2B3A', fontSize: 12 }}>{m.fmtFn ? m.fmtFn(v) : fmt(v)}</span>
+                      {Math.abs(diff) > 0.01 && <span style={{ fontSize: 11, fontWeight: 500, color: dColor, marginLeft: 4 }}>({diff > 0 ? '+' : ''}{m.fmtFn ? m.fmtFn(diff) : fmt(diff)})</span>}
+                    </td>;
+                  })}
+                </tr>;
+              })}</tbody>
+            </table>
           </div>
         </div>
 
-        {/* Dot indicators */}
-        <div className="flex items-center justify-center gap-1.5 mt-4">
-          {enrichedInsights.map((_, i) => (
-            <button key={i} onClick={() => setInsightSlide(i)} className="rounded-full transition-all duration-300" style={{
-              width: i === clampedSlide ? 24 : 8,
-              height: 8,
-              background: i === clampedSlide ? "#3B82F6" : "rgba(255,255,255,0.15)",
-            }} />
-          ))}
+        {/* Micro-summary cards — one per scenario */}
+        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${scenarios.length}, 1fr)`, gap: 12 }}>
+          {scenarios.map((s, i) => {
+            const a = scAggs[i];
+            const costDelta = a.cost - cA.cost;
+            const hcDelta = a.hc - cA.hc;
+            return <div key={s.id} style={{
+              background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: 16,
+              cursor: 'pointer', transition: 'border-color 0.15s, box-shadow 0.15s',
+            }}
+              onClick={() => setActiveScenario(i)}
+              onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(28,43,58,0.40)'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 8px rgba(28,43,58,0.06)'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(28,43,58,0.15)'; (e.currentTarget as HTMLDivElement).style.boxShadow = 'none'; }}>
+              <div style={{ fontSize: 13, fontWeight: 500, color: '#1C2B3A', marginBottom: 8 }}>{s.label}</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
+                  <span style={{ color: 'rgba(28,43,58,0.55)' }}>Headcount</span>
+                  <span style={{ fontWeight: 500, color: '#1C2B3A' }}>{a.hc.toLocaleString()} <span style={{ fontSize: 11, color: hcDelta < 0 ? '#16A34A' : hcDelta > 0 ? '#DC2626' : 'rgba(28,43,58,0.65)' }}>({hcDelta >= 0 ? '+' : ''}{hcDelta})</span></span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
+                  <span style={{ color: 'rgba(28,43,58,0.55)' }}>Avg Span</span>
+                  <span style={{ fontWeight: 500, color: '#1C2B3A' }}>{fmt(a.avgS)}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
+                  <span style={{ color: 'rgba(28,43,58,0.55)' }}>Cost</span>
+                  <span style={{ fontWeight: 500, color: '#1C2B3A' }}>{fmtNum(a.cost)}</span>
+                </div>
+              </div>
+              <div style={{ marginTop: 10, fontSize: 12, fontWeight: 500, color: '#3B82F6', display: 'flex', alignItems: 'center', gap: 4 }}>
+                View details <span style={{ fontSize: 11 }}>{'\u2192'}</span>
+              </div>
+            </div>;
+          })}
         </div>
       </div>;
     })()}
 
-    {view === "benchmarks" && <Card title="Span & Layer Benchmarks by Industry">
+    {/* Insights Engine — grid layout */}
+    {view === "analyze" && analyzeSubTab === "insights" && (() => {
+      const insights: { type: string; title: string; body: string; color: string; metric?: string }[] = [];
+      const narrow = currentData.filter(d => d.avgSpan < 5);
+      if (narrow.length > 0) insights.push({ type: "warning", title: "Over-Layered Functions", body: `${narrow.map(d => `${d.name} (${d.avgSpan}:1)`).join(", ")} — spans below 5:1 indicate excessive management overhead. Industry benchmark is 6-8:1 for knowledge workers.`, color: "var(--warning)", metric: `${narrow.length} dept${narrow.length > 1 ? "s" : ""}` });
+      const wide = currentData.filter(d => d.avgSpan > 12);
+      if (wide.length > 0) insights.push({ type: "alert", title: "Overextended Spans", body: `${wide.map(d => `${d.name} (${d.avgSpan}:1)`).join(", ")} — spans above 12:1 risk insufficient coaching and development.`, color: "var(--risk)", metric: `${wide.length} dept${wide.length > 1 ? "s" : ""}` });
+      const optimalSpan = currentData.filter(d => d.avgSpan >= 6 && d.avgSpan <= 10);
+      if (optimalSpan.length > 0) insights.push({ type: "positive", title: "Healthy Span Functions", body: `${optimalSpan.map(d => d.name).join(", ")} — 6-10:1 span range is optimal with the right balance of oversight and autonomy.`, color: "var(--success)", metric: `${optimalSpan.length}/${currentData.length}` });
+      const layerReductions = currentData.filter((d, i) => sc.departments[i]?.layers != null && sc.departments[i].layers < d.layers);
+      if (layerReductions.length > 0) { const totalRemoved = layerReductions.reduce((s, d) => s + d.layers - (sc.departments[currentData.indexOf(d)]?.layers || d.layers), 0); insights.push({ type: "positive", title: `${totalRemoved} Layers Removed in ${sc.label}`, body: `De-layering ${layerReductions.map(d => d.name).join(", ")} compresses decision-making distance by ~${Math.round(totalRemoved / currentData.reduce((s, d) => s + d.layers, 0) * 100)}%.`, color: "var(--success)", metric: `${totalRemoved} layers` }); }
+      const mgrRatio = cA.mgr / Math.max(cA.hc, 1) * 100;
+      const fMgrRatio = fA.mgr / Math.max(fA.hc, 1) * 100;
+      insights.push({ type: mgrRatio > 15 ? "warning" : "info", title: `Manager Ratio: ${fmt(mgrRatio, "pct")} to ${fmt(fMgrRatio, "pct")}`, body: `Current org has 1 manager per ${fmt(Math.round(cA.hc / Math.max(cA.mgr, 1)))} employees. ${mgrRatio > 15 ? "Above the 12-15% benchmark." : mgrRatio < 8 ? "Below 8% — may indicate insufficient leadership." : "Within healthy 8-15% range."}`, color: mgrRatio > 15 ? "var(--warning)" : "var(--accent-primary)", metric: `${fmt(mgrRatio, "pct")}` });
+      if (fA.cost < cA.cost) { const savings = cA.cost - fA.cost; const pct = (savings / Math.max(cA.cost, 1) * 100); insights.push({ type: "positive", title: `${fmtNum(savings)} Annual Savings (${pct.toFixed(0)}%)`, body: `The ${sc.label} scenario achieves labor cost reduction through structural efficiency, removing ${cA.hc - fA.hc} positions.`, color: "var(--success)", metric: `${fmtNum(savings)}` }); }
+      if (fA.cost > cA.cost) { const increase = fA.cost - cA.cost; insights.push({ type: "warning", title: `${fmtNum(increase)} Cost Increase`, body: `The ${sc.label} scenario adds ${fA.hc - cA.hc} headcount costing ${fmtNum(increase)}/year. Verify this represents strategic investment.`, color: "var(--warning)", metric: `+${fmtNum(increase)}` }); }
+      const largest = [...currentData].sort((a, b) => b.headcount - a.headcount)[0] || { name: "\u2014", headcount: 0 };
+      const smallest = [...currentData].sort((a, b) => a.headcount - b.headcount)[0] || { name: "\u2014", headcount: 0 };
+      insights.push({ type: "info", title: `Concentration Risk: ${largest.name}`, body: `${largest.name} holds ${Math.round(largest.headcount / Math.max(cA.hc, 1) * 100)}% of total headcount. ${largest.headcount / Math.max(cA.hc, 1) > 0.3 ? "Exceeds 30% — consider sub-division." : "Within acceptable range."}`, color: "var(--accent-primary)", metric: `${Math.round(largest.headcount / Math.max(cA.hc, 1) * 100)}%` });
+      const worstIMRatio = [...currentData].sort((a, b) => (a.ics / Math.max(a.managers, 1)) - (b.ics / Math.max(b.managers, 1)))[0] || { name: "\u2014", ics: 0, managers: 1 };
+      const bestIMRatio = [...currentData].sort((a, b) => (b.ics / Math.max(b.managers, 1)) - (a.ics / Math.max(a.managers, 1)))[0] || { name: "\u2014", ics: 0, managers: 1 };
+      insights.push({ type: "info", title: "IC-to-Manager Disparity", body: `Widest gap: ${bestIMRatio.name} (${(bestIMRatio.ics / Math.max(bestIMRatio.managers, 1)).toFixed(1)}) vs ${worstIMRatio.name} (${(worstIMRatio.ics / Math.max(worstIMRatio.managers, 1)).toFixed(1)}). Standardizing ratios could improve equity.`, color: "var(--accent-primary)" });
+      const avgFte = currentData.reduce((s, d) => s + d.fteRatio, 0) / currentData.length;
+      const lowFte = currentData.filter(d => d.fteRatio < 0.8);
+      if (lowFte.length > 0) insights.push({ type: "warning", title: `High Contractor Reliance`, body: `${lowFte.map(d => `${d.name} (${Math.round(d.fteRatio * 100)}% FTE)`).join(", ")} — FTE ratio below 80% indicates dependency on contingent workforce.`, color: "var(--warning)", metric: `${Math.round(avgFte * 100)}% avg` });
+      insights.push({ type: "info", title: `${sc.label} Scenario Summary`, body: `HC ${fmt(cA.hc)} to ${fmt(fA.hc)}, span ${fmt(cA.avgS)} to ${fmt(fA.avgS)}, cost ${fmtNum(cA.cost)} to ${fmtNum(fA.cost)}. Primary lever: ${fA.avgL < cA.avgL ? "layer compression" : fA.hc < cA.hc ? "headcount reduction" : "span optimization"}.`, color: "var(--accent-primary)" });
+
+      if (!insights.length) insights.push({ type: "info", title: "No Major Flags", body: "Current scenario changes are within normal ranges.", color: "var(--accent-primary)" });
+
+      // Enrich insights with severity, recommendation
+      const enrichedInsights = insights.map(ins => {
+        let severity: string, severityIcon: string, severityColor: string;
+        if (ins.type === "alert") { severity = "Critical"; severityIcon = "\u26A0"; severityColor = "#EF4444"; }
+        else if (ins.type === "warning") { severity = "Needs Attention"; severityIcon = "\u25C8"; severityColor = "#F59E0B"; }
+        else if (ins.type === "positive") { severity = "On Track"; severityIcon = "\u2713"; severityColor = "#16A34A"; }
+        else { severity = "Opportunity"; severityIcon = "\u2139"; severityColor = "#3B82F6"; }
+
+        let recommendation = "";
+        if (ins.title.includes("Over-Layered")) recommendation = "Consolidate one management layer in flagged functions. Target 6-8:1 span ratio.";
+        else if (ins.title.includes("Overextended")) recommendation = "Add team leads or split teams to bring spans below 10:1.";
+        else if (ins.title.includes("Healthy")) recommendation = "Preserve current structure. Use as benchmarks for other departments.";
+        else if (ins.title.includes("Layers Removed")) recommendation = "Implement de-layering through attrition cycles. Reassign decision rights.";
+        else if (ins.title.includes("Manager Ratio")) recommendation = "Review manager-to-IC ratios across departments. Standardize toward 1:8.";
+        else if (ins.title.includes("Savings")) recommendation = "Phase savings over 12-18 months. Reinvest 20% in upskilling.";
+        else if (ins.title.includes("Cost Increase")) recommendation = "Validate cost increases map to strategic capabilities.";
+        else if (ins.title.includes("Concentration")) recommendation = "Assess single-point-of-failure risk if concentration exceeds 30%.";
+        else if (ins.title.includes("IC-to-Manager")) recommendation = "Standardize IC-to-Manager ratios across comparable functions.";
+        else if (ins.title.includes("Contractor")) recommendation = "Convert critical contractor roles to FTE for knowledge retention.";
+        else if (ins.title.includes("Summary")) recommendation = "Validate key assumptions with department heads before presenting.";
+        else recommendation = "Review and validate findings with relevant department heads.";
+
+        // Mini visualization score (inline bar width)
+        const vizScore = ins.type === "alert" ? 90 : ins.type === "warning" ? 65 : ins.type === "positive" ? 30 : 50;
+
+        return { ...ins, severity, severityIcon, severityColor, recommendation, vizScore };
+      });
+
+      // Count by severity
+      const counts: Record<string, number> = { "On Track": 0, "Needs Attention": 0, "Critical": 0, "Opportunity": 0 };
+      enrichedInsights.forEach(i => { counts[i.severity] = (counts[i.severity] || 0) + 1; });
+      const filtered = insightFilter === "all" ? enrichedInsights : enrichedInsights.filter(i => i.severity === insightFilter);
+
+      return <div>
+        <div style={{ fontSize: 12, color: 'rgba(28,43,58,0.65)', marginBottom: 12 }}>{enrichedInsights.length} insights from {currentData.length} departments, {fmt(cA.hc)} employees</div>
+
+        {/* Filter pills */}
+        <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+          {[
+            { key: "all", label: `All insights`, count: enrichedInsights.length },
+            { key: "On Track", label: "On Track", count: counts["On Track"] },
+            { key: "Needs Attention", label: "Needs Attention", count: counts["Needs Attention"] },
+            { key: "Critical", label: "Critical", count: counts["Critical"] },
+            { key: "Opportunity", label: "Opportunity", count: counts["Opportunity"] },
+          ].filter(p => p.key === "all" || p.count > 0).map(pill => (
+            <button key={pill.key} onClick={() => setInsightFilter(pill.key)}
+              style={{
+                padding: '5px 12px', borderRadius: 20, fontSize: 12, fontWeight: 500,
+                border: insightFilter === pill.key ? 'none' : '0.5px solid rgba(28,43,58,0.15)',
+                background: insightFilter === pill.key ? '#1C2B3A' : 'transparent',
+                color: insightFilter === pill.key ? '#FFFFFF' : 'rgba(28,43,58,0.65)',
+                cursor: 'pointer', transition: 'all 0.15s',
+              }}
+              onMouseEnter={e => { if (insightFilter !== pill.key) (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(28,43,58,0.40)'; }}
+              onMouseLeave={e => { if (insightFilter !== pill.key) (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(28,43,58,0.15)'; }}
+            >{pill.label} ({pill.count})</button>
+          ))}
+        </div>
+
+        {/* Grid of insight cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
+          {filtered.map((ins, i) => (
+            <div key={i} style={{
+              background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: 20,
+              transition: 'border-color 0.15s, box-shadow 0.15s',
+            }}
+              onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(28,43,58,0.40)'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 8px rgba(28,43,58,0.06)'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(28,43,58,0.15)'; (e.currentTarget as HTMLDivElement).style.boxShadow = 'none'; }}>
+              {/* Status indicator */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+                <span style={{ width: 18, height: 18, borderRadius: 9, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, background: `${ins.severityColor}12`, color: ins.severityColor }}>{ins.severityIcon}</span>
+                <span style={{ fontSize: 11, fontWeight: 500, color: ins.severityColor }}>{ins.severity}</span>
+              </div>
+              {/* Title */}
+              <div style={{ fontSize: 14, fontWeight: 500, color: '#1C2B3A', marginBottom: 6, lineHeight: 1.4 }}>{ins.title}</div>
+              {/* Description */}
+              <div style={{ fontSize: 12, color: '#1C2B3A', lineHeight: 1.6, marginBottom: 10, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>{ins.body}</div>
+              {/* Mini visualization — inline severity bar */}
+              {ins.metric && <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                <div style={{ flex: 1, height: 4, borderRadius: 2, background: 'rgba(28,43,58,0.06)', overflow: 'hidden' }}>
+                  <div style={{ height: '100%', borderRadius: 2, width: `${ins.vizScore}%`, background: ins.severityColor, transition: 'width 0.3s' }} />
+                </div>
+                <span style={{ fontSize: 11, fontWeight: 500, color: ins.severityColor }}>{ins.metric}</span>
+              </div>}
+              {/* Recommendation box */}
+              <div style={{ background: 'var(--ivory, #F7F5F0)', borderRadius: 6, padding: '10px 12px' }}>
+                <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'rgba(28,43,58,0.65)', marginBottom: 4 }}>Recommendation</div>
+                <div style={{ fontSize: 11, color: 'rgba(28,43,58,0.65)', lineHeight: 1.5 }}>{ins.recommendation}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {filtered.length === 0 && (
+          <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: '48px 24px', textAlign: 'center' }}>
+            <div style={{ fontSize: 32, color: 'rgba(28,43,58,0.15)', marginBottom: 8 }}>&#9783;</div>
+            <div style={{ fontSize: 14, fontWeight: 500, color: '#1C2B3A', marginBottom: 4 }}>No insights match this filter</div>
+            <div style={{ fontSize: 12, color: 'rgba(28,43,58,0.55)' }}>Try selecting a different category above</div>
+          </div>
+        )}
+      </div>;
+    })()}
+
+    {view === "analyze" && analyzeSubTab === "benchmarks" && <Card title="Span & Layer Benchmarks by Industry">
       <div className="text-[15px] text-[var(--text-secondary)] mb-4">Industry benchmarks for optimal spans of control, management layers, and manager-to-IC ratios. Use as design targets when restructuring.</div>
       <div className="space-y-5">
         {SPAN_BENCHMARKS.map((bm, bi) => <div key={bi} className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] overflow-hidden">
@@ -1447,6 +1531,15 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
         </div>
       </div>}
     </Card>}
+
+    {/* Present tab — designed empty state */}
+    {view === "present" && (
+      <div style={{ background: '#FFFFFF', border: '0.5px solid rgba(28,43,58,0.15)', borderRadius: 8, padding: '56px 24px', textAlign: 'center' }}>
+        <div style={{ fontSize: 36, color: 'rgba(28,43,58,0.12)', marginBottom: 12 }}>{'\uD83D\uDCCA'}</div>
+        <div style={{ fontSize: 14, fontWeight: 500, color: '#1C2B3A', marginBottom: 6 }}>Presentation Mode</div>
+        <div style={{ fontSize: 12, color: 'rgba(28,43,58,0.55)', marginBottom: 16, maxWidth: 400, margin: '0 auto 16px' }}>Presentation mode is in development. In the meantime, export your analysis from the Compare tab or use your browser's print function.</div>
+      </div>
+    )}
 
     <FlowNav
       previous={{ id: "impactsim", label: "Impact Simulator", icon: <Gauge /> }}

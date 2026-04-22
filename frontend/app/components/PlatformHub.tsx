@@ -14,7 +14,7 @@ const LBL: React.CSSProperties = { display: "block", fontSize: 15, color: "var(-
 export function PlatformHub({ user, onBack, onUpdateUser }: { user: authApi.AuthUser; onBack: () => void; onUpdateUser: (u: authApi.AuthUser) => void }) {
   const [tab, setTab] = useState("account");
 
-  const isAdmin = user.username === "hiral";
+  const isAdmin = user.email === "merchanthiral@gmail.com";
   const tabs = [
     { id: "account", icon: "👤", label: "Account" },
     { id: "kb", icon: "📚", label: "Knowledge Base" },
@@ -540,18 +540,25 @@ function AdminTab() {
     <div className="rounded-xl overflow-hidden" style={{ border: "1px solid rgba(212,134,10,0.08)" }}>
       <table className="w-full text-[15px]">
         <thead><tr style={{ background: "rgba(212,134,10,0.04)" }}>
-          {["Username", "Email", "Display Name", "Created", "Last Login", "Projects", "Status", ""].map(h => <th key={h} className="px-3 py-2.5 text-left text-[14px] font-semibold uppercase tracking-wider" style={{ color: "rgba(212,134,10,0.4)", borderBottom: "1px solid rgba(212,134,10,0.06)" }}>{h}</th>)}
+          {["Username", "Email", "Signup Date", "Last Login", "Activity", "Projects", "Status", ""].map(h => <th key={h} className="px-3 py-2.5 text-left text-[14px] font-semibold uppercase tracking-wider" style={{ color: "rgba(212,134,10,0.4)", borderBottom: "1px solid rgba(212,134,10,0.06)" }}>{h}</th>)}
         </tr></thead>
-        <tbody>{users.map(u => <tr key={String(u.id)} className="transition-colors" style={{ borderBottom: "1px solid rgba(212,134,10,0.04)" }}>
-          <td className="px-3 py-2.5 font-semibold text-[var(--text-primary)]">{String(u.username)}</td>
-          <td className="px-3 py-2.5 text-[var(--text-secondary)]">{String(u.email || "—")}</td>
-          <td className="px-3 py-2.5 text-[var(--text-secondary)]">{String(u.display_name || "—")}</td>
+        <tbody>{users.map(u => {
+          const activity = String(u.activity || "Never");
+          const actColors: Record<string, string> = { Online: "#10B981", Today: "#3B82F6", "This week": "#8B5CF6", "This month": "rgba(212,134,10,0.5)", Inactive: "#EF4444", Never: "rgba(212,134,10,0.3)" };
+          const actBgs: Record<string, string> = { Online: "rgba(16,185,129,0.1)", Today: "rgba(59,130,246,0.1)", "This week": "rgba(139,92,246,0.08)", "This month": "rgba(212,134,10,0.06)", Inactive: "rgba(239,68,68,0.08)", Never: "rgba(212,134,10,0.04)" };
+          return <tr key={String(u.id)} className="transition-colors" style={{ borderBottom: "1px solid rgba(212,134,10,0.04)" }}>
+          <td className="px-3 py-2.5">
+            <div className="font-semibold text-[var(--text-primary)]">{String(u.username)}</div>
+            {u.display_name && u.display_name !== u.username && <div className="text-[11px]" style={{ color: "rgba(212,134,10,0.35)" }}>{String(u.display_name)}</div>}
+          </td>
+          <td className="px-3 py-2.5 text-[var(--text-secondary)] font-data text-[13px]">{String(u.email || "—")}</td>
           <td className="px-3 py-2.5 font-data" style={{ color: "rgba(212,134,10,0.4)" }}>{String(u.created_at || "—")}</td>
           <td className="px-3 py-2.5 font-data" style={{ color: "rgba(212,134,10,0.4)" }}>{String(u.last_login || "Never")}</td>
+          <td className="px-3 py-2.5"><span className="text-[12px] px-2 py-0.5 rounded-full font-semibold" style={{ color: actColors[activity] || actColors.Never, background: actBgs[activity] || actBgs.Never }}>{activity}</span></td>
           <td className="px-3 py-2.5 font-data text-center" style={{ color: "var(--accent-primary)" }}>{String(u.project_count || 0)}</td>
-          <td className="px-3 py-2.5"><span className="text-[14px] px-2 py-0.5 rounded-full font-semibold" style={{ color: u.is_active ? "var(--success)" : "var(--risk)", background: u.is_active ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)" }}>{u.is_active ? "Active" : "Inactive"}</span></td>
-          <td className="px-3 py-2.5">{String(u.username) !== "hiral" && <button onClick={() => toggleStatus(String(u.id), !!u.is_active)} className="text-[15px] font-semibold transition-colors" style={{ color: u.is_active ? "var(--risk)" : "var(--success)" }}>{u.is_active ? "Deactivate" : "Activate"}</button>}</td>
-        </tr>)}</tbody>
+          <td className="px-3 py-2.5"><span className="text-[12px] px-2 py-0.5 rounded-full font-semibold" style={{ color: u.is_active ? "var(--success)" : "var(--risk)", background: u.is_active ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)" }}>{u.is_active ? "Active" : "Disabled"}</span></td>
+          <td className="px-3 py-2.5">{String(u.email) !== "merchanthiral@gmail.com" && <button onClick={() => toggleStatus(String(u.id), !!u.is_active)} className="text-[13px] font-semibold transition-colors" style={{ color: u.is_active ? "var(--risk)" : "var(--success)" }}>{u.is_active ? "Disable" : "Enable"}</button>}</td>
+        </tr>; })}</tbody>
       </table>
     </div>
   </div>;

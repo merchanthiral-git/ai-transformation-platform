@@ -76,9 +76,11 @@ async def global_exception_handler(request: Request, exc: Exception):
         content={"detail": "Internal server error"},
     )
 
+ALLOWED_ORIGINS = os.environ.get("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3001").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True, allow_methods=["*"], allow_headers=["*"],
 )
 
@@ -161,6 +163,14 @@ except ImportError:
     onet_router = None
 if onet_router:
     app.include_router(onet_router)
+
+# Expert Tier engines
+from app.routes_expert import router as expert_router
+app.include_router(expert_router)
+
+# ODS (Org Design Studio) workflow
+from app.routes_ods import router as ods_router
+app.include_router(ods_router)
 
 # Agent system
 from app.routes_agents import router as agents_router

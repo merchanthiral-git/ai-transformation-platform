@@ -48,7 +48,7 @@ export function computeWaterfall(input: {
 
   return [
     { label: "Starting", hc: startingHC, delta: 0, color: "neutral" },
-    { label: "Eliminated", hc: afterElim, delta: -eliminations, color: "risk" },
+    { label: "Transitioned", hc: afterElim, delta: -eliminations, color: "risk" },
     { label: "Attrition", hc: afterAttrition, delta: -naturalAttrition, color: "warn" },
     { label: "Redeployed", hc: afterRedeploy, delta: redeployed, color: "info" },
     { label: "New Hires", hc: afterHires, delta: newHires, color: "success" },

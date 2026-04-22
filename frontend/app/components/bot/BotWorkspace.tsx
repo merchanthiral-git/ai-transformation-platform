@@ -245,8 +245,8 @@ function RoadmapViz({ data }: { data: Record<string, unknown> }) {
         const start = Number(p.start_month || 0); const end = Number(p.end_month || 0);
         return <div key={i} style={{ width: `${((end - start + 1) / totalEnd) * 100}%`, padding: "12px 14px", borderRadius: 10, background: `${pc[i % 4]}15`, border: `1px solid ${pc[i % 4]}30` }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: pc[i % 4], marginBottom: 4 }}>{String(p.name)}</div>
-          <div style={{ fontSize: 10, color: "rgba(255,200,150,0.35)" }}>Mo {start}-{end}</div>
-          <div style={{ fontSize: 10, color: "rgba(255,200,150,0.25)", marginTop: 4 }}>{(p.workstreams as unknown[])?.length || 0} workstreams</div>
+          <div style={{ fontSize: 11, color: "rgba(255,200,150,0.35)" }}>Mo {start}-{end}</div>
+          <div style={{ fontSize: 11, color: "rgba(255,200,150,0.25)", marginTop: 4 }}>{(p.workstreams as unknown[])?.length || 0} workstreams</div>
         </div>;
       })}
     </div>
@@ -671,8 +671,8 @@ export default function BotWorkspace({ projectId, modelId, onClose }: { projectI
             <div style={{ width: 6, height: 6, borderRadius: "50%", background: state.status === "running" ? "var(--success)" : state.status === "waiting_for_user" ? "var(--accent-primary)" : state.status === "completed" ? "var(--purple)" : "#6B7280", animation: state.status === "running" ? "statusPulse 1.5s infinite" : "none" }} />
             <span style={{ fontSize: 12, color: "rgba(255,200,150,0.4)" }}>
               {state.current_action ? ACTION_LABELS[state.current_action] || state.current_action : state.status === "completed" ? "Analysis complete" : state.status === "waiting_for_user" ? "Awaiting input" : state.status}
-              {sseConnected && <span style={{ marginLeft: 6, fontSize: 10, color: "var(--success)", fontWeight: 700 }}>LIVE</span>}
-              {!sseConnected && sessionRef.current && <span style={{ marginLeft: 6, fontSize: 10, color: "rgba(255,200,150,0.25)" }}>polling</span>}
+              {sseConnected && <span style={{ marginLeft: 6, fontSize: 11, color: "var(--success)", fontWeight: 700 }}>LIVE</span>}
+              {!sseConnected && sessionRef.current && <span style={{ marginLeft: 6, fontSize: 11, color: "rgba(255,200,150,0.25)" }}>polling</span>}
             </span>
           </div>
         </div>
@@ -738,7 +738,7 @@ export default function BotWorkspace({ projectId, modelId, onClose }: { projectI
                       const conf = Number(entry.metadata!.confidence);
                       const color = conf >= 0.8 ? "var(--success)" : conf >= 0.5 ? "var(--warning)" : "var(--risk)";
                       const style = conf >= 0.8 ? "solid" : conf >= 0.5 ? "dashed" : "dotted";
-                      return <span style={{ fontSize: 10, color, borderLeft: `2px ${style} ${color}`, paddingLeft: 6, fontFamily: "'IBM Plex Mono', monospace" }}>{Math.round(conf * 100)}% confidence</span>;
+                      return <span style={{ fontSize: 11, color, borderLeft: `2px ${style} ${color}`, paddingLeft: 6, fontFamily: "'IBM Plex Mono', monospace" }}>{Math.round(conf * 100)}% confidence</span>;
                     })()}
                   </div>
                 )}
@@ -750,7 +750,7 @@ export default function BotWorkspace({ projectId, modelId, onClose }: { projectI
                     <button onClick={() => sendCommand("tell me more")} style={{ padding: "5px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,200,150,0.4)", cursor: "pointer" }}>Tell me more</button>
                   </div>
                 )}
-                <div style={{ fontSize: 10, color: "rgba(255,200,150,0.15)", marginTop: 4, fontFamily: "'IBM Plex Mono', monospace" }}>{new Date(entry.timestamp).toLocaleTimeString()}</div>
+                <div style={{ fontSize: 11, color: "rgba(255,200,150,0.15)", marginTop: 4, fontFamily: "'IBM Plex Mono', monospace" }}>{new Date(entry.timestamp).toLocaleTimeString()}</div>
               </div>
             </div>;
           })}

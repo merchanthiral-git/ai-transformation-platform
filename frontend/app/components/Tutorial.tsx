@@ -211,7 +211,7 @@ function DataPreview() {
     <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginTop: 16 }}>
       {[{ l: "Employees", v: "6,200" }, { l: "Roles", v: "47" }, { l: "Tasks", v: "396" }, { l: "Skills", v: "89" }].map(s => <div key={s.l} style={{ padding: 10, borderRadius: 10, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)", textAlign: "center" }}>
         <div style={{ fontSize: 18, fontWeight: 800, color: "#60a5fa", fontFamily: "'Outfit', sans-serif" }}>{s.v}</div>
-        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)" }}>{s.l}</div>
+        <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>{s.l}</div>
       </div>)}
     </div>
   </div>;
@@ -221,7 +221,7 @@ function SnapshotPanel() {
   return <div style={{ maxWidth: 520, margin: "20px auto" }}>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginBottom: 16 }}>
       {[{ l: "Employees", v: MERIDIAN.employees, c: "#f5e6d0" }, { l: "AI Readiness", v: MERIDIAN.readiness.overall, c: "var(--warning)", s: "/100" }, { l: "Avg AI Impact", v: 6.8, c: "var(--risk)", s: "/10" }].map(k => <div key={k.l} style={{ padding: 14, borderRadius: 12, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", textAlign: "center" }}>
-        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 3 }}>{k.l}</div>
+        <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 3 }}>{k.l}</div>
         <div style={{ fontSize: 22, fontWeight: 800, color: k.c }}><AnimNum value={k.v} />{k.s || ""}</div>
       </div>)}
     </div>
@@ -254,7 +254,7 @@ function DiagnosisPanel({ thinkingDone }: { thinkingDone: boolean }) {
     {areas.map((a, i) => <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 10, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)", marginBottom: 6, animation: `fadeSlide 0.3s ease ${i * 0.1}s both` }}>
       <div style={{ width: 32, height: 32, borderRadius: 8, background: `rgba(212,134,10,${a.score / 20})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 800, color: "var(--accent-primary)" }}>{a.score}</div>
       <div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 600, color: "#f5e6d0" }}>{a.area}</div><div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>{a.roles} roles affected</div></div>
-      {a.quickWin && <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 6, background: "rgba(16,185,129,0.1)", color: "var(--success)" }}>Quick Win</span>}
+      {a.quickWin && <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 6, background: "rgba(16,185,129,0.1)", color: "var(--success)" }}>Quick Win</span>}
     </div>)}
     <div style={{ marginTop: 16, padding: 12, borderRadius: 10, background: "rgba(139,92,246,0.06)", border: "1px solid rgba(139,92,246,0.15)", fontSize: 12, color: "rgba(255,255,255,0.5)" }}>💡 Surprise: Wealth Management has 40% of roles flagged for AI augmentation within 18 months</div>
     <style>{`@keyframes fadeSlide { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }`}</style>
@@ -272,7 +272,7 @@ function DesignPanel({ revealCount }: { revealCount: number }) {
     <div style={{ maxHeight: 320, overflowY: "auto" }}>
       {MERIDIAN.opsAnalystTasks.slice(0, revealCount).map((t, i) => <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", borderRadius: 8, marginBottom: 3, background: "rgba(255,255,255,0.02)", borderLeft: `3px solid ${colors[t.classification]}` }}>
         <span style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", flex: 1 }}>{t.name}</span>
-        <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 5, background: `${colors[t.classification]}15`, color: colors[t.classification] }}>{labels[t.classification]}</span>
+        <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 5, background: `${colors[t.classification]}15`, color: colors[t.classification] }}>{labels[t.classification]}</span>
       </div>)}
     </div>
     {revealCount >= MERIDIAN.opsAnalystTasks.length && <div style={{ marginTop: 16, padding: 14, borderRadius: 12, background: "rgba(212,134,10,0.06)", border: "1px solid rgba(212,134,10,0.2)" }}>
@@ -320,9 +320,9 @@ function PlanPanel() {
     </div>)}
     <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginTop: 20 }}>
       {[{ l: "Wave 1", v: 800, c: "var(--risk)" }, { l: "Wave 2", v: 900, c: "var(--warning)" }, { l: "Wave 3", v: 400, c: "var(--success)" }].map(w => <div key={w.l} style={{ padding: 12, borderRadius: 10, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)", textAlign: "center" }}>
-        <div style={{ fontSize: 10, color: w.c, fontWeight: 700, marginBottom: 2 }}>{w.l}</div>
+        <div style={{ fontSize: 11, color: w.c, fontWeight: 700, marginBottom: 2 }}>{w.l}</div>
         <div style={{ fontSize: 18, fontWeight: 800, color: "#f5e6d0" }}>{fmt(w.v)}</div>
-        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)" }}>employees</div>
+        <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>employees</div>
       </div>)}
     </div>
   </div>;

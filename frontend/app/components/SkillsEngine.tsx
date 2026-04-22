@@ -230,7 +230,7 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
       const inferred = (res?.inferred_skills as Record<string, unknown>[]) || [];
       setInferredSkills(inferred);
       showToast(`Inferred ${inferred.length} skills`);
-    } catch { showToast("Inference failed"); }
+    } catch { showToast("Skill inference couldn't complete — try again in a moment"); }
     setInferring(false);
   }, [inferTitle]);
 
@@ -927,7 +927,7 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
                           await api.createSkill({ name: s.name || s.skill, category: s.category, source: "ai_inference" });
                           showToast(`Approved: ${s.name || s.skill}`);
                           setInferredSkills(prev => prev.filter((_, idx) => idx !== i));
-                        } catch { showToast("Approval failed"); }
+                        } catch { showToast("Couldn't approve skill — try again in a moment"); }
                       }} className="px-3 py-1 rounded-md text-[13px] font-semibold bg-[var(--success)] text-white hover:opacity-80">Approve</button>
                       <button onClick={() => setInferredSkills(prev => prev.filter((_, idx) => idx !== i))} className="px-3 py-1 rounded-md text-[13px] font-semibold border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--risk)]">Reject</button>
                     </div>

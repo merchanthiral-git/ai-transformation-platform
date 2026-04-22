@@ -75,18 +75,18 @@ const S = {
   scenarioPill: (active: boolean) => ({ padding: "6px 18px", fontSize: 12, fontWeight: active ? "var(--fw-semi)" : "var(--fw-medium)", border: `1px solid ${active ? "#3B82F6" : "var(--border)"}`, borderRadius: 16, background: active ? "rgba(59,130,246,0.08)" : "var(--surface-2)", color: active ? "#3B82F6" : "var(--text-muted)", cursor: "pointer" }) as React.CSSProperties,
   kpiRow: { display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" as const } as React.CSSProperties,
   kpi: (accent: string) => ({ background: "var(--surface-1)", border: "1px solid var(--border)", borderLeft: `3px solid ${accent}`, borderRadius: 8, padding: "12px 16px", minWidth: 110 }) as React.CSSProperties,
-  kpiLabel: { fontSize: 10, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.05em" } as React.CSSProperties,
+  kpiLabel: { fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.05em" } as React.CSSProperties,
   kpiValue: { fontSize: "var(--text-lg)", fontWeight: "var(--fw-bold)", fontFamily: "var(--ff-mono)", color: "var(--text-primary)", marginTop: 2 } as React.CSSProperties,
   grid: { display: "grid", gridTemplateColumns: "1fr 340px", gap: 16, marginBottom: 16 } as React.CSSProperties,
   section: { background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 10, padding: "16px 20px", marginBottom: 16 } as React.CSSProperties,
   sectionTitle: { fontSize: "var(--text-sm)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)", marginBottom: 10, display: "flex", alignItems: "center", gap: 8 } as React.CSSProperties,
   table: { width: "100%", borderCollapse: "separate" as const, borderSpacing: 0, fontSize: "var(--text-xs)" } as React.CSSProperties,
-  th: { padding: "7px 8px", fontSize: 10, fontWeight: 600, color: "#fff", textTransform: "uppercase" as const, letterSpacing: "0.05em", borderBottom: "2px solid var(--border)", background: "#1C2B3A", whiteSpace: "nowrap" as const } as React.CSSProperties,
+  th: { padding: "7px 8px", fontSize: 11, fontWeight: 600, color: "#fff", textTransform: "uppercase" as const, letterSpacing: "0.05em", borderBottom: "2px solid var(--border)", background: "#1C2B3A", whiteSpace: "nowrap" as const } as React.CSSProperties,
   td: { padding: "6px 8px", borderBottom: "1px solid var(--border)", verticalAlign: "middle" as const } as React.CSSProperties,
   select: { padding: "4px 6px", fontSize: "var(--text-xs)", background: "var(--surface-2)", border: "1px solid transparent", borderRadius: 4, color: "var(--text-primary)", outline: "none", appearance: "none" as const } as React.CSSProperties,
   inputNum: { width: 50, padding: "4px 6px", fontSize: "var(--text-xs)", fontFamily: "var(--ff-mono)", background: "var(--surface-2)", border: "1px solid transparent", borderRadius: 4, color: "var(--text-primary)", outline: "none", textAlign: "center" as const } as React.CSSProperties,
   input: { width: "100%", padding: "4px 6px", fontSize: "var(--text-xs)", background: "var(--surface-2)", border: "1px solid transparent", borderRadius: 4, color: "var(--text-primary)", outline: "none" } as React.CSSProperties,
-  decisionBadge: (d: string) => ({ display: "inline-flex", alignItems: "center", gap: 3, padding: "2px 8px", fontSize: 10, fontWeight: 600, borderRadius: 4, background: `${DECISION_COLORS[d] || "#9CA3AF"}15`, color: DECISION_COLORS[d] || "#9CA3AF" }) as React.CSSProperties,
+  decisionBadge: (d: string) => ({ display: "inline-flex", alignItems: "center", gap: 3, padding: "2px 8px", fontSize: 11, fontWeight: 600, borderRadius: 4, background: `${DECISION_COLORS[d] || "#9CA3AF"}15`, color: DECISION_COLORS[d] || "#9CA3AF" }) as React.CSSProperties,
   delta: (v: number) => ({ fontFamily: "var(--ff-mono)", fontSize: 11, color: v < 0 ? "#22C55E" : v > 0 ? "#EF4444" : "var(--text-muted)" }) as React.CSSProperties,
   btn: { display: "inline-flex", alignItems: "center", gap: 4, padding: "5px 12px", fontSize: 11, fontWeight: "var(--fw-medium)", border: "1px solid var(--border)", borderRadius: 5, background: "var(--surface-2)", color: "var(--text-secondary)", cursor: "pointer" } as React.CSSProperties,
   btnPrimary: { display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 14px", fontSize: 11, fontWeight: "var(--fw-semi)", border: "none", borderRadius: 5, background: "#3B82F6", color: "#fff", cursor: "pointer" } as React.CSSProperties,
@@ -95,7 +95,7 @@ const S = {
   footer: { padding: "8px", background: "#1C2B3A", fontWeight: "var(--fw-bold)", color: "#fff" } as React.CSSProperties,
   insightItem: { display: "flex", alignItems: "flex-start", gap: 6, padding: "6px 0", borderBottom: "1px solid var(--border)", fontSize: "var(--text-xs)", color: "var(--text-secondary)" } as React.CSSProperties,
   skillRow: { display: "flex", alignItems: "center", gap: 8, padding: "5px 0", borderBottom: "1px solid var(--border)", fontSize: "var(--text-xs)" } as React.CSSProperties,
-  confidenceSelect: { padding: "3px 6px", fontSize: 10, background: "var(--surface-2)", border: "1px solid transparent", borderRadius: 3, color: "var(--text-muted)", outline: "none", appearance: "none" as const } as React.CSSProperties,
+  confidenceSelect: { padding: "3px 6px", fontSize: 11, background: "var(--surface-2)", border: "1px solid transparent", borderRadius: 3, color: "var(--text-muted)", outline: "none", appearance: "none" as const } as React.CSSProperties,
 };
 
 /* ═══════════════════════════════════════════════════════════════
@@ -252,7 +252,7 @@ export default function StageReconstruction({
                     <tr key={row["Task ID"] || idx}
                       onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.02)")}
                       onMouseLeave={e => (e.currentTarget.style.background = "")}>
-                      <td style={{ ...S.td, fontFamily: "var(--ff-mono)", fontSize: 10, color: "var(--text-muted)", width: 44 }}>{row["Task ID"]}</td>
+                      <td style={{ ...S.td, fontFamily: "var(--ff-mono)", fontSize: 11, color: "var(--text-muted)", width: 44 }}>{row["Task ID"]}</td>
                       <td style={{ ...S.td, minWidth: 140, color: "var(--text-primary)", fontWeight: "var(--fw-medium)" }}>{row["Task Name"]}</td>
                       <td style={{ ...S.td, fontFamily: "var(--ff-mono)", textAlign: "center", width: 55 }}>{curPct}%</td>
                       <td style={{ ...S.td, width: 100 }}>
@@ -311,8 +311,8 @@ export default function StageReconstruction({
               <ResponsiveContainer width="100%" height={180}>
                 <BarChart data={waterfallData} margin={{ top: 5, right: 5, left: -15, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                  <XAxis dataKey="name" tick={{ fontSize: 9, fill: "var(--text-muted)" }} />
-                  <YAxis tick={{ fontSize: 9, fill: "var(--text-muted)" }} />
+                  <XAxis dataKey="name" tick={{ fontSize: 11, fill: "var(--text-muted)" }} />
+                  <YAxis tick={{ fontSize: 11, fill: "var(--text-muted)" }} />
                   <Tooltip contentStyle={{ background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 6, fontSize: 11 }} />
                   <Bar dataKey="value" radius={[3, 3, 0, 0]}>
                     {waterfallData.map((_, i) => <Cell key={i} fill={WATERFALL_COLORS[i % WATERFALL_COLORS.length]} />)}
@@ -333,7 +333,7 @@ export default function StageReconstruction({
               <div key={skill} style={S.skillRow}>
                 <span style={{ flex: 1, color: "var(--text-primary)" }}>{skill}</span>
                 <span style={{
-                  padding: "1px 6px", fontSize: 9, fontWeight: 600, borderRadius: 3,
+                  padding: "1px 6px", fontSize: 11, fontWeight: 600, borderRadius: 3,
                   background: info.source === "New" ? "rgba(59,130,246,0.1)" : info.source === "Upgraded" ? "rgba(249,115,22,0.1)" : "rgba(34,197,94,0.1)",
                   color: info.source === "New" ? "#3B82F6" : info.source === "Upgraded" ? "#F97316" : "#22C55E",
                 }}>{info.source}</span>

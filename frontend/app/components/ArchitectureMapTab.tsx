@@ -808,7 +808,7 @@ export function ArchitectureMapTab({ tree, jobs, employees, model }: {
     setMappings([]);
     pushHistory("Reset to current state", ft, []);
     setChangeLog(prev => [...prev, "Reset future state to current"]);
-    showToast("Future state reset");
+    showToast("Future state reset to current org — start fresh");
   }, [tree, pushHistory]);
 
   const orgHC = tree.reduce((s, t) => s + t.headcount, 0);
@@ -817,12 +817,12 @@ export function ArchitectureMapTab({ tree, jobs, employees, model }: {
     {/* ── ARCHITECTURE OVERVIEW BAR (dual — Current vs Proposed) ── */}
     <div style={{ marginBottom: 16, background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 12, padding: 12 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-        <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b" }}>Architecture Overview</span>
+        <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b" }}>Architecture Overview</span>
         <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: "#64748b" }}>{jobs.length} roles · {orgHC.toLocaleString()} people · {tree.length} functions</span>
       </div>
       {/* Current bar */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-        <span style={{ fontSize: 9, fontWeight: 600, color: "#64748b", width: 56, textAlign: "right" }}>Current</span>
+        <span style={{ fontSize: 11, fontWeight: 600, color: "#64748b", width: 56, textAlign: "right" }}>Current</span>
         <div style={{ flex: 1, display: "flex", gap: 2, height: 28 }}>
           {treemapData.map(d => {
             const pct = orgHC > 0 ? Math.max(d.size / orgHC * 100, 4) : 10;
@@ -837,14 +837,14 @@ export function ArchitectureMapTab({ tree, jobs, employees, model }: {
         const futureHC = futureTree.reduce((s, t) => s + t.headcount, 0) || orgHC;
         const futureData = futureTree.filter(t => !t.sunset && t.headcount > 0).map((t, i) => ({ name: t.label, size: t.headcount, fill: TC[i % TC.length] }));
         return <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 9, fontWeight: 600, color: "#64748b", width: 56, textAlign: "right" }}>Proposed</span>
+          <span style={{ fontSize: 11, fontWeight: 600, color: "#64748b", width: 56, textAlign: "right" }}>Proposed</span>
           <div style={{ flex: 1, display: "flex", gap: 2, height: 28 }}>
             {futureData.length > 0 ? futureData.map(d => {
               const pct = futureHC > 0 ? Math.max(d.size / futureHC * 100, 4) : 10;
               return <div key={d.name} style={{ background: d.fill, flex: pct, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", opacity: 0.7 }} title={`${d.name}: ${d.size.toLocaleString()} proposed`}>
                 <span style={{ fontSize: pct > 12 ? 9 : 7, fontWeight: 700, color: "#fff", textShadow: "0 1px 2px rgba(0,0,0,0.5)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", padding: "0 2px" }}>{d.name}</span>
               </div>;
-            }) : <div style={{ flex: 1, height: 28, borderRadius: 4, border: "1px dashed rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, color: "#64748b" }}>Design your future state in the right panel</div>}
+            }) : <div style={{ flex: 1, height: 28, borderRadius: 4, border: "1px dashed rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "#64748b" }}>Design your future state in the right panel</div>}
           </div>
         </div>;
       })()}
@@ -853,7 +853,7 @@ export function ArchitectureMapTab({ tree, jobs, employees, model }: {
     {/* ── TOOLBAR ── */}
     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-        <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b" }}>Color:</span>
+        <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b" }}>Color:</span>
         {(["headcount", "ai_impact", "tenure_risk", "vacancy"] as ColorMetric[]).map(m => <button key={m} onClick={() => setColorMetric(m)} style={{ padding: "3px 8px", borderRadius: 6, fontSize: 11, fontWeight: 600, border: "1px solid " + (colorMetric === m ? "var(--accent-primary)" : "var(--border)"), background: colorMetric === m ? "var(--accent-primary)" : "transparent", color: colorMetric === m ? "#fff" : "#64748b", cursor: "pointer" }}>{m === "headcount" ? "HC" : m === "ai_impact" ? "AI" : m === "tenure_risk" ? "Tenure" : "Vacancy"}</button>)}
       </div>
       <div style={{ flex: 1 }} />
@@ -887,7 +887,7 @@ export function ArchitectureMapTab({ tree, jobs, employees, model }: {
       {/* CENTER: Mapping Panel */}
       <div style={{ background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden", display: "flex", flexDirection: "column" }}>
         <div style={{ padding: "10px 8px", borderBottom: "1px solid rgba(255,255,255,0.06)", textAlign: "center" }}>
-          <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b" }}>Mapping</span>
+          <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b" }}>Mapping</span>
         </div>
         {/* Mapping type buttons */}
         <div style={{ padding: "8px 6px", display: "flex", flexDirection: "column", gap: 4 }}>
@@ -897,14 +897,14 @@ export function ArchitectureMapTab({ tree, jobs, employees, model }: {
             { type: "many-to-one", label: "Merge Many:1", color: "#F97316" },
             { type: "new", label: "New Role", color: "#10B981" },
             { type: "sunset", label: "Sunset", color: "#EF4444" },
-          ].map(btn => <button key={btn.type} disabled={!mappingMode} style={{ padding: "5px 8px", borderRadius: 6, fontSize: 10, fontWeight: 600, border: `1px solid ${btn.color}30`, background: `${btn.color}08`, color: mappingMode ? btn.color : "#475569", cursor: mappingMode ? "pointer" : "not-allowed", opacity: mappingMode ? 1 : 0.5, transition: "all 0.15s" }}>{btn.label}</button>)}
+          ].map(btn => <button key={btn.type} disabled={!mappingMode} style={{ padding: "5px 8px", borderRadius: 6, fontSize: 11, fontWeight: 600, border: `1px solid ${btn.color}30`, background: `${btn.color}08`, color: mappingMode ? btn.color : "#475569", cursor: mappingMode ? "pointer" : "not-allowed", opacity: mappingMode ? 1 : 0.5, transition: "all 0.15s" }}>{btn.label}</button>)}
         </div>
         {/* Existing mappings */}
         <div style={{ flex: 1, overflowY: "auto", padding: "0 6px", maxHeight: "40vh" }}>
           {mappings.length === 0 ? <div style={{ textAlign: "center", padding: 16, color: "#64748b", fontSize: 11 }}>No mappings yet</div> : <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>{mappings.map((m, i) => <MappingLine key={m.id} mapping={m} index={i} />)}</div>}
         </div>
         {/* Summary */}
-        <div style={{ padding: "8px 6px", borderTop: "1px solid rgba(255,255,255,0.06)", fontSize: 10, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: "#64748b", textAlign: "center" }}>
+        <div style={{ padding: "8px 6px", borderTop: "1px solid rgba(255,255,255,0.06)", fontSize: 11, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: "#64748b", textAlign: "center" }}>
           {mappings.length} mapped · {Math.max(0, jobs.length - mappings.length)} unmapped
         </div>
       </div>

@@ -344,7 +344,7 @@ export function JobContentAuthoring({ model, f }: { model: string; f: Filters })
       setBullets(newBullets);
       showToast(`Generated ${newBullets.length} bullets`);
     } catch {
-      showToast("Generation failed");
+      showToast("Couldn't generate bullets — try again in a moment");
     } finally {
       setGenerating(false);
     }
@@ -744,7 +744,7 @@ export function JobContentAuthoring({ model, f }: { model: string; f: Filters })
                         onClick={() => removeVerb(lane, v.verb)}
                         style={{
                           background: "none", border: "none", cursor: "pointer",
-                          color: "var(--text-muted)", fontSize: 10, padding: 0,
+                          color: "var(--text-muted)", fontSize: 11, padding: 0,
                           lineHeight: 1, marginLeft: 2,
                         }}
                       >✕</button>
@@ -890,7 +890,7 @@ export function JobContentAuthoring({ model, f }: { model: string; f: Filters })
               background: b.approved ? "var(--success)" + "08" : "var(--surface-2)",
               border: `1px solid ${b.approved ? "var(--success)" + "40" : "var(--border)"}`,
             }}>
-              <div style={{ fontSize: 10, color: "var(--text-muted)", marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.5 }}>
+              <div style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.5 }}>
                 {b.theme}
               </div>
               <div style={{ display: "flex", alignItems: "flex-start", gap: 6, marginBottom: 6 }}>
@@ -1037,7 +1037,7 @@ export function JobContentAuthoring({ model, f }: { model: string; f: Filters })
                 }}>
                   <span style={{ color: "var(--text-muted)", fontSize: 11, flexShrink: 0, paddingTop: 2 }}>{i + 1}.</span>
                   <div>
-                    <div style={{ fontSize: 10, color: "var(--text-muted)", marginBottom: 2, textTransform: "uppercase" }}>{b.theme}</div>
+                    <div style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 2, textTransform: "uppercase" }}>{b.theme}</div>
                     <div>{b.text}</div>
                   </div>
                   {b.approved && <span style={{ color: "var(--success)", fontSize: 11, flexShrink: 0 }}>✓</span>}
@@ -1170,7 +1170,7 @@ const iconBtnStyle: React.CSSProperties = {
   border: "none",
   cursor: "pointer",
   color: "var(--text-muted)",
-  fontSize: 10,
+  fontSize: 11,
   padding: 2,
   lineHeight: 1,
 };

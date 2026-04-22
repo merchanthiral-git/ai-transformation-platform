@@ -497,7 +497,7 @@ export default function FrameworkBuilder({ model, projectId, onFrameworkReady }:
                     <tr key={dim.id}>
                       <td style={{ padding: "8px 12px", fontSize: "var(--text-xs)", fontWeight: "var(--fw-medium)", color: "var(--text-primary)", verticalAlign: "top", background: "var(--surface-1)", borderRadius: 4, border: "1px solid var(--border)" }}>
                         {dim.name}
-                        <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 2, fontWeight: "normal" }}>{dim.description}</div>
+                        <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2, fontWeight: "normal" }}>{dim.description}</div>
                       </td>
                       {allLevels.map(l => {
                         const key = `${l.track}|${l.code}|${dim.id}`;

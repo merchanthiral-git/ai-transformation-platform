@@ -221,6 +221,10 @@ export async function getSkillAnalysis(modelId: string, f: Filters): Promise<Ski
   });
 }
 
+export async function getEmployeeRecords(modelId: string, f: Filters): Promise<{ employees: Record<string, unknown>[]; total: number }> {
+  return fetchJSON(`/api/overview/employees?model_id=${encodeURIComponent(modelId)}&${filterParams(f)}`, { employees: [], total: 0 });
+}
+
 export async function getOrgDiagnostics(modelId: string, f: Filters): Promise<OrgDiagnosticsResponse> {
   return fetchJSON<OrgDiagnosticsResponse>(`/api/diagnose/org?model_id=${encodeURIComponent(modelId)}&${filterParams(f)}`, {
     kpis: { total: 0, managers: 0, ics: 0, avg_span: 0, max_span: 0, layers: 0 },

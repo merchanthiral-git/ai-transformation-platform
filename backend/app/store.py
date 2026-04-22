@@ -1209,7 +1209,7 @@ def build_role_evolution(job_df, reconstruction_df, redeployment_df):
     total_tasks = len(reconstruction_df)
 
     if released_pct >= 50 and auto_count > total_tasks * 0.5:
-        evolution = "Role Eliminated / Merged"
+        evolution = "Role Sunset / Merged"
         details = [
             "Over 50% of role capacity is automatable.",
             "Consider merging residual tasks into adjacent roles.",

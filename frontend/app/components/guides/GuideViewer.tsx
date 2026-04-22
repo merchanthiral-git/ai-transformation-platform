@@ -197,7 +197,7 @@ export default function GuideViewer({ guide, onBack, onNavigate }: GuideViewerPr
                         </div>
                       )}
                     </div>
-                    <span style={{ fontSize: 10, color: "rgba(255,200,150,0.2)", paddingTop: 3, transform: expandedChapters.has(ch.id) ? "rotate(90deg)" : "none", transition: "transform 0.15s" }}>▶</span>
+                    <span style={{ fontSize: 11, color: "rgba(255,200,150,0.2)", paddingTop: 3, transform: expandedChapters.has(ch.id) ? "rotate(90deg)" : "none", transition: "transform 0.15s" }}>▶</span>
                   </button>
                 </div>
               ))}

@@ -44,7 +44,7 @@ export function HeadcountPlanning({ model, f, onBack, onNavigate, jobStates, vie
     const src = hasData ? wf : DEMO_WF;
     return [
       { label: "Start", value: Number(src.starting_headcount || 0), delta: 0, color: "var(--accent-primary)" },
-      { label: "Eliminated", value: -Number(src.eliminations || 0), delta: -Number(src.eliminations || 0), color: getSemanticColor("risk") },
+      { label: "Transitioned", value: -Number(src.eliminations || 0), delta: -Number(src.eliminations || 0), color: getSemanticColor("risk") },
       { label: "Attrition", value: -Number(src.natural_attrition || 0), delta: -Number(src.natural_attrition || 0), color: getSemanticColor("warn") },
       { label: "Redeployed", value: Number(src.redeployments || 0), delta: Number(src.redeployments || 0), color: getSemanticColor("info") },
       { label: "New Hires", value: Number(src.new_hires || 0), delta: Number(src.new_hires || 0), color: getSemanticColor("success") },
@@ -65,7 +65,7 @@ export function HeadcountPlanning({ model, f, onBack, onNavigate, jobStates, vie
 
     const bars = isPreview ? [
       { label: "Start", value: 8000, delta: 0, color: "var(--accent-primary)" },
-      { label: "Eliminated", value: -147, delta: -147, color: getSemanticColor("risk") },
+      { label: "Transitioned", value: -147, delta: -147, color: getSemanticColor("risk") },
       { label: "Attrition", value: -320, delta: -320, color: getSemanticColor("warn") },
       { label: "Redeployed", value: 89, delta: 89, color: getSemanticColor("info") },
       { label: "New Hires", value: 74, delta: 74, color: getSemanticColor("success") },
@@ -76,7 +76,7 @@ export function HeadcountPlanning({ model, f, onBack, onNavigate, jobStates, vie
       {/* KPI Strip */}
       <div className="grid grid-cols-5 gap-3 mb-5">
         <KpiCard label="Current HC" value={Number(src.starting_headcount || 0)} />
-        <KpiCard label="Eliminations" value={Number(src.eliminations || 0)} />
+        <KpiCard label="Transitions" value={Number(src.eliminations || 0)} />
         <KpiCard label="New Hires" value={Number(src.new_hires || 0)} accent />
         <KpiCard label="Target HC" value={Number(src.target_headcount || 0)} accent />
         <KpiCard label="Net Change" value={`${Number(src.net_change_pct || 0)}%`} />
@@ -106,7 +106,7 @@ export function HeadcountPlanning({ model, f, onBack, onNavigate, jobStates, vie
             <thead><tr className="bg-[var(--surface-2)]">
               <th className="px-3 py-2 text-left font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Department</th>
               <th className="px-2 py-2 text-center border-b border-[var(--border)]">Current</th>
-              <th className="px-2 py-2 text-center border-b border-[var(--border)]">Eliminated</th>
+              <th className="px-2 py-2 text-center border-b border-[var(--border)]">Transitioned</th>
               <th className="px-2 py-2 text-center border-b border-[var(--border)]">Redeployed</th>
               <th className="px-2 py-2 text-center border-b border-[var(--border)]">New Hires</th>
               <th className="px-2 py-2 text-center border-b border-[var(--border)]">Future</th>
@@ -133,7 +133,7 @@ export function HeadcountPlanning({ model, f, onBack, onNavigate, jobStates, vie
             <thead><tr className="bg-[var(--surface-2)]">
               <th className="px-3 py-2 text-left border-b border-[var(--border)]">Department</th>
               <th className="px-2 py-2 text-center border-b border-[var(--border)]">Current</th>
-              <th className="px-2 py-2 text-center border-b border-[var(--border)]">Eliminated</th>
+              <th className="px-2 py-2 text-center border-b border-[var(--border)]">Transitioned</th>
               <th className="px-2 py-2 text-center border-b border-[var(--border)]">Future</th>
               <th className="px-2 py-2 text-center border-b border-[var(--border)]">Change</th>
             </tr></thead>
@@ -248,7 +248,7 @@ export function HeadcountPlanning({ model, f, onBack, onNavigate, jobStates, vie
       {/* Insights */}
       {!isPreview && <InsightPanel title="Headcount Insights" items={[
         `Net headcount change: ${Number(wf.net_change || 0) > 0 ? "+" : ""}${wf.net_change || 0} (${Number(wf.net_change_pct || 0) > 0 ? "+" : ""}${wf.net_change_pct || 0}%)`,
-        Number(wf.natural_attrition || 0) > 0 ? `Natural attrition of ${wf.natural_attrition} absorbs ${Math.round(Number(wf.natural_attrition || 0) / Math.max(Number(wf.eliminations || 1), 1) * 100)}% of eliminations — ${Number(wf.natural_attrition || 0) >= Number(wf.eliminations || 0) ? "no forced reductions needed" : "reducing forced displacement"}` : "No natural attrition data available",
+        Number(wf.natural_attrition || 0) > 0 ? `Natural attrition of ${wf.natural_attrition} absorbs ${Math.round(Number(wf.natural_attrition || 0) / Math.max(Number(wf.eliminations || 1), 1) * 100)}% of transitions — ${Number(wf.natural_attrition || 0) >= Number(wf.eliminations || 0) ? "no forced reductions needed" : "reducing forced displacement"}` : "No natural attrition data available",
         `Operations typically sees the largest shift: most automatable tasks concentrate there`,
         `Phased over 18 months: redeployments first (months 1-6), hiring (7-12), transition (13-18)`,
         fin ? `3-year cumulative impact: ${fmtNum(fin.year3Cumulative)} — payback in ${fin.netYear1 >= 0 ? "Year 1" : "Year 2"}` : "",

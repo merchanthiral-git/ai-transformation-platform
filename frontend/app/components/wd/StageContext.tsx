@@ -85,7 +85,7 @@ const S = {
   grid: { display: "grid", gridTemplateColumns: "1fr 380px", gap: 20, alignItems: "start" } as React.CSSProperties,
   section: { background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 10, padding: "18px 22px", marginBottom: 16 } as React.CSSProperties,
   sectionTitle: { fontSize: "var(--text-sm)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)", marginBottom: 12, display: "flex", alignItems: "center", gap: 8 } as React.CSSProperties,
-  label: { fontSize: 10, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.05em", marginBottom: 4 } as React.CSSProperties,
+  label: { fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.05em", marginBottom: 4 } as React.CSSProperties,
   textarea: { width: "100%", padding: "10px 12px", fontSize: "var(--text-xs)", background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 6, color: "var(--text-primary)", resize: "vertical" as const, outline: "none", fontFamily: "inherit", minHeight: 100, lineHeight: 1.6 } as React.CSSProperties,
   input: { width: "100%", padding: "7px 10px", fontSize: "var(--text-xs)", background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 6, color: "var(--text-primary)", outline: "none" } as React.CSSProperties,
   inputSm: { flex: 1, padding: "6px 8px", fontSize: "var(--text-xs)", background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 5, color: "var(--text-primary)", outline: "none" } as React.CSSProperties,
@@ -97,12 +97,12 @@ const S = {
   metaRow: { display: "flex", justifyContent: "space-between", padding: "5px 0", borderBottom: "1px solid var(--border)", fontSize: "var(--text-xs)" } as React.CSSProperties,
   metaLabel: { color: "var(--text-muted)" } as React.CSSProperties,
   metaValue: { color: "var(--text-primary)", fontWeight: "var(--fw-medium)" } as React.CSSProperties,
-  sourceBadge: { display: "inline-flex", alignItems: "center", gap: 3, padding: "1px 6px", fontSize: 9, background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.12)", borderRadius: 3, color: "#3B82F6", marginLeft: 6 } as React.CSSProperties,
+  sourceBadge: { display: "inline-flex", alignItems: "center", gap: 3, padding: "1px 6px", fontSize: 11, background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.12)", borderRadius: 3, color: "#3B82F6", marginLeft: 6 } as React.CSSProperties,
   inherited: { borderLeft: "2px solid rgba(59,130,246,0.15)", paddingLeft: 8 } as React.CSSProperties,
   scopeItem: { display: "flex", alignItems: "center", gap: 6, padding: "6px 8px", background: "var(--surface-2)", borderRadius: 5, marginBottom: 4, fontSize: "var(--text-xs)" } as React.CSSProperties,
   criteriaRow: { display: "flex", gap: 6, marginBottom: 6, alignItems: "center" } as React.CSSProperties,
   stakeholderRow: { display: "flex", gap: 6, marginBottom: 6, alignItems: "center" } as React.CSSProperties,
-  skillChip: { display: "inline-flex", padding: "2px 8px", fontSize: 10, background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 10, color: "var(--text-secondary)", marginRight: 4, marginBottom: 3 } as React.CSSProperties,
+  skillChip: { display: "inline-flex", padding: "2px 8px", fontSize: 11, background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 10, color: "var(--text-secondary)", marginRight: 4, marginBottom: 3 } as React.CSSProperties,
 };
 
 /* ═══════════════════════════════════════════════════════════════

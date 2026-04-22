@@ -7,7 +7,7 @@ import { Empty } from "./ui-components";
 
 export function DataTable({ data, cols, pageSize = 15 }: { data: Record<string, unknown>[]; cols?: string[]; pageSize?: number }) {
   const [search, setSearch] = useState(""); const [sortCol, setSortCol] = useState(""); const [sortAsc, setSortAsc] = useState(true); const [page, setPage] = useState(0);
-  if (!data?.length) return <Empty text="No data available" />;
+  if (!data?.length) return <Empty text="No visualization data yet" subtitle="Upload workforce data or complete an analysis module to populate this chart." />;
   const columns = cols || Object.keys(data[0]);
   const filtered = search ? data.filter(row => columns.some(c => String(row[c] ?? "").toLowerCase().includes(search.toLowerCase()))) : data;
   const sorted = sortCol ? [...filtered].sort((a, b) => { const av = String(a[sortCol] ?? ""); const bv = String(b[sortCol] ?? ""); const na = Number(av); const nb = Number(bv); if (!isNaN(na) && !isNaN(nb)) return sortAsc ? na - nb : nb - na; return sortAsc ? av.localeCompare(bv) : bv.localeCompare(av); }) : filtered;

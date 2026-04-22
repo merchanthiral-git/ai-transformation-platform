@@ -19,7 +19,7 @@ function moduleLabel(id: string): string {
 }
 
 // ── Admin guard ──
-const ADMIN_USERNAME = "hiral";
+const ADMIN_EMAIL = "merchanthiral@gmail.com";
 
 export default function AdminPage() {
   const [authorized, setAuthorized] = useState(false);
@@ -35,8 +35,9 @@ export default function AdminPage() {
   useEffect(() => {
     const user = authApi.getStoredUser();
     const token = authApi.getToken();
-    if (user && token && user.username === ADMIN_USERNAME) {
+    if (user && token && user.email === ADMIN_EMAIL) {
       setAuthorized(true);
+      setChecked(true);
       setMetrics(getLocalMetrics());
       refreshUsers();
       // Auto-refresh every 30 seconds
@@ -239,6 +240,18 @@ function FunnelTab({ steps, funnel, maxFunnel }: { steps: { key: string; label: 
   );
 }
 
+// ── Activity badge color helper ──
+function activityColor(activity: string): { bg: string; fg: string } {
+  switch (activity) {
+    case "Online": return { bg: "rgba(16,185,129,0.15)", fg: "#10B981" };
+    case "Today": return { bg: "rgba(59,130,246,0.15)", fg: "#3B82F6" };
+    case "This week": return { bg: "rgba(139,92,246,0.12)", fg: "#8B5CF6" };
+    case "This month": return { bg: "rgba(255,200,150,0.08)", fg: "rgba(255,200,150,0.5)" };
+    case "Inactive": return { bg: "rgba(239,68,68,0.1)", fg: "#EF4444" };
+    default: return { bg: "rgba(255,200,150,0.06)", fg: "rgba(255,200,150,0.3)" };
+  }
+}
+
 // ── Users Tab ──
 function UsersTab({ users, onRefresh }: { users: Record<string, unknown>[]; onRefresh: () => void }) {
   return (
@@ -263,7 +276,7 @@ function UsersTab({ users, onRefresh }: { users: Record<string, unknown>[]; onRe
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
           <thead>
             <tr style={{ borderBottom: "1px solid rgba(255,200,150,0.1)" }}>
-              {["Username", "Display Name", "Email", "Projects", "Status", "Last Login", "Created"].map(h => (
+              {["Username", "Email", "Signup Date", "Last Login", "Activity", "Projects", "Status", ""].map(h => (
                 <th key={h} style={{ textAlign: "left", padding: "10px 12px", color: "rgba(255,200,150,0.4)", fontWeight: 600, fontSize: 11, textTransform: "uppercase", letterSpacing: 1 }}>{h}</th>
               ))}
             </tr>
@@ -271,17 +284,34 @@ function UsersTab({ users, onRefresh }: { users: Record<string, unknown>[]; onRe
           <tbody>
             {users.map((u, i) => {
               const isActive = u.is_active !== false;
+              const activity = String(u.activity || "Never");
+              const ac = activityColor(activity);
               return (
               <tr key={i} style={{ borderBottom: "1px solid rgba(255,200,150,0.04)", opacity: isActive ? 1 : 0.5 }}>
-                <td style={{ padding: "10px 12px", color: "var(--accent-primary)", fontWeight: 600 }}>{String(u.username || "")}</td>
-                <td style={{ padding: "10px 12px", color: "rgba(255,200,150,0.6)" }}>{String(u.display_name || "—")}</td>
-                <td style={{ padding: "10px 12px", color: "rgba(255,200,150,0.4)", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{String(u.email || "—")}</td>
-                <td style={{ padding: "10px 12px", fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: "rgba(255,200,150,0.6)" }}>{String(u.project_count ?? "—")}</td>
                 <td style={{ padding: "10px 12px" }}>
-                  <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 6, background: isActive ? "rgba(16,185,129,0.15)" : "rgba(239,68,68,0.15)", color: isActive ? "var(--success)" : "var(--risk)", fontWeight: 600 }}>{isActive ? "Active" : "Inactive"}</span>
+                  <div style={{ color: "var(--accent-primary)", fontWeight: 600 }}>{String(u.username || "")}</div>
+                  {u.display_name && u.display_name !== u.username && <div style={{ fontSize: 11, color: "rgba(255,200,150,0.35)", marginTop: 1 }}>{String(u.display_name)}</div>}
                 </td>
+                <td style={{ padding: "10px 12px", color: "rgba(255,200,150,0.5)", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{String(u.email || "—")}</td>
+                <td style={{ padding: "10px 12px", color: "rgba(255,200,150,0.4)", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{u.created_at ? String(u.created_at) : "—"}</td>
                 <td style={{ padding: "10px 12px", color: "rgba(255,200,150,0.35)", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{u.last_login ? String(u.last_login) : "Never"}</td>
-                <td style={{ padding: "10px 12px", color: "rgba(255,200,150,0.35)", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{u.created_at ? String(u.created_at) : "—"}</td>
+                <td style={{ padding: "10px 12px" }}>
+                  <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 6, background: ac.bg, color: ac.fg, fontWeight: 600 }}>{activity}</span>
+                </td>
+                <td style={{ padding: "10px 12px", fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: "rgba(255,200,150,0.6)", textAlign: "center" }}>{String(u.project_count ?? 0)}</td>
+                <td style={{ padding: "10px 12px" }}>
+                  <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 6, background: isActive ? "rgba(16,185,129,0.15)" : "rgba(239,68,68,0.15)", color: isActive ? "var(--success)" : "var(--risk)", fontWeight: 600 }}>{isActive ? "Active" : "Disabled"}</span>
+                </td>
+                <td style={{ padding: "10px 12px" }}>
+                  {String(u.email) !== "merchanthiral@gmail.com" && (
+                    <button onClick={() => {
+                      const userId = String(u.id);
+                      authApi.adminToggleUserStatus(userId, !isActive).then(() => onRefresh());
+                    }} style={{ fontSize: 11, fontWeight: 600, color: isActive ? "rgba(239,68,68,0.6)" : "rgba(16,185,129,0.6)", background: "none", border: "none", cursor: "pointer", fontFamily: "'Outfit', sans-serif" }}>
+                      {isActive ? "Disable" : "Enable"}
+                    </button>
+                  )}
+                </td>
               </tr>
               );
             })}

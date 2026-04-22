@@ -113,7 +113,7 @@ export default function Error({
           <div
             style={{
               marginTop: 20,
-              fontSize: 10,
+              fontSize: 11,
               color: "#5A6478",
               fontFamily: "'IBM Plex Mono', monospace",
             }}

@@ -107,7 +107,7 @@ export default function GlobalError({
             <div
               style={{
                 marginTop: 24,
-                fontSize: 10,
+                fontSize: 11,
                 color: "#5A6478",
                 fontFamily: "monospace",
               }}

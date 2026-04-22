@@ -157,7 +157,6 @@ def forgot_password(req: ForgotPasswordRequest, db: Session = Depends(get_db)):
 
     return {
         "message": "If an account with that email exists, a reset link has been sent.",
-        "token": reset_token,  # returned for dev convenience — remove in production
     }
 
 
@@ -383,11 +382,11 @@ def save_design_state(project_id: str, state: dict, user: UserDB = Depends(get_c
 # ADMIN ROUTES (hiral only)
 # ═══════════════════════════════════════════════════════════════
 
-ADMIN_USERNAMES = {"hiral"}
+ADMIN_EMAILS = {"merchanthiral@gmail.com"}
 
 
 def _require_admin(user: UserDB):
-    if user.username not in ADMIN_USERNAMES:
+    if (user.email or "").lower() not in ADMIN_EMAILS:
         raise HTTPException(status_code=403, detail="Admin access required")
 
 
@@ -399,14 +398,34 @@ def admin_list_users(user: UserDB = Depends(get_current_user), db: Session = Dep
     result = []
     for u in users:
         project_count = db.query(ProjectDB).filter(ProjectDB.user_id == u.id).count()
+        # Determine activity status based on last_login recency
+        activity = "Never"
+        if u.last_login:
+            from datetime import datetime, timezone, timedelta
+            now_utc = datetime.now(timezone.utc)
+            ll = u.last_login.replace(tzinfo=timezone.utc) if u.last_login.tzinfo is None else u.last_login
+            delta = now_utc - ll
+            if delta < timedelta(hours=1):
+                activity = "Online"
+            elif delta < timedelta(days=1):
+                activity = "Today"
+            elif delta < timedelta(days=7):
+                activity = "This week"
+            elif delta < timedelta(days=30):
+                activity = "This month"
+            else:
+                activity = "Inactive"
         result.append({
             "id": u.id,
             "username": u.username,
             "email": u.email,
             "display_name": u.display_name or u.username,
+            "user_type": u.user_type or "",
+            "user_role": u.user_role or "",
             "created_at": u.created_at.strftime("%Y-%m-%d %H:%M") if u.created_at else None,
             "last_login": u.last_login.strftime("%Y-%m-%d %H:%M") if u.last_login else None,
             "is_active": u.is_active != "false",
+            "activity": activity,
             "project_count": project_count,
         })
     # Stats
@@ -451,7 +470,7 @@ def admin_toggle_user_status(user_id: str, payload: dict, user: UserDB = Depends
     target = db.query(UserDB).filter(UserDB.id == user_id).first()
     if not target:
         raise HTTPException(status_code=404, detail="User not found")
-    if target.username in ADMIN_USERNAMES:
+    if (target.email or "").lower() in ADMIN_EMAILS:
         raise HTTPException(status_code=400, detail="Cannot deactivate admin accounts")
     target.is_active = "true" if payload.get("active", True) else "false"
     db.commit()
@@ -486,8 +505,7 @@ def admin_ai_usage(user: UserDB = Depends(get_current_user)):
 @auth_router.get("/admin/test-email")
 async def test_email(user: UserDB = Depends(get_current_user)):
     """Send a test email to verify Resend configuration. Admin only."""
-    if user.username != "hiral":
-        raise HTTPException(status_code=403, detail="Admin only")
+    _require_admin(user)
     body = f"""
     <div style="font-size:18px;font-weight:700;color:#f5e6d0;margin-bottom:12px;">Test Email</div>
     <div style="font-size:13px;color:rgba(255,255,255,0.5);line-height:1.6;">

@@ -1,40 +1,15 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CACHE_V } from "../../lib/cdn";
 
 export default function LandingPage() {
-  const cursorRef = useRef<HTMLDivElement>(null);
-  const ringRef = useRef<HTMLDivElement>(null);
-
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     // ── Loader ──
     const loader = document.getElementById("loader");
-    const loaderTimer = setTimeout(() => loader?.classList.add("done"), 2500);
-
-    // ── Cursor ──
-    const cursor = cursorRef.current;
-    const ring = ringRef.current;
-    let cx = 0, cy = 0, rx = 0, ry = 0;
-    const onMouseMove = (e: MouseEvent) => {
-      cx = e.clientX; cy = e.clientY;
-      if (cursor) { cursor.style.left = cx + "px"; cursor.style.top = cy + "px"; }
-    };
-    document.addEventListener("mousemove", onMouseMove);
-    let ringRaf = 0;
-    const ringLoop = () => {
-      rx += (cx - rx) * 0.12; ry += (cy - ry) * 0.12;
-      if (ring) { ring.style.left = rx + "px"; ring.style.top = ry + "px"; }
-      ringRaf = requestAnimationFrame(ringLoop);
-    };
-    ringLoop();
-
-    const hoverEls = document.querySelectorAll("[data-hover],a,button");
-    const enterFn = () => { cursor?.classList.add("hover"); ring?.classList.add("hover"); };
-    const leaveFn = () => { cursor?.classList.remove("hover"); ring?.classList.remove("hover"); };
-    hoverEls.forEach(el => { el.addEventListener("mouseenter", enterFn); el.addEventListener("mouseleave", leaveFn); });
+    const loaderTimer = setTimeout(() => loader?.classList.add("done"), 800);
 
     // ── Nav scroll ──
     const onScroll = () => {
@@ -95,11 +70,8 @@ export default function LandingPage() {
 
     return () => {
       clearTimeout(loaderTimer);
-      cancelAnimationFrame(ringRaf);
-      document.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("scroll", onScroll);
       document.removeEventListener("visibilitychange", onVisibility);
-      hoverEls.forEach(el => { el.removeEventListener("mouseenter", enterFn); el.removeEventListener("mouseleave", leaveFn); });
       wordObs.disconnect();
       revealObs.disconnect();
       anchors.forEach(a => a.removeEventListener("click", anchorFn as EventListener));
@@ -119,12 +91,8 @@ export default function LandingPage() {
   --sans: 'Instrument Sans', -apple-system, sans-serif;
 }
 html { background: var(--bg); overflow-x: hidden; }
-body { font-family: var(--sans); color: var(--text); background: var(--bg); -webkit-font-smoothing: antialiased; cursor: none; }
+body { font-family: var(--sans); color: var(--text); background: var(--bg); -webkit-font-smoothing: antialiased; cursor: auto; }
 ::selection { background: var(--accent); color: white; }
-.cursor { position: fixed; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); pointer-events: none; z-index: 9999; mix-blend-mode: difference; transition: transform 0.15s ease, width 0.3s, height 0.3s; transform: translate(-50%, -50%); }
-.cursor.hover { width: 48px; height: 48px; background: var(--accent-light); mix-blend-mode: normal; opacity: 0.4; }
-.cursor-ring { position: fixed; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--accent); pointer-events: none; z-index: 9998; opacity: 0.3; transition: transform 0.08s ease, width 0.3s, height 0.3s, opacity 0.3s; transform: translate(-50%, -50%); }
-.cursor-ring.hover { width: 64px; height: 64px; opacity: 0.15; }
 body::after { content: ''; position: fixed; inset: 0; z-index: 9990; pointer-events: none; opacity: 0.03; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); background-repeat: repeat; background-size: 180px; }
 .loader { position: fixed; inset: 0; background: #F7F5F0; z-index: 10000; display: flex; align-items: center; justify-content: center; flex-direction: column; transition: opacity 0.6s ease, visibility 0.6s; }
 .loader.done { opacity: 0; visibility: hidden; pointer-events: none; }
@@ -162,14 +130,14 @@ nav.scrolled { padding: 16px 56px; background: rgba(244,241,235,0.92); backdrop-
 .nav-links a:hover::after { width: 100%; }
 .nav-cta { padding: 12px 24px; background: var(--text); color: var(--bg); border-radius: 100px; font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; text-decoration: none; transition: all 0.4s cubic-bezier(0.16,1,0.3,1); display: inline-block; white-space: nowrap; }
 .nav-cta:hover { background: var(--accent); color: white; transform: scale(1.05); }
-.btn-primary { padding: 18px 48px; background: var(--text); color: var(--bg); border: none; border-radius: 100px; font-family: var(--sans); font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; cursor: none; transition: all 0.4s cubic-bezier(0.16,1,0.3,1); position: relative; overflow: hidden; }
+.btn-primary { padding: 18px 48px; background: var(--text); color: var(--bg); border: none; border-radius: 100px; font-family: var(--sans); font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; transition: all 0.4s cubic-bezier(0.16,1,0.3,1); position: relative; overflow: hidden; }
 .btn-primary::after { content: ''; position: absolute; inset: 0; background: var(--accent); transform: translateY(101%); transition: transform 0.4s cubic-bezier(0.16,1,0.3,1); }
 .btn-primary span { position: relative; z-index: 1; }
 .btn-primary:hover { color: white; transform: translateY(-2px); }
 .btn-primary:hover::after { transform: translateY(0); }
-.btn-ghost { padding: 18px 48px; background: transparent; color: var(--text-mid); border: 1px solid var(--rule); border-radius: 100px; font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; cursor: none; transition: all 0.3s; text-decoration: none; display: inline-block; }
+.btn-ghost { padding: 18px 48px; background: transparent; color: var(--text-mid); border: 1px solid var(--rule); border-radius: 100px; font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; transition: all 0.3s; text-decoration: none; display: inline-block; }
 .btn-ghost:hover { color: var(--text); border-color: var(--text); }
-.btn-accent { padding: 18px 48px; background: var(--accent); color: #ffffff; border: none; border-radius: 100px; font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; cursor: none; transition: all 0.3s; text-decoration: none; display: inline-block; }
+.btn-accent { padding: 18px 48px; background: var(--accent); color: #ffffff; border: none; border-radius: 100px; font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; transition: all 0.3s; text-decoration: none; display: inline-block; }
 .btn-accent:hover { background: #A3402A; color: #ffffff; }
 @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
 .hero { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; align-items: center; padding: 140px 56px 100px; position: relative; overflow: hidden; gap: 60px; }
@@ -333,9 +301,6 @@ footer { padding: 48px 56px; border-top: 1px solid var(--rule); display: flex; j
         <div className="loader-line" />
       </div>
 
-      {/* Cursor */}
-      <div className="cursor" ref={cursorRef} />
-      <div className="cursor-ring" ref={ringRef} />
 
       {/* Nav */}
       <nav id="nav">

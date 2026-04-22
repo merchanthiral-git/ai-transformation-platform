@@ -615,7 +615,7 @@ export function MusicPlayer({ projectActive = false }: { projectActive?: boolean
         {!playing && <span data-tooltip style={{ position: "absolute", bottom: "calc(100% + 8px)", right: 0, fontSize: 11, fontWeight: 600, color: "#f5e6d0", background: "rgba(15,12,8,0.9)", backdropFilter: "blur(12px)", border: "1px solid rgba(224,144,64,0.15)", padding: "4px 10px", borderRadius: 8, whiteSpace: "nowrap", opacity: 0, transition: "opacity 0.2s", pointerEvents: "none", fontFamily: "'Outfit', sans-serif" }}>Bring it back</span>}
       </button>
       {/* Expand to full player */}
-      <button onClick={() => setViewState("collapsed")} style={{ marginTop: 4, width: 20, height: 20, borderRadius: 10, background: "transparent", border: "none", color: "rgba(255,255,255,0.2)", fontSize: 10, cursor: "pointer", transition: "color 0.2s", display: "flex", alignItems: "center", justifyContent: "center" }} onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.5)"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.2)"} title="Expand player">▲</button>
+      <button onClick={() => setViewState("collapsed")} style={{ marginTop: 4, width: 20, height: 20, borderRadius: 10, background: "transparent", border: "none", color: "rgba(255,255,255,0.2)", fontSize: 11, cursor: "pointer", transition: "color 0.2s", display: "flex", alignItems: "center", justifyContent: "center" }} onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.5)"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.2)"} title="Expand player">▲</button>
     </div>
   </>;
 
@@ -654,7 +654,7 @@ export function MusicPlayer({ projectActive = false }: { projectActive?: boolean
           <OrbScene freqData={freqDataRef.current} bassEnergy={bassEnergy} midEnergy={midEnergy} highEnergy={highEnergy} amplitude={amplitude} />
           {focusActive && <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.6)", borderRadius: 16 }}>
             <div style={{ fontSize: 16, fontWeight: 800, color: "var(--warning)", fontFamily: "'IBM Plex Mono', monospace" }}>{Math.floor(focusRemaining / 60)}:{String(focusRemaining % 60).padStart(2, "0")}</div>
-            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: 1 }}>Focus</div>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: 1 }}>Focus</div>
           </div>}
         </div>
 

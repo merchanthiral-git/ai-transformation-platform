@@ -776,11 +776,14 @@ export function LoadingBar() {
   return <div className="w-full h-1 bg-[var(--surface-2)] rounded-full overflow-hidden mb-4" style={{ animation: "fadeIn 0.2s ease" }}><div className="h-full bg-[var(--accent-primary)] rounded-full animate-[loading_1.5s_ease-in-out_infinite]" style={{ width: "40%" }} /></div>;
 }
 
-export function LoadingSkeleton({ rows = 3 }: { rows?: number }) {
+export function LoadingSkeleton({ rows = 3, message }: { rows?: number; message?: string }) {
   const [show, setShow] = useState(false);
   useEffect(() => { const t = setTimeout(() => setShow(true), 300); return () => clearTimeout(t); }, []);
   if (!show) return null;
-  return <div className="space-y-3" style={{ animation: "fadeIn 0.2s ease" }}>{Array.from({ length: rows }, (_, i) => <div key={i} className="flex gap-3"><div className="h-4 skeleton w-1/4" /><div className="h-4 skeleton w-1/2" /><div className="h-4 skeleton w-1/4" /></div>)}</div>;
+  return <div className="space-y-3" style={{ animation: "fadeIn 0.2s ease" }}>
+    {message && <div style={{ fontSize: 13, color: "var(--text-muted)", fontFamily: "'DM Sans', sans-serif", marginBottom: 4 }}>{message}</div>}
+    {Array.from({ length: rows }, (_, i) => <div key={i} className="flex gap-3"><div className="h-4 skeleton w-1/4" /><div className="h-4 skeleton w-1/2" /><div className="h-4 skeleton w-1/4" /></div>)}
+  </div>;
 }
 
 export function EmptyWithAction({ text, icon = "📭", actionLabel, onAction }: { text: string; icon?: string; actionLabel?: string; onAction?: () => void }) {
@@ -1409,7 +1412,7 @@ export function ViewSelector({ onSelect, employees, jobs, filterOptions, onBack 
             </div>)}
           </div>
           <div className="flex justify-end">
-            <button onClick={() => onSelect("custom", customFilters)} className="px-5 py-2.5 rounded-xl text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #F97316, #EA580C)" }}>Apply & Enter →</button>
+            <button onClick={() => onSelect("custom", customFilters)} className="px-5 py-2.5 rounded-xl text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, #F97316, #EA580C)" }}>Apply Filters & Enter →</button>
           </div>
         </div>}
 

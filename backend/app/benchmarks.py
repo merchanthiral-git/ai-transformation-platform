@@ -4,6 +4,11 @@ Benchmark data sourced from Mercer, Gartner, and industry surveys — update ann
 Last updated: 2026-04
 """
 
+BENCHMARK_DISCLAIMER = (
+    "Benchmarks are illustrative ranges based on industry surveys. "
+    "Specific values should be validated against your organization's context and peer group."
+)
+
 # Benchmarks by industry. Each industry has metrics at three size tiers.
 # Size tiers: small (<500 emp), mid (500-5000), large (5000+)
 
@@ -11,7 +16,7 @@ INDUSTRY_BENCHMARKS = {
     "technology": {
         "label": "Technology",
         "icon": "💻",
-        "span_of_control":      {"small": 7.0, "mid": 6.5, "large": 6.0, "optimal": "7-12"},
+        "span_of_control":      {"small": 7.0, "mid": 6.5, "large": 6.0, "optimal": "5-10"},
         "mgmt_ratio_per_100":   {"small": 10, "mid": 12, "large": 14},
         "mgmt_layers":          {"small": 3, "mid": 5, "large": 7},
         "ai_readiness":         {"small": 68, "mid": 72, "large": 75},
@@ -156,4 +161,11 @@ def get_benchmarks(industry: str = "technology", emp_count: int = 200):
             "optimal": metric.get("optimal", ""),
             "best_in_class": BEST_IN_CLASS.get(key, 0),
         }
+    result["_disclaimer"] = BENCHMARK_DISCLAIMER
+    result["_provenance"] = {
+        "source": "Illustrative ranges based on Mercer, Gartner, and industry surveys",
+        "methodology": "Median of peer group, weighted by company size",
+        "confidence": "illustrative — validate against your specific context",
+        "last_updated": "2026-04",
+    }
     return result

@@ -47,17 +47,17 @@ const S = {
   artifactHeader: { display: "flex", alignItems: "center", gap: 10, padding: "14px 18px", cursor: "pointer", userSelect: "none" as const } as React.CSSProperties,
   artifactIcon: (color: string) => ({ width: 32, height: 32, borderRadius: 8, background: `${color}12`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }) as React.CSSProperties,
   artifactTitle: { flex: 1, fontSize: "var(--text-sm)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)" } as React.CSSProperties,
-  artifactStatus: (done: boolean) => ({ fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 10, background: done ? "rgba(34,197,94,0.1)" : "rgba(249,115,22,0.1)", color: done ? "#22C55E" : "#F97316" }) as React.CSSProperties,
+  artifactStatus: (done: boolean) => ({ fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 10, background: done ? "rgba(34,197,94,0.1)" : "rgba(249,115,22,0.1)", color: done ? "#22C55E" : "#F97316" }) as React.CSSProperties,
   artifactBody: { padding: "0 18px 18px" } as React.CSSProperties,
   textarea: { width: "100%", padding: "10px 12px", fontSize: "var(--text-xs)", background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 6, color: "var(--text-primary)", resize: "vertical" as const, outline: "none", fontFamily: "inherit", minHeight: 100, lineHeight: 1.6 } as React.CSSProperties,
   input: { width: "100%", padding: "7px 10px", fontSize: "var(--text-xs)", background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 6, color: "var(--text-primary)", outline: "none" } as React.CSSProperties,
-  label: { fontSize: 10, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.05em", marginBottom: 4, marginTop: 10 } as React.CSSProperties,
+  label: { fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.05em", marginBottom: 4, marginTop: 10 } as React.CSSProperties,
   actions: { display: "flex", gap: 6, marginTop: 8 } as React.CSSProperties,
   btn: { display: "inline-flex", alignItems: "center", gap: 4, padding: "5px 12px", fontSize: 11, fontWeight: "var(--fw-medium)", border: "1px solid var(--border)", borderRadius: 5, background: "var(--surface-2)", color: "var(--text-secondary)", cursor: "pointer" } as React.CSSProperties,
   btnPrimary: { display: "inline-flex", alignItems: "center", gap: 4, padding: "7px 16px", fontSize: 12, fontWeight: "var(--fw-semi)", border: "none", borderRadius: 6, background: "#3B82F6", color: "#fff", cursor: "pointer" } as React.CSSProperties,
   btnSuccess: { display: "inline-flex", alignItems: "center", gap: 4, padding: "8px 18px", fontSize: 12, fontWeight: "var(--fw-semi)", border: "none", borderRadius: 6, background: "#22C55E", color: "#fff", cursor: "pointer" } as React.CSSProperties,
   decisionRow: { display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: "1px solid var(--border)", fontSize: "var(--text-xs)" } as React.CSSProperties,
-  decisionStage: { padding: "2px 6px", fontSize: 9, fontWeight: 600, borderRadius: 3, background: "var(--surface-2)", color: "var(--text-muted)", minWidth: 80, textAlign: "center" as const } as React.CSSProperties,
+  decisionStage: { padding: "2px 6px", fontSize: 11, fontWeight: 600, borderRadius: 3, background: "var(--surface-2)", color: "var(--text-muted)", minWidth: 80, textAlign: "center" as const } as React.CSSProperties,
   pushRow: { display: "flex", alignItems: "center", gap: 12, padding: "12px 18px", background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 10, marginBottom: 8 } as React.CSSProperties,
   section: { marginBottom: 20 } as React.CSSProperties,
 };
@@ -242,7 +242,7 @@ export default function StageHandoff({
               <Clock size={14} style={{ color: "var(--text-muted)" }} /> Decision Log ({decisions.length} entries)
             </div>
             <div style={{ display: "flex", gap: 4 }}>
-              <select style={{ padding: "3px 8px", fontSize: 10, background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 4, color: "var(--text-muted)", outline: "none" }}
+              <select style={{ padding: "3px 8px", fontSize: 11, background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 4, color: "var(--text-muted)", outline: "none" }}
                 value={stageFilter} onChange={e => setStageFilter(e.target.value)}>
                 <option value="">All Stages</option>
                 {["context", "deconstruction", "reconstruction", "redeployment", "impact", "org_link", "handoff"].map(s => <option key={s} value={s}>{s}</option>)}
@@ -263,7 +263,7 @@ export default function StageHandoff({
                 <span style={{ color: "var(--text-muted)", maxWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{JSON.stringify(d.old_value)?.slice(0, 30)}</span>
                 <ArrowRight size={10} style={{ color: "var(--text-muted)" }} />
                 <span style={{ color: "var(--text-primary)", maxWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{JSON.stringify(d.new_value)?.slice(0, 30)}</span>
-                <span style={{ fontSize: 9, color: "var(--text-muted)", minWidth: 60 }}>{new Date(d.timestamp).toLocaleDateString()}</span>
+                <span style={{ fontSize: 11, color: "var(--text-muted)", minWidth: 60 }}>{new Date(d.timestamp).toLocaleDateString()}</span>
               </div>
             ))}
           </div>
@@ -276,7 +276,7 @@ export default function StageHandoff({
           <FileText size={16} style={{ color: "var(--text-muted)" }} />
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: "var(--text-xs)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)" }}>Push JD to HRIS</div>
-            <div style={{ fontSize: 10, color: "var(--text-muted)" }}>Configure HRIS integration to enable direct push</div>
+            <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Configure HRIS integration to enable direct push</div>
           </div>
           <button style={S.btn} disabled><ExternalLink size={11} /> Configure</button>
         </div>
@@ -284,7 +284,7 @@ export default function StageHandoff({
           <Sparkles size={16} style={{ color: "var(--text-muted)" }} />
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: "var(--text-xs)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)" }}>Push to Org Design Studio</div>
-            <div style={{ fontSize: 10, color: "var(--text-muted)" }}>Create a proposed role in the org chart</div>
+            <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Create a proposed role in the org chart</div>
           </div>
           <button style={S.btn}><ExternalLink size={11} /> Push</button>
         </div>

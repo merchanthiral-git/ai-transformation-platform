@@ -21,7 +21,7 @@
   --fw-semi:    600;
   --fw-bold:    700;
 
-  /* Spacing scale — fluid */
+  /* Spacing scale — legacy aliases (prefer --sp-* below) */
   --space-1:  4px;
   --space-2:  8px;
   --space-3:  12px;
@@ -316,6 +316,21 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 /* ═══ DARK THEME (default) ═══ */
 :root, [data-theme="dark"] {
+  /* Elevation design tokens — consulting UI (defaults for dark theme) */
+  --ivory: #F7F5F0;
+  --navy: #1C2B3A;
+  --navy-65: rgba(28, 43, 58, 0.65);
+  --navy-55: rgba(28, 43, 58, 0.55);
+  --navy-40: rgba(28, 43, 58, 0.40);
+  --navy-15: rgba(28, 43, 58, 0.15);
+  --navy-12: rgba(28, 43, 58, 0.12);
+  --navy-10: rgba(28, 43, 58, 0.10);
+  --navy-08: rgba(28, 43, 58, 0.08);
+  --blue-primary: #3B82F6;
+  --orange-attention: #F97316;
+  --consulting-teal: #14B8A6;
+  --coral: #D85A30;
+
   --bg: #0B1120;
   --surface-1: #131B2E;
   --surface-2: #1A2340;
@@ -393,6 +408,21 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 /* ═══ LIGHT THEME ═══ */
 [data-theme="light"] {
+  /* Elevation design tokens — consulting UI */
+  --ivory: #F7F5F0;
+  --navy: #1C2B3A;
+  --navy-65: rgba(28, 43, 58, 0.65);
+  --navy-55: rgba(28, 43, 58, 0.55);
+  --navy-40: rgba(28, 43, 58, 0.40);
+  --navy-15: rgba(28, 43, 58, 0.15);
+  --navy-12: rgba(28, 43, 58, 0.12);
+  --navy-10: rgba(28, 43, 58, 0.10);
+  --navy-08: rgba(28, 43, 58, 0.08);
+  --blue-primary: #3B82F6;
+  --orange-attention: #F97316;
+  --consulting-teal: #14B8A6;
+  --coral: #D85A30;
+
   --bg: #F5F3EE;
   --surface-1: #FFFFFF;
   --surface-2: #F0EDE7;
@@ -515,11 +545,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   @keyframes loading { 0% { transform: translateX(-100%); } 100% { transform: translateX(350%); } }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
 
-  /* Module/tab entrance animations DISABLED — caused flicker on tab switches */
-  .module-enter { /* no animation — instant render */ }
-  .animate-tab-enter { /* no animation — instant render */ }
-  .animate-card-enter { /* no animation — instant render */ }
-  .animate-chart-enter { /* no animation — instant render */ }
+  /* Module/tab entrance animations DISABLED — caused flicker on tab switches (dead classes removed in Wave 1 audit) */
   /* Slide in from right */
   .animate-slide-right { animation: slideInRight 0.3s ease-out both; }
 
@@ -605,16 +631,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     font-variant-numeric: tabular-nums;
   }
 
-  /* Skeleton shimmer loading */
-  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-  .skeleton {
-    background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.03) 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-    border-radius: 8px;
-  }
-
-  /* Skeleton shimmer — retained for LoadingSkeleton component */
+  /* Skeleton shimmer — retained for LoadingSkeleton component (primary definition above @layer base) */
 
   /* ═══ Presentation Mode ═══ */
   [data-present="true"] {
