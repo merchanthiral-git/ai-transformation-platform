@@ -628,7 +628,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
               <tbody>{sortedDepts.map((d, i) => {
                 const f = d.fut;
                 const mgrRatio = Math.round(d.managers / Math.max(d.headcount, 1) * 100);
-                return <tr key={d.name} style={{ borderBottom: '1px solid var(--border)', background: i % 2 ? 'var(--ivory, var(--ink))' : '#FFFFFF' }}>
+                return <tr key={d.name} style={{ borderBottom: '1px solid var(--border)', background: i % 2 ? 'rgba(255,255,255,0.02)' : 'transparent' }}>
                   <td style={{ padding: '8px 12px', fontWeight: 500, color: 'var(--ink)', fontSize: 12 }}>
                     <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: 3, background: d.health.color, marginRight: 8 }} />{d.name}
                   </td>
@@ -1288,9 +1288,9 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
               </tr></thead>
               <tbody>{metrics.map((m, ri) => {
                 const cVal = cA[m.key as keyof typeof cA] as number;
-                return <tr key={m.label} style={{ background: ri % 2 ? 'var(--ivory, var(--ink))' : '#FFFFFF', transition: 'background 0.15s' }}
+                return <tr key={m.label} style={{ background: ri % 2 ? 'rgba(255,255,255,0.02)' : 'transparent', transition: 'background 0.15s' }}
                   onMouseEnter={e => { (e.currentTarget as HTMLTableRowElement).style.background = 'var(--ink)'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLTableRowElement).style.background = ri % 2 ? 'var(--ivory, var(--ink))' : '#FFFFFF'; }}>
+                  onMouseLeave={e => { (e.currentTarget as HTMLTableRowElement).style.background = ri % 2 ? 'rgba(255,255,255,0.02)' : 'transparent'; }}>
                   <td style={{ padding: '10px 14px', fontWeight: 500, color: 'var(--ink)', fontSize: 12, borderBottom: '0.5px solid rgba(22,24,34,0.06)' }}>{m.label}</td>
                   <td style={{ padding: '10px 14px', textAlign: 'center', color: 'var(--ink-soft)', fontSize: 12, fontWeight: 500, borderBottom: '0.5px solid rgba(22,24,34,0.06)' }}>{m.fmtFn ? m.fmtFn(cVal) : fmt(cVal)}</td>
                   {scenarios.map((s, i) => {
