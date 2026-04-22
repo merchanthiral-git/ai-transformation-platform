@@ -13,10 +13,10 @@ export function GlassPanel({ children, hot = false, className = '', ...rest }: G
         rounded-2xl backdrop-blur-[24px] p-5
         transition-all duration-[240ms]
         ${hot
-          ? 'border border-[var(--cr-border-hot)] bg-[var(--bg-panel-hover)]'
-          : 'border border-[var(--cr-border)] bg-[var(--bg-panel)]'
+          ? 'border border-[var(--border-hot)] bg-[var(--bg-panel-hover)]'
+          : 'border border-[var(--border)] bg-[var(--paper)]'
         }
-        hover:border-[var(--cr-border-hot)] hover:bg-[var(--bg-panel-hover)]
+        hover:border-[var(--border-hot)] hover:bg-[var(--bg-panel-hover)]
         ${className}
       `}
       style={{ transitionTimingFunction: 'var(--ease-spring)' }}

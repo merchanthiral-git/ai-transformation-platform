@@ -38,9 +38,9 @@ export function RoleCard({ children, className = '', onClick }: RoleCardProps) {
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
       style={{
-        background: 'var(--bg-panel)',
+        background: 'var(--paper)',
         backdropFilter: 'blur(24px)',
-        border: '1px solid var(--cr-border)',
+        border: '1px solid var(--border)',
         transition: 'transform 0.3s var(--ease-spring), box-shadow 0.3s ease, border-color 0.3s ease',
         cursor: onClick ? 'pointer' : 'default',
       }}
@@ -49,7 +49,7 @@ export function RoleCard({ children, className = '', onClick }: RoleCardProps) {
       <div
         className="absolute top-0 left-0 right-0 h-[1px] pointer-events-none"
         style={{
-          background: 'linear-gradient(90deg, transparent, var(--cyan-glow), transparent)',
+          background: 'linear-gradient(90deg, transparent, var(--amber-glow), transparent)',
           backgroundPosition: 'var(--light-x, 50%) 0',
           backgroundSize: '200% 100%',
           opacity: 0,
@@ -60,13 +60,13 @@ export function RoleCard({ children, className = '', onClick }: RoleCardProps) {
       <div
         className="absolute inset-0 pointer-events-none rounded-2xl opacity-0 transition-opacity duration-300"
         style={{
-          boxShadow: 'inset 0 0 40px rgba(34,211,238,0.05)',
+          boxShadow: 'inset 0 0 40px rgba(244,168,58,0.05)',
         }}
       />
       <div className="relative z-10 p-5">{children}</div>
 
       <style>{`
-        .role-card:hover { border-color: var(--cr-border-hot); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+        .role-card:hover { border-color: var(--border-hot); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
         .role-card:hover > div:first-child { opacity: 1; }
         .role-card:hover > div:nth-child(2) { opacity: 1; }
       `}</style>

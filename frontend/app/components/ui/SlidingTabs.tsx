@@ -34,7 +34,7 @@ export function SlidingTabs({ tabs, activeTab, onTabChange, className = '' }: Sl
     <div
       ref={containerRef}
       className={`relative inline-flex items-center rounded-xl p-1 ${className}`}
-      style={{ background: 'rgba(14,20,36,0.6)', border: '1px solid var(--cr-border)' }}
+      style={{ background: 'rgba(22,24,34,0.6)', border: '1px solid var(--border)' }}
     >
       {/* Sliding pill */}
       <div
@@ -42,7 +42,7 @@ export function SlidingTabs({ tabs, activeTab, onTabChange, className = '' }: Sl
         style={{
           left: pill.left,
           width: pill.width,
-          background: 'linear-gradient(135deg, var(--cyan), var(--violet))',
+          background: 'linear-gradient(135deg, var(--amber), var(--coral))',
           transition: 'left 0.3s var(--ease-spring), width 0.3s var(--ease-spring)',
           zIndex: 0,
         }}
@@ -54,7 +54,7 @@ export function SlidingTabs({ tabs, activeTab, onTabChange, className = '' }: Sl
           onClick={() => onTabChange(tab)}
           className="relative z-10 px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200"
           style={{
-            color: activeTab === tab ? 'var(--bg-void)' : 'var(--cr-text-dim)',
+            color: activeTab === tab ? 'var(--sky-top)' : 'var(--ink-soft)',
             fontFamily: "'Inter Tight', sans-serif",
           }}
         >

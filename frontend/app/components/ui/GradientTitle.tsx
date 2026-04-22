@@ -11,7 +11,7 @@ export function GradientTitle({ children, as: Tag = 'h1', className = '' }: Grad
     <Tag
       className={`font-heading italic ${className}`}
       style={{
-        background: 'linear-gradient(120deg, var(--cyan), var(--violet), var(--cyan))',
+        background: 'linear-gradient(120deg, var(--amber), var(--coral), var(--amber))',
         backgroundSize: '200% 100%',
         WebkitBackgroundClip: 'text',
         WebkitTextFillColor: 'transparent',

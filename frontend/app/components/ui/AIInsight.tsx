@@ -10,8 +10,8 @@ export function AIInsight({ children, className = '' }: AIInsightProps) {
     <div
       className={`relative rounded-2xl p-5 overflow-hidden ${className}`}
       style={{
-        background: 'linear-gradient(135deg, rgba(34,211,238,0.06), rgba(167,139,250,0.06))',
-        border: '1px solid var(--cr-border)',
+        background: 'linear-gradient(135deg, rgba(244,168,58,0.06), rgba(167,139,184,0.06))',
+        border: '1px solid var(--border)',
       }}
     >
       {/* Animated border shimmer */}
@@ -19,7 +19,7 @@ export function AIInsight({ children, className = '' }: AIInsightProps) {
         className="absolute inset-0 rounded-2xl pointer-events-none"
         style={{
           padding: 1,
-          background: 'linear-gradient(120deg, transparent 30%, var(--cyan-glow) 50%, transparent 70%)',
+          background: 'linear-gradient(120deg, transparent 30%, var(--amber-glow) 50%, transparent 70%)',
           backgroundSize: '200% 100%',
           animation: 'insightBorderShimmer 4s ease-in-out infinite',
           WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',

@@ -33,13 +33,13 @@ export function KpiCard({
       {/* Label */}
       <div
         className="font-jetbrains uppercase tracking-wider mb-2"
-        style={{ fontSize: 11, color: 'var(--cr-text-dim)' }}
+        style={{ fontSize: 11, color: 'var(--ink-soft)' }}
       >
         {label}
       </div>
 
       {/* Value */}
-      <div className="font-heading italic" style={{ fontSize: 48, lineHeight: 1.1, color: 'var(--cr-text)' }}>
+      <div className="font-heading italic" style={{ fontSize: 48, lineHeight: 1.1, color: 'var(--ink)' }}>
         <AnimatedNumber value={value} suffix={suffix} prefix={prefix} decimals={decimals} />
       </div>
 
@@ -48,7 +48,7 @@ export function KpiCard({
         <div
           className="mt-2 font-jetbrains text-xs"
           style={{
-            color: delta > 0 ? 'var(--cr-emerald)' : delta < 0 ? 'var(--cr-rose)' : 'var(--cr-text-dim)',
+            color: delta > 0 ? 'var(--sage)' : delta < 0 ? 'var(--coral)' : 'var(--ink-soft)',
           }}
         >
           {delta > 0 ? '▲' : delta < 0 ? '▼' : '—'} {Math.abs(delta)}%
@@ -65,7 +65,7 @@ export function KpiCard({
               style={{
                 height: `${(v / maxSpark) * 100}%`,
                 minHeight: 2,
-                background: `linear-gradient(to top, var(--cyan), var(--violet))`,
+                background: `linear-gradient(to top, var(--amber), var(--coral))`,
                 opacity: 0.5 + (i / sparkline.length) * 0.5,
               }}
             />
