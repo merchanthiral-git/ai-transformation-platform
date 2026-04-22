@@ -231,7 +231,7 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
         </div>
       </div>
     </div>
-    {hasRealData ? <div className="bg-[rgba(52,211,153,0.08)] border border-[var(--success)]/30 rounded-lg px-4 py-2 mb-4 text-[15px] text-[var(--success)]">✓ Using your uploaded workforce data to model departments</div> : <div className="bg-[rgba(245,158,11,0.08)] border border-[var(--warning)]/30 rounded-lg px-4 py-2 mb-4 text-[15px] text-[var(--warning)]" style={{ display: 'flex', alignItems: 'center', gap: 10 }}><span style={{ background: 'rgba(245,158,11,0.15)', borderRadius: 4, padding: '2px 8px', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' as const }}>SAMPLE DATA</span><span>Upload your workforce data for real analysis — current charts use generated sample data</span></div>}
+    {hasRealData ? <div className="bg-[rgba(52,211,153,0.08)] border border-[var(--success)]/30 rounded-lg px-4 py-2 mb-4 text-[15px] text-[var(--success)]">✓ Using your uploaded workforce data to model departments</div> : <div className="bg-[rgba(251,191,36,0.08)] border border-[var(--warning)]/30 rounded-lg px-4 py-2 mb-4 text-[15px] text-[var(--warning)]" style={{ display: 'flex', alignItems: 'center', gap: 10 }}><span style={{ background: 'rgba(251,191,36,0.15)', borderRadius: 4, padding: '2px 8px', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' as const }}>SAMPLE DATA</span><span>Upload your workforce data for real analysis — current charts use generated sample data</span></div>}
 
     {/* Scenario selector — dropdown with Customize button */}
     <div className="flex gap-3 mb-4 items-center">
@@ -814,14 +814,14 @@ export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewC
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <span style={{ fontSize: 11, color: 'rgba(28,43,58,0.55)' }}>{sr.min}:1</span>
                       <div style={{ flex: 1, height: 5, borderRadius: 3, background: 'rgba(28,43,58,0.04)', position: 'relative' }}>
-                        <div style={{ position: 'absolute', left: `${(sr.min / 15) * 100}%`, width: `${((sr.max - sr.min) / 15) * 100}%`, top: 0, bottom: 0, borderRadius: 3, background: sr.range > 8 ? 'rgba(220,38,38,0.2)' : sr.range > 4 ? 'rgba(245,158,11,0.2)' : 'rgba(22,163,74,0.2)' }} />
+                        <div style={{ position: 'absolute', left: `${(sr.min / 15) * 100}%`, width: `${((sr.max - sr.min) / 15) * 100}%`, top: 0, bottom: 0, borderRadius: 3, background: sr.range > 8 ? 'rgba(220,38,38,0.2)' : sr.range > 4 ? 'rgba(251,191,36,0.2)' : 'rgba(22,163,74,0.2)' }} />
                       </div>
                       <span style={{ fontSize: 11, color: 'rgba(28,43,58,0.55)' }}>{sr.max}:1</span>
                       <span style={{ fontSize: 11, color: sr.range > 8 ? '#DC2626' : sr.range > 4 ? '#fbbf24' : '#16A34A' }}>Range: {sr.range}</span>
                     </div>
                   </div>}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                    {curSpan < 5 && <div style={{ fontSize: 11, color: '#fbbf24', padding: '3px 8px', borderRadius: 4, background: 'rgba(245,158,11,0.06)' }}>Span below 5:1 indicates potential over-management</div>}
+                    {curSpan < 5 && <div style={{ fontSize: 11, color: '#fbbf24', padding: '3px 8px', borderRadius: 4, background: 'rgba(251,191,36,0.06)' }}>Span below 5:1 indicates potential over-management</div>}
                     {curSpan > 10 && <div style={{ fontSize: 11, color: '#DC2626', padding: '3px 8px', borderRadius: 4, background: 'rgba(220,38,38,0.06)' }}>Span above 10:1 — managers may be overextended</div>}
                     {improving && <div style={{ fontSize: 11, color: '#16A34A', padding: '3px 8px', borderRadius: 4, background: 'rgba(22,163,74,0.06)' }}>Scenario moves span toward benchmark (6-8:1)</div>}
                   </div>

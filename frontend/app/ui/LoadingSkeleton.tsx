@@ -17,7 +17,7 @@ export function LoadingSkeleton({ lines = 3, className = "", message }: LoadingS
       style={{ display: "flex", flexDirection: "column", gap: 8 }}
     >
       {message && (
-        <div style={{ fontSize: 13, color: "var(--text-muted)", fontFamily: "'DM Sans', sans-serif", marginBottom: 4 }}>
+        <div style={{ fontSize: 13, color: "var(--text-muted)", fontFamily: "'Inter Tight', sans-serif", marginBottom: 4 }}>
           {message}
         </div>
       )}

@@ -39,7 +39,7 @@ export function RoleComparison({ model, f, onBack, jobs, jobStates }: { model: s
         {selectedJobs.map(j => <button key={j} onClick={() => toggleJob(j)} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold bg-[var(--accent-primary)]/15 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] cursor-pointer flex items-center gap-1">{j} <span className="opacity-50"><X size={12} /></span></button>)}
         {selectedJobs.length === 0 && <span className="text-[15px] text-[var(--text-muted)]">Select up to 4 jobs below</span>}
       </div>
-      <div className="flex gap-1.5 flex-wrap">{availableJobs.slice(0, 30).map(j => <button key={j} onClick={() => toggleJob(j)} className="px-2 py-1 rounded text-[14px] font-semibold transition-all cursor-pointer" style={{ background: selectedJobs.includes(j) ? "rgba(212,134,10,0.15)" : "var(--surface-2)", color: selectedJobs.includes(j) ? "var(--accent-primary)" : "var(--text-muted)", border: `1px solid ${selectedJobs.includes(j) ? "rgba(212,134,10,0.3)" : "var(--border)"}` }}>{j}</button>)}</div>
+      <div className="flex gap-1.5 flex-wrap">{availableJobs.slice(0, 30).map(j => <button key={j} onClick={() => toggleJob(j)} className="px-2 py-1 rounded text-[14px] font-semibold transition-all cursor-pointer" style={{ background: selectedJobs.includes(j) ? "rgba(34,211,238,0.15)" : "var(--surface-2)", color: selectedJobs.includes(j) ? "var(--accent-primary)" : "var(--text-muted)", border: `1px solid ${selectedJobs.includes(j) ? "rgba(34,211,238,0.3)" : "var(--border)"}` }}>{j}</button>)}</div>
     </Card>
 
     {/* Comparison grid */}
@@ -88,8 +88,8 @@ export function RoleComparison({ model, f, onBack, jobs, jobStates }: { model: s
             {hasRedesign && js.recon && <div className="mt-3 pt-3 border-t border-[var(--border)]">
               <div className="text-[14px] font-bold text-[var(--success)] uppercase tracking-wider mb-1">↓ After Redesign ({js.scenario})</div>
               <div className="grid grid-cols-2 gap-2">
-                <div className="rounded-lg p-2 bg-[rgba(16,185,129,0.06)] text-center"><div className="text-[15px] font-extrabold text-[var(--success)]">{String((js.recon as Record<string, unknown>).human_pct || "—")}%</div><div className="text-[15px] text-[var(--text-muted)]">Human</div></div>
-                <div className="rounded-lg p-2 bg-[rgba(139,92,246,0.06)] text-center"><div className="text-[15px] font-extrabold text-[var(--purple)]">{String((js.recon as Record<string, unknown>).ai_pct || "—")}%</div><div className="text-[15px] text-[var(--text-muted)]">AI</div></div>
+                <div className="rounded-lg p-2 bg-[rgba(52,211,153,0.06)] text-center"><div className="text-[15px] font-extrabold text-[var(--success)]">{String((js.recon as Record<string, unknown>).human_pct || "—")}%</div><div className="text-[15px] text-[var(--text-muted)]">Human</div></div>
+                <div className="rounded-lg p-2 bg-[rgba(167,139,250,0.06)] text-center"><div className="text-[15px] font-extrabold text-[var(--purple)]">{String((js.recon as Record<string, unknown>).ai_pct || "—")}%</div><div className="text-[15px] text-[var(--text-muted)]">AI</div></div>
               </div>
             </div>}
           </div>

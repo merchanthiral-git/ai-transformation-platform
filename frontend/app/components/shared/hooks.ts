@@ -63,7 +63,7 @@ export function useKeyboardShortcuts(shortcuts: ShortcutDef[], enabled = true) {
   }, [shortcuts, enabled]);
 }
 
-const KBD_STYLE: React.CSSProperties = { display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: 24, height: 22, padding: "0 6px", borderRadius: 5, background: "var(--surface-2)", border: "1px solid var(--border)", fontSize: 12, fontFamily: "'IBM Plex Mono', monospace", fontWeight: 600, color: "var(--text-muted)", boxShadow: "var(--shadow-1)", lineHeight: 1 };
+const KBD_STYLE: React.CSSProperties = { display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: 24, height: 22, padding: "0 6px", borderRadius: 5, background: "var(--surface-2)", border: "1px solid var(--border)", fontSize: 12, fontFamily: "monospace", fontWeight: 600, color: "var(--text-muted)", boxShadow: "var(--shadow-1)", lineHeight: 1 };
 
 export function Kbd({ children }: { children: React.ReactNode }) {
   return React.createElement("span", { style: KBD_STYLE }, children);

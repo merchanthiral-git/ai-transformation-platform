@@ -44,7 +44,7 @@ export function PresenceAvatars({ users }: { users: CollabUser[] }) {
               marginLeft: i > 0 ? -8 : 0,
               zIndex: 5 - i,
               position: "relative",
-              fontFamily: "'Outfit', sans-serif",
+              fontFamily: "'Inter Tight', sans-serif",
               transition: "transform 0.15s ease",
             }}
           >
@@ -71,7 +71,7 @@ export function PresenceAvatars({ users }: { users: CollabUser[] }) {
         )}
         <span style={{
           fontSize: 12, color: "var(--text-muted)", marginLeft: 8,
-          fontFamily: "'IBM Plex Mono', monospace",
+          fontFamily: "monospace",
         }}>
           {users.length} online
         </span>
@@ -88,12 +88,12 @@ export function PresenceAvatars({ users }: { users: CollabUser[] }) {
             style={{
               position: "absolute", top: 36, right: 0, minWidth: 240,
               background: "rgba(15,12,8,0.95)", backdropFilter: "blur(20px)",
-              border: "1px solid rgba(212,134,10,0.12)",
+              border: "1px solid rgba(34,211,238,0.12)",
               borderRadius: 14, padding: 8, zIndex: 100,
               boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
             }}
           >
-            <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: 1, padding: "4px 8px 6px", fontFamily: "'Outfit', sans-serif" }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: 1, padding: "4px 8px 6px", fontFamily: "'Inter Tight', sans-serif" }}>
               Collaborators
             </div>
             {users.map(u => (
@@ -105,7 +105,7 @@ export function PresenceAvatars({ users }: { users: CollabUser[] }) {
                   width: 24, height: 24, borderRadius: "50%", background: u.color,
                   color: "#fff", fontSize: 11, fontWeight: 700,
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  flexShrink: 0, fontFamily: "'Outfit', sans-serif",
+                  flexShrink: 0, fontFamily: "'Inter Tight', sans-serif",
                 }}>
                   {(u.display_name || u.username)[0].toUpperCase()}
                 </div>
@@ -141,12 +141,12 @@ export function EditingIndicator({ users }: { users: CollabUser[] }) {
         animate={{ opacity: 1, height: "auto" }}
         exit={{ opacity: 0, height: 0 }}
         style={{
-          background: "rgba(16,185,129,0.08)",
-          borderBottom: "1px solid rgba(16,185,129,0.15)",
+          background: "rgba(52,211,153,0.08)",
+          borderBottom: "1px solid rgba(52,211,153,0.15)",
           padding: "6px 20px",
           display: "flex", alignItems: "center", gap: 8,
           fontSize: 13, color: "var(--success)",
-          fontFamily: "'IBM Plex Mono', monospace",
+          fontFamily: "monospace",
         }}
       >
         <span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: "var(--success)", animation: "pulse 1.5s infinite" }} />
@@ -179,7 +179,7 @@ export function RemoteChangeToast({ change, onDismiss }: { change: RemoteChange 
           style={{
             position: "fixed", bottom: 24, left: "50%",
             background: "rgba(15,12,8,0.95)", backdropFilter: "blur(20px)",
-            border: "1px solid rgba(212,134,10,0.2)",
+            border: "1px solid rgba(34,211,238,0.2)",
             borderRadius: 12, padding: "10px 20px",
             zIndex: 10000, cursor: "pointer",
             boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
@@ -242,11 +242,11 @@ export function ActivityFeedPanel({ activity, onClose }: { activity: ActivityEnt
       transition={{ duration: 0.25, ease: "easeOut" }}
     >
       <div className="px-4 py-3 flex items-center justify-between border-b border-[var(--border)]"
-        style={{ background: "linear-gradient(135deg, rgba(212,134,10,0.06), transparent)" }}>
+        style={{ background: "linear-gradient(135deg, rgba(34,211,238,0.06), transparent)" }}>
         <div className="flex items-center gap-2">
           <span style={{ fontSize: 16 }}>📡</span>
           <div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)", fontFamily: "'Outfit', sans-serif" }}>Activity Feed</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)", fontFamily: "'Inter Tight', sans-serif" }}>Activity Feed</div>
             <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{activity.length} events</div>
           </div>
         </div>
@@ -277,7 +277,7 @@ export function ActivityFeedPanel({ activity, onClose }: { activity: ActivityEnt
               {entry.detail && (
                 <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>{entry.detail}</div>
               )}
-              <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 3, fontFamily: "'IBM Plex Mono', monospace" }}>
+              <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 3, fontFamily: "monospace" }}>
                 {entry.timestamp ? formatTime(entry.timestamp) : ""}
               </div>
             </div>

@@ -34,7 +34,7 @@ export default function Error({
         alignItems: "center",
         justifyContent: "center",
         background: "#0B1120",
-        fontFamily: "'Outfit', sans-serif",
+        fontFamily: "'Inter Tight', sans-serif",
         padding: 24,
       }}
     >
@@ -86,7 +86,7 @@ export default function Error({
               fontSize: 14,
               fontWeight: 700,
               cursor: "pointer",
-              fontFamily: "'Outfit', sans-serif",
+              fontFamily: "'Inter Tight', sans-serif",
               boxShadow: "0 4px 20px rgba(224,144,64,0.3)",
             }}
           >
@@ -103,7 +103,7 @@ export default function Error({
               fontSize: 14,
               fontWeight: 600,
               cursor: "pointer",
-              fontFamily: "'Outfit', sans-serif",
+              fontFamily: "'Inter Tight', sans-serif",
             }}
           >
             Go Home
@@ -115,7 +115,7 @@ export default function Error({
               marginTop: 20,
               fontSize: 11,
               color: "#5A6478",
-              fontFamily: "'IBM Plex Mono', monospace",
+              fontFamily: "monospace",
             }}
           >
             Error ID: {error.digest}

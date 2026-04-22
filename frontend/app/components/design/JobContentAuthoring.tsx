@@ -856,7 +856,7 @@ export function JobContentAuthoring({ model, f }: { model: string; f: Filters })
           style={{
             ...inputStyle,
             flex: 1, minHeight: 300, resize: "vertical",
-            fontFamily: "'IBM Plex Mono', monospace",
+            fontFamily: "monospace",
             fontSize: 12, lineHeight: 1.6,
           }}
         />

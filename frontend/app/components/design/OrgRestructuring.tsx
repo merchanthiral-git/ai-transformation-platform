@@ -1125,7 +1125,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
               <rect x={w - 60} y={4} width={52} height={14} rx={3}
                 fill={node.status === "added" ? "rgba(52,211,153,0.12)"
                   : node.status === "eliminated" ? "rgba(251,113,133,0.12)"
-                  : node.status === "modified" ? "rgba(245,158,11,0.12)"
+                  : node.status === "modified" ? "rgba(251,191,36,0.12)"
                   : "rgba(14,165,233,0.12)"}
               />
               <text x={w - 55} y={14} fontSize={8} fontWeight={700}

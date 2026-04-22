@@ -281,13 +281,13 @@ Be specific with numbers from the data. Keep each item to 1-2 sentences max.`
       <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter Tight', sans-serif; color: #1a1a2e; padding: 40px; max-width: 800px; margin: 0 auto; }
-        h1 { font-size: 22px; font-weight: 700; margin-bottom: 8px; color: #C07030; }
-        h2 { font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #22d3ee; margin: 20px 0 8px; border-bottom: 2px solid #E8C547; padding-bottom: 4px; }
+        h1 { font-size: 22px; font-weight: 700; margin-bottom: 8px; color: #22d3ee; }
+        h2 { font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #a78bfa; margin: 20px 0 8px; border-bottom: 2px solid #22d3ee; padding-bottom: 4px; }
         .subtitle { font-size: 12px; color: #666; margin-bottom: 16px; }
         .overview { font-size: 13px; line-height: 1.6; margin-bottom: 16px; color: #333; }
         .kpi-row { display: flex; gap: 12px; margin-bottom: 16px; }
         .kpi { flex: 1; background: #e8ecf5; border-radius: 8px; padding: 12px; text-align: center; border-left: 3px solid #22d3ee; }
-        .kpi-val { font-family: monospace; font-size: 18px; font-weight: 700; color: #C07030; }
+        .kpi-val { font-family: monospace; font-size: 18px; font-weight: 700; color: #22d3ee; }
         .kpi-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; color: #888; margin-top: 2px; }
         ul { padding-left: 20px; margin-bottom: 12px; }
         li { font-size: 12px; line-height: 1.8; color: #333; }

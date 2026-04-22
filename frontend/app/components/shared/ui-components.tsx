@@ -753,7 +753,7 @@ export function ConfidenceBadge({ score, dataPoints, label }: { score: number; d
   const clamped = Math.max(0, Math.min(1, score));
   const color = clamped >= 0.8 ? "var(--success)" : clamped >= 0.6 ? "var(--warning)" : "var(--risk)";
   const levelLabel = clamped >= 0.8 ? "High" : clamped >= 0.6 ? "Moderate" : "Low";
-  const bg = clamped >= 0.8 ? "rgba(52,211,153,0.1)" : clamped >= 0.6 ? "rgba(245,158,11,0.1)" : "rgba(251,113,133,0.1)";
+  const bg = clamped >= 0.8 ? "rgba(52,211,153,0.1)" : clamped >= 0.6 ? "rgba(251,191,36,0.1)" : "rgba(251,113,133,0.1)";
 
   return <div className="inline-flex flex-col items-start" title="This score reflects the amount and quality of data available for this analysis. Higher data coverage produces more reliable results.">
     <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-semibold" style={{ background: bg, color }}>
@@ -1391,7 +1391,7 @@ export function ViewSelector({ onSelect, employees, jobs, filterOptions, onBack 
               <span className="text-[16px] font-bold" style={{ color: "rgba(255,245,235,0.92)" }}>{v.title}</span>
             </div>
             <div className="text-[15px]" style={{ color: "rgba(255,220,190,0.4)" }}>{v.desc}</div>
-            {!v.ready && <div className="text-[15px] mt-2" style={{ color: "rgba(245,158,11,0.6)" }}>Upload data to enable</div>}
+            {!v.ready && <div className="text-[15px] mt-2" style={{ color: "rgba(251,191,36,0.6)" }}>Upload data to enable</div>}
             <div className="absolute top-4 right-4 text-[14px] opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: v.color }}>→</div>
           </button>)}
         </div>

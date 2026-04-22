@@ -53,7 +53,7 @@ export function QuickWinIdentifier({ model, f, onBack, onNavigate, jobStates }: 
 
     {/* Sort controls */}
     <div className="flex gap-2 mb-4">
-      {(["combined","roi","effort"] as const).map(s => <button key={s} onClick={() => setSortBy(s)} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold transition-all cursor-pointer" style={{ background: sortBy === s ? "rgba(212,134,10,0.15)" : "var(--surface-2)", color: sortBy === s ? "var(--accent-primary)" : "var(--text-muted)", border: `1px solid ${sortBy === s ? "rgba(212,134,10,0.3)" : "var(--border)"}` }}>{s === "combined" ? "Best Overall" : s === "roi" ? "Highest ROI" : "Lowest Effort"}</button>)}
+      {(["combined","roi","effort"] as const).map(s => <button key={s} onClick={() => setSortBy(s)} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold transition-all cursor-pointer" style={{ background: sortBy === s ? "rgba(34,211,238,0.15)" : "var(--surface-2)", color: sortBy === s ? "var(--accent-primary)" : "var(--text-muted)", border: `1px solid ${sortBy === s ? "rgba(34,211,238,0.3)" : "var(--border)"}` }}>{s === "combined" ? "Best Overall" : s === "roi" ? "Highest ROI" : "Lowest Effort"}</button>)}
     </div>
 
     {/* Quick Wins section */}
@@ -63,7 +63,7 @@ export function QuickWinIdentifier({ model, f, onBack, onNavigate, jobStates }: 
         {quickWins.map((w, i) => <div key={i} className="rounded-xl p-4 bg-[var(--surface-2)] border border-[var(--border)] border-l-[3px] border-l-[var(--success)] transition-all hover:-translate-y-0.5">
           <div className="flex items-center justify-between mb-2">
             <div className="text-[15px] font-bold text-[var(--text-primary)] truncate flex-1 mr-2">{String(w["Task Name"] || w.task_name || "—")}</div>
-            <span className="text-[14px] font-bold px-2 py-0.5 rounded-full bg-[rgba(16,185,129,0.15)] text-[var(--success)] shrink-0">Quick Win</span>
+            <span className="text-[14px] font-bold px-2 py-0.5 rounded-full bg-[rgba(52,211,153,0.15)] text-[var(--success)] shrink-0">Quick Win</span>
           </div>
           <div className="text-[15px] text-[var(--text-muted)] mb-2">{String(w["Job Title"] || w.job_title || "—")}</div>
           <div className="flex gap-3">

@@ -609,7 +609,7 @@ export function PlatformConcierge({ projectId, currentPage, onNavigate }: {
       >
         {/* Header */}
         <div style={{ padding: "16px 20px", borderBottom: `1px solid ${C.brd}`, display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
-          <h2 style={{ fontSize: 17, fontWeight: 700, color: C.txt, margin: 0, fontFamily: "var(--font-heading, 'Outfit', sans-serif)" }}>
+          <h2 style={{ fontSize: 17, fontWeight: 700, color: C.txt, margin: 0, fontFamily: "var(--font-heading, 'Inter Tight', sans-serif)" }}>
             Platform Concierge
           </h2>
           <button onClick={() => setIsOpen(false)} aria-label="Close panel"

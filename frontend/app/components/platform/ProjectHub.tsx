@@ -286,8 +286,8 @@ function SandboxViewSelector({ companyName, onSelect }: { companyName: string; o
       <VideoBackground name="view_bg" overlay={0.4} poster={`${CDN_BASE}/videos/optimized/view_bg-poster.jpg`} fallbackGradient="linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 100%)" className="absolute inset-0" />
       <div style={{ position: "absolute", inset: 0, zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", WebkitFontSmoothing: "antialiased" }}>
         <div style={{ fontSize: 15, fontWeight: 700, color: "rgba(224,144,64,0.5)", letterSpacing: 2, marginBottom: 12, textTransform: "uppercase" }}>Welcome to</div>
-        <h2 style={{ fontSize: 36, fontWeight: 800, color: "#ffffff", fontFamily: "'Outfit', sans-serif", marginBottom: 32, textShadow: "0 2px 20px rgba(0,0,0,0.5)" }}>{companyName}</h2>
-        <div style={{ fontSize: 16, color: "rgba(255,255,255,0.7)", fontFamily: "'Outfit', sans-serif" }}>Click anywhere to continue</div>
+        <h2 style={{ fontSize: 36, fontWeight: 800, color: "#ffffff", fontFamily: "'Inter Tight', sans-serif", marginBottom: 32, textShadow: "0 2px 20px rgba(0,0,0,0.5)" }}>{companyName}</h2>
+        <div style={{ fontSize: 16, color: "rgba(255,255,255,0.7)", fontFamily: "'Inter Tight', sans-serif" }}>Click anywhere to continue</div>
       </div>
     </div>;
   }
@@ -297,9 +297,9 @@ function SandboxViewSelector({ companyName, onSelect }: { companyName: string; o
     return <div onClick={() => selectedViewRef.current && onSelect(selectedViewRef.current)} style={{ position: "fixed", inset: 0, zIndex: 60, cursor: "pointer" }}>
       <VideoBackground name="hero_bg" overlay={0.45} poster={`${CDN_BASE}/hero_bg.png`} fallbackGradient="linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 100%)" className="absolute inset-0" />
       <div style={{ position: "absolute", inset: 0, zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", WebkitFontSmoothing: "antialiased" }}>
-        <h2 style={{ fontSize: 42, fontWeight: 800, color: "#ffffff", fontFamily: "'Outfit', sans-serif", marginBottom: 12, textShadow: "0 2px 24px rgba(0,0,0,0.5)" }}>{companyName}</h2>
-        <div style={{ fontSize: 16, fontWeight: 600, color: "rgba(224,144,64,0.7)", marginBottom: 48, fontFamily: "'Outfit', sans-serif" }}>{selectedLabelRef.current}</div>
-        <div style={{ fontSize: 15, color: "rgba(255,255,255,0.5)", fontFamily: "'Outfit', sans-serif" }}>Click anywhere to continue →</div>
+        <h2 style={{ fontSize: 42, fontWeight: 800, color: "#ffffff", fontFamily: "'Inter Tight', sans-serif", marginBottom: 12, textShadow: "0 2px 24px rgba(0,0,0,0.5)" }}>{companyName}</h2>
+        <div style={{ fontSize: 16, fontWeight: 600, color: "rgba(224,144,64,0.7)", marginBottom: 48, fontFamily: "'Inter Tight', sans-serif" }}>{selectedLabelRef.current}</div>
+        <div style={{ fontSize: 15, color: "rgba(255,255,255,0.5)", fontFamily: "'Inter Tight', sans-serif" }}>Click anywhere to continue →</div>
       </div>
     </div>;
   }
@@ -311,14 +311,14 @@ function SandboxViewSelector({ companyName, onSelect }: { companyName: string; o
     <div style={{ position: "absolute", inset: 0, zIndex: 2, display: "flex", alignItems: "center", justifyContent: "center", overflow: "auto", WebkitFontSmoothing: "antialiased" }}>
       <div style={{ maxWidth: 800, width: "100%", padding: "24px" }}>
         <div style={{ textAlign: "center", marginBottom: 28 }}>
-          <div style={{ fontSize: 22, fontWeight: 800, color: "#ffffff", fontFamily: "'Outfit', sans-serif", textShadow: "0 2px 16px rgba(0,0,0,0.3)" }}>Select Your View</div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: "#ffffff", fontFamily: "'Inter Tight', sans-serif", textShadow: "0 2px 16px rgba(0,0,0,0.3)" }}>Select Your View</div>
           <p style={{ fontSize: 15, color: "rgba(255,220,180,0.4)", marginTop: 6 }}>Every module adapts to your chosen perspective</p>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
-          {views.map(v => <button key={v.id} onClick={() => { selectedViewRef.current = v.id; selectedLabelRef.current = v.label; setPhase("entering"); }} style={{ padding: "22px", borderRadius: 16, background: "rgba(15,20,35,0.85)", border: "1px solid rgba(255,200,150,0.08)", cursor: "pointer", textAlign: "left", transition: "all 0.3s cubic-bezier(0.16,1,0.3,1)", display: "flex", flexDirection: "column", gap: 10 }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(212,134,10,0.08)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.3)"; e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = "0 8px 32px rgba(212,134,10,0.1)"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(15,20,35,0.85)"; e.currentTarget.style.borderColor = "rgba(255,200,150,0.08)"; e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}>
+          {views.map(v => <button key={v.id} onClick={() => { selectedViewRef.current = v.id; selectedLabelRef.current = v.label; setPhase("entering"); }} style={{ padding: "22px", borderRadius: 16, background: "rgba(15,20,35,0.85)", border: "1px solid rgba(255,200,150,0.08)", cursor: "pointer", textAlign: "left", transition: "all 0.3s cubic-bezier(0.16,1,0.3,1)", display: "flex", flexDirection: "column", gap: 10 }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(34,211,238,0.08)"; e.currentTarget.style.borderColor = "rgba(34,211,238,0.3)"; e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = "0 8px 32px rgba(34,211,238,0.1)"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(15,20,35,0.85)"; e.currentTarget.style.borderColor = "rgba(255,200,150,0.08)"; e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <span style={{ fontSize: 26 }}>{v.icon}</span>
-              <span style={{ fontSize: 16, fontWeight: 700, color: "rgba(255,245,235,0.92)", fontFamily: "'Outfit', sans-serif" }}>{v.label}</span>
+              <span style={{ fontSize: 16, fontWeight: 700, color: "rgba(255,245,235,0.92)", fontFamily: "'Inter Tight', sans-serif" }}>{v.label}</span>
             </div>
             <p style={{ fontSize: 14, color: "rgba(255,220,190,0.4)", lineHeight: 1.6, margin: 0 }}>{v.desc}</p>
           </button>)}
@@ -381,7 +381,7 @@ export function TutorialOverlay({ step, totalSteps, steps, onNext, onPrev, onClo
 
     {/* Finishing message */}
     {finishing && <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2 }}>
-      <div style={{ fontSize: 28, fontWeight: 300, color: "rgba(255,230,200,0.8)", fontFamily: "'Outfit', sans-serif", textAlign: "center", animation: "fadeIn 0.6s ease", letterSpacing: 0.5 }}>You{"'"}re ready. Build something transformative.</div>
+      <div style={{ fontSize: 28, fontWeight: 300, color: "rgba(255,230,200,0.8)", fontFamily: "'Inter Tight', sans-serif", textAlign: "center", animation: "fadeIn 0.6s ease", letterSpacing: 0.5 }}>You{"'"}re ready. Build something transformative.</div>
     </div>}
 
     {/* Main content area */}
@@ -405,12 +405,12 @@ export function TutorialOverlay({ step, totalSteps, steps, onNext, onPrev, onClo
         <div style={{ flex: 1, minWidth: 0 }}>
           {/* Step label */}
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8, animation: "tutLineIn 0.3s ease-out" }}>
-            <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(212,134,10,0.6)", letterSpacing: 1.5, textTransform: "uppercase" }}>Step {step + 1} of {totalSteps}</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(34,211,238,0.6)", letterSpacing: 1.5, textTransform: "uppercase" }}>Step {step + 1} of {totalSteps}</span>
             <span style={{ fontSize: 12, fontWeight: 700, color: phase.color, background: `${phase.color}18`, padding: "3px 10px", borderRadius: 6, letterSpacing: 0.5 }}>{phase.label}</span>
           </div>
 
           {/* Title — cinematic entrance */}
-          <h2 style={{ fontSize: 32, fontWeight: 800, color: "#f5e6d0", fontFamily: "'Outfit', sans-serif", lineHeight: 1.15, margin: "0 0 6px", animation: "tutLineIn 0.4s ease-out" }}>{s.title}</h2>
+          <h2 style={{ fontSize: 32, fontWeight: 800, color: "#f5e6d0", fontFamily: "'Inter Tight', sans-serif", lineHeight: 1.15, margin: "0 0 6px", animation: "tutLineIn 0.4s ease-out" }}>{s.title}</h2>
 
           {/* Subtitle */}
           {s.subtitle && <div style={{ fontSize: 16, fontWeight: 600, color: phase.color, marginBottom: 20, animation: "tutLineIn 0.5s ease-out", opacity: 0.7 }}>{s.subtitle}</div>}
@@ -421,7 +421,7 @@ export function TutorialOverlay({ step, totalSteps, steps, onNext, onPrev, onClo
           </div>
 
           {/* Pro tip */}
-          {s.tip && <div style={{ padding: "14px 18px", borderRadius: 12, background: "rgba(212,134,10,0.06)", borderLeft: "3px solid rgba(212,134,10,0.4)", animation: `tutTipIn 0.4s ease-out ${0.5 + bodyLines.length * 0.08}s both` }}>
+          {s.tip && <div style={{ padding: "14px 18px", borderRadius: 12, background: "rgba(34,211,238,0.06)", borderLeft: "3px solid rgba(34,211,238,0.4)", animation: `tutTipIn 0.4s ease-out ${0.5 + bodyLines.length * 0.08}s both` }}>
             <span style={{ fontSize: 15, fontStyle: "italic", color: "rgba(255,230,200,0.55)", lineHeight: 1.65 }}>
               <span style={{ fontWeight: 700, color: "var(--accent-primary)", fontStyle: "normal" }}>💡 Pro tip: </span>{s.tip}
             </span>
@@ -459,10 +459,10 @@ export function TutorialOverlay({ step, totalSteps, steps, onNext, onPrev, onClo
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", maxWidth: 900, margin: "0 auto" }}>
         <button onClick={handlePrev} disabled={step === 0} style={{ padding: "10px 20px", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: step === 0 ? "not-allowed" : "pointer", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,230,200,0.5)", opacity: step === 0 ? 0.3 : 1, transition: "all 0.2s" }}>← Back</button>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <span style={{ fontSize: 14, color: "rgba(255,230,200,0.2)", fontFamily: "'IBM Plex Mono', monospace" }}>{pct}%</span>
+          <span style={{ fontSize: 14, color: "rgba(255,230,200,0.2)", fontFamily: "monospace" }}>{pct}%</span>
           <button onClick={onClose} style={{ padding: "8px 16px", borderRadius: 10, fontSize: 14, cursor: "pointer", background: "none", border: "1px solid rgba(255,255,255,0.06)", color: "rgba(255,230,200,0.3)", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.color = "rgba(255,230,200,0.6)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)"; }} onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,230,200,0.3)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; }}>Minimize</button>
         </div>
-        <button onClick={handleNext} style={{ padding: "10px 28px", borderRadius: 12, fontSize: 16, fontWeight: 700, cursor: "pointer", border: "none", color: "#fff", background: isLast ? "linear-gradient(135deg, var(--success), #059669)" : "linear-gradient(135deg, var(--accent-primary), var(--teal))", boxShadow: isLast ? "0 4px 16px rgba(16,185,129,0.3)" : "0 4px 16px rgba(224,144,64,0.25)", transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"} onMouseLeave={e => e.currentTarget.style.transform = "none"}>{isLast ? "Finish" : "Next →"}</button>
+        <button onClick={handleNext} style={{ padding: "10px 28px", borderRadius: 12, fontSize: 16, fontWeight: 700, cursor: "pointer", border: "none", color: "#fff", background: isLast ? "linear-gradient(135deg, var(--success), #059669)" : "linear-gradient(135deg, var(--accent-primary), var(--teal))", boxShadow: isLast ? "0 4px 16px rgba(52,211,153,0.3)" : "0 4px 16px rgba(224,144,64,0.25)", transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"} onMouseLeave={e => e.currentTarget.style.transform = "none"}>{isLast ? "Finish" : "Next →"}</button>
       </div>
     </div>}
   </div>;
@@ -472,10 +472,10 @@ export function TutorialOverlay({ step, totalSteps, steps, onNext, onPrev, onClo
 export function TutorialBadge({ onClick, step, total }: { onClick: () => void; step: number; total: number }) {
   const pct = Math.round(((step + 1) / total) * 100);
   const isComplete = step >= total - 1;
-  return <button onClick={onClick} style={{ position: "fixed", bottom: 56, right: 16, zIndex: 35, padding: "8px 14px", borderRadius: 14, fontSize: 14, fontWeight: 700, cursor: "pointer", background: "rgba(15,12,8,0.92)", backdropFilter: "blur(16px)", border: "1px solid rgba(212,134,10,0.15)", color: "var(--accent-primary)", display: "flex", alignItems: "center", gap: 8, boxShadow: "var(--shadow-2)", transition: "all 0.3s" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.35)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.15)"; }}>
+  return <button onClick={onClick} style={{ position: "fixed", bottom: 56, right: 16, zIndex: 35, padding: "8px 14px", borderRadius: 14, fontSize: 14, fontWeight: 700, cursor: "pointer", background: "rgba(15,12,8,0.92)", backdropFilter: "blur(16px)", border: "1px solid rgba(34,211,238,0.15)", color: "var(--accent-primary)", display: "flex", alignItems: "center", gap: 8, boxShadow: "var(--shadow-2)", transition: "all 0.3s" }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = "rgba(34,211,238,0.35)"; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "rgba(34,211,238,0.15)"; }}>
     <span>{isComplete ? "📖" : "🎓"}</span>
     <span>{isComplete ? "Guide" : "Tutorial"}</span>
-    {!isComplete && <><span style={{ fontSize: 13, opacity: 0.5 }}>{pct}%</span><div style={{ width: 28, height: 3, borderRadius: 2, background: "rgba(212,134,10,0.15)", overflow: "hidden" }}><div style={{ width: `${pct}%`, height: "100%", background: "var(--accent-primary)", borderRadius: 2 }} /></div></>}
+    {!isComplete && <><span style={{ fontSize: 13, opacity: 0.5 }}>{pct}%</span><div style={{ width: 28, height: 3, borderRadius: 2, background: "rgba(34,211,238,0.15)", overflow: "hidden" }}><div style={{ width: `${pct}%`, height: "100%", background: "var(--accent-primary)", borderRadius: 2 }} /></div></>}
   </button>;
 }
 
@@ -602,20 +602,20 @@ export function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox
       <button onClick={() => { setSandboxOpen(false); setSandboxPanelOpen(false); onCloseSandbox?.(); }} style={{ position: "absolute", top: 24, left: 24, zIndex: 30, padding: "8px 16px", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: "pointer", background: "rgba(0,0,0,0.4)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,200,150,0.12)", color: "rgba(255,230,200,0.8)", transition: "all 0.2s" }}>← Back</button>
 
       {/* Keyframes — outside conditional to avoid re-inject on every render */}
-      <style>{`@keyframes sandboxFadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } } @keyframes sandboxGlow { 0%, 100% { border-color: rgba(139,92,246,0.2); } 50% { border-color: rgba(139,92,246,0.45); } }`}</style>
+      <style>{`@keyframes sandboxFadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } } @keyframes sandboxGlow { 0%, 100% { border-color: rgba(167,139,250,0.2); } 50% { border-color: rgba(167,139,250,0.45); } }`}</style>
 
       {/* Click-to-open area */}
       {!sandboxPanelOpen && <div key="sandbox-cta" style={{ position: "absolute", inset: 0, zIndex: 10, cursor: "pointer", animation: "sandboxFadeIn 1.2s ease forwards", opacity: 0 }} onClick={() => setSandboxPanelOpen(true)}>
         <div style={{ position: "absolute", bottom: 48, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
           <div style={{ fontSize: 32 }}>🎓</div>
           <div style={{ fontSize: 22, fontWeight: 800, color: "rgba(255,245,235,0.95)", textShadow: "0 2px 20px rgba(0,0,0,0.5)" }}>Industry Sandbox</div>
-          <div style={{ padding: "10px 24px", borderRadius: 16, background: "rgba(0,0,0,0.35)", backdropFilter: "blur(12px)", border: "1px solid rgba(139,92,246,0.2)", color: "rgba(200,180,255,0.8)", fontSize: 14, fontWeight: 600, animation: "sandboxGlow 3s ease-in-out infinite" }}>Click anywhere to explore →</div>
+          <div style={{ padding: "10px 24px", borderRadius: 16, background: "rgba(0,0,0,0.35)", backdropFilter: "blur(12px)", border: "1px solid rgba(167,139,250,0.2)", color: "rgba(200,180,255,0.8)", fontSize: 14, fontWeight: 600, animation: "sandboxGlow 3s ease-in-out infinite" }}>Click anywhere to explore →</div>
         </div>
       </div>}
 
       {/* Slide-in panel from right */}
       <div style={{ position: "absolute", zIndex: 20, top: 0, right: 0, bottom: 0, width: sandboxPanelOpen ? "55%" : "0%", overflow: "hidden", transition: "width 0.7s cubic-bezier(0.16,1,0.3,1)" }}>
-        <div style={{ width: "100%", height: "100%", background: "rgba(11,17,32,0.96)", backdropFilter: "blur(8px)", borderLeft: "1px solid rgba(139,92,246,0.1)", display: "flex", flexDirection: "column", padding: sandboxPanelOpen ? "32px" : "32px 0", opacity: sandboxPanelOpen ? 1 : 0, transition: "opacity 0.5s ease 0.2s, padding 0.7s ease", overflowY: "auto", WebkitFontSmoothing: "antialiased" as const }}>
+        <div style={{ width: "100%", height: "100%", background: "rgba(11,17,32,0.96)", backdropFilter: "blur(8px)", borderLeft: "1px solid rgba(167,139,250,0.1)", display: "flex", flexDirection: "column", padding: sandboxPanelOpen ? "32px" : "32px 0", opacity: sandboxPanelOpen ? 1 : 0, transition: "opacity 0.5s ease 0.2s, padding 0.7s ease", overflowY: "auto", WebkitFontSmoothing: "antialiased" as const }}>
           {/* Panel header */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
             <div>
@@ -630,9 +630,9 @@ export function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox
             <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: 4 }}>
               <thead><tr>
                 <th style={{ fontSize: 15, color: "rgba(200,180,255,0.3)", textAlign: "left", padding: "6px 10px", fontWeight: 700 }}>INDUSTRY</th>
-                <th style={{ fontSize: 15, color: "rgba(16,185,129,0.6)", textAlign: "center", padding: "6px", fontWeight: 700 }}>SMALL</th>
-                <th style={{ fontSize: 15, color: "rgba(212,134,10,0.6)", textAlign: "center", padding: "6px", fontWeight: 700 }}>MID-CAP</th>
-                <th style={{ fontSize: 15, color: "rgba(239,68,68,0.6)", textAlign: "center", padding: "6px", fontWeight: 700 }}>LARGE-CAP</th>
+                <th style={{ fontSize: 15, color: "rgba(52,211,153,0.6)", textAlign: "center", padding: "6px", fontWeight: 700 }}>SMALL</th>
+                <th style={{ fontSize: 15, color: "rgba(34,211,238,0.6)", textAlign: "center", padding: "6px", fontWeight: 700 }}>MID-CAP</th>
+                <th style={{ fontSize: 15, color: "rgba(251,113,133,0.6)", textAlign: "center", padding: "6px", fontWeight: 700 }}>LARGE-CAP</th>
               </tr></thead>
               <tbody>{[
                 { id: "technology", icon: "💻", label: "Technology", s: "Palantir · 3,800", m: "ServiceNow · 12,000", l: "Adobe · 30,000" },
@@ -645,7 +645,7 @@ export function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox
                 { id: "aerospace", icon: "🚀", label: "Aerospace", s: "Kratos · 4,000", m: "L3Harris · 17,000", l: "Northrop Grumman · 33,000" },
               ].map(ind => <tr key={ind.id}>
                 <td style={{ fontSize: 15, color: "rgba(200,180,255,0.7)", padding: "3px 10px", fontWeight: 600 }}><span style={{ marginRight: 6 }}>{ind.icon}</span>{ind.label}</td>
-                {[{size: "small", info: ind.s, color: "rgba(16,185,129,0.12)", border: "rgba(16,185,129,0.25)", text: "#6EE7B7"}, {size: "mid", info: ind.m, color: "rgba(212,134,10,0.12)", border: "rgba(212,134,10,0.25)", text: "var(--warning)"}, {size: "large", info: ind.l, color: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.18)", text: "#FCA5A5"}].map(t => <td key={t.size} style={{ padding: 2 }}><button disabled={!!seedingId} onClick={async (e) => {
+                {[{size: "small", info: ind.s, color: "rgba(52,211,153,0.12)", border: "rgba(52,211,153,0.25)", text: "#6EE7B7"}, {size: "mid", info: ind.m, color: "rgba(34,211,238,0.12)", border: "rgba(34,211,238,0.25)", text: "var(--warning)"}, {size: "large", info: ind.l, color: "rgba(251,113,133,0.08)", border: "rgba(251,113,133,0.18)", text: "#FCA5A5"}].map(t => <td key={t.size} style={{ padding: 2 }}><button disabled={!!seedingId} onClick={async (e) => {
                   e.stopPropagation();
                   const tid = `tutorial_${t.size}_${ind.id}`;
                   setSeedingId(tid);
@@ -661,19 +661,19 @@ export function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox
                   const companyName = t.info.split(" · ")[0] || ind.label;
                   analytics.trackSandboxSelected(companyName);
                   setPendingSandbox({ id: tid, name: companyName, meta: `${ind.label} · ${t.size === "small" ? "Small-Cap" : t.size === "mid" ? "Mid-Cap" : "Large-Cap"} · ${t.info.split(" · ")[1] || ""} employees` });
-                }} style={{ width: "100%", padding: "7px 8px", borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: seedingId ? "wait" : "pointer", background: seedingId === `tutorial_${t.size}_${ind.id}` ? "rgba(139,92,246,0.25)" : t.color, border: `1px solid ${seedingId === `tutorial_${t.size}_${ind.id}` ? "rgba(139,92,246,0.5)" : t.border}`, color: t.text, transition: "all 0.2s", textAlign: "center", lineHeight: 1.4, opacity: seedingId && seedingId !== `tutorial_${t.size}_${ind.id}` ? 0.4 : 1 }} onMouseEnter={e => { if (!seedingId) { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.borderColor = t.text; }}} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = t.border; }}>{seedingId === `tutorial_${t.size}_${ind.id}` ? "⏳ Loading..." : t.info}</button></td>)}
+                }} style={{ width: "100%", padding: "7px 8px", borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: seedingId ? "wait" : "pointer", background: seedingId === `tutorial_${t.size}_${ind.id}` ? "rgba(167,139,250,0.25)" : t.color, border: `1px solid ${seedingId === `tutorial_${t.size}_${ind.id}` ? "rgba(167,139,250,0.5)" : t.border}`, color: t.text, transition: "all 0.2s", textAlign: "center", lineHeight: 1.4, opacity: seedingId && seedingId !== `tutorial_${t.size}_${ind.id}` ? 0.4 : 1 }} onMouseEnter={e => { if (!seedingId) { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.borderColor = t.text; }}} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = t.border; }}>{seedingId === `tutorial_${t.size}_${ind.id}` ? "⏳ Loading..." : t.info}</button></td>)}
               </tr>)}</tbody>
             </table>
           </div>
 
           {/* Error message */}
-          {sandboxError && <div style={{ marginTop: 16, padding: "12px 16px", borderRadius: 12, background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)" }}>
+          {sandboxError && <div style={{ marginTop: 16, padding: "12px 16px", borderRadius: 12, background: "rgba(251,113,133,0.08)", border: "1px solid rgba(251,113,133,0.25)" }}>
             <div style={{ fontSize: 14, fontWeight: 600, color: "#FCA5A5" }}>{sandboxError}</div>
           </div>}
 
           {/* Guided tour note */}
-          <div style={{ marginTop: 20, padding: "12px 16px", borderRadius: 12, background: "rgba(139,92,246,0.06)", border: "1px solid rgba(139,92,246,0.12)" }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: "rgba(139,92,246,0.7)", marginBottom: 4 }}>✨ Each sandbox includes:</div>
+          <div style={{ marginTop: 20, padding: "12px 16px", borderRadius: 12, background: "rgba(167,139,250,0.06)", border: "1px solid rgba(167,139,250,0.12)" }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: "rgba(167,139,250,0.7)", marginBottom: 4 }}>✨ Each sandbox includes:</div>
             <div style={{ fontSize: 15, color: "rgba(200,180,255,0.4)", lineHeight: 1.6 }}>Full employee roster · Task-level work design · Skills inventory · AI readiness scores · Manager capability · Change readiness</div>
           </div>
         </div>
@@ -708,9 +708,9 @@ export function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox
 
       {/* ── HEADER ── */}
       <div style={{ marginBottom: 48, animation: "hubFadeUp 0.6s ease forwards" }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: "var(--accent-primary)", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 8, fontFamily: "'IBM Plex Mono', monospace" }}>Welcome back, {displayName}</div>
-        <h1 style={{ fontSize: 48, fontWeight: 700, color: "#fff", margin: 0, lineHeight: 1.15, fontFamily: "'Outfit', sans-serif", textShadow: "0 2px 32px rgba(0,0,0,0.4)" }}>Your Projects</h1>
-        <p style={{ fontSize: 17, color: "rgba(255,220,180,0.45)", marginTop: 8, fontFamily: "'Outfit', sans-serif", fontWeight: 400 }}>Select a project or create a new one</p>
+        <div style={{ fontSize: 13, fontWeight: 600, color: "var(--accent-primary)", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 8, fontFamily: "monospace" }}>Welcome back, {displayName}</div>
+        <h1 style={{ fontSize: 48, fontWeight: 700, color: "#fff", margin: 0, lineHeight: 1.15, fontFamily: "'Inter Tight', sans-serif", textShadow: "0 2px 32px rgba(0,0,0,0.4)" }}>Your Projects</h1>
+        <p style={{ fontSize: 17, color: "rgba(255,220,180,0.45)", marginTop: 8, fontFamily: "'Inter Tight', sans-serif", fontWeight: 400 }}>Select a project or create a new one</p>
       </div>
 
       {/* ── THREE MAIN CARDS ── */}
@@ -719,14 +719,14 @@ export function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox
         {/* TUTORIAL CARD */}
         <div className="hub-card" onClick={() => onStartTutorial?.()} style={{ borderRadius: 24, cursor: "pointer", padding: "32px 28px", background: "rgba(255,255,255,0.04)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: "1px solid rgba(99,102,241,0.2)", position: "relative", overflow: "hidden", animation: "hubFadeUp 0.6s ease forwards", animationDelay: "0.1s", opacity: 0 }} onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(99,102,241,0.45)"; e.currentTarget.style.boxShadow = "0 20px 60px rgba(99,102,241,0.15), inset 0 1px 0 rgba(255,255,255,0.08)"; }} onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(99,102,241,0.2)"; e.currentTarget.style.boxShadow = "none"; }}>
           {/* Animated icon */}
-          <div style={{ width: 56, height: 56, borderRadius: 16, background: "linear-gradient(135deg, rgba(99,102,241,0.2), rgba(59,130,246,0.15))", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20, fontSize: 26 }}>🧭</div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: "#fff", fontFamily: "'Outfit', sans-serif", marginBottom: 8 }}>Platform Tutorial</div>
+          <div style={{ width: 56, height: 56, borderRadius: 16, background: "linear-gradient(135deg, rgba(99,102,241,0.2), rgba(34,211,238,0.15))", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20, fontSize: 26 }}>🧭</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: "#fff", fontFamily: "'Inter Tight', sans-serif", marginBottom: 8 }}>Platform Tutorial</div>
           <div style={{ fontSize: 14, color: "rgba(165,180,252,0.6)", lineHeight: 1.6, marginBottom: 20 }}>Learn the platform in ~8 minutes — no data needed</div>
           {tutorialCompleted && <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 16 }}>
             <div style={{ flex: 1, height: 4, borderRadius: 2, background: "rgba(99,102,241,0.15)", overflow: "hidden" }}><div style={{ width: "100%", height: "100%", borderRadius: 2, background: "#6366F1" }} /></div>
-            <span style={{ fontSize: 12, fontWeight: 700, color: "#6366F1", fontFamily: "'IBM Plex Mono', monospace" }}>Complete</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "#6366F1", fontFamily: "monospace" }}>Complete</span>
           </div>}
-          <div className="hub-cta" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 24px", borderRadius: 100, background: "linear-gradient(135deg, rgba(99,102,241,0.25), rgba(59,130,246,0.2))", border: "1px solid rgba(99,102,241,0.3)", color: "#a5b4fc", fontSize: 14, fontWeight: 700, fontFamily: "'Outfit', sans-serif" }}>{tutorialCompleted ? "Retake Tutorial" : "Start Tutorial"} <span style={{ fontSize: 16 }}>→</span></div>
+          <div className="hub-cta" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 24px", borderRadius: 100, background: "linear-gradient(135deg, rgba(99,102,241,0.25), rgba(34,211,238,0.2))", border: "1px solid rgba(99,102,241,0.3)", color: "#a5b4fc", fontSize: 14, fontWeight: 700, fontFamily: "'Inter Tight', sans-serif" }}>{tutorialCompleted ? "Retake Tutorial" : "Start Tutorial"} <span style={{ fontSize: 16 }}>→</span></div>
         </div>
 
         {/* SANDBOX CARD — visually dominant */}
@@ -734,31 +734,31 @@ export function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox
           {/* Ambient glow */}
           <div style={{ position: "absolute", top: -40, right: -40, width: 120, height: 120, borderRadius: "50%", background: "radial-gradient(circle, rgba(224,144,64,0.12), transparent 70%)", pointerEvents: "none" }} />
           {/* Animated icon */}
-          <div style={{ width: 56, height: 56, borderRadius: 16, background: "linear-gradient(135deg, rgba(224,144,64,0.25), rgba(249,115,22,0.2))", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20, fontSize: 26 }}>🏢</div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: "#fff", fontFamily: "'Outfit', sans-serif", marginBottom: 8 }}>Industry Sandbox</div>
+          <div style={{ width: 56, height: 56, borderRadius: 16, background: "linear-gradient(135deg, rgba(224,144,64,0.25), rgba(251,191,36,0.2))", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20, fontSize: 26 }}>🏢</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: "#fff", fontFamily: "'Inter Tight', sans-serif", marginBottom: 8 }}>Industry Sandbox</div>
           <div style={{ fontSize: 14, color: "rgba(255,200,150,0.55)", lineHeight: 1.6, marginBottom: 16 }}>Explore 24 real companies across 8 industries with full workforce data</div>
           {/* Industry icons preview */}
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 20 }}>
             {INDUSTRIES_PREVIEW.map((icon, i) => <div key={i} style={{ width: 30, height: 30, borderRadius: 10, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>{icon}</div>)}
             <span style={{ fontSize: 12, color: "rgba(255,200,150,0.35)", fontWeight: 600, marginLeft: 4 }}>8 industries</span>
           </div>
-          <div className="hub-cta" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 24px", borderRadius: 100, background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", border: "none", color: "#fff", fontSize: 14, fontWeight: 700, fontFamily: "'Outfit', sans-serif", boxShadow: "0 4px 20px rgba(224,144,64,0.3)" }}>Explore Companies <span style={{ fontSize: 16 }}>→</span></div>
+          <div className="hub-cta" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 24px", borderRadius: 100, background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", border: "none", color: "#fff", fontSize: 14, fontWeight: 700, fontFamily: "'Inter Tight', sans-serif", boxShadow: "0 4px 20px rgba(224,144,64,0.3)" }}>Explore Companies <span style={{ fontSize: 16 }}>→</span></div>
         </div>
 
         {/* NEW PROJECT CARD */}
         <div className="hub-card" onClick={() => setModalOpen(true)} style={{ borderRadius: 24, cursor: "pointer", padding: "32px 28px", background: "rgba(255,255,255,0.04)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: "1px solid rgba(20,184,166,0.2)", position: "relative", overflow: "hidden", animation: "hubFadeUp 0.6s ease forwards", animationDelay: "0.3s", opacity: 0 }} onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(20,184,166,0.45)"; e.currentTarget.style.boxShadow = "0 20px 60px rgba(20,184,166,0.12), inset 0 1px 0 rgba(255,255,255,0.08)"; }} onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(20,184,166,0.2)"; e.currentTarget.style.boxShadow = "none"; }}>
           {/* Animated icon */}
-          <div style={{ width: 56, height: 56, borderRadius: 16, background: "linear-gradient(135deg, rgba(20,184,166,0.2), rgba(16,185,129,0.15))", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20, fontSize: 26 }}>✦</div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: "#fff", fontFamily: "'Outfit', sans-serif", marginBottom: 8 }}>New Project</div>
+          <div style={{ width: 56, height: 56, borderRadius: 16, background: "linear-gradient(135deg, rgba(20,184,166,0.2), rgba(52,211,153,0.15))", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20, fontSize: 26 }}>✦</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: "#fff", fontFamily: "'Inter Tight', sans-serif", marginBottom: 8 }}>New Project</div>
           <div style={{ fontSize: 14, color: "rgba(153,246,228,0.5)", lineHeight: 1.6, marginBottom: 20 }}>Upload your organization's data and build a custom transformation strategy</div>
-          <div className="hub-cta" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 24px", borderRadius: 100, background: "linear-gradient(135deg, rgba(20,184,166,0.25), rgba(16,185,129,0.2))", border: "1px solid rgba(20,184,166,0.3)", color: "#5eead4", fontSize: 14, fontWeight: 700, fontFamily: "'Outfit', sans-serif" }}>Create Project <span style={{ fontSize: 16 }}>→</span></div>
+          <div className="hub-cta" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 24px", borderRadius: 100, background: "linear-gradient(135deg, rgba(20,184,166,0.25), rgba(52,211,153,0.2))", border: "1px solid rgba(20,184,166,0.3)", color: "#5eead4", fontSize: 14, fontWeight: 700, fontFamily: "'Inter Tight', sans-serif" }}>Create Project <span style={{ fontSize: 16 }}>→</span></div>
         </div>
       </div>
 
       {/* ── RECENT PROJECTS (horizontal scroll) ── */}
       {projects.length > 0 && <div style={{ marginBottom: 48, animation: "hubFadeUp 0.6s ease forwards", animationDelay: "0.4s", opacity: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-          <div style={{ fontSize: 18, fontWeight: 700, color: "rgba(255,255,255,0.85)", fontFamily: "'Outfit', sans-serif" }}>Recent Projects</div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: "rgba(255,255,255,0.85)", fontFamily: "'Inter Tight', sans-serif" }}>Recent Projects</div>
           <span style={{ fontSize: 12, fontWeight: 700, padding: "2px 10px", borderRadius: 100, background: "rgba(224,144,64,0.12)", color: "var(--accent-primary)" }}>{projects.length}</span>
         </div>
         <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 8, scrollSnapType: "x mandatory" }}>
@@ -775,10 +775,10 @@ export function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox
               {/* Delete/clone - top right */}
               <div style={{ position: "absolute", top: 12, right: 12, display: "flex", gap: 4, opacity: 0, transition: "opacity 0.15s" }} onMouseEnter={e => e.currentTarget.style.opacity = "1"} onMouseLeave={e => e.currentTarget.style.opacity = "0"}>
                 <button onClick={e => { e.stopPropagation(); cloneProject(p); }} style={{ width: 24, height: 24, borderRadius: 6, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.3)", fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} title="Clone">⧉</button>
-                <button onClick={e => { e.stopPropagation(); setConfirmDelete(p.id); }} style={{ width: 24, height: 24, borderRadius: 6, background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)", color: "rgba(239,68,68,0.5)", fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} title="Delete">✕</button>
+                <button onClick={e => { e.stopPropagation(); setConfirmDelete(p.id); }} style={{ width: 24, height: 24, borderRadius: 6, background: "rgba(251,113,133,0.08)", border: "1px solid rgba(251,113,133,0.15)", color: "rgba(251,113,133,0.5)", fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} title="Delete">✕</button>
               </div>
 
-              <div style={{ fontSize: 16, fontWeight: 700, color: "#fff", fontFamily: "'Outfit', sans-serif", marginBottom: 6, paddingRight: 50 }}>{p.name}</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: "#fff", fontFamily: "'Inter Tight', sans-serif", marginBottom: 6, paddingRight: 50 }}>{p.name}</div>
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
                 {p.industry && <span style={{ fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 6, background: "rgba(224,144,64,0.12)", color: "rgba(232,197,71,0.7)" }}>{p.industry}</span>}
                 <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
@@ -791,9 +791,9 @@ export function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox
                 <div style={{ flex: 1, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
                   <div style={{ width: `${progressPct}%`, height: "100%", borderRadius: 2, background: statusColor, transition: "width 0.5s ease" }} />
                 </div>
-                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.25)", fontFamily: "'IBM Plex Mono', monospace", flexShrink: 0 }}>{modulesVisited}/8</span>
+                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.25)", fontFamily: "monospace", flexShrink: 0 }}>{modulesVisited}/8</span>
               </div>
-              {p.created && <div style={{ fontSize: 11, color: "rgba(255,255,255,0.15)", marginTop: 10, fontFamily: "'IBM Plex Mono', monospace" }}>{p.created}</div>}
+              {p.created && <div style={{ fontSize: 11, color: "rgba(255,255,255,0.15)", marginTop: 10, fontFamily: "monospace" }}>{p.created}</div>}
             </div>;
           })}
         </div>
@@ -801,7 +801,7 @@ export function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox
 
       {/* ── BOTTOM STATS BAR ── */}
       <div style={{ marginTop: "auto", paddingTop: 32, textAlign: "center", animation: "hubFadeUp 0.6s ease forwards", animationDelay: "0.5s", opacity: 0 }}>
-        <div style={{ fontSize: 12, color: "rgba(255,200,150,0.18)", fontFamily: "'IBM Plex Mono', monospace", letterSpacing: 0.5 }}>
+        <div style={{ fontSize: 12, color: "rgba(255,200,150,0.18)", fontFamily: "monospace", letterSpacing: 0.5 }}>
           24 sandbox companies · 8 industries · 47 music tracks · Built by Hiral Merchant
         </div>
       </div>
@@ -810,14 +810,14 @@ export function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox
     {/* Create modal */}
     {modalOpen && <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)" }}>
       <div className="rounded-2xl p-8 w-full max-w-md" style={{ background: "rgba(15,12,8,0.97)", backdropFilter: "blur(32px)", border: "1px solid rgba(255,200,150,0.1)" }}>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color: "#fff", fontFamily: "'Outfit', sans-serif", marginBottom: 4 }}>New Transformation Project</h2>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color: "#fff", fontFamily: "'Inter Tight', sans-serif", marginBottom: 4 }}>New Transformation Project</h2>
         <p style={{ fontSize: 14, color: "rgba(255,220,180,0.4)", marginBottom: 24 }}>Fill in the details below to set up your workspace</p>
         <div className="space-y-3">
           <div><div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,200,150,0.35)", textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 6 }}>Project Name *</div>
-          <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="e.g. Acme Corp AI Transformation" style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: nameTaken ? "1px solid rgba(239,68,68,0.4)" : "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 16px", fontSize: 14, color: "#fff", outline: "none", fontFamily: "'Outfit', sans-serif" }} autoFocus />
+          <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="e.g. Acme Corp AI Transformation" style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: nameTaken ? "1px solid rgba(251,113,133,0.4)" : "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 16px", fontSize: 14, color: "#fff", outline: "none", fontFamily: "'Inter Tight', sans-serif" }} autoFocus />
           {nameTaken && <div style={{ fontSize: 12, color: "#f87171", marginTop: 6 }}>A project with this name already exists.</div>}</div>
           <div><div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,200,150,0.35)", textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 6 }}>Client / Organization</div>
-          <input value={newClient} onChange={e => setNewClient(e.target.value)} placeholder="e.g. Acme Corporation" style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 16px", fontSize: 14, color: "#fff", outline: "none", fontFamily: "'Outfit', sans-serif" }} /></div>
+          <input value={newClient} onChange={e => setNewClient(e.target.value)} placeholder="e.g. Acme Corporation" style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 16px", fontSize: 14, color: "#fff", outline: "none", fontFamily: "'Inter Tight', sans-serif" }} /></div>
           <div className="grid grid-cols-2 gap-3">
             <div><div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,200,150,0.35)", textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 6 }}>Industry</div>
             <select value={newIndustry} onChange={e => setNewIndustry(e.target.value)} style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 16px", fontSize: 14, color: "#fff", outline: "none" }}>
@@ -831,9 +831,9 @@ export function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox
             </select></div>
           </div>
           <div><div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,200,150,0.35)", textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 6 }}>Project Lead</div>
-          <input value={newLead} onChange={e => setNewLead(e.target.value)} placeholder="e.g. Jane Smith, VP Transformation" style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 16px", fontSize: 14, color: "#fff", outline: "none", fontFamily: "'Outfit', sans-serif" }} /></div>
+          <input value={newLead} onChange={e => setNewLead(e.target.value)} placeholder="e.g. Jane Smith, VP Transformation" style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 16px", fontSize: 14, color: "#fff", outline: "none", fontFamily: "'Inter Tight', sans-serif" }} /></div>
           <div><div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,200,150,0.35)", textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 6 }}>Description / Objectives</div>
-          <textarea value={newDesc} onChange={e => setNewDesc(e.target.value)} placeholder="What are the goals of this transformation?" style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 16px", fontSize: 14, color: "#fff", outline: "none", fontFamily: "'Outfit', sans-serif", resize: "none" }} rows={3} /></div>
+          <textarea value={newDesc} onChange={e => setNewDesc(e.target.value)} placeholder="What are the goals of this transformation?" style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 16px", fontSize: 14, color: "#fff", outline: "none", fontFamily: "'Inter Tight', sans-serif", resize: "none" }} rows={3} /></div>
         </div>
         <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 24 }}>
           <button onClick={() => { setModalOpen(false); setNewName(""); setNewDesc(""); setNewClient(""); setNewIndustry(""); setNewSize(""); setNewLead(""); }} style={{ padding: "10px 20px", borderRadius: 12, fontSize: 14, fontWeight: 600, color: "rgba(255,200,150,0.5)", border: "1px solid rgba(255,255,255,0.08)", background: "none", cursor: "pointer" }}>Cancel</button>
@@ -844,9 +844,9 @@ export function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox
 
     {/* Delete confirmation */}
     {confirmDelete && <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }} onClick={() => setConfirmDelete(null)}>
-      <div style={{ borderRadius: 20, padding: 32, width: "100%", maxWidth: 380, textAlign: "center", background: "rgba(15,12,8,0.97)", backdropFilter: "blur(32px)", border: "1px solid rgba(239,68,68,0.15)" }} onClick={e => e.stopPropagation()}>
+      <div style={{ borderRadius: 20, padding: 32, width: "100%", maxWidth: 380, textAlign: "center", background: "rgba(15,12,8,0.97)", backdropFilter: "blur(32px)", border: "1px solid rgba(251,113,133,0.15)" }} onClick={e => e.stopPropagation()}>
         <div style={{ fontSize: 36, marginBottom: 12 }}>⚠️</div>
-        <h3 style={{ fontSize: 18, fontWeight: 700, color: "#fff", fontFamily: "'Outfit', sans-serif", marginBottom: 6 }}>Delete Project?</h3>
+        <h3 style={{ fontSize: 18, fontWeight: 700, color: "#fff", fontFamily: "'Inter Tight', sans-serif", marginBottom: 6 }}>Delete Project?</h3>
         <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginBottom: 4 }}>Are you sure you want to delete <strong style={{ color: "#fff" }}>{projects.find(p => p.id === confirmDelete)?.name || "this project"}</strong>?</p>
         <p style={{ fontSize: 13, color: "#f87171", marginBottom: 24 }}>This cannot be undone.</p>
         <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>

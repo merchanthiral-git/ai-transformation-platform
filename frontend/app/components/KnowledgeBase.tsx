@@ -1142,12 +1142,12 @@ function SlideViewer({ slides, accentColor }: { slides: Slide[]; accentColor: st
           /* Title slide — gradient bg, centered */
           <div style={{ height: "100%", minHeight: 280, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "40px 48px", background: `linear-gradient(135deg, ${accentColor}15, ${accentColor}08)` }}>
             <div style={{ fontSize: 15, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2.5, color: accentColor, marginBottom: 12 }}>{slide.subtitle || ""}</div>
-            <h2 style={{ fontSize: 32, fontWeight: 800, fontFamily: "'Outfit', sans-serif", color: "var(--text-primary)", lineHeight: 1.2 }}>{slide.title}</h2>
+            <h2 style={{ fontSize: 32, fontWeight: 800, fontFamily: "'Inter Tight', sans-serif", color: "var(--text-primary)", lineHeight: 1.2 }}>{slide.title}</h2>
           </div>
         ) : (
           /* Content slide — title + body */
           <div style={{ padding: "28px 32px" }}>
-            <h3 style={{ fontSize: 24, fontWeight: 700, fontFamily: "'Outfit', sans-serif", color: "var(--text-primary)", marginBottom: 4 }}>{slide.title}</h3>
+            <h3 style={{ fontSize: 24, fontWeight: 700, fontFamily: "'Inter Tight', sans-serif", color: "var(--text-primary)", marginBottom: 4 }}>{slide.title}</h3>
             <div style={{ width: 48, height: 3, borderRadius: 2, background: accentColor, marginBottom: 20, opacity: 0.6 }} />
             <div style={{ fontSize: 15, lineHeight: 1.75, color: "var(--text-secondary)" }}>{slide.content}</div>
           </div>
@@ -1307,7 +1307,7 @@ function buildSlides(entry: KBEntry, sectionId: string): Slide[] {
       const shortTitle = p.split(/[.—–]/).filter(Boolean)[0]?.trim().slice(0, 60) || `Practice ${i + 1}`;
       slides.push({
         title: entry.bestPractices.length > 1 ? shortTitle : "Best Practice",
-        content: <div style={{ borderLeft: "4px solid var(--success)", background: "rgba(16,185,129,0.06)", borderRadius: "0 12px 12px 0", padding: "16px 20px" }}>
+        content: <div style={{ borderLeft: "4px solid var(--success)", background: "rgba(52,211,153,0.06)", borderRadius: "0 12px 12px 0", padding: "16px 20px" }}>
           <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><span style={{ fontSize: 24, color: "var(--success)", flexShrink: 0 }}>✓</span><div style={{ fontSize: 16, lineHeight: 1.8, color: "var(--text-secondary)" }}>{p}</div></div>
         </div>,
       });
@@ -1317,7 +1317,7 @@ function buildSlides(entry: KBEntry, sectionId: string): Slide[] {
       const shortTitle = p.split(/[.—–]/).filter(Boolean)[0]?.trim().slice(0, 60) || `Pitfall ${i + 1}`;
       slides.push({
         title: entry.pitfalls.length > 1 ? shortTitle : "Common Pitfall",
-        content: <div style={{ borderLeft: "4px solid var(--risk)", background: "rgba(239,68,68,0.06)", borderRadius: "0 12px 12px 0", padding: "16px 20px" }}>
+        content: <div style={{ borderLeft: "4px solid var(--risk)", background: "rgba(251,113,133,0.06)", borderRadius: "0 12px 12px 0", padding: "16px 20px" }}>
           <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><span style={{ fontSize: 24, color: "var(--risk)", flexShrink: 0 }}>✗</span><div style={{ fontSize: 16, lineHeight: 1.8, color: "var(--text-secondary)" }}>{p}</div></div>
         </div>,
       });
@@ -1331,10 +1331,10 @@ function buildSlides(entry: KBEntry, sectionId: string): Slide[] {
     const third = Math.ceil(sentences.length / 3);
     const slides: Slide[] = [
       { title: "Real-World Scenario", subtitle: "Case Study", isTitle: true, content: null },
-      { title: "The Situation", content: <div style={{ background: "var(--surface-2)", borderRadius: 14, padding: 20, border: "1px solid rgba(212,134,10,0.12)", fontSize: 16, lineHeight: 1.8 }}>{sentences.slice(0, third).join(" ")}</div> },
+      { title: "The Situation", content: <div style={{ background: "var(--surface-2)", borderRadius: 14, padding: 20, border: "1px solid rgba(34,211,238,0.12)", fontSize: 16, lineHeight: 1.8 }}>{sentences.slice(0, third).join(" ")}</div> },
       { title: "The Analysis", content: <div style={{ background: "var(--surface-2)", borderRadius: 14, padding: 20, border: "1px solid rgba(255,255,255,0.06)", fontSize: 16, lineHeight: 1.8 }}>{sentences.slice(third, third * 2).join(" ")}</div> },
     ];
-    if (third * 2 < sentences.length) slides.push({ title: "Results & Impact", content: <div style={{ background: "var(--surface-2)", borderRadius: 14, padding: 20, border: "1px solid rgba(16,185,129,0.12)", fontSize: 16, lineHeight: 1.8 }}>{sentences.slice(third * 2).join(" ")}</div> });
+    if (third * 2 < sentences.length) slides.push({ title: "Results & Impact", content: <div style={{ background: "var(--surface-2)", borderRadius: 14, padding: 20, border: "1px solid rgba(52,211,153,0.12)", fontSize: 16, lineHeight: 1.8 }}>{sentences.slice(third * 2).join(" ")}</div> });
     return slides;
   }
 
@@ -1370,7 +1370,7 @@ export function KnowledgeModal({ moduleId, onClose }: { moduleId: string; onClos
     return <div style={{ position: "fixed", inset: 0, zIndex: 999999, background: "var(--surface-1)", display: "flex", flexDirection: "column" }}>
       <div style={{ padding: "16px 24px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>{entry.title} — {sections.find(s => s.id === activeSection)?.label}</div>
-        <button onClick={() => setPresenting(false)} style={{ padding: "6px 14px", borderRadius: 8, fontSize: 15, fontWeight: 600, background: "rgba(212,134,10,0.1)", border: "1px solid rgba(212,134,10,0.2)", color: "var(--accent-primary)", cursor: "pointer" }}>Exit Presentation</button>
+        <button onClick={() => setPresenting(false)} style={{ padding: "6px 14px", borderRadius: 8, fontSize: 15, fontWeight: 600, background: "rgba(34,211,238,0.1)", border: "1px solid rgba(34,211,238,0.2)", color: "var(--accent-primary)", cursor: "pointer" }}>Exit Presentation</button>
       </div>
       <div style={{ flex: 1, padding: "40px 80px", overflow: "auto" }}><SlideViewer slides={slides} accentColor={accentColor} /></div>
     </div>;
@@ -1397,7 +1397,7 @@ export function KnowledgeModal({ moduleId, onClose }: { moduleId: string; onClos
               <h2 className="text-[20px] font-bold text-[var(--text-primary)] font-heading">{entry.title}</h2>
             </div>
             <div className="flex items-center gap-2">
-              <button onClick={() => setPresenting(true)} title="Present fullscreen" style={{ padding: "4px 10px", borderRadius: 6, fontSize: 15, fontWeight: 600, background: "rgba(212,134,10,0.06)", border: "1px solid rgba(212,134,10,0.12)", color: "rgba(212,134,10,0.6)", cursor: "pointer" }} onMouseEnter={e => { e.currentTarget.style.color = "var(--accent-primary)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.3)"; }} onMouseLeave={e => { e.currentTarget.style.color = "rgba(212,134,10,0.6)"; e.currentTarget.style.borderColor = "rgba(212,134,10,0.12)"; }}>🖥 Present</button>
+              <button onClick={() => setPresenting(true)} title="Present fullscreen" style={{ padding: "4px 10px", borderRadius: 6, fontSize: 15, fontWeight: 600, background: "rgba(34,211,238,0.06)", border: "1px solid rgba(34,211,238,0.12)", color: "rgba(34,211,238,0.6)", cursor: "pointer" }} onMouseEnter={e => { e.currentTarget.style.color = "var(--accent-primary)"; e.currentTarget.style.borderColor = "rgba(34,211,238,0.3)"; }} onMouseLeave={e => { e.currentTarget.style.color = "rgba(34,211,238,0.6)"; e.currentTarget.style.borderColor = "rgba(34,211,238,0.12)"; }}>🖥 Present</button>
               <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--hover)] transition-all text-lg">✕</button>
             </div>
           </div>

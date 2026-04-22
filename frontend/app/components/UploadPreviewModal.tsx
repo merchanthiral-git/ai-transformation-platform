@@ -17,11 +17,11 @@ interface PreviewData { fileName: string; fileSize: number; sheets: SheetPreview
 // ── Helpers ────────────────────────────────────────────────
 function fmtSize(b: number) { return b < 1024 ? `${b} B` : b < 1048576 ? `${(b / 1024).toFixed(1)} KB` : `${(b / 1048576).toFixed(1)} MB`; }
 const SEV = {
-  error:   { bg: "rgba(239,68,68,0.12)", text: "#f87171", border: "#dc2626", icon: "\u2717" },
-  warning: { bg: "rgba(245,158,11,0.12)", text: "#fbbf24", border: "#d97706", icon: "\u26A0" },
+  error:   { bg: "rgba(251,113,133,0.12)", text: "#f87171", border: "#dc2626", icon: "\u2717" },
+  warning: { bg: "rgba(251,191,36,0.12)", text: "#fbbf24", border: "#d97706", icon: "\u26A0" },
   info:    { bg: "rgba(96,165,250,0.12)", text: "#93c5fd", border: "#3b82f6", icon: "\u2139" },
 };
-const MONO = "'IBM Plex Mono', monospace";
+const MONO = "monospace";
 const BORDER = "1px solid rgba(255,255,255,0.06)";
 const DATA_TYPES = ["Workforce", "Jobs", "Tasks", "Org Structure", "Skills", "Compensation"];
 
@@ -120,7 +120,7 @@ export function UploadPreviewModal({ files, onClose, onImport }: {
     <div onClick={onClose} style={{
       position: "fixed", inset: 0, zIndex: 10000, background: "rgba(0,0,0,0.7)",
       backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center",
-      fontFamily: "'Outfit', sans-serif",
+      fontFamily: "'Inter Tight', sans-serif",
     }}>
       <div onClick={(e) => e.stopPropagation()} style={{
         background: "#1a1a2e", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16,

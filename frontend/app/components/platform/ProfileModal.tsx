@@ -53,8 +53,8 @@ export function ProfileModal({ user, onClose, onUpdate }: { user: authApi.AuthUs
     setSaving(false);
   };
 
-  const inputStyle: React.CSSProperties = { width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid var(--border)", background: "var(--surface-2)", color: "var(--text-primary)", fontSize: 15, fontFamily: "'Outfit', sans-serif", outline: "none", boxSizing: "border-box" as const };
-  const labelStyle: React.CSSProperties = { display: "block", fontSize: 15, color: "var(--text-muted)", marginBottom: 4, fontFamily: "'IBM Plex Mono', monospace", textTransform: "uppercase" as const, letterSpacing: "1px" };
+  const inputStyle: React.CSSProperties = { width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid var(--border)", background: "var(--surface-2)", color: "var(--text-primary)", fontSize: 15, fontFamily: "'Inter Tight', sans-serif", outline: "none", boxSizing: "border-box" as const };
+  const labelStyle: React.CSSProperties = { display: "block", fontSize: 15, color: "var(--text-muted)", marginBottom: 4, fontFamily: "monospace", textTransform: "uppercase" as const, letterSpacing: "1px" };
 
   return <div style={{ position: "fixed", inset: 0, zIndex: 99998, display: "flex", alignItems: "center", justifyContent: "center" }}>
     <div onClick={onClose} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)" }} />
@@ -64,15 +64,15 @@ export function ProfileModal({ user, onClose, onUpdate }: { user: authApi.AuthUs
         <button onClick={onClose} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 16, cursor: "pointer" }}>✕</button>
       </div>
 
-      {error && <div style={{ background: "rgba(220,50,50,0.08)", border: "1px solid rgba(220,50,50,0.2)", borderRadius: 8, padding: "8px 12px", marginBottom: 12, color: "#f08080", fontSize: 15, fontFamily: "'IBM Plex Mono', monospace" }}>{error}</div>}
-      {success && <div style={{ background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: 8, padding: "8px 12px", marginBottom: 12, color: "#6ee7b7", fontSize: 15, fontFamily: "'IBM Plex Mono', monospace" }}>{success}</div>}
+      {error && <div style={{ background: "rgba(220,50,50,0.08)", border: "1px solid rgba(220,50,50,0.2)", borderRadius: 8, padding: "8px 12px", marginBottom: 12, color: "#f08080", fontSize: 15, fontFamily: "monospace" }}>{error}</div>}
+      {success && <div style={{ background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: 8, padding: "8px 12px", marginBottom: 12, color: "#6ee7b7", fontSize: 15, fontFamily: "monospace" }}>{success}</div>}
 
       <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4 }}>
-          <div style={{ width: 48, height: 48, borderRadius: 14, background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 20, fontWeight: 700, fontFamily: "'Outfit', sans-serif" }}>{(displayName || "U")[0].toUpperCase()}</div>
+          <div style={{ width: 48, height: 48, borderRadius: 14, background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 20, fontWeight: 700, fontFamily: "'Inter Tight', sans-serif" }}>{(displayName || "U")[0].toUpperCase()}</div>
           <div>
             <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>{user.username}</div>
-            <div style={{ fontSize: 15, color: "var(--text-muted)", fontFamily: "'IBM Plex Mono', monospace" }}>Member since {user.last_login ? new Date().toLocaleDateString() : "today"}</div>
+            <div style={{ fontSize: 15, color: "var(--text-muted)", fontFamily: "monospace" }}>Member since {user.last_login ? new Date().toLocaleDateString() : "today"}</div>
           </div>
         </div>
 
@@ -83,11 +83,11 @@ export function ProfileModal({ user, onClose, onUpdate }: { user: authApi.AuthUs
             {showEmailOk && <span style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", color: "#6ee7b7", fontSize: 14 }}>✓</span>}
             {showEmailError && <span style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", color: "#f08080", fontSize: 15 }}>✕</span>}
           </div>
-          {showEmailError && <span style={{ fontSize: 14, color: "#f08080", fontFamily: "'IBM Plex Mono', monospace", marginTop: 2, display: "block" }}>Please enter a valid email address</span>}
+          {showEmailError && <span style={{ fontSize: 14, color: "#f08080", fontFamily: "monospace", marginTop: 2, display: "block" }}>Please enter a valid email address</span>}
         </div>
 
         <div style={{ borderTop: "1px solid var(--border)", paddingTop: 14, marginTop: 4 }}>
-          <div style={{ fontSize: 15, fontWeight: 600, color: "var(--text-muted)", marginBottom: 10, fontFamily: "'IBM Plex Mono', monospace", textTransform: "uppercase", letterSpacing: "1px" }}>Change Password</div>
+          <div style={{ fontSize: 15, fontWeight: 600, color: "var(--text-muted)", marginBottom: 10, fontFamily: "monospace", textTransform: "uppercase", letterSpacing: "1px" }}>Change Password</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             <div><label style={labelStyle}>Current Password</label><input type="password" value={currentPw} onChange={e => setCurrentPw(e.target.value)} placeholder="Required to change password" style={inputStyle} /></div>
             <div><label style={labelStyle}>New Password</label><input type="password" value={newPw} onChange={e => setNewPw(e.target.value)} placeholder="Min 8 chars, 1 uppercase, 1 number" style={inputStyle} /></div>
@@ -95,7 +95,7 @@ export function ProfileModal({ user, onClose, onUpdate }: { user: authApi.AuthUs
           </div>
         </div>
 
-        <button onClick={handleSave} disabled={saving || !emailValid} style={{ width: "100%", padding: "12px", borderRadius: 10, border: "none", background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", color: "#fff", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: "'Outfit', sans-serif", opacity: (saving || !emailValid) ? 0.5 : 1, marginTop: 4 }}>{saving ? "Saving..." : "Save Changes"}</button>
+        <button onClick={handleSave} disabled={saving || !emailValid} style={{ width: "100%", padding: "12px", borderRadius: 10, border: "none", background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", color: "#fff", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: "'Inter Tight', sans-serif", opacity: (saving || !emailValid) ? 0.5 : 1, marginTop: 4 }}>{saving ? "Saving..." : "Save Changes"}</button>
       </div>
     </div>
   </div>;

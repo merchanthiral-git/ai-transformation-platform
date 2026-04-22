@@ -126,7 +126,7 @@ export default function GuideViewer({ guide, onBack, onNavigate }: GuideViewerPr
           {!tocCollapsed && (
             <div style={{ flex: 1, minWidth: 0 }}>
               <button onClick={onBack} style={{ fontSize: 13, color: "rgba(255,200,150,0.4)", background: "none", border: "none", cursor: "pointer", padding: 0, marginBottom: 8, display: "block" }}>← Back</button>
-              <div style={{ fontSize: 15, fontWeight: 700, color: "rgba(255,245,235,0.9)", fontFamily: "'Outfit', sans-serif", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{guide.icon} {guide.title}</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: "rgba(255,245,235,0.9)", fontFamily: "'Inter Tight', sans-serif", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{guide.icon} {guide.title}</div>
               <div style={{ fontSize: 12, color: "rgba(255,200,150,0.3)", marginTop: 2 }}>{guide.chapters.length} chapters</div>
             </div>
           )}
@@ -148,7 +148,7 @@ export default function GuideViewer({ guide, onBack, onNavigate }: GuideViewerPr
                     width: "100%", padding: "8px 12px 8px 32px", borderRadius: 8,
                     background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,200,150,0.1)",
                     color: "rgba(255,245,235,0.85)", fontSize: 13, outline: "none",
-                    fontFamily: "'IBM Plex Mono', monospace",
+                    fontFamily: "monospace",
                   }}
                 />
                 <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", fontSize: 13, opacity: 0.3 }}>🔍</span>
@@ -159,7 +159,7 @@ export default function GuideViewer({ guide, onBack, onNavigate }: GuideViewerPr
             {searchQuery && searchResults.length > 0 && (
               <div style={{ padding: "0 12px 12px", flexShrink: 0, maxHeight: 300, overflowY: "auto" }}>
                 {searchResults.map((r, i) => (
-                  <button key={i} onClick={() => { scrollToSection(r.chapterId, r.sectionId); setSearchQuery(""); }} style={{ display: "block", width: "100%", textAlign: "left", padding: "8px 10px", borderRadius: 8, background: "rgba(212,134,10,0.06)", border: "none", cursor: "pointer", marginBottom: 4 }}>
+                  <button key={i} onClick={() => { scrollToSection(r.chapterId, r.sectionId); setSearchQuery(""); }} style={{ display: "block", width: "100%", textAlign: "left", padding: "8px 10px", borderRadius: 8, background: "rgba(34,211,238,0.06)", border: "none", cursor: "pointer", marginBottom: 4 }}>
                     <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,245,235,0.8)" }}>{r.title}</div>
                     <div style={{ fontSize: 11, color: "rgba(255,200,150,0.35)", marginTop: 2, lineHeight: 1.4 }}>{r.snippet}</div>
                   </button>
@@ -179,12 +179,12 @@ export default function GuideViewer({ guide, onBack, onNavigate }: GuideViewerPr
                     style={{
                       width: "100%", textAlign: "left", padding: "10px 10px",
                       borderRadius: 8, border: "none", cursor: "pointer",
-                      background: activeChapter === ch.id ? "rgba(212,134,10,0.1)" : "transparent",
+                      background: activeChapter === ch.id ? "rgba(34,211,238,0.1)" : "transparent",
                       transition: "background 0.15s",
                       display: "flex", alignItems: "flex-start", gap: 10,
                     }}
                   >
-                    <span style={{ fontSize: 11, fontWeight: 700, color: activeChapter === ch.id ? "var(--accent-primary)" : "rgba(255,200,150,0.3)", fontFamily: "'IBM Plex Mono', monospace", minWidth: 20, paddingTop: 1 }}>{ch.number}</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: activeChapter === ch.id ? "var(--accent-primary)" : "rgba(255,200,150,0.3)", fontFamily: "monospace", minWidth: 20, paddingTop: 1 }}>{ch.number}</span>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 13, fontWeight: 600, color: activeChapter === ch.id ? "rgba(255,245,235,0.9)" : "rgba(255,245,235,0.6)", lineHeight: 1.3 }}>{ch.icon} {ch.title}</div>
                       {expandedChapters.has(ch.id) && ch.sections.length > 0 && (
@@ -220,11 +220,11 @@ export default function GuideViewer({ guide, onBack, onNavigate }: GuideViewerPr
         {/* Hero header */}
         <div style={{
           padding: "48px 64px 40px", borderBottom: "1px solid rgba(255,200,150,0.06)",
-          background: "linear-gradient(180deg, rgba(212,134,10,0.06) 0%, transparent 100%)",
+          background: "linear-gradient(180deg, rgba(34,211,238,0.06) 0%, transparent 100%)",
         }}>
           <div style={{ maxWidth: 860 }}>
             <div style={{ fontSize: 42, marginBottom: 8 }}>{guide.icon}</div>
-            <h1 style={{ fontSize: 32, fontWeight: 800, color: "#fff", fontFamily: "'Outfit', sans-serif", marginBottom: 8 }}>{guide.title}</h1>
+            <h1 style={{ fontSize: 32, fontWeight: 800, color: "#fff", fontFamily: "'Inter Tight', sans-serif", marginBottom: 8 }}>{guide.title}</h1>
             <p style={{ fontSize: 16, color: "rgba(255,220,180,0.5)", lineHeight: 1.6, maxWidth: 600 }}>{guide.subtitle}</p>
             <div style={{ display: "flex", gap: 16, marginTop: 20 }}>
               <span style={{ fontSize: 13, color: "rgba(255,200,150,0.3)", display: "flex", alignItems: "center", gap: 6 }}>📖 {guide.chapters.length} Chapters</span>
@@ -268,18 +268,18 @@ function ChapterBlock({ chapter, isExpanded, onToggle, sectionRefs }: {
       <button onClick={onToggle} style={{
         width: "100%", textAlign: "left", padding: "24px 28px",
         borderRadius: 16, cursor: "pointer", border: "1px solid rgba(255,200,150,0.08)",
-        background: isExpanded ? "rgba(212,134,10,0.06)" : "rgba(255,255,255,0.02)",
+        background: isExpanded ? "rgba(34,211,238,0.06)" : "rgba(255,255,255,0.02)",
         transition: "all 0.2s", display: "flex", alignItems: "center", gap: 20,
       }}>
         <div style={{
           width: 48, height: 48, borderRadius: 12,
-          background: isExpanded ? "rgba(212,134,10,0.15)" : "rgba(255,255,255,0.04)",
+          background: isExpanded ? "rgba(34,211,238,0.15)" : "rgba(255,255,255,0.04)",
           display: "flex", alignItems: "center", justifyContent: "center",
           fontSize: 22, flexShrink: 0, transition: "background 0.2s",
         }}>{chapter.icon}</div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(212,134,10,0.5)", fontFamily: "'IBM Plex Mono', monospace", letterSpacing: 1, marginBottom: 4 }}>CHAPTER {chapter.number}</div>
-          <div style={{ fontSize: 20, fontWeight: 700, color: "rgba(255,245,235,0.9)", fontFamily: "'Outfit', sans-serif" }}>{chapter.title}</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(34,211,238,0.5)", fontFamily: "monospace", letterSpacing: 1, marginBottom: 4 }}>CHAPTER {chapter.number}</div>
+          <div style={{ fontSize: 20, fontWeight: 700, color: "rgba(255,245,235,0.9)", fontFamily: "'Inter Tight', sans-serif" }}>{chapter.title}</div>
           <div style={{ fontSize: 14, color: "rgba(255,220,180,0.4)", marginTop: 4, lineHeight: 1.5 }}>{chapter.summary}</div>
         </div>
         <span style={{
@@ -300,7 +300,7 @@ function ChapterBlock({ chapter, isExpanded, onToggle, sectionRefs }: {
             >
               <h3 style={{
                 fontSize: 18, fontWeight: 700, color: "rgba(255,245,235,0.85)",
-                fontFamily: "'Outfit', sans-serif", marginBottom: 16,
+                fontFamily: "'Inter Tight', sans-serif", marginBottom: 16,
                 paddingBottom: 8, borderBottom: "1px solid rgba(255,200,150,0.06)",
               }}>{sec.title}</h3>
               <div
@@ -325,7 +325,7 @@ const guideStyles = `
     font-size: 15px;
     font-weight: 700;
     color: rgba(255,245,235,0.8);
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Inter Tight', sans-serif;
     margin: 24px 0 10px 0;
   }
   .guide-content p {
@@ -343,7 +343,7 @@ const guideStyles = `
     font-weight: 600;
   }
   .guide-content em {
-    color: rgba(212,134,10,0.7);
+    color: rgba(34,211,238,0.7);
     font-style: normal;
   }
   .guide-content table {
@@ -355,7 +355,7 @@ const guideStyles = `
   .guide-content table th {
     text-align: left;
     padding: 10px 12px;
-    background: rgba(212,134,10,0.08);
+    background: rgba(34,211,238,0.08);
     border: 1px solid rgba(255,200,150,0.08);
     color: rgba(255,245,235,0.7);
     font-weight: 700;
@@ -379,8 +379,8 @@ const guideStyles = `
     border-left: 3px solid;
   }
   .guide-content .callout-tip {
-    background: rgba(16,185,129,0.06);
-    border-color: rgba(16,185,129,0.4);
+    background: rgba(52,211,153,0.06);
+    border-color: rgba(52,211,153,0.4);
   }
   .guide-content .callout-tip .callout-title {
     color: #6EE7B7;
@@ -391,8 +391,8 @@ const guideStyles = `
     margin-bottom: 6px;
   }
   .guide-content .callout-warning {
-    background: rgba(245,158,11,0.06);
-    border-color: rgba(245,158,11,0.4);
+    background: rgba(251,191,36,0.06);
+    border-color: rgba(251,191,36,0.4);
   }
   .guide-content .callout-warning .callout-title {
     color: #FBBF24;
@@ -403,8 +403,8 @@ const guideStyles = `
     margin-bottom: 6px;
   }
   .guide-content .callout-info {
-    background: rgba(59,130,246,0.06);
-    border-color: rgba(59,130,246,0.4);
+    background: rgba(34,211,238,0.06);
+    border-color: rgba(34,211,238,0.4);
   }
   .guide-content .callout-info .callout-title {
     color: #93C5FD;
@@ -415,8 +415,8 @@ const guideStyles = `
     margin-bottom: 6px;
   }
   .guide-content .callout-example {
-    background: rgba(139,92,246,0.06);
-    border-color: rgba(139,92,246,0.4);
+    background: rgba(167,139,250,0.06);
+    border-color: rgba(167,139,250,0.4);
   }
   .guide-content .callout-example .callout-title {
     color: #C4B5FD;
@@ -438,7 +438,7 @@ const guideStyles = `
     font-weight: 700;
     color: rgba(255,245,235,0.7);
     margin-bottom: 10px;
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Inter Tight', sans-serif;
   }
   .guide-content .checklist ul {
     list-style: none;
@@ -453,13 +453,13 @@ const guideStyles = `
     content: "☐";
     position: absolute;
     left: 0;
-    color: rgba(212,134,10,0.5);
+    color: rgba(34,211,238,0.5);
   }
   .guide-content .framework {
     padding: 20px 24px;
     border-radius: 14px;
-    background: rgba(212,134,10,0.04);
-    border: 1px solid rgba(212,134,10,0.12);
+    background: rgba(34,211,238,0.04);
+    border: 1px solid rgba(34,211,238,0.12);
     margin: 16px 0;
   }
   .guide-content .framework-title {
@@ -467,7 +467,7 @@ const guideStyles = `
     font-weight: 700;
     color: var(--accent-primary);
     margin-bottom: 10px;
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Inter Tight', sans-serif;
   }
   .guide-content .try-it {
     display: inline-flex;
@@ -475,8 +475,8 @@ const guideStyles = `
     gap: 6px;
     padding: 8px 16px;
     border-radius: 8px;
-    background: rgba(212,134,10,0.1);
-    border: 1px solid rgba(212,134,10,0.25);
+    background: rgba(34,211,238,0.1);
+    border: 1px solid rgba(34,211,238,0.25);
     color: var(--warning);
     font-size: 13px;
     font-weight: 600;
@@ -486,8 +486,8 @@ const guideStyles = `
     text-decoration: none;
   }
   .guide-content .try-it:hover {
-    background: rgba(212,134,10,0.18);
-    border-color: rgba(212,134,10,0.4);
+    background: rgba(34,211,238,0.18);
+    border-color: rgba(34,211,238,0.4);
   }
   .guide-content .step-list {
     counter-reset: steps;
@@ -507,14 +507,14 @@ const guideStyles = `
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    background: rgba(212,134,10,0.15);
+    background: rgba(34,211,238,0.15);
     color: var(--accent-primary);
     font-size: 12px;
     font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: monospace;
   }
   .guide-content .metric-grid {
     display: grid;
@@ -540,6 +540,6 @@ const guideStyles = `
     font-size: 15px;
     font-weight: 700;
     color: rgba(255,245,235,0.7);
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Inter Tight', sans-serif;
   }
 `;

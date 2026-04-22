@@ -35,7 +35,7 @@ export default function GlobalError({
           alignItems: "center",
           justifyContent: "center",
           background: "#0B1120",
-          fontFamily: "'Outfit', system-ui, sans-serif",
+          fontFamily: "'Inter Tight', system-ui, sans-serif",
           padding: 24,
         }}
       >
