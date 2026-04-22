@@ -104,14 +104,17 @@ export default function CustomCursor() {
       />
       <style jsx global>{`
         @media (hover: hover) {
-          body:not(:has(.marketing-root)) { cursor: none !important; }
-          body:not(:has(.marketing-root)) a,
-          body:not(:has(.marketing-root)) button,
-          body:not(:has(.marketing-root)) [role="button"],
-          body:not(:has(.marketing-root)) input,
-          body:not(:has(.marketing-root)) select,
-          body:not(:has(.marketing-root)) textarea { cursor: none !important; }
+          body:not(:has(.marketing-root)):not(:has(.auth-screen)) { cursor: none !important; }
+          body:not(:has(.marketing-root)):not(:has(.auth-screen)) a,
+          body:not(:has(.marketing-root)):not(:has(.auth-screen)) button,
+          body:not(:has(.marketing-root)):not(:has(.auth-screen)) [role="button"],
+          body:not(:has(.marketing-root)):not(:has(.auth-screen)) input,
+          body:not(:has(.marketing-root)):not(:has(.auth-screen)) select,
+          body:not(:has(.marketing-root)):not(:has(.auth-screen)) textarea { cursor: none !important; }
           .marketing-root, .marketing-root * { cursor: auto !important; }
+          .auth-screen, .auth-screen * { cursor: auto !important; }
+          .auth-screen input, .auth-screen textarea { cursor: text !important; }
+          .auth-screen button, .auth-screen a, .auth-screen [role="button"] { cursor: pointer !important; }
         }
       `}</style>
     </>

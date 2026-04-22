@@ -1359,7 +1359,7 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
   // ── Welcome modal after successful registration ──
   if (successUser) {
     return (
-      <div style={{ position: "fixed", inset: 0, zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div className="auth-screen" style={{ position: "fixed", inset: 0, zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <VideoBackground name="login_bg" overlay={0.5} poster={`${CDN_BASE}/login_bg.png`} fallbackGradient="linear-gradient(135deg, #1a1208 0%, #2a1a0a 30%, #0f0d08 70%, #1a1510 100%)" className="absolute inset-0" />
         <div style={{ position: "absolute", inset: 0, zIndex: 1, background: "radial-gradient(ellipse at center, rgba(10,8,5,0.3) 0%, rgba(10,8,5,0.75) 100%)" }} />
         <div style={{ position: "relative", zIndex: 2, width: "100%", maxWidth: 420, padding: "0 24px", textAlign: "center" }}>
@@ -1384,7 +1384,7 @@ function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {
   }
 
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center" }}>
+    <div className="auth-screen" style={{ position: "fixed", inset: 0, zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center" }}>
       <VideoBackground name="login_bg" overlay={0.5} poster={`${CDN_BASE}/login_bg.png`} fallbackGradient="linear-gradient(135deg, #1a1208 0%, #2a1a0a 30%, #0f0d08 70%, #1a1510 100%)" className="absolute inset-0" />
       <div style={{ position: "absolute", inset: 0, zIndex: 1, background: "radial-gradient(ellipse at center, rgba(10,8,5,0.25) 0%, rgba(10,8,5,0.7) 100%)" }} />
 
