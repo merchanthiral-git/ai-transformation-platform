@@ -37,17 +37,17 @@ interface Props {
    STYLES
    ═══════════════════════════════════════════════════════════════ */
 
-const SEV_COLORS: Record<string, string> = { error: "#e87a5d", warning: "#f4a83a", info: "#f4a83a" };
+const SEV_COLORS: Record<string, string> = { error: "var(--coral)", warning: "var(--amber)", info: "var(--amber)" };
 
 const S = {
   page: { padding: "24px 28px", maxWidth: 1100, margin: "0 auto" } as React.CSSProperties,
   h2: { fontSize: "var(--text-lg)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)", margin: "0 0 4px" } as React.CSSProperties,
   subtitle: { fontSize: "var(--text-xs)", color: "var(--text-muted)", marginBottom: 20 } as React.CSSProperties,
   tabs: { display: "flex", borderBottom: "1px solid var(--border)", marginBottom: 20, gap: 0 } as React.CSSProperties,
-  tab: (active: boolean) => ({ padding: "8px 16px", fontSize: "var(--text-xs)", fontWeight: active ? "var(--fw-semi)" : "var(--fw-medium)", color: active ? "#f4a83a" : "var(--text-muted)", borderBottom: active ? "2px solid #f4a83a" : "2px solid transparent", background: "none", border: "none", cursor: "pointer" }) as React.CSSProperties,
+  tab: (active: boolean) => ({ padding: "8px 16px", fontSize: "var(--text-xs)", fontWeight: active ? "var(--fw-semi)" : "var(--fw-medium)", color: active ? "var(--amber)" : "var(--text-muted)", borderBottom: active ? "2px solid #f4a83a" : "2px solid transparent", background: "none", border: "none", cursor: "pointer" }) as React.CSSProperties,
   section: { background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 10, marginBottom: 16, overflow: "hidden" } as React.CSSProperties,
   ruleRow: { display: "flex", alignItems: "center", gap: 12, padding: "12px 18px", borderBottom: "1px solid var(--border)" } as React.CSSProperties,
-  sevDot: (sev: string) => ({ width: 8, height: 8, borderRadius: "50%", background: SEV_COLORS[sev] || "#9CA3AF", flexShrink: 0 }) as React.CSSProperties,
+  sevDot: (sev: string) => ({ width: 8, height: 8, borderRadius: "50%", background: SEV_COLORS[sev] || "var(--ink-soft)", flexShrink: 0 }) as React.CSSProperties,
   ruleInfo: { flex: 1 } as React.CSSProperties,
   ruleName: { fontSize: "var(--text-xs)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)" } as React.CSSProperties,
   ruleDesc: { fontSize: 11, color: "var(--text-muted)", marginTop: 1 } as React.CSSProperties,
@@ -64,8 +64,8 @@ const S = {
     display: "inline-flex", alignItems: "center", justifyContent: "center",
     minWidth: 20, height: 18, padding: "0 5px", borderRadius: 9,
     fontSize: 11, fontWeight: 700,
-    background: `${SEV_COLORS[sev] || "#9CA3AF"}18`,
-    color: SEV_COLORS[sev] || "#9CA3AF",
+    background: `${SEV_COLORS[sev] || "var(--ink-soft)"}18`,
+    color: SEV_COLORS[sev] || "var(--ink-soft)",
   }) as React.CSSProperties,
   summaryBar: { display: "flex", gap: 16, marginBottom: 20, fontSize: "var(--text-xs)" } as React.CSSProperties,
   summaryItem: (color: string) => ({ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 8, borderLeft: `3px solid ${color}` }) as React.CSSProperties,
@@ -159,16 +159,16 @@ export default function FlagRules({ projectId, scenarioId, onRoleClick }: Props)
 
       {/* Summary */}
       <div style={S.summaryBar}>
-        <div style={S.summaryItem("#e87a5d")}>
-          <span style={{ fontSize: "var(--text-base)", fontWeight: "var(--fw-bold)", color: "#e87a5d" }}>{errorCount}</span>
+        <div style={S.summaryItem("var(--coral)")}>
+          <span style={{ fontSize: "var(--text-base)", fontWeight: "var(--fw-bold)", color: "var(--coral)" }}>{errorCount}</span>
           <span style={{ color: "var(--text-muted)" }}>Errors</span>
         </div>
-        <div style={S.summaryItem("#f4a83a")}>
-          <span style={{ fontSize: "var(--text-base)", fontWeight: "var(--fw-bold)", color: "#f4a83a" }}>{warnCount}</span>
+        <div style={S.summaryItem("var(--amber)")}>
+          <span style={{ fontSize: "var(--text-base)", fontWeight: "var(--fw-bold)", color: "var(--amber)" }}>{warnCount}</span>
           <span style={{ color: "var(--text-muted)" }}>Warnings</span>
         </div>
-        <div style={S.summaryItem("#f4a83a")}>
-          <span style={{ fontSize: "var(--text-base)", fontWeight: "var(--fw-bold)", color: "#f4a83a" }}>{infoCount}</span>
+        <div style={S.summaryItem("var(--amber)")}>
+          <span style={{ fontSize: "var(--text-base)", fontWeight: "var(--fw-bold)", color: "var(--amber)" }}>{infoCount}</span>
           <span style={{ color: "var(--text-muted)" }}>Info</span>
         </div>
       </div>
@@ -209,7 +209,7 @@ export default function FlagRules({ projectId, scenarioId, onRoleClick }: Props)
                     <div style={{ flex: 1, color: "var(--text-secondary)" }}>
                       {v.detail}
                     </div>
-                    <button style={{ ...S.suppressBtn, color: "#f4a83a" }}
+                    <button style={{ ...S.suppressBtn, color: "var(--amber)" }}
                       onClick={() => onRoleClick?.(v.role_id)}>
                       View
                     </button>
@@ -217,7 +217,7 @@ export default function FlagRules({ projectId, scenarioId, onRoleClick }: Props)
                       <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                         <input style={{ ...S.thresholdInput, width: 160 }} value={suppressNote}
                           onChange={e => setSuppressNote(e.target.value)} placeholder="Required: reason for exception" autoFocus />
-                        <button style={{ ...S.suppressBtn, color: "#8ba87a" }} onClick={() => suppressViolation(v.id)} disabled={!suppressNote.trim()}>
+                        <button style={{ ...S.suppressBtn, color: "var(--sage)" }} onClick={() => suppressViolation(v.id)} disabled={!suppressNote.trim()}>
                           <Check size={10} />
                         </button>
                         <button style={S.suppressBtn} onClick={() => { setSuppressingId(null); setSuppressNote(""); }}>
@@ -259,7 +259,7 @@ export default function FlagRules({ projectId, scenarioId, onRoleClick }: Props)
               </span>
               <button style={S.toggleBtn} onClick={() => toggleRule(rule.id, !rule.enabled)}>
                 {rule.enabled
-                  ? <ToggleRight size={20} style={{ color: "#8ba87a" }} />
+                  ? <ToggleRight size={20} style={{ color: "var(--sage)" }} />
                   : <ToggleLeft size={20} style={{ color: "var(--text-muted)" }} />}
               </button>
             </div>

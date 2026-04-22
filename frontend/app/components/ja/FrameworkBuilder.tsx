@@ -72,17 +72,17 @@ const S = {
   input: { flex: 1, padding: "6px 10px", fontSize: "var(--text-xs)", background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 6, color: "var(--text-primary)", outline: "none" } as React.CSSProperties,
   inputSm: { width: 80, padding: "6px 8px", fontSize: "var(--text-xs)", background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 6, color: "var(--text-primary)", outline: "none", textAlign: "center" as const } as React.CSSProperties,
   btn: { display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 12px", fontSize: "var(--text-xs)", fontWeight: "var(--fw-medium)", border: "1px solid var(--border)", borderRadius: 6, background: "var(--surface-2)", color: "var(--text-secondary)", cursor: "pointer" } as React.CSSProperties,
-  btnPrimary: { display: "inline-flex", alignItems: "center", gap: 4, padding: "8px 16px", fontSize: "var(--text-xs)", fontWeight: "var(--fw-semi)", border: "none", borderRadius: 6, background: "#f4a83a", color: "#fff", cursor: "pointer" } as React.CSSProperties,
+  btnPrimary: { display: "inline-flex", alignItems: "center", gap: 4, padding: "8px 16px", fontSize: "var(--text-xs)", fontWeight: "var(--fw-semi)", border: "none", borderRadius: 6, background: "var(--amber)", color: "#fff", cursor: "pointer" } as React.CSSProperties,
   btnDanger: { display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 8px", fontSize: 11, border: "none", borderRadius: 4, background: "transparent", color: "var(--text-muted)", cursor: "pointer" } as React.CSSProperties,
   chip: { display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 10px", fontSize: 11, background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 12, color: "var(--text-secondary)" } as React.CSSProperties,
   indent: { marginLeft: 28 } as React.CSSProperties,
   indent2: { marginLeft: 56 } as React.CSSProperties,
   dimLabel: { fontSize: 11, fontWeight: "var(--fw-medium)", color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.05em" } as React.CSSProperties,
-  tab: (active: boolean) => ({ padding: "8px 16px", fontSize: "var(--text-xs)", fontWeight: active ? "var(--fw-semi)" : "var(--fw-medium)", color: active ? "#f4a83a" : "var(--text-muted)", borderBottom: active ? "2px solid #f4a83a" : "2px solid transparent", background: "none", border: "none", cursor: "pointer" }) as React.CSSProperties,
+  tab: (active: boolean) => ({ padding: "8px 16px", fontSize: "var(--text-xs)", fontWeight: active ? "var(--fw-semi)" : "var(--fw-medium)", color: active ? "var(--amber)" : "var(--text-muted)", borderBottom: active ? "2px solid #f4a83a" : "2px solid transparent", background: "none", border: "none", cursor: "pointer" }) as React.CSSProperties,
   gridCell: { padding: "8px 10px", fontSize: "var(--text-xs)", color: "var(--text-secondary)", border: "1px solid var(--border)", background: "var(--surface-2)", borderRadius: 4, minHeight: 60, resize: "vertical" as const, width: "100%", outline: "none", fontFamily: "inherit" } as React.CSSProperties,
-  gridHeader: { padding: "8px 10px", fontSize: 11, fontWeight: "var(--fw-semi)", color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.04em", background: "#161822", borderRadius: 4, textAlign: "center" as const } as React.CSSProperties,
+  gridHeader: { padding: "8px 10px", fontSize: 11, fontWeight: "var(--fw-semi)", color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.04em", background: "var(--paper-solid)", borderRadius: 4, textAlign: "center" as const } as React.CSSProperties,
   trackBadge: (code: string) => {
-    const colors: Record<string, string> = { P: "#f4a83a", T: "#a78bb8", M: "#a78bb8", E: "#DC2626", S: "#14B8A6" };
+    const colors: Record<string, string> = { P: "var(--amber)", T: "var(--dusk)", M: "var(--dusk)", E: "var(--coral)", S: "var(--sage)" };
     return { display: "inline-flex", alignItems: "center", justifyContent: "center", width: 24, height: 24, borderRadius: 4, fontSize: 11, fontWeight: 700, color: "#fff", background: colors[code] || "var(--surface-2)" } as React.CSSProperties;
   },
 };

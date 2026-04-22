@@ -157,7 +157,7 @@ Paragraph 6 (RECOMMENDATION): Is this scenario right, and what are the specific 
               {[
                 { icon: "💰", label: `$${(totals.savings / 1000000).toFixed(1)}M`, sub: "savings/yr", color: "var(--success)" },
                 { icon: "📈", label: `${roi}x`, sub: "ROI", color: "var(--accent-primary)" },
-                { icon: "⏱️", label: `${breakEven}mo`, sub: "payback", color: "#0EA5E9" },
+                { icon: "⏱️", label: `${breakEven}mo`, sub: "payback", color: "var(--amber)" },
               ].map(b => <div key={b.sub} className="rounded-xl px-4 py-2.5 text-center" style={{ background: `${b.color}08`, border: `1px solid ${b.color}20` }}>
                 <div className="text-[11px] opacity-60">{b.icon}</div>
                 <div className="text-[18px] font-extrabold" style={{ color: b.color, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>{b.label}</div>
@@ -170,7 +170,7 @@ Paragraph 6 (RECOMMENDATION): Is this scenario right, and what are the specific 
 
         {/* ═══ THREE INSIGHT CARDS ═══ */}
         <div className="grid grid-cols-3 gap-4">
-          <div className="rounded-xl p-4 border-l-3" style={{ borderLeft: "3px solid #0EA5E9", background: "var(--surface-1)", boxShadow: "var(--shadow-1)" }}>
+          <div className="rounded-xl p-4 border-l-3" style={{ borderLeft: "3px solid var(--amber)", background: "var(--surface-1)", boxShadow: "var(--shadow-1)" }}>
             <div className="flex items-center gap-2 mb-2"><span className="text-[16px]">⚡</span><span className="text-[14px] font-bold text-[var(--text-primary)]">Impact</span></div>
             <div className="text-[14px] text-[var(--text-secondary)] leading-relaxed">{totals.rel.toLocaleString()} hrs/month freed across {activeJobs.length} roles</div>
             <div className="text-[13px] text-[var(--text-muted)] mt-1" style={{fontFamily: "'JetBrains Mono', monospace", fontWeight: 700}}>{totals.fte.toFixed(1)} FTE equivalents → strategic work</div>
@@ -517,7 +517,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
           {[
             { label: "Annual Savings", value: fmtNum(totals.savings), color: "var(--success)", icon: "💰" },
             { label: "ROI", value: `${totals.savings > 0 ? (totals.savings / Math.max(totalInv, 1)).toFixed(1) : "0"}x`, color: "var(--accent-primary)", icon: "📈" },
-            { label: "Payback", value: breakEven <= 36 ? `${breakEven}mo` : "36+", color: "#0EA5E9", icon: "⏱️" },
+            { label: "Payback", value: breakEven <= 36 ? `${breakEven}mo` : "36+", color: "var(--amber)", icon: "⏱️" },
             { label: "FTEs Impacted", value: totals.fte.toFixed(1), color: "var(--purple)", icon: "👥" },
             { label: "Risk Level", value: totalPct > ADOPTION_HIGH_THRESHOLD ? "High" : totalPct > ADOPTION_LOW_THRESHOLD ? "Medium" : "Low", color: totalPct > ADOPTION_HIGH_THRESHOLD ? "var(--risk)" : totalPct > ADOPTION_LOW_THRESHOLD ? "var(--warning)" : "var(--success)", icon: totalPct > ADOPTION_HIGH_THRESHOLD ? "🔴" : totalPct > ADOPTION_LOW_THRESHOLD ? "🟡" : "🟢" },
           ].map(k => <div key={k.label} className="text-center">
@@ -588,7 +588,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
               {[
                 { label: "Technology & Tools", pct: 40, amount: Math.round(totalInv * 0.4), color: "var(--purple)" },
                 { label: "Reskilling Programs", pct: 25, amount: Math.round(totalInv * 0.25), color: "var(--accent-primary)" },
-                { label: "Change Management", pct: 20, amount: Math.round(totalInv * 0.2), color: "#0EA5E9" },
+                { label: "Change Management", pct: 20, amount: Math.round(totalInv * 0.2), color: "var(--amber)" },
                 { label: "Hiring & Transition", pct: 15, amount: Math.round(totalInv * 0.15), color: "var(--success)" },
               ].map(item => <div key={item.label}>
                 <div className="flex justify-between text-[14px] mb-1"><span className="text-[var(--text-secondary)]">{item.label}</span><span className="font-bold font-data" style={{ color: item.color }}>${item.amount.toLocaleString()}</span></div>
@@ -603,7 +603,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
               {[
                 { label: "Automation Savings", pct: 50, amount: Math.round(totals.savings * 0.5), color: "var(--success)" },
                 { label: "Efficiency Gains", pct: 30, amount: Math.round(totals.savings * 0.3), color: "var(--accent-primary)" },
-                { label: "Headcount Optimization", pct: 20, amount: Math.round(totals.savings * 0.2), color: "#0EA5E9" },
+                { label: "Headcount Optimization", pct: 20, amount: Math.round(totals.savings * 0.2), color: "var(--amber)" },
               ].map(item => <div key={item.label}>
                 <div className="flex justify-between text-[14px] mb-1"><span className="text-[var(--text-secondary)]">{item.label}</span><span className="font-bold font-data" style={{ color: item.color }}>${item.amount.toLocaleString()}</span></div>
                 <div className="h-2 bg-[var(--surface-2)] rounded-full overflow-hidden"><div className="h-full rounded-full" style={{ width: `${item.pct}%`, background: item.color }} /></div>
@@ -620,7 +620,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
               { label: "Annual Savings", val: `$${(totals.savings / 1000000).toFixed(1)}M`, color: "var(--success)" },
               { label: "Net Year 1", val: `$${((totals.savings - totalInv) / 1000000).toFixed(1)}M`, color: totals.savings - totalInv > 0 ? "var(--success)" : "var(--risk)" },
               { label: "3-Year NPV", val: `$${(threeYearNet / 1000000).toFixed(1)}M`, color: "var(--success)" },
-              { label: "Payback", val: `${breakEven}mo`, color: "#0EA5E9" },
+              { label: "Payback", val: `${breakEven}mo`, color: "var(--amber)" },
               { label: "ROI", val: `${totals.savings > 0 ? (totals.savings / Math.max(totalInv, 1)).toFixed(1) : "0.0"}x`, color: "var(--accent-primary)" },
             ].map(k => <div key={k.label} className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[11px] text-[var(--text-muted)] uppercase mb-1">{k.label}</div><div className="text-[20px] font-extrabold" style={{ color: k.color, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>{k.val}</div></div>)}
           </div>
@@ -1088,7 +1088,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
             },
           };
           const sel = changes[selectedChange];
-          const typeColors: Record<string, string> = { "👥 People": "#0891B2", "📊 Org": "var(--purple)", "🏢 Shared Svc": "var(--accent-primary)", "⚙️ Process": "var(--warning)", "💰 Finance": "var(--success)", "🛡️ Compliance": "var(--risk)", "🔄 Change": "var(--warning)" };
+          const typeColors: Record<string, string> = { "👥 People": "var(--amber)", "📊 Org": "var(--purple)", "🏢 Shared Svc": "var(--accent-primary)", "⚙️ Process": "var(--warning)", "💰 Finance": "var(--success)", "🛡️ Compliance": "var(--risk)", "🔄 Change": "var(--warning)" };
           return <div>
             <div className="flex gap-2 mb-5">{Object.entries(changes).map(([k, v]) => <button key={k} onClick={() => setSelectedChange(k)} className="px-4 py-2 rounded-xl text-[14px] font-semibold transition-all" style={{ background: selectedChange === k ? "rgba(244,168,58,0.12)" : "var(--surface-2)", color: selectedChange === k ? "var(--accent-primary)" : "var(--text-muted)", border: selectedChange === k ? "1px solid rgba(244,168,58,0.3)" : "1px solid var(--border)" }}>{v.label}</button>)}</div>
             {sel && <div className="space-y-4">
@@ -1421,7 +1421,7 @@ function NegotiateTab({ projectId, model, savedScenarios, setSavedScenarios }: {
 
       {/* Section 3: Actions */}
       <div className="flex items-center gap-3">
-        <button onClick={saveAsScenario} className="px-5 py-2.5 rounded-xl text-[14px] font-bold text-white" style={{ background: "linear-gradient(135deg, var(--success), #059669)" }}>Save as Scenario</button>
+        <button onClick={saveAsScenario} className="px-5 py-2.5 rounded-xl text-[14px] font-bold text-white" style={{ background: "linear-gradient(135deg, var(--success), var(--sage))" }}>Save as Scenario</button>
         <button onClick={() => setResult(null)} className="px-5 py-2.5 rounded-xl text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--accent-primary)]">Reset to Default</button>
       </div>
     </>}
@@ -1596,7 +1596,7 @@ function StressTestTab({ projectId, model }: { projectId: string; model: string 
         </div>
 
         <div className="flex justify-end pt-2">
-          <button onClick={runTest} disabled={loading || !description.trim()} className="px-6 py-2.5 rounded-xl text-[14px] font-bold text-white transition-all hover:scale-[1.02] disabled:opacity-40" style={{ background: "linear-gradient(135deg, var(--risk), #DC2626)" }}>
+          <button onClick={runTest} disabled={loading || !description.trim()} className="px-6 py-2.5 rounded-xl text-[14px] font-bold text-white transition-all hover:scale-[1.02] disabled:opacity-40" style={{ background: "linear-gradient(135deg, var(--risk), var(--coral))" }}>
             {loading ? "Modeling..." : "Run Stress Test →"}
           </button>
         </div>

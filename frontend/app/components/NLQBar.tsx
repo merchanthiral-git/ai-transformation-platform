@@ -120,7 +120,7 @@ export function NLQBar({ projectId, modelId, currentModule }: { projectId: strin
     {/* Search bar — primary interactive element */}
     <form onSubmit={handleSubmit} className="relative">
       <div style={{
-        position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", fontSize: 18, color: focused ? "#f4a83a" : "rgba(244,168,58,0.5)", transition: "color 0.15s", zIndex: 2, pointerEvents: "none",
+        position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", fontSize: 18, color: focused ? "var(--amber)" : "rgba(244,168,58,0.5)", transition: "color 0.15s", zIndex: 2, pointerEvents: "none",
       }}>⌕</div>
       <input
         ref={inputRef}

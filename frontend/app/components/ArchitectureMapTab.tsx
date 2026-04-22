@@ -46,7 +46,7 @@ type ColorMetric = "headcount" | "ai_impact" | "tenure_risk" | "vacancy";
    ═══════════════════════════════════════════════════════════════ */
 
 const TC = ["var(--accent-primary)", "var(--teal)", "var(--warning)", "var(--teal)", "var(--teal)", "var(--amber)", "#8B6914", "#6B8E6B"];
-const trackColor = (t: string) => t === "Executive" ? "var(--surface-2)" : t === "Manager" ? "var(--accent-primary)" : t === "IC" ? "#4A9E6B" : "var(--teal)";
+const trackColor = (t: string) => t === "Executive" ? "var(--surface-2)" : t === "Manager" ? "var(--accent-primary)" : t === "IC" ? "var(--sage)" : "var(--teal)";
 const trackBg = (t: string) => t === "Executive" ? "rgba(26,35,64,0.15)" : t === "Manager" ? "rgba(244,168,58,0.12)" : "rgba(74,158,107,0.12)";
 const aiDot = (impact: string) => impact === "High" ? "var(--risk)" : impact === "Moderate" ? "var(--warning)" : "var(--success)";
 
@@ -104,7 +104,7 @@ function getNodeColor(node: TreeNode, metric: ColorMetric, jobs: Job[], employee
   if (metric === "headcount") {
     if (node.headcount > 50) return "var(--accent-primary)";
     if (node.headcount > 20) return "var(--warning)";
-    if (node.headcount > 5) return "#4A9E6B";
+    if (node.headcount > 5) return "var(--sage)";
     return "#6B8E6B";
   }
   if (metric === "ai_impact") {
@@ -328,10 +328,10 @@ function FutureStateNode({ node, depth, onRename, onDelete, onAddChild, onSunset
 function MappingLine({ mapping, index }: { mapping: Mapping; index: number }) {
   const lineStyle = (() => {
     switch (mapping.type) {
-      case "one-to-one": return { stroke: "#4A9E6B", strokeDasharray: "none" };
-      case "one-to-many": return { stroke: "#f4a83a", strokeDasharray: "6 4" };
+      case "one-to-one": return { stroke: "var(--sage)", strokeDasharray: "none" };
+      case "one-to-many": return { stroke: "var(--amber)", strokeDasharray: "6 4" };
       case "many-to-one": return { stroke: "var(--warning)", strokeDasharray: "6 4" };
-      case "new": return { stroke: "#4A9E6B", strokeDasharray: "none" };
+      case "new": return { stroke: "var(--sage)", strokeDasharray: "none" };
       case "sunset": return { stroke: "var(--risk)", strokeDasharray: "4 4" };
       default: return { stroke: "#666", strokeDasharray: "none" };
     }
@@ -817,12 +817,12 @@ export function ArchitectureMapTab({ tree, jobs, employees, model }: {
     {/* ── ARCHITECTURE OVERVIEW BAR (dual — Current vs Proposed) ── */}
     <div style={{ marginBottom: 16, background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 12, padding: 12 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-        <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b" }}>Architecture Overview</span>
-        <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: "#64748b" }}>{jobs.length} roles · {orgHC.toLocaleString()} people · {tree.length} functions</span>
+        <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--ink-faint)" }}>Architecture Overview</span>
+        <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: "var(--ink-faint)" }}>{jobs.length} roles · {orgHC.toLocaleString()} people · {tree.length} functions</span>
       </div>
       {/* Current bar */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-        <span style={{ fontSize: 11, fontWeight: 600, color: "#64748b", width: 56, textAlign: "right" }}>Current</span>
+        <span style={{ fontSize: 11, fontWeight: 600, color: "var(--ink-faint)", width: 56, textAlign: "right" }}>Current</span>
         <div style={{ flex: 1, display: "flex", gap: 2, height: 28 }}>
           {treemapData.map(d => {
             const pct = orgHC > 0 ? Math.max(d.size / orgHC * 100, 4) : 10;
@@ -837,14 +837,14 @@ export function ArchitectureMapTab({ tree, jobs, employees, model }: {
         const futureHC = futureTree.reduce((s, t) => s + t.headcount, 0) || orgHC;
         const futureData = futureTree.filter(t => !t.sunset && t.headcount > 0).map((t, i) => ({ name: t.label, size: t.headcount, fill: TC[i % TC.length] }));
         return <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 11, fontWeight: 600, color: "#64748b", width: 56, textAlign: "right" }}>Proposed</span>
+          <span style={{ fontSize: 11, fontWeight: 600, color: "var(--ink-faint)", width: 56, textAlign: "right" }}>Proposed</span>
           <div style={{ flex: 1, display: "flex", gap: 2, height: 28 }}>
             {futureData.length > 0 ? futureData.map(d => {
               const pct = futureHC > 0 ? Math.max(d.size / futureHC * 100, 4) : 10;
               return <div key={d.name} style={{ background: d.fill, flex: pct, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", opacity: 0.7 }} title={`${d.name}: ${d.size.toLocaleString()} proposed`}>
                 <span style={{ fontSize: pct > 12 ? 9 : 7, fontWeight: 700, color: "#fff", textShadow: "0 1px 2px rgba(0,0,0,0.5)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", padding: "0 2px" }}>{d.name}</span>
               </div>;
-            }) : <div style={{ flex: 1, height: 28, borderRadius: 4, border: "1px dashed rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "#64748b" }}>Design your future state in the right panel</div>}
+            }) : <div style={{ flex: 1, height: 28, borderRadius: 4, border: "1px dashed rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "var(--ink-faint)" }}>Design your future state in the right panel</div>}
           </div>
         </div>;
       })()}
@@ -853,14 +853,14 @@ export function ArchitectureMapTab({ tree, jobs, employees, model }: {
     {/* ── TOOLBAR ── */}
     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-        <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b" }}>Color:</span>
-        {(["headcount", "ai_impact", "tenure_risk", "vacancy"] as ColorMetric[]).map(m => <button key={m} onClick={() => setColorMetric(m)} style={{ padding: "3px 8px", borderRadius: 6, fontSize: 11, fontWeight: 600, border: "1px solid " + (colorMetric === m ? "var(--accent-primary)" : "var(--border)"), background: colorMetric === m ? "var(--accent-primary)" : "transparent", color: colorMetric === m ? "#fff" : "#64748b", cursor: "pointer" }}>{m === "headcount" ? "HC" : m === "ai_impact" ? "AI" : m === "tenure_risk" ? "Tenure" : "Vacancy"}</button>)}
+        <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--ink-faint)" }}>Color:</span>
+        {(["headcount", "ai_impact", "tenure_risk", "vacancy"] as ColorMetric[]).map(m => <button key={m} onClick={() => setColorMetric(m)} style={{ padding: "3px 8px", borderRadius: 6, fontSize: 11, fontWeight: 600, border: "1px solid " + (colorMetric === m ? "var(--accent-primary)" : "var(--border)"), background: colorMetric === m ? "var(--accent-primary)" : "transparent", color: colorMetric === m ? "#fff" : "var(--ink-faint)", cursor: "pointer" }}>{m === "headcount" ? "HC" : m === "ai_impact" ? "AI" : m === "tenure_risk" ? "Tenure" : "Vacancy"}</button>)}
       </div>
       <div style={{ flex: 1 }} />
-      <button onClick={() => { setMappingMode(!mappingMode); setMappingFrom(null); }} style={{ padding: "4px 12px", borderRadius: 8, fontSize: 12, fontWeight: 600, background: mappingMode ? "#f4a83a" : "transparent", color: mappingMode ? "#fff" : "#64748b", border: mappingMode ? "none" : "1px solid var(--border)", cursor: "pointer" }}>{mappingMode ? (mappingFrom ? "Select future role..." : "Select current role...") : "Mapping Mode"}</button>
-      <button onClick={undo} disabled={historyIdx <= 0} style={{ padding: "4px 8px", borderRadius: 6, fontSize: 12, fontWeight: 600, color: historyIdx > 0 ? "#64748b" : "#334155", border: "1px solid var(--border)", background: "transparent", cursor: historyIdx > 0 ? "pointer" : "not-allowed" }}>Undo</button>
-      <button onClick={redo} disabled={historyIdx >= history.length - 1} style={{ padding: "4px 8px", borderRadius: 6, fontSize: 12, fontWeight: 600, color: historyIdx < history.length - 1 ? "#64748b" : "#334155", border: "1px solid var(--border)", background: "transparent", cursor: historyIdx < history.length - 1 ? "pointer" : "not-allowed" }}>Redo</button>
-      <button onClick={resetFuture} style={{ padding: "4px 8px", borderRadius: 6, fontSize: 12, fontWeight: 600, color: "#64748b", border: "1px solid var(--border)", background: "transparent", cursor: "pointer" }}>Reset</button>
+      <button onClick={() => { setMappingMode(!mappingMode); setMappingFrom(null); }} style={{ padding: "4px 12px", borderRadius: 8, fontSize: 12, fontWeight: 600, background: mappingMode ? "var(--amber)" : "transparent", color: mappingMode ? "#fff" : "var(--ink-faint)", border: mappingMode ? "none" : "1px solid var(--border)", cursor: "pointer" }}>{mappingMode ? (mappingFrom ? "Select future role..." : "Select current role...") : "Mapping Mode"}</button>
+      <button onClick={undo} disabled={historyIdx <= 0} style={{ padding: "4px 8px", borderRadius: 6, fontSize: 12, fontWeight: 600, color: historyIdx > 0 ? "var(--ink-faint)" : "#334155", border: "1px solid var(--border)", background: "transparent", cursor: historyIdx > 0 ? "pointer" : "not-allowed" }}>Undo</button>
+      <button onClick={redo} disabled={historyIdx >= history.length - 1} style={{ padding: "4px 8px", borderRadius: 6, fontSize: 12, fontWeight: 600, color: historyIdx < history.length - 1 ? "var(--ink-faint)" : "#334155", border: "1px solid var(--border)", background: "transparent", cursor: historyIdx < history.length - 1 ? "pointer" : "not-allowed" }}>Redo</button>
+      <button onClick={resetFuture} style={{ padding: "4px 8px", borderRadius: 6, fontSize: 12, fontWeight: 600, color: "var(--ink-faint)", border: "1px solid var(--border)", background: "transparent", cursor: "pointer" }}>Reset</button>
     </div>
 
     {/* ── THREE-PANEL WORKSPACE ── */}
@@ -870,7 +870,7 @@ export function ArchitectureMapTab({ tree, jobs, employees, model }: {
       <div style={{ background: "rgba(0,0,0,0.1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden", display: "flex", flexDirection: "column" }}>
         <div style={{ padding: "10px 12px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <span style={{ fontSize: 12, fontWeight: 700, color: "var(--text-primary)" }}>Current State</span>
-          <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: "#64748b" }}>{orgHC.toLocaleString()} people</span>
+          <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: "var(--ink-faint)" }}>{orgHC.toLocaleString()} people</span>
         </div>
         <div style={{ flex: 1, overflowY: "auto", padding: 8, maxHeight: "60vh" }} onClick={() => { if (mappingMode && currentSelected) handleMappingClick("current", currentSelected); }}>
           {tree.length === 0 ? <Empty text="No architecture data" icon={<FileText />} /> :
@@ -887,24 +887,24 @@ export function ArchitectureMapTab({ tree, jobs, employees, model }: {
       {/* CENTER: Mapping Panel */}
       <div style={{ background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden", display: "flex", flexDirection: "column" }}>
         <div style={{ padding: "10px 8px", borderBottom: "1px solid rgba(255,255,255,0.06)", textAlign: "center" }}>
-          <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b" }}>Mapping</span>
+          <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--ink-faint)" }}>Mapping</span>
         </div>
         {/* Mapping type buttons */}
         <div style={{ padding: "8px 6px", display: "flex", flexDirection: "column", gap: 4 }}>
           {[
-            { type: "one-to-one", label: "1:1 Continue", color: "#f4a83a" },
-            { type: "one-to-many", label: "Split 1:Many", color: "#a78bb8" },
-            { type: "many-to-one", label: "Merge Many:1", color: "#f4a83a" },
-            { type: "new", label: "New Role", color: "#8ba87a" },
-            { type: "sunset", label: "Sunset", color: "#e87a5d" },
-          ].map(btn => <button key={btn.type} disabled={!mappingMode} style={{ padding: "5px 8px", borderRadius: 6, fontSize: 11, fontWeight: 600, border: `1px solid ${btn.color}30`, background: `${btn.color}08`, color: mappingMode ? btn.color : "#475569", cursor: mappingMode ? "pointer" : "not-allowed", opacity: mappingMode ? 1 : 0.5, transition: "all 0.15s" }}>{btn.label}</button>)}
+            { type: "one-to-one", label: "1:1 Continue", color: "var(--amber)" },
+            { type: "one-to-many", label: "Split 1:Many", color: "var(--dusk)" },
+            { type: "many-to-one", label: "Merge Many:1", color: "var(--amber)" },
+            { type: "new", label: "New Role", color: "var(--sage)" },
+            { type: "sunset", label: "Sunset", color: "var(--coral)" },
+          ].map(btn => <button key={btn.type} disabled={!mappingMode} style={{ padding: "5px 8px", borderRadius: 6, fontSize: 11, fontWeight: 600, border: `1px solid ${btn.color}30`, background: `${btn.color}08`, color: mappingMode ? btn.color : "var(--ink-faint)", cursor: mappingMode ? "pointer" : "not-allowed", opacity: mappingMode ? 1 : 0.5, transition: "all 0.15s" }}>{btn.label}</button>)}
         </div>
         {/* Existing mappings */}
         <div style={{ flex: 1, overflowY: "auto", padding: "0 6px", maxHeight: "40vh" }}>
-          {mappings.length === 0 ? <div style={{ textAlign: "center", padding: 16, color: "#64748b", fontSize: 11 }}>No mappings yet</div> : <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>{mappings.map((m, i) => <MappingLine key={m.id} mapping={m} index={i} />)}</div>}
+          {mappings.length === 0 ? <div style={{ textAlign: "center", padding: 16, color: "var(--ink-faint)", fontSize: 11 }}>No mappings yet</div> : <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>{mappings.map((m, i) => <MappingLine key={m.id} mapping={m} index={i} />)}</div>}
         </div>
         {/* Summary */}
-        <div style={{ padding: "8px 6px", borderTop: "1px solid rgba(255,255,255,0.06)", fontSize: 11, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: "#64748b", textAlign: "center" }}>
+        <div style={{ padding: "8px 6px", borderTop: "1px solid rgba(255,255,255,0.06)", fontSize: 11, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: "var(--ink-faint)", textAlign: "center" }}>
           {mappings.length} mapped · {Math.max(0, jobs.length - mappings.length)} unmapped
         </div>
       </div>
@@ -914,17 +914,17 @@ export function ArchitectureMapTab({ tree, jobs, employees, model }: {
         <div style={{ padding: "10px 12px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div>
             <span style={{ fontSize: 12, fontWeight: 700, color: "var(--text-primary)" }}>Future State</span>
-            <span style={{ fontSize: 11, color: "#64748b", marginLeft: 8 }}>Editable · Right-click for options</span>
+            <span style={{ fontSize: 11, color: "var(--ink-faint)", marginLeft: 8 }}>Editable · Right-click for options</span>
           </div>
-          <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: "#64748b" }}>{countNodesRecursive(futureTree)} nodes</span>
+          <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: "var(--ink-faint)" }}>{countNodesRecursive(futureTree)} nodes</span>
         </div>
         <div style={{ flex: 1, overflowY: "auto", padding: 8, maxHeight: "60vh" }} onClick={() => { if (mappingMode && futureSelected) handleMappingClick("future", futureSelected); }}>
           {futureTree.length === 0 ? <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", minHeight: 300, gap: 12, textAlign: "center" }}>
             <div style={{ fontSize: 32, opacity: 0.3 }}>🏗️</div>
             <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>Design your future architecture</div>
             <div style={{ display: "flex", gap: 8 }}>
-              <button onClick={resetFuture} style={{ padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600, background: "#f4a83a", color: "#fff", border: "none", cursor: "pointer" }}>Copy Current State</button>
-              <button onClick={() => showToast("Start adding roles manually")} style={{ padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600, background: "transparent", color: "#64748b", border: "1px solid var(--border)", cursor: "pointer" }}>Start from Scratch</button>
+              <button onClick={resetFuture} style={{ padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600, background: "var(--amber)", color: "#fff", border: "none", cursor: "pointer" }}>Copy Current State</button>
+              <button onClick={() => showToast("Start adding roles manually")} style={{ padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600, background: "transparent", color: "var(--ink-faint)", border: "1px solid var(--border)", cursor: "pointer" }}>Start from Scratch</button>
             </div>
           </div> :
             futureTree.map(func => <FutureStateNode key={func.id} node={func} depth={0}
@@ -942,16 +942,16 @@ export function ArchitectureMapTab({ tree, jobs, employees, model }: {
     <div style={{ marginTop: 12, padding: "10px 16px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 12, display: "flex", alignItems: "center", gap: 24 }}>
       <div style={{ flex: 1 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
-          <span style={{ fontSize: 11, color: "#64748b" }}>Mapping Progress</span>
+          <span style={{ fontSize: 11, color: "var(--ink-faint)" }}>Mapping Progress</span>
           <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: "var(--text-primary)" }}>{mappings.length}/{jobs.length} roles ({jobs.length > 0 ? Math.round(mappings.length / jobs.length * 100) : 0}%)</span>
         </div>
-        <div style={{ height: 4, borderRadius: 2, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}><div style={{ height: "100%", borderRadius: 2, background: "#f4a83a", transition: "width 0.3s", width: `${jobs.length > 0 ? (mappings.length / jobs.length * 100) : 0}%` }} /></div>
+        <div style={{ height: 4, borderRadius: 2, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}><div style={{ height: "100%", borderRadius: 2, background: "var(--amber)", transition: "width 0.3s", width: `${jobs.length > 0 ? (mappings.length / jobs.length * 100) : 0}%` }} /></div>
       </div>
-      <div style={{ fontSize: 11, color: "#64748b" }}>
+      <div style={{ fontSize: 11, color: "var(--ink-faint)" }}>
         {(() => {
           const futureHC = futureTree.reduce((s, t) => s + t.headcount, 0);
           const delta = futureHC - orgHC;
-          return <>Net HC: <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: "var(--text-primary)" }}>{orgHC.toLocaleString()}</span> → <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: delta < 0 ? "#8ba87a" : delta > 0 ? "#f4a83a" : "var(--text-primary)" }}>{futureHC.toLocaleString()}</span> <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: delta < 0 ? "#8ba87a" : delta > 0 ? "#f4a83a" : "#64748b" }}>({delta >= 0 ? "+" : ""}{delta.toLocaleString()}, {orgHC > 0 ? (delta / orgHC * 100).toFixed(1) : 0}%)</span></>;
+          return <>Net HC: <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: "var(--text-primary)" }}>{orgHC.toLocaleString()}</span> → <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: delta < 0 ? "var(--sage)" : delta > 0 ? "var(--amber)" : "var(--text-primary)" }}>{futureHC.toLocaleString()}</span> <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: delta < 0 ? "var(--sage)" : delta > 0 ? "var(--amber)" : "var(--ink-faint)" }}>({delta >= 0 ? "+" : ""}{delta.toLocaleString()}, {orgHC > 0 ? (delta / orgHC * 100).toFixed(1) : 0}%)</span></>;
         })()}
       </div>
     </div>

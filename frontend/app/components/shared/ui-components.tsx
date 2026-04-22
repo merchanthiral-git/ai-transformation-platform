@@ -198,7 +198,7 @@ const ANNO_COLORS = [
   { id: "amber", hex: "var(--accent-primary)", label: "Insight" },
   { id: "red", hex: "var(--risk)", label: "Risk" },
   { id: "green", hex: "var(--success)", label: "Opportunity" },
-  { id: "blue", hex: "#f4a83a", label: "Question" },
+  { id: "blue", hex: "var(--amber)", label: "Question" },
   { id: "purple", hex: "var(--purple)", label: "Action" },
 ];
 
@@ -509,7 +509,7 @@ export function Empty({ text, icon = "📭", action, onAction, subtitle, seconda
 }
 
 export function Badge({ children, color = "gray" }: { children: React.ReactNode; color?: string }) {
-  const s: Record<string, string> = { indigo: "bg-[rgba(244,168,58,0.15)] text-[var(--accent-primary)]", green: "bg-[rgba(139,168,122,0.15)] text-[var(--success)]", amber: "bg-[rgba(244,168,58,0.15)] text-[var(--warning)]", red: "bg-[rgba(232,122,93,0.15)] text-[var(--risk)]", purple: "bg-[rgba(167,139,184,0.15)] text-[var(--purple)]", gray: "bg-[rgba(163,177,198,0.12)] text-[var(--text-muted)]", teal: "bg-[rgba(14,165,233,0.15)] text-[#0EA5E9]" };
+  const s: Record<string, string> = { indigo: "bg-[rgba(244,168,58,0.15)] text-[var(--accent-primary)]", green: "bg-[rgba(139,168,122,0.15)] text-[var(--success)]", amber: "bg-[rgba(244,168,58,0.15)] text-[var(--warning)]", red: "bg-[rgba(232,122,93,0.15)] text-[var(--risk)]", purple: "bg-[rgba(167,139,184,0.15)] text-[var(--purple)]", gray: "bg-[rgba(163,177,198,0.12)] text-[var(--text-muted)]", teal: "bg-[rgba(14,165,233,0.15)] text-[var(--amber)]" };
   return <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[14px] font-semibold tracking-wide ${s[color] || s.gray}`}>{children}</span>;
 }
 
@@ -861,7 +861,7 @@ export function AiEspressoPanel({ moduleId, contextData, isGlobal = false }: { m
       <div className="space-y-1.5">
         {prompts.map((p, i) => <div key={i}>
           <button onClick={() => handlePromptClick(i)} className="w-full text-left px-3 py-2.5 rounded-xl text-[15px] transition-all flex items-center justify-between group" style={{ background: activePrompt === i ? "rgba(244,168,58,0.1)" : "var(--surface-2)", border: activePrompt === i ? "1px solid rgba(244,168,58,0.3)" : "1px solid var(--border)" }} onMouseEnter={e => { if (activePrompt !== i) e.currentTarget.style.borderColor = "rgba(244,168,58,0.15)"; }} onMouseLeave={e => { if (activePrompt !== i) e.currentTarget.style.borderColor = "var(--border)"; }}>
-            <span className="font-semibold" style={{ color: activePrompt === i ? "#f4a83a" : "var(--text-primary)" }}>{p.label}</span>
+            <span className="font-semibold" style={{ color: activePrompt === i ? "var(--amber)" : "var(--text-primary)" }}>{p.label}</span>
             <span className="text-[16px] opacity-0 group-hover:opacity-100 transition-opacity">{p.needsInput ? "✎" : "→"}</span>
           </button>
           {/* Input dialog for prompts that need user input */}
@@ -906,19 +906,19 @@ function PlaygroundIcon() {
     {/* Top bar */}
     <line x1="6" y1="2" x2="26" y2="2" stroke="rgba(255,255,255,0.4)" strokeWidth="1" strokeLinecap="round" />
     {/* Swing seat */}
-    <line x1="12" y1="17" x2="20" y2="17" stroke="#f4a83a" strokeWidth="1.5" strokeLinecap="round" />
+    <line x1="12" y1="17" x2="20" y2="17" stroke="var(--amber)" strokeWidth="1.5" strokeLinecap="round" />
     {/* Figure group — swings */}
     <g style={{ transformOrigin: "16px 2px", animation: "playgroundSwing 2.5s ease-in-out infinite alternate" }}>
       {/* Head */}
-      <circle cx="16" cy="9" r="2.5" fill="#f4a83a" />
+      <circle cx="16" cy="9" r="2.5" fill="var(--amber)" />
       {/* Body */}
-      <line x1="16" y1="11.5" x2="16" y2="17" stroke="#f4a83a" strokeWidth="1.2" strokeLinecap="round" />
+      <line x1="16" y1="11.5" x2="16" y2="17" stroke="var(--amber)" strokeWidth="1.2" strokeLinecap="round" />
       {/* Arms — holding ropes */}
-      <line x1="16" y1="13" x2="12" y2="10" stroke="#f4a83a" strokeWidth="1" strokeLinecap="round" />
-      <line x1="16" y1="13" x2="20" y2="10" stroke="#f4a83a" strokeWidth="1" strokeLinecap="round" />
+      <line x1="16" y1="13" x2="12" y2="10" stroke="var(--amber)" strokeWidth="1" strokeLinecap="round" />
+      <line x1="16" y1="13" x2="20" y2="10" stroke="var(--amber)" strokeWidth="1" strokeLinecap="round" />
       {/* Legs — extended forward on swing */}
-      <line x1="16" y1="17" x2="12" y2="21" stroke="#f4a83a" strokeWidth="1" strokeLinecap="round" />
-      <line x1="16" y1="17" x2="20" y2="21" stroke="#f4a83a" strokeWidth="1" strokeLinecap="round" />
+      <line x1="16" y1="17" x2="12" y2="21" stroke="var(--amber)" strokeWidth="1" strokeLinecap="round" />
+      <line x1="16" y1="17" x2="20" y2="21" stroke="var(--amber)" strokeWidth="1" strokeLinecap="round" />
     </g>
     {/* Swing frame legs */}
     <line x1="6" y1="2" x2="4" y2="28" stroke="rgba(255,255,255,0.3)" strokeWidth="0.8" />
@@ -951,8 +951,8 @@ export function AiEspressoButton({ moduleId, contextData, viewMode: vMode }: { m
         </div>
         {/* Mode toggle */}
         <div className="flex rounded-lg overflow-hidden border border-[var(--border)]">
-          <button onClick={() => setMode("module")} className="px-2.5 py-1 text-[15px] font-semibold transition-all" style={{ background: mode === "module" ? "rgba(244,168,58,0.15)" : "transparent", color: mode === "module" ? "#f4a83a" : "var(--text-muted)" }}>This Module</button>
-          <button onClick={() => setMode("global")} className="px-2.5 py-1 text-[15px] font-semibold transition-all" style={{ background: mode === "global" ? "rgba(244,168,58,0.15)" : "transparent", color: mode === "global" ? "#f4a83a" : "var(--text-muted)" }}>Full Platform</button>
+          <button onClick={() => setMode("module")} className="px-2.5 py-1 text-[15px] font-semibold transition-all" style={{ background: mode === "module" ? "rgba(244,168,58,0.15)" : "transparent", color: mode === "module" ? "var(--amber)" : "var(--text-muted)" }}>This Module</button>
+          <button onClick={() => setMode("global")} className="px-2.5 py-1 text-[15px] font-semibold transition-all" style={{ background: mode === "global" ? "rgba(244,168,58,0.15)" : "transparent", color: mode === "global" ? "var(--amber)" : "var(--text-muted)" }}>Full Platform</button>
         </div>
       </div>
 
@@ -1343,12 +1343,12 @@ export function ViewSelector({ onSelect, employees, jobs, filterOptions, onBack 
     { id: "org", icon: "🏢", title: "Organization", desc: "Full org analysis — all functions, roles, and employees", color: "var(--accent-primary)", ready: true },
     { id: "job", icon: "💼", title: "Job Focus", desc: "Deep dive into a single role", color: "var(--success)", ready: jobs.length > 0 },
     { id: "employee", icon: "👤", title: "Employee", desc: "One person's world — profile, org chart, impact", color: "var(--purple)", ready: employees.length > 0 },
-    { id: "custom", icon: "⚙️", title: "Custom Slice", desc: "Filter by function, family, level, or track", color: "#f4a83a", ready: true },
-    { id: "consultant", icon: "📋", title: "Consultant Guide", desc: "Guided pathway for external consultants — frameworks and deliverables", color: "#0891B2", ready: true },
-    { id: "hr", icon: "👥", title: "HR Professional Guide", desc: "Tailored for HR and People Analytics — workforce planning and talent strategy", color: "#EC4899", ready: true },
+    { id: "custom", icon: "⚙️", title: "Custom Slice", desc: "Filter by function, family, level, or track", color: "var(--amber)", ready: true },
+    { id: "consultant", icon: "📋", title: "Consultant Guide", desc: "Guided pathway for external consultants — frameworks and deliverables", color: "var(--amber)", ready: true },
+    { id: "hr", icon: "👥", title: "HR Professional Guide", desc: "Tailored for HR and People Analytics — workforce planning and talent strategy", color: "var(--coral)", ready: true },
   ];
 
-  return <div style={{ position: "fixed", inset: 0, overflow: "auto", background: "#161822", animation: "pageCrossfade 0.2s ease-out", willChange: "opacity" }}>
+  return <div style={{ position: "fixed", inset: 0, overflow: "auto", background: "var(--paper-solid)", animation: "pageCrossfade 0.2s ease-out", willChange: "opacity" }}>
     {/* Full bleed background */}
     <VideoBackground name="view_bg" overlay={0.2} poster={`${CDN_BASE}/view_bg.png`} fallbackGradient="linear-gradient(135deg, #161822 0%, #1a1530 35%, #0f1525 65%, #0a0f1a 100%)" className="absolute inset-0 w-full h-full" />
     <div style={{ position: "absolute", inset: 0, zIndex: 1, background: revealed ? "rgba(8,12,24,0.75)" : "radial-gradient(ellipse at center, rgba(8,12,24,0.2) 0%, rgba(8,12,24,0.5) 60%, rgba(8,12,24,0.7) 100%)", transition: "background 0.6s ease", width: "100%", height: "100%" }} />
@@ -1744,7 +1744,7 @@ Return ONLY valid JSON in this exact format:
           <div className="flex gap-2">
             <button onClick={onClose} className="px-4 py-2 rounded-lg text-[15px] font-semibold text-[var(--text-muted)] border border-[var(--border)]">Dismiss</button>
             <button onClick={handleAcceptSelected} disabled={checkedTasks.size === 0 && checkedSkills.size === 0}
-              className="px-4 py-2 rounded-lg text-[15px] font-semibold text-white disabled:opacity-40 transition-all" style={{ background: "linear-gradient(135deg, var(--purple), #7C3AED)" }}>
+              className="px-4 py-2 rounded-lg text-[15px] font-semibold text-white disabled:opacity-40 transition-all" style={{ background: "linear-gradient(135deg, var(--purple), var(--dusk))" }}>
               Accept Selected
             </button>
           </div>

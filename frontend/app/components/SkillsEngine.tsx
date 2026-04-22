@@ -27,7 +27,7 @@ const SKILL_TABS = [
 ];
 
 const CAT_COLORS: Record<string, string> = {
-  technical: "#f4a83a", functional: "#f4a83a", leadership: "#a78bb8", adaptive: "#8ba87a",
+  technical: "var(--amber)", functional: "var(--amber)", leadership: "var(--dusk)", adaptive: "var(--sage)",
 };
 
 const PROFICIENCY_LEVELS = [

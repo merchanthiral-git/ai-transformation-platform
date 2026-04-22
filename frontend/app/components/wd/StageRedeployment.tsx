@@ -31,11 +31,11 @@ interface Props {
    ═══════════════════════════════════════════════════════════════ */
 
 const DEST_TYPES = [
-  { key: "optimized", label: "Same Role (Optimized)", color: "#22C55E" },
-  { key: "adjacent", label: "Adjacent Role", color: "#f4a83a" },
-  { key: "upskilled", label: "Upskilled", color: "#a78bb8" },
-  { key: "redeployed", label: "New Function", color: "#f4a83a" },
-  { key: "exit", label: "Exit Path", color: "#e87a5d" },
+  { key: "optimized", label: "Same Role (Optimized)", color: "var(--sage)" },
+  { key: "adjacent", label: "Adjacent Role", color: "var(--amber)" },
+  { key: "upskilled", label: "Upskilled", color: "var(--dusk)" },
+  { key: "redeployed", label: "New Function", color: "var(--amber)" },
+  { key: "exit", label: "Exit Path", color: "var(--coral)" },
 ] as const;
 
 const DECISION_TO_DEST: Record<string, string> = {
@@ -62,14 +62,14 @@ const S = {
   section: { background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 10, padding: "16px 20px", marginBottom: 16 } as React.CSSProperties,
   sectionTitle: { fontSize: "var(--text-sm)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)", marginBottom: 10, display: "flex", alignItems: "center", gap: 8 } as React.CSSProperties,
   table: { width: "100%", borderCollapse: "separate" as const, borderSpacing: 0, fontSize: "var(--text-xs)" } as React.CSSProperties,
-  th: { padding: "7px 8px", fontSize: 11, fontWeight: 600, color: "#fff", textTransform: "uppercase" as const, letterSpacing: "0.05em", borderBottom: "2px solid var(--border)", background: "#161822", whiteSpace: "nowrap" as const } as React.CSSProperties,
+  th: { padding: "7px 8px", fontSize: 11, fontWeight: 600, color: "#fff", textTransform: "uppercase" as const, letterSpacing: "0.05em", borderBottom: "2px solid var(--border)", background: "var(--paper-solid)", whiteSpace: "nowrap" as const } as React.CSSProperties,
   td: { padding: "6px 8px", borderBottom: "1px solid var(--border)", verticalAlign: "middle" as const, fontSize: "var(--text-xs)" } as React.CSSProperties,
   destDot: (color: string) => ({ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: color, marginRight: 6 }) as React.CSSProperties,
   skillBadge: (intensity: number) => ({
     display: "inline-flex", alignItems: "center", justifyContent: "center",
     width: 28, height: 22, borderRadius: 3, fontSize: 11, fontWeight: 600,
     background: intensity > 0.6 ? "rgba(244,168,58,0.2)" : intensity > 0.3 ? "rgba(244,168,58,0.1)" : intensity > 0 ? "rgba(244,168,58,0.05)" : "var(--surface-2)",
-    color: intensity > 0 ? "#f4a83a" : "var(--border)",
+    color: intensity > 0 ? "var(--amber)" : "var(--border)",
   }) as React.CSSProperties,
   insightItem: { display: "flex", alignItems: "flex-start", gap: 6, padding: "6px 0", borderBottom: "1px solid var(--border)", fontSize: "var(--text-xs)", color: "var(--text-secondary)" } as React.CSSProperties,
   legend: { display: "flex", gap: 12, marginTop: 8, fontSize: 11, color: "var(--text-muted)", flexWrap: "wrap" as const } as React.CSSProperties,
@@ -98,7 +98,7 @@ function SankeyFlow({ flows }: { flows: { dest: string; label: string; pct: numb
   return (
     <svg width={W} height={H + 10} style={{ display: "block", margin: "0 auto" }}>
       {/* Source block */}
-      <rect x={LX} y={4} width={LW} height={H} rx={6} fill="#161822" />
+      <rect x={LX} y={4} width={LW} height={H} rx={6} fill="var(--paper-solid)" />
       <text x={LX + LW / 2} y={srcMid + 4} textAnchor="middle" fill="#fff" fontSize={11} fontWeight={600}>Current</text>
       <text x={LX + LW / 2} y={srcMid + 18} textAnchor="middle" fill="rgba(255,255,255,0.5)" fontSize={9}>100%</text>
 
@@ -241,18 +241,18 @@ export default function StageRedeployment({ reconData, redeployRows, isRedeployS
     <div>
       {/* ── Summary metrics ── */}
       <div style={S.summaryBar}>
-        <div style={S.metric("#f4a83a")}>
+        <div style={S.metric("var(--amber)")}>
           <div style={S.metricLabel}>Current Hours</div>
           <div style={S.metricValue}>{totalCurrent.toFixed(1)}h</div>
           <div style={S.metricSub}>per week</div>
         </div>
-        <div style={S.metric("#22C55E")}>
+        <div style={S.metric("var(--sage)")}>
           <div style={S.metricLabel}>Future Hours</div>
           <div style={S.metricValue}>{totalFuture.toFixed(1)}h</div>
         </div>
-        <div style={S.metric("#f4a83a")}>
+        <div style={S.metric("var(--amber)")}>
           <div style={S.metricLabel}>Released</div>
-          <div style={{ ...S.metricValue, color: "#f4a83a" }}>{released.toFixed(1)}h</div>
+          <div style={{ ...S.metricValue, color: "var(--amber)" }}>{released.toFixed(1)}h</div>
           <div style={S.metricSub}>{totalCurrent > 0 ? `${Math.round(released / totalCurrent * 100)}% capacity freed` : ""}</div>
         </div>
         <div style={S.metric("var(--text-muted)")}>
@@ -331,7 +331,7 @@ export default function StageRedeployment({ reconData, redeployRows, isRedeployS
             <div style={S.sectionTitle}><Sparkles size={13} /> Redeployment Insights</div>
             {insights.map((ins, i) => (
               <div key={i} style={S.insightItem}>
-                <ArrowRight size={11} style={{ color: "#f4a83a", flexShrink: 0, marginTop: 1 }} />
+                <ArrowRight size={11} style={{ color: "var(--amber)", flexShrink: 0, marginTop: 1 }} />
                 <span>{ins}</span>
               </div>
             ))}
@@ -361,7 +361,7 @@ export default function StageRedeployment({ reconData, redeployRows, isRedeployS
                   <td style={S.td}>{r.action}</td>
                   <td style={S.td}>{r.futureState}</td>
                   <td style={{ ...S.td, fontFamily: "var(--ff-mono)", textAlign: "center" }}>{r.releasedPct > 0 ? `${r.releasedPct}%` : "—"}</td>
-                  <td style={{ ...S.td, fontFamily: "var(--ff-mono)", textAlign: "center", color: r.releasedHrs > 0 ? "#22C55E" : "var(--text-muted)" }}>{r.releasedHrs > 0 ? `${r.releasedHrs.toFixed(1)}h` : "—"}</td>
+                  <td style={{ ...S.td, fontFamily: "var(--ff-mono)", textAlign: "center", color: r.releasedHrs > 0 ? "var(--sage)" : "var(--text-muted)" }}>{r.releasedHrs > 0 ? `${r.releasedHrs.toFixed(1)}h` : "—"}</td>
                   <td style={{ ...S.td, maxWidth: 200 }}>{r.destination}</td>
                   <td style={{ ...S.td, color: "var(--text-muted)" }}>{r.skill}</td>
                 </tr>

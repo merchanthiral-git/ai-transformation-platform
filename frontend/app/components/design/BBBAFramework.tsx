@@ -141,7 +141,7 @@ export function BBBAFramework({ model, f, onBack, onNavigate, jobStates, viewCtx
       </Card>
       <Card title="Investment Summary">
         <div className="grid grid-cols-2 gap-3 mb-4">
-          {[{ l: "Total Investment", v: fmtNum(totalCost), c: "var(--text-primary)" }, { l: "Avg Timeline", v: `${avgTimeline}mo`, c: "#0EA5E9" }, { l: "To Reskill", v: String(buildCount), c: "var(--success)" }, { l: "To Hire", v: String(buyCount), c: "var(--accent-primary)" }].map(k => <div key={k.l} className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[18px] font-extrabold font-data" style={{ color: k.c }}>{k.v}</div><div className="text-[11px] text-[var(--text-muted)] uppercase">{k.l}</div></div>)}
+          {[{ l: "Total Investment", v: fmtNum(totalCost), c: "var(--text-primary)" }, { l: "Avg Timeline", v: `${avgTimeline}mo`, c: "var(--amber)" }, { l: "To Reskill", v: String(buildCount), c: "var(--success)" }, { l: "To Hire", v: String(buyCount), c: "var(--accent-primary)" }].map(k => <div key={k.l} className="rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[18px] font-extrabold font-data" style={{ color: k.c }}>{k.v}</div><div className="text-[11px] text-[var(--text-muted)] uppercase">{k.l}</div></div>)}
         </div>
         {/* Insight */}
         {buildCount > buyCount * 1.5 && <div className="rounded-xl p-3 border-l-3" style={{ borderLeft: "3px solid var(--accent-primary)", background: "rgba(244,168,58,0.04)" }}>

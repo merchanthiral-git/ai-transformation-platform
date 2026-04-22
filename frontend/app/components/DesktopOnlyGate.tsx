@@ -69,14 +69,14 @@ export function DesktopOnlyGate({ children }: { children: React.ReactNode }) {
         <div className="gate-icon">
           {/* Desktop monitor icon */}
           <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="4" y="6" width="32" height="22" rx="3" stroke="#C04B2D" strokeWidth="1.5" fill="none" />
-            <rect x="7" y="9" width="26" height="16" rx="1" fill="#C04B2D" opacity="0.08" />
-            <line x1="14" y1="32" x2="26" y2="32" stroke="#C04B2D" strokeWidth="1.5" strokeLinecap="round" />
-            <line x1="20" y1="28" x2="20" y2="32" stroke="#C04B2D" strokeWidth="1.5" />
+            <rect x="4" y="6" width="32" height="22" rx="3" stroke="var(--coral)" strokeWidth="1.5" fill="none" />
+            <rect x="7" y="9" width="26" height="16" rx="1" fill="var(--coral)" opacity="0.08" />
+            <line x1="14" y1="32" x2="26" y2="32" stroke="var(--coral)" strokeWidth="1.5" strokeLinecap="round" />
+            <line x1="20" y1="28" x2="20" y2="32" stroke="var(--coral)" strokeWidth="1.5" />
             {/* Screen content hint */}
-            <rect x="10" y="12" width="8" height="4" rx="0.5" fill="#C04B2D" opacity="0.2" />
-            <rect x="10" y="18" width="20" height="2" rx="0.5" fill="#C04B2D" opacity="0.12" />
-            <rect x="10" y="22" width="14" height="2" rx="0.5" fill="#C04B2D" opacity="0.12" />
+            <rect x="10" y="12" width="8" height="4" rx="0.5" fill="var(--coral)" opacity="0.2" />
+            <rect x="10" y="18" width="20" height="2" rx="0.5" fill="var(--coral)" opacity="0.12" />
+            <rect x="10" y="22" width="14" height="2" rx="0.5" fill="var(--coral)" opacity="0.12" />
           </svg>
         </div>
         <h1>This tool is built for desktop.</h1>

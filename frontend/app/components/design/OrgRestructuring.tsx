@@ -108,7 +108,7 @@ function getInitials(name: string): string {
 function trackColor(track: string): string {
   const map: Record<string, string> = {
     M: "var(--accent-primary)", E: "var(--purple)", P: "var(--success)",
-    T: "#0EA5E9", S: "var(--warning)",
+    T: "var(--amber)", S: "var(--warning)",
   };
   return map[track] || "var(--text-muted)";
 }
@@ -674,7 +674,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
       case "added": return "var(--success)";
       case "eliminated": return "var(--risk)";
       case "modified": return "var(--warning)";
-      case "moved": return "#0EA5E9";
+      case "moved": return "var(--amber)";
       default: return "transparent";
     }
   };
@@ -1065,7 +1065,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
       return (
         <path key={idx}
           d={`M${source.x},${source.y + TREE_CARD_H} L${source.x},${midY} L${target.x},${midY} L${target.x},${target.y}`}
-          fill="none" stroke="rgba(28,43,58,0.2)" strokeWidth={1}
+          fill="none" stroke="rgba(22,24,34,0.2)" strokeWidth={1}
         />
       );
     };
@@ -1080,12 +1080,12 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
       const isExpanded = expandedNodes.has(node.id);
       const hiddenCount = node._hiddenCount || 0;
 
-      const borderColor = isSelected ? "#f4a83a"
+      const borderColor = isSelected ? "var(--amber)"
         : node.status === "added" ? "var(--success)"
         : node.status === "eliminated" ? "var(--risk)"
         : node.status === "modified" ? "var(--warning)"
-        : node.status === "moved" ? "#0EA5E9"
-        : "rgba(28,43,58,0.18)";
+        : node.status === "moved" ? "var(--amber)"
+        : "rgba(22,24,34,0.18)";
 
       return (
         <g key={node.id} transform={`translate(${node.x - w / 2},${node.y})`}
@@ -1104,13 +1104,13 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
           </rect>
 
           {/* Name - 13px weight 500 */}
-          <text x={14} y={20} fontSize={13} fontWeight={500} fill="#161822"
+          <text x={14} y={20} fontSize={13} fontWeight={500} fill="var(--paper-solid)"
             textDecoration={isEliminated ? "line-through" : "none"}>
             {node.name.length > 20 ? node.name.slice(0, 19) + "\u2026" : node.name}
           </text>
 
           {/* Title - 11px */}
-          <text x={14} y={35} fontSize={11} fill="rgba(28,43,58,0.6)"
+          <text x={14} y={35} fontSize={11} fill="rgba(22,24,34,0.6)"
             textDecoration={isEliminated ? "line-through" : "none"}>
             {(node.title || "").length > 24 ? node.title.slice(0, 23) + "\u2026" : (node.title || "")}
           </text>
@@ -1132,7 +1132,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
                 fill={node.status === "added" ? "var(--success)"
                   : node.status === "eliminated" ? "var(--risk)"
                   : node.status === "modified" ? "var(--warning)"
-                  : "#0EA5E9"}>
+                  : "var(--amber)"}>
                 {node.status.toUpperCase()}
               </text>
             </>
@@ -1143,7 +1143,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
             <g transform={`translate(${w / 2 - 14}, ${h - 4})`}
               onClick={(e) => { e.stopPropagation(); toggleExpand(node.id); }}
               style={{ cursor: "pointer" }}>
-              <rect x={0} y={0} width={28} height={16} rx={8} fill="#161822" />
+              <rect x={0} y={0} width={28} height={16} rx={8} fill="var(--paper-solid)" />
               <text x={14} y={12} textAnchor="middle" fontSize={9} fontWeight={600} fill="#fff">
                 {isExpanded ? "\u25B4" : (hiddenCount > 0 ? `+${hiddenCount}` : "\u25BE")}
               </text>
@@ -1184,7 +1184,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
               position: "absolute", top: 12, left: 12, zIndex: 5,
               display: "flex", alignItems: "center", gap: 8,
               padding: "6px 14px", borderRadius: 8,
-              background: "#fff", border: "0.5px solid rgba(28,43,58,0.15)",
+              background: "#fff", border: "0.5px solid rgba(22,24,34,0.15)",
               boxShadow: "0 2px 8px rgba(0,0,0,0.06)", fontSize: 12,
             }}>
               <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>{changes.length} change{changes.length !== 1 ? "s" : ""}</span>
@@ -1226,23 +1226,23 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
               position: "absolute", bottom: 12, left: 12, zIndex: 5,
               display: "flex", alignItems: "center", gap: 2,
               padding: "4px 6px", background: "#fff",
-              border: "0.5px solid rgba(28,43,58,0.12)", borderRadius: 6,
+              border: "0.5px solid rgba(22,24,34,0.12)", borderRadius: 6,
               fontSize: 11,
             }}>
               <button
                 onClick={() => setCanvasZoom(z => Math.min(z + 0.1, 2.0))}
-                style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 24, height: 24, background: "none", border: "0.5px solid rgba(28,43,58,0.15)", borderRadius: 4, cursor: "pointer", color: "#161822" }}
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 24, height: 24, background: "none", border: "0.5px solid rgba(22,24,34,0.15)", borderRadius: 4, cursor: "pointer", color: "var(--paper-solid)" }}
               ><Plus size={12} /></button>
               <button
                 onClick={() => setCanvasZoom(z => Math.max(z - 0.1, 0.3))}
-                style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 24, height: 24, background: "none", border: "0.5px solid rgba(28,43,58,0.15)", borderRadius: 4, cursor: "pointer", color: "#161822" }}
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 24, height: 24, background: "none", border: "0.5px solid rgba(22,24,34,0.15)", borderRadius: 4, cursor: "pointer", color: "var(--paper-solid)" }}
               ><Minus size={12} /></button>
-              <span style={{ padding: "0 6px", fontFamily: "var(--ff-mono)", fontSize: 11, color: "rgba(28,43,58,0.55)", minWidth: 32, textAlign: "center" }}>
+              <span style={{ padding: "0 6px", fontFamily: "var(--ff-mono)", fontSize: 11, color: "rgba(22,24,34,0.55)", minWidth: 32, textAlign: "center" }}>
                 {Math.round(canvasZoom * 100)}%
               </span>
               <button
                 onClick={fitCanvasToView}
-                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 3, padding: "2px 8px", height: 24, background: "none", border: "0.5px solid rgba(28,43,58,0.15)", borderRadius: 4, cursor: "pointer", color: "#161822", fontSize: 11, fontWeight: 500 }}
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 3, padding: "2px 8px", height: 24, background: "none", border: "0.5px solid rgba(22,24,34,0.15)", borderRadius: 4, cursor: "pointer", color: "var(--paper-solid)", fontSize: 11, fontWeight: 500 }}
               ><Maximize2 size={11} /> Fit</button>
             </div>
           </div>
@@ -1277,7 +1277,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
               ><Trash2 size={12} /> Eliminate</button>
               <button
                 onClick={() => { setInlineNoteOpen(!inlineNoteOpen); setInlineNoteText(""); setInlineNoteCategory("observation"); }}
-                style={{ display: "flex", alignItems: "center", gap: 4, padding: "6px 12px", fontSize: 12, fontWeight: 500, background: inlineNoteOpen ? "rgba(244,168,58,0.08)" : "var(--surface-2)", border: `1px solid ${inlineNoteOpen ? "rgba(244,168,58,0.3)" : "var(--border)"}`, borderRadius: 6, cursor: "pointer", color: inlineNoteOpen ? "#f4a83a" : "var(--text-primary)" }}
+                style={{ display: "flex", alignItems: "center", gap: 4, padding: "6px 12px", fontSize: 12, fontWeight: 500, background: inlineNoteOpen ? "rgba(244,168,58,0.08)" : "var(--surface-2)", border: `1px solid ${inlineNoteOpen ? "rgba(244,168,58,0.3)" : "var(--border)"}`, borderRadius: 6, cursor: "pointer", color: inlineNoteOpen ? "var(--amber)" : "var(--text-primary)" }}
               ><MessageSquare size={12} /> Note</button>
             </div>
           )}
@@ -1292,7 +1292,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
               boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
-                <MessageSquare size={13} style={{ color: "#f4a83a" }} />
+                <MessageSquare size={13} style={{ color: "var(--amber)" }} />
                 <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}>
                   Note for {selectedNode.name} &mdash; {selectedNode.title}
                 </span>
@@ -1430,7 +1430,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
                 { label: "Transitioning Out", count: futureMetrics.eliminated, color: "var(--risk)" },
                 { label: "Added", count: futureMetrics.added, color: "var(--success)" },
                 { label: "Modified", count: changes.filter(c => c.type === "modify").length, color: "var(--warning)" },
-                { label: "Moved", count: changes.filter(c => c.type === "move").length, color: "#0EA5E9" },
+                { label: "Moved", count: changes.filter(c => c.type === "move").length, color: "var(--amber)" },
               ] as const).map(item => (
                 <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <div style={{ width: 8, height: 8, borderRadius: "50%", background: item.color, flexShrink: 0 }} />
@@ -1692,7 +1692,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
               <Card title="Future State"><div className="text-xs text-[var(--text-muted)] mb-3">{futureMetrics.hc} employees / Net: {futureMetrics.net >= 0 ? "+" : ""}{futureMetrics.net}</div><div className="overflow-y-auto" style={{ maxHeight: 420 }}>{renderTree(futureTree, 0, false, true)}</div></Card>
             </div>
             <Card title="Changes Summary"><div className="flex items-center gap-6">
-              {([{ label: "Added", count: changes.filter(c => c.type === "add").length, color: "var(--success)" }, { label: "Transitioning Out", count: changes.filter(c => c.type === "eliminate").length, color: "var(--risk)" }, { label: "Modified", count: changes.filter(c => c.type === "modify").length, color: "var(--warning)" }, { label: "Moved", count: changes.filter(c => c.type === "move").length, color: "#0EA5E9" }] as const).map(item => (
+              {([{ label: "Added", count: changes.filter(c => c.type === "add").length, color: "var(--success)" }, { label: "Transitioning Out", count: changes.filter(c => c.type === "eliminate").length, color: "var(--risk)" }, { label: "Modified", count: changes.filter(c => c.type === "modify").length, color: "var(--warning)" }, { label: "Moved", count: changes.filter(c => c.type === "move").length, color: "var(--amber)" }] as const).map(item => (
                 <div key={item.label} className="flex items-center gap-3 px-4 py-3 rounded-xl" style={{ background: "var(--surface-2)" }}><div className="w-3 h-3 rounded-full" style={{ background: item.color }} /><div><div className="text-lg font-bold font-data text-[var(--text-primary)]">{item.count}</div><div className="text-xs text-[var(--text-muted)]">{item.label}</div></div></div>
               ))}</div></Card>
           </>)}
@@ -1760,7 +1760,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
               { type: "Transitioning Out", count: futureMetrics.eliminated, color: "var(--risk)" },
               { type: "Added", count: futureMetrics.added, color: "var(--success)" },
               { type: "Modified", count: changes.filter(c => c.type === "modify").length, color: "var(--warning)" },
-              { type: "Moved", count: changes.filter(c => c.type === "move").length, color: "#0EA5E9" },
+              { type: "Moved", count: changes.filter(c => c.type === "move").length, color: "var(--amber)" },
             ] as const).map(item => (
               <div key={item.type} className="flex items-center gap-4">
                 <span className="text-sm text-[var(--text-muted)] w-24">{item.type}</span>
@@ -2055,7 +2055,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
   const renderEntryPoint = () => {
     const cardBase: React.CSSProperties = {
       background: "#FFFFFF",
-      border: "0.5px solid rgba(28,43,58,0.15)",
+      border: "0.5px solid rgba(22,24,34,0.15)",
       borderRadius: 8,
       width: 260,
       minHeight: 180,
@@ -2069,25 +2069,25 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
 
     const cards: { icon: React.ReactNode; title: string; desc: string; action: () => void }[] = [
       {
-        icon: <Eye size={24} style={{ color: "var(--navy, #161822)" }} />,
+        icon: <Eye size={24} style={{ color: "var(--navy, var(--paper-solid))" }} />,
         title: "Explore Current State",
         desc: "Load the org and see structure, patterns, and diagnostics",
         action: () => { setShowEntryPoint(false); setActiveTab("org"); },
       },
       {
-        icon: <GitBranch size={24} style={{ color: "var(--navy, #161822)" }} />,
+        icon: <GitBranch size={24} style={{ color: "var(--navy, var(--paper-solid))" }} />,
         title: "Restructure a Team",
         desc: "Select a manager and redesign their team structure",
         action: () => { setShowEntryPoint(false); setActiveTab("design"); },
       },
       {
-        icon: <Compass size={24} style={{ color: "var(--navy, #161822)" }} />,
+        icon: <Compass size={24} style={{ color: "var(--navy, var(--paper-solid))" }} />,
         title: "Design from Vision",
         desc: "Start from strategic direction and cascade top-down",
         action: () => { onNavigate?.("build"); },
       },
       {
-        icon: <BarChart3 size={24} style={{ color: "var(--navy, #161822)" }} />,
+        icon: <BarChart3 size={24} style={{ color: "var(--navy, var(--paper-solid))" }} />,
         title: "Apply a Template",
         desc: "Start from an industry benchmark template",
         action: () => { setShowEntryPoint(false); setActiveTab("org"); },
@@ -2106,7 +2106,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
 
         <div style={{ maxWidth: 1160, margin: "0 auto" }}>
           <h2 style={{
-            fontSize: 20, fontWeight: 600, color: "var(--navy, #161822)",
+            fontSize: 20, fontWeight: 600, color: "var(--navy, var(--paper-solid))",
             marginBottom: 24, marginTop: 16,
           }}>
             What are you trying to do?
@@ -2118,14 +2118,14 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
                 key={c.title}
                 style={cardBase}
                 onClick={c.action}
-                onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(28,43,58,0.40)"; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(28,43,58,0.15)"; }}
+                onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(22,24,34,0.40)"; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(22,24,34,0.15)"; }}
               >
                 {c.icon}
-                <div style={{ fontSize: 15, fontWeight: 500, color: "var(--navy, #161822)" }}>
+                <div style={{ fontSize: 15, fontWeight: 500, color: "var(--navy, var(--paper-solid))" }}>
                   {c.title}
                 </div>
-                <div style={{ fontSize: 13, color: "rgba(28,43,58,0.55)", lineHeight: 1.45 }}>
+                <div style={{ fontSize: 13, color: "rgba(22,24,34,0.55)", lineHeight: 1.45 }}>
                   {c.desc}
                 </div>
               </div>
@@ -2135,7 +2135,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
           {/* Recently worked on */}
           <div style={{ marginBottom: 32 }}>
             <h3 style={{
-              fontSize: 14, fontWeight: 600, color: "var(--navy, #161822)",
+              fontSize: 14, fontWeight: 600, color: "var(--navy, var(--paper-solid))",
               marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.03em",
             }}>
               Recently worked on
@@ -2148,7 +2148,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
                     onClick={() => { if (s.savedId) { const saved = savedScenarios.find(sc => sc.id === s.savedId); if (saved) handleLoadScenario(saved); } else { setShowEntryPoint(false); setActiveTab("design"); } }}
                     style={{
                       background: "#FFFFFF",
-                      border: "0.5px solid rgba(28,43,58,0.15)",
+                      border: "0.5px solid rgba(22,24,34,0.15)",
                       borderRadius: 8,
                       padding: "14px 18px",
                       cursor: "pointer",
@@ -2157,15 +2157,15 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
                       gap: 12,
                       transition: "border-color 0.15s ease",
                     }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(28,43,58,0.40)"; }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(28,43,58,0.15)"; }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(22,24,34,0.40)"; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(22,24,34,0.15)"; }}
                   >
-                    <Clock size={16} style={{ color: "rgba(28,43,58,0.45)", flexShrink: 0 }} />
+                    <Clock size={16} style={{ color: "rgba(22,24,34,0.45)", flexShrink: 0 }} />
                     <div>
-                      <div style={{ fontSize: 14, fontWeight: 500, color: "var(--navy, #161822)" }}>
+                      <div style={{ fontSize: 14, fontWeight: 500, color: "var(--navy, var(--paper-solid))" }}>
                         {s.name || "Untitled scenario"}
                       </div>
-                      <div style={{ fontSize: 12, color: "rgba(28,43,58,0.55)", marginTop: 2 }}>
+                      <div style={{ fontSize: 12, color: "rgba(22,24,34,0.55)", marginTop: 2 }}>
                         {s.changeCount} change{s.changeCount !== 1 ? "s" : ""}
                         {" \u00B7 "}
                         {new Date(s.lastEdited).toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
@@ -2175,19 +2175,19 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
                 ))}
               </div>
             ) : (
-              <div style={{ fontSize: 13, color: "rgba(28,43,58,0.45)" }}>No recent work</div>
+              <div style={{ fontSize: 13, color: "rgba(22,24,34,0.45)" }}>No recent work</div>
             )}
           </div>
 
           {/* Module relationship note */}
           <div style={{
-            fontSize: 13, color: "rgba(28,43,58,0.50)", lineHeight: 1.5,
-            borderTop: "1px solid rgba(28,43,58,0.08)", paddingTop: 20,
+            fontSize: 13, color: "rgba(22,24,34,0.50)", lineHeight: 1.5,
+            borderTop: "1px solid rgba(22,24,34,0.08)", paddingTop: 20,
           }}>
             This module handles tactical team-level restructuring. For strategic org-wide design with cascading layers, use{" "}
             <span
               onClick={() => onNavigate?.("build")}
-              style={{ color: "var(--blue-primary, #f4a83a)", cursor: "pointer", fontWeight: 500 }}
+              style={{ color: "var(--blue-primary, var(--amber))", cursor: "pointer", fontWeight: 500 }}
             >
               Org Design Studio &rarr;
             </span>
@@ -2215,7 +2215,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
         <span
           onClick={() => setShowEntryPoint(true)}
           style={{
-            fontSize: 13, color: "var(--blue-primary, #f4a83a)", cursor: "pointer",
+            fontSize: 13, color: "var(--blue-primary, var(--amber))", cursor: "pointer",
             display: "inline-flex", alignItems: "center", gap: 4,
           }}
         >

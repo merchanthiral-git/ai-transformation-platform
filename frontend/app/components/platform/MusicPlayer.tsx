@@ -572,7 +572,7 @@ export function MusicPlayer({ projectActive = false }: { projectActive?: boolean
         borderRadius: promptDismissing ? 20 : 24,
         background: "rgba(15,12,8,0.85)", backdropFilter: "blur(20px)",
         border: "1px solid rgba(224,144,64,0.2)",
-        color: "#f5e6d0", cursor: "pointer",
+        color: "var(--ink)", cursor: "pointer",
         animation: promptDismissing ? "none" : "soundtrackGlow 3s ease-in-out infinite, soundtrackFadeIn 0.8s ease-out",
         transition: "all 0.4s cubic-bezier(0.16,1,0.3,1)",
         opacity: promptDismissing ? 0 : 1,
@@ -612,7 +612,7 @@ export function MusicPlayer({ projectActive = false }: { projectActive?: boolean
           <span style={{ fontSize: 16, color: "rgba(255,255,255,0.35)", lineHeight: 1 }}>♪</span>
         )}
         {/* Tooltip */}
-        {!playing && <span data-tooltip style={{ position: "absolute", bottom: "calc(100% + 8px)", right: 0, fontSize: 11, fontWeight: 600, color: "#f5e6d0", background: "rgba(15,12,8,0.9)", backdropFilter: "blur(12px)", border: "1px solid rgba(224,144,64,0.15)", padding: "4px 10px", borderRadius: 8, whiteSpace: "nowrap", opacity: 0, transition: "opacity 0.2s", pointerEvents: "none", fontFamily: "'Inter Tight', sans-serif" }}>Bring it back</span>}
+        {!playing && <span data-tooltip style={{ position: "absolute", bottom: "calc(100% + 8px)", right: 0, fontSize: 11, fontWeight: 600, color: "var(--ink)", background: "rgba(15,12,8,0.9)", backdropFilter: "blur(12px)", border: "1px solid rgba(224,144,64,0.15)", padding: "4px 10px", borderRadius: 8, whiteSpace: "nowrap", opacity: 0, transition: "opacity 0.2s", pointerEvents: "none", fontFamily: "'Inter Tight', sans-serif" }}>Bring it back</span>}
       </button>
       {/* Expand to full player */}
       <button onClick={() => setViewState("collapsed")} style={{ marginTop: 4, width: 20, height: 20, borderRadius: 10, background: "transparent", border: "none", color: "rgba(255,255,255,0.2)", fontSize: 11, cursor: "pointer", transition: "color 0.2s", display: "flex", alignItems: "center", justifyContent: "center" }} onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.5)"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.2)"} title="Expand player">▲</button>
@@ -625,13 +625,13 @@ export function MusicPlayer({ projectActive = false }: { projectActive?: boolean
     {/* Mini visualizer */}
     <canvas ref={miniCanvasRef} width={60} height={24} style={{ width: 60, height: 24, flexShrink: 0, borderRadius: 4 }} />
     <div style={{ flex: 1, minWidth: 0 }}>
-      <div style={{ fontSize: 15, fontWeight: 600, color: audioError ? "#f87171" : "#f5e6d0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{audioError || (buffering ? `Loading ${track?.name || ""}...` : track?.name || "—")}</div>
+      <div style={{ fontSize: 15, fontWeight: 600, color: audioError ? "var(--coral)" : "var(--ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{audioError || (buffering ? `Loading ${track?.name || ""}...` : track?.name || "—")}</div>
       <div style={{ fontSize: 14, color: "rgba(255,255,255,0.35)" }}>{audioError ? "Click play to retry" : activeMood ? `${MOODS.find(m => m.id === activeMood)?.icon} ${MOODS.find(m => m.id === activeMood)?.label}` : GENRES.find(g => g.id === genre)?.label}{!audioError && focusActive ? ` · ${Math.floor(focusRemaining / 60)}:${String(focusRemaining % 60).padStart(2, "0")}` : ""}</div>
     </div>
     <div onClick={e => { e.stopPropagation(); seek(e); }} style={{ width: 80, height: 3, background: "rgba(255,255,255,0.08)", borderRadius: 2, cursor: "pointer", flexShrink: 0, overflow: "hidden" }}>
       <div style={{ height: "100%", borderRadius: 2, background: "var(--accent-primary)", width: `${progress * 100}%` }} />
     </div>
-    <button onClick={e => { e.stopPropagation(); toggle(); }} style={{ ...btnBase, color: "#f5e6d0", fontSize: 16, width: 32, height: 32 }}>{playing ? "⏸" : "▶"}</button>
+    <button onClick={e => { e.stopPropagation(); toggle(); }} style={{ ...btnBase, color: "var(--ink)", fontSize: 16, width: 32, height: 32 }}>{playing ? "⏸" : "▶"}</button>
     <button onClick={e => { e.stopPropagation(); nextTrack(); }} style={{ ...btnBase, color: "rgba(255,255,255,0.4)", fontSize: 15 }}>⏭</button>
     <button onClick={e => { e.stopPropagation(); changeVolume(volume > 0 ? 0 : 0.5); }} style={{ ...btnBase, fontSize: 13, color: "rgba(255,255,255,0.3)" }}>{volume === 0 ? "🔇" : "🔊"}</button>
     <input type="range" min={0} max={1} step={0.02} value={volume} onClick={e => e.stopPropagation()} onChange={e => { e.stopPropagation(); changeVolume(Number(e.target.value)); }} style={{ width: 50, accentColor: "var(--accent-primary)", height: 3, flexShrink: 0 }} />
@@ -642,8 +642,8 @@ export function MusicPlayer({ projectActive = false }: { projectActive?: boolean
   return <>{null}<div ref={expandedRef} style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 40, background: "rgba(10,8,6,0.92)", backdropFilter: "blur(24px)", borderTop: "1px solid rgba(244,168,58,0.12)", transition: "all 0.4s cubic-bezier(0.16,1,0.3,1)" }}>
     {/* Visible collapse/close buttons at top-right of panel */}
     <div style={{ position: "absolute", top: 10, right: 16, display: "flex", gap: 6, zIndex: 1 }}>
-      <button onClick={() => setViewState("collapsed")} title="Minimize to bar" style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)", fontSize: 15, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.12)"; e.currentTarget.style.color = "#f5e6d0"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; e.currentTarget.style.color = "rgba(255,255,255,0.5)"; }}>▾</button>
-      <button onClick={() => setViewState("mini")} title="Hide player" style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.4)", fontSize: 15, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.12)"; e.currentTarget.style.color = "#f5e6d0"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; e.currentTarget.style.color = "rgba(255,255,255,0.4)"; }}>✕</button>
+      <button onClick={() => setViewState("collapsed")} title="Minimize to bar" style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)", fontSize: 15, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.12)"; e.currentTarget.style.color = "var(--ink)"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; e.currentTarget.style.color = "rgba(255,255,255,0.5)"; }}>▾</button>
+      <button onClick={() => setViewState("mini")} title="Hide player" style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.4)", fontSize: 15, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.12)"; e.currentTarget.style.color = "var(--ink)"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; e.currentTarget.style.color = "rgba(255,255,255,0.4)"; }}>✕</button>
     </div>
 
     <div style={{ maxWidth: 900, margin: "0 auto", padding: "16px 24px 20px" }}>
@@ -660,7 +660,7 @@ export function MusicPlayer({ projectActive = false }: { projectActive?: boolean
 
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <div style={{ fontSize: 16, fontWeight: 700, color: audioError ? "#f87171" : "#f5e6d0", fontFamily: "'Inter Tight', sans-serif", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{audioError || (buffering ? `Loading ${track?.name || ""}...` : track?.name || "—")}</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: audioError ? "var(--coral)" : "var(--ink)", fontFamily: "'Inter Tight', sans-serif", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{audioError || (buffering ? `Loading ${track?.name || ""}...` : track?.name || "—")}</div>
             {!audioError && <button onClick={() => track && toggleFav(track.id)} style={{ ...btnBase, fontSize: 14, color: track && favorites.has(track.id) ? "var(--risk)" : "rgba(255,255,255,0.2)" }}>{track && favorites.has(track.id) ? "♥" : "♡"}</button>}
           </div>
           <div style={{ fontSize: 14, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>

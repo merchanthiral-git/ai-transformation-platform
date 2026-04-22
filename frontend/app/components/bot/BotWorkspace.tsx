@@ -36,8 +36,8 @@ interface BotState {
 
 // ── Constants ──
 
-const COLORS = ["var(--accent-primary)", "var(--purple)", "#f4a83a", "var(--success)", "var(--warning)", "var(--risk)", "#EC4899", "#14B8A6"];
-const TT: React.CSSProperties = { background: "rgba(15,12,8,0.95)", border: "1px solid rgba(255,200,150,0.1)", borderRadius: 10, fontSize: 12, color: "#f5e6d0" };
+const COLORS = ["var(--accent-primary)", "var(--purple)", "var(--amber)", "var(--success)", "var(--warning)", "var(--risk)", "var(--coral)", "var(--sage)"];
+const TT: React.CSSProperties = { background: "rgba(15,12,8,0.95)", border: "1px solid rgba(255,200,150,0.1)", borderRadius: 10, fontSize: 12, color: "var(--ink)" };
 
 const ACTION_LABELS: Record<string, string> = {
   profile_workforce: "Workforce Profile", analyze_org_structure: "Org Structure",
@@ -186,7 +186,7 @@ function ReadinessViz({ data }: { data: Record<string, unknown> }) {
       </RadarChart>
     </ResponsiveContainer>
     <div style={{ display: "flex", gap: 16, justifyContent: "center", marginTop: 8 }}>
-      {[["Technology", "var(--accent-primary)"], ["Process", "var(--purple)"], ["People", "var(--success)"], ["Data", "#f4a83a"]].map(([l, c]) => <Legend2 key={l} color={c as string} label={l as string} />)}
+      {[["Technology", "var(--accent-primary)"], ["Process", "var(--purple)"], ["People", "var(--success)"], ["Data", "var(--amber)"]].map(([l, c]) => <Legend2 key={l} color={c as string} label={l as string} />)}
     </div>
   </div>;
 }
@@ -236,7 +236,7 @@ function ScenariosViz({ data }: { data: Record<string, unknown> }) {
 function RoadmapViz({ data }: { data: Record<string, unknown> }) {
   const phases = data.phases as Array<Record<string, unknown>> | undefined;
   if (!phases) return <EmptyViz />;
-  const pc = ["var(--accent-primary)", "var(--purple)", "#f4a83a", "var(--success)"];
+  const pc = ["var(--accent-primary)", "var(--purple)", "var(--amber)", "var(--success)"];
   const totalEnd = Number((phases[phases.length - 1] as Record<string, unknown>).end_month || 18);
   return <div style={{ padding: 24, height: "100%", overflow: "auto" }}>
     <VizLabel>Implementation Roadmap</VizLabel>
@@ -355,7 +355,7 @@ function IntroScreen({ onStart }: { onStart: () => void }) {
     const t3 = setTimeout(() => setStep(3), 3400);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, []);
-  return <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "#0B1120", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
+  return <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "var(--paper-solid)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
     <AnimatePresence>
       {step >= 0 && <motion.div key="s0" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} style={{ width: 56, height: 56, borderRadius: "50%", background: "linear-gradient(135deg, var(--accent-primary), var(--teal))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, marginBottom: 8 }}>🤖</motion.div>}
       {step >= 1 && <motion.div key="s1" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} style={{ fontSize: 28, fontWeight: 800, color: "#fff", fontFamily: "'Inter Tight', sans-serif" }}>Meet your AI Analyst</motion.div>}
@@ -658,7 +658,7 @@ export default function BotWorkspace({ projectId, modelId, onClose }: { projectI
 
   if (!state) return null;
 
-  return <div style={{ position: "fixed", inset: 0, zIndex: 9998, background: "#0B1120", display: "flex", flexDirection: "column" }}>
+  return <div style={{ position: "fixed", inset: 0, zIndex: 9998, background: "var(--paper-solid)", display: "flex", flexDirection: "column" }}>
     <style>{`@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}@keyframes statusPulse{0%,100%{opacity:.6}50%{opacity:1}}`}</style>
 
     {/* ── CONTROL BAR ── */}
@@ -717,13 +717,13 @@ export default function BotWorkspace({ projectId, modelId, onClose }: { projectI
             const isFinding = entry.type === "finding";
             const severity = entry.metadata?.severity as string;
             const findingType = entry.metadata?.finding_type as string | undefined;
-            const borderColor = severity === "critical" ? "var(--risk)" : severity === "warning" ? "var(--warning)" : isBot ? "var(--accent-primary)" : "#f4a83a";
+            const borderColor = severity === "critical" ? "var(--risk)" : severity === "warning" ? "var(--warning)" : isBot ? "var(--accent-primary)" : "var(--amber)";
             const isRecent = i >= (state.activity_log.length - 6);
             const linkedModule = isFinding && severity ? CATEGORY_MODULE[findingType || severity] || CATEGORY_MODULE[entry.metadata?.category as string || ""] : null;
 
             return <div key={entry.id} style={{ display: "flex", gap: 10, padding: "8px 0", borderBottom: "1px solid rgba(255,255,255,0.03)" }}>
               <div style={{ width: 3, borderRadius: 2, background: borderColor, flexShrink: 0, alignSelf: "stretch", opacity: 0.6 }} />
-              <div style={{ width: 22, height: 22, borderRadius: "50%", background: isBot ? "rgba(224,144,64,0.15)" : "rgba(244,168,58,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, flexShrink: 0, marginTop: 2, color: isBot ? "var(--accent-primary)" : "#f4a83a" }}>
+              <div style={{ width: 22, height: 22, borderRadius: "50%", background: isBot ? "rgba(224,144,64,0.15)" : "rgba(244,168,58,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, flexShrink: 0, marginTop: 2, color: isBot ? "var(--accent-primary)" : "var(--amber)" }}>
                 {isBot ? "🤖" : entry.actor === "system" ? "⚙" : "U"}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>

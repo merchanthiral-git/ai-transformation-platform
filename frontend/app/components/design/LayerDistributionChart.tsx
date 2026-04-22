@@ -24,18 +24,18 @@ const defaultData: LayerData[] = [
 /* ── Phase 3 chart‐container + axis/grid standards ── */
 const CHART_CONTAINER: React.CSSProperties = {
   background: "#FFFFFF",
-  border: "0.5px solid rgba(28,43,58,0.15)",
+  border: "0.5px solid rgba(22,24,34,0.15)",
   borderRadius: 8,
   padding: 20,
 };
 
-const TITLE: React.CSSProperties = { fontSize: 14, fontWeight: 500, color: "#161822" };
-const SUBTITLE: React.CSSProperties = { fontSize: 11, fontWeight: 400, color: "rgba(28,43,58,0.65)" };
+const TITLE: React.CSSProperties = { fontSize: 14, fontWeight: 500, color: "var(--paper-solid)" };
+const SUBTITLE: React.CSSProperties = { fontSize: 11, fontWeight: 400, color: "rgba(22,24,34,0.65)" };
 
-const GRAY_BAR = "rgba(28,43,58,0.25)";
-const BLUE_BAR = "#f4a83a";
-const DELTA_POS = "#16A34A";
-const DELTA_NEG = "#DC2626";
+const GRAY_BAR = "var(--dusk)";
+const BLUE_BAR = "var(--amber)";
+const DELTA_POS = "var(--sage)";
+const DELTA_NEG = "var(--coral)";
 
 function ChangedLayerRow({
   d,
@@ -60,7 +60,7 @@ function ChangedLayerRow({
     : Math.max(totalCur > 0 ? (maxValue / totalCur) * 100 : 0, totalFut > 0 ? (maxValue / totalFut) * 100 : 0, 0.1);
 
   const delta = mode === "headcount" ? d.future - d.current : futVal - curVal;
-  const deltaColor = delta > 0 ? DELTA_POS : delta < 0 ? DELTA_NEG : "rgba(28,43,58,0.65)";
+  const deltaColor = delta > 0 ? DELTA_POS : delta < 0 ? DELTA_NEG : "rgba(22,24,34,0.65)";
   const showTooltip = hovered || focused;
 
   const barMaxW = 320;
@@ -77,8 +77,8 @@ function ChangedLayerRow({
   const tooltip = showTooltip ? (
     <div style={{
       position: "absolute", top: "100%", left: 60, zIndex: 20,
-      background: "#FFFFFF", border: "0.5px solid rgba(28,43,58,0.2)", borderRadius: 6,
-      padding: 10, fontSize: 11, color: "#161822", lineHeight: 1.8,
+      background: "#FFFFFF", border: "0.5px solid rgba(22,24,34,0.2)", borderRadius: 6,
+      padding: 10, fontSize: 11, color: "var(--paper-solid)", lineHeight: 1.8,
       boxShadow: "0 4px 12px rgba(0,0,0,0.08)", whiteSpace: "nowrap", pointerEvents: "none",
     }}>
       <div style={{ fontSize: 12, fontWeight: 500, marginBottom: 2 }}>{d.layer}</div>
@@ -103,17 +103,17 @@ function ChangedLayerRow({
         alignItems: "center",
         gap: 12,
         padding: "6px 0",
-        borderBottom: "0.5px dashed rgba(28,43,58,0.08)",
+        borderBottom: "0.5px dashed rgba(22,24,34,0.08)",
         position: "relative",
         background: hovered || focused ? "rgba(247,245,240,0.5)" : "transparent",
         borderRadius: 4,
         transition: "background 0.15s ease",
-        outline: focused ? "2px solid #f4a83a" : "none",
+        outline: focused ? "2px solid var(--amber)" : "none",
         outlineOffset: 1,
       }}
     >
       {/* Layer badge */}
-      <div style={{ fontSize: 12, fontWeight: 500, color: "#161822", textAlign: "right" }}>{d.layer}</div>
+      <div style={{ fontSize: 12, fontWeight: 500, color: "var(--paper-solid)", textAlign: "right" }}>{d.layer}</div>
 
       {/* Side-by-side bars */}
       <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
@@ -123,7 +123,7 @@ function ChangedLayerRow({
             height: 12, borderRadius: 3, width: Math.max(curBarW, 2),
             background: GRAY_BAR, transition: "width 0.5s ease",
           }} />
-          <span style={{ fontSize: 11, fontWeight: 400, color: "rgba(28,43,58,0.55)" }}>{curLabel}</span>
+          <span style={{ fontSize: 11, fontWeight: 400, color: "rgba(22,24,34,0.55)" }}>{curLabel}</span>
         </div>
         {/* Proposed (blue) */}
         <div style={{ display: "flex", alignItems: "center", gap: 6, height: 14 }}>
@@ -131,7 +131,7 @@ function ChangedLayerRow({
             height: 12, borderRadius: 3, width: Math.max(futBarW, 2),
             background: BLUE_BAR, transition: "width 0.5s ease",
           }} />
-          <span style={{ fontSize: 11, fontWeight: 400, color: "rgba(28,43,58,0.55)" }}>{futLabel}</span>
+          <span style={{ fontSize: 11, fontWeight: 400, color: "rgba(22,24,34,0.55)" }}>{futLabel}</span>
         </div>
       </div>
 
@@ -170,12 +170,12 @@ export default function LayerDistributionChart({ data }: { data?: LayerData[] })
         <div style={{
           padding: "32px 24px", textAlign: "center",
           background: "rgba(247,245,240,0.5)", borderRadius: 8,
-          border: "0.5px dashed rgba(28,43,58,0.15)",
+          border: "0.5px dashed rgba(22,24,34,0.15)",
         }}>
-          <div style={{ fontSize: 13, fontWeight: 500, color: "#161822", marginBottom: 4 }}>
+          <div style={{ fontSize: 13, fontWeight: 500, color: "var(--paper-solid)", marginBottom: 4 }}>
             This scenario preserves the existing layer distribution.
           </div>
-          <div style={{ fontSize: 11, color: "rgba(28,43,58,0.55)" }}>
+          <div style={{ fontSize: 11, color: "rgba(22,24,34,0.55)" }}>
             {rows.length} layers unchanged across {totalCur.toLocaleString()} headcount.
           </div>
         </div>
@@ -197,9 +197,9 @@ export default function LayerDistributionChart({ data }: { data?: LayerData[] })
               borderRadius: 6,
               fontSize: 12,
               fontWeight: 500,
-              border: "0.5px solid rgba(28,43,58,0.15)",
-              background: mode === m ? "#161822" : "transparent",
-              color: mode === m ? "#fff" : "rgba(28,43,58,0.55)",
+              border: "0.5px solid rgba(22,24,34,0.15)",
+              background: mode === m ? "var(--paper-solid)" : "transparent",
+              color: mode === m ? "#fff" : "rgba(22,24,34,0.55)",
               cursor: "pointer",
               transition: "all 0.15s ease",
             }}
@@ -214,7 +214,7 @@ export default function LayerDistributionChart({ data }: { data?: LayerData[] })
         <div style={{
           fontSize: 11, fontWeight: 500, letterSpacing: "0.04em",
           textTransform: "uppercase" as const,
-          color: "rgba(28,43,58,0.55)", marginBottom: 8, paddingLeft: 2,
+          color: "rgba(22,24,34,0.55)", marginBottom: 8, paddingLeft: 2,
         }}>
           Changed Layers ({changedLayers.length})
         </div>
@@ -223,13 +223,13 @@ export default function LayerDistributionChart({ data }: { data?: LayerData[] })
         <div style={{
           display: "grid", gridTemplateColumns: "36px 1fr 60px",
           gap: 12, padding: "0 0 4px", marginBottom: 4,
-          borderBottom: "0.5px solid rgba(28,43,58,0.15)",
+          borderBottom: "0.5px solid rgba(22,24,34,0.15)",
         }}>
-          <div style={{ fontSize: 11, fontWeight: 500, color: "rgba(28,43,58,0.65)", textAlign: "right" }}>Layer</div>
+          <div style={{ fontSize: 11, fontWeight: 500, color: "rgba(22,24,34,0.65)", textAlign: "right" }}>Layer</div>
           <div style={{ display: "flex", gap: 16 }}>
-            <span style={{ fontSize: 11, fontWeight: 500, color: "rgba(28,43,58,0.65)" }}>Distribution</span>
+            <span style={{ fontSize: 11, fontWeight: 500, color: "rgba(22,24,34,0.65)" }}>Distribution</span>
           </div>
-          <div style={{ fontSize: 11, fontWeight: 500, color: "rgba(28,43,58,0.65)", textAlign: "right" }}>Delta</div>
+          <div style={{ fontSize: 11, fontWeight: 500, color: "rgba(22,24,34,0.65)", textAlign: "right" }}>Delta</div>
         </div>
 
         {changedLayers.map((d) => (
@@ -254,21 +254,21 @@ export default function LayerDistributionChart({ data }: { data?: LayerData[] })
             style={{
               display: "flex", alignItems: "center", gap: 8, width: "100%",
               padding: "8px 0", background: "none", border: "none", cursor: "pointer",
-              borderTop: "0.5px solid rgba(28,43,58,0.08)",
+              borderTop: "0.5px solid rgba(22,24,34,0.08)",
             }}
           >
             <span style={{
               fontSize: 11, fontWeight: 500, letterSpacing: "0.04em",
               textTransform: "uppercase" as const,
-              color: "rgba(28,43,58,0.65)",
+              color: "rgba(22,24,34,0.65)",
             }}>
               Unchanged Layers ({unchangedLayers.length})
             </span>
-            <span style={{ fontSize: 11, color: "rgba(28,43,58,0.55)" }}>
+            <span style={{ fontSize: 11, color: "rgba(22,24,34,0.55)" }}>
               {showUnchanged ? "\u25B2" : "\u25BC"}
             </span>
             {!showUnchanged && (
-              <span style={{ fontSize: 11, color: "rgba(28,43,58,0.65)", marginLeft: 4 }}>
+              <span style={{ fontSize: 11, color: "rgba(22,24,34,0.65)", marginLeft: 4 }}>
                 {unchangedLayers.reduce((s, d) => s + d.current, 0).toLocaleString()} HC across {unchangedLayers.length} layers
               </span>
             )}
@@ -279,10 +279,10 @@ export default function LayerDistributionChart({ data }: { data?: LayerData[] })
                 <div key={d.layer} style={{
                   display: "grid", gridTemplateColumns: "36px 1fr",
                   gap: 12, padding: "4px 0",
-                  borderBottom: "0.5px dashed rgba(28,43,58,0.06)",
+                  borderBottom: "0.5px dashed rgba(22,24,34,0.06)",
                 }}>
-                  <div style={{ fontSize: 12, fontWeight: 500, color: "rgba(28,43,58,0.55)", textAlign: "right" }}>{d.layer}</div>
-                  <div style={{ fontSize: 11, color: "rgba(28,43,58,0.65)" }}>
+                  <div style={{ fontSize: 12, fontWeight: 500, color: "rgba(22,24,34,0.55)", textAlign: "right" }}>{d.layer}</div>
+                  <div style={{ fontSize: 11, color: "rgba(22,24,34,0.65)" }}>
                     {d.current.toLocaleString()} HC — no change
                   </div>
                 </div>
@@ -299,34 +299,34 @@ export default function LayerDistributionChart({ data }: { data?: LayerData[] })
       }}>
         <div style={{
           background: "rgba(247,245,240,0.5)", borderRadius: 8,
-          padding: "12px 16px", border: "0.5px solid rgba(28,43,58,0.08)",
+          padding: "12px 16px", border: "0.5px solid rgba(22,24,34,0.08)",
         }}>
-          <div style={{ fontSize: 11, color: "rgba(28,43,58,0.55)", textTransform: "uppercase" as const, letterSpacing: "0.05em", marginBottom: 4 }}>
+          <div style={{ fontSize: 11, color: "rgba(22,24,34,0.55)", textTransform: "uppercase" as const, letterSpacing: "0.05em", marginBottom: 4 }}>
             Total Org
           </div>
-          <div style={{ fontSize: 15, fontWeight: 500, color: "#161822" }}>
+          <div style={{ fontSize: 15, fontWeight: 500, color: "var(--paper-solid)" }}>
             {totalCur.toLocaleString()} {"\u2192"} {totalFut.toLocaleString()}
           </div>
         </div>
         <div style={{
           background: "rgba(247,245,240,0.5)", borderRadius: 8,
-          padding: "12px 16px", border: "0.5px solid rgba(28,43,58,0.08)",
+          padding: "12px 16px", border: "0.5px solid rgba(22,24,34,0.08)",
         }}>
-          <div style={{ fontSize: 11, color: "rgba(28,43,58,0.55)", textTransform: "uppercase" as const, letterSpacing: "0.05em", marginBottom: 4 }}>
+          <div style={{ fontSize: 11, color: "rgba(22,24,34,0.55)", textTransform: "uppercase" as const, letterSpacing: "0.05em", marginBottom: 4 }}>
             Net Change
           </div>
-          <div style={{ fontSize: 15, fontWeight: 500, color: totalDelta < 0 ? DELTA_NEG : totalDelta > 0 ? DELTA_POS : "#161822" }}>
+          <div style={{ fontSize: 15, fontWeight: 500, color: totalDelta < 0 ? DELTA_NEG : totalDelta > 0 ? DELTA_POS : "var(--paper-solid)" }}>
             {totalDelta >= 0 ? "+" : ""}{totalDelta.toLocaleString()} ({totalDeltaPct >= 0 ? "+" : ""}{totalDeltaPct.toFixed(1)}%)
           </div>
         </div>
         <div style={{
           background: "rgba(247,245,240,0.5)", borderRadius: 8,
-          padding: "12px 16px", border: "0.5px solid rgba(28,43,58,0.08)",
+          padding: "12px 16px", border: "0.5px solid rgba(22,24,34,0.08)",
         }}>
-          <div style={{ fontSize: 11, color: "rgba(28,43,58,0.55)", textTransform: "uppercase" as const, letterSpacing: "0.05em", marginBottom: 4 }}>
+          <div style={{ fontSize: 11, color: "rgba(22,24,34,0.55)", textTransform: "uppercase" as const, letterSpacing: "0.05em", marginBottom: 4 }}>
             Layers Impacted
           </div>
-          <div style={{ fontSize: 15, fontWeight: 500, color: "#161822" }}>
+          <div style={{ fontSize: 15, fontWeight: 500, color: "var(--paper-solid)" }}>
             {changedLayers.length} of {rows.length}
           </div>
         </div>
@@ -335,7 +335,7 @@ export default function LayerDistributionChart({ data }: { data?: LayerData[] })
       {/* Legend */}
       <div style={{
         display: "flex", gap: 16, marginTop: 12, paddingTop: 8,
-        borderTop: "0.5px solid rgba(28,43,58,0.08)", fontSize: 11, color: "rgba(28,43,58,0.55)",
+        borderTop: "0.5px solid rgba(22,24,34,0.08)", fontSize: 11, color: "rgba(22,24,34,0.55)",
       }}>
         <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
           <span style={{ width: 12, height: 8, borderRadius: 2, background: GRAY_BAR }} />Current

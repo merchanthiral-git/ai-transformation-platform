@@ -35,8 +35,8 @@ type Summary = {
 };
 
 const MODULE_COLORS: Record<string, string> = {
-  overview: "#0891B2", diagnose: "var(--accent-primary)", design: "var(--purple)",
-  simulate: "var(--warning)", mobilize: "var(--success)", export: "#EC4899",
+  overview: "var(--amber)", diagnose: "var(--accent-primary)", design: "var(--purple)",
+  simulate: "var(--warning)", mobilize: "var(--success)", export: "var(--coral)",
 };
 
 const MODULE_ICONS: Record<string, string> = {

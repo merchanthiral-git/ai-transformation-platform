@@ -17,9 +17,9 @@ interface PreviewData { fileName: string; fileSize: number; sheets: SheetPreview
 // ── Helpers ────────────────────────────────────────────────
 function fmtSize(b: number) { return b < 1024 ? `${b} B` : b < 1048576 ? `${(b / 1024).toFixed(1)} KB` : `${(b / 1048576).toFixed(1)} MB`; }
 const SEV = {
-  error:   { bg: "rgba(232,122,93,0.12)", text: "#f87171", border: "#dc2626", icon: "\u2717" },
-  warning: { bg: "rgba(244,168,58,0.12)", text: "#f4a83a", border: "#d97706", icon: "\u26A0" },
-  info:    { bg: "rgba(96,165,250,0.12)", text: "#93c5fd", border: "#3b82f6", icon: "\u2139" },
+  error:   { bg: "rgba(232,122,93,0.12)", text: "var(--coral)", border: "#dc2626", icon: "\u2717" },
+  warning: { bg: "rgba(244,168,58,0.12)", text: "var(--amber)", border: "var(--amber)", icon: "\u26A0" },
+  info:    { bg: "rgba(96,165,250,0.12)", text: "#93c5fd", border: "var(--amber)", icon: "\u2139" },
 };
 const MONO = "monospace";
 const BORDER = "1px solid rgba(255,255,255,0.06)";
@@ -41,7 +41,7 @@ function Tab({ active, color, label, onClick }: { active: boolean; color: string
     <button onClick={onClick} style={{
       padding: "5px 12px", borderRadius: 7, fontSize: 12, cursor: "pointer", fontFamily: MONO,
       border: `1px solid ${active ? color : "rgba(255,255,255,0.08)"}`,
-      background: active ? `${color}22` : "transparent", color: active ? color : "#94a3b8",
+      background: active ? `${color}22` : "transparent", color: active ? color : "var(--ink-soft)",
     }}>{label}</button>
   );
 }
@@ -51,7 +51,7 @@ function Btn({ label, bg, disabled, onClick }: { label: string; bg: string; disa
   return (
     <button onClick={onClick} disabled={disabled} style={{
       padding: "8px 20px", borderRadius: 8, border: "none", fontSize: 14, fontWeight: 600,
-      background: disabled ? "#374151" : bg, color: disabled ? "#6b7280" : "#fff",
+      background: disabled ? "var(--ink-faint)" : bg, color: disabled ? "#6b7280" : "#fff",
       cursor: disabled ? "not-allowed" : "pointer", opacity: disabled ? 0.7 : 1,
     }}>{label}</button>
   );
@@ -125,17 +125,17 @@ export function UploadPreviewModal({ files, onClose, onImport }: {
       <div onClick={(e) => e.stopPropagation()} style={{
         background: "#1a1a2e", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16,
         width: "100%", maxWidth: 900, maxHeight: "80vh", overflow: "hidden",
-        display: "flex", flexDirection: "column", color: "#e2e8f0",
+        display: "flex", flexDirection: "column", color: "var(--ink)",
         boxShadow: "0 24px 80px rgba(0,0,0,0.6)",
       }}>
         {/* Header */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px", borderBottom: BORDER, flexShrink: 0 }}>
           <div>
             <h2 style={{ margin: 0, fontSize: 20, fontWeight: 600, color: "#fff" }}>Upload Preview</h2>
-            {preview && <span style={{ fontSize: 13, color: "#94a3b8", marginTop: 4, display: "block" }}>{preview.fileName} &middot; {fmtSize(preview.fileSize)}</span>}
+            {preview && <span style={{ fontSize: 13, color: "var(--ink-soft)", marginTop: 4, display: "block" }}>{preview.fileName} &middot; {fmtSize(preview.fileSize)}</span>}
           </div>
           <button onClick={onClose} aria-label="Close" style={{
-            background: "transparent", border: "none", color: "#94a3b8", fontSize: 22,
+            background: "transparent", border: "none", color: "var(--ink-soft)", fontSize: 22,
             cursor: "pointer", padding: "4px 8px", borderRadius: 6, lineHeight: 1,
           }}>&times;</button>
         </div>
@@ -144,15 +144,15 @@ export function UploadPreviewModal({ files, onClose, onImport }: {
         <div style={{ flex: 1, overflowY: "auto", padding: "16px 24px 24px" }}>
           {loading ? <LoadingSkeleton /> : error ? (
             <div style={{ padding: "40px 0", textAlign: "center" }}>
-              <p style={{ color: "#f87171", fontSize: 15, marginBottom: 8 }}>Failed to load preview</p>
-              <p style={{ color: "#64748b", fontSize: 13 }}>{error}</p>
+              <p style={{ color: "var(--coral)", fontSize: 15, marginBottom: 8 }}>Failed to load preview</p>
+              <p style={{ color: "var(--ink-faint)", fontSize: 13 }}>{error}</p>
             </div>
           ) : (
             <>
               {/* File tabs */}
               {previews.length > 1 && (
                 <div style={{ display: "flex", gap: 6, marginBottom: 16, flexWrap: "wrap" }}>
-                  {previews.map((p, i) => <Tab key={i} active={i === fileIdx} color="#d97706" label={p.fileName} onClick={() => { setFileIdx(i); setSheetIdx(0); }} />)}
+                  {previews.map((p, i) => <Tab key={i} active={i === fileIdx} color="var(--amber)" label={p.fileName} onClick={() => { setFileIdx(i); setSheetIdx(0); }} />)}
                 </div>
               )}
               {preview && sheet && (
@@ -160,7 +160,7 @@ export function UploadPreviewModal({ files, onClose, onImport }: {
                   {/* Sheet tabs */}
                   {preview.sheets.length > 1 && (
                     <div style={{ display: "flex", gap: 6, marginBottom: 16, flexWrap: "wrap" }}>
-                      {preview.sheets.map((s, i) => <Tab key={i} active={i === sheetIdx} color="#3b82f6" label={s.name} onClick={() => setSheetIdx(i)} />)}
+                      {preview.sheets.map((s, i) => <Tab key={i} active={i === sheetIdx} color="var(--amber)" label={s.name} onClick={() => setSheetIdx(i)} />)}
                     </div>
                   )}
 
@@ -193,11 +193,11 @@ export function UploadPreviewModal({ files, onClose, onImport }: {
         {/* Footer */}
         {!loading && (
           <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 12, padding: "16px 24px", borderTop: BORDER, flexShrink: 0 }}>
-            {hasErr && <span style={{ marginRight: "auto", fontSize: 13, color: "#f87171", cursor: "pointer" }}>Fix and re-upload</span>}
-            <button onClick={onClose} style={{ padding: "8px 20px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: "transparent", color: "#94a3b8", fontSize: 14, cursor: "pointer" }}>Cancel</button>
-            {hasWarn && !hasErr && <Btn label={importing ? "Importing\u2026" : "Import with Warnings"} bg={importing ? "#78350f" : "#d97706"} disabled={importing} onClick={doImport} />}
-            {!hasErr && !hasWarn && <Btn label={importing ? "Importing\u2026" : "Confirm & Import"} bg={importing ? "#1e3a5f" : "#3b82f6"} disabled={importing} onClick={doImport} />}
-            {hasErr && <Btn label="Confirm & Import" bg="#374151" disabled />}
+            {hasErr && <span style={{ marginRight: "auto", fontSize: 13, color: "var(--coral)", cursor: "pointer" }}>Fix and re-upload</span>}
+            <button onClick={onClose} style={{ padding: "8px 20px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: "transparent", color: "var(--ink-soft)", fontSize: 14, cursor: "pointer" }}>Cancel</button>
+            {hasWarn && !hasErr && <Btn label={importing ? "Importing\u2026" : "Import with Warnings"} bg={importing ? "#78350f" : "var(--amber)"} disabled={importing} onClick={doImport} />}
+            {!hasErr && !hasWarn && <Btn label={importing ? "Importing\u2026" : "Confirm & Import"} bg={importing ? "#1e3a5f" : "var(--amber)"} disabled={importing} onClick={doImport} />}
+            {hasErr && <Btn label="Confirm & Import" bg="var(--ink-faint)" disabled />}
           </div>
         )}
       </div>
@@ -210,7 +210,7 @@ function LoadingSkeleton() {
   const bar = { borderRadius: 8, background: "linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%)", animation: "upm-pulse 1.5s ease-in-out infinite" };
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: "32px 0" }}>
-      <p style={{ color: "#94a3b8", textAlign: "center", fontSize: 15 }}>Analyzing your file...</p>
+      <p style={{ color: "var(--ink-soft)", textAlign: "center", fontSize: 15 }}>Analyzing your file...</p>
       {[200, 300, 160].map((w, i) => <div key={i} style={{ ...bar, height: 16, width: w }} />)}
       <div style={{ ...bar, height: 120, borderRadius: 10 }} />
       <style>{`@keyframes upm-pulse { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }`}</style>
@@ -221,14 +221,14 @@ function LoadingSkeleton() {
 // ── Detection card ─────────────────────────────────────────
 function DetectionCard({ sheet, onTypeChange }: { sheet: SheetPreview; onTypeChange: (t: string) => void }) {
   const pct = Math.round(sheet.confidence * 100);
-  const barClr = pct >= 80 ? "#22c55e" : pct >= 50 ? "#eab308" : "#ef4444";
+  const barClr = pct >= 80 ? "var(--sage)" : pct >= 50 ? "var(--amber)" : "var(--coral)";
   const types = sheet.availableTypes.length > 0 ? sheet.availableTypes : DATA_TYPES;
   return (
     <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 10, padding: "14px 18px", marginBottom: 16, border: "1px solid rgba(255,255,255,0.05)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
         {pct > 0
-          ? <span style={{ fontSize: 14 }}>This looks like <strong style={{ color: "#f4a83a" }}>{sheet.detectedType}</strong> data ({pct}% match)</span>
-          : <span style={{ fontSize: 14, color: "#94a3b8" }}>Data type not detected</span>}
+          ? <span style={{ fontSize: 14 }}>This looks like <strong style={{ color: "var(--amber)" }}>{sheet.detectedType}</strong> data ({pct}% match)</span>
+          : <span style={{ fontSize: 14, color: "var(--ink-soft)" }}>Data type not detected</span>}
         {pct > 0 && (
           <div style={{ width: 100, height: 6, borderRadius: 3, background: "rgba(255,255,255,0.08)", overflow: "hidden" }}>
             <div style={{ width: `${pct}%`, height: "100%", borderRadius: 3, background: barClr, transition: "width 0.3s" }} />
@@ -236,13 +236,13 @@ function DetectionCard({ sheet, onTypeChange }: { sheet: SheetPreview; onTypeCha
         )}
         <select value={sheet.detectedType} onChange={(e) => onTypeChange(e.target.value)} style={{
           marginLeft: "auto", padding: "4px 8px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.1)",
-          background: "#0f172a", color: "#e2e8f0", fontSize: 12, cursor: "pointer",
+          background: "#0f172a", color: "var(--ink)", fontSize: 12, cursor: "pointer",
         }}>
           {types.map((t) => <option key={t} value={t}>{t}</option>)}
         </select>
       </div>
       {(sheet.rowCount > 0 || sheet.columnCount > 0) && (
-        <div style={{ marginTop: 8, fontSize: 12, color: "#64748b", display: "flex", gap: 16 }}>
+        <div style={{ marginTop: 8, fontSize: 12, color: "var(--ink-faint)", display: "flex", gap: 16 }}>
           <span>{sheet.rowCount.toLocaleString()} rows</span>
           <span>{sheet.columnCount} columns</span>
         </div>
@@ -253,7 +253,7 @@ function DetectionCard({ sheet, onTypeChange }: { sheet: SheetPreview; onTypeCha
 
 // ── Data preview table ─────────────────────────────────────
 function DataPreview({ headers, rows }: { headers: string[]; rows: string[][] }) {
-  const th: React.CSSProperties = { padding: "8px 12px", textAlign: "left", fontFamily: MONO, fontSize: 11, fontWeight: 600, color: "#94a3b8", background: "rgba(255,255,255,0.04)", borderBottom: BORDER, whiteSpace: "nowrap", position: "sticky", top: 0 };
+  const th: React.CSSProperties = { padding: "8px 12px", textAlign: "left", fontFamily: MONO, fontSize: 11, fontWeight: 600, color: "var(--ink-soft)", background: "rgba(255,255,255,0.04)", borderBottom: BORDER, whiteSpace: "nowrap", position: "sticky", top: 0 };
   return (
     <div style={{ marginBottom: 16, borderRadius: 10, border: "1px solid rgba(255,255,255,0.05)", overflow: "auto", maxHeight: 220 }}>
       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
@@ -261,7 +261,7 @@ function DataPreview({ headers, rows }: { headers: string[]; rows: string[][] })
         <tbody>
           {rows.slice(0, 5).map((row, ri) => (
             <tr key={ri}>{row.map((cell, ci) => (
-              <td key={ci} style={{ padding: "6px 12px", borderBottom: "1px solid rgba(255,255,255,0.03)", color: "#cbd5e1", whiteSpace: "nowrap", fontFamily: MONO, fontSize: 11, background: ri % 2 ? "rgba(255,255,255,0.02)" : "transparent" }}>{cell}</td>
+              <td key={ci} style={{ padding: "6px 12px", borderBottom: "1px solid rgba(255,255,255,0.03)", color: "var(--ink)", whiteSpace: "nowrap", fontFamily: MONO, fontSize: 11, background: ri % 2 ? "rgba(255,255,255,0.02)" : "transparent" }}>{cell}</td>
             ))}</tr>
           ))}
         </tbody>
@@ -275,11 +275,11 @@ function MappingTable({ mappings, expected, getTarget, onChange }: {
   mappings: ColumnMapping[]; expected: string[];
   getTarget: (m: ColumnMapping) => string; onChange: (src: string, tgt: string) => void;
 }) {
-  const icon = (m: ColumnMapping) => m.status === "mapped" ? { i: "\u2713", c: "#22c55e" } : m.status === "missing" ? { i: "\u2717", c: "#ef4444" } : { i: "\u26A0", c: "#eab308" };
-  const hdr: React.CSSProperties = { padding: "8px 16px", textAlign: "left", color: "#64748b", fontSize: 11, fontWeight: 500, borderBottom: "1px solid rgba(255,255,255,0.05)" };
+  const icon = (m: ColumnMapping) => m.status === "mapped" ? { i: "\u2713", c: "var(--sage)" } : m.status === "missing" ? { i: "\u2717", c: "var(--coral)" } : { i: "\u26A0", c: "var(--amber)" };
+  const hdr: React.CSSProperties = { padding: "8px 16px", textAlign: "left", color: "var(--ink-faint)", fontSize: 11, fontWeight: 500, borderBottom: "1px solid rgba(255,255,255,0.05)" };
   return (
     <div style={{ marginBottom: 16, borderRadius: 10, border: "1px solid rgba(255,255,255,0.05)", overflow: "hidden" }}>
-      <div style={{ padding: "10px 16px", background: "rgba(255,255,255,0.03)", fontSize: 13, fontWeight: 600, color: "#94a3b8" }}>Column Mapping</div>
+      <div style={{ padding: "10px 16px", background: "rgba(255,255,255,0.03)", fontSize: 13, fontWeight: 600, color: "var(--ink-soft)" }}>Column Mapping</div>
       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
         <thead><tr><th style={hdr}>Your Column</th><th style={hdr}>Maps To</th></tr></thead>
         <tbody>
@@ -287,7 +287,7 @@ function MappingTable({ mappings, expected, getTarget, onChange }: {
             const s = icon(m); const eff = getTarget(m);
             return (
               <tr key={i}>
-                <td style={{ padding: "8px 16px", borderBottom: "1px solid rgba(255,255,255,0.03)", fontFamily: MONO, fontSize: 12, color: m.status === "missing" ? "#64748b" : "#e2e8f0", fontStyle: m.status === "missing" ? "italic" : "normal" }}>
+                <td style={{ padding: "8px 16px", borderBottom: "1px solid rgba(255,255,255,0.03)", fontFamily: MONO, fontSize: 12, color: m.status === "missing" ? "var(--ink-faint)" : "var(--ink)", fontStyle: m.status === "missing" ? "italic" : "normal" }}>
                   {m.source || "[missing]"}
                 </td>
                 <td style={{ padding: "8px 16px", borderBottom: "1px solid rgba(255,255,255,0.03)" }}>
@@ -295,12 +295,12 @@ function MappingTable({ mappings, expected, getTarget, onChange }: {
                     <span style={{ color: s.c, fontSize: 14, lineHeight: 1 }}>{s.i}</span>
                     <select value={eff} onChange={(e) => onChange(m.source, e.target.value)} style={{
                       padding: "3px 6px", borderRadius: 4, border: `1px solid ${s.c}33`,
-                      background: "#0f172a", color: "#e2e8f0", fontSize: 12, cursor: "pointer", minWidth: 160,
+                      background: "#0f172a", color: "var(--ink)", fontSize: 12, cursor: "pointer", minWidth: 160,
                     }}>
                       <option value="">Not mapped</option>
                       {expected.map((ec) => <option key={ec} value={ec}>{ec}</option>)}
                     </select>
-                    {m.required && m.status === "missing" && <span style={{ fontSize: 11, color: "#f87171" }}>required</span>}
+                    {m.required && m.status === "missing" && <span style={{ fontSize: 11, color: "var(--coral)" }}>required</span>}
                   </div>
                 </td>
               </tr>
@@ -318,7 +318,7 @@ function ValidationCard({ sheet, open, toggle }: { sheet: SheetPreview; open: bo
   const errs = issues.filter((i) => i.severity === "error");
   const warns = issues.filter((i) => i.severity === "warning");
   const infos = issues.filter((i) => i.severity === "info");
-  const clr = errs.length ? "#ef4444" : warns.length ? "#eab308" : "#22c55e";
+  const clr = errs.length ? "var(--coral)" : warns.length ? "var(--amber)" : "var(--sage)";
   return (
     <div style={{ borderRadius: 10, border: `1px solid ${clr}22`, background: `${clr}08`, overflow: "hidden" }}>
       <div onClick={issues.length ? toggle : undefined} style={{
@@ -326,13 +326,13 @@ function ValidationCard({ sheet, open, toggle }: { sheet: SheetPreview; open: bo
         cursor: issues.length ? "pointer" : "default", userSelect: "none",
       }}>
         <span style={{ fontSize: 14, color: clr }}>{errs.length ? "\u2717" : warns.length ? "\u26A0" : "\u2713"}</span>
-        <span style={{ fontSize: 13, color: "#e2e8f0" }}>
-          {sheet.rowCount > 0 && <span style={{ color: "#22c55e" }}>{sheet.rowCount.toLocaleString()} rows</span>}
-          {warns.length > 0 && <>{sheet.rowCount > 0 && " \u00B7 "}<span style={{ color: "#eab308" }}>{warns.length} warning{warns.length !== 1 ? "s" : ""}</span></>}
-          {errs.length > 0 && <>{(sheet.rowCount > 0 || warns.length > 0) && " \u00B7 "}<span style={{ color: "#ef4444" }}>{errs.length} error{errs.length !== 1 ? "s" : ""}</span></>}
-          {sheet.rowCount === 0 && !warns.length && !errs.length && <span style={{ color: "#22c55e" }}>Ready to import</span>}
+        <span style={{ fontSize: 13, color: "var(--ink)" }}>
+          {sheet.rowCount > 0 && <span style={{ color: "var(--sage)" }}>{sheet.rowCount.toLocaleString()} rows</span>}
+          {warns.length > 0 && <>{sheet.rowCount > 0 && " \u00B7 "}<span style={{ color: "var(--amber)" }}>{warns.length} warning{warns.length !== 1 ? "s" : ""}</span></>}
+          {errs.length > 0 && <>{(sheet.rowCount > 0 || warns.length > 0) && " \u00B7 "}<span style={{ color: "var(--coral)" }}>{errs.length} error{errs.length !== 1 ? "s" : ""}</span></>}
+          {sheet.rowCount === 0 && !warns.length && !errs.length && <span style={{ color: "var(--sage)" }}>Ready to import</span>}
         </span>
-        {issues.length > 0 && <span style={{ marginLeft: "auto", fontSize: 12, color: "#64748b" }}>{open ? "\u25B2" : "\u25BC"}</span>}
+        {issues.length > 0 && <span style={{ marginLeft: "auto", fontSize: 12, color: "var(--ink-faint)" }}>{open ? "\u25B2" : "\u25BC"}</span>}
       </div>
       {open && issues.length > 0 && (
         <div style={{ padding: "0 16px 12px", display: "flex", flexDirection: "column", gap: 6 }}>

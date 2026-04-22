@@ -50,17 +50,17 @@ const defaultInsights: Insight[] = [
   },
 ];
 
-/* Phase 4 color palette */
-const TEAL = "#14B8A6";
-const AMBER = "#f4a83a";
-const CORAL = "#D85A30";
+/* Vista color palette */
+const TEAL = "var(--dusk)";
+const AMBER = "var(--amber)";
+const CORAL = "var(--coral)";
 
 /* Navy reference for text */
-const NAVY = "rgba(28,43,58,1)";
-const NAVY_65 = "rgba(28,43,58,0.65)";
-const NAVY_55 = "rgba(28,43,58,0.55)";
-const NAVY_20 = "rgba(28,43,58,0.20)";
-const NAVY_15 = "rgba(28,43,58,0.15)";
+const NAVY = "rgba(22,24,34,1)";
+const NAVY_65 = "rgba(22,24,34,0.65)";
+const NAVY_55 = "rgba(22,24,34,0.55)";
+const NAVY_20 = "rgba(22,24,34,0.20)";
+const NAVY_15 = "rgba(22,24,34,0.15)";
 
 const ICON_CONFIG = {
   new: { bg: "#E1F5EE", color: "#085041", symbol: "+" },
@@ -105,10 +105,10 @@ function DeptRow({
         alignItems: "center",
         padding: "5px 0",
         borderRadius: 4,
-        background: hovered || focused ? "rgba(28,43,58,0.03)" : "transparent",
+        background: hovered || focused ? "rgba(22,24,34,0.03)" : "transparent",
         transition: "background 0.15s ease",
         position: "relative",
-        outline: focused ? "2px solid #f4a83a" : "none",
+        outline: focused ? "2px solid var(--amber)" : "none",
         outlineOffset: 1,
       }}
     >
@@ -208,7 +208,7 @@ function DeptRow({
             fontSize: 12,
             color: NAVY_65,
             lineHeight: 1.8,
-            boxShadow: "0 4px 16px rgba(28,43,58,0.08)",
+            boxShadow: "0 4px 16px rgba(22,24,34,0.08)",
             whiteSpace: "nowrap",
             pointerEvents: "none",
           }}

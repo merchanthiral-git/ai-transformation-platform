@@ -490,7 +490,7 @@ Rules:
     <PageHeader icon={<PenLine size={20} />} title="Work Design Lab" subtitle="Mercer Work Design methodology — select a job to begin analysis" onBack={onBack} moduleId="design" />
     <div style={{ maxWidth: 768, margin: "0 auto", padding: "0 24px" }}>
       <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
-        <button onClick={() => setViewMode("queue")} style={{ fontSize: 11, color: "#f4a83a", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}>Switch to Queue View</button>
+        <button onClick={() => setViewMode("queue")} style={{ fontSize: 11, color: "var(--amber)", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}>Switch to Queue View</button>
       </div>
     </div>
 

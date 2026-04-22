@@ -47,15 +47,15 @@ const S = {
   artifactHeader: { display: "flex", alignItems: "center", gap: 10, padding: "14px 18px", cursor: "pointer", userSelect: "none" as const } as React.CSSProperties,
   artifactIcon: (color: string) => ({ width: 32, height: 32, borderRadius: 8, background: `${color}12`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }) as React.CSSProperties,
   artifactTitle: { flex: 1, fontSize: "var(--text-sm)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)" } as React.CSSProperties,
-  artifactStatus: (done: boolean) => ({ fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 10, background: done ? "rgba(34,197,94,0.1)" : "rgba(244,168,58,0.1)", color: done ? "#22C55E" : "#f4a83a" }) as React.CSSProperties,
+  artifactStatus: (done: boolean) => ({ fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 10, background: done ? "rgba(34,197,94,0.1)" : "rgba(244,168,58,0.1)", color: done ? "var(--sage)" : "var(--amber)" }) as React.CSSProperties,
   artifactBody: { padding: "0 18px 18px" } as React.CSSProperties,
   textarea: { width: "100%", padding: "10px 12px", fontSize: "var(--text-xs)", background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 6, color: "var(--text-primary)", resize: "vertical" as const, outline: "none", fontFamily: "inherit", minHeight: 100, lineHeight: 1.6 } as React.CSSProperties,
   input: { width: "100%", padding: "7px 10px", fontSize: "var(--text-xs)", background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 6, color: "var(--text-primary)", outline: "none" } as React.CSSProperties,
   label: { fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.05em", marginBottom: 4, marginTop: 10 } as React.CSSProperties,
   actions: { display: "flex", gap: 6, marginTop: 8 } as React.CSSProperties,
   btn: { display: "inline-flex", alignItems: "center", gap: 4, padding: "5px 12px", fontSize: 11, fontWeight: "var(--fw-medium)", border: "1px solid var(--border)", borderRadius: 5, background: "var(--surface-2)", color: "var(--text-secondary)", cursor: "pointer" } as React.CSSProperties,
-  btnPrimary: { display: "inline-flex", alignItems: "center", gap: 4, padding: "7px 16px", fontSize: 12, fontWeight: "var(--fw-semi)", border: "none", borderRadius: 6, background: "#f4a83a", color: "#fff", cursor: "pointer" } as React.CSSProperties,
-  btnSuccess: { display: "inline-flex", alignItems: "center", gap: 4, padding: "8px 18px", fontSize: 12, fontWeight: "var(--fw-semi)", border: "none", borderRadius: 6, background: "#22C55E", color: "#fff", cursor: "pointer" } as React.CSSProperties,
+  btnPrimary: { display: "inline-flex", alignItems: "center", gap: 4, padding: "7px 16px", fontSize: 12, fontWeight: "var(--fw-semi)", border: "none", borderRadius: 6, background: "var(--amber)", color: "#fff", cursor: "pointer" } as React.CSSProperties,
+  btnSuccess: { display: "inline-flex", alignItems: "center", gap: 4, padding: "8px 18px", fontSize: 12, fontWeight: "var(--fw-semi)", border: "none", borderRadius: 6, background: "var(--sage)", color: "#fff", cursor: "pointer" } as React.CSSProperties,
   decisionRow: { display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: "1px solid var(--border)", fontSize: "var(--text-xs)" } as React.CSSProperties,
   decisionStage: { padding: "2px 6px", fontSize: 11, fontWeight: 600, borderRadius: 3, background: "var(--surface-2)", color: "var(--text-muted)", minWidth: 80, textAlign: "center" as const } as React.CSSProperties,
   pushRow: { display: "flex", alignItems: "center", gap: 12, padding: "12px 18px", background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 10, marginBottom: 8 } as React.CSSProperties,
@@ -184,9 +184,9 @@ export default function StageHandoff({
   });
 
   const artifacts = [
-    { title: "Redesign Summary", icon: <FileText size={16} style={{ color: "#f4a83a" }} />, color: "#f4a83a", value: summary, setter: setSummary, done: !!summary.trim() },
-    { title: "Published Job Description", icon: <FileText size={16} style={{ color: "#a78bb8" }} />, color: "#a78bb8", value: jd, setter: setJd, done: !!jd.trim() },
-    { title: "Change Impact Brief", icon: <Users size={16} style={{ color: "#f4a83a" }} />, color: "#f4a83a", value: changeImpact, setter: setChangeImpact, done: !!changeImpact.trim() },
+    { title: "Redesign Summary", icon: <FileText size={16} style={{ color: "var(--amber)" }} />, color: "var(--amber)", value: summary, setter: setSummary, done: !!summary.trim() },
+    { title: "Published Job Description", icon: <FileText size={16} style={{ color: "var(--dusk)" }} />, color: "var(--dusk)", value: jd, setter: setJd, done: !!jd.trim() },
+    { title: "Change Impact Brief", icon: <Users size={16} style={{ color: "var(--amber)" }} />, color: "var(--amber)", value: changeImpact, setter: setChangeImpact, done: !!changeImpact.trim() },
   ];
 
   return (
@@ -216,7 +216,7 @@ export default function StageHandoff({
       <div style={{ ...S.artifact(true), padding: 0 }}>
         <div style={{ padding: "14px 18px" }}>
           <div style={{ fontSize: "var(--text-sm)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)", display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-            <Calendar size={14} style={{ color: "#14B8A6" }} /> Wave & Sequencing
+            <Calendar size={14} style={{ color: "var(--sage)" }} /> Wave & Sequencing
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <div>

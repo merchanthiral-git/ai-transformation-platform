@@ -40,17 +40,17 @@ interface Props {
    ═══════════════════════════════════════════════════════════════ */
 
 const STATUS_ICONS: Record<string, { icon: string; color: string }> = {
-  redesigned: { icon: "●", color: "#22C55E" },
-  in_progress: { icon: "◐", color: "#f4a83a" },
+  redesigned: { icon: "●", color: "var(--sage)" },
+  in_progress: { icon: "◐", color: "var(--amber)" },
   not_started: { icon: "○", color: "var(--text-muted)" },
-  deferred: { icon: "⊘", color: "#9CA3AF" },
-  out_of_scope: { icon: "ⓘ", color: "#9CA3AF" },
+  deferred: { icon: "⊘", color: "var(--ink-soft)" },
+  out_of_scope: { icon: "ⓘ", color: "var(--ink-soft)" },
 };
 
 const SYNC_BADGES: Record<string, { label: string; color: string }> = {
   synced: { label: "↑ JA", color: "var(--text-muted)" },
-  stale: { label: "⚠ JA update", color: "#f4a83a" },
-  conflict: { label: "⚡ Conflict", color: "#f4a83a" },
+  stale: { label: "⚠ JA update", color: "var(--amber)" },
+  conflict: { label: "⚡ Conflict", color: "var(--amber)" },
   manual: { label: "✎ Manual", color: "var(--text-muted)" },
   uploaded: { label: "⬆ CSV", color: "var(--text-muted)" },
   broken: { label: "⚬ Broken", color: "var(--text-muted)" },
@@ -82,7 +82,7 @@ const S = {
   searchInput: { flex: 1, background: "transparent", border: "none", color: "var(--text-primary)", fontSize: "var(--text-xs)", outline: "none" } as React.CSSProperties,
   select: { padding: "5px 10px", fontSize: 11, background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 6, color: "var(--text-secondary)", outline: "none", appearance: "none" as const, paddingRight: 20 } as React.CSSProperties,
   wavePills: { display: "flex", gap: 4, marginBottom: 14 } as React.CSSProperties,
-  wavePill: (active: boolean) => ({ padding: "5px 14px", fontSize: 11, fontWeight: active ? "var(--fw-semi)" : "var(--fw-medium)", border: `1px solid ${active ? "#f4a83a" : "var(--border)"}`, borderRadius: 14, background: active ? "rgba(244,168,58,0.08)" : "var(--surface-2)", color: active ? "#f4a83a" : "var(--text-muted)", cursor: "pointer", whiteSpace: "nowrap" as const }) as React.CSSProperties,
+  wavePill: (active: boolean) => ({ padding: "5px 14px", fontSize: 11, fontWeight: active ? "var(--fw-semi)" : "var(--fw-medium)", border: `1px solid ${active ? "var(--amber)" : "var(--border)"}`, borderRadius: 14, background: active ? "rgba(244,168,58,0.08)" : "var(--surface-2)", color: active ? "var(--amber)" : "var(--text-muted)", cursor: "pointer", whiteSpace: "nowrap" as const }) as React.CSSProperties,
   funcSection: { background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 10, marginBottom: 10, overflow: "hidden" } as React.CSSProperties,
   funcHeader: { display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", cursor: "pointer", userSelect: "none" as const } as React.CSSProperties,
   funcName: { fontSize: "var(--text-sm)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)", flex: 1 } as React.CSSProperties,
@@ -96,11 +96,11 @@ const S = {
   waveBadge: { fontSize: 11, color: "var(--text-muted)", whiteSpace: "nowrap" as const } as React.CSSProperties,
   stageBadge: { fontSize: 11, color: "var(--text-muted)", padding: "1px 6px", background: "var(--surface-2)", borderRadius: 3 } as React.CSSProperties,
   sparkline: { width: 48, height: 14, display: "flex", alignItems: "flex-end", gap: 1 } as React.CSSProperties,
-  sparkBar: (pct: number) => ({ width: 4, height: `${Math.max(pct * 100, 5)}%`, background: "#f4a83a", borderRadius: 1, opacity: 0.6 }) as React.CSSProperties,
+  sparkBar: (pct: number) => ({ width: 4, height: `${Math.max(pct * 100, 5)}%`, background: "var(--amber)", borderRadius: 1, opacity: 0.6 }) as React.CSSProperties,
   miniProgress: { display: "flex", gap: 2, alignItems: "center" } as React.CSSProperties,
-  miniDot: (pct: number) => ({ width: 6, height: 6, borderRadius: "50%", background: pct >= 100 ? "#22C55E" : pct > 0 ? "#f4a83a" : "var(--border)" }) as React.CSSProperties,
+  miniDot: (pct: number) => ({ width: 6, height: 6, borderRadius: "50%", background: pct >= 100 ? "var(--sage)" : pct > 0 ? "var(--amber)" : "var(--border)" }) as React.CSSProperties,
   btn: { display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 12px", fontSize: "var(--text-xs)", fontWeight: "var(--fw-medium)", border: "1px solid var(--border)", borderRadius: 6, background: "var(--surface-2)", color: "var(--text-secondary)", cursor: "pointer" } as React.CSSProperties,
-  btnPrimary: { display: "inline-flex", alignItems: "center", gap: 4, padding: "7px 14px", fontSize: "var(--text-xs)", fontWeight: "var(--fw-semi)", border: "none", borderRadius: 6, background: "#f4a83a", color: "#fff", cursor: "pointer" } as React.CSSProperties,
+  btnPrimary: { display: "inline-flex", alignItems: "center", gap: 4, padding: "7px 14px", fontSize: "var(--text-xs)", fontWeight: "var(--fw-semi)", border: "none", borderRadius: 6, background: "var(--amber)", color: "#fff", cursor: "pointer" } as React.CSSProperties,
   bulkBar: { display: "flex", alignItems: "center", gap: 8, padding: "8px 14px", background: "rgba(244,168,58,0.06)", border: "1px solid rgba(244,168,58,0.15)", borderRadius: 8, marginBottom: 10, fontSize: "var(--text-xs)" } as React.CSSProperties,
   emptyState: { textAlign: "center" as const, padding: "60px 24px", color: "var(--text-muted)" } as React.CSSProperties,
   quickActions: { display: "flex", gap: 3, opacity: 0, transition: "opacity 0.15s" } as React.CSSProperties,
@@ -351,13 +351,13 @@ export default function WorkDesignQueue({ projectId, model, onJobSelect }: Props
             <span style={S.funcName}>{func.function || "Unassigned"}</span>
             <span style={S.funcMeta}>
               {func.total} job{func.total !== 1 ? "s" : ""}
-              {func.redesigned > 0 && <> · <span style={{ color: "#22C55E" }}>{func.redesigned} redesigned</span></>}
-              {func.in_progress > 0 && <> · <span style={{ color: "#f4a83a" }}>{func.in_progress} in progress</span></>}
+              {func.redesigned > 0 && <> · <span style={{ color: "var(--sage)" }}>{func.redesigned} redesigned</span></>}
+              {func.in_progress > 0 && <> · <span style={{ color: "var(--amber)" }}>{func.in_progress} in progress</span></>}
               {func.not_started > 0 && <> · {func.not_started} not started</>}
             </span>
             <button style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", padding: 2, fontSize: 11 }}
               onClick={e => { e.stopPropagation(); selectAllInFunction(func); }}>
-              {func.jobs.every(j => selected.has(j.id)) ? <CheckSquare size={13} style={{ color: "#f4a83a" }} /> : <Square size={13} />}
+              {func.jobs.every(j => selected.has(j.id)) ? <CheckSquare size={13} style={{ color: "var(--amber)" }} /> : <Square size={13} />}
             </button>
           </div>
 
@@ -378,7 +378,7 @@ export default function WorkDesignQueue({ projectId, model, onJobSelect }: Props
                 {/* Checkbox */}
                 <button style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", padding: 0, flexShrink: 0 }}
                   onClick={e => { e.stopPropagation(); toggleSelect(job.id); }}>
-                  {isSelected ? <CheckSquare size={13} style={{ color: "#f4a83a" }} /> : <Square size={13} />}
+                  {isSelected ? <CheckSquare size={13} style={{ color: "var(--amber)" }} /> : <Square size={13} />}
                 </button>
 
                 {/* Status icon */}
@@ -412,7 +412,7 @@ export default function WorkDesignQueue({ projectId, model, onJobSelect }: Props
 
                 {/* Sparkline (hours freed) */}
                 {job.hours_freed > 0 && (
-                  <div style={{ fontSize: 11, fontFamily: "var(--ff-mono)", color: "#22C55E", minWidth: 40, textAlign: "right" }}>
+                  <div style={{ fontSize: 11, fontFamily: "var(--ff-mono)", color: "var(--sage)", minWidth: 40, textAlign: "right" }}>
                     {job.hours_freed.toFixed(1)}h
                   </div>
                 )}

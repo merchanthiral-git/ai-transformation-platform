@@ -18,7 +18,7 @@ interface SkillDef { id: string; name: string; elementId: string }
 interface SkillCategory { name: string; color: string; skills: SkillDef[] }
 
 const SKILL_CATEGORIES: SkillCategory[] = [
-  { name: "Basic Skills", color: "#f4a83a", skills: [
+  { name: "Basic Skills", color: "var(--amber)", skills: [
     { id: "bs1", name: "Reading Comprehension", elementId: "2.A.1.a" },
     { id: "bs2", name: "Active Listening", elementId: "2.A.1.b" },
     { id: "bs3", name: "Writing", elementId: "2.A.1.c" },
@@ -26,13 +26,13 @@ const SKILL_CATEGORIES: SkillCategory[] = [
     { id: "bs5", name: "Mathematics", elementId: "2.A.1.e" },
     { id: "bs6", name: "Science", elementId: "2.A.1.f" },
   ]},
-  { name: "Process Skills", color: "#a78bb8", skills: [
+  { name: "Process Skills", color: "var(--dusk)", skills: [
     { id: "ps1", name: "Critical Thinking", elementId: "2.A.2.a" },
     { id: "ps2", name: "Active Learning", elementId: "2.A.2.b" },
     { id: "ps3", name: "Learning Strategies", elementId: "2.A.2.c" },
     { id: "ps4", name: "Monitoring", elementId: "2.A.2.d" },
   ]},
-  { name: "Social Skills", color: "#8ba87a", skills: [
+  { name: "Social Skills", color: "var(--sage)", skills: [
     { id: "ss1", name: "Social Perceptiveness", elementId: "2.B.1.a" },
     { id: "ss2", name: "Coordination", elementId: "2.B.1.b" },
     { id: "ss3", name: "Persuasion", elementId: "2.B.1.c" },
@@ -40,10 +40,10 @@ const SKILL_CATEGORIES: SkillCategory[] = [
     { id: "ss5", name: "Instructing", elementId: "2.B.1.e" },
     { id: "ss6", name: "Service Orientation", elementId: "2.B.1.f" },
   ]},
-  { name: "Complex Problem Solving", color: "#f4a83a", skills: [
+  { name: "Complex Problem Solving", color: "var(--amber)", skills: [
     { id: "cp1", name: "Complex Problem Solving", elementId: "2.B.2.i" },
   ]},
-  { name: "Technical Skills", color: "#e87a5d", skills: [
+  { name: "Technical Skills", color: "var(--coral)", skills: [
     { id: "ts1", name: "Operations Analysis", elementId: "2.B.3.a" },
     { id: "ts2", name: "Technology Design", elementId: "2.B.3.b" },
     { id: "ts3", name: "Equipment Selection", elementId: "2.B.3.c" },
@@ -61,7 +61,7 @@ const SKILL_CATEGORIES: SkillCategory[] = [
     { id: "sy2", name: "Systems Analysis", elementId: "2.B.4.f" },
     { id: "sy3", name: "Systems Evaluation", elementId: "2.B.4.g" },
   ]},
-  { name: "Resource Management", color: "#f4a83a", skills: [
+  { name: "Resource Management", color: "var(--amber)", skills: [
     { id: "rm1", name: "Time Management", elementId: "2.B.5.a" },
     { id: "rm2", name: "Management of Financial Resources", elementId: "2.B.5.b" },
     { id: "rm3", name: "Management of Material Resources", elementId: "2.B.5.c" },
@@ -341,7 +341,7 @@ export function SkillsMapEngine({ model, f, onBack, onNavigate }: {
   }, [occupations, majorGroupFilter, jobZoneFilter, searchQ]);
 
   const JZ_LABELS: Record<string, string> = { "1": "Little or No Preparation", "2": "Some Preparation", "3": "Medium Preparation", "4": "Considerable Preparation", "5": "Extensive Preparation" };
-  const JZ_COLORS: Record<string, string> = { "1": "#8ba87a", "2": "#f4a83a", "3": "#f4a83a", "4": "#e87a5d", "5": "#a78bb8" };
+  const JZ_COLORS: Record<string, string> = { "1": "var(--sage)", "2": "var(--amber)", "3": "var(--amber)", "4": "var(--coral)", "5": "var(--dusk)" };
 
   // ── Render ──
   return React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 0, minHeight: "100%" } },

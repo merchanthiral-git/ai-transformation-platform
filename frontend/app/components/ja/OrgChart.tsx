@@ -47,19 +47,19 @@ interface Props {
    ═══════════════════════════════════════════════════════════════ */
 
 const FUNC_COLORS: Record<string, { main: string; light: string; dark: string }> = {
-  Technology: { main: "#f4a83a", light: "#EFF6FF", dark: "#1E3A8A" },
-  Engineering: { main: "#f4a83a", light: "#EFF6FF", dark: "#1E3A8A" },
-  Product: { main: "#a78bb8", light: "#EEEDFE", dark: "#3C3489" },
-  Finance: { main: "#14B8A6", light: "#E1F5EE", dark: "#085041" },
+  Technology: { main: "var(--amber)", light: "#EFF6FF", dark: "#1E3A8A" },
+  Engineering: { main: "var(--amber)", light: "#EFF6FF", dark: "#1E3A8A" },
+  Product: { main: "var(--dusk)", light: "#EEEDFE", dark: "#3C3489" },
+  Finance: { main: "var(--sage)", light: "#E1F5EE", dark: "#085041" },
   HR: { main: "#639922", light: "#ECFCCB", dark: "#365314" },
-  "Sales & Marketing": { main: "#f4a83a", light: "#FEF1E8", dark: "#7C2D12" },
-  Commercial: { main: "#a78bb8", light: "#EEEDFE", dark: "#3C3489" },
-  Operations: { main: "#f4a83a", light: "#FEF1E8", dark: "#7C2D12" },
+  "Sales & Marketing": { main: "var(--amber)", light: "#FEF1E8", dark: "#7C2D12" },
+  Commercial: { main: "var(--dusk)", light: "#EEEDFE", dark: "#3C3489" },
+  Operations: { main: "var(--amber)", light: "#FEF1E8", dark: "#7C2D12" },
   Legal: { main: "#D4537E", light: "#FBEAF0", dark: "#72243E" },
 };
 
 function getFuncColor(func: string) {
-  return FUNC_COLORS[func] || { main: "#6B7280", light: "#F3F4F6", dark: "#374151" };
+  return FUNC_COLORS[func] || { main: "#6B7280", light: "#F3F4F6", dark: "var(--ink-faint)" };
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -69,21 +69,21 @@ function getFuncColor(func: string) {
 const S = {
   wrapper: { display: "flex", flexDirection: "column" as const, height: "calc(100vh - 120px)", overflow: "hidden", position: "relative" as const } as React.CSSProperties,
   toolbar: { display: "flex", alignItems: "center", gap: 10, padding: "8px 16px", background: "#fff", borderBottom: "0.5px solid rgba(22,24,34,0.12)", flexShrink: 0, zIndex: 10 } as React.CSSProperties,
-  searchBox: { display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", background: "#f4ebd9", border: "0.5px solid rgba(22,24,34,0.15)", borderRadius: 6, width: 240 } as React.CSSProperties,
-  searchInput: { flex: 1, background: "transparent", border: "none", color: "#161822", fontSize: 12, outline: "none" } as React.CSSProperties,
-  select: { padding: "6px 10px", fontSize: 12, background: "#fff", border: "0.5px solid rgba(22,24,34,0.15)", borderRadius: 6, color: "#161822", outline: "none" } as React.CSSProperties,
+  searchBox: { display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", background: "var(--ink)", border: "0.5px solid rgba(22,24,34,0.15)", borderRadius: 6, width: 240 } as React.CSSProperties,
+  searchInput: { flex: 1, background: "transparent", border: "none", color: "var(--paper-solid)", fontSize: 12, outline: "none" } as React.CSSProperties,
+  select: { padding: "6px 10px", fontSize: 12, background: "#fff", border: "0.5px solid rgba(22,24,34,0.15)", borderRadius: 6, color: "var(--paper-solid)", outline: "none" } as React.CSSProperties,
   pill: (active: boolean, color: string) => ({ padding: "4px 12px", fontSize: 11, fontWeight: active ? 600 : 400, border: `1px solid ${active ? color : "rgba(22,24,34,0.15)"}`, borderRadius: 14, background: active ? `${color}12` : "#fff", color: active ? color : "rgba(22,24,34,0.65)", cursor: "pointer" }) as React.CSSProperties,
-  btn: { display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 10px", fontSize: 11, fontWeight: 500, border: "0.5px solid rgba(22,24,34,0.15)", borderRadius: 6, background: "#fff", color: "#161822", cursor: "pointer" } as React.CSSProperties,
-  btnPrimary: { display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 14px", fontSize: 11, fontWeight: 600, border: "none", borderRadius: 6, background: "#161822", color: "#fff", cursor: "pointer" } as React.CSSProperties,
-  metaStats: { display: "flex", alignItems: "center", gap: 8, padding: "6px 16px", background: "#f4ebd9", borderBottom: "0.5px solid rgba(22,24,34,0.08)", fontSize: 11, color: "rgba(22,24,34,0.65)", flexShrink: 0 } as React.CSSProperties,
-  canvas: { flex: 1, background: "#f4ebd9", overflow: "hidden", position: "relative" as const, cursor: "grab" } as React.CSSProperties,
+  btn: { display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 10px", fontSize: 11, fontWeight: 500, border: "0.5px solid rgba(22,24,34,0.15)", borderRadius: 6, background: "#fff", color: "var(--paper-solid)", cursor: "pointer" } as React.CSSProperties,
+  btnPrimary: { display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 14px", fontSize: 11, fontWeight: 600, border: "none", borderRadius: 6, background: "var(--paper-solid)", color: "#fff", cursor: "pointer" } as React.CSSProperties,
+  metaStats: { display: "flex", alignItems: "center", gap: 8, padding: "6px 16px", background: "var(--ink)", borderBottom: "0.5px solid rgba(22,24,34,0.08)", fontSize: 11, color: "rgba(22,24,34,0.65)", flexShrink: 0 } as React.CSSProperties,
+  canvas: { flex: 1, background: "var(--ink)", overflow: "hidden", position: "relative" as const, cursor: "grab" } as React.CSSProperties,
   zoomControls: { position: "absolute" as const, bottom: 12, left: 12, display: "flex", alignItems: "center", gap: 2, padding: "4px 6px", background: "#fff", border: "0.5px solid rgba(22,24,34,0.12)", borderRadius: 6, zIndex: 5, fontSize: 11 } as React.CSSProperties,
   minimap: { position: "absolute" as const, bottom: 12, right: 12, width: 200, height: 84, background: "#fff", border: "0.5px solid rgba(22,24,34,0.15)", borderRadius: 6, zIndex: 5, padding: 6 } as React.CSSProperties,
   breadcrumb: { position: "absolute" as const, top: 8, left: 8, display: "flex", alignItems: "center", gap: 4, padding: "4px 10px", background: "#fff", border: "0.5px solid rgba(22,24,34,0.12)", borderRadius: 6, zIndex: 5, fontSize: 11 } as React.CSSProperties,
   searchDropdown: { position: "absolute" as const, top: 44, left: 16, width: 300, maxHeight: 320, background: "#fff", border: "0.5px solid rgba(22,24,34,0.15)", borderRadius: 8, boxShadow: "0 4px 12px rgba(0,0,0,0.1)", zIndex: 20, overflowY: "auto" as const } as React.CSSProperties,
   searchResult: { display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", cursor: "pointer", fontSize: 12, borderBottom: "1px solid rgba(22,24,34,0.06)" } as React.CSSProperties,
   contextMenu: { position: "fixed" as const, background: "#fff", border: "0.5px solid rgba(22,24,34,0.15)", borderRadius: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", zIndex: 30, padding: "4px 0", minWidth: 200 } as React.CSSProperties,
-  contextItem: { display: "flex", alignItems: "center", gap: 8, padding: "7px 14px", fontSize: 12, color: "#161822", cursor: "pointer" } as React.CSSProperties,
+  contextItem: { display: "flex", alignItems: "center", gap: 8, padding: "7px 14px", fontSize: 12, color: "var(--paper-solid)", cursor: "pointer" } as React.CSSProperties,
   emptyState: { display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", height: "100%", color: "rgba(22,24,34,0.4)" } as React.CSSProperties,
   legendItem: { display: "inline-flex", alignItems: "center", gap: 3, cursor: "pointer" } as React.CSSProperties,
 };
@@ -473,26 +473,26 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
         {/* Card background */}
         <rect width={w} height={h} rx={8} ry={8}
           fill="#fff"
-          stroke={isSelected ? "#f4a83a" : isHovered ? "rgba(22,24,34,0.4)" : "rgba(22,24,34,0.18)"}
+          stroke={isSelected ? "var(--amber)" : isHovered ? "rgba(22,24,34,0.4)" : "rgba(22,24,34,0.18)"}
           strokeWidth={isSelected ? 1.5 : 0.5}
         />
         {/* Function accent stripe */}
         <rect x={0} y={0} width={4} height={h} rx={2} ry={0}
-          fill={isRoot ? "#161822" : fc.main}
+          fill={isRoot ? "var(--paper-solid)" : fc.main}
           clipPath={`inset(0 0 0 0 round 8px 0 0 8px)`}
         />
         {/* Clip for left radius */}
         <clipPath id={`clip-${node.id}`}>
           <rect width={4} height={h} rx={2} />
         </clipPath>
-        <rect x={0} y={0} width={4} height={h} fill={isRoot ? "#161822" : fc.main} clipPath={`url(#clip-${node.id})`} />
+        <rect x={0} y={0} width={4} height={h} fill={isRoot ? "var(--paper-solid)" : fc.main} clipPath={`url(#clip-${node.id})`} />
 
         {/* Avatar */}
         <circle cx={24} cy={20} r={13} fill={fc.light} />
         <text x={24} y={24} textAnchor="middle" fontSize={9} fontWeight={600} fill={fc.dark}>{initials(node.name)}</text>
 
         {/* Name */}
-        <text x={44} y={18} fontSize={13} fontWeight={500} fill="#161822">
+        <text x={44} y={18} fontSize={13} fontWeight={500} fill="var(--paper-solid)">
           {node.name.length > 18 ? node.name.slice(0, 17) + "…" : node.name}
         </text>
 
@@ -526,7 +526,7 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
           <g transform={`translate(${w - 32}, 4)`}
             onClick={(e) => { e.stopPropagation(); expandNode(node.id); }}
             style={{ cursor: "pointer" }}>
-            <rect width={28} height={16} rx={8} fill="#161822" />
+            <rect width={28} height={16} rx={8} fill="var(--paper-solid)" />
             <text x={7} y={12} fontSize={9} fontWeight={600} fill="#fff">
               {isExpanded ? "▴" : "▾"} {node.direct_report_count || ""}
             </text>
@@ -535,7 +535,7 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
 
         {/* Focus ring for keyboard */}
         {isSelected && (
-          <rect width={w} height={h} rx={8} fill="none" stroke="#f4a83a" strokeWidth={2} strokeDasharray="none" />
+          <rect width={w} height={h} rx={8} fill="none" stroke="var(--amber)" strokeWidth={2} strokeDasharray="none" />
         )}
       </g>
     );
@@ -587,7 +587,7 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
         <div style={S.toolbar}><span style={{ fontSize: 12 }}>Org Chart</span></div>
         <div style={S.emptyState}>
           <Users size={40} style={{ marginBottom: 12, opacity: 0.3 }} />
-          <div style={{ fontSize: 14, fontWeight: 500, color: "#161822", marginBottom: 4 }}>No employees loaded</div>
+          <div style={{ fontSize: 14, fontWeight: 500, color: "var(--paper-solid)", marginBottom: 4 }}>No employees loaded</div>
           <div style={{ fontSize: 12 }}>Import your employee data to view the org chart.</div>
         </div>
       </div>
@@ -629,13 +629,13 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
 
       {/* Status pills */}
       {meta && meta.unmapped_count > 0 && (
-        <button style={S.pill(statusFilter === "unmapped", "#f4a83a")}
+        <button style={S.pill(statusFilter === "unmapped", "var(--amber)")}
           onClick={() => setStatusFilter(statusFilter === "unmapped" ? "" : "unmapped")}>
           Unmapped ({meta.unmapped_count})
         </button>
       )}
       {meta && meta.flagged_count > 0 && (
-        <button style={S.pill(statusFilter === "flagged", "#DC2626")}
+        <button style={S.pill(statusFilter === "flagged", "var(--coral)")}
           onClick={() => setStatusFilter(statusFilter === "flagged" ? "" : "flagged")}>
           Flags ({meta.flagged_count})
         </button>
@@ -646,12 +646,12 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
   return (
     <div style={{
       ...S.wrapper,
-      ...(isFullscreen ? { position: "fixed" as const, inset: 0, zIndex: 50, background: "#f4ebd9", height: "100vh", transition: "all 0.15s ease-in-out" } : { transition: "all 0.15s ease-in-out" }),
+      ...(isFullscreen ? { position: "fixed" as const, inset: 0, zIndex: 50, background: "var(--ink)", height: "100vh", transition: "all 0.15s ease-in-out" } : { transition: "all 0.15s ease-in-out" }),
     }}>
       {/* ── Fullscreen top bar ── */}
       {isFullscreen && (
         <div style={{ display: "flex", alignItems: "center", height: 48, padding: "0 16px", background: "#fff", borderBottom: "0.5px solid rgba(22,24,34,0.12)", flexShrink: 0, zIndex: 10 }}>
-          <span style={{ fontSize: 13, fontWeight: 600, color: "#161822", whiteSpace: "nowrap", marginRight: 16 }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: "var(--paper-solid)", whiteSpace: "nowrap", marginRight: 16 }}>
             Job Architecture &middot; Org Chart
           </span>
           <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
@@ -689,7 +689,7 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
           <button style={S.btn} title="Open in new window (Shift+F)" onClick={() => { openPopout(); saveModePreference("popout"); }}><ExternalLink size={11} /></button>
           {isPopoutOpen && (
             <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#8ba87a" }} />
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--sage)" }} />
               <span style={{ fontSize: 11, color: "rgba(22,24,34,0.5)" }}>Popout active</span>
             </span>
           )}
@@ -730,7 +730,7 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
                 {initials(r.name)}
               </div>
               <div>
-                <div style={{ fontSize: 12, fontWeight: 500, color: "#161822" }}>{r.name}</div>
+                <div style={{ fontSize: 12, fontWeight: 500, color: "var(--paper-solid)" }}>{r.name}</div>
                 <div style={{ fontSize: 11, color: "rgba(22,24,34,0.55)" }}>{r.title} · {r.function} · {r.level}</div>
               </div>
             </div>
@@ -740,12 +740,12 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
 
       {/* ── Phase 4: Large org popout placeholder ── */}
       {showPopoutPlaceholder && (
-        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", background: "#f4ebd9" }}>
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", background: "var(--ink)" }}>
           <div style={{
             background: "#fff", borderRadius: 10, padding: "32px 48px", textAlign: "center",
             border: "0.5px solid rgba(22,24,34,0.12)", boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
           }}>
-            <div style={{ fontSize: 14, fontWeight: 500, color: "#161822", marginBottom: 8 }}>Chart is in popout window</div>
+            <div style={{ fontSize: 14, fontWeight: 500, color: "var(--paper-solid)", marginBottom: 8 }}>Chart is in popout window</div>
             <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
               <button style={S.btn} onClick={() => popoutWindowRef.current?.focus()}>Focus popout</button>
               <button style={S.btn} onClick={() => {
@@ -783,12 +783,12 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
         {/* Breadcrumb (when drilled in) */}
         {rootId && rootNode && (
           <div style={S.breadcrumb}>
-            <button style={{ background: "none", border: "none", color: "#f4a83a", fontSize: 11, cursor: "pointer" }}
+            <button style={{ background: "none", border: "none", color: "var(--amber)", fontSize: 11, cursor: "pointer" }}
               onClick={() => setRootId("")}>
               Home
             </button>
             <span style={{ color: "rgba(22,24,34,0.4)" }}>›</span>
-            <span style={{ fontWeight: 500, color: "#161822" }}>{rootNode.name}</span>
+            <span style={{ fontWeight: 500, color: "var(--paper-solid)" }}>{rootNode.name}</span>
           </div>
         )}
 
@@ -798,14 +798,14 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
           <button title="Zoom out" style={{ ...S.btn, padding: "2px 6px" }} onClick={() => setZoom(z => Math.max(z - 0.1, 0.2))}><MinusIcon size={12} /></button>
           <span style={{ padding: "0 6px", fontFamily: "var(--ff-mono)", fontSize: 11, color: "rgba(22,24,34,0.55)", minWidth: 32, textAlign: "center" }}>{Math.round(zoom * 100)}%</span>
           <button title="Fit to view" style={{ ...S.btn, padding: "2px 6px" }} onClick={fitToView}><Maximize2 size={11} /></button>
-          <button style={{ ...S.btn, padding: "2px 6px", color: showMinimap ? "#f4a83a" : "rgba(22,24,34,0.4)" }}
+          <button style={{ ...S.btn, padding: "2px 6px", color: showMinimap ? "var(--amber)" : "rgba(22,24,34,0.4)" }}
             onClick={() => setShowMinimap(v => !v)}>Map</button>
         </div>
 
         {/* Minimap */}
         {showMinimap && layoutData.nodes.length > 3 && (
           <div style={S.minimap}>
-            <svg width="188" height="72" style={{ background: "#f4ebd9", borderRadius: 3 }}>
+            <svg width="188" height="72" style={{ background: "var(--ink)", borderRadius: 3 }}>
               {layoutData.nodes.map((n, i) => {
                 const xs = layoutData.nodes.map(nn => nn.x);
                 const ys = layoutData.nodes.map(nn => nn.y);

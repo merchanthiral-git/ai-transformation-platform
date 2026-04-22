@@ -25,19 +25,19 @@ export interface OMObjective2 { id: string; name: string; description: string; p
 export const OM_NODE_CFG: Record<OMNodeType2,{icon:string;color:string;defaultW:number;defaultH:number}> = {
   "org-unit":       { icon:"⬜", color:"var(--accent-primary)", defaultW:148, defaultH:52 },
   "coe":            { icon:"◈",  color:"var(--accent-primary)", defaultW:148, defaultH:52 },
-  "shared-service": { icon:"◉",  color:"#4A9E6B", defaultW:148, defaultH:52 },
+  "shared-service": { icon:"◉",  color:"var(--sage)", defaultW:148, defaultH:52 },
   "ai-node":        { icon:"⬡",  color:"var(--warning)", defaultW:148, defaultH:52 },
-  "role":           { icon:"○",  color:"#C0622A", defaultW:120, defaultH:44 },
+  "role":           { icon:"○",  color:"var(--coral)", defaultW:120, defaultH:44 },
   "governance":     { icon:"◇",  color:"var(--purple)", defaultW:140, defaultH:52 },
 };
 export const OM_EDGE_CFG: Record<OMEdgeType2,{label:string;dash:string;color:string}> = {
-  "reporting": { label:"Reporting",  dash:"none",    color:"#A0967A" },
+  "reporting": { label:"Reporting",  dash:"none",    color:"var(--ink-whisper)" },
   "service":   { label:"Service",    dash:"6,3",     color:"var(--accent-primary)" },
-  "advisory":  { label:"Advisory",   dash:"3,3",     color:"#6B6355" },
+  "advisory":  { label:"Advisory",   dash:"3,3",     color:"var(--ink-whisper)" },
   "data-flow": { label:"Data Flow",  dash:"8,2,2,2", color:"var(--warning)" },
 };
-export const OM_WAVE_COLOR: Record<number,string> = { 0:"#3d3930",1:"#4a9e6b",2:"#4a82c4",3:"#d4860a",4:"#8b5cf6" };
-export const OM_STATUS_COLOR: Record<string,string> = { "on-track":"#4a9e6b","at-risk":"#f0a500","off-track":"#e06c75","achieved":"#4a82c4" };
+export const OM_WAVE_COLOR: Record<number,string> = { 0:"var(--paper-solid)",1:"var(--sage)",2:"var(--amber)",3:"var(--amber)",4:"var(--dusk)" };
+export const OM_STATUS_COLOR: Record<string,string> = { "on-track":"var(--sage)","at-risk":"var(--amber)","off-track":"var(--coral)","achieved":"var(--amber)" };
 
 /* ═══════════════════════════════════════════════════════════════
    OM DICTIONARY — Function-scoped operating model presets
@@ -62,12 +62,12 @@ export const OM_FUNCTION_PRESETS: Record<string, OMPreset[]> = {
         {type:"coe",label:"Total Rewards CoE",x:30,y:124,w:148,h:48,color:"var(--accent-primary)",currentFte:8,targetFte:6},
         {type:"coe",label:"Talent & L&D CoE",x:200,y:124,w:148,h:48,color:"var(--accent-primary)",currentFte:12,targetFte:10},
         {type:"coe",label:"People Analytics",x:370,y:124,w:148,h:48,color:"var(--accent-primary)",currentFte:4,targetFte:8},
-        {type:"org-unit",label:"BU HRBP — Corp",x:50,y:216,w:140,h:48,color:"#C0622A",currentFte:6,targetFte:4},
-        {type:"org-unit",label:"BU HRBP — Ops",x:220,y:216,w:140,h:48,color:"#C0622A",currentFte:8,targetFte:5},
-        {type:"org-unit",label:"BU HRBP — Tech",x:390,y:216,w:140,h:48,color:"#C0622A",currentFte:5,targetFte:3},
-        {type:"shared-service",label:"HR Ops / GBS",x:60,y:308,w:150,h:48,color:"#4A9E6B",currentFte:25,targetFte:16},
-        {type:"shared-service",label:"Payroll & Benefits",x:240,y:308,w:150,h:48,color:"#4A9E6B",currentFte:12,targetFte:8},
-        {type:"shared-service",label:"Recruiting Ops",x:420,y:308,w:140,h:48,color:"#4A9E6B",currentFte:10,targetFte:6},
+        {type:"org-unit",label:"BU HRBP — Corp",x:50,y:216,w:140,h:48,color:"var(--coral)",currentFte:6,targetFte:4},
+        {type:"org-unit",label:"BU HRBP — Ops",x:220,y:216,w:140,h:48,color:"var(--coral)",currentFte:8,targetFte:5},
+        {type:"org-unit",label:"BU HRBP — Tech",x:390,y:216,w:140,h:48,color:"var(--coral)",currentFte:5,targetFte:3},
+        {type:"shared-service",label:"HR Ops / GBS",x:60,y:308,w:150,h:48,color:"var(--sage)",currentFte:25,targetFte:16},
+        {type:"shared-service",label:"Payroll & Benefits",x:240,y:308,w:150,h:48,color:"var(--sage)",currentFte:12,targetFte:8},
+        {type:"shared-service",label:"Recruiting Ops",x:420,y:308,w:140,h:48,color:"var(--sage)",currentFte:10,targetFte:6},
         {type:"ai-node",label:"AI Copilot Layer",x:150,y:396,w:150,h:44,color:"var(--warning)",currentFte:0,targetFte:4,aiMaturity:"Piloting"},
         {type:"ai-node",label:"Predictive Analytics",x:330,y:396,w:150,h:44,color:"var(--warning)",currentFte:0,targetFte:3,aiMaturity:"Exploring"},
       ],
@@ -79,8 +79,8 @@ export const OM_FUNCTION_PRESETS: Record<string, OMPreset[]> = {
         {type:"coe",label:"Comp & Benefits",x:40,y:124,w:148,h:48,color:"var(--accent-primary)",currentFte:10,targetFte:7},
         {type:"coe",label:"Talent Mgmt",x:210,y:124,w:130,h:48,color:"var(--accent-primary)",currentFte:8,targetFte:6},
         {type:"coe",label:"L&D / Academy",x:360,y:124,w:130,h:48,color:"var(--accent-primary)",currentFte:6,targetFte:5},
-        {type:"shared-service",label:"GBS — Transactional HR",x:80,y:230,w:180,h:50,color:"#4A9E6B",currentFte:40,targetFte:25},
-        {type:"shared-service",label:"GBS — Recruiting",x:290,y:230,w:150,h:50,color:"#4A9E6B",currentFte:15,targetFte:8},
+        {type:"shared-service",label:"GBS — Transactional HR",x:80,y:230,w:180,h:50,color:"var(--sage)",currentFte:40,targetFte:25},
+        {type:"shared-service",label:"GBS — Recruiting",x:290,y:230,w:150,h:50,color:"var(--sage)",currentFte:15,targetFte:8},
       ],
     },
   ],
@@ -98,11 +98,11 @@ export const OM_FUNCTION_PRESETS: Record<string, OMPreset[]> = {
         {type:"coe",label:"Enterprise Arch",x:40,y:110,w:148,h:48,color:"var(--accent-primary)",currentFte:5,targetFte:4},
         {type:"coe",label:"Cloud Platform",x:210,y:110,w:130,h:48,color:"var(--accent-primary)",currentFte:12,targetFte:15},
         {type:"coe",label:"Data Platform",x:360,y:110,w:130,h:48,color:"var(--accent-primary)",currentFte:8,targetFte:12},
-        {type:"org-unit",label:"NOC",x:40,y:205,w:120,h:48,color:"#C0622A",currentFte:15,targetFte:8},
-        {type:"org-unit",label:"ITOC Command",x:180,y:205,w:148,h:48,color:"#C0622A",currentFte:8,targetFte:6},
-        {type:"org-unit",label:"Release Mgmt",x:348,y:205,w:140,h:48,color:"#C0622A",currentFte:6,targetFte:4},
-        {type:"shared-service",label:"Service Desk L1/L2",x:60,y:298,w:170,h:48,color:"#4A9E6B",currentFte:30,targetFte:15},
-        {type:"shared-service",label:"App Support",x:260,y:298,w:130,h:48,color:"#4A9E6B",currentFte:18,targetFte:12},
+        {type:"org-unit",label:"NOC",x:40,y:205,w:120,h:48,color:"var(--coral)",currentFte:15,targetFte:8},
+        {type:"org-unit",label:"ITOC Command",x:180,y:205,w:148,h:48,color:"var(--coral)",currentFte:8,targetFte:6},
+        {type:"org-unit",label:"Release Mgmt",x:348,y:205,w:140,h:48,color:"var(--coral)",currentFte:6,targetFte:4},
+        {type:"shared-service",label:"Service Desk L1/L2",x:60,y:298,w:170,h:48,color:"var(--sage)",currentFte:30,targetFte:15},
+        {type:"shared-service",label:"App Support",x:260,y:298,w:130,h:48,color:"var(--sage)",currentFte:18,targetFte:12},
         {type:"ai-node",label:"SOC / SIEM",x:120,y:386,w:130,h:44,color:"var(--purple)",currentFte:8,targetFte:10},
         {type:"ai-node",label:"AIOps",x:280,y:386,w:130,h:44,color:"var(--warning)",currentFte:0,targetFte:5,aiMaturity:"Piloting"},
       ],
@@ -116,10 +116,10 @@ export const OM_FUNCTION_PRESETS: Record<string, OMPreset[]> = {
         {type:"coe",label:"FP&A CoE",x:40,y:110,w:130,h:48,color:"var(--accent-primary)",currentFte:10,targetFte:8},
         {type:"coe",label:"Treasury",x:190,y:110,w:120,h:48,color:"var(--accent-primary)",currentFte:6,targetFte:5},
         {type:"coe",label:"Tax & Compliance",x:330,y:110,w:148,h:48,color:"var(--accent-primary)",currentFte:8,targetFte:7},
-        {type:"org-unit",label:"BU Finance BP",x:60,y:206,w:150,h:48,color:"#C0622A",currentFte:12,targetFte:8},
-        {type:"org-unit",label:"Controller",x:240,y:206,w:120,h:48,color:"#C0622A",currentFte:8,targetFte:6},
-        {type:"shared-service",label:"AP / AR / GL",x:60,y:298,w:150,h:48,color:"#4A9E6B",currentFte:20,targetFte:10},
-        {type:"shared-service",label:"Financial Reporting",x:240,y:298,w:160,h:48,color:"#4A9E6B",currentFte:8,targetFte:5},
+        {type:"org-unit",label:"BU Finance BP",x:60,y:206,w:150,h:48,color:"var(--coral)",currentFte:12,targetFte:8},
+        {type:"org-unit",label:"Controller",x:240,y:206,w:120,h:48,color:"var(--coral)",currentFte:8,targetFte:6},
+        {type:"shared-service",label:"AP / AR / GL",x:60,y:298,w:150,h:48,color:"var(--sage)",currentFte:20,targetFte:10},
+        {type:"shared-service",label:"Financial Reporting",x:240,y:298,w:160,h:48,color:"var(--sage)",currentFte:8,targetFte:5},
         {type:"ai-node",label:"AI Close Automation",x:430,y:298,w:148,h:48,color:"var(--warning)",currentFte:0,targetFte:3,aiMaturity:"Piloting"},
       ],
     },
@@ -129,10 +129,10 @@ export const OM_FUNCTION_PRESETS: Record<string, OMPreset[]> = {
         {type:"governance",label:"Group CFO",x:200,y:28,w:130,h:44,color:"var(--accent-primary)",currentFte:1,targetFte:1},
         {type:"org-unit",label:"Front Office Finance",x:40,y:110,w:170,h:48,color:"var(--accent-primary)",currentFte:30,targetFte:25},
         {type:"org-unit",label:"Product Control",x:240,y:110,w:140,h:48,color:"var(--accent-primary)",currentFte:18,targetFte:14},
-        {type:"org-unit",label:"Risk Finance",x:100,y:206,w:130,h:48,color:"#C0622A",currentFte:15,targetFte:12},
-        {type:"org-unit",label:"Regulatory Reporting",x:260,y:206,w:160,h:48,color:"#C0622A",currentFte:12,targetFte:8},
+        {type:"org-unit",label:"Risk Finance",x:100,y:206,w:130,h:48,color:"var(--coral)",currentFte:15,targetFte:12},
+        {type:"org-unit",label:"Regulatory Reporting",x:260,y:206,w:160,h:48,color:"var(--coral)",currentFte:12,targetFte:8},
         {type:"governance",label:"Internal Audit",x:180,y:294,w:148,h:44,color:"var(--purple)",currentFte:8,targetFte:7},
-        {type:"shared-service",label:"Finance GBS",x:120,y:376,w:150,h:44,color:"#4A9E6B",currentFte:40,targetFte:25},
+        {type:"shared-service",label:"Finance GBS",x:120,y:376,w:150,h:44,color:"var(--sage)",currentFte:40,targetFte:25},
         {type:"ai-node",label:"RegTech / AI",x:300,y:376,w:130,h:44,color:"var(--warning)",currentFte:0,targetFte:6,aiMaturity:"Scaling"},
       ],
     },
@@ -145,8 +145,8 @@ export const OM_FUNCTION_PRESETS: Record<string, OMPreset[]> = {
         {type:"coe",label:"Corporate / M&A",x:30,y:110,w:140,h:48,color:"var(--accent-primary)",currentFte:6,targetFte:5},
         {type:"coe",label:"Regulatory",x:190,y:110,w:120,h:48,color:"var(--accent-primary)",currentFte:5,targetFte:4},
         {type:"coe",label:"Employment Law",x:330,y:110,w:140,h:48,color:"var(--accent-primary)",currentFte:4,targetFte:3},
-        {type:"shared-service",label:"CLM & Contracts",x:40,y:206,w:150,h:48,color:"#4A9E6B",currentFte:8,targetFte:4},
-        {type:"shared-service",label:"eDiscovery",x:220,y:206,w:120,h:48,color:"#4A9E6B",currentFte:6,targetFte:3},
+        {type:"shared-service",label:"CLM & Contracts",x:40,y:206,w:150,h:48,color:"var(--sage)",currentFte:8,targetFte:4},
+        {type:"shared-service",label:"eDiscovery",x:220,y:206,w:120,h:48,color:"var(--sage)",currentFte:6,targetFte:3},
         {type:"ai-node",label:"AI Contract Review",x:370,y:206,w:148,h:48,color:"var(--warning)",currentFte:0,targetFte:3,aiMaturity:"Piloting"},
       ],
     },
@@ -159,11 +159,11 @@ export const OM_FUNCTION_PRESETS: Record<string, OMPreset[]> = {
         {type:"coe",label:"Demand Planning",x:40,y:110,w:140,h:48,color:"var(--accent-primary)",currentFte:10,targetFte:8},
         {type:"coe",label:"Strategic Procurement",x:200,y:110,w:160,h:48,color:"var(--accent-primary)",currentFte:8,targetFte:6},
         {type:"coe",label:"Supplier Quality",x:380,y:110,w:140,h:48,color:"var(--accent-primary)",currentFte:6,targetFte:5},
-        {type:"org-unit",label:"Plant Operations",x:60,y:206,w:150,h:48,color:"#C0622A",currentFte:200,targetFte:180},
-        {type:"org-unit",label:"Quality Control",x:240,y:206,w:140,h:48,color:"#C0622A",currentFte:30,targetFte:22},
-        {type:"org-unit",label:"EHS",x:400,y:206,w:100,h:48,color:"#C0622A",currentFte:12,targetFte:10},
-        {type:"shared-service",label:"Logistics Hub",x:80,y:298,w:150,h:48,color:"#4A9E6B",currentFte:40,targetFte:30},
-        {type:"shared-service",label:"Warehouse Ops",x:260,y:298,w:140,h:48,color:"#4A9E6B",currentFte:35,targetFte:25},
+        {type:"org-unit",label:"Plant Operations",x:60,y:206,w:150,h:48,color:"var(--coral)",currentFte:200,targetFte:180},
+        {type:"org-unit",label:"Quality Control",x:240,y:206,w:140,h:48,color:"var(--coral)",currentFte:30,targetFte:22},
+        {type:"org-unit",label:"EHS",x:400,y:206,w:100,h:48,color:"var(--coral)",currentFte:12,targetFte:10},
+        {type:"shared-service",label:"Logistics Hub",x:80,y:298,w:150,h:48,color:"var(--sage)",currentFte:40,targetFte:30},
+        {type:"shared-service",label:"Warehouse Ops",x:260,y:298,w:140,h:48,color:"var(--sage)",currentFte:35,targetFte:25},
         {type:"ai-node",label:"AI Demand Forecast",x:430,y:298,w:148,h:48,color:"var(--warning)",currentFte:0,targetFte:4,aiMaturity:"Scaling"},
       ],
     },
@@ -176,9 +176,9 @@ export const OM_FUNCTION_PRESETS: Record<string, OMPreset[]> = {
         {type:"org-unit",label:"Tribe: Growth",x:30,y:110,w:140,h:48,color:"var(--accent-primary)",currentFte:25,targetFte:28},
         {type:"org-unit",label:"Tribe: Platform",x:190,y:110,w:140,h:48,color:"var(--accent-primary)",currentFte:20,targetFte:25},
         {type:"org-unit",label:"Tribe: Content",x:350,y:110,w:140,h:48,color:"var(--accent-primary)",currentFte:18,targetFte:22},
-        {type:"shared-service",label:"Platform Eng",x:60,y:206,w:140,h:48,color:"#4A9E6B",currentFte:12,targetFte:15},
-        {type:"shared-service",label:"SRE / DevOps",x:220,y:206,w:140,h:48,color:"#4A9E6B",currentFte:8,targetFte:10},
-        {type:"shared-service",label:"Data Infra",x:380,y:206,w:120,h:48,color:"#4A9E6B",currentFte:6,targetFte:10},
+        {type:"shared-service",label:"Platform Eng",x:60,y:206,w:140,h:48,color:"var(--sage)",currentFte:12,targetFte:15},
+        {type:"shared-service",label:"SRE / DevOps",x:220,y:206,w:140,h:48,color:"var(--sage)",currentFte:8,targetFte:10},
+        {type:"shared-service",label:"Data Infra",x:380,y:206,w:120,h:48,color:"var(--sage)",currentFte:6,targetFte:10},
         {type:"ai-node",label:"ML Platform",x:140,y:294,w:130,h:44,color:"var(--warning)",currentFte:4,targetFte:12,aiMaturity:"Scaling"},
         {type:"ai-node",label:"AI Features",x:300,y:294,w:130,h:44,color:"var(--warning)",currentFte:3,targetFte:8,aiMaturity:"Piloting"},
       ],
@@ -190,7 +190,7 @@ export const OM_FUNCTION_PRESETS: Record<string, OMPreset[]> = {
         {type:"org-unit",label:"Studio Tech",x:30,y:116,w:140,h:48,color:"var(--accent-primary)",currentFte:60,targetFte:65},
         {type:"org-unit",label:"Streaming",x:190,y:116,w:130,h:48,color:"var(--accent-primary)",currentFte:45,targetFte:50},
         {type:"org-unit",label:"Data & ML",x:340,y:116,w:130,h:48,color:"var(--accent-primary)",currentFte:35,targetFte:45},
-        {type:"shared-service",label:"Core Platform",x:100,y:216,w:150,h:48,color:"#4A9E6B",currentFte:30,targetFte:35},
+        {type:"shared-service",label:"Core Platform",x:100,y:216,w:150,h:48,color:"var(--sage)",currentFte:30,targetFte:35},
         {type:"ai-node",label:"Personalization AI",x:280,y:216,w:160,h:48,color:"var(--warning)",currentFte:15,targetFte:25,aiMaturity:"Optimizing"},
       ],
     },
@@ -202,9 +202,9 @@ export const OM_FUNCTION_PRESETS: Record<string, OMPreset[]> = {
         {type:"governance",label:"CRO / Board",x:180,y:24,w:148,h:40,color:"var(--accent-primary)",currentFte:2,targetFte:2},
         {type:"org-unit",label:"Business Risk Owners",x:40,y:104,w:170,h:48,color:"var(--accent-primary)",currentFte:20,targetFte:18},
         {type:"org-unit",label:"Operational Risk",x:240,y:104,w:150,h:48,color:"var(--accent-primary)",currentFte:12,targetFte:10},
-        {type:"org-unit",label:"ERM",x:60,y:196,w:120,h:48,color:"#C0622A",currentFte:8,targetFte:7},
-        {type:"org-unit",label:"Compliance",x:200,y:196,w:120,h:48,color:"#C0622A",currentFte:15,targetFte:12},
-        {type:"org-unit",label:"Model Risk",x:340,y:196,w:120,h:48,color:"#C0622A",currentFte:6,targetFte:5},
+        {type:"org-unit",label:"ERM",x:60,y:196,w:120,h:48,color:"var(--coral)",currentFte:8,targetFte:7},
+        {type:"org-unit",label:"Compliance",x:200,y:196,w:120,h:48,color:"var(--coral)",currentFte:15,targetFte:12},
+        {type:"org-unit",label:"Model Risk",x:340,y:196,w:120,h:48,color:"var(--coral)",currentFte:6,targetFte:5},
         {type:"governance",label:"Internal Audit",x:160,y:284,w:148,h:44,color:"var(--purple)",currentFte:10,targetFte:9},
         {type:"ai-node",label:"AI Surveillance",x:340,y:284,w:148,h:44,color:"var(--warning)",currentFte:0,targetFte:5,aiMaturity:"Piloting"},
       ],
@@ -219,9 +219,9 @@ export const OM_FUNCTION_PRESETS: Record<string, OMPreset[]> = {
         {type:"org-unit",label:"Surgery",x:170,y:110,w:110,h:48,color:"var(--accent-primary)",currentFte:60,targetFte:58},
         {type:"org-unit",label:"Emergency",x:300,y:110,w:120,h:48,color:"var(--accent-primary)",currentFte:45,targetFte:45},
         {type:"org-unit",label:"Pharmacy",x:440,y:110,w:110,h:48,color:"var(--accent-primary)",currentFte:20,targetFte:18},
-        {type:"shared-service",label:"Health IT / EHR",x:60,y:206,w:150,h:48,color:"#4A9E6B",currentFte:15,targetFte:18},
-        {type:"shared-service",label:"Quality & Safety",x:240,y:206,w:148,h:48,color:"#4A9E6B",currentFte:10,targetFte:8},
-        {type:"shared-service",label:"Coding & Billing",x:100,y:294,w:148,h:48,color:"#C0622A",currentFte:25,targetFte:15},
+        {type:"shared-service",label:"Health IT / EHR",x:60,y:206,w:150,h:48,color:"var(--sage)",currentFte:15,targetFte:18},
+        {type:"shared-service",label:"Quality & Safety",x:240,y:206,w:148,h:48,color:"var(--sage)",currentFte:10,targetFte:8},
+        {type:"shared-service",label:"Coding & Billing",x:100,y:294,w:148,h:48,color:"var(--coral)",currentFte:25,targetFte:15},
         {type:"ai-node",label:"AI Clinical Decision",x:280,y:294,w:170,h:44,color:"var(--warning)",currentFte:0,targetFte:4,aiMaturity:"Exploring"},
       ],
     },
@@ -255,8 +255,8 @@ export const OM_ARCHETYPES_2: Record<string,{label:string;desc:string;layers:Omi
       {type:"coe",     label:"People Analytics",x:268,y:143,w:148,h:48,color:"var(--accent-primary)",currentFte:2, targetFte:5},
       {type:"org-unit",label:"BU HR BP",     x:68,  y:249, w:130,h:48,color:"var(--accent-primary)",currentFte:5, targetFte:3},
       {type:"org-unit",label:"BU HR BP",     x:248, y:249, w:130,h:48,color:"var(--accent-primary)",currentFte:5, targetFte:3},
-      {type:"shared-service",label:"Ops & Admin",x:68,y:355,w:138,h:48,color:"#4A9E6B",currentFte:18,targetFte:12},
-      {type:"shared-service",label:"Tech & Data", x:252,y:355,w:138,h:48,color:"#4A9E6B",currentFte:8, targetFte:8},
+      {type:"shared-service",label:"Ops & Admin",x:68,y:355,w:138,h:48,color:"var(--sage)",currentFte:18,targetFte:12},
+      {type:"shared-service",label:"Tech & Data", x:252,y:355,w:138,h:48,color:"var(--sage)",currentFte:8, targetFte:8},
     ],
   },
   centralized: {
@@ -270,7 +270,7 @@ export const OM_ARCHETYPES_2: Record<string,{label:string;desc:string;layers:Omi
       {type:"org-unit",     label:"CPO / CHRO",    x:188,y:38,  w:158,h:48,color:"var(--accent-primary)",currentFte:1,targetFte:1},
       {type:"coe",          label:"AI & Analytics", x:82, y:143, w:148,h:48,color:"var(--accent-primary)",currentFte:3,targetFte:8},
       {type:"coe",          label:"Talent CoE",     x:278,y:143, w:138,h:48,color:"var(--accent-primary)",currentFte:14,targetFte:10},
-      {type:"shared-service",label:"GBS Delivery",  x:148,y:249, w:148,h:48,color:"#4A9E6B",currentFte:28,targetFte:20},
+      {type:"shared-service",label:"GBS Delivery",  x:148,y:249, w:148,h:48,color:"var(--sage)",currentFte:28,targetFte:20},
     ],
   },
   "hub-spoke": {
@@ -283,9 +283,9 @@ export const OM_ARCHETYPES_2: Record<string,{label:string;desc:string;layers:Omi
     ],
     nodes:[
       {type:"org-unit",label:"Global HR Hub", x:194,y:38,  w:170,h:48,color:"var(--accent-primary)",currentFte:5,targetFte:5},
-      {type:"org-unit",label:"Americas Hub",  x:52, y:143, w:138,h:48,color:"#C0622A",currentFte:10,targetFte:8},
-      {type:"org-unit",label:"EMEA Hub",      x:234,y:143, w:138,h:48,color:"#C0622A",currentFte:10,targetFte:8},
-      {type:"org-unit",label:"APAC Hub",      x:416,y:143, w:138,h:48,color:"#C0622A",currentFte:10,targetFte:8},
+      {type:"org-unit",label:"Americas Hub",  x:52, y:143, w:138,h:48,color:"var(--coral)",currentFte:10,targetFte:8},
+      {type:"org-unit",label:"EMEA Hub",      x:234,y:143, w:138,h:48,color:"var(--coral)",currentFte:10,targetFte:8},
+      {type:"org-unit",label:"APAC Hub",      x:416,y:143, w:138,h:48,color:"var(--coral)",currentFte:10,targetFte:8},
       {type:"ai-node", label:"AI Platform",   x:234,y:355, w:138,h:48,color:"var(--warning)",currentFte:0, targetFte:6,aiMaturity:"Scaling"},
     ],
   },
@@ -326,22 +326,22 @@ export function OMNodeEl({ n, selected, mode, onDown, onEnter, onLeave, kpis }: 
       {/* Wave badge */}
       {(n.wave??0)>0 && <>
         <rect x={5} y={4} width={18} height={13} rx={3} fill={OM_WAVE_COLOR[n.wave!]} />
-        <text x={14} y={13} textAnchor="middle" fontSize={7} fontWeight={800} fill="#fff" fontFamily="monospace" style={{pointerEvents:"none"}}>W{n.wave}</text>
+        <text x={14} y={13} textAnchor="middle" fontSize={7} fontWeight={800} fill="var(--ink)" fontFamily="monospace" style={{pointerEvents:"none"}}>W{n.wave}</text>
       </>}
 
       {/* KPI dot */}
-      {hasKpi && <circle cx={n.w-7} cy={7} r={5} fill="#4A9E6B" opacity={0.9} />}
+      {hasKpi && <circle cx={n.w-7} cy={7} r={5} fill="var(--sage)" opacity={0.9} />}
 
       {/* Label */}
       <text x={n.w/2} y={n.h/2-(n.currentFte!=null?5:0)} textAnchor="middle" dominantBaseline="middle"
-        fontSize={11} fontWeight={600} fill="#f0ece4" fontFamily="'Inter Tight',sans-serif" style={{pointerEvents:"none"}}>
+        fontSize={11} fontWeight={600} fill="var(--ink)" fontFamily="'Inter Tight',sans-serif" style={{pointerEvents:"none"}}>
         {n.label.length>18?n.label.slice(0,17)+"…":n.label}
       </text>
 
       {/* FTE line */}
       {n.currentFte!=null && (
         <text x={n.w-5} y={n.h-5} textAnchor="end" fontSize={9}
-          fill={mode==="target"?(delta<0?"#e06c75":delta>0?"#4a9e6b":"#7a7368"):"var(--accent-primary)"}
+          fill={mode==="target"?(delta<0?"var(--coral)":delta>0?"var(--sage)":"var(--ink-whisper)"):"var(--accent-primary)"}
           fontFamily="monospace" style={{pointerEvents:"none"}}>
           {mode==="target"?`${n.targetFte??0} FTE${delta!==0?` (${delta>0?"+":""}${delta})`:""}`:
                            `${n.currentFte} FTE`}
@@ -378,13 +378,13 @@ export function OMProps({ n, kpis, onChange, onDelete, onClose }: {
   n:OMNode2; kpis:OMKpi2[];
   onChange:(u:Partial<OMNode2>)=>void; onDelete:()=>void; onClose:()=>void;
 }) {
-  const IS: React.CSSProperties = {background:"#1a1814",border:"1px solid #2e2b24",borderRadius:5,color:"#f0ece4",padding:"5px 8px",fontSize: 15,width:"100%",boxSizing:"border-box",outline:"none",fontFamily:"'Inter Tight',sans-serif"};
-  const LB: React.CSSProperties = {fontSize: 14,fontWeight:800,color:"#7a7368",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:3,display:"block"};
+  const IS: React.CSSProperties = {background:"var(--paper-solid)",border:"1px solid var(--paper-solid)",borderRadius:5,color:"var(--ink)",padding:"5px 8px",fontSize: 15,width:"100%",boxSizing:"border-box",outline:"none",fontFamily:"'Inter Tight',sans-serif"};
+  const LB: React.CSSProperties = {fontSize: 14,fontWeight:800,color:"var(--ink-whisper)",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:3,display:"block"};
   return (
-    <div style={{position:"absolute",top:0,right:0,width:248,height:"100%",background:"#1a1814",borderLeft:"1px solid #2e2b24",display:"flex",flexDirection:"column",zIndex:25,fontFamily:"'Inter Tight',sans-serif",boxShadow:"-4px 0 20px rgba(0,0,0,0.35)"}}>
-      <div style={{padding:"10px 12px",borderBottom:"1px solid #2e2b24",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+    <div style={{position:"absolute",top:0,right:0,width:248,height:"100%",background:"var(--paper-solid)",borderLeft:"1px solid var(--paper-solid)",display:"flex",flexDirection:"column",zIndex:25,fontFamily:"'Inter Tight',sans-serif",boxShadow:"-4px 0 20px rgba(0,0,0,0.35)"}}>
+      <div style={{padding:"10px 12px",borderBottom:"1px solid var(--paper-solid)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
         <span style={{fontSize: 14,fontWeight:800,color:"var(--accent-primary)",letterSpacing:"0.12em",textTransform:"uppercase"}}>Properties</span>
-        <button onClick={onClose} style={{background:"none",border:"none",color:"#6B6355",cursor:"pointer",fontSize:17,padding:0,lineHeight:1}}>×</button>
+        <button onClick={onClose} style={{background:"none",border:"none",color:"var(--ink-whisper)",cursor:"pointer",fontSize:17,padding:0,lineHeight:1}}>×</button>
       </div>
       <div style={{flex:1,overflowY:"auto",padding:12,display:"flex",flexDirection:"column",gap:9}}>
         <div><label style={LB}>Label</label><input value={n.label} onChange={e=>onChange({label:e.target.value})} style={IS} /></div>
@@ -399,7 +399,7 @@ export function OMProps({ n, kpis, onChange, onDelete, onClose }: {
         </div>
         <div><label style={LB}>Color</label>
           <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
-            {["var(--accent-primary)","var(--accent-primary)","#4A9E6B","var(--warning)","#C0622A","var(--purple)","#e06c75","var(--teal)"].map(c=>(
+            {["var(--accent-primary)","var(--accent-primary)","var(--sage)","var(--warning)","var(--coral)","var(--purple)","var(--coral)","var(--teal)"].map(c=>(
               <button key={c} onClick={()=>onChange({color:c})} style={{width:20,height:20,borderRadius:4,background:c,border:"none",cursor:"pointer",outline:n.color===c?"2px solid var(--warning)":"none",outlineOffset:2}} />
             ))}
           </div>
@@ -418,8 +418,8 @@ export function OMProps({ n, kpis, onChange, onDelete, onClose }: {
         </div>
         {kpis.length>0&&<div><label style={LB}>Linked KPIs</label>
           {kpis.map(k=>{const linked=(n.kpiIds??[]).includes(k.id);return (
-            <label key={k.id} style={{display:"flex",alignItems:"center",gap:5,cursor:"pointer",marginBottom:4,fontSize: 15,color:linked?"#4A9E6B":"#7a7368"}}>
-              <input type="checkbox" checked={linked} style={{accentColor:"#4A9E6B",width:11,height:11}}
+            <label key={k.id} style={{display:"flex",alignItems:"center",gap:5,cursor:"pointer",marginBottom:4,fontSize: 15,color:linked?"var(--sage)":"var(--ink-whisper)"}}>
+              <input type="checkbox" checked={linked} style={{accentColor:"var(--sage)",width:11,height:11}}
                 onChange={()=>{const ids=n.kpiIds??[];onChange({kpiIds:linked?ids.filter(x=>x!==k.id):[...ids,k.id]});}} />
               {k.name.length>26?k.name.slice(0,25)+"…":k.name}
             </label>
@@ -430,8 +430,8 @@ export function OMProps({ n, kpis, onChange, onDelete, onClose }: {
         </div>
         <div><label style={LB}>Notes</label><textarea value={n.notes??""} onChange={e=>onChange({notes:e.target.value})} rows={3} style={{...IS,resize:"vertical",minHeight:56}} /></div>
       </div>
-      <div style={{padding:10,borderTop:"1px solid #2e2b24"}}>
-        <button onClick={onDelete} style={{width:"100%",padding:"6px 0",borderRadius:5,background:"rgba(224,108,117,0.12)",border:"1px solid rgba(224,108,117,0.3)",color:"#e06c75",fontSize: 15,fontWeight:700,cursor:"pointer",fontFamily:"'Inter Tight',sans-serif"}}>Delete Node</button>
+      <div style={{padding:10,borderTop:"1px solid var(--paper-solid)"}}>
+        <button onClick={onDelete} style={{width:"100%",padding:"6px 0",borderRadius:5,background:"rgba(224,108,117,0.12)",border:"1px solid rgba(224,108,117,0.3)",color:"var(--coral)",fontSize: 15,fontWeight:700,cursor:"pointer",fontFamily:"'Inter Tight',sans-serif"}}>Delete Node</button>
       </div>
     </div>
   );
@@ -575,67 +575,67 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
     const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="operating-model.svg"; a.click();
   };
 
-  const IB=(extra?:React.CSSProperties):React.CSSProperties=>({background:"none",border:"1px solid #2e2b24",borderRadius:4,color:"#b8b0a0",cursor:"pointer",fontSize: 15,padding:"3px 8px",fontFamily:"'Inter Tight',sans-serif",...extra});
+  const IB=(extra?:React.CSSProperties):React.CSSProperties=>({background:"none",border:"1px solid var(--paper-solid)",borderRadius:4,color:"var(--ink-soft)",cursor:"pointer",fontSize: 15,padding:"3px 8px",fontFamily:"'Inter Tight',sans-serif",...extra});
   const delta=totTgt-totCur;
 
   return (
-    <div style={{height:"calc(100vh - 96px)",display:"flex",flexDirection:"column",background:"#0f0e0c",fontFamily:"'Inter Tight',sans-serif",color:"#f0ece4",borderRadius:12,overflow:"hidden",border:"1px solid #2e2b24"}}>
+    <div style={{height:"calc(100vh - 96px)",display:"flex",flexDirection:"column",background:"var(--paper-solid)",fontFamily:"'Inter Tight',sans-serif",color:"var(--ink)",borderRadius:12,overflow:"hidden",border:"1px solid var(--paper-solid)"}}>
       {/* Header */}
-      <div style={{padding:"7px 12px",borderBottom:"1px solid #2e2b24",display:"flex",alignItems:"center",gap:8,background:"#1a1814",flexShrink:0,flexWrap:"wrap"}}>
+      <div style={{padding:"7px 12px",borderBottom:"1px solid var(--paper-solid)",display:"flex",alignItems:"center",gap:8,background:"var(--paper-solid)",flexShrink:0,flexWrap:"wrap"}}>
         <span style={{fontSize: 15,fontWeight:800,color:"var(--accent-primary)",letterSpacing:"0.04em",marginRight:4}}>OM CANVAS</span>
-        {onNavigateLab && <button onClick={onNavigateLab} style={{padding:"2px 9px",borderRadius:4,fontSize: 14,fontWeight:700,background:"transparent",border:"1px solid #2e2b24",color:"#6B6355",cursor:"pointer",marginRight:4}} title="Switch to Analysis Lab">🧬 Lab</button>}
-        <div style={{display:"flex",background:"#211f1b",borderRadius:6,padding:2,border:"1px solid #2e2b24"}}>
+        {onNavigateLab && <button onClick={onNavigateLab} style={{padding:"2px 9px",borderRadius:4,fontSize: 14,fontWeight:700,background:"transparent",border:"1px solid var(--paper-solid)",color:"var(--ink-whisper)",cursor:"pointer",marginRight:4}} title="Switch to Analysis Lab">🧬 Lab</button>}
+        <div style={{display:"flex",background:"var(--paper-solid)",borderRadius:6,padding:2,border:"1px solid var(--paper-solid)"}}>
           {(["current","target"] as OMDesignMode2[]).map(m=>(
-            <button key={m} onClick={()=>setMode(m)} style={{padding:"2px 9px",borderRadius:4,fontSize: 15,fontWeight:700,background:mode===m?(m==="current"?"var(--accent-primary)":"var(--accent-primary)"):"transparent",border:"none",color:mode===m?"#fff":"#6B6355",cursor:"pointer"}}>
+            <button key={m} onClick={()=>setMode(m)} style={{padding:"2px 9px",borderRadius:4,fontSize: 15,fontWeight:700,background:mode===m?(m==="current"?"var(--accent-primary)":"var(--accent-primary)"):"transparent",border:"none",color:mode===m?"var(--ink)":"var(--ink-whisper)",cursor:"pointer"}}>
               {m==="current"?"Current":"Target"}
             </button>
           ))}
         </div>
-        <div style={{width:1,height:14,background:"#2e2b24"}} />
+        <div style={{width:1,height:14,background:"var(--paper-solid)"}} />
         {(Object.entries(OM_EDGE_CFG) as [OMEdgeType2,{label:string;dash:string;color:string}][]).map(([k,v])=>(
           <button key={k} onClick={()=>{setEdgeMode(edgeMode===k?null:k);setEdgeStart(null);}}
-            style={{...IB(),padding:"2px 7px",fontSize: 14,border:`1px solid ${edgeMode===k?v.color:"#2e2b24"}`,background:edgeMode===k?`${v.color}22`:"transparent",color:edgeMode===k?v.color:"#6B6355"}}>
+            style={{...IB(),padding:"2px 7px",fontSize: 14,border:`1px solid ${edgeMode===k?v.color:"var(--paper-solid)"}`,background:edgeMode===k?`${v.color}22`:"transparent",color:edgeMode===k?v.color:"var(--ink-whisper)"}}>
             {v.label}
           </button>
         ))}
         <div style={{flex:1}} />
         <button onClick={()=>setZoom(z=>Math.min(2.5,z+0.1))} style={IB()}>+</button>
-        <span style={{fontSize: 15,fontFamily:"monospace",color:"#6B6355",minWidth:30,textAlign:"center"}}>{Math.round(zoom*100)}%</span>
+        <span style={{fontSize: 15,fontFamily:"monospace",color:"var(--ink-whisper)",minWidth:30,textAlign:"center"}}>{Math.round(zoom*100)}%</span>
         <button onClick={fitView} style={IB()} title="Fit to screen">⌂</button>
         <button onClick={()=>setZoom(z=>Math.max(0.25,z-0.1))} style={IB()}>−</button>
-        <button onClick={()=>setSnapOn(s=>!s)} style={IB({color:snapOn?"var(--accent-primary)":"#6B6355",border:`1px solid ${snapOn?"var(--accent-primary)":"#2e2b24"}`})} title="Snap to grid">⊞</button>
-        <div style={{width:1,height:14,background:"#2e2b24"}} />
+        <button onClick={()=>setSnapOn(s=>!s)} style={IB({color:snapOn?"var(--accent-primary)":"var(--ink-whisper)",border:`1px solid ${snapOn?"var(--accent-primary)":"var(--paper-solid)"}`})} title="Snap to grid">⊞</button>
+        <div style={{width:1,height:14,background:"var(--paper-solid)"}} />
         <button onClick={exportSVG} style={IB()}>↓ SVG</button>
-        <button onClick={()=>{setShowVers(v=>!v);setShowLayers(false);}} style={IB({color:showVers?"var(--accent-primary)":"#b8b0a0"})}>◷</button>
+        <button onClick={()=>{setShowVers(v=>!v);setShowLayers(false);}} style={IB({color:showVers?"var(--accent-primary)":"var(--ink-soft)"})}>◷</button>
         <button onClick={()=>{setNodes(nodes);setEdges(edges);setLayers(layers);setSaved(true);setTimeout(()=>setSaved(false),2000);}}
-          style={{padding:"4px 12px",borderRadius:5,fontSize: 15,fontWeight:700,background:saved?"#4A9E6B":"var(--accent-primary)",border:"none",color:"#fff",cursor:"pointer",transition:"background 0.3s"}}>
+          style={{padding:"4px 12px",borderRadius:5,fontSize: 15,fontWeight:700,background:saved?"var(--sage)":"var(--accent-primary)",border:"none",color:"var(--ink)",cursor:"pointer",transition:"background 0.3s"}}>
           {saved?"✓":"Save"}
         </button>
       </div>
 
       <div style={{display:"flex",flex:1,overflow:"hidden",position:"relative"}}>
         {/* Left palette */}
-        <div style={{width:180,flexShrink:0,background:"#1a1814",borderRight:"1px solid #2e2b24",display:"flex",flexDirection:"column",overflowY:"auto"}}>
+        <div style={{width:180,flexShrink:0,background:"var(--paper-solid)",borderRight:"1px solid var(--paper-solid)",display:"flex",flexDirection:"column",overflowY:"auto"}}>
           {/* Function Scope Selector */}
           <OMPalSec label="Function Scope">
             <div style={{display:"flex",flexWrap:"wrap",gap:3}}>
               {Object.keys(OM_FUNCTION_PRESETS).map(f=>(
-                <button key={f} onClick={()=>setCanvasFunc(f)} style={{padding:"2px 7px",borderRadius:4,fontSize: 15,fontWeight:700,background:canvasFunc===f?"rgba(244,168,58,0.2)":"transparent",border:`1px solid ${canvasFunc===f?"var(--accent-primary)":"#2e2b24"}`,color:canvasFunc===f?"var(--accent-primary)":"#6B6355",cursor:"pointer"}}>{f}</button>
+                <button key={f} onClick={()=>setCanvasFunc(f)} style={{padding:"2px 7px",borderRadius:4,fontSize: 15,fontWeight:700,background:canvasFunc===f?"rgba(244,168,58,0.2)":"transparent",border:`1px solid ${canvasFunc===f?"var(--accent-primary)":"var(--paper-solid)"}`,color:canvasFunc===f?"var(--accent-primary)":"var(--ink-whisper)",cursor:"pointer"}}>{f}</button>
               ))}
             </div>
           </OMPalSec>
-          <div style={{height:1,background:"#2e2b24",margin:"2px 0"}} />
+          <div style={{height:1,background:"var(--paper-solid)",margin:"2px 0"}} />
 
           {/* Function-specific presets */}
           <OMPalSec label={`${canvasFunc} Models`}>
             {funcPresets.length > 0 ? funcPresets.map((p,i)=>(
               <OMPalBtn key={i} onClick={()=>loadPreset(p)}>
-                <div style={{fontSize: 15,fontWeight:700,color:"#f0ece4"}}>{p.label}</div>
-                <div style={{fontSize: 15,color:"#6B6355",marginTop:1}}>{p.industry||"General"}</div>
+                <div style={{fontSize: 15,fontWeight:700,color:"var(--ink)"}}>{p.label}</div>
+                <div style={{fontSize: 15,color:"var(--ink-whisper)",marginTop:1}}>{p.industry||"General"}</div>
               </OMPalBtn>
-            )) : <div style={{fontSize: 14,color:"#6B6355",padding:"4px 8px"}}>No presets for {canvasFunc}</div>}
+            )) : <div style={{fontSize: 14,color:"var(--ink-whisper)",padding:"4px 8px"}}>No presets for {canvasFunc}</div>}
           </OMPalSec>
-          <div style={{height:1,background:"#2e2b24",margin:"2px 0"}} />
+          <div style={{height:1,background:"var(--paper-solid)",margin:"2px 0"}} />
 
           {/* OM Dictionary button */}
           <OMPalSec label="Dictionary">
@@ -644,17 +644,17 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
               <span style={{fontSize: 15,fontWeight:700}}>{showDict?"Close":"Browse All Models"}</span>
             </OMPalBtn>
           </OMPalSec>
-          <div style={{height:1,background:"#2e2b24",margin:"2px 0"}} />
+          <div style={{height:1,background:"var(--paper-solid)",margin:"2px 0"}} />
 
           <OMPalSec label="Start from">
             {Object.entries(OM_ARCHETYPES_2).map(([k,v])=>(
               <OMPalBtn key={k} active={activeArch===k} onClick={()=>loadArch(k)}>
                 <div style={{fontSize: 15,fontWeight:700}}>{v.label}</div>
-                <div style={{fontSize: 14,color:"#6B6355",marginTop:1}}>{v.desc}</div>
+                <div style={{fontSize: 14,color:"var(--ink-whisper)",marginTop:1}}>{v.desc}</div>
               </OMPalBtn>
             ))}
           </OMPalSec>
-          <div style={{height:1,background:"#2e2b24",margin:"2px 0"}} />
+          <div style={{height:1,background:"var(--paper-solid)",margin:"2px 0"}} />
           <OMPalSec label="Add Node">
             {(Object.entries(OM_NODE_CFG) as [OMNodeType2,{icon:string;color:string}][]).map(([k,v])=>(
               <OMPalBtn key={k} onClick={()=>addNode(k)}>
@@ -663,19 +663,19 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
               </OMPalBtn>
             ))}
           </OMPalSec>
-          <div style={{height:1,background:"#2e2b24",margin:"2px 0"}} />
+          <div style={{height:1,background:"var(--paper-solid)",margin:"2px 0"}} />
           <OMPalSec label="Layers">
             <OMPalBtn onClick={()=>{setShowLayers(l=>!l);setShowVers(false);}}>
               <span style={{color:"var(--accent-primary)",marginRight:6}}>⊟</span>
               <span style={{fontSize: 15}}>Edit Layers</span>
             </OMPalBtn>
           </OMPalSec>
-          <div style={{height:1,background:"#2e2b24",margin:"2px 0"}} />
+          <div style={{height:1,background:"var(--paper-solid)",margin:"2px 0"}} />
           <OMPalSec label="Legend">
             {(Object.entries(OM_EDGE_CFG) as [OMEdgeType2,{label:string;dash:string;color:string}][]).map(([k,v])=>(
               <div key={k} style={{display:"flex",alignItems:"center",gap:6,marginBottom:5}}>
                 <svg width={24} height={8}><line x1={2} y1={4} x2={22} y2={4} stroke={v.color} strokeWidth={1.5} strokeDasharray={v.dash}/></svg>
-                <span style={{fontSize: 14,color:"#6B6355"}}>{v.label}</span>
+                <span style={{fontSize: 14,color:"var(--ink-whisper)"}}>{v.label}</span>
               </div>
             ))}
           </OMPalSec>
@@ -683,32 +683,32 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
         </div>
 
         {/* OM Dictionary Panel — slides over canvas */}
-        {showDict && <div style={{width:320,flexShrink:0,background:"#1a1814",borderRight:"1px solid #2e2b24",display:"flex",flexDirection:"column",overflowY:"auto"}}>
-          <div style={{padding:"10px 12px",borderBottom:"1px solid #2e2b24",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+        {showDict && <div style={{width:320,flexShrink:0,background:"var(--paper-solid)",borderRight:"1px solid var(--paper-solid)",display:"flex",flexDirection:"column",overflowY:"auto"}}>
+          <div style={{padding:"10px 12px",borderBottom:"1px solid var(--paper-solid)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
             <span style={{fontSize: 15,fontWeight:800,color:"var(--warning)",letterSpacing:"0.03em"}}>📖 OM Dictionary</span>
-            <button onClick={()=>setShowDict(false)} style={{background:"none",border:"none",color:"#6B6355",cursor:"pointer",fontSize:14}}>✕</button>
+            <button onClick={()=>setShowDict(false)} style={{background:"none",border:"none",color:"var(--ink-whisper)",cursor:"pointer",fontSize:14}}>✕</button>
           </div>
           <div style={{padding:"6px 10px"}}>
-            <input value={dictFilter} onChange={e=>setDictFilter(e.target.value)} placeholder="Search models, industries, companies..." style={{width:"100%",background:"#0f0e0c",border:"1px solid #2e2b24",borderRadius:5,padding:"5px 8px",fontSize: 15,color:"#f0ece4",outline:"none",fontFamily:"'Inter Tight',sans-serif",boxSizing:"border-box"}} />
+            <input value={dictFilter} onChange={e=>setDictFilter(e.target.value)} placeholder="Search models, industries, companies..." style={{width:"100%",background:"var(--paper-solid)",border:"1px solid var(--paper-solid)",borderRadius:5,padding:"5px 8px",fontSize: 15,color:"var(--ink)",outline:"none",fontFamily:"'Inter Tight',sans-serif",boxSizing:"border-box"}} />
           </div>
-          <div style={{padding:"4px 10px",fontSize: 14,color:"#6B6355"}}>{filteredDict.length} operating model patterns</div>
+          <div style={{padding:"4px 10px",fontSize: 14,color:"var(--ink-whisper)"}}>{filteredDict.length} operating model patterns</div>
           <div style={{flex:1,overflowY:"auto",padding:"0 8px 8px"}}>
             {Object.entries(OM_FUNCTION_PRESETS).map(([func, presets])=>{
               const filtered = dictFilter ? presets.filter(p=>`${p.label} ${p.desc} ${p.industry||""} ${p.company||""} ${func}`.toLowerCase().includes(dictFilter.toLowerCase())) : presets;
               if(filtered.length===0) return null;
               return <div key={func}>
-                <div style={{fontSize: 14,fontWeight:800,color:"var(--accent-primary)",letterSpacing:"0.08em",textTransform:"uppercase",padding:"8px 0 4px",borderBottom:"1px solid #2e2b24",marginBottom:4}}>{func}</div>
+                <div style={{fontSize: 14,fontWeight:800,color:"var(--accent-primary)",letterSpacing:"0.08em",textTransform:"uppercase",padding:"8px 0 4px",borderBottom:"1px solid var(--paper-solid)",marginBottom:4}}>{func}</div>
                 {filtered.map((p,i)=>(
-                  <div key={i} onClick={()=>loadPreset(p)} style={{padding:"8px 10px",marginBottom:4,borderRadius:6,background:"#211f1b",border:"1px solid #2e2b24",cursor:"pointer",transition:"all 0.15s"}}
-                    onMouseEnter={e=>{e.currentTarget.style.borderColor="var(--accent-primary)";e.currentTarget.style.background="#2a2720";}}
-                    onMouseLeave={e=>{e.currentTarget.style.borderColor="#2e2b24";e.currentTarget.style.background="#211f1b";}}>
-                    <div style={{fontSize: 15,fontWeight:700,color:"#f0ece4",marginBottom:2}}>{p.label}</div>
-                    <div style={{fontSize: 14,color:"#7a7368",lineHeight:1.4,marginBottom:4}}>{p.desc}</div>
+                  <div key={i} onClick={()=>loadPreset(p)} style={{padding:"8px 10px",marginBottom:4,borderRadius:6,background:"var(--paper-solid)",border:"1px solid var(--paper-solid)",cursor:"pointer",transition:"all 0.15s"}}
+                    onMouseEnter={e=>{e.currentTarget.style.borderColor="var(--accent-primary)";e.currentTarget.style.background="var(--paper-solid)";}}
+                    onMouseLeave={e=>{e.currentTarget.style.borderColor="var(--paper-solid)";e.currentTarget.style.background="var(--paper-solid)";}}>
+                    <div style={{fontSize: 15,fontWeight:700,color:"var(--ink)",marginBottom:2}}>{p.label}</div>
+                    <div style={{fontSize: 14,color:"var(--ink-whisper)",lineHeight:1.4,marginBottom:4}}>{p.desc}</div>
                     <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
                       {p.industry && <span style={{fontSize: 15,fontWeight:700,padding:"1px 5px",borderRadius:3,background:"rgba(74,130,196,0.15)",color:"var(--accent-primary)"}}>{p.industry}</span>}
                       {p.company && <span style={{fontSize: 15,fontWeight:700,padding:"1px 5px",borderRadius:3,background:"rgba(244,168,58,0.15)",color:"var(--accent-primary)"}}>{p.company}</span>}
-                      <span style={{fontSize: 15,fontWeight:700,padding:"1px 5px",borderRadius:3,background:"rgba(74,158,107,0.15)",color:"#4A9E6B"}}>{p.nodes.length} nodes · {p.layers.length} layers</span>
-                      {(() => { const delta = p.nodes.reduce((s,n)=>(n.targetFte??0)-(n.currentFte??0)+s,0); return delta !== 0 ? <span style={{fontSize: 15,fontWeight:700,padding:"1px 5px",borderRadius:3,background:delta<0?"rgba(224,108,117,0.15)":"rgba(74,158,107,0.15)",color:delta<0?"#e06c75":"#4a9e6b"}}>{delta>0?"+":""}{delta} FTE</span> : null; })()}
+                      <span style={{fontSize: 15,fontWeight:700,padding:"1px 5px",borderRadius:3,background:"rgba(74,158,107,0.15)",color:"var(--sage)"}}>{p.nodes.length} nodes · {p.layers.length} layers</span>
+                      {(() => { const delta = p.nodes.reduce((s,n)=>(n.targetFte??0)-(n.currentFte??0)+s,0); return delta !== 0 ? <span style={{fontSize: 15,fontWeight:700,padding:"1px 5px",borderRadius:3,background:delta<0?"rgba(224,108,117,0.15)":"rgba(74,158,107,0.15)",color:delta<0?"var(--coral)":"var(--sage)"}}>{delta>0?"+":""}{delta} FTE</span> : null; })()}
                     </div>
                   </div>
                 ))}
@@ -718,13 +718,13 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
         </div>}
 
         {/* Canvas area */}
-        <div ref={contRef} style={{flex:1,position:"relative",overflow:"hidden",background:"#0f0e0c"}} onWheel={onWheel}>
+        <div ref={contRef} style={{flex:1,position:"relative",overflow:"hidden",background:"var(--paper-solid)"}} onWheel={onWheel}>
           <svg style={{position:"absolute",inset:0,width:"100%",height:"100%",pointerEvents:"none"}}>
-            <defs><pattern id="omg2" width={8} height={8} patternUnits="userSpaceOnUse" patternTransform={`translate(${pan.x%(8*zoom)},${pan.y%(8*zoom)}) scale(${zoom})`}><path d="M 8 0 L 0 0 0 8" fill="none" stroke="#2e2b24" strokeWidth={0.4} opacity={0.6} /></pattern></defs>
+            <defs><pattern id="omg2" width={8} height={8} patternUnits="userSpaceOnUse" patternTransform={`translate(${pan.x%(8*zoom)},${pan.y%(8*zoom)}) scale(${zoom})`}><path d="M 8 0 L 0 0 0 8" fill="none" stroke="var(--paper-solid)" strokeWidth={0.4} opacity={0.6} /></pattern></defs>
             <rect width="100%" height="100%" fill="url(#omg2)" />
           </svg>
 
-          {!nodes.length&&<div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:8,pointerEvents:"none"}}><div style={{fontSize:36,opacity:0.12}}>⬡</div><div style={{fontSize: 15,color:"#6B6355"}}>Select an archetype or add nodes</div></div>}
+          {!nodes.length&&<div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:8,pointerEvents:"none"}}><div style={{fontSize:36,opacity:0.12}}>⬡</div><div style={{fontSize: 15,color:"var(--ink-whisper)"}}>Select an archetype or add nodes</div></div>}
 
           <svg ref={svgRef} style={{width:"100%",height:"100%",cursor:edgeMode?"crosshair":isPanning?"grabbing":"default"}}
             onMouseMove={onSvgMove} onMouseUp={onSvgUp} onMouseDown={onSvgDown}>
@@ -738,8 +738,8 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
             <g transform={`translate(${pan.x},${pan.y}) scale(${zoom})`}>
               {layers.map(l=>(
                 <g key={l.id}>
-                  <rect x={0} y={l.y} width={900} height={l.height} fill={l.color} stroke="#2e2b24" strokeWidth={0.5} rx={4} />
-                  <text x={8} y={l.y+12} fontSize={8} fontWeight={800} fill="#6B6355" fontFamily="monospace" letterSpacing="0.1em">{l.label.toUpperCase()}</text>
+                  <rect x={0} y={l.y} width={900} height={l.height} fill={l.color} stroke="var(--paper-solid)" strokeWidth={0.5} rx={4} />
+                  <text x={8} y={l.y+12} fontSize={8} fontWeight={800} fill="var(--ink-whisper)" fontFamily="monospace" letterSpacing="0.1em">{l.label.toUpperCase()}</text>
                 </g>
               ))}
               {edges.map(e=><OMEdgeEl key={e.id} e={e} nodes={nodes} selected={selEdge===e.id} onSelect={()=>{setSelEdge(e.id);setSelId(null);}} />)}
@@ -752,9 +752,9 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
           {/* Delta strip */}
           {nodes.length>0&&(
             <div style={{position:"absolute",bottom:10,left:172,display:"flex",gap:7}}>
-              {[{k:"Current FTE",v:totCur,c:"var(--accent-primary)"},{k:"Target FTE",v:totTgt,c:"var(--accent-primary)"},{k:"Net Δ",v:delta>0?`+${delta}`:String(delta),c:delta<0?"#e06c75":"#4A9E6B"},{k:"Nodes",v:nodes.length,c:"#b8b0a0"}].map(({k,v,c})=>(
-                <div key={k} style={{padding:"3px 9px",borderRadius:5,background:"#1a1814",border:"1px solid #2e2b24"}}>
-                  <div style={{fontSize: 15,color:"#6B6355",textTransform:"uppercase",fontFamily:"monospace"}}>{k}</div>
+              {[{k:"Current FTE",v:totCur,c:"var(--accent-primary)"},{k:"Target FTE",v:totTgt,c:"var(--accent-primary)"},{k:"Net Δ",v:delta>0?`+${delta}`:String(delta),c:delta<0?"var(--coral)":"var(--sage)"},{k:"Nodes",v:nodes.length,c:"var(--ink-soft)"}].map(({k,v,c})=>(
+                <div key={k} style={{padding:"3px 9px",borderRadius:5,background:"var(--paper-solid)",border:"1px solid var(--paper-solid)"}}>
+                  <div style={{fontSize: 15,color:"var(--ink-whisper)",textTransform:"uppercase",fontFamily:"monospace"}}>{k}</div>
                   <div style={{fontSize: 15,fontWeight:700,color:c,fontFamily:"monospace"}}>{v}</div>
                 </div>
               ))}
@@ -763,15 +763,15 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
 
           {/* Layer editor */}
           {showLayers&&(
-            <div style={{position:"absolute",top:48,left:170,zIndex:30,background:"#1a1814",border:"1px solid #2e2b24",borderRadius:8,padding:14,width:240,boxShadow:"0 10px 28px rgba(0,0,0,0.45)"}}>
+            <div style={{position:"absolute",top:48,left:170,zIndex:30,background:"var(--paper-solid)",border:"1px solid var(--paper-solid)",borderRadius:8,padding:14,width:240,boxShadow:"0 10px 28px rgba(0,0,0,0.45)"}}>
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
                 <span style={{fontSize: 14,fontWeight:800,color:"var(--accent-primary)",letterSpacing:"0.1em",textTransform:"uppercase"}}>Edit Layers</span>
-                <button onClick={()=>setShowLayers(false)} style={{background:"none",border:"none",color:"#6B6355",cursor:"pointer",fontSize:16}}>×</button>
+                <button onClick={()=>setShowLayers(false)} style={{background:"none",border:"none",color:"var(--ink-whisper)",cursor:"pointer",fontSize:16}}>×</button>
               </div>
               {layers.map((l,i)=>(
                 <div key={l.id} style={{display:"flex",gap:5,marginBottom:5,alignItems:"center"}}>
-                  <input value={l.label} onChange={e=>{const u=[...layers];u[i]={...l,label:e.target.value};setLayers(u);}} style={{flex:1,background:"#211f1b",border:"1px solid #2e2b24",borderRadius:4,color:"#f0ece4",padding:"4px 7px",fontSize: 15,outline:"none"}} />
-                  <button onClick={()=>setLayers(layers.filter((_,j)=>j!==i))} style={{background:"none",border:"none",color:"#e06c75",cursor:"pointer",fontSize: 15}}>×</button>
+                  <input value={l.label} onChange={e=>{const u=[...layers];u[i]={...l,label:e.target.value};setLayers(u);}} style={{flex:1,background:"var(--paper-solid)",border:"1px solid var(--paper-solid)",borderRadius:4,color:"var(--ink)",padding:"4px 7px",fontSize: 15,outline:"none"}} />
+                  <button onClick={()=>setLayers(layers.filter((_,j)=>j!==i))} style={{background:"none",border:"none",color:"var(--coral)",cursor:"pointer",fontSize: 15}}>×</button>
                 </div>
               ))}
               <button onClick={()=>{const lastY=layers.length?layers[layers.length-1].y+layers[layers.length-1].height+16:16;setLayers([...layers,{id:omUid(),label:"New Layer",y:lastY,height:90,color:"rgba(255,255,255,0.04)"}]);}}
@@ -783,23 +783,23 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
 
           {/* Versions panel */}
           {showVers&&(
-            <div style={{position:"absolute",top:0,right:selNode?248:0,width:240,height:"100%",background:"#1a1814",borderLeft:"1px solid #2e2b24",display:"flex",flexDirection:"column",zIndex:24,boxShadow:"-4px 0 16px rgba(0,0,0,0.3)"}}>
-              <div style={{padding:"10px 12px",borderBottom:"1px solid #2e2b24",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <div style={{position:"absolute",top:0,right:selNode?248:0,width:240,height:"100%",background:"var(--paper-solid)",borderLeft:"1px solid var(--paper-solid)",display:"flex",flexDirection:"column",zIndex:24,boxShadow:"-4px 0 16px rgba(0,0,0,0.3)"}}>
+              <div style={{padding:"10px 12px",borderBottom:"1px solid var(--paper-solid)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
                 <span style={{fontSize: 14,fontWeight:800,color:"var(--accent-primary)",letterSpacing:"0.1em",textTransform:"uppercase"}}>Versions</span>
-                <button onClick={()=>setShowVers(false)} style={{background:"none",border:"none",color:"#6B6355",cursor:"pointer",fontSize:17}}>×</button>
+                <button onClick={()=>setShowVers(false)} style={{background:"none",border:"none",color:"var(--ink-whisper)",cursor:"pointer",fontSize:17}}>×</button>
               </div>
-              <div style={{padding:"9px 10px",borderBottom:"1px solid #2e2b24",background:"#211f1b"}}>
-                <input value={vName} onChange={e=>setVName(e.target.value)} placeholder='Snapshot name…' style={{width:"100%",background:"#1a1814",border:"1px solid #2e2b24",borderRadius:4,color:"#f0ece4",padding:"4px 7px",fontSize: 15,outline:"none",boxSizing:"border-box",marginBottom:5}} />
-                <button onClick={saveVersion} disabled={!vName.trim()} style={{width:"100%",padding:"5px 0",borderRadius:4,background:vName.trim()?"rgba(244,168,58,0.15)":"transparent",border:`1px solid ${vName.trim()?"rgba(244,168,58,0.5)":"#2e2b24"}`,color:vName.trim()?"var(--accent-primary)":"#6B6355",fontSize: 15,fontWeight:700,cursor:vName.trim()?"pointer":"default",fontFamily:"'Inter Tight',sans-serif"}}>Save Snapshot</button>
+              <div style={{padding:"9px 10px",borderBottom:"1px solid var(--paper-solid)",background:"var(--paper-solid)"}}>
+                <input value={vName} onChange={e=>setVName(e.target.value)} placeholder='Snapshot name…' style={{width:"100%",background:"var(--paper-solid)",border:"1px solid var(--paper-solid)",borderRadius:4,color:"var(--ink)",padding:"4px 7px",fontSize: 15,outline:"none",boxSizing:"border-box",marginBottom:5}} />
+                <button onClick={saveVersion} disabled={!vName.trim()} style={{width:"100%",padding:"5px 0",borderRadius:4,background:vName.trim()?"rgba(244,168,58,0.15)":"transparent",border:`1px solid ${vName.trim()?"rgba(244,168,58,0.5)":"var(--paper-solid)"}`,color:vName.trim()?"var(--accent-primary)":"var(--ink-whisper)",fontSize: 15,fontWeight:700,cursor:vName.trim()?"pointer":"default",fontFamily:"'Inter Tight',sans-serif"}}>Save Snapshot</button>
               </div>
               <div style={{flex:1,overflowY:"auto",padding:8}}>
-                {versions.length===0&&<div style={{textAlign:"center",padding:"20px 0",color:"#6B6355",fontSize: 15}}>No snapshots yet</div>}
+                {versions.length===0&&<div style={{textAlign:"center",padding:"20px 0",color:"var(--ink-whisper)",fontSize: 15}}>No snapshots yet</div>}
                 {[...versions].reverse().map(v=>(
-                  <div key={v.id} style={{padding:"9px 10px",borderRadius:6,marginBottom:5,background:"#211f1b",border:"1px solid #2e2b24"}}>
-                    <div style={{fontSize: 15,fontWeight:700,color:"#f0ece4",marginBottom:2}}>{v.name}</div>
-                    <div style={{fontSize: 15,color:"#6B6355",fontFamily:"monospace",marginBottom:5}}>{new Date(v.ts).toLocaleDateString("en-US",{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"})}</div>
+                  <div key={v.id} style={{padding:"9px 10px",borderRadius:6,marginBottom:5,background:"var(--paper-solid)",border:"1px solid var(--paper-solid)"}}>
+                    <div style={{fontSize: 15,fontWeight:700,color:"var(--ink)",marginBottom:2}}>{v.name}</div>
+                    <div style={{fontSize: 15,color:"var(--ink-whisper)",fontFamily:"monospace",marginBottom:5}}>{new Date(v.ts).toLocaleDateString("en-US",{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"})}</div>
                     <div style={{display:"flex",gap:3,marginBottom:5}}>
-                      {[{k:"N",val:v.nodes.length},{k:"E",val:v.edges.length}].map(({k,val})=><span key={k} style={{padding:"1px 5px",borderRadius:2,background:"#2e2b24",fontSize: 15,color:"#6B6355",fontFamily:"monospace"}}>{k}:{val}</span>)}
+                      {[{k:"N",val:v.nodes.length},{k:"E",val:v.edges.length}].map(({k,val})=><span key={k} style={{padding:"1px 5px",borderRadius:2,background:"var(--paper-solid)",fontSize: 15,color:"var(--ink-whisper)",fontFamily:"monospace"}}>{k}:{val}</span>)}
                     </div>
                     <button onClick={()=>{setNodes(v.nodes);setEdges(v.edges);setLayers(v.layers);setShowVers(false);}}
                       style={{width:"100%",padding:"4px 0",borderRadius:4,background:"rgba(244,168,58,0.1)",border:"1px solid rgba(244,168,58,0.4)",color:"var(--accent-primary)",fontSize: 14,fontWeight:700,cursor:"pointer",fontFamily:"'Inter Tight',sans-serif"}}>
@@ -828,14 +828,14 @@ export function OMDesignCanvas({ projectId, onBack, onNavigateLab }: { projectId
 export function OMPalSec({label,children}:{label:string;children:React.ReactNode}) {
   return (
     <div style={{padding:"8px 8px 5px"}}>
-      <div style={{fontSize: 15,fontWeight:800,color:"#6B6355",letterSpacing:"0.12em",marginBottom:5,textTransform:"uppercase"}}>{label}</div>
+      <div style={{fontSize: 15,fontWeight:800,color:"var(--ink-whisper)",letterSpacing:"0.12em",marginBottom:5,textTransform:"uppercase"}}>{label}</div>
       {children}
     </div>
   );
 }
 export function OMPalBtn({children,onClick,active}:{children:React.ReactNode;onClick:()=>void;active?:boolean}) {
   return (
-    <button onClick={onClick} style={{width:"100%",padding:"5px 7px",marginBottom:2,borderRadius:5,textAlign:"left",display:"flex",alignItems:"center",background:active?"rgba(244,168,58,0.12)":"#211f1b",border:`1px solid ${active?"rgba(244,168,58,0.5)":"#2e2b24"}`,color:active?"var(--accent-primary)":"#b8b0a0",cursor:"pointer"}}>
+    <button onClick={onClick} style={{width:"100%",padding:"5px 7px",marginBottom:2,borderRadius:5,textAlign:"left",display:"flex",alignItems:"center",background:active?"rgba(244,168,58,0.12)":"var(--paper-solid)",border:`1px solid ${active?"rgba(244,168,58,0.5)":"var(--paper-solid)"}`,color:active?"var(--accent-primary)":"var(--ink-soft)",cursor:"pointer"}}>
       {children}
     </button>
   );
@@ -880,12 +880,12 @@ export function KPIAlignmentInline({ projectId }: { projectId: string }) {
     <div className="flex gap-3 mb-4">{[
       {k:"Objectives",v:objectives.length,c:"var(--accent-primary)"},
       {k:"KPIs",v:kpis.length,c:"var(--success)"},
-      {k:"On Track",v:kpis.filter(k=>k.status==="on-track").length,c:"#4a9e6b"},
-      {k:"At Risk",v:kpis.filter(k=>k.status==="at-risk").length,c:"#f0a500"},
+      {k:"On Track",v:kpis.filter(k=>k.status==="on-track").length,c:"var(--sage)"},
+      {k:"At Risk",v:kpis.filter(k=>k.status==="at-risk").length,c:"var(--amber)"},
     ].map(s=><div key={s.k} className="flex-1 rounded-xl p-3 bg-[var(--surface-2)] text-center"><div className="text-[18px] font-extrabold" style={{color:s.c}}>{s.v}</div><div className="text-[14px] text-[var(--text-muted)] uppercase">{s.k}</div></div>)}</div>
     {objectives.length===0 && kpis.length===0 && <div className="text-center py-6"><button onClick={loadSamples} className="px-4 py-2 rounded-xl text-[15px] font-semibold bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] cursor-pointer">Load Sample KPIs & Objectives</button></div>}
     {/* Sub-tabs */}
-    <div className="flex gap-1 mb-4">{(["objectives","kpis","traceability"] as const).map(t=><button key={t} onClick={()=>setSubTab(t)} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold" style={{background:subTab===t?"rgba(74,158,107,0.15)":"var(--surface-2)",color:subTab===t?"#4a9e6b":"var(--text-muted)"}}>{t==="objectives"?`Objectives (${objectives.length})`:t==="kpis"?`KPIs (${kpis.length})`:"Traceability"}</button>)}</div>
+    <div className="flex gap-1 mb-4">{(["objectives","kpis","traceability"] as const).map(t=><button key={t} onClick={()=>setSubTab(t)} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold" style={{background:subTab===t?"rgba(74,158,107,0.15)":"var(--surface-2)",color:subTab===t?"var(--sage)":"var(--text-muted)"}}>{t==="objectives"?`Objectives (${objectives.length})`:t==="kpis"?`KPIs (${kpis.length})`:"Traceability"}</button>)}</div>
     {subTab==="objectives" && <div>
       <div className="flex justify-end mb-2"><button onClick={()=>setAddingObj(a=>!a)} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] cursor-pointer">+ Add Objective</button></div>
       {addingObj && <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-[var(--surface-2)] mb-3 border border-[var(--border)]">
@@ -936,7 +936,7 @@ export function KPIAlignmentInline({ projectId }: { projectId: string }) {
    ═══════════════════════════════════════════════════════════════ */
 
 export const KPI_CAT_LIST = ["People & Talent","Cost & Efficiency","AI & Technology","Process & Speed","Quality & Risk","Revenue & Growth"] as const;
-export const KPI_STATUS_COLOR: Record<string,string> = { "on-track":"#4a9e6b","at-risk":"#f0a500","off-track":"#e06c75","achieved":"#4a82c4" };
+export const KPI_STATUS_COLOR: Record<string,string> = { "on-track":"var(--sage)","at-risk":"var(--amber)","off-track":"var(--coral)","achieved":"var(--amber)" };
 
 export const KPI_DEFAULT_OBJECTIVES: {name:string;description:string;priority:"critical"|"high"|"medium"|"low";owner:string;targetDate:string;status:"on-track"|"at-risk"|"off-track"|"achieved"}[] = [
   {name:"Reduce cost-to-serve",description:"Achieve $12M reduction in HR operating cost through AI automation and structural efficiency",priority:"critical",owner:"CHRO",targetDate:"Q4 2026",status:"on-track"},
@@ -958,8 +958,8 @@ export function KPIAlignmentModule({ projectId, canvasNodes, onBack }: {
   const [newObj, setNewObj]         = useState<Partial<OMObjective2>>({priority:"high",status:"on-track"});
   const [newKpi, setNewKpi]         = useState<Partial<OMKpi2>>({direction:"increase",status:"on-track",category:"People & Talent",linkedNodeIds:[]});
 
-  const IS: React.CSSProperties = {background:"#1a1814",border:"1px solid #2e2b24",borderRadius:5,color:"#f0ece4",padding:"5px 8px",fontSize: 15,width:"100%",boxSizing:"border-box",outline:"none",fontFamily:"'Inter Tight',sans-serif"};
-  const FL: React.CSSProperties = {fontSize: 14,fontWeight:800,color:"#7a7368",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:3};
+  const IS: React.CSSProperties = {background:"var(--paper-solid)",border:"1px solid var(--paper-solid)",borderRadius:5,color:"var(--ink)",padding:"5px 8px",fontSize: 15,width:"100%",boxSizing:"border-box",outline:"none",fontFamily:"'Inter Tight',sans-serif"};
+  const FL: React.CSSProperties = {fontSize: 14,fontWeight:800,color:"var(--ink-whisper)",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:3};
 
   const loadSamples = () => {
     const objs = KPI_DEFAULT_OBJECTIVES.map(o=>({...o,id:omUid()}));
@@ -1002,7 +1002,7 @@ export function KPIAlignmentModule({ projectId, canvasNodes, onBack }: {
     <div>
       <div className="mb-6 flex items-center gap-3">
         <button onClick={onBack} className="text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] flex items-center gap-1">← Back</button>
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#4A9E6B] to-[#2d6e4e] flex items-center justify-center text-xl">◎</div>
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--sage)] to-[var(--sage)] flex items-center justify-center text-xl">◎</div>
         <div><h1 className="text-xl font-extrabold text-[var(--text-primary)] tracking-tight font-heading">KPI & Strategic Alignment</h1><p className="text-[15px] text-[var(--text-secondary)]">Link your operating model design to measurable strategic outcomes</p></div>
         <div className="flex-1" />
         {objectives.length===0&&<button onClick={loadSamples} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 hover:bg-[var(--accent-primary)]/5 transition-all">Load sample data</button>}
@@ -1189,7 +1189,7 @@ export function KPIAlignmentModule({ projectId, canvasNodes, onBack }: {
                                 return (
                                   <button key={n.id} onClick={()=>toggleKpiNode(k.id,n.id)}
                                     className="text-[15px] px-1.5 py-0.5 rounded cursor-pointer font-semibold transition-all"
-                                    style={{background:linked?`${n.color||"var(--accent-primary)"}20`:"transparent",border:`1px solid ${linked?n.color||"var(--accent-primary)":"#2e2b24"}`,color:linked?n.color||"var(--accent-primary)":"#6B6355"}}>
+                                    style={{background:linked?`${n.color||"var(--accent-primary)"}20`:"transparent",border:`1px solid ${linked?n.color||"var(--accent-primary)":"var(--paper-solid)"}`,color:linked?n.color||"var(--accent-primary)":"var(--ink-whisper)"}}>
                                     {(n.label||"").slice(0,7)}
                                   </button>
                                 );
@@ -1213,7 +1213,7 @@ export function KPIAlignmentModule({ projectId, canvasNodes, onBack }: {
         <div>
           {orphanKpis.length>0&&(
             <div className="p-3 rounded-xl border mb-4" style={{background:"rgba(240,165,0,0.07)",borderColor:"rgba(240,165,0,0.25)"}}>
-              <div className="text-[15px] font-bold mb-2" style={{color:"#f0a500"}}>⚠ {orphanKpis.length} KPI{orphanKpis.length!==1?"s":""} not linked to any org node</div>
+              <div className="text-[15px] font-bold mb-2" style={{color:"var(--amber)"}}>⚠ {orphanKpis.length} KPI{orphanKpis.length!==1?"s":""} not linked to any org node</div>
               {orphanKpis.map(k=><div key={k.id} className="text-[15px] text-[var(--text-muted)] mb-1">· {k.name}</div>)}
             </div>
           )}
@@ -1241,7 +1241,7 @@ export function KPIAlignmentModule({ projectId, canvasNodes, onBack }: {
                         <span className="text-[14px] font-semibold shrink-0" style={{color:KPI_STATUS_COLOR[k.status],fontFamily:"monospace"}}>{k.currentValue}{k.unit}</span>
                       </div>
                     ))}
-                    {atRisk>0&&<div className="text-[14px] mt-1" style={{color:"#f0a500"}}>⚠ {atRisk} at risk</div>}
+                    {atRisk>0&&<div className="text-[14px] mt-1" style={{color:"var(--amber)"}}>⚠ {atRisk} at risk</div>}
                   </div>
                 );
               })}

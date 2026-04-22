@@ -138,7 +138,7 @@ export function AiObservationsPanel({ module, dataSummary, context, filters, pro
                         <button key={i} onClick={() => action.module_link && onNavigate?.(action.module_link)} style={{
                           padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600,
                           background: "rgba(167,139,184,0.1)", border: "1px solid rgba(167,139,184,0.2)",
-                          color: "#a78bb8", cursor: action.module_link ? "pointer" : "default",
+                          color: "var(--dusk)", cursor: action.module_link ? "pointer" : "default",
                           fontFamily: "'Inter Tight', sans-serif", transition: "all 0.15s",
                         }}>{action.text} {action.module_link ? "→" : ""}</button>
                       ))}

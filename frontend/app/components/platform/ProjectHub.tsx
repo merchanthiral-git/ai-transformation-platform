@@ -283,7 +283,7 @@ function SandboxViewSelector({ companyName, onSelect }: { companyName: string; o
   // STEP 1: Splash — video bg + company name + static "Click anywhere"
   if (phase === "splash") {
     return <div onClick={() => setPhase("select")} style={{ position: "fixed", inset: 0, zIndex: 60, cursor: "pointer" }}>
-      <VideoBackground name="view_bg" overlay={0.4} poster={`${CDN_BASE}/videos/optimized/view_bg-poster.jpg`} fallbackGradient="linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 100%)" className="absolute inset-0" />
+      <VideoBackground name="view_bg" overlay={0.4} poster={`${CDN_BASE}/videos/optimized/view_bg-poster.jpg`} fallbackGradient="linear-gradient(135deg, var(--paper-solid) 0%, #1a1530 35%, #0f1525 100%)" className="absolute inset-0" />
       <div style={{ position: "absolute", inset: 0, zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", WebkitFontSmoothing: "antialiased" }}>
         <div style={{ fontSize: 15, fontWeight: 700, color: "rgba(224,144,64,0.5)", letterSpacing: 2, marginBottom: 12, textTransform: "uppercase" }}>Welcome to</div>
         <h2 style={{ fontSize: 36, fontWeight: 800, color: "#ffffff", fontFamily: "'Inter Tight', sans-serif", marginBottom: 32, textShadow: "0 2px 20px rgba(0,0,0,0.5)" }}>{companyName}</h2>
@@ -295,7 +295,7 @@ function SandboxViewSelector({ companyName, onSelect }: { companyName: string; o
   // STEP 3: Post-selection splash — show company + view name, click to continue
   if (phase === "entering") {
     return <div onClick={() => selectedViewRef.current && onSelect(selectedViewRef.current)} style={{ position: "fixed", inset: 0, zIndex: 60, cursor: "pointer" }}>
-      <VideoBackground name="hero_bg" overlay={0.45} poster={`${CDN_BASE}/hero_bg.png`} fallbackGradient="linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 100%)" className="absolute inset-0" />
+      <VideoBackground name="hero_bg" overlay={0.45} poster={`${CDN_BASE}/hero_bg.png`} fallbackGradient="linear-gradient(135deg, var(--paper-solid) 0%, #1a1530 35%, #0f1525 100%)" className="absolute inset-0" />
       <div style={{ position: "absolute", inset: 0, zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", WebkitFontSmoothing: "antialiased" }}>
         <h2 style={{ fontSize: 42, fontWeight: 800, color: "#ffffff", fontFamily: "'Inter Tight', sans-serif", marginBottom: 12, textShadow: "0 2px 24px rgba(0,0,0,0.5)" }}>{companyName}</h2>
         <div style={{ fontSize: 16, fontWeight: 600, color: "rgba(224,144,64,0.7)", marginBottom: 48, fontFamily: "'Inter Tight', sans-serif" }}>{selectedLabelRef.current}</div>
@@ -305,8 +305,8 @@ function SandboxViewSelector({ companyName, onSelect }: { companyName: string; o
   }
 
   // STEP 2: View selector overlay — same video bg, 6 options
-  return <div style={{ position: "fixed", inset: 0, zIndex: 60, background: "#0B1120" }}>
-    <VideoBackground name="view_bg" overlay={0.5} poster={`${CDN_BASE}/videos/optimized/view_bg-poster.jpg`} fallbackGradient="linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 100%)" className="absolute inset-0" />
+  return <div style={{ position: "fixed", inset: 0, zIndex: 60, background: "var(--paper-solid)" }}>
+    <VideoBackground name="view_bg" overlay={0.5} poster={`${CDN_BASE}/videos/optimized/view_bg-poster.jpg`} fallbackGradient="linear-gradient(135deg, var(--paper-solid) 0%, #1a1530 35%, #0f1525 100%)" className="absolute inset-0" />
     <div style={{ position: "absolute", inset: 0, zIndex: 1, background: "rgba(8,12,24,0.6)" }} />
     <div style={{ position: "absolute", inset: 0, zIndex: 2, display: "flex", alignItems: "center", justifyContent: "center", overflow: "auto", WebkitFontSmoothing: "antialiased" }}>
       <div style={{ maxWidth: 800, width: "100%", padding: "24px" }}>
@@ -341,7 +341,7 @@ const TUTORIAL_PHASES = [
   { label: "Design", icon: "✏️", range: [11, 15], color: "var(--success)" },
   { label: "Simulate", icon: "⚡", range: [16, 18], color: "var(--purple)" },
   { label: "Mobilize", icon: "🚀", range: [19, 23], color: "var(--warning)" },
-  { label: "Platform", icon: "🏛️", range: [24, 26], color: "#0891B2" },
+  { label: "Platform", icon: "🏛️", range: [24, 26], color: "var(--amber)" },
 ];
 
 export function TutorialOverlay({ step, totalSteps, steps, onNext, onPrev, onClose, onJump }: {
@@ -410,7 +410,7 @@ export function TutorialOverlay({ step, totalSteps, steps, onNext, onPrev, onClo
           </div>
 
           {/* Title — cinematic entrance */}
-          <h2 style={{ fontSize: 32, fontWeight: 800, color: "#f5e6d0", fontFamily: "'Inter Tight', sans-serif", lineHeight: 1.15, margin: "0 0 6px", animation: "tutLineIn 0.4s ease-out" }}>{s.title}</h2>
+          <h2 style={{ fontSize: 32, fontWeight: 800, color: "var(--ink)", fontFamily: "'Inter Tight', sans-serif", lineHeight: 1.15, margin: "0 0 6px", animation: "tutLineIn 0.4s ease-out" }}>{s.title}</h2>
 
           {/* Subtitle */}
           {s.subtitle && <div style={{ fontSize: 16, fontWeight: 600, color: phase.color, marginBottom: 20, animation: "tutLineIn 0.5s ease-out", opacity: 0.7 }}>{s.subtitle}</div>}
@@ -462,7 +462,7 @@ export function TutorialOverlay({ step, totalSteps, steps, onNext, onPrev, onClo
           <span style={{ fontSize: 14, color: "rgba(255,230,200,0.2)", fontFamily: "monospace" }}>{pct}%</span>
           <button onClick={onClose} style={{ padding: "8px 16px", borderRadius: 10, fontSize: 14, cursor: "pointer", background: "none", border: "1px solid rgba(255,255,255,0.06)", color: "rgba(255,230,200,0.3)", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.color = "rgba(255,230,200,0.6)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)"; }} onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,230,200,0.3)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; }}>Minimize</button>
         </div>
-        <button onClick={handleNext} style={{ padding: "10px 28px", borderRadius: 12, fontSize: 16, fontWeight: 700, cursor: "pointer", border: "none", color: "#fff", background: isLast ? "linear-gradient(135deg, var(--success), #059669)" : "linear-gradient(135deg, var(--accent-primary), var(--teal))", boxShadow: isLast ? "0 4px 16px rgba(139,168,122,0.3)" : "0 4px 16px rgba(224,144,64,0.25)", transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"} onMouseLeave={e => e.currentTarget.style.transform = "none"}>{isLast ? "Finish" : "Next →"}</button>
+        <button onClick={handleNext} style={{ padding: "10px 28px", borderRadius: 12, fontSize: 16, fontWeight: 700, cursor: "pointer", border: "none", color: "#fff", background: isLast ? "linear-gradient(135deg, var(--success), var(--sage))" : "linear-gradient(135deg, var(--accent-primary), var(--teal))", boxShadow: isLast ? "0 4px 16px rgba(139,168,122,0.3)" : "0 4px 16px rgba(224,144,64,0.25)", transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"} onMouseLeave={e => e.currentTarget.style.transform = "none"}>{isLast ? "Finish" : "Next →"}</button>
       </div>
     </div>}
   </div>;
@@ -593,9 +593,9 @@ export function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox
 
   // ── Sandbox full-screen picker ──
   if (sandboxOpen) {
-    return <div style={{ position: "fixed", inset: 0, overflow: "hidden", background: "#0B1120" }}>
+    return <div style={{ position: "fixed", inset: 0, overflow: "hidden", background: "var(--paper-solid)" }}>
       {/* Full-bleed storefront background */}
-      <VideoBackground name="sandbox_bg" overlay={0.2} poster={`${CDN_BASE}/sandbox_bg.png`} fallbackGradient="linear-gradient(160deg, #0B1120 0%, #1a1a30 40%, #12182a 100%)" className="absolute inset-0" />
+      <VideoBackground name="sandbox_bg" overlay={0.2} poster={`${CDN_BASE}/sandbox_bg.png`} fallbackGradient="linear-gradient(160deg, var(--paper-solid) 0%, #1a1a30 40%, #12182a 100%)" className="absolute inset-0" />
       <div style={{ position: "absolute", inset: 0, zIndex: 1, background: sandboxPanelOpen ? "rgba(8,12,24,0.55)" : "radial-gradient(ellipse at 35% 40%, rgba(8,12,24,0.1) 0%, rgba(8,12,24,0.35) 50%, rgba(8,12,24,0.6) 100%)", transition: "background 0.5s ease" }} />
 
       {/* Back button */}
@@ -685,7 +685,7 @@ export function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox
   const displayName = user?.display_name || user?.username || "there";
   const INDUSTRIES_PREVIEW = ["💻", "🏦", "🏥", "🛍️", "🏭", "💼", "⚡", "🚀"];
 
-  return <div style={{ position: "fixed", inset: 0, overflow: "auto", background: "#0B1120" }}>
+  return <div style={{ position: "fixed", inset: 0, overflow: "auto", background: "var(--paper-solid)" }}>
     {/* Keyframes */}
     <style>{`
       @keyframes hubFadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
@@ -699,7 +699,7 @@ export function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox
     `}</style>
 
     {/* Video background */}
-    <VideoBackground name="hero_bg" overlay={0.35} poster={`${CDN_BASE}/hero_bg.png`} fallbackGradient="linear-gradient(135deg, #0B1120 0%, #1a1530 35%, #0f1525 65%, #0a0f1a 100%)" className="absolute inset-0 w-full h-full" />
+    <VideoBackground name="hero_bg" overlay={0.35} poster={`${CDN_BASE}/hero_bg.png`} fallbackGradient="linear-gradient(135deg, var(--paper-solid) 0%, #1a1530 35%, #0f1525 65%, #0a0f1a 100%)" className="absolute inset-0 w-full h-full" />
     {/* Strong bottom gradient for text readability */}
     <div style={{ position: "absolute", inset: 0, zIndex: 1, background: "linear-gradient(to bottom, rgba(11,17,32,0.2) 0%, rgba(11,17,32,0.35) 25%, rgba(11,17,32,0.6) 55%, rgba(11,17,32,0.88) 80%, rgba(11,17,32,0.97) 100%)", width: "100%", minHeight: "100%" }} />
 
@@ -723,8 +723,8 @@ export function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox
           <div style={{ fontSize: 24, fontWeight: 700, color: "#fff", fontFamily: "'Inter Tight', sans-serif", marginBottom: 8 }}>Platform Tutorial</div>
           <div style={{ fontSize: 14, color: "rgba(165,180,252,0.6)", lineHeight: 1.6, marginBottom: 20 }}>Learn the platform in ~8 minutes — no data needed</div>
           {tutorialCompleted && <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 16 }}>
-            <div style={{ flex: 1, height: 4, borderRadius: 2, background: "rgba(99,102,241,0.15)", overflow: "hidden" }}><div style={{ width: "100%", height: "100%", borderRadius: 2, background: "#6366F1" }} /></div>
-            <span style={{ fontSize: 12, fontWeight: 700, color: "#6366F1", fontFamily: "monospace" }}>Complete</span>
+            <div style={{ flex: 1, height: 4, borderRadius: 2, background: "rgba(99,102,241,0.15)", overflow: "hidden" }}><div style={{ width: "100%", height: "100%", borderRadius: 2, background: "var(--dusk)" }} /></div>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "var(--dusk)", fontFamily: "monospace" }}>Complete</span>
           </div>}
           <div className="hub-cta" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 24px", borderRadius: 100, background: "linear-gradient(135deg, rgba(99,102,241,0.25), rgba(244,168,58,0.2))", border: "1px solid rgba(99,102,241,0.3)", color: "#a5b4fc", fontSize: 14, fontWeight: 700, fontFamily: "'Inter Tight', sans-serif" }}>{tutorialCompleted ? "Retake Tutorial" : "Start Tutorial"} <span style={{ fontSize: 16 }}>→</span></div>
         </div>
@@ -815,7 +815,7 @@ export function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox
         <div className="space-y-3">
           <div><div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,200,150,0.35)", textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 6 }}>Project Name *</div>
           <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="e.g. Acme Corp AI Transformation" style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: nameTaken ? "1px solid rgba(232,122,93,0.4)" : "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 16px", fontSize: 14, color: "#fff", outline: "none", fontFamily: "'Inter Tight', sans-serif" }} autoFocus />
-          {nameTaken && <div style={{ fontSize: 12, color: "#f87171", marginTop: 6 }}>A project with this name already exists.</div>}</div>
+          {nameTaken && <div style={{ fontSize: 12, color: "var(--coral)", marginTop: 6 }}>A project with this name already exists.</div>}</div>
           <div><div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,200,150,0.35)", textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 6 }}>Client / Organization</div>
           <input value={newClient} onChange={e => setNewClient(e.target.value)} placeholder="e.g. Acme Corporation" style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 16px", fontSize: 14, color: "#fff", outline: "none", fontFamily: "'Inter Tight', sans-serif" }} /></div>
           <div className="grid grid-cols-2 gap-3">
@@ -848,10 +848,10 @@ export function ProjectHub({ user, onOpenProject, onStartTutorial, onOpenSandbox
         <div style={{ fontSize: 36, marginBottom: 12 }}>⚠️</div>
         <h3 style={{ fontSize: 18, fontWeight: 700, color: "#fff", fontFamily: "'Inter Tight', sans-serif", marginBottom: 6 }}>Delete Project?</h3>
         <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginBottom: 4 }}>Are you sure you want to delete <strong style={{ color: "#fff" }}>{projects.find(p => p.id === confirmDelete)?.name || "this project"}</strong>?</p>
-        <p style={{ fontSize: 13, color: "#f87171", marginBottom: 24 }}>This cannot be undone.</p>
+        <p style={{ fontSize: 13, color: "var(--coral)", marginBottom: 24 }}>This cannot be undone.</p>
         <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
           <button onClick={() => setConfirmDelete(null)} style={{ padding: "10px 24px", borderRadius: 12, fontSize: 14, fontWeight: 600, color: "rgba(255,200,150,0.5)", border: "1px solid rgba(255,255,255,0.08)", background: "none", cursor: "pointer" }}>Cancel</button>
-          <button onClick={() => deleteProject(confirmDelete)} style={{ padding: "10px 24px", borderRadius: 12, fontSize: 14, fontWeight: 700, color: "#fff", border: "none", background: "linear-gradient(135deg, #ef4444, #dc2626)", cursor: "pointer" }}>Delete</button>
+          <button onClick={() => deleteProject(confirmDelete)} style={{ padding: "10px 24px", borderRadius: 12, fontSize: 14, fontWeight: 700, color: "#fff", border: "none", background: "linear-gradient(135deg, var(--coral), #dc2626)", cursor: "pointer" }}>Delete</button>
         </div>
       </div>
     </div>}

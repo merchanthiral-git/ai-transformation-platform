@@ -42,7 +42,7 @@ const S = {
   heroLabel: { fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 6 } as React.CSSProperties,
   heroValue: { fontSize: 36, fontWeight: 700, fontFamily: "var(--ff-mono)", color: "var(--text-primary)", lineHeight: 1 } as React.CSSProperties,
   heroBench: { fontSize: 11, color: "var(--text-muted)", marginTop: 6, display: "flex", alignItems: "center", gap: 4 } as React.CSSProperties,
-  heroDir: (up: boolean) => ({ color: up ? "#22C55E" : "#e87a5d", display: "inline-flex", alignItems: "center", gap: 2 }) as React.CSSProperties,
+  heroDir: (up: boolean) => ({ color: up ? "var(--sage)" : "var(--coral)", display: "inline-flex", alignItems: "center", gap: 2 }) as React.CSSProperties,
   chartGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 20 } as React.CSSProperties,
   section: { background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 10, padding: "18px 22px" } as React.CSSProperties,
   sectionTitle: { fontSize: "var(--text-sm)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)", marginBottom: 12, display: "flex", alignItems: "center", gap: 8 } as React.CSSProperties,
@@ -54,11 +54,11 @@ const S = {
   insightRow: { display: "flex", gap: 8, padding: "8px 12px", borderRadius: 6, marginBottom: 4, background: "rgba(244,168,58,0.03)", fontSize: "var(--text-xs)", color: "var(--text-secondary)" } as React.CSSProperties,
   actionBar: { display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 16 } as React.CSSProperties,
   btn: { display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 14px", fontSize: 11, fontWeight: "var(--fw-medium)", border: "1px solid var(--border)", borderRadius: 6, background: "var(--surface-2)", color: "var(--text-secondary)", cursor: "pointer" } as React.CSSProperties,
-  btnPrimary: { display: "inline-flex", alignItems: "center", gap: 4, padding: "7px 16px", fontSize: 11, fontWeight: "var(--fw-semi)", border: "none", borderRadius: 6, background: "#f4a83a", color: "#fff", cursor: "pointer" } as React.CSSProperties,
+  btnPrimary: { display: "inline-flex", alignItems: "center", gap: 4, padding: "7px 16px", fontSize: 11, fontWeight: "var(--fw-semi)", border: "none", borderRadius: 6, background: "var(--amber)", color: "#fff", cursor: "pointer" } as React.CSSProperties,
 };
 
-const WATERFALL_COLORS = ["#f4a83a", "#e87a5d", "#f4a83a", "#22C55E", "#a78bb8"];
-const PIE_COLORS = ["#22C55E", "#f4a83a", "#f4a83a", "#e87a5d"];
+const WATERFALL_COLORS = ["var(--amber)", "var(--coral)", "var(--amber)", "var(--sage)", "var(--dusk)"];
+const PIE_COLORS = ["var(--sage)", "var(--amber)", "var(--amber)", "var(--coral)"];
 
 /* ═══════════════════════════════════════════════════════════════
    COMPONENT
@@ -136,7 +136,7 @@ export default function StageImpact({ reconData, redeployRows, contextData, isRe
     <div>
       {/* ── Hero metrics ── */}
       <div style={S.heroRow}>
-        <div style={S.hero("#f4a83a")}>
+        <div style={S.hero("var(--amber)")}>
           <div style={S.heroLabel}>Hours Freed / Week</div>
           <div style={S.heroValue}>{released.toFixed(1)}<span style={{ fontSize: 16, fontWeight: 400, color: "var(--text-muted)" }}>h</span></div>
           <div style={S.heroBench}>
@@ -144,21 +144,21 @@ export default function StageImpact({ reconData, redeployRows, contextData, isRe
             <span>capacity released</span>
           </div>
         </div>
-        <div style={S.hero("#22C55E")}>
+        <div style={S.hero("var(--sage)")}>
           <div style={S.heroLabel}>Cost Saved / Year</div>
           <div style={S.heroValue}>{costSaved}</div>
           <div style={S.heroBench}>
             <span>ROI: {roi}%</span>
           </div>
         </div>
-        <div style={S.hero("#f4a83a")}>
+        <div style={S.hero("var(--amber)")}>
           <div style={S.heroLabel}>Productivity Gain</div>
           <div style={S.heroValue}>{productivityGain}</div>
           <div style={S.heroBench}>
             <span>Payback: {payback} months</span>
           </div>
         </div>
-        <div style={S.hero("#a78bb8")}>
+        <div style={S.hero("var(--dusk)")}>
           <div style={S.heroLabel}>FTE Efficiency</div>
           <div style={S.heroValue}>{totalFuture.toFixed(1)}<span style={{ fontSize: 16, fontWeight: 400, color: "var(--text-muted)" }}>h</span></div>
           <div style={S.heroBench}>
@@ -238,7 +238,7 @@ export default function StageImpact({ reconData, redeployRows, contextData, isRe
               <span style={{ color: "var(--text-muted)", maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{String(ins.Interpretation || "")}</span>
             </div>
           )) : recs.length > 0 ? recs.map((r, i) => (
-            <div key={i} style={S.insightRow}><ArrowUpRight size={11} style={{ color: "#f4a83a", flexShrink: 0 }} /><span>{r}</span></div>
+            <div key={i} style={S.insightRow}><ArrowUpRight size={11} style={{ color: "var(--amber)", flexShrink: 0 }} /><span>{r}</span></div>
           )) : <div style={{ textAlign: "center", padding: 16, fontSize: 11, color: "var(--text-muted)" }}>Run the Impact analysis to surface transformation insights</div>}
         </div>
       </div>
@@ -265,7 +265,7 @@ export default function StageImpact({ reconData, redeployRows, contextData, isRe
           ];
           navigator.clipboard?.writeText(points.join("\n"));
         }}><Copy size={11} /> Copy as Talking Points</button>
-        <button style={{ ...S.btnPrimary, background: reviewed ? "#22C55E" : "#f4a83a" }} onClick={() => setReviewed(true)}>
+        <button style={{ ...S.btnPrimary, background: reviewed ? "var(--sage)" : "var(--amber)" }} onClick={() => setReviewed(true)}>
           {reviewed ? <><Check size={12} /> Reviewed</> : "Review and Approve"}
         </button>
       </div>

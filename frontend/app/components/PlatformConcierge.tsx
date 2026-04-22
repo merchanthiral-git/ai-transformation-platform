@@ -68,10 +68,10 @@ const DIMS = [
 ];
 
 function sevColor(s: number) {
-  if (s <= 2) return "#ef4444";
+  if (s <= 2) return "var(--coral)";
   if (s <= 3) return "#f59e0b";
-  if (s <= 4) return "#3b82f6";
-  return "#22c55e";
+  if (s <= 4) return "var(--amber)";
+  return "var(--sage)";
 }
 
 function sevLabel(s: number) {
@@ -113,7 +113,7 @@ const linkBtn: React.CSSProperties = {
 const goBtn: React.CSSProperties = {
   padding: "4px 12px", borderRadius: 6,
   border: "1px solid rgba(34,197,94,0.4)", background: "rgba(34,197,94,0.1)",
-  color: "#22c55e", fontWeight: 600, fontSize: 12, cursor: "pointer",
+  color: "var(--sage)", fontWeight: 600, fontSize: 12, cursor: "pointer",
 };
 
 const hoverBg = (e: React.MouseEvent<HTMLElement>, bg: string) => {
@@ -419,7 +419,7 @@ export function PlatformConcierge({ projectId, currentPage, onNavigate }: {
         {/* Quick wins */}
         {roadmap.quickWins.length > 0 && (
           <div style={{ padding: "14px 16px", borderRadius: 10, background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.25)", marginBottom: 20 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: "#22c55e", marginBottom: 10 }}>Quick Wins</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: "var(--sage)", marginBottom: 10 }}>Quick Wins</div>
             {roadmap.quickWins.map((w, i) => (
               <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: i < roadmap.quickWins.length - 1 ? 8 : 0 }}>
                 <span style={{ fontSize: 13, color: C.txt }}>{w.title}</span>
@@ -440,7 +440,7 @@ export function PlatformConcierge({ projectId, currentPage, onNavigate }: {
                   </div>
                   <div style={{ fontSize: 15, fontWeight: 600, color: C.txt, marginTop: 2 }}>{ph.title}</div>
                 </div>
-                <Badge color="#3b82f6">{ph.duration}</Badge>
+                <Badge color="var(--amber)">{ph.duration}</Badge>
               </div>
 
               {/* Duration bar */}
@@ -589,7 +589,7 @@ export function PlatformConcierge({ projectId, currentPage, onNavigate }: {
           <span style={{
             position: "absolute", top: 4, right: 4,
             width: 12, height: 12, borderRadius: "50%",
-            background: "#ef4444", border: `2px solid ${C.acc}`,
+            background: "var(--coral)", border: `2px solid ${C.acc}`,
           }} />
         )}
       </button>

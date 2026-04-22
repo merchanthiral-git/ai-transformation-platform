@@ -92,7 +92,7 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
 
       // ── Layer Distribution: sort by track order, color by track ──
       const TRACK_ORDER = ["S","P","T","M","E"];
-      const TRACK_COLORS: Record<string, string> = { S: "#8B7355", P: "#f4a83a", T: "#a78bb8", M: "#f4a83a", E: "#e87a5d" };
+      const TRACK_COLORS: Record<string, string> = { S: "var(--ink-whisper)", P: "var(--amber)", T: "var(--dusk)", M: "var(--amber)", E: "var(--coral)" };
       const TRACK_LABELS: Record<string, string> = { S: "Support", P: "Professional", T: "Technical", M: "Management", E: "Executive" };
       const sortedLayers = [...rawLayers].sort((a, b) => {
         const tA = TRACK_ORDER.indexOf(a.name[0]) * 100 + parseInt(a.name.slice(1) || "0");
@@ -239,7 +239,7 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
                 <div className="text-[11px] text-[var(--text-muted)] mb-2">Target range: <span className="text-[var(--success)] font-semibold">5-10</span> direct reports</div>
                 {spanByLevel.map(sl => {
                   const inRange = sl.avg >= 5 && sl.avg <= 10;
-                  const color = inRange ? "var(--success)" : sl.avg < 5 ? "#f4a83a" : "var(--risk)";
+                  const color = inRange ? "var(--success)" : sl.avg < 5 ? "var(--amber)" : "var(--risk)";
                   return <div key={sl.level} className="flex items-center gap-2">
                     <span className="text-[12px] font-data text-[var(--text-muted)] w-7">{sl.level}</span>
                     <div className="flex-1 h-4 bg-[var(--surface-2)] rounded-full overflow-hidden relative">
@@ -258,14 +258,14 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
             {spanView === "outlier" && <>
               {outliers.length === 0 ? <div className="text-[var(--text-muted)] text-center py-8">No outliers detected</div> : <>
                 <div className="text-[12px] text-[var(--text-muted)] mb-2">
-                  <span className="text-[var(--risk)] font-semibold">{allSpans.filter(s => s > 12).length}</span> overextended (&gt;12) · <span className="text-[#f4a83a] font-semibold">{allSpans.filter(s => s > 0 && s < 3).length}</span> too narrow (&lt;3)
+                  <span className="text-[var(--risk)] font-semibold">{allSpans.filter(s => s > 12).length}</span> overextended (&gt;12) · <span className="text-[var(--amber)] font-semibold">{allSpans.filter(s => s > 0 && s < 3).length}</span> too narrow (&lt;3)
                 </div>
                 <div className="space-y-1 max-h-[180px] overflow-y-auto">{outliers.map((o, i) => <div key={i} className="flex items-center gap-2 text-[12px] py-1 border-b border-[var(--border)]">
-                  <span className="w-2 h-2 rounded-full shrink-0" style={{ background: o.span > 12 ? "var(--risk)" : o.span < 5 ? "var(--warning)" : "#f4a83a" }} />
+                  <span className="w-2 h-2 rounded-full shrink-0" style={{ background: o.span > 12 ? "var(--risk)" : o.span < 5 ? "var(--warning)" : "var(--amber)" }} />
                   <span className="text-[var(--text-primary)] font-semibold truncate flex-1">{o.name}</span>
                   <span className="text-[var(--text-muted)] truncate" style={{ maxWidth: 80 }}>{o.dept}</span>
                   <span className="text-[var(--text-muted)] w-6">{o.level}</span>
-                  <span className="font-data font-bold w-6 text-right" style={{ color: o.span > 12 ? "var(--risk)" : o.span < 5 ? "var(--warning)" : "#f4a83a" }}>{o.span}</span>
+                  <span className="font-data font-bold w-6 text-right" style={{ color: o.span > 12 ? "var(--risk)" : o.span < 5 ? "var(--warning)" : "var(--amber)" }}>{o.span}</span>
                 </div>)}</div>
               </>}
             </>}
@@ -345,7 +345,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
     const rec = records.find(r => r.employee === emp && r.skill === skill);
     return rec ? rec.proficiency : 0;
   };
-  const profColor = (p: number) => p === 0 ? "transparent" : p === 1 ? "var(--risk)" : p === 2 ? "var(--warning)" : p === 3 ? "var(--success)" : "#065F46";
+  const profColor = (p: number) => p === 0 ? "transparent" : p === 1 ? "var(--risk)" : p === 2 ? "var(--warning)" : p === 3 ? "var(--success)" : "var(--sage)";
   const profLabel = (p: number) => p === 1 ? "Novice" : p === 2 ? "Developing" : p === 3 ? "Proficient" : p === 4 ? "Expert" : "Not assessed";
   const dispColors: Record<string, string> = { "Close Internally": "var(--success)", "Hire Externally": "var(--accent-primary)", "Accept Risk": "var(--warning)", "Automate": "var(--purple)" };
   const dispOptions = ["Close Internally", "Hire Externally", "Accept Risk", "Automate"];
@@ -387,7 +387,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
           </div>
           <div className="flex items-center gap-2">
             {Object.keys(editedScores).length > 0 && <span className="text-[15px] text-[var(--success)]">✎ {Object.keys(editedScores).length} edits</span>}
-            {!confirmed ? <button onClick={() => { setConfirmed(true); showToast("✓ Skills inventory confirmed — Gap Analysis unlocked"); logDec("Skills", "Inventory Confirmed", `${employees.length} employees × ${skills.length} skills confirmed`); }} className="px-4 py-1.5 rounded-lg text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--success), #059669)" }}>✓ Confirm Inventory</button> : <Badge color="green">✓ Confirmed</Badge>}
+            {!confirmed ? <button onClick={() => { setConfirmed(true); showToast("✓ Skills inventory confirmed — Gap Analysis unlocked"); logDec("Skills", "Inventory Confirmed", `${employees.length} employees × ${skills.length} skills confirmed`); }} className="px-4 py-1.5 rounded-lg text-[15px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--success), var(--sage))" }}>✓ Confirm Inventory</button> : <Badge color="green">✓ Confirmed</Badge>}
           </div>
         </div>
 
@@ -540,7 +540,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
           return { skill, supplyPct, demandPct, gapPct, status, supplyCount: proficient, demandCount: Math.round(employees.length * demandPct / 100) };
         }).sort((a, b) => b.gapPct - a.gapPct);
 
-        const statusColors: Record<string, string> = { critical: "var(--risk)", shortage: "var(--warning)", moderate: "var(--accent-primary)", adequate: "var(--success)", surplus: "#0EA5E9" };
+        const statusColors: Record<string, string> = { critical: "var(--risk)", shortage: "var(--warning)", moderate: "var(--accent-primary)", adequate: "var(--success)", surplus: "var(--amber)" };
         const statusLabels: Record<string, string> = { critical: "CRITICAL", shortage: "SHORTAGE", moderate: "MODERATE", adequate: "ADEQUATE", surplus: "SURPLUS" };
         const criticals = supplyDemand.filter(s => s.status === "critical");
         const shortages = supplyDemand.filter(s => s.status === "shortage");
@@ -561,8 +561,8 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
             <div className="space-y-2">
               {supplyDemand.map(sd => <div key={sd.skill} className="flex items-center gap-2 py-2">
                 {/* Supply bar (goes LEFT from center) */}
-                <div className="w-16 text-right text-[13px] font-data font-bold" style={{ color: "#0891B2" }}>{sd.supplyPct}%</div>
-                <div className="w-24 flex justify-end"><div className="h-5 rounded-l-lg" style={{ width: `${Math.max(sd.supplyPct, 2)}%`, minWidth: 4, background: "#0891B2" }} /></div>
+                <div className="w-16 text-right text-[13px] font-data font-bold" style={{ color: "var(--amber)" }}>{sd.supplyPct}%</div>
+                <div className="w-24 flex justify-end"><div className="h-5 rounded-l-lg" style={{ width: `${Math.max(sd.supplyPct, 2)}%`, minWidth: 4, background: "var(--amber)" }} /></div>
                 {/* Center: skill name */}
                 <div className="w-36 text-center shrink-0"><span className="text-[14px] font-semibold text-[var(--text-primary)] truncate block">{sd.skill}</span></div>
                 {/* Demand bar (goes RIGHT from center) */}
@@ -573,7 +573,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
               </div>)}
             </div>
             <div className="flex justify-between mt-3 text-[13px] text-[var(--text-muted)]">
-              <span className="flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ background: "#0891B2" }} /> Supply (have the skill)</span>
+              <span className="flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ background: "var(--amber)" }} /> Supply (have the skill)</span>
               <span className="flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ background: "var(--accent-primary)" }} /> Demand (need the skill)</span>
             </div>
           </Card>
@@ -605,7 +605,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
       const selectedAdj = adjacencies.find(a => a.target_role === selectedRole);
       const moveTypes = [
         { type: "⬆️", label: "Promotion", color: "var(--success)", desc: "Move up a level" },
-        { type: "➡️", label: "Lateral", color: "#0EA5E9", desc: "Same level, different function" },
+        { type: "➡️", label: "Lateral", color: "var(--amber)", desc: "Same level, different function" },
         { type: "↗️", label: "Cross-track", color: "var(--purple)", desc: "IC to Manager or vice versa" },
         { type: "🔄", label: "Pivot", color: "var(--warning)", desc: "New domain entirely" },
       ];
@@ -1131,7 +1131,7 @@ export function ChangeReadiness({ model, f, onBack, onNavigate, viewCtx, simStat
   const [pulseEntries, setPulseEntries] = usePersisted<{ date: string; source: string; segment: string; sentiment: number; themes: string }[]>(`${model}_pulse`, []);
   const [issues, setIssues] = usePersisted<{ id: string; desc: string; severity: string; owner: string; status: string }[]>(`${model}_issues`, []);
 
-  const statusColors: Record<string, string> = { "Not Started": "var(--text-muted)", "In Planning": "#0EA5E9", "Ready for Review": "var(--warning)", "Approved": "var(--success)", "In Progress": "var(--accent-primary)", "Completed": "var(--success)", "Deferred": "var(--text-muted)", "Active": "var(--success)", "Draft": "var(--text-muted)", "Paused": "var(--warning)", "Complete": "var(--success)" };
+  const statusColors: Record<string, string> = { "Not Started": "var(--text-muted)", "In Planning": "var(--amber)", "Ready for Review": "var(--warning)", "Approved": "var(--success)", "In Progress": "var(--accent-primary)", "Completed": "var(--success)", "Deferred": "var(--text-muted)", "Active": "var(--success)", "Draft": "var(--text-muted)", "Paused": "var(--warning)", "Complete": "var(--success)" };
 
   return <div>
     <ContextStrip items={["Plan, coordinate, and track change management campaigns across your transformation."]} />
@@ -1222,12 +1222,12 @@ export function ChangeReadiness({ model, f, onBack, onNavigate, viewCtx, simStat
           {raciStakeholders.map(s => {
             const key = `${act}__${s}`;
             const val = raciMatrix[key] || "";
-            const raciColors: Record<string, string> = { R: "#0891B2", A: "var(--accent-primary)", C: "var(--purple)", I: "var(--text-muted)" };
+            const raciColors: Record<string, string> = { R: "var(--amber)", A: "var(--accent-primary)", C: "var(--purple)", I: "var(--text-muted)" };
             return <td key={s} className="px-2 py-2 text-center"><button onClick={() => { const cycle = ["", "R", "A", "C", "I"]; setRaciMatrix(prev => ({ ...prev, [key]: cycle[(cycle.indexOf(val) + 1) % cycle.length] })); }} className="w-7 h-7 rounded-lg text-[14px] font-bold inline-flex items-center justify-center" style={{ background: val ? `${raciColors[val] || "var(--text-muted)"}15` : "var(--surface-2)", color: val ? raciColors[val] : "var(--border)", border: `1px solid ${val ? `${raciColors[val]}30` : "var(--border)"}` }}>{val || "·"}</button></td>;
           })}
         </tr>)}
       </tbody></table></div>
-      <div className="flex gap-4 mt-3 text-[13px] text-[var(--text-muted)]">{[{ l: "R", n: "Responsible", c: "#0891B2" }, { l: "A", n: "Accountable", c: "var(--accent-primary)" }, { l: "C", n: "Consulted", c: "var(--purple)" }, { l: "I", n: "Informed", c: "var(--text-muted)" }].map(x => <span key={x.l} className="flex items-center gap-1"><span className="w-5 h-5 rounded text-[13px] font-bold flex items-center justify-center" style={{ background: `${x.c}15`, color: x.c }}>{x.l}</span>{x.n}</span>)}</div>
+      <div className="flex gap-4 mt-3 text-[13px] text-[var(--text-muted)]">{[{ l: "R", n: "Responsible", c: "var(--amber)" }, { l: "A", n: "Accountable", c: "var(--accent-primary)" }, { l: "C", n: "Consulted", c: "var(--purple)" }, { l: "I", n: "Informed", c: "var(--text-muted)" }].map(x => <span key={x.l} className="flex items-center gap-1"><span className="w-5 h-5 rounded text-[13px] font-bold flex items-center justify-center" style={{ background: `${x.c}15`, color: x.c }}>{x.l}</span>{x.n}</span>)}</div>
     </Card>}
 
     {/* ═══ TAB: MESSAGES ═══ */}
@@ -1854,7 +1854,7 @@ export function OrgHealthScorecard({ model, f, onBack, onNavigate, viewCtx }: { 
               <PolarAngleAxis dataKey="subject" tick={{ fontSize: 15, fill: "var(--text-muted)" }} />
               <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
               <Radar name="Your Org" dataKey="yours" stroke="var(--accent-primary)" fill="var(--accent-primary)" fillOpacity={0.25} strokeWidth={2} />
-              <Radar name="Industry Avg" dataKey="industry" stroke="#f4a83a" fill="#f4a83a" fillOpacity={0.08} strokeWidth={2} strokeDasharray="6 4" />
+              <Radar name="Industry Avg" dataKey="industry" stroke="var(--amber)" fill="var(--amber)" fillOpacity={0.08} strokeWidth={2} strokeDasharray="6 4" />
               <Radar name="Best in Class" dataKey="best" stroke="var(--success)" fill="var(--success)" fillOpacity={0.05} strokeWidth={1.5} strokeDasharray="3 3" />
               <Tooltip contentStyle={{ ...TT }} />
               <Legend wrapperStyle={{ fontSize: 15 }} />
@@ -1870,7 +1870,7 @@ export function OrgHealthScorecard({ model, f, onBack, onNavigate, viewCtx }: { 
               <span className="text-[15px] text-[var(--text-secondary)] w-16">{d.subject}</span>
               <div className="flex-1 h-2 bg-[var(--surface-2)] rounded-full overflow-hidden relative">
                 <div className="h-full rounded-full" style={{ width: `${d.yours}%`, background: "var(--accent-primary)" }} />
-                <div className="absolute top-0 h-full w-0.5" style={{ left: `${d.industry}%`, background: "#f4a83a" }} />
+                <div className="absolute top-0 h-full w-0.5" style={{ left: `${d.industry}%`, background: "var(--amber)" }} />
               </div>
               <span className="text-[15px] font-data w-12 text-right font-semibold" style={{ color }}>{delta >= 0 ? "+" : ""}{delta}%</span>
             </div>;
@@ -2010,10 +2010,10 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
   const pairs = data?.pairs ?? [];
 
   const MONO = "'JetBrains Mono', monospace";
-  const TRACK_COLORS: Record<string, string> = { E: "#e87a5d", M: "#f4a83a", P: "#f4a83a", S: "#f4a83a", T: "#a78bb8" };
-  const funcColors: Record<string, string> = { Technology: "#0891B2", Finance: "#f4a83a", HR: "#a78bb8", Operations: "#f4a83a", Marketing: "#EC4899", Legal: "#e87a5d", Sales: "#6366F1", Product: "#8ba87a" };
+  const TRACK_COLORS: Record<string, string> = { E: "var(--coral)", M: "var(--amber)", P: "var(--amber)", S: "var(--amber)", T: "var(--dusk)" };
+  const funcColors: Record<string, string> = { Technology: "var(--amber)", Finance: "var(--amber)", HR: "var(--dusk)", Operations: "var(--amber)", Marketing: "var(--coral)", Legal: "var(--coral)", Sales: "var(--dusk)", Product: "var(--sage)" };
 
-  const overlapColor = (pct: number) => pct >= 90 ? "#8ba87a" : pct >= 70 ? "#8ba87a" : pct >= 50 ? "#f4a83a" : pct >= 30 ? "#f4a83a" : "#64748b";
+  const overlapColor = (pct: number) => pct >= 90 ? "var(--sage)" : pct >= 70 ? "var(--sage)" : pct >= 50 ? "var(--amber)" : pct >= 30 ? "var(--amber)" : "var(--ink-faint)";
 
   // Derive per-cluster savings from opportunities
   const clusterSavings = useMemo(() => {
@@ -2064,7 +2064,7 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
 
       {/* Synthesis paragraph */}
       <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.7, marginBottom: 20, padding: "12px 16px", background: "rgba(255,255,255,0.04)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.08)" }}>
-        Analysis identified <span style={{ fontWeight: 700, color: "var(--text-primary)", fontFamily: MONO }}>{consolidationCount}</span> consolidation opportunities across <span style={{ fontWeight: 700, color: "var(--text-primary)", fontFamily: MONO }}>{departments.length}</span> departments. Acting on the top {Math.min(3, consolidationCount)} would save approximately <span style={{ fontWeight: 700, color: "#8ba87a", fontFamily: MONO }}>{fmtNum(totalSavings * 0.6 || Number(summary.potential_savings || 0) * 0.6)}</span> annually and affect <span style={{ fontWeight: 700, color: "var(--text-primary)", fontFamily: MONO }}>{totalAffected.toLocaleString()}</span> employees. Review the clusters below, prioritized by impact.
+        Analysis identified <span style={{ fontWeight: 700, color: "var(--text-primary)", fontFamily: MONO }}>{consolidationCount}</span> consolidation opportunities across <span style={{ fontWeight: 700, color: "var(--text-primary)", fontFamily: MONO }}>{departments.length}</span> departments. Acting on the top {Math.min(3, consolidationCount)} would save approximately <span style={{ fontWeight: 700, color: "var(--sage)", fontFamily: MONO }}>{fmtNum(totalSavings * 0.6 || Number(summary.potential_savings || 0) * 0.6)}</span> annually and affect <span style={{ fontWeight: 700, color: "var(--text-primary)", fontFamily: MONO }}>{totalAffected.toLocaleString()}</span> employees. Review the clusters below, prioritized by impact.
         {topModest && <span style={{ display: "block", marginTop: 8, fontSize: 12, color: "var(--text-muted)", fontStyle: "italic" }}>Note: Consolidation opportunities in this organization are modest — consider focusing efforts on other diagnostic areas first.</span>}
       </div>
 
@@ -2072,7 +2072,7 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
         {/* View toggle */}
         <div style={{ display: "inline-flex", background: "rgba(255,255,255,0.04)", borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", padding: 3 }}>
-          {(["list", "matrix"] as const).map(m => <button key={m} onClick={() => setViewMode(m)} style={{ padding: "5px 16px", borderRadius: 6, fontSize: 13, fontWeight: 600, border: "none", cursor: "pointer", background: viewMode === m ? "rgba(244,168,58,0.15)" : "transparent", color: viewMode === m ? "#f4a83a" : "#64748b", transition: "all 0.15s" }}>{m === "list" ? "List View" : "Matrix View"}</button>)}
+          {(["list", "matrix"] as const).map(m => <button key={m} onClick={() => setViewMode(m)} style={{ padding: "5px 16px", borderRadius: 6, fontSize: 13, fontWeight: 600, border: "none", cursor: "pointer", background: viewMode === m ? "rgba(244,168,58,0.15)" : "transparent", color: viewMode === m ? "var(--amber)" : "var(--ink-faint)", transition: "all 0.15s" }}>{m === "list" ? "List View" : "Matrix View"}</button>)}
         </div>
         {/* Department filter */}
         <select value={deptFilter} onChange={e => setDeptFilter(e.target.value)} style={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 8, padding: "5px 12px", fontSize: 13, color: "var(--text-primary)", outline: "none" }}>
@@ -2081,11 +2081,11 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
         </select>
         {/* Overlap threshold chips */}
         <div style={{ display: "flex", gap: 4 }}>
-          {[{ label: "All", v: 0 }, { label: ">50%", v: 50 }, { label: ">70%", v: 70 }, { label: ">90%", v: 90 }].map(chip => <button key={chip.v} onClick={() => setOverlapFilter(chip.v)} style={{ padding: "4px 12px", borderRadius: 6, fontSize: 12, fontWeight: 600, border: "1px solid " + (overlapFilter === chip.v ? "rgba(244,168,58,0.4)" : "rgba(255,255,255,0.08)"), background: overlapFilter === chip.v ? "rgba(244,168,58,0.1)" : "transparent", color: overlapFilter === chip.v ? "#f4a83a" : "#64748b", cursor: "pointer" }}>Overlap {chip.label}</button>)}
+          {[{ label: "All", v: 0 }, { label: ">50%", v: 50 }, { label: ">70%", v: 70 }, { label: ">90%", v: 90 }].map(chip => <button key={chip.v} onClick={() => setOverlapFilter(chip.v)} style={{ padding: "4px 12px", borderRadius: 6, fontSize: 12, fontWeight: 600, border: "1px solid " + (overlapFilter === chip.v ? "rgba(244,168,58,0.4)" : "rgba(255,255,255,0.08)"), background: overlapFilter === chip.v ? "rgba(244,168,58,0.1)" : "transparent", color: overlapFilter === chip.v ? "var(--amber)" : "var(--ink-faint)", cursor: "pointer" }}>Overlap {chip.label}</button>)}
         </div>
         {/* Savings threshold chips */}
         <div style={{ display: "flex", gap: 4 }}>
-          {[{ label: "All", v: 0 }, { label: ">$1M", v: 1e6 }, { label: ">$5M", v: 5e6 }].map(chip => <button key={chip.v} onClick={() => setSavingsFilter(chip.v)} style={{ padding: "4px 12px", borderRadius: 6, fontSize: 12, fontWeight: 600, border: "1px solid " + (savingsFilter === chip.v ? "rgba(139,168,122,0.4)" : "rgba(255,255,255,0.08)"), background: savingsFilter === chip.v ? "rgba(139,168,122,0.1)" : "transparent", color: savingsFilter === chip.v ? "#8ba87a" : "#64748b", cursor: "pointer" }}>Savings {chip.label}</button>)}
+          {[{ label: "All", v: 0 }, { label: ">$1M", v: 1e6 }, { label: ">$5M", v: 5e6 }].map(chip => <button key={chip.v} onClick={() => setSavingsFilter(chip.v)} style={{ padding: "4px 12px", borderRadius: 6, fontSize: 12, fontWeight: 600, border: "1px solid " + (savingsFilter === chip.v ? "rgba(139,168,122,0.4)" : "rgba(255,255,255,0.08)"), background: savingsFilter === chip.v ? "rgba(139,168,122,0.1)" : "transparent", color: savingsFilter === chip.v ? "var(--sage)" : "var(--ink-faint)", cursor: "pointer" }}>Savings {chip.label}</button>)}
         </div>
       </div>
 
@@ -2093,10 +2093,10 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
       {viewMode === "matrix" && <Card title="Consolidation Impact Matrix">
         <div style={{ position: "relative", height: 400, border: "1px solid rgba(255,255,255,0.06)", borderRadius: 12, background: "rgba(255,255,255,0.02)", overflow: "hidden" }}>
           {/* Axis labels */}
-          <div style={{ position: "absolute", bottom: 8, left: "50%", transform: "translateX(-50%)", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b" }}>Overlap %</div>
-          <div style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%) rotate(-90deg)", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b" }}>Savings ($M)</div>
+          <div style={{ position: "absolute", bottom: 8, left: "50%", transform: "translateX(-50%)", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--ink-faint)" }}>Overlap %</div>
+          <div style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%) rotate(-90deg)", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--ink-faint)" }}>Savings ($M)</div>
           {/* High-impact quadrant label */}
-          <div style={{ position: "absolute", top: 12, right: 16, fontSize: 11, fontWeight: 700, color: "#8ba87a", opacity: 0.6 }}>HIGH IMPACT</div>
+          <div style={{ position: "absolute", top: 12, right: 16, fontSize: 11, fontWeight: 700, color: "var(--sage)", opacity: 0.6 }}>HIGH IMPACT</div>
           {/* Quadrant lines */}
           <div style={{ position: "absolute", left: "50%", top: 0, bottom: 0, width: 1, background: "rgba(255,255,255,0.06)" }} />
           <div style={{ position: "absolute", top: "50%", left: 0, right: 0, height: 1, background: "rgba(255,255,255,0.06)" }} />
@@ -2109,26 +2109,26 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
               const yPct = maxSav > 0 ? (c._savings / maxSav) * 100 : 0;
               const size = Math.max(20, Math.min(60, (c.headcount / maxHC) * 50 + 10));
               const isHighImpact = c.avg_overlap >= 60 && c._savings >= maxSav * 0.4;
-              const fc = funcColors[c.function] || "#f4a83a";
-              return <button key={i} onClick={() => { setViewMode("list"); setExpandedCluster(c._idx); }} title={`${c.name}: ${c.avg_overlap}% overlap, ${fmtNum(c._savings)} savings, ${c.headcount} people`} style={{ position: "absolute", left: `${8 + xPct * 0.84}%`, bottom: `${8 + yPct * 0.84}%`, width: size, height: size, borderRadius: "50%", background: fc, opacity: isHighImpact ? 0.9 : 0.5, border: isHighImpact ? "2px solid #8ba87a" : "1px solid rgba(255,255,255,0.15)", cursor: "pointer", transition: "all 0.2s", transform: "translate(-50%, 50%)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, fontFamily: MONO, color: "#fff" }}>{c.roles.length}</button>;
+              const fc = funcColors[c.function] || "var(--amber)";
+              return <button key={i} onClick={() => { setViewMode("list"); setExpandedCluster(c._idx); }} title={`${c.name}: ${c.avg_overlap}% overlap, ${fmtNum(c._savings)} savings, ${c.headcount} people`} style={{ position: "absolute", left: `${8 + xPct * 0.84}%`, bottom: `${8 + yPct * 0.84}%`, width: size, height: size, borderRadius: "50%", background: fc, opacity: isHighImpact ? 0.9 : 0.5, border: isHighImpact ? "2px solid var(--sage)" : "1px solid rgba(255,255,255,0.15)", cursor: "pointer", transition: "all 0.2s", transform: "translate(-50%, 50%)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, fontFamily: MONO, color: "#fff" }}>{c.roles.length}</button>;
             });
           })()}
         </div>
         <div style={{ display: "flex", gap: 16, marginTop: 12, justifyContent: "center" }}>
           {Object.entries(funcColors).slice(0, 6).map(([name, color]) => <div key={name} style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <div style={{ width: 10, height: 10, borderRadius: "50%", background: color }} />
-            <span style={{ fontSize: 11, color: "#64748b" }}>{name}</span>
+            <span style={{ fontSize: 11, color: "var(--ink-faint)" }}>{name}</span>
           </div>)}
         </div>
       </Card>}
 
       {/* ═══ LIST VIEW — Expandable cluster cards ═══ */}
       {viewMode === "list" && <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 24 }}>
-        {sortedClusters.length === 0 && <div style={{ textAlign: "center", padding: 32, color: "#64748b", fontSize: 13 }}>No clusters match the current filters.</div>}
+        {sortedClusters.length === 0 && <div style={{ textAlign: "center", padding: 32, color: "var(--ink-faint)", fontSize: 13 }}>No clusters match the current filters.</div>}
         {sortedClusters.map((c) => {
           const idx = c._idx;
           const isExpanded = expandedCluster === idx;
-          const fc = funcColors[c.function] || "#f4a83a";
+          const fc = funcColors[c.function] || "var(--amber)";
           const savings = c._savings;
           const opp = clusterOpportunity(c);
           const isReviewed = reviewed.has(idx);
@@ -2144,33 +2144,33 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
               {/* Name + subtitle */}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.name}</div>
-                <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>{c.headcount.toLocaleString()} employees · {c.roles.length} roles · {c.function}</div>
+                <div style={{ fontSize: 11, color: "var(--ink-faint)", marginTop: 2 }}>{c.headcount.toLocaleString()} employees · {c.roles.length} roles · {c.function}</div>
               </div>
 
               {/* Stat pills */}
               <div style={{ display: "flex", gap: 8, alignItems: "center", flexShrink: 0 }}>
                 <span style={{ padding: "3px 10px", borderRadius: 6, fontSize: 12, fontWeight: 700, fontFamily: MONO, background: `${overlapColor(c.avg_overlap)}15`, color: overlapColor(c.avg_overlap) }}>Overlap: {c.avg_overlap.toFixed(1)}%</span>
-                {savings > 0 && <span style={{ padding: "3px 10px", borderRadius: 6, fontSize: 12, fontWeight: 700, fontFamily: MONO, background: "rgba(139,168,122,0.1)", color: "#8ba87a" }}>Savings: {fmtNum(savings)}</span>}
-                <span style={{ padding: "3px 10px", borderRadius: 6, fontSize: 12, fontWeight: 600, background: "rgba(255,255,255,0.04)", color: "#64748b" }}>Affects: {c.headcount}</span>
-                {isReviewed && <span style={{ padding: "3px 8px", borderRadius: 6, fontSize: 11, fontWeight: 600, background: "rgba(139,168,122,0.1)", color: "#8ba87a" }}>Reviewed</span>}
+                {savings > 0 && <span style={{ padding: "3px 10px", borderRadius: 6, fontSize: 12, fontWeight: 700, fontFamily: MONO, background: "rgba(139,168,122,0.1)", color: "var(--sage)" }}>Savings: {fmtNum(savings)}</span>}
+                <span style={{ padding: "3px 10px", borderRadius: 6, fontSize: 12, fontWeight: 600, background: "rgba(255,255,255,0.04)", color: "var(--ink-faint)" }}>Affects: {c.headcount}</span>
+                {isReviewed && <span style={{ padding: "3px 8px", borderRadius: 6, fontSize: 11, fontWeight: 600, background: "rgba(139,168,122,0.1)", color: "var(--sage)" }}>Reviewed</span>}
               </div>
 
               {/* Chevron */}
-              <span style={{ fontSize: 15, color: "#64748b", flexShrink: 0, transition: "transform 0.2s", transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)" }}>▾</span>
+              <span style={{ fontSize: 15, color: "var(--ink-faint)", flexShrink: 0, transition: "transform 0.2s", transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)" }}>▾</span>
             </button>
 
             {/* Expanded detail */}
             {isExpanded && <div style={{ padding: "0 20px 20px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
               {/* Roles mini-table */}
               <div style={{ marginTop: 16, marginBottom: 16 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", marginBottom: 8 }}>Roles in this cluster</div>
+                <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--ink-faint)", marginBottom: 8 }}>Roles in this cluster</div>
                 <div style={{ borderRadius: 8, border: "1px solid rgba(255,255,255,0.06)", overflow: "hidden" }}>
                   <table style={{ width: "100%", fontSize: 13, borderCollapse: "collapse" }}>
                     <thead><tr style={{ background: "rgba(255,255,255,0.03)" }}>
-                      <th style={{ padding: "8px 12px", textAlign: "left", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>Role</th>
-                      <th style={{ padding: "8px 12px", textAlign: "center", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", borderBottom: "1px solid rgba(255,255,255,0.06)" }} title="Headcount">HC</th>
-                      <th style={{ padding: "8px 12px", textAlign: "center", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>Overlap</th>
-                      <th style={{ padding: "8px 12px", textAlign: "left", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>Shared Skills</th>
+                      <th style={{ padding: "8px 12px", textAlign: "left", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--ink-faint)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>Role</th>
+                      <th style={{ padding: "8px 12px", textAlign: "center", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--ink-faint)", borderBottom: "1px solid rgba(255,255,255,0.06)" }} title="Headcount">HC</th>
+                      <th style={{ padding: "8px 12px", textAlign: "center", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--ink-faint)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>Overlap</th>
+                      <th style={{ padding: "8px 12px", textAlign: "left", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--ink-faint)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>Shared Skills</th>
                     </tr></thead>
                     <tbody>{c.roles.map((r, ri) => {
                       const rolePair = pairs.find(p => (p.role_a === r || p.role_b === r) && (c.roles.includes(p.role_a) && c.roles.includes(p.role_b)));
@@ -2178,12 +2178,12 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
                       const isCandidate = opp && (opp.role_a === r || opp.role_b === r);
                       return <tr key={r} style={{ borderBottom: ri < c.roles.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none", background: isCandidate ? "rgba(244,168,58,0.06)" : "transparent" }}>
                         <td style={{ padding: "8px 12px", fontWeight: 600, color: "var(--text-primary)" }}>
-                          {isCandidate && <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: 3, background: "#f4a83a", marginRight: 8 }} />}
+                          {isCandidate && <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: 3, background: "var(--amber)", marginRight: 8 }} />}
                           {r}
                         </td>
                         <td style={{ padding: "8px 12px", textAlign: "center", fontFamily: MONO, fontWeight: 700, color: "var(--text-secondary)" }}>{Math.round(c.headcount / c.roles.length)}</td>
                         <td style={{ padding: "8px 12px", textAlign: "center" }}><span style={{ fontFamily: MONO, fontWeight: 700, color: overlapColor(pairOverlap) }}>{pairOverlap.toFixed(1)}%</span></td>
-                        <td style={{ padding: "8px 12px", fontSize: 12, color: "#64748b" }}>{c.shared_skills.slice(0, 3).join(", ")}{c.shared_skills.length > 3 ? ` +${c.shared_skills.length - 3}` : ""}</td>
+                        <td style={{ padding: "8px 12px", fontSize: 12, color: "var(--ink-faint)" }}>{c.shared_skills.slice(0, 3).join(", ")}{c.shared_skills.length > 3 ? ` +${c.shared_skills.length - 3}` : ""}</td>
                       </tr>;
                     })}</tbody>
                   </table>
@@ -2192,30 +2192,30 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
 
               {/* Recommended action card */}
               {opp && <div style={{ background: "rgba(244,168,58,0.04)", border: "1px solid rgba(244,168,58,0.15)", borderRadius: 12, padding: 16, marginBottom: 16 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#f4a83a", marginBottom: 8 }}>Recommended Action</div>
-                <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", marginBottom: 8 }}>Consolidate <span style={{ color: "#f4a83a" }}>{opp.role_a}</span> and <span style={{ color: "#f4a83a" }}>{opp.role_b}</span> into a single unified role</div>
+                <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--amber)", marginBottom: 8 }}>Recommended Action</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", marginBottom: 8 }}>Consolidate <span style={{ color: "var(--amber)" }}>{opp.role_a}</span> and <span style={{ color: "var(--amber)" }}>{opp.role_b}</span> into a single unified role</div>
                 <div style={{ display: "flex", gap: 16, marginBottom: 12, flexWrap: "wrap" }}>
-                  <span style={{ fontSize: 12, color: "#64748b" }}>Estimated impact: <span style={{ fontFamily: MONO, fontWeight: 700, color: "#8ba87a" }}>-{fmtNum(opp.estimated_savings)}</span> cost</span>
-                  <span style={{ fontSize: 12, color: "#64748b" }}>Affects: <span style={{ fontFamily: MONO, fontWeight: 700, color: "var(--text-primary)" }}>{opp.headcount_affected}</span> people</span>
-                  <span style={{ fontSize: 12, color: "#64748b" }}>Risk: <span style={{ fontWeight: 700, color: opp.risk === "Low" ? "#8ba87a" : opp.risk === "High" ? "#e87a5d" : "#f4a83a" }}>{opp.risk}</span></span>
+                  <span style={{ fontSize: 12, color: "var(--ink-faint)" }}>Estimated impact: <span style={{ fontFamily: MONO, fontWeight: 700, color: "var(--sage)" }}>-{fmtNum(opp.estimated_savings)}</span> cost</span>
+                  <span style={{ fontSize: 12, color: "var(--ink-faint)" }}>Affects: <span style={{ fontFamily: MONO, fontWeight: 700, color: "var(--text-primary)" }}>{opp.headcount_affected}</span> people</span>
+                  <span style={{ fontSize: 12, color: "var(--ink-faint)" }}>Risk: <span style={{ fontWeight: 700, color: opp.risk === "Low" ? "var(--sage)" : opp.risk === "High" ? "var(--coral)" : "var(--amber)" }}>{opp.risk}</span></span>
                 </div>
                 <div style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: 12 }}>Both roles share {opp.similarity}% identical skill requirements and overlapping responsibilities across {c.shared_skills.slice(0, 4).join(", ")}. Current title differences appear to be legacy organizational structure that can be rationalized.</div>
                 <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                  {onNavigate && <button onClick={() => onNavigate("build")} style={{ padding: "7px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600, background: "#f4a83a", color: "#fff", border: "none", cursor: "pointer" }}>Add to Design Scenario</button>}
-                  <button onClick={() => setReviewed(prev => { const s = new Set(prev); s.add(idx); return s; })} style={{ padding: "7px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600, background: "transparent", color: isReviewed ? "#8ba87a" : "#64748b", border: "1px solid rgba(255,255,255,0.08)", cursor: "pointer" }}>{isReviewed ? "Reviewed" : "Mark as Reviewed"}</button>
-                  {onNavigate && <button onClick={() => onNavigate("jobarch")} style={{ padding: "7px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600, background: "transparent", color: "#64748b", border: "none", cursor: "pointer" }}>View in Job Architecture Compare →</button>}
+                  {onNavigate && <button onClick={() => onNavigate("build")} style={{ padding: "7px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600, background: "var(--amber)", color: "#fff", border: "none", cursor: "pointer" }}>Add to Design Scenario</button>}
+                  <button onClick={() => setReviewed(prev => { const s = new Set(prev); s.add(idx); return s; })} style={{ padding: "7px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600, background: "transparent", color: isReviewed ? "var(--sage)" : "var(--ink-faint)", border: "1px solid rgba(255,255,255,0.08)", cursor: "pointer" }}>{isReviewed ? "Reviewed" : "Mark as Reviewed"}</button>
+                  {onNavigate && <button onClick={() => onNavigate("jobarch")} style={{ padding: "7px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600, background: "transparent", color: "var(--ink-faint)", border: "none", cursor: "pointer" }}>View in Job Architecture Compare →</button>}
                 </div>
               </div>}
 
               {/* Highest overlap pair (when no opportunity exists) */}
               {!opp && c.highest_pair && <div style={{ borderRadius: 12, padding: 12, border: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)", marginBottom: 16 }}>
-                <div style={{ fontSize: 11, color: "#64748b", marginBottom: 4 }}>Highest overlap within cluster:</div>
+                <div style={{ fontSize: 11, color: "var(--ink-faint)", marginBottom: 4 }}>Highest overlap within cluster:</div>
                 <div style={{ fontSize: 15, fontWeight: 600, color: "var(--text-primary)" }}>{c.highest_pair[0]} ↔ {c.highest_pair[1]}: <span style={{ fontFamily: MONO, fontWeight: 700, color: overlapColor(c.highest_pair[2]) }}>{c.highest_pair[2]}%</span></div>
               </div>}
 
               {/* Shared skills */}
               {c.shared_skills.length > 0 && <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                <span style={{ fontSize: 11, color: "#64748b", alignSelf: "center" }}>Shared skills:</span>
+                <span style={{ fontSize: 11, color: "var(--ink-faint)", alignSelf: "center" }}>Shared skills:</span>
                 {c.shared_skills.map(s => <span key={s} style={{ padding: "2px 8px", borderRadius: 6, fontSize: 12, background: "rgba(255,255,255,0.04)", color: "var(--text-secondary)", border: "1px solid rgba(255,255,255,0.06)" }}>{s}</span>)}
               </div>}
             </div>}

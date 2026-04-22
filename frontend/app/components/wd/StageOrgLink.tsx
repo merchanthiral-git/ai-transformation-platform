@@ -39,9 +39,9 @@ const S = {
   label: { fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" as const, letterSpacing: "0.05em", width: 120, flexShrink: 0 } as React.CSSProperties,
   input: { flex: 1, padding: "7px 10px", fontSize: "var(--text-xs)", background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 6, color: "var(--text-primary)", outline: "none" } as React.CSSProperties,
   checkRow: { display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", borderRadius: 6, marginBottom: 4, fontSize: "var(--text-xs)" } as React.CSSProperties,
-  checkOk: { background: "rgba(34,197,94,0.06)", color: "#22C55E" } as React.CSSProperties,
-  checkWarn: { background: "rgba(244,168,58,0.06)", color: "#f4a83a" } as React.CSSProperties,
-  orgNode: (highlight: boolean) => ({ padding: "10px 14px", border: `1px solid ${highlight ? "#f4a83a" : "var(--border)"}`, borderRadius: 8, background: highlight ? "rgba(244,168,58,0.05)" : "var(--surface-2)", textAlign: "center" as const, fontSize: "var(--text-xs)", minWidth: 120 }) as React.CSSProperties,
+  checkOk: { background: "rgba(34,197,94,0.06)", color: "var(--sage)" } as React.CSSProperties,
+  checkWarn: { background: "rgba(244,168,58,0.06)", color: "var(--amber)" } as React.CSSProperties,
+  orgNode: (highlight: boolean) => ({ padding: "10px 14px", border: `1px solid ${highlight ? "var(--amber)" : "var(--border)"}`, borderRadius: 8, background: highlight ? "rgba(244,168,58,0.05)" : "var(--surface-2)", textAlign: "center" as const, fontSize: "var(--text-xs)", minWidth: 120 }) as React.CSSProperties,
   orgLine: { width: 1, height: 24, background: "var(--border)", margin: "0 auto" } as React.CSSProperties,
   metricRow: { display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid var(--border)", fontSize: "var(--text-xs)" } as React.CSSProperties,
   metricLabel: { color: "var(--text-muted)" } as React.CSSProperties,
@@ -108,7 +108,7 @@ export default function StageOrgLink({ orgLinkData, jobTitle, trackCode, levelCo
             <div style={S.label}>Track / Level</div>
             <div style={{ ...S.input, background: "transparent", border: "none", color: "var(--text-primary)", fontWeight: "var(--fw-semi)" }}>
               {trackCode || "—"} {levelCode || ""}
-              {showSources && <span style={{ marginLeft: 6, padding: "1px 6px", fontSize: 11, background: "rgba(244,168,58,0.06)", border: "1px solid rgba(244,168,58,0.12)", borderRadius: 3, color: "#f4a83a" }}>JA</span>}
+              {showSources && <span style={{ marginLeft: 6, padding: "1px 6px", fontSize: 11, background: "rgba(244,168,58,0.06)", border: "1px solid rgba(244,168,58,0.12)", borderRadius: 3, color: "var(--amber)" }}>JA</span>}
             </div>
           </div>
           <div style={S.fieldRow}>
@@ -147,7 +147,7 @@ export default function StageOrgLink({ orgLinkData, jobTitle, trackCode, levelCo
             )}
             {/* Current role */}
             <div style={S.orgNode(true)}>
-              <div style={{ fontSize: 11, color: "#f4a83a" }}>This Role</div>
+              <div style={{ fontSize: 11, color: "var(--amber)" }}>This Role</div>
               <div style={{ fontWeight: "var(--fw-semi)", color: "var(--text-primary)", marginTop: 2 }}>{finalTitle || jobTitle}</div>
               <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>{trackCode} {levelCode} · {function_name}</div>
             </div>

@@ -112,7 +112,7 @@ export default function GuideViewer({ guide, onBack, onNavigate }: GuideViewerPr
   const visitedChapters = useMemo(() => expandedChapters, [expandedChapters]);
 
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", background: "#0B1120" }}>
+    <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", background: "var(--paper-solid)" }}>
       {/* ── TOC SIDEBAR ── */}
       <aside style={{
         width: tocCollapsed ? 48 : 320, minWidth: tocCollapsed ? 48 : 320,
@@ -216,7 +216,7 @@ export default function GuideViewer({ guide, onBack, onNavigate }: GuideViewerPr
       </aside>
 
       {/* ── MAIN CONTENT ── */}
-      <main ref={contentRef} style={{ flex: 1, overflowY: "auto", background: "#0B1120" }}>
+      <main ref={contentRef} style={{ flex: 1, overflowY: "auto", background: "var(--paper-solid)" }}>
         {/* Hero header */}
         <div style={{
           padding: "48px 64px 40px", borderBottom: "1px solid rgba(255,200,150,0.06)",

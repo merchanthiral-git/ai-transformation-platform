@@ -499,7 +499,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
   // ── ADKAR state ──
   const ADKAR_DIMS = ["Awareness", "Desire", "Knowledge", "Ability", "Reinforcement"] as const;
   const ADKAR_GROUPS = ["Executives", "Senior Leaders", "Middle Managers", "Frontline Managers", "Tech ICs", "Finance ICs", "HR ICs", "Operations ICs"] as const;
-  const ADKAR_COLORS: Record<string, string> = { Awareness: "var(--accent-primary)", Desire: "var(--teal)", Knowledge: "var(--purple)", Ability: "var(--success)", Reinforcement: "#0891B2" };
+  const ADKAR_COLORS: Record<string, string> = { Awareness: "var(--accent-primary)", Desire: "var(--teal)", Knowledge: "var(--purple)", Ability: "var(--success)", Reinforcement: "var(--amber)" };
   const ADKAR_RECS: Record<string, { title: string; actions: string[] }> = {
     Awareness: { title: "Build Awareness — Communicate the Why", actions: ["Host town halls explaining the business case for change", "Create FAQ documents addressing common concerns", "Share success stories from similar transformations", "Send personalized impact statements to each group", "Appoint visible executive sponsors who model the change narrative"] },
     Desire: { title: "Build Desire — Address What's In It For Me", actions: ["Involve resistors in co-designing the solution", "Identify and activate change champions in each team", "Address personal fears: job security, skill relevance, status", "Show career advancement opportunities in the new model", "Create incentives aligned with adoption (recognition, development)"] },
@@ -1434,7 +1434,7 @@ function forceSimulate(nodes: SimNode[], edges: GraphEdge[], width: number, heig
   }
 }
 
-const CATEGORY_COLORS: Record<string, string> = { Technology: "#0891B2", Finance: "var(--accent-primary)", HR: "var(--purple)", Operations: "var(--warning)", Product: "var(--success)", "Sales & Marketing": "#EC4899", Marketing: "#EC4899", Sales: "#6366F1", General: "#888", Legal: "var(--risk)" };
+const CATEGORY_COLORS: Record<string, string> = { Technology: "var(--amber)", Finance: "var(--accent-primary)", HR: "var(--purple)", Operations: "var(--warning)", Product: "var(--success)", "Sales & Marketing": "var(--coral)", Marketing: "var(--coral)", Sales: "var(--dusk)", General: "#888", Legal: "var(--risk)" };
 
 export function SkillsNetwork({ model, f, onBack, onNavigate }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void }) {
   const [graph, setGraph] = useState<{ nodes: GraphNode[]; edges: GraphEdge[]; stats?: Record<string, unknown> } | null>(null);

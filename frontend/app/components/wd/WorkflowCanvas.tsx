@@ -61,9 +61,9 @@ const STAGES = [
 type StageKey = typeof STAGES[number]["key"];
 
 const SYNC_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  synced: { label: "Synced", color: "#22C55E", bg: "rgba(34,197,94,0.08)" },
-  stale: { label: "JA Updated", color: "#f4a83a", bg: "rgba(244,168,58,0.08)" },
-  conflict: { label: "Conflict", color: "#f4a83a", bg: "rgba(244,168,58,0.12)" },
+  synced: { label: "Synced", color: "var(--sage)", bg: "rgba(34,197,94,0.08)" },
+  stale: { label: "JA Updated", color: "var(--amber)", bg: "rgba(244,168,58,0.08)" },
+  conflict: { label: "Conflict", color: "var(--amber)", bg: "rgba(244,168,58,0.12)" },
   manual: { label: "Manual", color: "var(--text-muted)", bg: "var(--surface-2)" },
   uploaded: { label: "CSV", color: "var(--text-muted)", bg: "var(--surface-2)" },
   broken: { label: "Broken", color: "var(--text-muted)", bg: "var(--surface-2)" },
@@ -79,7 +79,7 @@ const S = {
   // Top bar
   topBar: { display: "flex", alignItems: "center", gap: 10, padding: "10px 20px", borderBottom: "1px solid var(--border)", flexShrink: 0, background: "var(--surface-1)" } as React.CSSProperties,
   breadcrumb: { display: "flex", alignItems: "center", gap: 4, fontSize: "var(--text-xs)", color: "var(--text-muted)", flex: 1 } as React.CSSProperties,
-  breadLink: { color: "#f4a83a", cursor: "pointer", background: "none", border: "none", fontSize: "var(--text-xs)" } as React.CSSProperties,
+  breadLink: { color: "var(--amber)", cursor: "pointer", background: "none", border: "none", fontSize: "var(--text-xs)" } as React.CSSProperties,
   breadSep: { color: "var(--text-muted)", fontSize: 11 } as React.CSSProperties,
   breadCurrent: { color: "var(--text-primary)", fontWeight: "var(--fw-semi)" } as React.CSSProperties,
   topActions: { display: "flex", alignItems: "center", gap: 6 } as React.CSSProperties,
@@ -88,17 +88,17 @@ const S = {
 
   // Stale/conflict banner
   banner: (color: string) => ({ display: "flex", alignItems: "center", gap: 10, padding: "8px 20px", background: `${color}08`, borderBottom: `2px solid ${color}`, fontSize: "var(--text-xs)", color: "var(--text-primary)", flexShrink: 0 }) as React.CSSProperties,
-  bannerAction: { padding: "3px 10px", fontSize: 11, fontWeight: "var(--fw-semi)", border: "1px solid var(--border)", borderRadius: 4, background: "var(--surface-1)", color: "#f4a83a", cursor: "pointer" } as React.CSSProperties,
+  bannerAction: { padding: "3px 10px", fontSize: 11, fontWeight: "var(--fw-semi)", border: "1px solid var(--border)", borderRadius: 4, background: "var(--surface-1)", color: "var(--amber)", cursor: "pointer" } as React.CSSProperties,
 
   // Progress spine
   spine: { display: "flex", alignItems: "center", gap: 0, padding: "12px 20px", borderBottom: "1px solid var(--border)", flexShrink: 0, background: "var(--surface-1)", overflowX: "auto" as const } as React.CSSProperties,
   spineStage: (state: "current" | "complete" | "incomplete" | "locked") => {
-    const bg = state === "current" ? "#f4a83a" : state === "complete" ? "rgba(34,197,94,0.12)" : "var(--surface-2)";
-    const border = state === "current" ? "#f4a83a" : state === "complete" ? "#22C55E" : "var(--border)";
-    const color = state === "current" ? "#fff" : state === "complete" ? "#22C55E" : state === "locked" ? "var(--border)" : "var(--text-muted)";
+    const bg = state === "current" ? "var(--amber)" : state === "complete" ? "rgba(34,197,94,0.12)" : "var(--surface-2)";
+    const border = state === "current" ? "var(--amber)" : state === "complete" ? "var(--sage)" : "var(--border)";
+    const color = state === "current" ? "#fff" : state === "complete" ? "var(--sage)" : state === "locked" ? "var(--border)" : "var(--text-muted)";
     return { display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 6, border: `1px solid ${border}`, background: bg, cursor: state === "locked" ? "default" : "pointer", transition: "all 0.15s", minWidth: 0, whiteSpace: "nowrap" as const } as React.CSSProperties;
   },
-  spineNum: (state: "current" | "complete" | "incomplete" | "locked") => ({ width: 20, height: 20, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, background: state === "current" ? "rgba(255,255,255,0.2)" : "transparent", color: state === "current" ? "#fff" : state === "complete" ? "#22C55E" : "var(--text-muted)", flexShrink: 0 }) as React.CSSProperties,
+  spineNum: (state: "current" | "complete" | "incomplete" | "locked") => ({ width: 20, height: 20, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, background: state === "current" ? "rgba(255,255,255,0.2)" : "transparent", color: state === "current" ? "#fff" : state === "complete" ? "var(--sage)" : "var(--text-muted)", flexShrink: 0 }) as React.CSSProperties,
   spineLabel: { fontSize: 11, fontWeight: "var(--fw-medium)" } as React.CSSProperties,
   spinePct: { fontSize: 11, marginLeft: 2, opacity: 0.7 } as React.CSSProperties,
   spineConnector: { width: 16, height: 1, background: "var(--border)", flexShrink: 0 } as React.CSSProperties,
@@ -272,8 +272,8 @@ export default function WorkflowCanvas({ jobId, jobTitle, projectId, model, onBa
 
       {/* ── Stale / Conflict banner ── */}
       {isStale && (
-        <div style={S.banner("#f4a83a")}>
-          <AlertTriangle size={14} style={{ color: "#f4a83a", flexShrink: 0 }} />
+        <div style={S.banner("var(--amber)")}>
+          <AlertTriangle size={14} style={{ color: "var(--amber)", flexShrink: 0 }} />
           <span style={{ flex: 1 }}>
             Job Architecture was updated since last sync.
             {job?.last_synced_at && <span style={{ color: "var(--text-muted)" }}> Last synced: {new Date(job.last_synced_at).toLocaleDateString()}</span>}
@@ -283,8 +283,8 @@ export default function WorkflowCanvas({ jobId, jobTitle, projectId, model, onBa
         </div>
       )}
       {isConflict && (
-        <div style={S.banner("#f4a83a")}>
-          <AlertTriangle size={14} style={{ color: "#f4a83a", flexShrink: 0 }} />
+        <div style={S.banner("var(--amber)")}>
+          <AlertTriangle size={14} style={{ color: "var(--amber)", flexShrink: 0 }} />
           <span style={{ flex: 1, fontWeight: "var(--fw-semi)" }}>
             JA changed fields that this redesign has also modified. Review needed.
           </span>
@@ -554,7 +554,7 @@ export default function WorkflowCanvas({ jobId, jobTitle, projectId, model, onBa
                   {job.hours_freed > 0 && (
                     <div style={S.railField}>
                       <span style={S.railLabel}>Hours freed</span>
-                      <span style={{ ...S.railValue, fontFamily: "var(--ff-mono)", color: "#22C55E" }}>{job.hours_freed.toFixed(1)}h/wk</span>
+                      <span style={{ ...S.railValue, fontFamily: "var(--ff-mono)", color: "var(--sage)" }}>{job.hours_freed.toFixed(1)}h/wk</span>
                     </div>
                   )}
                   {job.cost_delta !== 0 && (

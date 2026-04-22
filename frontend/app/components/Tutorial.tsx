@@ -72,11 +72,11 @@ export function Tutorial({ onClose, onGoToSandbox, onGoToNewProject }: {
   const minsLeft = Math.max(1, Math.round((STEP_LABELS.length - step - 1) * 1));
 
   // ── Personalization gate ──
-  if (showGate) return <div style={{ position: "fixed", inset: 0, zIndex: 99998, background: "#0B1120", overflow: "auto", display: "flex", alignItems: "center", justifyContent: "center" }}>
+  if (showGate) return <div style={{ position: "fixed", inset: 0, zIndex: 99998, background: "var(--paper-solid)", overflow: "auto", display: "flex", alignItems: "center", justifyContent: "center" }}>
     <div style={{ maxWidth: 640, width: "100%", padding: "0 32px" }}>
       <div style={{ textAlign: "center", marginBottom: 40 }}>
         <div style={{ width: 64, height: 64, borderRadius: 20, background: "linear-gradient(135deg, rgba(244,168,58,0.2), rgba(192,112,48,0.15))", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 28, marginBottom: 16, border: "2px solid rgba(244,168,58,0.3)" }}>M</div>
-        <h1 style={{ fontSize: 28, fontWeight: 800, color: "#f5e6d0", fontFamily: "'Inter Tight', sans-serif", marginBottom: 8 }}>Welcome to Meridian Financial</h1>
+        <h1 style={{ fontSize: 28, fontWeight: 800, color: "var(--ink)", fontFamily: "'Inter Tight', sans-serif", marginBottom: 8 }}>Welcome to Meridian Financial</h1>
         <p style={{ fontSize: 15, color: "rgba(255,255,255,0.45)", maxWidth: 440, margin: "0 auto" }}>Before we begin, tell us about yourself so we can personalize the experience.</p>
       </div>
 
@@ -85,7 +85,7 @@ export function Tutorial({ onClose, onGoToSandbox, onGoToNewProject }: {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }}>
           {(Object.entries(PERSONA_INFO) as [Persona, typeof PERSONA_INFO.chro][]).map(([key, info]) => <button key={key} onClick={() => setPersona(key)} style={{ padding: "16px 20px", borderRadius: 14, background: persona === key ? "rgba(244,168,58,0.1)" : "rgba(255,255,255,0.02)", border: `1.5px solid ${persona === key ? "rgba(244,168,58,0.4)" : "rgba(255,255,255,0.06)"}`, cursor: "pointer", textAlign: "left", transition: "all 0.2s" }}>
             <div style={{ fontSize: 20, marginBottom: 4 }}>{info.icon}</div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: persona === key ? "#60a5fa" : "#f5e6d0", fontFamily: "'Inter Tight', sans-serif" }}>{info.label}</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: persona === key ? "var(--amber)" : "var(--ink)", fontFamily: "'Inter Tight', sans-serif" }}>{info.label}</div>
             <div style={{ fontSize: 12, color: "rgba(255,255,255,0.35)" }}>{info.subtitle}</div>
           </button>)}
         </div>
@@ -96,19 +96,19 @@ export function Tutorial({ onClose, onGoToSandbox, onGoToNewProject }: {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }}>
           {Object.entries(CHALLENGE_INFO).map(([key, info]) => <button key={key} onClick={() => setChallenge(key)} style={{ padding: "16px 20px", borderRadius: 14, background: challenge === key ? "rgba(244,168,58,0.1)" : "rgba(255,255,255,0.02)", border: `1.5px solid ${challenge === key ? "rgba(244,168,58,0.4)" : "rgba(255,255,255,0.06)"}`, cursor: "pointer", textAlign: "left", transition: "all 0.2s" }}>
             <div style={{ fontSize: 20, marginBottom: 4 }}>{info.icon}</div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: challenge === key ? "#f4a83a" : "#f5e6d0", fontFamily: "'Inter Tight', sans-serif" }}>{info.label}</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: challenge === key ? "var(--amber)" : "var(--ink)", fontFamily: "'Inter Tight', sans-serif" }}>{info.label}</div>
             <div style={{ fontSize: 12, color: "rgba(255,255,255,0.35)" }}>{info.subtitle}</div>
           </button>)}
         </div>
       </div>
 
-      <button onClick={() => { if (persona) setShowGate(false); }} disabled={!persona} style={{ width: "100%", padding: "14px", borderRadius: 14, background: persona ? "linear-gradient(135deg, #f4a83a, #6366F1)" : "rgba(255,255,255,0.05)", color: persona ? "#fff" : "rgba(255,255,255,0.2)", fontSize: 15, fontWeight: 700, cursor: persona ? "pointer" : "not-allowed", border: "none", fontFamily: "'Inter Tight', sans-serif" }}>Begin Meridian's Story →</button>
+      <button onClick={() => { if (persona) setShowGate(false); }} disabled={!persona} style={{ width: "100%", padding: "14px", borderRadius: 14, background: persona ? "linear-gradient(135deg, #f4a83a, var(--dusk))" : "rgba(255,255,255,0.05)", color: persona ? "#fff" : "rgba(255,255,255,0.2)", fontSize: 15, fontWeight: 700, cursor: persona ? "pointer" : "not-allowed", border: "none", fontFamily: "'Inter Tight', sans-serif" }}>Begin Meridian's Story →</button>
       <button onClick={onClose} style={{ display: "block", margin: "12px auto 0", fontSize: 13, color: "rgba(255,255,255,0.2)", background: "none", border: "none", cursor: "pointer" }}>Skip tutorial</button>
     </div>
   </div>;
 
   // ── Main tutorial ──
-  return <div style={{ position: "fixed", inset: 0, zIndex: 99998, background: "#0B1120", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+  return <div style={{ position: "fixed", inset: 0, zIndex: 99998, background: "var(--paper-solid)", overflow: "hidden", display: "flex", flexDirection: "column" }}>
     {/* Progress header */}
     <div style={{ background: "rgba(11,17,32,0.95)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(255,255,255,0.06)", flexShrink: 0 }}>
       <div style={{ height: 3, background: "rgba(255,255,255,0.05)" }}><div style={{ height: "100%", width: `${pct}%`, background: "linear-gradient(90deg, #f4a83a, var(--purple))", transition: "width 0.4s cubic-bezier(0.34,1.56,0.64,1)" }} /></div>
@@ -125,15 +125,15 @@ export function Tutorial({ onClose, onGoToSandbox, onGoToNewProject }: {
     <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
       {/* Left panel — narrative */}
       <div style={{ width: "40%", padding: "32px 28px", overflowY: "auto", display: "flex", flexDirection: "column" }}>
-        <h1 style={{ fontSize: 24, fontWeight: 800, color: "#f5e6d0", fontFamily: "'Inter Tight', sans-serif", lineHeight: 1.3, marginBottom: 12 }}>{narr.headline}</h1>
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: "var(--ink)", fontFamily: "'Inter Tight', sans-serif", lineHeight: 1.3, marginBottom: 12 }}>{narr.headline}</h1>
         <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", lineHeight: 1.7, marginBottom: 20 }}>{narr.context}</p>
         <div style={{ padding: "14px 16px", borderRadius: 12, background: "rgba(244,168,58,0.06)", borderLeft: "3px solid rgba(244,168,58,0.4)", marginBottom: 16 }}>
           <div style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", lineHeight: 1.6 }}>{narr.insight}</div>
         </div>
         {narr.callout && <div style={{ padding: "10px 14px", borderRadius: 10, background: "rgba(244,168,58,0.06)", border: "1px solid rgba(244,168,58,0.15)", marginBottom: 16 }}>
-          <div style={{ fontSize: 12, color: "#60a5fa", lineHeight: 1.5 }}>{narr.callout}</div>
+          <div style={{ fontSize: 12, color: "var(--amber)", lineHeight: 1.5 }}>{narr.callout}</div>
         </div>}
-        {step === 1 && <a href="/api/template" download style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 18px", borderRadius: 10, background: "rgba(244,168,58,0.1)", border: "1px solid rgba(244,168,58,0.3)", color: "#60a5fa", fontSize: 13, fontWeight: 600, textDecoration: "none", marginTop: 4 }}>📥 Download Template</a>}
+        {step === 1 && <a href="/api/template" download style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 18px", borderRadius: 10, background: "rgba(244,168,58,0.1)", border: "1px solid rgba(244,168,58,0.3)", color: "var(--amber)", fontSize: 13, fontWeight: 600, textDecoration: "none", marginTop: 4 }}>📥 Download Template</a>}
         <div style={{ flex: 1 }} />
       </div>
 
@@ -160,10 +160,10 @@ export function Tutorial({ onClose, onGoToSandbox, onGoToNewProject }: {
 
     {/* Bottom nav */}
     <div style={{ flexShrink: 0, padding: "12px 24px", background: "rgba(11,17,32,0.95)", backdropFilter: "blur(12px)", borderTop: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-      <div style={{ display: "flex", gap: 5 }}>{STEP_LABELS.map((_, i) => <button key={i} onClick={() => setStep(i)} style={{ width: i === step ? 22 : 7, height: 7, borderRadius: 4, background: i === step ? "#f4a83a" : i < step ? "rgba(244,168,58,0.3)" : "rgba(255,255,255,0.08)", border: "none", cursor: "pointer", transition: "all 0.2s" }} />)}</div>
+      <div style={{ display: "flex", gap: 5 }}>{STEP_LABELS.map((_, i) => <button key={i} onClick={() => setStep(i)} style={{ width: i === step ? 22 : 7, height: 7, borderRadius: 4, background: i === step ? "var(--amber)" : i < step ? "rgba(244,168,58,0.3)" : "rgba(255,255,255,0.08)", border: "none", cursor: "pointer", transition: "all 0.2s" }} />)}</div>
       <div style={{ display: "flex", gap: 10 }}>
         {step > 0 && <button onClick={prev} style={{ padding: "9px 18px", borderRadius: 10, background: "transparent", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.4)", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "'Inter Tight', sans-serif" }}>← Back</button>}
-        {!isLast && <button onClick={next} style={{ padding: "9px 22px", borderRadius: 10, background: "linear-gradient(135deg, #f4a83a, #6366F1)", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", border: "none", fontFamily: "'Inter Tight', sans-serif" }}>Next →</button>}
+        {!isLast && <button onClick={next} style={{ padding: "9px 22px", borderRadius: 10, background: "linear-gradient(135deg, #f4a83a, var(--dusk))", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", border: "none", fontFamily: "'Inter Tight', sans-serif" }}>Next →</button>}
         {isLast && <>
           <button onClick={onGoToNewProject} style={{ padding: "9px 18px", borderRadius: 10, background: "transparent", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.4)", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "'Inter Tight', sans-serif" }}>Upload my data →</button>
           <button onClick={onGoToSandbox} style={{ padding: "9px 22px", borderRadius: 10, background: "linear-gradient(135deg, #f4a83a, #f4a83a)", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", border: "none", fontFamily: "'Inter Tight', sans-serif" }}>Explore with real data →</button>
@@ -185,13 +185,13 @@ function CompanyCard() {
   return <div style={{ maxWidth: 480, margin: "40px auto" }}>
     <div style={{ textAlign: "center", marginBottom: 24 }}>
       <div style={{ width: 72, height: 72, borderRadius: 20, background: "linear-gradient(135deg, #1a2a4a, #0f1f35)", border: "2px solid rgba(244,168,58,0.3)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 32, fontWeight: 800, color: "var(--accent-primary)", fontFamily: "'Inter Tight', sans-serif", marginBottom: 12 }}>M</div>
-      <h2 style={{ fontSize: 22, fontWeight: 800, color: "#f5e6d0", fontFamily: "'Inter Tight', sans-serif" }}>{MERIDIAN.name}</h2>
+      <h2 style={{ fontSize: 22, fontWeight: 800, color: "var(--ink)", fontFamily: "'Inter Tight', sans-serif" }}>{MERIDIAN.name}</h2>
       <span style={{ display: "inline-block", padding: "3px 10px", borderRadius: 6, fontSize: 11, fontWeight: 700, background: "rgba(244,168,58,0.12)", color: "var(--accent-primary)", marginTop: 6 }}>{MERIDIAN.industry}</span>
     </div>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }}>
       {[{ label: "Employees", value: MERIDIAN.employees }, { label: "Labor Cost", value: 2.1, suffix: "B" }, { label: "Functions", value: MERIDIAN.functions.length }, { label: "Readiness", value: MERIDIAN.readiness.overall, suffix: "/100" }].map(kpi => <div key={kpi.label} style={{ padding: 16, borderRadius: 14, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", textAlign: "center" }}>
         <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>{kpi.label}</div>
-        <div style={{ fontSize: 24, fontWeight: 800, color: kpi.label === "Readiness" ? "var(--warning)" : "#f5e6d0", fontFamily: "'Inter Tight', sans-serif" }}>{kpi.suffix === "B" ? "$" : ""}<AnimNum value={kpi.value} />{kpi.suffix || ""}</div>
+        <div style={{ fontSize: 24, fontWeight: 800, color: kpi.label === "Readiness" ? "var(--warning)" : "var(--ink)", fontFamily: "'Inter Tight', sans-serif" }}>{kpi.suffix === "B" ? "$" : ""}<AnimNum value={kpi.value} />{kpi.suffix || ""}</div>
       </div>)}
     </div>
     <div style={{ marginTop: 16, padding: 14, borderRadius: 12, background: "rgba(244,168,58,0.06)", border: "1px solid rgba(244,168,58,0.15)", fontSize: 13, color: "rgba(255,255,255,0.5)", lineHeight: 1.6, textAlign: "center" }}>Readiness score 52/100 — below the industry benchmark of 65</div>
@@ -204,13 +204,13 @@ function DataPreview() {
   useEffect(() => { const t = setInterval(() => setActive(a => (a + 1) % tabs.length), 2000); return () => clearInterval(t); }, []);
   const desc = ["6,200 employees with roles, levels, and reporting lines", "396 tasks across 47 roles with AI impact ratings", "47 role definitions with skills and career tracks", "8 functions with manager hierarchy", "89 skills mapped to roles and proficiency levels"];
   return <div style={{ maxWidth: 480, margin: "40px auto" }}>
-    <div style={{ display: "flex", gap: 4, marginBottom: 16 }}>{tabs.map((t, i) => <button key={t} onClick={() => setActive(i)} style={{ flex: 1, padding: "8px 4px", borderRadius: 8, fontSize: 11, fontWeight: 700, background: i === active ? "rgba(244,168,58,0.12)" : "rgba(255,255,255,0.02)", color: i === active ? "#60a5fa" : "rgba(255,255,255,0.3)", border: `1px solid ${i === active ? "rgba(244,168,58,0.3)" : "rgba(255,255,255,0.04)"}`, cursor: "pointer", transition: "all 0.2s", fontFamily: "monospace" }}>{t}</button>)}</div>
+    <div style={{ display: "flex", gap: 4, marginBottom: 16 }}>{tabs.map((t, i) => <button key={t} onClick={() => setActive(i)} style={{ flex: 1, padding: "8px 4px", borderRadius: 8, fontSize: 11, fontWeight: 700, background: i === active ? "rgba(244,168,58,0.12)" : "rgba(255,255,255,0.02)", color: i === active ? "var(--amber)" : "rgba(255,255,255,0.3)", border: `1px solid ${i === active ? "rgba(244,168,58,0.3)" : "rgba(255,255,255,0.04)"}`, cursor: "pointer", transition: "all 0.2s", fontFamily: "monospace" }}>{t}</button>)}</div>
     <div style={{ padding: 20, borderRadius: 14, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", textAlign: "center", minHeight: 80 }}>
       <div style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", lineHeight: 1.6 }}>{desc[active]}</div>
     </div>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginTop: 16 }}>
       {[{ l: "Employees", v: "6,200" }, { l: "Roles", v: "47" }, { l: "Tasks", v: "396" }, { l: "Skills", v: "89" }].map(s => <div key={s.l} style={{ padding: 10, borderRadius: 10, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)", textAlign: "center" }}>
-        <div style={{ fontSize: 18, fontWeight: 800, color: "#60a5fa", fontFamily: "'Inter Tight', sans-serif" }}>{s.v}</div>
+        <div style={{ fontSize: 18, fontWeight: 800, color: "var(--amber)", fontFamily: "'Inter Tight', sans-serif" }}>{s.v}</div>
         <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>{s.l}</div>
       </div>)}
     </div>
@@ -220,7 +220,7 @@ function DataPreview() {
 function SnapshotPanel() {
   return <div style={{ maxWidth: 520, margin: "20px auto" }}>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginBottom: 16 }}>
-      {[{ l: "Employees", v: MERIDIAN.employees, c: "#f5e6d0" }, { l: "AI Readiness", v: MERIDIAN.readiness.overall, c: "var(--warning)", s: "/100" }, { l: "Avg AI Impact", v: 6.8, c: "var(--risk)", s: "/10" }].map(k => <div key={k.l} style={{ padding: 14, borderRadius: 12, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", textAlign: "center" }}>
+      {[{ l: "Employees", v: MERIDIAN.employees, c: "var(--ink)" }, { l: "AI Readiness", v: MERIDIAN.readiness.overall, c: "var(--warning)", s: "/100" }, { l: "Avg AI Impact", v: 6.8, c: "var(--risk)", s: "/10" }].map(k => <div key={k.l} style={{ padding: 14, borderRadius: 12, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", textAlign: "center" }}>
         <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 3 }}>{k.l}</div>
         <div style={{ fontSize: 22, fontWeight: 800, color: k.c }}><AnimNum value={k.v} />{k.s || ""}</div>
       </div>)}
@@ -237,7 +237,7 @@ function SnapshotPanel() {
 
 function DiagnosisPanel({ thinkingDone }: { thinkingDone: boolean }) {
   if (!thinkingDone) return <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: 12 }}>
-    <div style={{ display: "flex", gap: 6 }}>{[0, 1, 2].map(i => <div key={i} style={{ width: 8, height: 8, borderRadius: 4, background: "#f4a83a", animation: `pulse 1.2s ease-in-out ${i * 0.2}s infinite` }} />)}</div>
+    <div style={{ display: "flex", gap: 6 }}>{[0, 1, 2].map(i => <div key={i} style={{ width: 8, height: 8, borderRadius: 4, background: "var(--amber)", animation: `pulse 1.2s ease-in-out ${i * 0.2}s infinite` }} />)}</div>
     <div style={{ fontSize: 13, color: "rgba(255,255,255,0.3)" }}>Analyzing Meridian's workforce...</div>
     <style>{`@keyframes pulse { 0%,100% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }`}</style>
   </div>;
@@ -253,7 +253,7 @@ function DiagnosisPanel({ thinkingDone }: { thinkingDone: boolean }) {
     <div style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>AI Opportunity Areas</div>
     {areas.map((a, i) => <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 10, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)", marginBottom: 6, animation: `fadeSlide 0.3s ease ${i * 0.1}s both` }}>
       <div style={{ width: 32, height: 32, borderRadius: 8, background: `rgba(244,168,58,${a.score / 20})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 800, color: "var(--accent-primary)" }}>{a.score}</div>
-      <div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 600, color: "#f5e6d0" }}>{a.area}</div><div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>{a.roles} roles affected</div></div>
+      <div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 600, color: "var(--ink)" }}>{a.area}</div><div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>{a.roles} roles affected</div></div>
       {a.quickWin && <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 6, background: "rgba(139,168,122,0.1)", color: "var(--success)" }}>Quick Win</span>}
     </div>)}
     <div style={{ marginTop: 16, padding: 12, borderRadius: 10, background: "rgba(167,139,184,0.06)", border: "1px solid rgba(167,139,184,0.15)", fontSize: 12, color: "rgba(255,255,255,0.5)" }}>💡 Surprise: Wealth Management has 40% of roles flagged for AI augmentation within 18 months</div>
@@ -266,7 +266,7 @@ function DesignPanel({ revealCount }: { revealCount: number }) {
   const labels = { automate: "Automate", augment: "Augment", keep: "Keep Human" };
   return <div style={{ maxWidth: 520, margin: "20px auto" }}>
     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-      <span style={{ fontSize: 14, fontWeight: 700, color: "#f5e6d0" }}>Operations Analyst</span>
+      <span style={{ fontSize: 14, fontWeight: 700, color: "var(--ink)" }}>Operations Analyst</span>
       <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>18 tasks · {fmt(420)} employees</span>
     </div>
     <div style={{ maxHeight: 320, overflowY: "auto" }}>
@@ -298,7 +298,7 @@ function ScenarioPanel() {
     <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, marginBottom: 20 }}>
       {scenarios.map((s, i) => <div key={s.name} style={{ padding: 12, borderRadius: 10, background: i === 1 ? "rgba(244,168,58,0.08)" : "rgba(255,255,255,0.02)", border: `1px solid ${i === 1 ? "rgba(244,168,58,0.3)" : "rgba(255,255,255,0.04)"}`, textAlign: "center" }}>
         <div style={{ fontSize: 11, fontWeight: 700, color: i === 1 ? "var(--accent-primary)" : "rgba(255,255,255,0.3)", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>{s.name}</div>
-        <div style={{ fontSize: 16, fontWeight: 800, color: "#f5e6d0", fontFamily: "'Inter Tight', sans-serif" }}>{fmt(s.hc)}</div>
+        <div style={{ fontSize: 16, fontWeight: 800, color: "var(--ink)", fontFamily: "'Inter Tight', sans-serif" }}>{fmt(s.hc)}</div>
         <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>{s.cost > 0 ? `-${s.cost}% cost` : "baseline"}</div>
         <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>{s.time} · {s.attrition}</div>
       </div>)}
@@ -315,13 +315,13 @@ function PlanPanel() {
     <div style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>Top Skills Gaps</div>
     {MERIDIAN.skillsGaps.map(g => <div key={g.skill} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
       <span style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", width: 130, flexShrink: 0 }}>{g.skill}</span>
-      <div style={{ flex: 1, height: 6, background: "rgba(255,255,255,0.04)", borderRadius: 3, overflow: "hidden" }}><div style={{ height: "100%", borderRadius: 3, width: `${(g.employees / 2100) * 100}%`, background: g.severity === "critical" ? "var(--risk)" : g.severity === "high" ? "var(--warning)" : "#60a5fa" }} /></div>
+      <div style={{ flex: 1, height: 6, background: "rgba(255,255,255,0.04)", borderRadius: 3, overflow: "hidden" }}><div style={{ height: "100%", borderRadius: 3, width: `${(g.employees / 2100) * 100}%`, background: g.severity === "critical" ? "var(--risk)" : g.severity === "high" ? "var(--warning)" : "var(--amber)" }} /></div>
       <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", width: 50, textAlign: "right", fontFamily: "monospace" }}>{fmt(g.employees)}</span>
     </div>)}
     <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginTop: 20 }}>
       {[{ l: "Wave 1", v: 800, c: "var(--risk)" }, { l: "Wave 2", v: 900, c: "var(--warning)" }, { l: "Wave 3", v: 400, c: "var(--success)" }].map(w => <div key={w.l} style={{ padding: 12, borderRadius: 10, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)", textAlign: "center" }}>
         <div style={{ fontSize: 11, color: w.c, fontWeight: 700, marginBottom: 2 }}>{w.l}</div>
-        <div style={{ fontSize: 18, fontWeight: 800, color: "#f5e6d0" }}>{fmt(w.v)}</div>
+        <div style={{ fontSize: 18, fontWeight: 800, color: "var(--ink)" }}>{fmt(w.v)}</div>
         <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>employees</div>
       </div>)}
     </div>
@@ -338,7 +338,7 @@ function HandoffPanel() {
   ];
   return <div style={{ maxWidth: 480, margin: "40px auto", textAlign: "center" }}>
     <div style={{ fontSize: 48, marginBottom: 16 }}>🎉</div>
-    <h2 style={{ fontSize: 22, fontWeight: 800, color: "#f5e6d0", fontFamily: "'Inter Tight', sans-serif", marginBottom: 20 }}>Meridian has a transformation strategy.</h2>
+    <h2 style={{ fontSize: 22, fontWeight: 800, color: "var(--ink)", fontFamily: "'Inter Tight', sans-serif", marginBottom: 20 }}>Meridian has a transformation strategy.</h2>
     <div style={{ textAlign: "left", maxWidth: 380, margin: "0 auto" }}>
       {checks.map((c, i) => <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 8 }}>
         <span style={{ color: "var(--success)", fontSize: 14, marginTop: 1 }}>✓</span>

@@ -28,7 +28,7 @@ const S = {
   h2: { fontSize: "var(--text-lg)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)", margin: "0 0 4px" } as React.CSSProperties,
   subtitle: { fontSize: "var(--text-xs)", color: "var(--text-muted)", marginBottom: 24 } as React.CSSProperties,
   dropzone: (dragging: boolean) => ({
-    border: `2px dashed ${dragging ? "#f4a83a" : "var(--border)"}`,
+    border: `2px dashed ${dragging ? "var(--amber)" : "var(--border)"}`,
     borderRadius: 12, padding: "48px 24px", textAlign: "center" as const,
     background: dragging ? "rgba(244,168,58,0.04)" : "var(--surface-1)",
     cursor: "pointer", transition: "all 0.15s",
@@ -38,13 +38,13 @@ const S = {
   chip: (mapped: boolean) => ({
     display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 10px", fontSize: 11,
     background: mapped ? "rgba(34,197,94,0.1)" : "var(--surface-2)",
-    border: `1px solid ${mapped ? "#8ba87a" : "var(--border)"}`, borderRadius: 12,
-    color: mapped ? "#8ba87a" : "var(--text-muted)",
+    border: `1px solid ${mapped ? "var(--sage)" : "var(--border)"}`, borderRadius: 12,
+    color: mapped ? "var(--sage)" : "var(--text-muted)",
   }) as React.CSSProperties,
   previewTable: { width: "100%", borderCollapse: "collapse" as const, fontSize: "var(--text-xs)" } as React.CSSProperties,
-  th: { padding: "8px 10px", background: "#161822", color: "#fff", fontSize: 11, fontWeight: "var(--fw-semi)", textAlign: "left" as const } as React.CSSProperties,
+  th: { padding: "8px 10px", background: "var(--paper-solid)", color: "#fff", fontSize: 11, fontWeight: "var(--fw-semi)", textAlign: "left" as const } as React.CSSProperties,
   td: { padding: "6px 10px", borderBottom: "1px solid var(--border)", color: "var(--text-secondary)" } as React.CSSProperties,
-  btn: { display: "inline-flex", alignItems: "center", gap: 4, padding: "8px 16px", fontSize: "var(--text-xs)", fontWeight: "var(--fw-semi)", border: "none", borderRadius: 6, background: "#f4a83a", color: "#fff", cursor: "pointer" } as React.CSSProperties,
+  btn: { display: "inline-flex", alignItems: "center", gap: 4, padding: "8px 16px", fontSize: "var(--text-xs)", fontWeight: "var(--fw-semi)", border: "none", borderRadius: 6, background: "var(--amber)", color: "#fff", cursor: "pointer" } as React.CSSProperties,
 };
 
 /* ═══════════════════════════════════════════════════════════════
@@ -141,7 +141,7 @@ export default function BulkImport({ projectId, onImportComplete }: Props) {
       {/* Result banner */}
       {result && (
         <div style={{ ...S.section, borderLeft: "3px solid #8ba87a", display: "flex", alignItems: "center", gap: 12 }}>
-          <CheckCircle size={20} style={{ color: "#8ba87a", flexShrink: 0 }} />
+          <CheckCircle size={20} style={{ color: "var(--sage)", flexShrink: 0 }} />
           <div>
             <div style={{ fontSize: "var(--text-sm)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)" }}>
               {result.imported} roles imported successfully
@@ -157,7 +157,7 @@ export default function BulkImport({ projectId, onImportComplete }: Props) {
       {/* Error banner */}
       {error && (
         <div style={{ ...S.section, borderLeft: "3px solid #e87a5d", display: "flex", alignItems: "center", gap: 12 }}>
-          <AlertTriangle size={20} style={{ color: "#e87a5d", flexShrink: 0 }} />
+          <AlertTriangle size={20} style={{ color: "var(--coral)", flexShrink: 0 }} />
           <div style={{ fontSize: "var(--text-xs)", color: "var(--text-primary)" }}>{error}</div>
           <button style={{ marginLeft: "auto", background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer" }} onClick={() => setError("")}><X size={14} /></button>
         </div>
@@ -189,11 +189,11 @@ export default function BulkImport({ projectId, onImportComplete }: Props) {
           <div style={S.section}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <FileText size={15} style={{ color: "#f4a83a" }} />
+                <FileText size={15} style={{ color: "var(--amber)" }} />
                 <span style={{ fontSize: "var(--text-sm)", fontWeight: "var(--fw-semi)", color: "var(--text-primary)" }}>{file.name}</span>
                 <span style={{ fontSize: 11, color: "var(--text-muted)" }}>({(file.size / 1024).toFixed(0)} KB)</span>
               </div>
-              <button style={{ background: "none", border: "none", fontSize: "var(--text-xs)", color: "#f4a83a", cursor: "pointer" }}
+              <button style={{ background: "none", border: "none", fontSize: "var(--text-xs)", color: "var(--amber)", cursor: "pointer" }}
                 onClick={() => { setFile(null); setHeaders([]); setPreview([]); }}>
                 Choose different file
               </button>

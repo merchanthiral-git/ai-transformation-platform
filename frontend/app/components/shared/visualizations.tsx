@@ -88,7 +88,7 @@ export function RadarViz({ data, title }: { data: { subject: string; current: nu
     <RadarChart data={data} margin={{ top: 10, right: 30, bottom: 10, left: 30 }}>
       <PolarGrid stroke="var(--border)" /><PolarAngleAxis dataKey="subject" tick={{ fontSize: 15, fill: "var(--text-secondary)" }} /><PolarRadiusAxis domain={[0, data[0]?.max || 5]} tick={{ fontSize: 15, fill: "var(--text-muted)" }} />
       <Radar name="Current" dataKey="current" stroke="var(--accent-primary)" fill="var(--accent-primary)" fillOpacity={0.2} strokeWidth={2} />
-      {data[0]?.future !== undefined && <Radar name="Future" dataKey="future" stroke="#f4a83a" fill="#f4a83a" fillOpacity={0.1} strokeWidth={2} strokeDasharray="4 4" />}
+      {data[0]?.future !== undefined && <Radar name="Future" dataKey="future" stroke="var(--amber)" fill="var(--amber)" fillOpacity={0.1} strokeWidth={2} strokeDasharray="4 4" />}
       <Legend wrapperStyle={{ fontSize: 15, color: "var(--text-secondary)" }} /><Tooltip contentStyle={TT as object} />
     </RadarChart>
   </ResponsiveContainer>;

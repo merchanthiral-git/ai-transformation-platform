@@ -114,8 +114,8 @@ function AccountTab({ user, onUpdate }: { user: authApi.AuthUser; onUpdate: (u: 
           </div>
         </div>
       </div>
-      {err && <div className="rounded-xl px-4 py-2.5 mb-4 text-[15px] font-data" style={{ background: "rgba(220,50,50,0.06)", border: "1px solid rgba(220,50,50,0.15)", color: "#f08080" }}>{err}</div>}
-      {msg && <div className="rounded-xl px-4 py-2.5 mb-4 text-[15px] font-data" style={{ background: "rgba(139,168,122,0.06)", border: "1px solid rgba(139,168,122,0.15)", color: "#6ee7b7" }}>{msg}</div>}
+      {err && <div className="rounded-xl px-4 py-2.5 mb-4 text-[15px] font-data" style={{ background: "rgba(220,50,50,0.06)", border: "1px solid rgba(220,50,50,0.15)", color: "var(--coral)" }}>{err}</div>}
+      {msg && <div className="rounded-xl px-4 py-2.5 mb-4 text-[15px] font-data" style={{ background: "rgba(139,168,122,0.06)", border: "1px solid rgba(139,168,122,0.15)", color: "var(--sage)" }}>{msg}</div>}
       <div className="grid grid-cols-2 gap-5">
         <div><label style={LBL}>Display Name</label><input value={dn} onChange={e => setDn(e.target.value)} style={IS} onFocus={e => e.currentTarget.style.borderColor = "rgba(244,168,58,0.4)"} onBlur={e => e.currentTarget.style.borderColor = "rgba(244,168,58,0.15)"} /></div>
         <div><label style={LBL}>Email</label><input value={email} onChange={e => setEmail(e.target.value)} type="email" style={IS} onFocus={e => e.currentTarget.style.borderColor = "rgba(244,168,58,0.4)"} onBlur={e => e.currentTarget.style.borderColor = "rgba(244,168,58,0.15)"} /></div>
@@ -128,7 +128,7 @@ function AccountTab({ user, onUpdate }: { user: authApi.AuthUser; onUpdate: (u: 
       <div className="space-y-4 max-w-md">
         <div><label style={LBL}>Current Password</label><input type="password" value={curPw} onChange={e => setCurPw(e.target.value)} style={IS} onFocus={e => e.currentTarget.style.borderColor = "rgba(244,168,58,0.4)"} onBlur={e => e.currentTarget.style.borderColor = "rgba(244,168,58,0.15)"} /></div>
         <div><label style={LBL}>New Password</label><input type="password" value={newPw} onChange={e => setNewPw(e.target.value)} style={IS} onFocus={e => e.currentTarget.style.borderColor = "rgba(244,168,58,0.4)"} onBlur={e => e.currentTarget.style.borderColor = "rgba(244,168,58,0.15)"} />
-          {newPw && <div className="flex gap-1 mt-2">{[1,2,3,4,5].map(i => <div key={i} className="h-1.5 flex-1 rounded-full transition-all" style={{ background: i <= pwScore ? (pwScore <= 2 ? "#f08080" : pwScore <= 4 ? "#f0a050" : "#6ee7b7") : "rgba(255,255,255,0.05)" }} />)}</div>}
+          {newPw && <div className="flex gap-1 mt-2">{[1,2,3,4,5].map(i => <div key={i} className="h-1.5 flex-1 rounded-full transition-all" style={{ background: i <= pwScore ? (pwScore <= 2 ? "var(--coral)" : pwScore <= 4 ? "#f0a050" : "var(--sage)") : "rgba(255,255,255,0.05)" }} />)}</div>}
         </div>
         <div><label style={LBL}>Confirm New Password</label><input type="password" value={confPw} onChange={e => setConfPw(e.target.value)} style={IS} onFocus={e => e.currentTarget.style.borderColor = "rgba(244,168,58,0.4)"} onBlur={e => e.currentTarget.style.borderColor = "rgba(244,168,58,0.15)"} /></div>
       </div>
@@ -145,7 +145,7 @@ function AboutTab() {
 
   const quotes = [
     { q: "What factors do you attribute to your success and advancement in your career?", text: "This might seem clich\u00E9, but I\u2019ve found that the most successful people are those who find opportunity even in challenging situations, and when they encounter adversity, they\u2019re able to have resilience coupled with a positive mindset. That not only allows you to figure out how to solve for something, but you also inspire others to work through change. That outlook really helped me over the course of my career. Change is a constant in today\u2019s world, so having a muscle for it that I\u2019ve built over time has helped me accept change as part of the everyday equation.", author: "Stephanie Penner", accent: "var(--accent-primary)" },
-    { q: "What are the most important qualities you look for in people and leaders?", text: "I look for a whole bunch of things. They have to be smart, they have to have good judgment, they have to work hard\u2026 they have to be capable. But character is a sine qua non \u2014 an absolute necessity. They tell the truth, and nothing but the truth. They don\u2019t shave the truth. They don\u2019t twist it depending on who they\u2019re talking to. They have courage \u2014 they\u2019re not afraid to speak up. They care about the company, not just themselves.", author: "Jamie Dimon, Chairman & CEO, JPMorgan Chase", accent: "#f4a83a" },
+    { q: "What are the most important qualities you look for in people and leaders?", text: "I look for a whole bunch of things. They have to be smart, they have to have good judgment, they have to work hard\u2026 they have to be capable. But character is a sine qua non \u2014 an absolute necessity. They tell the truth, and nothing but the truth. They don\u2019t shave the truth. They don\u2019t twist it depending on who they\u2019re talking to. They have courage \u2014 they\u2019re not afraid to speak up. They care about the company, not just themselves.", author: "Jamie Dimon, Chairman & CEO, JPMorgan Chase", accent: "var(--amber)" },
     { q: "On preparation and excellence", text: "You have to take responsibility for your job. You have to do the work ahead of time. You can\u2019t just show up and expect things to work out. Always be prepared. Because you never know when you\u2019re going to be tested. It could be in a meeting, it could be when someone asks you a question, it could be when you least expect it. And if you\u2019re not prepared, it\u2019s going to show. People will know.", author: "Jim Donovan, Vice Chairman, Goldman Sachs", accent: "var(--teal)" },
   ];
   const cur = quotes[quoteIdx];
@@ -544,7 +544,7 @@ function AdminTab() {
         </tr></thead>
         <tbody>{users.map(u => {
           const activity = String(u.activity || "Never");
-          const actColors: Record<string, string> = { Online: "#8ba87a", Today: "#f4a83a", "This week": "#a78bb8", "This month": "rgba(244,168,58,0.5)", Inactive: "#e87a5d", Never: "rgba(244,168,58,0.3)" };
+          const actColors: Record<string, string> = { Online: "var(--sage)", Today: "var(--amber)", "This week": "var(--dusk)", "This month": "rgba(244,168,58,0.5)", Inactive: "var(--coral)", Never: "rgba(244,168,58,0.3)" };
           const actBgs: Record<string, string> = { Online: "rgba(139,168,122,0.1)", Today: "rgba(244,168,58,0.1)", "This week": "rgba(167,139,184,0.08)", "This month": "rgba(244,168,58,0.06)", Inactive: "rgba(232,122,93,0.08)", Never: "rgba(244,168,58,0.04)" };
           return <tr key={String(u.id)} className="transition-colors" style={{ borderBottom: "1px solid rgba(244,168,58,0.04)" }}>
           <td className="px-3 py-2.5">

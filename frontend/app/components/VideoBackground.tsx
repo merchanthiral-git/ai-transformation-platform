@@ -28,7 +28,7 @@ interface VideoBackgroundProps {
   children?: React.ReactNode;
 }
 
-const DEFAULT_GRADIENT = "linear-gradient(135deg, #0B1120 0%, #1a1f3a 40%, #0B1120 100%)";
+const DEFAULT_GRADIENT = "linear-gradient(135deg, var(--paper-solid) 0%, #1a1f3a 40%, var(--paper-solid) 100%)";
 
 export function VideoBackground({
   name,

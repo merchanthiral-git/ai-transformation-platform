@@ -64,8 +64,8 @@ export function ProfileModal({ user, onClose, onUpdate }: { user: authApi.AuthUs
         <button onClick={onClose} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 16, cursor: "pointer" }}>✕</button>
       </div>
 
-      {error && <div style={{ background: "rgba(220,50,50,0.08)", border: "1px solid rgba(220,50,50,0.2)", borderRadius: 8, padding: "8px 12px", marginBottom: 12, color: "#f08080", fontSize: 15, fontFamily: "monospace" }}>{error}</div>}
-      {success && <div style={{ background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: 8, padding: "8px 12px", marginBottom: 12, color: "#6ee7b7", fontSize: 15, fontFamily: "monospace" }}>{success}</div>}
+      {error && <div style={{ background: "rgba(220,50,50,0.08)", border: "1px solid rgba(220,50,50,0.2)", borderRadius: 8, padding: "8px 12px", marginBottom: 12, color: "var(--coral)", fontSize: 15, fontFamily: "monospace" }}>{error}</div>}
+      {success && <div style={{ background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: 8, padding: "8px 12px", marginBottom: 12, color: "var(--sage)", fontSize: 15, fontFamily: "monospace" }}>{success}</div>}
 
       <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4 }}>
@@ -80,10 +80,10 @@ export function ProfileModal({ user, onClose, onUpdate }: { user: authApi.AuthUs
         <div><label style={labelStyle}>Email</label>
           <div style={{ position: "relative" }}>
             <input value={email} onChange={e => { setEmail(e.target.value); if (!emailTouched) setEmailTouched(true); }} onBlur={() => setEmailTouched(true)} type="email" style={{ ...inputStyle, paddingRight: 32, borderColor: showEmailError ? "rgba(240,128,128,0.4)" : showEmailOk ? "rgba(110,231,183,0.3)" : undefined }} />
-            {showEmailOk && <span style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", color: "#6ee7b7", fontSize: 14 }}>✓</span>}
-            {showEmailError && <span style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", color: "#f08080", fontSize: 15 }}>✕</span>}
+            {showEmailOk && <span style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", color: "var(--sage)", fontSize: 14 }}>✓</span>}
+            {showEmailError && <span style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", color: "var(--coral)", fontSize: 15 }}>✕</span>}
           </div>
-          {showEmailError && <span style={{ fontSize: 14, color: "#f08080", fontFamily: "monospace", marginTop: 2, display: "block" }}>Please enter a valid email address</span>}
+          {showEmailError && <span style={{ fontSize: 14, color: "var(--coral)", fontFamily: "monospace", marginTop: 2, display: "block" }}>Please enter a valid email address</span>}
         </div>
 
         <div style={{ borderTop: "1px solid var(--border)", paddingTop: 14, marginTop: 4 }}>

@@ -273,7 +273,7 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
 
   // ── Journey Map — Mad Men golden hour aesthetic ──
   return <div className="relative min-h-[calc(100vh-48px)] flex flex-col">
-    <VideoBackground name="journey_bg" overlay={0.25} poster={`${CDN_BASE}/journey_bg.png`} fallbackGradient="linear-gradient(135deg, #0B1120 0%, #1a1040 100%)" className="absolute inset-0" />
+    <VideoBackground name="journey_bg" overlay={0.25} poster={`${CDN_BASE}/journey_bg.png`} fallbackGradient="linear-gradient(135deg, var(--paper-solid) 0%, #1a1040 100%)" className="absolute inset-0" />
 
     {/* Header with subtle dark gradient for readability — z-20 to stay above milestone z-10 */}
     <div className="relative z-20 text-center pt-6 pb-4" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 80%, transparent 100%)" }}>
@@ -303,12 +303,12 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
           pointerEvents: "auto", cursor: "pointer",
         }}>
           {/* Icon image with solid navy circle background */}
-          <div className="milestone-icon" style={{ width: 96, height: 96, borderRadius: "50%", background: "#161822", display: "flex", alignItems: "center", justifyContent: "center", filter: isCurrent ? "drop-shadow(0 0 16px rgba(244,168,58,0.5))" : isReached ? "drop-shadow(0 4px 16px rgba(0,0,0,0.5))" : "grayscale(0.5) drop-shadow(0 4px 16px rgba(0,0,0,0.5))", transition: "transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease" }}>
+          <div className="milestone-icon" style={{ width: 96, height: 96, borderRadius: "50%", background: "var(--paper-solid)", display: "flex", alignItems: "center", justifyContent: "center", filter: isCurrent ? "drop-shadow(0 0 16px rgba(244,168,58,0.5))" : isReached ? "drop-shadow(0 4px 16px rgba(0,0,0,0.5))" : "grayscale(0.5) drop-shadow(0 4px 16px rgba(0,0,0,0.5))", transition: "transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease" }}>
             <img src={cb(`${CDN_BASE}/icon_${phase.id}.png`)} alt={phase.label} style={{ width: 96, height: 96, objectFit: "contain", borderRadius: "50%" }} />
           </div>
           {/* Label — frosted navy pill */}
           <div className="milestone-label" style={{ position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)", width: 180, textAlign: "center", marginTop: 12, transition: "filter 0.2s ease" }}>
-            <div style={{ display: "inline-block", padding: "10px 18px", borderRadius: 14, background: "rgba(28,43,58,0.7)", backdropFilter: "blur(12px)", border: "1px solid rgba(212,168,67,0.2)" }}>
+            <div style={{ display: "inline-block", padding: "10px 18px", borderRadius: 14, background: "rgba(22,24,34,0.7)", backdropFilter: "blur(12px)", border: "1px solid rgba(212,168,67,0.2)" }}>
               <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "'Inter Tight', sans-serif", color: "#FFFFFF" }}>{phase.label}</div>
               <div style={{ fontSize: 13, fontWeight: 500, color: "rgba(255,255,255,0.8)", marginTop: 2 }}>{phase.desc}</div>
             </div>
@@ -589,7 +589,7 @@ export function TransformationExecDashboard({ model, f, onBack, onNavigate, deci
         { label: "Tasks Analyzed", value: String(transformationSummary.totalTasks), color: "var(--accent-primary)" },
         { label: "Capacity Freed", value: `${transformationSummary.capacityFreedPct}%`, color: "var(--purple)" },
         { label: "Active Scenario", value: transformationSummary.scenario.charAt(0).toUpperCase() + transformationSummary.scenario.slice(1), color: "var(--warning)" },
-        { label: "Decisions Made", value: String(transformationSummary.decisionCount), color: "#0891B2" },
+        { label: "Decisions Made", value: String(transformationSummary.decisionCount), color: "var(--amber)" },
         { label: "Open Risks", value: String(transformationSummary.openRiskCount), color: transformationSummary.openRiskCount > 3 ? "var(--risk)" : "var(--success)" },
       ].map(m => <div key={m.label} className="rounded-xl p-3 text-center border" style={{ borderColor: `${m.color}20`, background: `${m.color}06` }}>
         <div className="text-[20px] font-extrabold" style={{ color: m.color, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>{m.value}</div>
@@ -836,7 +836,7 @@ function UploadIntelligencePanel({ insights, funcDist, onNavigate }: {
             {insights.level_distribution.length > 0 ? (() => {
               // Group levels by track prefix, sort numerically within each
               const TRACK_NAMES: Record<string, string> = { P: "Professional", M: "Management", S: "Senior", E: "Executive", L: "Level", I: "Individual", D: "Director", A: "Associate", C: "C-Suite" };
-              const TRACK_COLORS: Record<string, string> = { P: "#0891B2", M: "var(--accent-primary)", S: "var(--purple)", E: "#EC4899", L: "var(--accent-primary)", I: "var(--success)", D: "var(--warning)", A: "#6366F1", C: "var(--risk)" };
+              const TRACK_COLORS: Record<string, string> = { P: "var(--amber)", M: "var(--accent-primary)", S: "var(--purple)", E: "var(--coral)", L: "var(--accent-primary)", I: "var(--success)", D: "var(--warning)", A: "var(--dusk)", C: "var(--risk)" };
 
               // Detect track prefixes dynamically from data
               const groups: Record<string, { level: string; count: number; num: number }[]> = {};
