@@ -55,9 +55,10 @@ export default function VistaProvider({ children, forceHour }: { children: React
     }
   }, [weather, weatherAuto]);
 
-  // Main animation loop
+  // Main animation loop — only runs when speed > 0 (paused = no rAF cost)
   useEffect(() => {
     if (forceHour !== undefined) { setHour(forceHour); return; }
+    if (speed === 0) return; // No animation when paused
     let raf: number;
     const tick = (ts: number) => {
       if (lastTs.current === 0) lastTs.current = ts;
@@ -84,6 +85,7 @@ export default function VistaProvider({ children, forceHour }: { children: React
 
       raf = requestAnimationFrame(tick);
     };
+    lastTs.current = 0; // Reset on speed change
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [speed, weatherAuto, season, forceHour]);

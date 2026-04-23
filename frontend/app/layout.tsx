@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import VistaProvider from "./components/vista/VistaProvider";
-import CustomCursor from "./components/ambient/CustomCursor";
+// CustomCursor removed — native cursor is zero-cost; custom cursor added per-frame rAF + 3 document listeners
 
 export const metadata: Metadata = {
   title: "AI Transformation Platform",
@@ -48,7 +48,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-full flex flex-col" style={{ background: 'var(--app-bg)', color: 'var(--ink)' }}>
         <VistaProvider>
-          <CustomCursor />
           {children}
         </VistaProvider>
       </body>

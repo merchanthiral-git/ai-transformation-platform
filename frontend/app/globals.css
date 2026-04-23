@@ -364,11 +364,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   h1, h2, h3, h4, h5, h6, .font-heading { font-family: 'Fraunces', Georgia, serif; }
   .font-data, .font-mono, code, pre, [data-mono] { font-family: 'JetBrains Mono', ui-monospace, monospace; }
   body { min-height: 100vh; }
-  body::before {
-    content: ""; position: fixed; inset: 0; pointer-events: none;
-    opacity: 0.45; z-index: 1;
-    background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.02 0 0 0 0 0.08 0 0 0 0 0.19 0 0 0 0.09 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
-  }
   ::selection { background: rgba(214,97,26,0.18); color: var(--cr-text); }
   ::-webkit-scrollbar { width: 4px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -406,7 +401,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   /* Glass variant — opt-in for Vista surfaces */
   .vista-surface .glass-card {
     background: var(--bg-panel);
-    backdrop-filter: blur(24px);
+    backdrop-filter: blur(12px);
   }
 
   /* KPI tiles — ivory solid */
@@ -422,7 +417,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   /* Glass variant on Vista surfaces */
   .vista-surface .kpi-glass {
     background: var(--bg-panel);
-    backdrop-filter: blur(16px);
+    backdrop-filter: blur(8px);
   }
   .kpi-glass::before {
     content: '';
