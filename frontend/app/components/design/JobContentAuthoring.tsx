@@ -968,7 +968,7 @@ export function JobContentAuthoring({ model, f }: { model: string; f: Filters })
         {previewMode ? (
           /* Document preview */
           <div style={{
-            background: "#fff", color: "#1a1a1a", borderRadius: 8, padding: "48px 64px",
+            background: "var(--surface-2)", color: "var(--text-primary)", borderRadius: 8, padding: "48px 64px",
             maxWidth: 800, margin: "0 auto", minHeight: 500,
             fontFamily: "'Georgia', serif", fontSize: 14, lineHeight: 1.8,
             boxShadow: "0 4px 24px rgba(0,0,0,0.3)",

@@ -1184,7 +1184,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
               position: "absolute", top: 12, left: 12, zIndex: 5,
               display: "flex", alignItems: "center", gap: 8,
               padding: "6px 14px", borderRadius: 8,
-              background: "#fff", border: "0.5px solid rgba(22,24,34,0.15)",
+              background: "var(--surface-2)", border: "0.5px solid rgba(22,24,34,0.15)",
               boxShadow: "0 2px 8px rgba(0,0,0,0.06)", fontSize: 12,
             }}>
               <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>{changes.length} change{changes.length !== 1 ? "s" : ""}</span>
@@ -1225,7 +1225,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
             <div style={{
               position: "absolute", bottom: 12, left: 12, zIndex: 5,
               display: "flex", alignItems: "center", gap: 2,
-              padding: "4px 6px", background: "#fff",
+              padding: "4px 6px", background: "var(--surface-2)",
               border: "0.5px solid rgba(22,24,34,0.12)", borderRadius: 6,
               fontSize: 11,
             }}>
@@ -1252,7 +1252,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
             <div style={{
               display: "flex", alignItems: "center", gap: 8,
               padding: "8px 16px", marginTop: 8,
-              background: "#fff", borderRadius: 10,
+              background: "var(--surface-2)", borderRadius: 10,
               border: "1px solid var(--border)",
               boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
             }}>
@@ -1287,7 +1287,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
             <div style={{
               display: "flex", flexDirection: "column", gap: 8,
               padding: "12px 16px", marginTop: 4,
-              background: "#fff", borderRadius: 10,
+              background: "var(--surface-2)", borderRadius: 10,
               border: "1px solid var(--border)",
               boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
             }}>
@@ -1347,7 +1347,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
             <div style={{
               display: "flex", alignItems: "center", gap: 8,
               padding: "8px 16px", marginTop: 4,
-              background: "#fff", borderRadius: 10,
+              background: "var(--surface-2)", borderRadius: 10,
               border: "1px solid var(--border)",
             }}>
               <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Title:</span>
@@ -1372,7 +1372,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
             <div style={{
               display: "flex", alignItems: "center", gap: 8,
               padding: "8px 16px", marginTop: 4,
-              background: "#fff", borderRadius: 10,
+              background: "var(--surface-2)", borderRadius: 10,
               border: "1px solid var(--border)",
             }}>
               <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Move to:</span>
@@ -1577,7 +1577,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
                       <MoreHorizontal size={14} />
                     </button>
                     {scenarioMenuOpen === s.id && (
-                      <div style={{ position: "absolute", top: 32, right: 0, zIndex: 20, background: "#fff", border: "1px solid var(--border)", borderRadius: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", minWidth: 140, overflow: "hidden" }} onClick={e => e.stopPropagation()}>
+                      <div style={{ position: "absolute", top: 32, right: 0, zIndex: 20, background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", minWidth: 140, overflow: "hidden" }} onClick={e => e.stopPropagation()}>
                         <button onClick={() => handleDuplicateScenario(s)} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "8px 14px", fontSize: 13, background: "none", border: "none", cursor: "pointer", color: "var(--text-primary)", textAlign: "left" }}
                           onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "var(--surface-2)"; }} onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "none"; }}>
                           <Copy size={13} /> Duplicate

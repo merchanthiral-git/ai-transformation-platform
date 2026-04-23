@@ -201,7 +201,7 @@ function DeptRow({
             top: "100%",
             left: 130,
             zIndex: 20,
-            background: "#fff",
+            background: "var(--surface-2)",
             border: `0.5px solid ${NAVY_20}`,
             borderRadius: 6,
             padding: 10,
@@ -387,7 +387,7 @@ export default function RoleMigrationChart({
 
   /* Chart container standard: white bg, 0.5px navy-15 border, 8px radius, 20px padding */
   const chartContainerStyle: React.CSSProperties = {
-    background: "#fff",
+    background: "var(--surface-2)",
     border: `0.5px solid ${NAVY_15}`,
     borderRadius: 8,
     padding: 20,
@@ -395,7 +395,7 @@ export default function RoleMigrationChart({
 
   /* KPI summary card style with colored left border */
   const summaryCardStyle = (borderColor: string): React.CSSProperties => ({
-    background: "#fff",
+    background: "var(--surface-2)",
     borderRadius: 8,
     padding: "14px 16px",
     border: `0.5px solid ${NAVY_15}`,
@@ -490,7 +490,7 @@ export default function RoleMigrationChart({
       {/* Section 3: Key changes narrative card */}
       <div
         style={{
-          background: "#fff",
+          background: "var(--surface-2)",
           border: `0.5px solid ${NAVY_15}`,
           borderRadius: 8,
           padding: 20,
