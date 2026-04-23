@@ -10,6 +10,7 @@ import StageContext from "./StageContext";
 import StageDeconstruction from "./StageDeconstruction";
 import StageReconstruction from "./StageReconstruction";
 import StageRedeployment from "./StageRedeployment";
+import StageReconstructionNew from "./StageReconstructionNew";
 import StageImpact from "./StageImpact";
 import StageOrgLink from "./StageOrgLink";
 import StageHandoff from "./StageHandoff";
@@ -414,11 +415,19 @@ export default function WorkflowCanvas({ jobId, jobTitle, projectId, model, onBa
             />
           )}
           {activeStage === "reconstruction" && job && (
-            <StageRedeployment
+            <StageReconstructionNew
               reconData={(job.recon_data || null) as any}
               redeployRows={(job.redeploy_rows || []) as any[]}
               isRedeploySubmitted={job.redeploy_submitted}
               showSources={showSources}
+              jobTitle={job.title || ""}
+              jobFamily={job.family || ""}
+              jobSubFamily={job.sub_family || ""}
+              jobLevel={job.level || "P2"}
+              onSubmitReconstruction={() => {
+                setJob(prev => prev ? { ...prev, finalized: true } : prev);
+                api.updateWDJob(jobId, { finalized: true });
+              }}
               onStageCompletion={(pct) => updateStageCompletion("reconstruction", pct)}
             />
           )}
