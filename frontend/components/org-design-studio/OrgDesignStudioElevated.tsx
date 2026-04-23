@@ -6,6 +6,7 @@ import { SectionHead, Em, Gold } from "./SectionHead";
 import { PullQuote } from "./PullQuote";
 import { tokens, type TabId } from "./design-tokens";
 import { StructureTab } from "./tabs/StructureTab";
+import { PrinciplesTab } from "./tabs/PrinciplesTab";
 
 interface ElevatedProps {
   onBack: () => void;
@@ -132,14 +133,14 @@ export function OrgDesignStudioElevated({ onBack, model, f, odsState, setOdsStat
         const { leftRail, rightRail, canvas } = StructureTab();
         return { leftRail, rightRail, content: canvas };
       }
-      case 'principles':
+      case 'principles': {
+        const pr = PrinciplesTab();
+        return { leftRail: pr.leftRail, rightRail: pr.rightRail, content: pr.canvas };
+      }
       case 'methodology':
         return {
           content: (
-            <TabPlaceholder
-              tabId={activeTab}
-              tabLabel={activeTab === 'principles' ? 'Principles' : 'Methodology'}
-            />
+            <TabPlaceholder tabId={activeTab} tabLabel="Methodology" />
           ),
         };
       default:
