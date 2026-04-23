@@ -721,7 +721,7 @@ function JobProfileLibrary({ jobs, model }: { jobs: Job[]; model: string }) {
     return <div onClick={() => setEditingField(`${jid}_${field}`)} className="text-[13px] cursor-pointer hover:bg-[var(--surface-2)] rounded-lg px-2 py-1 -mx-2 transition-all" style={{ color: value ? "var(--text-secondary)" : "var(--text-muted)", lineHeight: 1.6 }}>{value || placeholder}</div>;
   };
   const EmptyPlaceholder = ({ text }: { text: string }) => <div style={{ border: "1px dashed rgba(255,255,255,0.12)", borderRadius: 8, padding: "20px 16px", textAlign: "center", color: "var(--text-muted)", fontSize: 12 }}>{text}</div>;
-  const SectionHead = ({ label }: { label: string }) => <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12, marginTop: 20 }}><span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.08em", color: "var(--ink-faint)", whiteSpace: "nowrap" }}>{label}</span><div style={{ flex: 1, height: 1, background: "linear-gradient(to right, rgba(255,255,255,0.08), transparent)" }} /></div>;
+  const SectionHead = ({ label }: { label: string }) => <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12, marginTop: 20 }}><span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.08em", color: "var(--ink-faint)", whiteSpace: "nowrap" }}>{label}</span><div style={{ flex: 1, height: 1, background: "linear-gradient(to right, var(--border), transparent)" }} /></div>;
 
   // Compare view
   if (showCompare && compareJobs.length >= 2) {
@@ -739,7 +739,7 @@ function JobProfileLibrary({ jobs, model }: { jobs: Job[]; model: string }) {
             <div style={{ fontSize: 12, color: "var(--ink-faint)", marginBottom: 12 }}>{job.function} · {job.level} · {job.track}</div>
             <SectionHead label="Purpose" /><div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6 }}>{p.purpose || "—"}</div>
             <SectionHead label="Responsibilities" />{p.responsibilities.slice(0, 5).map((r, i) => <div key={i} style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 2 }}>{i+1}. {r}</div>)}
-            <SectionHead label="Skills" /><div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>{[...p.skills.technical, ...p.skills.functional].slice(0, 8).map((s, i) => <span key={i} style={{ padding: "2px 6px", borderRadius: 4, fontSize: 11, background: "rgba(255,255,255,0.04)", color: "var(--text-secondary)" }}>{s}</span>)}</div>
+            <SectionHead label="Skills" /><div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>{[...p.skills.technical, ...p.skills.functional].slice(0, 8).map((s, i) => <span key={i} style={{ padding: "2px 6px", borderRadius: 4, fontSize: 11, background: "var(--border-light)", color: "var(--text-secondary)" }}>{s}</span>)}</div>
           </div>;
         })}
       </div>
@@ -787,7 +787,7 @@ function JobProfileLibrary({ jobs, model }: { jobs: Job[]; model: string }) {
       {/* Role list */}
       <div style={{ flex: 1, overflowY: "auto", padding: "0 4px" }}>
         {groupedJobs.map(group => <div key={group.key || "_flat"}>
-          {group.label && <div style={{ padding: "8px 8px 4px", fontSize: 11, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.08em", color: "var(--ink-faint)", position: "sticky", top: 0, background: "rgba(22,24,34,0.95)", zIndex: 2 }}>{group.label} <span style={{ fontFamily: MONO, fontWeight: 700 }}>({group.jobs.length})</span></div>}
+          {group.label && <div style={{ padding: "8px 8px 4px", fontSize: 11, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.08em", color: "var(--ink-faint)", position: "sticky", top: 0, background: "var(--paper-solid)", zIndex: 2 }}>{group.label} <span style={{ fontFamily: MONO, fontWeight: 700 }}>({group.jobs.length})</span></div>}
           {group.jobs.map(job => {
             const badge = statusBadge(job.id);
             const isActive = selectedJobId === job.id;
@@ -888,7 +888,7 @@ function JobProfileLibrary({ jobs, model }: { jobs: Job[]; model: string }) {
           <SectionHead label="Role Metadata" />
           <button onClick={() => setExpandedSections(p => ({ ...p, metadata: !p.metadata }))} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 12, color: "var(--ink-faint)", background: "none", border: "none", cursor: "pointer", marginBottom: 8 }}>{expandedSections.metadata ? "▾" : "▸"} View metadata</button>
           {expandedSections.metadata && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-            {[{ l: "Function", v: selectedJob.function }, { l: "Family", v: selectedJob.family }, { l: "Sub-Family", v: selectedJob.sub_family }, { l: "Track", v: selectedJob.track }, { l: "Level", v: selectedJob.level }, { l: "Headcount", v: String(selectedJob.headcount) }, { l: "AI Impact", v: selectedJob.ai_impact }, { l: "AI Score", v: selectedJob.ai_score?.toFixed(1) }].map(m => <div key={m.l} style={{ display: "flex", justifyContent: "space-between", padding: "4px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}><span style={{ fontSize: 11, color: "var(--ink-faint)" }}>{m.l}</span><span style={{ fontSize: 11, fontFamily: MONO, fontWeight: 700, color: "var(--text-primary)" }}>{m.v || "—"}</span></div>)}
+            {[{ l: "Function", v: selectedJob.function }, { l: "Family", v: selectedJob.family }, { l: "Sub-Family", v: selectedJob.sub_family }, { l: "Track", v: selectedJob.track }, { l: "Level", v: selectedJob.level }, { l: "Headcount", v: String(selectedJob.headcount) }, { l: "AI Impact", v: selectedJob.ai_impact }, { l: "AI Score", v: selectedJob.ai_score?.toFixed(1) }].map(m => <div key={m.l} style={{ display: "flex", justifyContent: "space-between", padding: "4px 0", borderBottom: "1px solid var(--border-light)" }}><span style={{ fontSize: 11, color: "var(--ink-faint)" }}>{m.l}</span><span style={{ fontSize: 11, fontFamily: MONO, fontWeight: 700, color: "var(--text-primary)" }}>{m.v || "—"}</span></div>)}
           </div>}
 
           {/* KPIs */}
@@ -985,8 +985,8 @@ function JobEvaluationTab({ jobs, model }: { jobs: Job[]; model: string }) {
     {/* Methodology selector */}
     <div className="flex items-center gap-3 mb-4">
       <span className="text-[9px] font-bold uppercase tracking-[0.08em] text-[var(--ink-faint)]">Methodology:</span>
-      {(["ipe", "hay"] as const).map(m => <button key={m} onClick={() => setMethodology(m)} className="px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all" style={{ background: methodology === m ? "rgba(244,168,58,0.15)" : "rgba(255,255,255,0.04)", color: methodology === m ? "var(--amber)" : "var(--ink-faint)", border: methodology === m ? "1px solid rgba(244,168,58,0.3)" : "1px solid rgba(255,255,255,0.08)" }}>{EVAL_METHODOLOGIES[m].name}{m === "ipe" && <span style={{fontSize:10, color:'var(--text-muted)', marginLeft:4}}>(International Position Evaluation)</span>}</button>)}
-      <div className="ml-auto flex gap-1 rounded-lg overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+      {(["ipe", "hay"] as const).map(m => <button key={m} onClick={() => setMethodology(m)} className="px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all" style={{ background: methodology === m ? "rgba(244,168,58,0.15)" : "var(--border-light)", color: methodology === m ? "var(--amber)" : "var(--ink-faint)", border: methodology === m ? "1px solid rgba(244,168,58,0.3)" : "1px solid var(--border)" }}>{EVAL_METHODOLOGIES[m].name}{m === "ipe" && <span style={{fontSize:10, color:'var(--text-muted)', marginLeft:4}}>(International Position Evaluation)</span>}</button>)}
+      <div className="ml-auto flex gap-1 rounded-lg overflow-hidden" style={{ background: "var(--border-light)", border: "1px solid var(--border)" }}>
         {(["score", "comparison", "batch"] as const).map(v => <button key={v} onClick={() => setEvalView(v)} className="px-3 py-1.5 text-[11px] font-semibold transition-all" style={{ background: evalView === v ? "rgba(244,168,58,0.2)" : "transparent", color: evalView === v ? "var(--amber)" : "var(--ink-faint)" }}>{v === "score" ? "Score" : v === "comparison" ? "Compare" : "Batch AI"}</button>)}
       </div>
     </div>
@@ -1175,10 +1175,10 @@ function CareerLatticeTab({ jobs, model }: { jobs: Job[]; model: string }) {
     </div>
 
     {/* Lattice grid */}
-    <div className="overflow-x-auto" style={{ borderRadius: 12, border: "1px solid rgba(255,255,255,0.08)" }}>
+    <div className="overflow-x-auto" style={{ borderRadius: 12, border: "1px solid var(--border)" }}>
       <table style={{ width: "100%", minWidth: tracks.length * 180, borderCollapse: "separate", borderSpacing: 0 }}>
         <thead><tr>
-          <th style={{ padding: "8px 8px", textAlign: "left", position: "sticky", left: 0, zIndex: 10, background: "var(--paper-solid)", width: 80, borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+          <th style={{ padding: "8px 8px", textAlign: "left", position: "sticky", left: 0, zIndex: 10, background: "var(--paper-solid)", width: 80, borderBottom: "1px solid var(--border)" }}>
             <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--ink-faint)" }}>Level</div>
           </th>
           {tracks.map(t => {
@@ -1215,8 +1215,8 @@ function CareerLatticeTab({ jobs, model }: { jobs: Job[]; model: string }) {
                 return <td key={track} style={{
                   padding: 4, verticalAlign: "top", borderBottom: "1px solid rgba(255,255,255,0.06)",
                   background: hasSelected ? `${tc}08` : cellJobs.length > 0 ? `${tc}04` : "transparent",
-                  borderLeft: cellJobs.length > 0 ? `1px solid ${tc}12` : "1px dashed rgba(255,255,255,0.04)",
-                  borderRight: cellJobs.length > 0 ? `1px solid ${tc}12` : "1px dashed rgba(255,255,255,0.04)",
+                  borderLeft: cellJobs.length > 0 ? `1px solid ${tc}12` : "1px dashed var(--border-light)",
+                  borderRight: cellJobs.length > 0 ? `1px solid ${tc}12` : "1px dashed var(--border-light)",
                   minWidth: 160, borderRadius: 8,
                 }}>
                   {cellJobs.length > 0 ? <div style={{ display: "flex", flexDirection: "column", gap: 2, position: "relative" }}>
@@ -1241,11 +1241,11 @@ function CareerLatticeTab({ jobs, model }: { jobs: Job[]; model: string }) {
                         {isPath && <div style={{ fontSize: 11, fontWeight: 700, marginTop: 1, color: pathType === "promotion" ? "var(--sage)" : pathType === "lateral" ? "var(--dusk)" : "var(--amber)" }}>{pathType === "promotion" ? "↑ Promotion" : pathType === "lateral" ? "→ Lateral" : "↗ Cross"}</div>}
                       </button>;
                     })}
-                    {cellJobs.length > 3 && !isExpanded && <button onClick={(e) => { e.stopPropagation(); setExpandedCells(prev => { const s = new Set(prev); s.add(cellKey); return s; }); }} style={{ width: "100%", padding: "3px 8px", borderRadius: 6, fontSize: 11, fontWeight: 600, color: "var(--ink-faint)", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", cursor: "pointer", textAlign: "center" }}>+{cellJobs.length - 3} more</button>}
+                    {cellJobs.length > 3 && !isExpanded && <button onClick={(e) => { e.stopPropagation(); setExpandedCells(prev => { const s = new Set(prev); s.add(cellKey); return s; }); }} style={{ width: "100%", padding: "3px 8px", borderRadius: 6, fontSize: 11, fontWeight: 600, color: "var(--ink-faint)", background: "var(--border-light)", border: "1px solid var(--border)", cursor: "pointer", textAlign: "center" }}>+{cellJobs.length - 3} more</button>}
                     {isExpanded && cellJobs.length > 3 && <button onClick={(e) => { e.stopPropagation(); setExpandedCells(prev => { const s = new Set(prev); s.delete(cellKey); return s; }); }} style={{ width: "100%", padding: "2px 8px", borderRadius: 6, fontSize: 11, fontWeight: 600, color: "var(--amber)", background: "transparent", border: "none", cursor: "pointer", textAlign: "center" }}>Show less</button>}
                     {/* Compression indicator */}
                     {showCompression && compression && compression > 2 && <div style={{ fontSize: 11, fontFamily: MONO, fontWeight: 700, color: compression > 4 ? "var(--coral)" : compression > 3 ? "var(--amber)" : "var(--amber)", textAlign: "center", marginTop: 2 }}>{compression}:1 ▲</div>}
-                  </div> : <div style={{ textAlign: "center", padding: 4, fontSize: 11, color: "rgba(255,255,255,0.08)" }}>—</div>}
+                  </div> : <div style={{ textAlign: "center", padding: 4, fontSize: 11, color: "var(--border)" }}>—</div>}
                 </td>;
               })}
             </tr>;
@@ -1352,7 +1352,7 @@ function GovernancePolicies() {
     { id: "exception", title: "Exception Process", text: "Exceptions to the standard architecture (e.g., roles outside the standard level framework, non-standard titles, or hybrid roles spanning multiple families) require written approval from the CHRO or designated delegate. All exceptions are time-limited to 12 months and subject to annual review. The JA Committee reviews all active exceptions in Q1 of each year and either formalizes or sunsets them." },
     { id: "review", title: "Annual Review Cadence", text: "Q1: Structural review — validate all families, sub-families, and role definitions against current organizational needs. Q2: Market calibration — benchmark compensation and leveling against external data. Q3: Completeness audit — ensure all roles have task data, career paths, and evaluation scores. Q4: Stakeholder sign-off — function heads and CHRO approve the reviewed architecture for the following year. Ad-hoc requests are processed on a rolling basis with a 10-business-day SLA." },
   ];
-  return <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+  return <div className="rounded-xl p-5" style={{ background: "var(--border-light)", border: "1px solid var(--border)" }}>
     <div className="text-[15px] font-bold text-[var(--text-primary)] mb-3" style={{ letterSpacing: "-0.02em" }}>Governance Policies</div>
     <div className="space-y-2">
       {policies.map(p => <div key={p.id} className="rounded-lg overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
@@ -1439,14 +1439,14 @@ function JAGovernanceTab({ jobs, employees, model }: { jobs: Job[]; employees: E
       })()}
 
       {/* RACI Matrix */}
-      <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+      <div className="rounded-xl p-5" style={{ background: "var(--border-light)", border: "1px solid var(--border)" }}>
         <div className="text-[15px] font-bold text-[var(--text-primary)] mb-1" style={{ letterSpacing: "-0.02em" }}>RACI Matrix</div>
         <div className="text-[9px] uppercase tracking-[0.08em] text-[var(--ink-faint)] mb-3">Job Architecture Governance Responsibilities</div>
-        <div className="overflow-x-auto rounded-lg" style={{ border: "1px solid rgba(255,255,255,0.08)" }}>
+        <div className="overflow-x-auto rounded-lg" style={{ border: "1px solid var(--border)" }}>
           <table className="w-full text-[12px]">
             <thead><tr>
-              <th className="px-3 py-2 text-left text-[9px] font-bold uppercase tracking-[0.08em] text-[var(--ink-faint)]" style={{ background: "rgba(255,255,255,0.04)" }}>Decision</th>
-              {["CHRO", "HR BP", "Comp Team", "Hiring Mgr", "JA Committee"].map(s => <th key={s} className="px-2 py-2 text-center text-[9px] font-bold uppercase tracking-[0.08em] text-[var(--ink-faint)]" style={{ background: "rgba(255,255,255,0.04)" }}>{s}</th>)}
+              <th className="px-3 py-2 text-left text-[9px] font-bold uppercase tracking-[0.08em] text-[var(--ink-faint)]" style={{ background: "var(--border-light)" }}>Decision</th>
+              {["CHRO", "HR BP", "Comp Team", "Hiring Mgr", "JA Committee"].map(s => <th key={s} className="px-2 py-2 text-center text-[9px] font-bold uppercase tracking-[0.08em] text-[var(--ink-faint)]" style={{ background: "var(--border-light)" }}>{s}</th>)}
             </tr></thead>
             <tbody>
               {[
@@ -1503,7 +1503,7 @@ function JAGovernanceTab({ jobs, employees, model }: { jobs: Job[]; employees: E
       </Card>
 
       {/* Change Log */}
-      <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+      <div className="rounded-xl p-5" style={{ background: "var(--border-light)", border: "1px solid var(--border)" }}>
         <div className="text-[15px] font-bold text-[var(--text-primary)] mb-3" style={{ letterSpacing: "-0.02em" }}>Recent Changes</div>
         <div className="space-y-2">
           {[
@@ -1658,9 +1658,9 @@ function JAIntelligenceTab({ jobs, employees, model }: { jobs: Job[]; employees:
       return <div>
         {/* Navigation */}
         <div className="flex items-center justify-end gap-2 mb-3">
-          <button onClick={() => setSlideIdx(Math.max(0, slideIdx - 1))} disabled={slideIdx === 0} className="px-2.5 py-1 rounded-lg text-[12px] font-bold disabled:opacity-30 transition-all" style={{ color: "var(--ink-faint)", border: "1px solid rgba(255,255,255,0.08)" }}>←</button>
+          <button onClick={() => setSlideIdx(Math.max(0, slideIdx - 1))} disabled={slideIdx === 0} className="px-2.5 py-1 rounded-lg text-[12px] font-bold disabled:opacity-30 transition-all" style={{ color: "var(--ink-faint)", border: "1px solid var(--border)" }}>←</button>
           <span className="text-[12px] text-[var(--ink-faint)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{(slideIdx % slides.length) + 1}/{slides.length}</span>
-          <button onClick={() => setSlideIdx(Math.min(slides.length - 1, slideIdx + 1))} disabled={slideIdx >= slides.length - 1} className="px-2.5 py-1 rounded-lg text-[12px] font-bold disabled:opacity-30 transition-all" style={{ color: "var(--ink-faint)", border: "1px solid rgba(255,255,255,0.08)" }}>→</button>
+          <button onClick={() => setSlideIdx(Math.min(slides.length - 1, slideIdx + 1))} disabled={slideIdx >= slides.length - 1} className="px-2.5 py-1 rounded-lg text-[12px] font-bold disabled:opacity-30 transition-all" style={{ color: "var(--ink-faint)", border: "1px solid var(--border)" }}>→</button>
         </div>
 
         {/* Slide */}
@@ -1940,7 +1940,7 @@ function RoleNetworkTab({ jobs, model }: { jobs: Job[]; model: string }) {
               <span style={{ fontSize: 12, color: "var(--ink-faint)", transition: "transform 0.2s", transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)" }}>▾</span>
             </button>
             {/* Expanded detail */}
-            {isExpanded && <div style={{ padding: "0 12px 12px", borderTop: "1px solid rgba(255,255,255,0.04)" }}>
+            {isExpanded && <div style={{ padding: "0 12px 12px", borderTop: "1px solid var(--border-light)" }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 8 }}>
                 <div>
                   <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--ink-faint)", marginBottom: 4 }}>Shared Characteristics</div>
@@ -1988,7 +1988,7 @@ function RoleNetworkTab({ jobs, model }: { jobs: Job[]; model: string }) {
               const clusterColor = [TRACK_COLORS.P, TRACK_COLORS.M, TRACK_COLORS.T, TRACK_COLORS.E, TRACK_COLORS.S, "#f4a83a"][fi % 6];
               return <div key={fam} style={{ padding: 12, borderRadius: 12, background: `${clusterColor}06`, border: `1px solid ${clusterColor}15`, minWidth: 120 }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: clusterColor, marginBottom: 6, textAlign: "center" }}>{fam}</div>
-                {famJobs.map(j => <div key={j.id} style={{ fontSize: 11, color: "var(--text-secondary)", padding: "2px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>{j.title} <span style={{ fontSize: 11, fontFamily: MONO, color: "var(--ink-faint)" }}>{j.headcount}</span></div>)}
+                {famJobs.map(j => <div key={j.id} style={{ fontSize: 11, color: "var(--text-secondary)", padding: "2px 0", borderBottom: "1px solid var(--border-light)" }}>{j.title} <span style={{ fontSize: 11, fontFamily: MONO, color: "var(--ink-faint)" }}>{j.headcount}</span></div>)}
               </div>;
             });
           })()}
@@ -2004,7 +2004,7 @@ function RoleNetworkTab({ jobs, model }: { jobs: Job[]; model: string }) {
             const shared = Math.round(pair.overlap * 0.8);
             const gap = 100 - shared;
             const moveType = pair.a.level === pair.b.level ? "Lateral" : "Vertical";
-            return <tr key={i} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+            return <tr key={i} style={{ borderBottom: "1px solid var(--border-light)" }}>
               <td style={{ padding: "8px 12px" }}><span style={{ fontWeight: 600, color: "var(--text-primary)" }}>{pair.a.title}</span><div style={{ fontSize: 11, color: "var(--ink-faint)" }}>{pair.a.function}</div></td>
               <td style={{ padding: "8px 12px" }}><span style={{ fontWeight: 600, color: "var(--text-primary)" }}>{pair.b.title}</span><div style={{ fontSize: 11, color: "var(--ink-faint)" }}>{pair.b.function}</div></td>
               <td style={{ padding: "8px 12px", textAlign: "center", fontFamily: MONO, fontWeight: 700, color: shared >= 70 ? "var(--sage)" : "var(--amber)" }}>{shared}%</td>
@@ -2025,7 +2025,7 @@ function RoleNetworkTab({ jobs, model }: { jobs: Job[]; model: string }) {
           { label: "Critical Risk", val: jobs.filter(j => j.headcount === 1 && (j.track === "Manager" || j.track === "Executive")).length, color: "var(--coral)", desc: "Single incumbent in leadership" },
           { label: "Watch List", val: jobs.filter(j => j.headcount <= 2 && (j.track === "Manager" || j.track === "Executive")).length, color: "var(--amber)", desc: "≤2 people in leadership roles" },
           { label: "Healthy Bench", val: jobs.filter(j => j.headcount > 2 || (j.track !== "Manager" && j.track !== "Executive")).length, color: "var(--sage)", desc: "Adequate bench depth" },
-        ].map(k => <div key={k.label} style={{ borderRadius: 12, padding: 16, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", textAlign: "center" }}>
+        ].map(k => <div key={k.label} style={{ borderRadius: 12, padding: 16, background: "var(--border-light)", border: "1px solid var(--border)", textAlign: "center" }}>
           <div style={{ fontSize: 24, fontFamily: MONO, fontWeight: 700, color: k.color }}>{k.val}</div>
           <div style={{ fontSize: 12, fontWeight: 700, color: k.color, marginTop: 2 }}>{k.label}</div>
           <div style={{ fontSize: 11, color: "var(--ink-faint)", marginTop: 2 }}>{k.desc}</div>
@@ -2093,7 +2093,7 @@ function RoleNetworkTab({ jobs, model }: { jobs: Job[]; model: string }) {
 
   // Default inline view with expand button
   return <div style={{ position: "relative" }}>
-    <button onClick={() => setIsFullScreen(true)} style={{ position: "absolute", top: 0, right: 0, zIndex: 5, padding: "4px 10px", borderRadius: 8, fontSize: 11, fontWeight: 600, color: "var(--ink-faint)", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", cursor: "pointer" }} title="Expand to full screen">⛶ Expand</button>
+    <button onClick={() => setIsFullScreen(true)} style={{ position: "absolute", top: 0, right: 0, zIndex: 5, padding: "4px 10px", borderRadius: 8, fontSize: 11, fontWeight: 600, color: "var(--ink-faint)", background: "var(--border-light)", border: "1px solid var(--border)", cursor: "pointer" }} title="Expand to full screen">⛶ Expand</button>
     {content}
   </div>;
 }
@@ -2217,7 +2217,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
         const healthScore = k.isHealth ? Number(k.value) : 0;
         const healthColor = healthScore >= 70 ? "var(--sage)" : healthScore >= 50 ? "var(--amber)" : "var(--coral)";
         const healthVerdict = healthScore >= 90 ? "Excellent" : healthScore >= 70 ? "Solid — minor gaps" : healthScore >= 50 ? "Needs work — structural risks present" : "Critical — architecture unreliable";
-        return <div key={k.label} className={`rounded-xl p-3 border transition-all hover:bg-[rgba(255,255,255,0.07)]`} style={{ background: "rgba(255,255,255,0.04)", border: `1px solid ${k.accent ? "rgba(244,168,58,0.25)" : "rgba(255,255,255,0.08)"}` }}>
+        return <div key={k.label} className={`rounded-xl p-3 border transition-all hover:bg-[rgba(255,255,255,0.07)]`} style={{ background: "var(--border-light)", border: `1px solid ${k.accent ? "rgba(244,168,58,0.25)" : "var(--border)"}` }}>
           <div className="text-[9px] font-bold uppercase tracking-[0.08em] text-[var(--ink-faint)] mb-1">{k.label}</div>
           <div className="text-[20px] font-bold" style={{ fontFamily: "'JetBrains Mono', monospace", color: k.isHealth ? healthColor : "var(--text-primary)" }}>{k.isHealth ? `${k.value}/100` : k.value}</div>
           {k.isHealth && <div className="text-[9px] mt-0.5" style={{ color: healthColor }}>{healthVerdict}</div>}
@@ -2249,7 +2249,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
     {/* ═══ CATALOGUE TAB — Bloomberg Terminal meets Notion ═══ */}
     {tab === "catalogue" && <div className="flex gap-4 animate-tab-enter" style={{ minHeight: 600 }}>
       {/* Left tree navigator */}
-      <div className="w-56 shrink-0 rounded-xl p-3 overflow-y-auto" style={{ maxHeight: "70vh", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+      <div className="w-56 shrink-0 rounded-xl p-3 overflow-y-auto" style={{ maxHeight: "70vh", background: "var(--border-light)", border: "1px solid var(--border)" }}>
         <div className="text-[9px] font-bold uppercase tracking-[0.08em] text-[var(--ink-faint)] mb-2">Hierarchy</div>
         <button onClick={() => setSelectedPath([])} className={`w-full text-left px-2 py-1.5 rounded-lg text-[12px] font-semibold mb-1 transition-all ${selectedPath.length === 0 ? "bg-[rgba(244,168,58,0.15)] text-[var(--amber)]" : "text-[var(--text-secondary)] hover:bg-[rgba(255,255,255,0.05)]"}`}>All ({Number(stats.total_headcount || 0)})</button>
         {tree.map(func => <TreeNav key={func.id} node={func} depth={0} selectedPath={selectedPath} onSelect={setSelectedPath} />)}
@@ -2268,20 +2268,20 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
         {/* Search bar — full width with live count */}
         <div className="relative mb-3">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ink-faint)] text-[13px]">⌕</span>
-          <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search roles, families, levels..." className="w-full pl-8 pr-40 py-2.5 rounded-xl text-[13px] text-[var(--text-primary)] outline-none transition-all placeholder:text-[var(--ink-faint)]" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }} onFocus={e => e.target.style.borderColor = "rgba(244,168,58,0.6)"} onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.08)"} />
+          <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search roles, families, levels..." className="w-full pl-8 pr-40 py-2.5 rounded-xl text-[13px] text-[var(--text-primary)] outline-none transition-all placeholder:text-[var(--ink-faint)]" style={{ background: "var(--border-light)", border: "1px solid var(--border)" }} onFocus={e => e.target.style.borderColor = "rgba(244,168,58,0.6)"} onBlur={e => e.target.style.borderColor = "var(--border)"} />
           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-[var(--ink-faint)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{filteredJobs.length} roles · {filteredJobs.reduce((s, j) => s + j.headcount, 0).toLocaleString()} HC</span>
         </div>
 
         {/* Controls row */}
         <div className="flex items-center gap-3 mb-4 flex-wrap">
           {/* Group-By toggle — segmented control */}
-          <div className="flex rounded-lg overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <div className="flex rounded-lg overflow-hidden" style={{ background: "var(--border-light)", border: "1px solid var(--border)" }}>
             {(["level","headcount","ai","alpha"] as const).map(s => <button key={s} onClick={() => setSortBy(s)} className="px-3 py-1.5 text-[11px] font-semibold transition-all" style={{ background: sortBy === s ? "rgba(244,168,58,0.2)" : "transparent", color: sortBy === s ? "var(--amber)" : "var(--ink-faint)" }}>{s === "level" ? "Level" : s === "headcount" ? "HC" : s === "ai" ? "AI" : "A-Z"}</button>)}
           </div>
-          <select value={filterTrack} onChange={e => setFilterTrack(e.target.value)} className="rounded-lg px-2 py-1.5 text-[11px] text-[var(--text-primary)] outline-none" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <select value={filterTrack} onChange={e => setFilterTrack(e.target.value)} className="rounded-lg px-2 py-1.5 text-[11px] text-[var(--text-primary)] outline-none" style={{ background: "var(--border-light)", border: "1px solid var(--border)" }}>
             <option value="All">All Tracks</option><option value="IC">IC</option><option value="Manager">Manager</option><option value="Executive">Executive</option>
           </select>
-          <select value={filterAI} onChange={e => setFilterAI(e.target.value)} className="rounded-lg px-2 py-1.5 text-[11px] text-[var(--text-primary)] outline-none" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <select value={filterAI} onChange={e => setFilterAI(e.target.value)} className="rounded-lg px-2 py-1.5 text-[11px] text-[var(--text-primary)] outline-none" style={{ background: "var(--border-light)", border: "1px solid var(--border)" }}>
             <option value="All">All AI Impact</option><option value="High">High</option><option value="Moderate">Moderate</option><option value="Low">Low</option>
           </select>
         </div>
@@ -2600,7 +2600,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
 
         {/* Category filter */}
         <div className="flex gap-2 mb-4">
-          {["All", "Structure", "Population", "Career Path", "Risk", "Span of Control"].map(c => <button key={c} onClick={() => setFlagFilter(c)} className="px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all" style={{ background: flagFilter === c ? "rgba(244,168,58,0.15)" : "transparent", color: flagFilter === c ? "var(--amber)" : "var(--ink-faint)", border: flagFilter === c ? "1px solid rgba(244,168,58,0.35)" : "1px solid rgba(255,255,255,0.08)" }}>{c}</button>)}
+          {["All", "Structure", "Population", "Career Path", "Risk", "Span of Control"].map(c => <button key={c} onClick={() => setFlagFilter(c)} className="px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all" style={{ background: flagFilter === c ? "rgba(244,168,58,0.15)" : "transparent", color: flagFilter === c ? "var(--amber)" : "var(--ink-faint)", border: flagFilter === c ? "1px solid rgba(244,168,58,0.35)" : "1px solid var(--border)" }}>{c}</button>)}
         </div>
 
         {/* Validation rules */}
@@ -2608,7 +2608,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
           {flags.filter(fl => flagFilter === "All" || fl.category === flagFilter).map((fl, i) => {
             const statusIcon = fl.severity === "critical" ? "✕" : fl.severity === "warning" ? "◈" : "✓";
             const statusColor = fl.severity === "critical" ? "#e87a5d" : fl.severity === "warning" ? "#f4a83a" : "#8ba87a";
-            return <div key={i} className="flex items-start gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }} onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.07)"; }} onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.04)"; }}>
+            return <div key={i} className="flex items-start gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer" style={{ background: "var(--border-light)", border: "1px solid var(--border)" }} onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.07)"; }} onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = "var(--border-light)"; }}>
               {/* Status icon circle */}
               <div className="w-[26px] h-[26px] rounded-full flex items-center justify-center text-[11px] font-bold shrink-0" style={{ background: `${statusColor}15`, color: statusColor, boxShadow: `0 0 8px ${statusColor}20` }}>{statusIcon}</div>
               <div className="flex-1 min-w-0">
@@ -2649,7 +2649,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
             const color = TRACK_COLORS[track] || "#f4a83a";
             const circ = 2 * Math.PI * 28;
             const dashOff = circ * (1 - pct / 100);
-            return <div key={track} className="flex-1 rounded-xl p-4 relative overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+            return <div key={track} className="flex-1 rounded-xl p-4 relative overflow-hidden" style={{ background: "var(--border-light)", border: "1px solid var(--border)" }}>
               <div className="flex items-center gap-3">
                 {/* Ring chart */}
                 <div className="relative w-[72px] h-[72px] shrink-0">
@@ -2674,7 +2674,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
         {/* Row 2: Level Distribution + Family Size */}
         <div className="grid grid-cols-2 gap-4">
           {/* Level Distribution — horizontal bars */}
-          <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <div className="rounded-xl p-5" style={{ background: "var(--border-light)", border: "1px solid var(--border)" }}>
             <div className="text-[15px] font-bold text-[var(--text-primary)] mb-1" style={{ letterSpacing: "-0.02em" }}>Level Distribution</div>
             <div className="text-[9px] uppercase tracking-[0.08em] text-[var(--ink-faint)] mb-4">Headcount by career level</div>
             <div className="space-y-2">
@@ -2682,7 +2682,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
                 const color = getTrackColor(l.level);
                 return <div key={l.level} className="flex items-center gap-2">
                   <div className="w-[36px] shrink-0"><LevelBadge level={l.level} /></div>
-                  <div className="flex-1 h-[14px] rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.04)" }}>
+                  <div className="flex-1 h-[14px] rounded-full overflow-hidden" style={{ background: "var(--border-light)" }}>
                     <div className="h-full rounded-full transition-all duration-500" style={{ width: `${(l.headcount / maxLevelHC) * 100}%`, background: `linear-gradient(to right, ${color}80, ${color})`, boxShadow: `0 0 8px ${color}20` }} />
                   </div>
                   <div className="w-[50px] text-right text-[13px] font-bold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{l.headcount}</div>
@@ -2692,7 +2692,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
           </div>
 
           {/* Family Size — horizontal bars */}
-          <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <div className="rounded-xl p-5" style={{ background: "var(--border-light)", border: "1px solid var(--border)" }}>
             <div className="text-[15px] font-bold text-[var(--text-primary)] mb-1" style={{ letterSpacing: "-0.02em" }}>Family Size</div>
             <div className="text-[9px] uppercase tracking-[0.08em] text-[var(--ink-faint)] mb-4">Headcount by job family</div>
             <div className="space-y-2">
@@ -2701,7 +2701,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
                 return <div key={f.family} className="flex items-center gap-2">
                   <TrackDot track={f.family} size={6} />
                   <span className="text-[11px] text-[var(--ink)] w-[100px] truncate shrink-0">{f.family}</span>
-                  <div className="flex-1 h-[10px] rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.04)" }}>
+                  <div className="flex-1 h-[10px] rounded-full overflow-hidden" style={{ background: "var(--border-light)" }}>
                     <div className="h-full rounded-full transition-all duration-500" style={{ width: `${(f.headcount / maxFamHC) * 100}%`, background: color }} />
                   </div>
                   <div className="w-[40px] text-right text-[11px] font-bold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{f.headcount}</div>
@@ -2713,7 +2713,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
 
         {/* Row 3: AI Impact + Architecture Completeness */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <div className="rounded-xl p-5" style={{ background: "var(--border-light)", border: "1px solid var(--border)" }}>
             <div className="text-[15px] font-bold text-[var(--text-primary)] mb-4" style={{ letterSpacing: "-0.02em" }}>AI Impact Heatmap</div>
             <div className="grid grid-cols-3 gap-3">
               {[{ label: "High Impact", count: (analytics.ai_impact_summary as Record<string,number>)?.high || 0, color: "var(--coral)", desc: "Automation potential" },
@@ -2727,7 +2727,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
             </div>
           </div>
 
-          <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <div className="rounded-xl p-5" style={{ background: "var(--border-light)", border: "1px solid var(--border)" }}>
             <div className="text-[15px] font-bold text-[var(--text-primary)] mb-4" style={{ letterSpacing: "-0.02em" }}>Architecture Completeness</div>
             <div className="space-y-3">
               {[{ label: "Jobs with tasks mapped", pct: jobs.length > 0 ? Math.round(jobs.filter(j => j.tasks_mapped > 0).length / jobs.length * 100) : 0 },
@@ -2766,24 +2766,24 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
     {tab === "compare" && <div className="animate-tab-enter">
       {/* Multi-select dropdown */}
       <div className="mb-4">
-        <select onChange={e => { const j = jobs.find(job => job.id === e.target.value); if (j && !compareJobs.find(c => c.id === j.id) && compareJobs.length < 4) { setCompareJobs(p => [...p, j]); showToast(`Added ${j.title}`); } e.target.value = ""; }} className="w-full rounded-xl px-3 py-2.5 text-[13px] outline-none" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "var(--text-primary)" }}>
+        <select onChange={e => { const j = jobs.find(job => job.id === e.target.value); if (j && !compareJobs.find(c => c.id === j.id) && compareJobs.length < 4) { setCompareJobs(p => [...p, j]); showToast(`Added ${j.title}`); } e.target.value = ""; }} className="w-full rounded-xl px-3 py-2.5 text-[13px] outline-none" style={{ background: "var(--border-light)", border: "1px solid var(--border)", color: "var(--text-primary)" }}>
           <option value="">+ Add role to comparison (2-4 roles)...</option>
           {jobs.filter(j => !compareJobs.find(c => c.id === j.id)).map(j => <option key={j.id} value={j.id}>{j.title} ({j.function}, {j.level})</option>)}
         </select>
       </div>
-      {compareJobs.length < 2 ? <div className="rounded-xl p-5 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+      {compareJobs.length < 2 ? <div className="rounded-xl p-5 text-center" style={{ background: "var(--border-light)", border: "1px solid var(--border)" }}>
         <div className="text-3xl mb-3 opacity-30">◫</div>
         <h3 className="text-[15px] font-bold text-[var(--text-primary)] mb-2" style={{ letterSpacing: "-0.02em" }}>Select 2-4 roles to compare side by side</h3>
         <p className="text-[12px] text-[var(--ink-faint)] max-w-md mx-auto">Use the dropdown above or click &quot;Compare&quot; from any job profile panel.</p>
         {compareJobs.length === 1 && <div className="text-[12px] text-[var(--amber)] mt-2">1 role selected — add 1 more</div>}
-      </div> : <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
-        <div className="flex gap-2 mb-4">{compareJobs.map((j, i) => <span key={j.id} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[12px]" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
+      </div> : <div className="rounded-xl p-5" style={{ background: "var(--border-light)", border: "1px solid var(--border)" }}>
+        <div className="flex gap-2 mb-4">{compareJobs.map((j, i) => <span key={j.id} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[12px]" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid var(--border)" }}>
           <LevelBadge level={j.level} />
           <span style={{ color: COLORS[i % COLORS.length] }}>{j.title}</span>
           <button onClick={() => setCompareJobs(p => p.filter(c => c.id !== j.id))} className="text-[var(--ink-faint)] hover:text-[var(--coral)] ml-1 text-[10px]">✕</button>
         </span>)}</div>
-        <div className="overflow-x-auto rounded-lg" style={{ border: "1px solid rgba(255,255,255,0.08)" }}>
-          <table className="w-full"><thead><tr style={{ background: "rgba(255,255,255,0.04)" }}>
+        <div className="overflow-x-auto rounded-lg" style={{ border: "1px solid var(--border)" }}>
+          <table className="w-full"><thead><tr style={{ background: "var(--border-light)" }}>
             <th className="px-3 py-2 text-left text-[9px] font-bold uppercase tracking-[0.08em] text-[var(--ink-faint)]">Attribute</th>
             {compareJobs.map((j, i) => <th key={j.id} className="px-3 py-2 text-center text-[11px] font-bold" style={{ color: COLORS[i % COLORS.length] }}>{j.title}</th>)}
           </tr></thead>
