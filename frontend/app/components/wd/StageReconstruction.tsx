@@ -116,7 +116,7 @@ export default function StageReconstruction({
         <div style={{ fontSize: "var(--text-sm)", fontWeight: "var(--fw-medium)", color: "var(--text-primary)", marginBottom: 4 }}>
           Deconstruction Required
         </div>
-        <div style={{ fontSize: "var(--text-xs)" }}>Complete and submit task decomposition in Stage 2 to unlock Reconstruction.</div>
+        <div style={{ fontSize: "var(--text-xs)" }}>Complete and submit task decomposition in Stage 2 to unlock Redeployment.</div>
       </div>
     );
   }
@@ -210,7 +210,7 @@ export default function StageReconstruction({
           </button>
           <button style={{ ...S.btnPrimary, opacity: !isRedeployValid || isFinalized ? 0.5 : 1 }}
             onClick={onSubmitRedeploy} disabled={!isRedeployValid || isFinalized}>
-            {isRedeploySubmitted ? "Re-compute" : "Submit"} Reconstruction
+            {isRedeploySubmitted ? "Re-compute" : "Submit"} Redeployment
           </button>
         </div>
       </div>
@@ -233,7 +233,7 @@ export default function StageReconstruction({
       <div style={S.grid}>
         {/* Main table */}
         <div style={S.section}>
-          <div style={S.sectionTitle}>Reconstruction Decisions</div>
+          <div style={S.sectionTitle}>Redeployment Decisions</div>
           <div style={{ overflowX: "auto", borderRadius: 6, border: "1px solid var(--border)" }}>
             <table style={S.table}>
               <thead>
@@ -321,7 +321,7 @@ export default function StageReconstruction({
               </ResponsiveContainer>
             ) : (
               <div style={{ textAlign: "center", padding: 20, fontSize: 11, color: "#8a7f6d" }}>
-                Submit reconstruction to see the waterfall
+                Submit redeployment to see the waterfall
               </div>
             )}
           </div>

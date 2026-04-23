@@ -51,8 +51,8 @@ interface Props {
 const STAGES = [
   { key: "context", label: "Context", num: 1 },
   { key: "deconstruction", label: "Deconstruction", num: 2 },
-  { key: "reconstruction", label: "Reconstruction", num: 3 },
-  { key: "redeployment", label: "Redeployment", num: 4 },
+  { key: "redeployment", label: "Redeployment", num: 3 },
+  { key: "reconstruction", label: "Reconstruction", num: 4 },
   { key: "impact", label: "Impact", num: 5 },
   { key: "org_link", label: "Org Link", num: 6 },
   { key: "handoff", label: "Handoff", num: 7 },
@@ -369,7 +369,7 @@ export default function WorkflowCanvas({ jobId, jobTitle, projectId, model, onBa
               isFinalized={job.finalized}
             />
           )}
-          {activeStage === "reconstruction" && job && (
+          {activeStage === "redeployment" && job && (
             <StageReconstruction
               deconRows={job.decon_rows || []}
               redeployRows={(job.redeploy_rows || []) as any[]}
@@ -410,16 +410,16 @@ export default function WorkflowCanvas({ jobId, jobTitle, projectId, model, onBa
                 setJob(prev => prev ? { ...prev, finalized: true, wd_status: "redesigned" } : prev);
                 api.updateWDJob(jobId, { finalized: true });
               }}
-              onStageCompletion={(pct) => updateStageCompletion("reconstruction", pct)}
+              onStageCompletion={(pct) => updateStageCompletion("redeployment", pct)}
             />
           )}
-          {activeStage === "redeployment" && job && (
+          {activeStage === "reconstruction" && job && (
             <StageRedeployment
               reconData={(job.recon_data || null) as any}
               redeployRows={(job.redeploy_rows || []) as any[]}
               isRedeploySubmitted={job.redeploy_submitted}
               showSources={showSources}
-              onStageCompletion={(pct) => updateStageCompletion("redeployment", pct)}
+              onStageCompletion={(pct) => updateStageCompletion("reconstruction", pct)}
             />
           )}
           {activeStage === "impact" && job && (

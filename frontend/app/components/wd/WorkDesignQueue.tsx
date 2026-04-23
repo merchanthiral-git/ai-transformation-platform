@@ -215,7 +215,7 @@ export default function WorkDesignQueue({ projectId, model, onJobSelect }: Props
   const allFunctions = useMemo(() => functions.map(f => f.function).sort(), [functions]);
 
   // Stage completion mini-dots
-  const STAGES = ["context", "deconstruction", "reconstruction", "redeployment", "impact", "org_link", "handoff"];
+  const STAGES = ["context", "deconstruction", "redeployment", "reconstruction", "impact", "org_link", "handoff"];
 
   return (
     <div style={S.page}>

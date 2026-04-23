@@ -346,10 +346,11 @@ Rules:
   const steps = [
     { id: "ctx", label: "Context", done: js.initialized && js.deconRows.length > 0 },
     { id: "decon", label: "Deconstruction", done: js.deconSubmitted },
-    { id: "redeploy", label: "Work Options", done: js.redeploySubmitted },
+    { id: "redeploy", label: "Redeployment", done: js.redeploySubmitted },
     { id: "recon", label: "Reconstruction", done: !!js.recon },
     { id: "impact", label: "Impact Summary", done: js.finalized },
     { id: "orglink", label: "Org Link", done: false },
+    { id: "handoff", label: "Handoff", done: false },
   ];
   const [jobSearch, setJobSearch] = useState("");
 
@@ -683,6 +684,10 @@ Rules:
 
       {wdTab === "orglink" && <div>
         <EmptyState icon={<Layers3 size={24} />} headline="Org Link" explanation="This stage will connect your work design outputs to the Org Design Studio. Coming in a future update." primaryAction={{ label: "Back to Impact Summary", onClick: () => setWdTab("impact") }} />
+      </div>}
+
+      {wdTab === "handoff" && <div>
+        <EmptyState icon={<Layers3 size={24} />} headline="Handoff" explanation="Stakeholder sign-off, change plan, and implementation owner assignment. Coming in a future update." primaryAction={{ label: "Back to Org Link", onClick: () => setWdTab("orglink") }} />
       </div>}
 
     <FlowNav previous={{ id: "jobarch", label: "Job Architecture" }} next={{ id: "orgdesign", label: "Org Design Studio" }} onNavigate={onBack} />
