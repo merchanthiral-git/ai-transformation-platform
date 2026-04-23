@@ -7,6 +7,7 @@ import { PullQuote } from "./PullQuote";
 import { tokens, type TabId } from "./design-tokens";
 import { StructureTab } from "./tabs/StructureTab";
 import { PrinciplesTab } from "./tabs/PrinciplesTab";
+import { MethodologyTab } from "./tabs/MethodologyTab";
 
 interface ElevatedProps {
   onBack: () => void;
@@ -138,11 +139,7 @@ export function OrgDesignStudioElevated({ onBack, model, f, odsState, setOdsStat
         return { leftRail: pr.leftRail, rightRail: pr.rightRail, content: pr.canvas };
       }
       case 'methodology':
-        return {
-          content: (
-            <TabPlaceholder tabId={activeTab} tabLabel="Methodology" />
-          ),
-        };
+        return { content: <MethodologyTab /> };
       default:
         return {
           content: (
