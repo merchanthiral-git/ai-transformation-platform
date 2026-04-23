@@ -178,7 +178,7 @@ function PreviewIncumbent() {
         overflow: 'hidden', background: tokens.color.ivoryCard,
       }}>
         {/* Teal band */}
-        <div style={{ height: 3, background: 'linear-gradient(90deg, #2A7A78, #3F9A98)' }} />
+        <div style={{ height: 3, background: 'linear-gradient(90deg, #3DDC97, #5BEBA8)' }} />
         <div style={{ padding: '10px 12px' }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: tokens.color.ink }}>Chief Marketing Officer</div>
           <div style={{ fontSize: 10, color: tokens.color.inkMute, marginTop: 2 }}>New role &middot; Future state &middot; Enterprise</div>
@@ -365,8 +365,7 @@ export function MethodologyTab({ onNavigateToTab, onBack }: { onNavigateToTab?: 
       <div style={{
         position: 'sticky', top: 0, zIndex: 20,
         padding: '8px 56px',
-        background: 'rgba(239, 233, 217, 0.92)',
-        backdropFilter: 'blur(16px)',
+        background: tokens.color.ivoryPaper,
         borderBottom: `1px solid ${tokens.color.lineFaint}`,
         display: 'flex', gap: 4,
       }}>

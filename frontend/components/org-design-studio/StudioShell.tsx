@@ -261,9 +261,7 @@ export function StudioShell({
         style={{
           height: 52,
           minHeight: 52,
-          background: 'rgba(239, 233, 217, 0.9)',
-          backdropFilter: 'blur(12px) saturate(1.2)',
-          WebkitBackdropFilter: 'blur(12px) saturate(1.2)',
+          background: tokens.color.ivoryPaper,
           borderBottom: `1px solid ${tokens.color.line}`,
           display: 'flex',
           alignItems: 'center',

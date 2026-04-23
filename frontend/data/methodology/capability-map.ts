@@ -27,7 +27,7 @@ export const TERRITORIES: Territory[] = [
     title: 'Strategic Foundation',
     titleEmphasis: 'Strategic',
     description: 'Define the organizing logic, constraints, and success measures that anchor every structural decision.',
-    accentColor: '#D6611A',
+    accentColor: '#FF8A3D',
     features: [
       { id: 'strategicIntentCanvas', name: 'Strategic Intent Canvas', status: 'stub', description: 'Visual workspace for articulating and stress-testing the organizing logic.' },
       { id: 'valueStreamMapping', name: 'Value Stream Mapping', status: 'planned', description: 'Trace value creation from customer need to delivered outcome.' },
@@ -45,7 +45,7 @@ export const TERRITORIES: Territory[] = [
     title: 'Operating Model',
     titleEmphasis: 'Operating',
     description: 'Map the enterprise operating model: core, enabling, and shared capabilities across geographies.',
-    accentColor: '#AA8A46',
+    accentColor: '#F5C451',
     features: [
       { id: 'coreEnableSharedMap', name: 'Core / Enable / Shared Map', status: 'beta', description: 'Classify every capability as core (differentiating), enabling, or shared.' },
       { id: 'serviceCatalog', name: 'Service Catalog', status: 'planned', description: 'Catalogue enterprise services with owners, SLAs, and consumers.' },
@@ -64,7 +64,7 @@ export const TERRITORIES: Territory[] = [
     title: 'Structural Design',
     titleEmphasis: 'Structural',
     description: 'Build and stress-test reporting structures from N\u22121 through N\u2212x with scenario modeling.',
-    accentColor: '#051530',
+    accentColor: '#E8EAED',
     features: [
       { id: 'nMinusDrilldown', name: 'N-minus Drill-Down', status: 'live', description: 'Navigate the org tree from CEO to individual contributor, level by level.', inUse: true, inUseContext: 'Active \u00b7 currently at N\u22122' },
       { id: 'currentFutureDiff', name: 'Current / Future / Diff', status: 'live', description: 'Three-state toggle showing current structure, future state, or the overlay diff.', inUse: true, inUseContext: 'Active \u00b7 future state primary' },
@@ -84,7 +84,7 @@ export const TERRITORIES: Territory[] = [
     title: 'Accountability & Governance',
     titleEmphasis: 'Accountability',
     description: 'Define who decides what, how escalation works, and where governance forums sit.',
-    accentColor: '#6B3E99',
+    accentColor: '#5B8DEF',
     features: [
       { id: 'decisionRightsMatrix', name: 'Decision Rights Matrix', status: 'beta', description: 'RACI-style matrix mapping decisions to roles.' },
       { id: 'governanceForums', name: 'Governance Forums', status: 'planned', description: 'Define standing governance bodies with membership, cadence, and scope.' },
@@ -101,7 +101,7 @@ export const TERRITORIES: Territory[] = [
     title: 'Work & Talent',
     titleEmphasis: 'Work',
     description: 'Design the work first, then fit the talent: job architecture, leveling, skills, and flows.',
-    accentColor: '#2A7A78',
+    accentColor: '#3DDC97',
     features: [
       { id: 'jobArchitectureBrowser', name: 'Job Architecture Browser', status: 'live', description: 'Browse and search the full job architecture with families, sub-families, and levels.', inUse: true, inUseContext: 'Active \u00b7 Work & Talent tab' },
       { id: 'roleProfileBuilder', name: 'Role Profile Builder', status: 'beta', description: 'Build structured role profiles with accountabilities, skills, and success measures.' },
@@ -122,7 +122,7 @@ export const TERRITORIES: Territory[] = [
     title: 'Transformation Execution',
     titleEmphasis: 'Transformation',
     description: 'From design to reality: cost models, change impact, risk, and wave planning.',
-    accentColor: '#0E47B8',
+    accentColor: '#5B8DEF',
     features: [
       { id: 'transformationRoadmap', name: 'Transformation Roadmap', status: 'planned', description: 'Sequenced execution plan with milestones, owners, and dependencies.', note: "Methodology gap: the studio shows where, but not how to get there \u2014 execution sequencing needed." },
       { id: 'costModel', name: 'Cost Model', status: 'planned', description: 'Full cost model with headcount, compensation, and transition costs.', note: "Methodology gap: 'what does this cost?' \u2014 a required answer before finance stakeholders will sign off." },

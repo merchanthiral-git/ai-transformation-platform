@@ -401,7 +401,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   /* Glass variant — opt-in for Vista surfaces */
   .vista-surface .glass-card {
     background: var(--bg-panel);
-    backdrop-filter: blur(12px);
   }
 
   /* KPI tiles — ivory solid */
@@ -417,7 +416,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   /* Glass variant on Vista surfaces */
   .vista-surface .kpi-glass {
     background: var(--bg-panel);
-    backdrop-filter: blur(8px);
   }
   .kpi-glass::before {
     content: '';
