@@ -98,7 +98,7 @@ const S = {
     const color = state === "current" ? "#fff" : state === "complete" ? "var(--sage)" : state === "locked" ? "var(--border)" : "var(--text-muted)";
     return { display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 6, border: `1px solid ${border}`, background: bg, cursor: state === "locked" ? "default" : "pointer", transition: "all 0.15s", minWidth: 0, whiteSpace: "nowrap" as const } as React.CSSProperties;
   },
-  spineNum: (state: "current" | "complete" | "incomplete" | "locked") => ({ width: 20, height: 20, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, background: state === "current" ? "rgba(255,255,255,0.2)" : "transparent", color: state === "current" ? "#fff" : state === "complete" ? "var(--sage)" : "var(--text-muted)", flexShrink: 0 }) as React.CSSProperties,
+  spineNum: (state: "current" | "complete" | "incomplete" | "locked") => ({ width: 20, height: 20, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, background: state === "current" ? "var(--amber)" : "transparent", color: state === "current" ? "#fff" : state === "complete" ? "var(--sage)" : "var(--text-muted)", flexShrink: 0 }) as React.CSSProperties,
   spineLabel: { fontSize: 11, fontWeight: "var(--fw-medium)" } as React.CSSProperties,
   spinePct: { fontSize: 11, marginLeft: 2, opacity: 0.7 } as React.CSSProperties,
   spineConnector: { width: 16, height: 1, background: "var(--border)", flexShrink: 0 } as React.CSSProperties,

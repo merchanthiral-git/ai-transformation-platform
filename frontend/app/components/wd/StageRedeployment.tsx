@@ -99,8 +99,8 @@ function SankeyFlow({ flows }: { flows: { dest: string; label: string; pct: numb
     <svg width={W} height={H + 10} style={{ display: "block", margin: "0 auto" }}>
       {/* Source block */}
       <rect x={LX} y={4} width={LW} height={H} rx={6} fill="var(--paper-solid)" />
-      <text x={LX + LW / 2} y={srcMid + 4} textAnchor="middle" fill="#fff" fontSize={11} fontWeight={600}>Current</text>
-      <text x={LX + LW / 2} y={srcMid + 18} textAnchor="middle" fill="rgba(255,255,255,0.5)" fontSize={9}>100%</text>
+      <text x={LX + LW / 2} y={srcMid + 4} textAnchor="middle" fill="var(--ink)" fontSize={11} fontWeight={600}>Current</text>
+      <text x={LX + LW / 2} y={srcMid + 18} textAnchor="middle" fill="var(--ink-faint)" fontSize={9}>100%</text>
 
       {/* Flows */}
       {bands.map((b, i) => {
