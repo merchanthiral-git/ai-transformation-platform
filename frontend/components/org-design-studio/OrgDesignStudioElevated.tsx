@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { StudioShell } from "./StudioShell";
 import { CanvasSurface } from "./CanvasSurface";
 import { SectionHead, Em, Gold } from "./SectionHead";
@@ -10,6 +10,7 @@ import { PrinciplesTab } from "./tabs/PrinciplesTab";
 import { MethodologyTab } from "./tabs/MethodologyTab";
 import { TERRITORIES } from "@/data/methodology/capability-map";
 import { takaraTomy } from "@/data/org-design/takara-tomy";
+import { seedTakaraTomyActivity } from "@/lib/feature-activity";
 
 interface ElevatedProps {
   onBack: () => void;
@@ -188,6 +189,9 @@ function TabPlaceholder({ tabId, tabLabel }: { tabId: TabId; tabLabel: string })
 export function OrgDesignStudioElevated({ onBack, model, f, odsState, setOdsState, viewCtx, jobStates }: ElevatedProps) {
   const initialTab = VIEW_TO_TAB[odsState.view] || 'structure';
   const [activeTab, setActiveTab] = useState<TabId>(initialTab);
+
+  // Seed Takara Tomy engagement activity on first mount
+  useEffect(() => { seedTakaraTomyActivity(); }, []);
 
   const handleTabChange = useCallback((tab: TabId) => {
     setActiveTab(tab);
