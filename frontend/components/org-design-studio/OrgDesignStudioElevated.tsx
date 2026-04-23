@@ -5,6 +5,7 @@ import { CanvasSurface } from "./CanvasSurface";
 import { SectionHead, Em, Gold } from "./SectionHead";
 import { PullQuote } from "./PullQuote";
 import { tokens, type TabId } from "./design-tokens";
+import { StructureTab } from "./tabs/StructureTab";
 
 interface ElevatedProps {
   onBack: () => void;
@@ -127,39 +128,51 @@ export function OrgDesignStudioElevated({ onBack, model, f, odsState, setOdsStat
 
   const renderTab = () => {
     switch (activeTab) {
-      case 'structure':
+      case 'structure': {
+        const { leftRail, rightRail, canvas } = StructureTab();
+        return { leftRail, rightRail, content: canvas };
+      }
       case 'principles':
       case 'methodology':
-        // These will be replaced with full builds in subsequent commits
-        return (
-          <TabPlaceholder
-            tabId={activeTab}
-            tabLabel={activeTab === 'structure' ? 'Structure' : activeTab === 'principles' ? 'Principles' : 'Methodology'}
-          />
-        );
+        return {
+          content: (
+            <TabPlaceholder
+              tabId={activeTab}
+              tabLabel={activeTab === 'principles' ? 'Principles' : 'Methodology'}
+            />
+          ),
+        };
       default:
-        return (
-          <TabPlaceholder
-            tabId={activeTab}
-            tabLabel={
-              activeTab === 'strategy' ? 'Strategy'
-              : activeTab === 'operating-model' ? 'Operating Model'
-              : activeTab === 'accountability' ? 'Accountability'
-              : activeTab === 'work-talent' ? 'Work & Talent'
-              : 'Execution'
-            }
-          />
-        );
+        return {
+          content: (
+            <TabPlaceholder
+              tabId={activeTab}
+              tabLabel={
+                activeTab === 'strategy' ? 'Strategy'
+                : activeTab === 'operating-model' ? 'Operating Model'
+                : activeTab === 'accountability' ? 'Accountability'
+                : activeTab === 'work-talent' ? 'Work & Talent'
+                : 'Execution'
+              }
+            />
+          ),
+        };
     }
   };
+
+  const tabResult = renderTab();
+  const leftRail = 'leftRail' in tabResult ? tabResult.leftRail : undefined;
+  const rightRail = 'rightRail' in tabResult ? tabResult.rightRail : undefined;
 
   return (
     <StudioShell
       activeTab={activeTab}
       onTabChange={handleTabChange}
       onBack={onBack}
+      leftRail={leftRail}
+      rightRail={rightRail}
     >
-      {renderTab()}
+      {tabResult.content}
     </StudioShell>
   );
 }
