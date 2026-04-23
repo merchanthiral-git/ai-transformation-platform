@@ -188,19 +188,6 @@ export function StudioShell({
         zIndex: 50,
       }}
     >
-      {/* Paper noise overlay */}
-      <div
-        aria-hidden
-        style={{
-          position: 'fixed',
-          inset: 0,
-          pointerEvents: 'none',
-          opacity: 0.45,
-          zIndex: 100,
-          backgroundImage: PAPER_NOISE,
-        }}
-      />
-
       {/* Pulse animation */}
       <style>{`
         @keyframes studioPulse {

@@ -364,12 +364,17 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   h1, h2, h3, h4, h5, h6, .font-heading { font-family: 'Fraunces', Georgia, serif; }
   .font-data, .font-mono, code, pre, [data-mono] { font-family: 'JetBrains Mono', ui-monospace, monospace; }
   body { min-height: 100vh; }
-  ::selection { background: rgba(244,168,58,0.25); color: var(--cr-text); }
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none;
+    opacity: 0.45; z-index: 1;
+    background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.02 0 0 0 0 0.08 0 0 0 0 0.19 0 0 0 0.09 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  ::selection { background: rgba(214,97,26,0.18); color: var(--cr-text); }
   ::-webkit-scrollbar { width: 4px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: rgba(244,235,217,0.15); border-radius: 99px; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(244,235,217,0.25); }
-  input, select, textarea { color-scheme: dark; }
+  ::-webkit-scrollbar-thumb { background: rgba(5,21,48,0.12); border-radius: 99px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(5,21,48,0.20); }
+  input, select, textarea { color-scheme: light; }
   @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
@@ -381,21 +386,21 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
   /* Card hover micro-interactions */
   .card-hover { transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease; border-color: var(--cr-border); }
-  .card-hover:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 8px 24px rgba(0,0,0,0.3); border-color: var(--cr-border-hot); }
+  .card-hover:hover { transform: translateY(-2px) scale(1.02); box-shadow: var(--shadow-2); border-color: var(--cr-border-hot); }
   input[type="number"]::-webkit-inner-spin-button,
   input[type="number"]::-webkit-outer-spin-button { opacity: 0.3; }
 
-  /* ── Vista Cards — solid by default, glass when on VistaSurface ── */
+  /* ── Vista Cards — ivory solid ── */
   .glass-card {
-    background: rgba(20, 24, 38, 0.95);
+    background: var(--paper-solid);
     border: 1px solid var(--cr-border);
     border-radius: 16px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    box-shadow: var(--shadow-1);
     transition: transform 0.24s var(--ease-spring), box-shadow 0.24s ease, border-color 0.24s ease;
   }
   .glass-card:hover {
     transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    box-shadow: var(--shadow-2);
     border-color: var(--cr-border-hot);
   }
   /* Glass variant — opt-in for Vista surfaces */
@@ -404,19 +409,19 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     backdrop-filter: blur(24px);
   }
 
-  /* KPI tiles — solid by default */
+  /* KPI tiles — ivory solid */
   .kpi-glass {
-    background: rgba(20, 24, 38, 0.95);
+    background: var(--paper-solid);
     border-radius: 16px;
     padding: 20px;
     text-align: center;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    box-shadow: var(--shadow-1);
   }
   /* Glass variant on Vista surfaces */
   .vista-surface .kpi-glass {
-    background: linear-gradient(135deg, rgba(22,24,34,0.8), rgba(22,24,34,0.9));
+    background: var(--bg-panel);
     backdrop-filter: blur(16px);
   }
   .kpi-glass::before {
@@ -425,7 +430,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     inset: 0;
     border-radius: 16px;
     padding: 1px;
-    background: linear-gradient(135deg, rgba(244,168,58,0.3), rgba(167,139,184,0.1));
+    background: linear-gradient(135deg, rgba(214,97,26,0.15), rgba(107,62,153,0.08));
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;

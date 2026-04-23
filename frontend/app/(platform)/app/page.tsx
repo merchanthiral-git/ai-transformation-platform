@@ -895,7 +895,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       </div>
     </div>}
 
-    <aside className="min-h-screen flex flex-col px-4 py-5 shrink-0 overflow-y-auto sticky top-0 border-r border-[var(--border)] transition-all duration-300" style={{ width: "var(--sidebar-width)", height: "100vh", background: "color-mix(in srgb, var(--surface-1) 85%, black 15%)", ...(presentMode ? { marginLeft: "calc(var(--sidebar-width) * -1)", opacity: 0, pointerEvents: "none" } : {}) }}>
+    <aside className="min-h-screen flex flex-col px-4 py-5 shrink-0 overflow-y-auto sticky top-0 border-r border-[var(--border)] transition-all duration-300" style={{ width: "var(--sidebar-width)", height: "100vh", background: "var(--bg-deep)", ...(presentMode ? { marginLeft: "calc(var(--sidebar-width) * -1)", opacity: 0, pointerEvents: "none" } : {}) }}>
       <div className="flex items-center justify-between mb-1">
         <div className="cursor-pointer" onClick={goHome}><div className="text-sm font-extrabold text-[var(--text-primary)]">AI Transformation</div><div className="text-[15px] font-semibold text-[var(--accent-primary)] uppercase tracking-[1.5px]">PLATFORM</div></div>
         <ThemeToggle theme={theme} onToggle={toggleTheme} />

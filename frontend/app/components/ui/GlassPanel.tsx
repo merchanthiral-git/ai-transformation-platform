@@ -27,7 +27,7 @@ export function GlassPanel({ children, hot = false, variant = 'solid', className
         transitionTimingFunction: 'var(--ease-spring)',
         background: isGlass
           ? (hot ? 'var(--bg-panel-hover)' : 'var(--paper)')
-          : (hot ? 'rgba(20, 24, 38, 1)' : 'rgba(20, 24, 38, 0.95)'),
+          : (hot ? 'var(--surface-2)' : 'var(--paper-solid)'),
       }}
       {...rest}
     >
