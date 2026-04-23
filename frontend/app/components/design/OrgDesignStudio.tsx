@@ -1,4 +1,8 @@
 "use client";
+// Re-export the elevated Org Design Studio as the primary export
+export { OrgDesignStudioElevated as OrgDesignStudio } from "@/components/org-design-studio/OrgDesignStudioElevated";
+
+// Legacy implementation below — preserved for reference and gradual migration
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import * as api from "../../../lib/api";
 import type { Filters } from "../../../lib/api";
@@ -57,7 +61,7 @@ function odsAgg(data: ReturnType<typeof odsGenDept>) {
   return { hc, mgr, ic, avgS: mgr > 0 ? ic / mgr : 0, avgL: data.reduce((s, d) => s + d.layers, 0) / data.length, cost };
 }
 
-export function OrgDesignStudio({ onBack, model, f, odsState, setOdsState, viewCtx, jobStates }: { onBack: () => void; model: string; f: Filters; odsState: { activeScenario: number; view: string }; setOdsState: (s: { activeScenario: number; view: string }) => void; viewCtx?: ViewContext; jobStates?: Record<string, JobDesignState> }) {
+export function OrgDesignStudioLegacy({ onBack, model, f, odsState, setOdsState, viewCtx, jobStates }: { onBack: () => void; model: string; f: Filters; odsState: { activeScenario: number; view: string }; setOdsState: (s: { activeScenario: number; view: string }) => void; viewCtx?: ViewContext; jobStates?: Record<string, JobDesignState> }) {
   // Try to build from real org data
   const [orgData] = useApiData(() => model ? api.getOrgDiagnostics(model, f) : Promise.resolve(null), [model, f.func, f.jf, f.sf, f.cl]);
   const [overviewData] = useApiData(() => model ? api.getOverview(model, f) : Promise.resolve(null), [model, f.func, f.jf, f.sf, f.cl]);
