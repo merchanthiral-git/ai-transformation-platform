@@ -639,7 +639,7 @@ export function MethodologyTab({ onNavigateToTab, onBack }: { onNavigateToTab?: 
             color: tokens.color.ivory, margin: '0 0 12px', lineHeight: 1.2,
             position: 'relative',
           }}>
-            Continue the <em style={{ fontStyle: 'italic', color: tokens.color.orange }}>Takara Tomy</em> engagement &mdash; or start something new.
+            Continue the current engagement &mdash; or start something new.
           </h2>
           <p style={{
             fontSize: 14, color: tokens.color.ivoryDeep, lineHeight: 1.6, maxWidth: 700,

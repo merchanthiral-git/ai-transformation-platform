@@ -68,7 +68,7 @@ const FRAMEWORKS: { id: string; name: string; year: string; meta: string }[] = [
   { id: 'burke-litwin', name: 'Burke-Litwin Causal', year: "'92", meta: '12 dims · Burke-Litwin · 1992' },
   { id: 'stanford', name: 'Stanford Fit-for-Purpose', year: "'05", meta: '5 dims · Stanford · 2005' },
   { id: 'holbeche', name: 'Holbeche Agile Org', year: "'15", meta: '6 dims · Holbeche · 2015' },
-  { id: 'takara-custom', name: 'Takara Tomy Custom', year: 'active', meta: 'Custom · Active engagement' },
+  { id: 'custom', name: 'Custom Framework', year: 'active', meta: 'Custom · Active engagement' },
 ];
 
 const ARCHETYPES = [
@@ -313,7 +313,7 @@ const INSIGHTS = [
     type: 'watch',
     tag: 'Watch item',
     title: 'Accountability gap vs. peer',
-    note: 'Mattel scores 0.80 on single-threaded accountability. Takara Tomy future is at 0.65. The regional P&L model helps, but shared-service escalation paths need RACI clarity.',
+    note: 'Peer scores 0.80 on single-threaded accountability. Current future position is at 0.65. The regional P&L model helps, but shared-service escalation paths need RACI clarity.',
     borderColor: tokens.color.gold,
     tagColor: tokens.color.gold,
   },
@@ -436,12 +436,12 @@ export function PrinciplesTab({ profile }: { profile: SandboxProfile }) {
                   borderRadius: 6,
                   cursor: 'pointer',
                   textAlign: 'left',
-                  ...(fw.id === 'takara-custom' ? { background: tokens.color.orangeWash } : {}),
+                  ...(fw.id === 'custom' ? { background: tokens.color.orangeWash } : {}),
                 }}
               >
                 <div style={{
                   fontSize: 12, fontWeight: 500, color: tokens.color.ink,
-                  ...(fw.id === 'takara-custom' ? { fontFamily: tokens.font.display, fontStyle: 'italic' } : {}),
+                  ...(fw.id === 'custom' ? { fontFamily: tokens.font.display, fontStyle: 'italic' } : {}),
                 }}>
                   {fw.name}
                 </div>
