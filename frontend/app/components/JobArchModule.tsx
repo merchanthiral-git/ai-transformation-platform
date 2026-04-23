@@ -2289,17 +2289,14 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
         {/* Role rows — dense table layout */}
         {filteredJobs.length === 0 ? <Empty text="No jobs match your filters — try broadening your search" /> :
         <div className="space-y-1">
-          {filteredJobs.map((j, i) => {
+          {(() => { const maxHC = Math.max(...filteredJobs.map(fj => fj.headcount), 1); return filteredJobs.slice(0, 200).map((j, i) => {
             const tc = getTrackColor(j.level || j.track);
-            const maxHC = Math.max(...filteredJobs.map(fj => fj.headcount), 1);
             const skills = [j.sub_family, j.family].filter(Boolean);
             return <div key={j.id} onClick={() => { setSelectedJob(j); setJobProfileTab("content"); }}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-all group" style={{
-                background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
-                animation: `scaleIn 0.15s ease-out ${Math.min(i * 0.015, 0.2)}s both`,
-              }}
-              onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.07)"; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.04)"; }}>
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-all group card-hover" style={{
+                background: "var(--surface-2)", border: "1px solid var(--border)",
+                animation: i < 30 ? `scaleIn 0.15s ease-out ${Math.min(i * 0.015, 0.2)}s both` : 'none',
+              }}>
               {/* Level Badge */}
               <div className="w-[36px] shrink-0"><LevelBadge level={j.level} /></div>
               {/* Title + Family */}
@@ -2309,28 +2306,28 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
               </div>
               {/* Skill chips */}
               <div className="w-[120px] shrink-0 flex gap-1 overflow-hidden">
-                {skills.slice(0, 2).map((s, si) => <span key={si} className="px-1.5 py-0.5 rounded text-[9px] text-[var(--ink-soft)] truncate" style={{ background: "rgba(255,255,255,0.06)" }}>{s.split(" ").slice(0, 2).join(" ")}</span>)}
+                {skills.slice(0, 2).map((s, si) => <span key={si} className="px-1.5 py-0.5 rounded text-[9px] text-[var(--ink-soft)] truncate" style={{ background: "var(--border-light)" }}>{s.split(" ").slice(0, 2).join(" ")}</span>)}
                 {skills.length > 2 && <span className="text-[9px] text-[var(--ink-faint)]">+{skills.length - 2}</span>}
               </div>
               {/* HC Number */}
               <div className="w-[60px] shrink-0 text-right text-[13px] font-bold" style={{ fontFamily: "'JetBrains Mono', monospace", color: "var(--text-primary)" }}>{j.headcount}</div>
               {/* Proportion bar */}
               <div className="w-[100px] shrink-0">
-                <div className="h-[5px] rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
+                <div className="h-[5px] rounded-full overflow-hidden" style={{ background: "var(--border-light)" }}>
                   <div className="h-full rounded-full transition-all duration-500" style={{ width: `${(j.headcount / maxHC) * 100}%`, background: tc, boxShadow: `0 0 8px ${tc}20` }} />
                 </div>
               </div>
               {/* AI dot */}
               <div className="w-2 h-2 rounded-full shrink-0" style={{ background: aiDot(j.ai_impact) }} title={`AI: ${j.ai_impact}`} />
             </div>;
-          })}
+          }); })()}
         </div>}
         <div className="mt-3 text-[11px] text-[var(--ink-faint)] text-center" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{filteredJobs.length} of {jobs.length} roles</div>
       </div>
 
       {/* Job profile slide-in panel — refined */}
-      {selectedJob && <div className="w-[420px] shrink-0 rounded-xl overflow-y-auto animate-slide-right" style={{ maxHeight: "70vh", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
-        <div className="p-4 border-b sticky top-0 z-10" style={{ borderColor: "rgba(255,255,255,0.08)", background: "rgba(22,24,34,0.95)", backdropFilter: "blur(12px)" }}>
+      {selectedJob && <div className="w-[420px] shrink-0 rounded-xl overflow-y-auto animate-slide-right" style={{ maxHeight: "70vh", background: "var(--surface-2)", border: "1px solid var(--border)" }}>
+        <div className="p-4 border-b sticky top-0 z-10" style={{ borderColor: "var(--border)", background: "var(--paper-solid)", backdropFilter: "blur(12px)" }}>
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <LevelBadge level={selectedJob.level} size="md" />
