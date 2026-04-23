@@ -8,6 +8,8 @@ import { tokens, type TabId } from "./design-tokens";
 import { StructureTab } from "./tabs/StructureTab";
 import { PrinciplesTab } from "./tabs/PrinciplesTab";
 import { MethodologyTab } from "./tabs/MethodologyTab";
+import { TERRITORIES } from "@/data/methodology/capability-map";
+import { takaraTomy } from "@/data/org-design/takara-tomy";
 
 interface ElevatedProps {
   onBack: () => void;
@@ -86,31 +88,96 @@ function TabPlaceholder({ tabId, tabLabel }: { tabId: TabId; tabLabel: string })
         <PullQuote attribution={d.attr}>
           {d.quote}
         </PullQuote>
-        <div
-          style={{
-            marginTop: 32,
-            padding: '20px 24px',
+        {/* Strategic context for Strategy tab */}
+        {tabId === 'strategy' && (
+          <div style={{
+            marginTop: 32, padding: 16,
             background: tokens.color.ivoryCard,
-            border: `1px dashed ${tokens.color.lineSoft}`,
-            borderRadius: 9,
-          }}
-        >
-          <div
-            style={{
-              fontFamily: tokens.font.mono,
-              fontWeight: 600,
-              fontSize: 9.5,
-              letterSpacing: '0.18em',
-              textTransform: 'uppercase',
-              color: tokens.color.inkMute,
-              marginBottom: 8,
-            }}
-          >
-            Coming in v0.4
+            border: `1px solid ${tokens.color.line}`,
+            borderLeft: `3px solid ${tokens.color.orange}`,
+            borderRadius: '0 9px 9px 0',
+          }}>
+            <div style={{
+              fontFamily: tokens.font.mono, fontWeight: 600, fontSize: 9.5,
+              letterSpacing: '0.18em', textTransform: 'uppercase',
+              color: tokens.color.orange, marginBottom: 8,
+            }}>
+              Strategic Context &middot; Takara Tomy International
+            </div>
+            <h3 style={{
+              fontFamily: tokens.font.display, fontWeight: 400, fontSize: 17,
+              color: tokens.color.ink, margin: '0 0 12px', lineHeight: 1.3,
+            }}>
+              &ldquo;Compete as an <em style={{ fontStyle: 'italic', color: tokens.color.orange }}>enterprise</em>, not a portfolio of brands.&rdquo;
+            </h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px 20px' }}>
+              {Object.entries(takaraTomy.strategicContext).filter(([k]) => k !== 'ceoMandate').map(([k, v]) => (
+                <div key={k}>
+                  <div style={{ fontFamily: tokens.font.mono, fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', color: tokens.color.inkMute }}>{k}</div>
+                  <div style={{ fontFamily: tokens.font.mono, fontSize: 12, fontWeight: 600, color: tokens.color.ink }}>{v}</div>
+                </div>
+              ))}
+            </div>
           </div>
+        )}
+
+        {/* Planned features grid */}
+        <div style={{ marginTop: 32 }}>
+          <div style={{
+            fontFamily: tokens.font.mono, fontWeight: 600, fontSize: 9.5,
+            letterSpacing: '0.18em', textTransform: 'uppercase',
+            color: tokens.color.inkMute, marginBottom: 12,
+          }}>
+            Planned for this territory
+          </div>
+          {(() => {
+            const territoryMap: Record<string, string> = {
+              strategy: 'strategy',
+              'operating-model': 'opmodel',
+              accountability: 'accountability',
+              'work-talent': 'worktalent',
+              execution: 'execution',
+            };
+            const t = TERRITORIES.find(t => t.id === territoryMap[tabId]);
+            if (!t) return null;
+            return (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+                {t.features.slice(0, 6).map((f) => (
+                  <div key={f.id} style={{
+                    padding: '10px 12px',
+                    background: f.inUse ? tokens.color.orangeWash : tokens.color.ivoryCard,
+                    border: `1px solid ${f.inUse ? tokens.color.orange : tokens.color.lineSoft}`,
+                    borderRadius: 7,
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: tokens.color.ink }}>{f.name}</span>
+                      <span style={{
+                        fontFamily: tokens.font.mono, fontSize: 8, fontWeight: 600,
+                        letterSpacing: '0.06em', textTransform: 'uppercase',
+                        padding: '1px 5px', borderRadius: 3,
+                        background: f.status === 'live' ? tokens.color.greenPale : f.status === 'beta' ? tokens.color.bluePale : tokens.color.ivoryDeep,
+                        color: f.status === 'live' ? tokens.color.green : f.status === 'beta' ? tokens.color.blue : tokens.color.inkMute,
+                      }}>
+                        {f.status}
+                      </span>
+                    </div>
+                    <p style={{ fontSize: 10.5, color: tokens.color.inkMute, margin: 0, lineHeight: 1.4 }}>{f.description}</p>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
+        </div>
+
+        <div style={{
+          marginTop: 24, padding: '16px 20px',
+          background: tokens.color.ivoryCard,
+          border: `1px dashed ${tokens.color.lineSoft}`,
+          borderRadius: 9,
+        }}>
           <p style={{ fontSize: 13, color: tokens.color.inkSoft, margin: 0, lineHeight: 1.6 }}>
-            This territory is mapped in the <span style={{ fontWeight: 600 }}>Methodology</span> tab.
-            Switch to Methodology to see the full capability map and what&apos;s planned for this area.
+            See the full capability map in the <span style={{ fontWeight: 600 }}>Methodology</span> tab
+            for planned features and engagement progress across all six territories.
           </p>
         </div>
       </div>
