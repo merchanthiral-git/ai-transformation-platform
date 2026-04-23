@@ -394,10 +394,16 @@ def _require_admin(user: UserDB):
 def admin_list_users(user: UserDB = Depends(get_current_user), db: Session = Depends(get_db)):
     """List all users with stats. Admin only."""
     _require_admin(user)
+    from sqlalchemy import func as sa_func
+    # Single query: user + project count (fixes N+1)
+    user_projects = dict(
+        db.query(ProjectDB.user_id, sa_func.count(ProjectDB.id))
+        .group_by(ProjectDB.user_id).all()
+    )
     users = db.query(UserDB).order_by(UserDB.created_at.desc()).all()
     result = []
     for u in users:
-        project_count = db.query(ProjectDB).filter(ProjectDB.user_id == u.id).count()
+        project_count = user_projects.get(u.id, 0)
         # Determine activity status based on last_login recency
         activity = "Never"
         if u.last_login:

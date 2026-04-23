@@ -88,6 +88,19 @@ app.add_middleware(
 from starlette.middleware.gzip import GZipMiddleware
 app.add_middleware(GZipMiddleware, minimum_size=500)
 
+# ── Timing middleware — log slow requests ──
+import time as _time
+
+@app.middleware("http")
+async def timing_middleware(request, call_next):
+    start = _time.perf_counter()
+    response = await call_next(request)
+    elapsed = _time.perf_counter() - start
+    response.headers["X-Process-Time"] = f"{elapsed:.3f}"
+    if elapsed > 1.0:
+        print(f"[SLOW] {request.method} {request.url.path} — {elapsed:.2f}s")
+    return response
+
 # ── Auth middleware — protect all /api/* except public endpoints ──
 from starlette.middleware.base import BaseHTTPMiddleware
 from app.auth import decode_token

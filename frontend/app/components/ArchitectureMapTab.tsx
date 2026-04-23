@@ -620,7 +620,7 @@ export function ArchitectureMapTab({ tree, jobs, employees, model }: {
   const pushHistory = useCallback((label: string, newTree: FutureNode[], newMappings: Mapping[]) => {
     setHistory(prev => {
       const truncated = prev.slice(0, historyIdx + 1);
-      return [...truncated, { label, tree: JSON.parse(JSON.stringify(newTree)), mappings: JSON.parse(JSON.stringify(newMappings)) }];
+      return [...truncated, { label, tree: structuredClone(newTree), mappings: structuredClone(newMappings) }];
     });
     setHistoryIdx(prev => prev + 1);
   }, [historyIdx]);
@@ -628,16 +628,16 @@ export function ArchitectureMapTab({ tree, jobs, employees, model }: {
   const undo = useCallback(() => {
     if (historyIdx <= 0) return;
     const prev = history[historyIdx - 1];
-    setFutureTree(JSON.parse(JSON.stringify(prev.tree)));
-    setMappings(JSON.parse(JSON.stringify(prev.mappings)));
+    setFutureTree(structuredClone(prev.tree));
+    setMappings(structuredClone(prev.mappings));
     setHistoryIdx(i => i - 1);
   }, [history, historyIdx]);
 
   const redo = useCallback(() => {
     if (historyIdx >= history.length - 1) return;
     const next = history[historyIdx + 1];
-    setFutureTree(JSON.parse(JSON.stringify(next.tree)));
-    setMappings(JSON.parse(JSON.stringify(next.mappings)));
+    setFutureTree(structuredClone(next.tree));
+    setMappings(structuredClone(next.mappings));
     setHistoryIdx(i => i + 1);
   }, [history, historyIdx]);
 
@@ -654,8 +654,8 @@ export function ArchitectureMapTab({ tree, jobs, employees, model }: {
   // ── Future state mutation helpers ──
   const mutate = useCallback((label: string, fn: (tree: FutureNode[]) => FutureNode[], mappingsFn?: (m: Mapping[]) => Mapping[]) => {
     setFutureTree(prev => {
-      const newTree = fn(JSON.parse(JSON.stringify(prev)));
-      const newMappings = mappingsFn ? mappingsFn(JSON.parse(JSON.stringify(mappings))) : mappings;
+      const newTree = fn(structuredClone(prev));
+      const newMappings = mappingsFn ? mappingsFn(structuredClone(mappings)) : mappings;
       if (mappingsFn) setMappings(newMappings);
       pushHistory(label, newTree, newMappings);
       setChangeLog(prev => [...prev, label]);
@@ -732,7 +732,7 @@ export function ArchitectureMapTab({ tree, jobs, employees, model }: {
         mutate(`Moved "${data.label}" to new parent`, tree => {
           const node = findNodeById(tree, data.id);
           if (!node) return tree;
-          const nodeCopy = JSON.parse(JSON.stringify(node));
+          const nodeCopy = structuredClone(node);
           const cleaned = removeNodeById(tree, data.id);
           const target = findNodeById(cleaned, targetId);
           if (target) {
