@@ -10,8 +10,10 @@ import { PrinciplesTab } from "./tabs/PrinciplesTab";
 import dynamic from "next/dynamic";
 const MethodologyTab = dynamic(() => import("./tabs/MethodologyTab").then(m => ({ default: m.MethodologyTab })), { ssr: false });
 import { TERRITORIES } from "@/data/methodology/capability-map";
-import { takaraTomy } from "@/data/org-design/takara-tomy";
+import { useActiveSandbox } from "@/hooks/useActiveSandbox";
+import { SandboxGate } from "./SandboxGate";
 import { seedTakaraTomyActivity } from "@/lib/feature-activity";
+import type { SandboxProfile } from "@/data/org-design/sandbox-profiles";
 
 interface ElevatedProps {
   onBack: () => void;
@@ -42,7 +44,7 @@ const TAB_TO_VIEW: Record<TabId, string> = {
   methodology: 'methodology',
 };
 
-function TabPlaceholder({ tabId, tabLabel }: { tabId: TabId; tabLabel: string }) {
+function TabPlaceholder({ tabId, tabLabel, profile }: { tabId: TabId; tabLabel: string; profile?: SandboxProfile | null }) {
   const descriptions: Record<string, { headline: React.ReactNode; sub: string; quote: string; attr: string }> = {
     strategy: {
       headline: <>Strategic <Em>intent</Em> drives every structural decision &mdash; <Gold>start here</Gold>.</>,
@@ -104,16 +106,16 @@ function TabPlaceholder({ tabId, tabLabel }: { tabId: TabId; tabLabel: string })
               letterSpacing: '0.18em', textTransform: 'uppercase',
               color: tokens.color.orange, marginBottom: 8,
             }}>
-              Strategic Context &middot; Takara Tomy International
+              Strategic Context &middot; {profile?.company || 'No sandbox active'}
             </div>
             <h3 style={{
               fontFamily: tokens.font.display, fontWeight: 400, fontSize: 17,
               color: tokens.color.ink, margin: '0 0 12px', lineHeight: 1.3,
             }}>
-              &ldquo;Compete as an <em style={{ fontStyle: 'italic', color: tokens.color.orange }}>enterprise</em>, not a portfolio of brands.&rdquo;
+              &ldquo;{profile?.strategicContext.ceoMandate || 'Select a sandbox to see the CEO mandate.'}&rdquo;
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px 20px' }}>
-              {Object.entries(takaraTomy.strategicContext).filter(([k]) => k !== 'ceoMandate').map(([k, v]) => (
+              {profile?.strategicContext && Object.entries(profile.strategicContext).filter(([k]) => k !== 'ceoMandate' && k !== 'transformationFrom' && k !== 'transformationTo').map(([k, v]) => (
                 <div key={k}>
                   <div style={{ fontFamily: tokens.font.mono, fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', color: tokens.color.inkMute }}>{k}</div>
                   <div style={{ fontFamily: tokens.font.mono, fontSize: 12, fontWeight: 600, color: tokens.color.ink }}>{v}</div>
@@ -190,8 +192,9 @@ function TabPlaceholder({ tabId, tabLabel }: { tabId: TabId; tabLabel: string })
 export function OrgDesignStudioElevated({ onBack, model, f, odsState, setOdsState, viewCtx, jobStates }: ElevatedProps) {
   const initialTab = VIEW_TO_TAB[odsState.view] || 'structure';
   const [activeTab, setActiveTab] = useState<TabId>(initialTab);
+  const { profile } = useActiveSandbox(model);
 
-  // Seed Takara Tomy engagement activity on first mount
+  // Seed engagement activity on first mount
   useEffect(() => { seedTakaraTomyActivity(); }, []);
 
   const handleTabChange = useCallback((tab: TabId) => {
@@ -201,11 +204,12 @@ export function OrgDesignStudioElevated({ onBack, model, f, odsState, setOdsStat
   }, [odsState, setOdsState]);
 
   const renderTabContent = () => {
+    if (!profile) return null;
     switch (activeTab) {
       case 'structure':
-        return <StructureTab />;
+        return <StructureTab profile={profile} />;
       case 'principles':
-        return <PrinciplesTab />;
+        return <PrinciplesTab profile={profile} />;
       case 'methodology':
         return <MethodologyTab />;
       default:
@@ -219,18 +223,22 @@ export function OrgDesignStudioElevated({ onBack, model, f, odsState, setOdsStat
               : activeTab === 'work-talent' ? 'Work & Talent'
               : 'Execution'
             }
+            profile={profile}
           />
         );
     }
   };
 
   return (
-    <StudioShell
-      activeTab={activeTab}
-      onTabChange={handleTabChange}
-      onBack={onBack}
-    >
-      {renderTabContent()}
-    </StudioShell>
+    <SandboxGate profile={profile} onNavigateToSandbox={onBack}>
+      <StudioShell
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        onBack={onBack}
+        clientName={profile?.company}
+      >
+        {renderTabContent()}
+      </StudioShell>
+    </SandboxGate>
   );
 }

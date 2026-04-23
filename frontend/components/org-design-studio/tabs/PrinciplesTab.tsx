@@ -4,6 +4,7 @@ import { tokens } from "../design-tokens";
 import { CanvasSurface } from "../CanvasSurface";
 import { Em, Gold, Eyebrow } from "../SectionHead";
 import { PullQuote } from "../PullQuote";
+import type { SandboxProfile, PrinciplePositions } from "@/data/org-design/sandbox-profiles";
 
 /* ── Types ─────────────────────────── */
 interface Principle {
@@ -319,13 +320,40 @@ const INSIGHTS = [
 ];
 
 /* ── Main Principles Tab ───────────── */
-export function PrinciplesTab() {
+const PRINCIPLE_KEYS: (keyof PrinciplePositions)[] = [
+  'strategicClarity', 'accountability', 'designOrientation', 'capabilityLocation',
+  'decisionGeography', 'layerEconomy', 'functionalPosture', 'sharedServices',
+  'governanceSpeed', 'cultureCongruence',
+];
+
+function buildPrinciplesFromProfile(profile: SandboxProfile): Principle[] {
+  return KATES_KESLER.principles.map((p, i) => {
+    const key = PRINCIPLE_KEYS[i];
+    return {
+      ...p,
+      positions: {
+        current: profile.positions.current[key],
+        future: profile.positions.future[key],
+        market: profile.positions.market[key],
+        custom: profile.positions.peer.positions[key],
+      },
+    };
+  });
+}
+
+export function PrinciplesTab({ profile }: { profile: SandboxProfile }) {
   const [activeFramework, setActiveFramework] = useState('kates-kesler');
   const [frameworkOpen, setFrameworkOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'dot' | 'radar' | 'slope'>('dot');
-  const [selectedArchetype, setSelectedArchetype] = useState('regional-holding');
-  const [comparators, setComparators] = useState<Comparator[]>(DEFAULT_COMPARATORS);
-  const [principles, setPrinciples] = useState<Principle[]>(KATES_KESLER.principles);
+  const [selectedArchetype, setSelectedArchetype] = useState(profile.chosenArchetype);
+  const [comparators, setComparators] = useState<Comparator[]>(() => {
+    const base = [...DEFAULT_COMPARATORS];
+    // Rename the peer comparator to the profile's peer name
+    const peerIdx = base.findIndex(c => c.id === 'custom');
+    if (peerIdx >= 0) base[peerIdx] = { ...base[peerIdx], name: profile.positions.peer.name };
+    return base;
+  });
+  const [principles, setPrinciples] = useState<Principle[]>(() => buildPrinciplesFromProfile(profile));
 
   const handlePositionChange = useCallback((principleNum: string, comparatorId: string, newPos: number) => {
     setPrinciples(prev => prev.map(p =>

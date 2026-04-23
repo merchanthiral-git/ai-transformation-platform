@@ -5,7 +5,7 @@ import { CanvasSurface } from "../CanvasSurface";
 import { SectionHead, Em, Gold, Eyebrow } from "../SectionHead";
 import { PullQuote } from "../PullQuote";
 import { RoleNode } from "../RoleNode";
-import { takaraTomy, type OrgRole } from "@/data/org-design/takara-tomy";
+import type { SandboxProfile } from "@/data/org-design/sandbox-profiles";
 
 type StructuralState = 'current' | 'future' | 'diff';
 type ReportingDepth = 'n1' | 'n2' | 'n3' | 'n4' | 'nx';
@@ -139,7 +139,7 @@ function GalbraithStar() {
 }
 
 /* ── Main Structure Tab ─────────────────── */
-export function StructureTab() {
+export function StructureTab({ profile }: { profile: SandboxProfile }) {
   const [structState, setStructState] = useState<StructuralState>('future');
   const [depth, setDepth] = useState<ReportingDepth>('n1');
   const [overlays, setOverlays] = useState<Set<DiagnosticOverlay>>(new Set());
@@ -155,9 +155,10 @@ export function StructureTab() {
     });
   }, []);
 
-  const data = takaraTomy;
-  const diag = data.diagnostics;
-  const state = structState === 'current' ? data.states.current : data.states.future;
+  const currentState = profile.current;
+  const futureState = profile.future;
+  const diag = { current: currentState.diagnostics, future: futureState.diagnostics };
+  const state = structState === 'current' ? currentState : futureState;
   const showDepth = depth === 'n2' || depth === 'n3' || depth === 'n4' || depth === 'nx';
 
   // Compute node positions for SVG
@@ -187,10 +188,10 @@ export function StructureTab() {
           fontFamily: tokens.font.display, fontWeight: 400, fontSize: 15,
           color: tokens.color.ink, margin: '8px 0 4px', lineHeight: 1.3,
         }}>
-          &ldquo;Compete as an <em style={{ fontStyle: 'italic', color: tokens.color.orange }}>enterprise</em>, not a portfolio of brands.&rdquo;
+          &ldquo;{profile.strategicContext.ceoMandate}&rdquo;
         </h3>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 16px', marginTop: 12 }}>
-          {Object.entries(data.strategicContext).filter(([k]) => k !== 'ceoMandate').map(([k, v]) => (
+          {Object.entries(profile.strategicContext).filter(([k]) => k !== 'ceoMandate' && k !== 'transformationFrom' && k !== 'transformationTo').map(([k, v]) => (
             <div key={k}>
               <div style={{ fontFamily: tokens.font.mono, fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', color: tokens.color.inkMute }}>{k}</div>
               <div style={{ fontFamily: tokens.font.mono, fontSize: 11, fontWeight: 600, color: tokens.color.ink }}>{v}</div>
@@ -307,11 +308,11 @@ export function StructureTab() {
       <div>
         <Eyebrow>Structural Diagnostics</Eyebrow>
         <div style={{ marginTop: 12 }}>
-          <DiagRow label="Avg span" current={diag.avgSpan.current} future={diag.avgSpan.future} inverted />
-          <DiagRow label="Layers (CEO→IC)" current={diag.layers.current} future={diag.layers.future} />
-          <DiagRow label="Duplicated roles" current={diag.duplicated.current} future={diag.duplicated.future} />
-          <DiagRow label="Manager:IC ratio" current={diag.mgrToIC.current} future={diag.mgrToIC.future} inverted />
-          <DiagRow label="G&A as % revenue" current={diag.gaAsPctRev.current} future={diag.gaAsPctRev.future} unit="%" />
+          <DiagRow label="Avg span" current={diag.current.avgSpan} future={diag.future.avgSpan} inverted />
+          <DiagRow label="Layers (CEO→IC)" current={diag.current.layers} future={diag.future.layers} />
+          <DiagRow label="Duplicated roles" current={diag.current.duplicated} future={diag.future.duplicated} />
+          <DiagRow label="Manager:IC ratio" current={diag.current.mgrToIC} future={diag.future.mgrToIC} inverted />
+          <DiagRow label="G&A as % revenue" current={diag.current.gaAsPctRev} future={diag.future.gaAsPctRev} unit="%" />
         </div>
       </div>
     </div>
@@ -334,18 +335,22 @@ export function StructureTab() {
       <div>
         <Eyebrow>Archetype Comparison</Eyebrow>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginTop: 10 }}>
-          {data.archetypes.map((a) => (
+          {Object.entries(profile.archetypeRanking).map(([id, fit]) => {
+            const isChosen = id === profile.chosenArchetype;
+            const ARCH_NAMES: Record<string, string> = { functional: 'Functional', regionalHolding: 'Regional Holding', frontBack: 'Front-Back', matrix: 'Matrix', productDivisional: 'Product Divisional', ambidextrous: 'Ambidextrous', platform: 'Platform', networked: 'Networked' };
+            const fitColor = fit === 'strong' ? tokens.color.green : fit === 'partial' ? tokens.color.gold : fit === 'current' ? tokens.color.blue : tokens.color.danger;
+            return (
             <div
-              key={a.id}
+              key={id}
               style={{
                 padding: 9,
                 borderRadius: 7,
-                border: `1px solid ${a.selected ? tokens.color.orange : tokens.color.lineSoft}`,
-                background: a.selected ? tokens.color.orangeWash : tokens.color.ivoryCard,
+                border: `1px solid ${isChosen ? tokens.color.orange : tokens.color.lineSoft}`,
+                background: isChosen ? tokens.color.orangeWash : tokens.color.ivoryCard,
                 position: 'relative',
               }}
             >
-              {a.selected && (
+              {isChosen && (
                 <span style={{
                   position: 'absolute', top: 4, right: 4,
                   width: 6, height: 6, borderRadius: '50%',
@@ -353,17 +358,18 @@ export function StructureTab() {
                 }} />
               )}
               <div style={{ fontFamily: tokens.font.display, fontSize: 12, fontWeight: 450, color: tokens.color.ink }}>
-                {a.name}
+                {ARCH_NAMES[id] || id}
               </div>
               <div style={{
                 fontFamily: tokens.font.mono, fontSize: 9, fontWeight: 600,
                 letterSpacing: '0.06em', marginTop: 2,
-                color: a.fit === 'Strong' ? tokens.color.green : a.fit === 'Partial' ? tokens.color.gold : tokens.color.danger,
+                color: fitColor,
               }}>
-                {a.fit}
+                {fit}
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -374,15 +380,13 @@ export function StructureTab() {
           fontFamily: tokens.font.display, fontWeight: 450, fontSize: 15,
           color: tokens.color.ink, margin: '10px 0 8px', lineHeight: 1.3,
         }}>
-          From <em style={{ fontStyle: 'italic', color: tokens.color.orange }}>brand P&L</em> to regional enterprise
+          {profile.designRationaleHeadline}
         </h3>
         <p style={{ fontSize: 12, color: tokens.color.inkSoft, lineHeight: 1.6, margin: '0 0 12px' }}>
-          The current structure organizes around seven legacy brands, each with its own P&L and duplicated functions.
-          The future state consolidates into four regions with shared enterprise capabilities, reducing duplication
-          and enabling the &ldquo;compete as one&rdquo; mandate.
+          {profile.designRationaleBody}
         </p>
-        <PullQuote attribution="— Jay Galbraith, Designing Organizations">
-          Structure is an answer &mdash; but the strategy must ask the question first.
+        <PullQuote attribution={profile.pullQuote.attr}>
+          {profile.pullQuote.text}
         </PullQuote>
       </div>
 
@@ -428,7 +432,7 @@ export function StructureTab() {
       <div>
         <Eyebrow>N&minus;1 Changes</Eyebrow>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 10 }}>
-          {data.states.future.n1.filter(r => r.status).map((r) => (
+          {futureState.n1.filter(r => r.status).map((r) => (
             <div
               key={r.id}
               style={{
@@ -471,7 +475,7 @@ export function StructureTab() {
               letterSpacing: '-0.02em', color: tokens.color.ink, margin: '8px 0 0',
               lineHeight: 1.2,
             }}>
-              Takara Tomy <em style={{ fontStyle: 'italic', color: tokens.color.orange }}>International</em> &mdash; <Gold>N&minus;1 reporting structure</Gold>
+              {profile.company} &mdash; <Gold>N&minus;1 reporting structure</Gold>
             </h1>
             <p style={{ fontSize: 13, color: tokens.color.inkSoft, marginTop: 6, lineHeight: 1.5 }}>
               {structState === 'current'
@@ -491,11 +495,11 @@ export function StructureTab() {
               ARCHETYPE
             </span>
             <span style={{ fontFamily: tokens.font.display, fontSize: 12, fontWeight: 450, color: tokens.color.ink }}>
-              Regional Holding
+              {profile.future.archetype}
             </span>
             <span style={{ color: tokens.color.inkFaint, fontSize: 11 }}>&middot;</span>
             <span style={{ fontFamily: tokens.font.mono, fontSize: 9.5, color: tokens.color.inkMute }}>
-              Brand P&L → Regional Enterprise
+              {profile.strategicContext.transformationFrom} → {profile.strategicContext.transformationTo}
             </span>
           </div>
         </div>
@@ -554,12 +558,12 @@ export function StructureTab() {
             {/* Root node */}
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: gapY - 20 }}>
               <RoleNode
-                title={state.root.title}
-                sub={state.root.sub}
+                title={state.rootTitle}
+                sub={state.rootSub}
                 fn="exec"
                 variant="root"
                 metrics={[
-                  { label: 'SPAN', value: String(state.root.span) },
+                  { label: 'SPAN', value: String(state.n1.length) },
                   { label: 'N\u22121', value: String(state.n1.length) },
                 ]}
               />
