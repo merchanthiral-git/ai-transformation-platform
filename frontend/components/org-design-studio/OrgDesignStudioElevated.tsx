@@ -199,49 +199,37 @@ export function OrgDesignStudioElevated({ onBack, model, f, odsState, setOdsStat
     setOdsState({ ...odsState, view: mappedView });
   }, [odsState, setOdsState]);
 
-  const renderTab = () => {
+  const renderTabContent = () => {
     switch (activeTab) {
-      case 'structure': {
-        const { leftRail, rightRail, canvas } = StructureTab();
-        return { leftRail, rightRail, content: canvas };
-      }
-      case 'principles': {
-        const pr = PrinciplesTab();
-        return { leftRail: pr.leftRail, rightRail: pr.rightRail, content: pr.canvas };
-      }
+      case 'structure':
+        return <StructureTab />;
+      case 'principles':
+        return <PrinciplesTab />;
       case 'methodology':
-        return { content: <MethodologyTab /> };
+        return <MethodologyTab />;
       default:
-        return {
-          content: (
-            <TabPlaceholder
-              tabId={activeTab}
-              tabLabel={
-                activeTab === 'strategy' ? 'Strategy'
-                : activeTab === 'operating-model' ? 'Operating Model'
-                : activeTab === 'accountability' ? 'Accountability'
-                : activeTab === 'work-talent' ? 'Work & Talent'
-                : 'Execution'
-              }
-            />
-          ),
-        };
+        return (
+          <TabPlaceholder
+            tabId={activeTab}
+            tabLabel={
+              activeTab === 'strategy' ? 'Strategy'
+              : activeTab === 'operating-model' ? 'Operating Model'
+              : activeTab === 'accountability' ? 'Accountability'
+              : activeTab === 'work-talent' ? 'Work & Talent'
+              : 'Execution'
+            }
+          />
+        );
     }
   };
-
-  const tabResult = renderTab();
-  const leftRail = 'leftRail' in tabResult ? tabResult.leftRail : undefined;
-  const rightRail = 'rightRail' in tabResult ? tabResult.rightRail : undefined;
 
   return (
     <StudioShell
       activeTab={activeTab}
       onTabChange={handleTabChange}
       onBack={onBack}
-      leftRail={leftRail}
-      rightRail={rightRail}
     >
-      {tabResult.content}
+      {renderTabContent()}
     </StudioShell>
   );
 }

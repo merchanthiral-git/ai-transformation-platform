@@ -665,5 +665,27 @@ export function StructureTab() {
     </CanvasSurface>
   );
 
-  return { leftRail, rightRail, canvas };
+  return (
+    <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
+      <aside style={{
+        width: 280, minWidth: 280,
+        borderRight: `1px solid ${tokens.color.lineSoft}`,
+        background: tokens.color.ivoryPaper,
+        overflowY: 'auto', padding: 16,
+      }}>
+        {leftRail}
+      </aside>
+      <main style={{ flex: 1, minWidth: 0, overflow: 'auto' }}>
+        {canvas}
+      </main>
+      <aside style={{
+        width: 340, minWidth: 340,
+        borderLeft: `1px solid ${tokens.color.lineSoft}`,
+        background: tokens.color.ivoryPaper,
+        overflowY: 'auto', padding: 16,
+      }}>
+        {rightRail}
+      </aside>
+    </div>
+  );
 }
