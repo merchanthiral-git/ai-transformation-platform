@@ -1,8 +1,8 @@
 "use client";
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import { tokens } from "../design-tokens";
 import { CanvasSurface } from "../CanvasSurface";
-import { SectionHead, Em, Gold, Eyebrow } from "../SectionHead";
+import { Em, Gold, Eyebrow } from "../SectionHead";
 import { PullQuote } from "../PullQuote";
 
 /* ── Types ─────────────────────────── */

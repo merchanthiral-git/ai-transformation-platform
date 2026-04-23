@@ -3,8 +3,6 @@ import React, { useState, useRef, useCallback } from "react";
 import { tokens } from "../design-tokens";
 import { CanvasSurface } from "../CanvasSurface";
 import { SectionHead, Em, Gold, Eyebrow } from "../SectionHead";
-import { PullQuote } from "../PullQuote";
-import { RoleNode } from "../RoleNode";
 import { TERRITORIES, getCapabilityStats, type Feature, type Territory } from "@/data/methodology/capability-map";
 
 const STATUS_CHIP: Record<string, { bg: string; fg: string; border?: string }> = {

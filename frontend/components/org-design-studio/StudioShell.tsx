@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useCallback } from "react";
+import React from "react";
 import { tokens, TABS, type TabId } from "./design-tokens";
 
 const PAPER_NOISE = `url("data:image/svg+xml;utf8,<svg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.02 0 0 0 0 0.08 0 0 0 0 0.19 0 0 0 0.09 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>")`;
