@@ -1,13 +1,13 @@
-/* ═══ VISTA — Design Tokens (Ivory Edition) ═══ */
+/* ═══ Design Tokens — Linear Dark ═══ */
 
 :root {
-  /* Sky — warm ivory palette */
-  --sky-top: #EFE9D9;
-  --sky-mid: #E3D9BF;
-  --sky-warm: #D6611A;
-  --sky-gold: #AA8A46;
-  --sky-peach: #F4D0AE;
-  --sky-haze: rgba(214, 97, 26, 0.15);
+  /* Canvas & surfaces */
+  --sky-top: #0B0D12;
+  --sky-mid: #151821;
+  --sky-warm: #1D2130;
+  --sky-gold: #F5C451;
+  --sky-peach: #FF8A3D;
+  --sky-haze: rgba(255, 138, 61, 0.10);
   --sun-opacity: 0;
   --moon-opacity: 0;
   --stars-opacity: 0;
@@ -15,31 +15,31 @@
   --ember-opacity: 0;
   --fog-opacity: 0;
 
-  /* Landscape — warm ivory */
-  --ground: #E3D9BF;
+  /* Landscape */
+  --ground: #0B0D12;
 
-  /* App background — warm ivory */
-  --app-bg: #EFE9D9;
+  /* App background */
+  --app-bg: #0B0D12;
 
-  /* UI chrome — ivory palette */
-  --paper: rgba(248, 242, 225, 0.85);
-  --paper-solid: #F8F2E1;
-  --ink: #051530;
-  --ink-soft: #2E4466;
-  --ink-faint: #6C7F9A;
-  --ink-whisper: #A0AFC3;
+  /* UI chrome */
+  --paper: #151821;
+  --paper-solid: #151821;
+  --ink: #E8EAED;
+  --ink-soft: #9BA1B0;
+  --ink-faint: #6B7180;
+  --ink-whisper: #4A4F5C;
 
   /* Accents */
-  --amber: #D6611A;
-  --amber-glow: rgba(214, 97, 26, 0.25);
-  --coral: #9A362A;
-  --sage: #2F6B4A;
-  --dusk: #6B3E99;
-  --lamp: #AA8A46;
+  --amber: #FF8A3D;
+  --amber-glow: rgba(255, 138, 61, 0.25);
+  --coral: #FF5A5F;
+  --sage: #3DDC97;
+  --dusk: #5B8DEF;
+  --lamp: #F5C451;
 
   /* Borders */
-  --border: rgba(5, 21, 48, 0.10);
-  --border-hot: rgba(214, 97, 26, 0.3);
+  --border: #2A2F3E;
+  --border-hot: rgba(91, 141, 239, 0.4);
 
   /* Motion */
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -49,56 +49,56 @@
   /* ═══ Backwards-compatible mappings ═══ */
   --bg: var(--paper-solid);
   --bg-void: var(--sky-top);
-  --bg-deep: #E3D9BF;
-  --bg-panel: var(--paper);
-  --bg-panel-hover: rgba(227, 217, 191, 0.95);
+  --bg-deep: #0B0D12;
+  --bg-panel: #1D2130;
+  --bg-panel-hover: #252A3B;
   --cr-border: var(--border);
   --cr-border-hot: var(--border-hot);
   --cr-text: var(--ink);
   --cr-text-dim: var(--ink-soft);
   --cr-text-faint: var(--ink-faint);
-  --cyan: var(--amber);
-  --cyan-glow: var(--amber-glow);
+  --cyan: var(--dusk);
+  --cyan-glow: rgba(91, 141, 239, 0.25);
   --violet: var(--dusk);
-  --violet-glow: rgba(107, 62, 153, 0.2);
+  --violet-glow: rgba(91, 141, 239, 0.2);
   --cr-rose: var(--coral);
   --cr-amber: var(--amber);
   --cr-emerald: var(--sage);
 
   /* Surface compat */
-  --surface-1: #F4EED9;
-  --surface-2: #F8F2E1;
-  --surface-3: #FCF7E8;
-  --border-light: rgba(5, 21, 48, 0.04);
+  --surface-1: #151821;
+  --surface-2: #1D2130;
+  --surface-3: #252A3B;
+  --border-light: #1D2130;
   --text-primary: var(--ink);
   --text-secondary: var(--ink-soft);
   --text-muted: var(--ink-faint);
-  --accent-primary: var(--amber);
-  --accent-light: rgba(214, 97, 26, 0.08);
+  --accent-primary: #5B8DEF;
+  --accent-light: #1A2438;
 
   /* Semantic */
-  --success: var(--sage);
-  --success-dim: rgba(47, 107, 74, 0.10);
-  --warning: var(--amber);
-  --warning-dim: rgba(214, 97, 26, 0.10);
-  --risk: var(--coral);
-  --risk-dim: rgba(154, 54, 42, 0.10);
+  --success: #3DDC97;
+  --success-dim: #0F2B1F;
+  --warning: #F5C451;
+  --warning-dim: #2B2310;
+  --risk: #FF5A5F;
+  --risk-dim: #2B1418;
 
-  --sem-success: var(--sage);
-  --sem-success-bg: rgba(47, 107, 74, 0.08);
-  --sem-success-border: rgba(47, 107, 74, 0.20);
-  --sem-warn: var(--amber);
-  --sem-warn-bg: rgba(214, 97, 26, 0.08);
-  --sem-warn-border: rgba(214, 97, 26, 0.20);
-  --sem-risk: var(--coral);
-  --sem-risk-bg: rgba(154, 54, 42, 0.08);
-  --sem-risk-border: rgba(154, 54, 42, 0.20);
-  --sem-info: var(--amber);
-  --sem-info-bg: rgba(214, 97, 26, 0.08);
-  --sem-info-border: rgba(214, 97, 26, 0.20);
-  --sem-insight: var(--dusk);
-  --sem-insight-bg: rgba(107, 62, 153, 0.08);
-  --sem-insight-border: rgba(107, 62, 153, 0.20);
+  --sem-success: #3DDC97;
+  --sem-success-bg: #0F2B1F;
+  --sem-success-border: rgba(61, 220, 151, 0.20);
+  --sem-warn: #F5C451;
+  --sem-warn-bg: #2B2310;
+  --sem-warn-border: rgba(245, 196, 81, 0.20);
+  --sem-risk: #FF5A5F;
+  --sem-risk-bg: #2B1418;
+  --sem-risk-border: rgba(255, 90, 95, 0.20);
+  --sem-info: #5B8DEF;
+  --sem-info-bg: #1A2438;
+  --sem-info-border: rgba(91, 141, 239, 0.20);
+  --sem-insight: #5B8DEF;
+  --sem-insight-bg: #1A2438;
+  --sem-insight-border: rgba(91, 141, 239, 0.20);
 
   /* Chart / data compat */
   --data-human: var(--ink-faint);
@@ -106,41 +106,41 @@
   --data-augmented: var(--sage);
   --data-risk: var(--coral);
   --data-scenario: var(--dusk);
-  --hover: rgba(214, 97, 26, 0.04);
-  --active-bg: rgba(214, 97, 26, 0.08);
-  --disabled-bg: #E8DFC4;
-  --chart-grid: rgba(5, 21, 48, 0.06);
+  --hover: rgba(91, 141, 239, 0.06);
+  --active-bg: rgba(91, 141, 239, 0.10);
+  --disabled-bg: #1D2130;
+  --chart-grid: rgba(232, 234, 237, 0.06);
   --chart-text: var(--ink-faint);
-  --glass-bg: var(--paper);
-  --overlay-bg: rgba(5, 21, 48, 0.4);
+  --glass-bg: #1D2130;
+  --overlay-bg: rgba(0, 0, 0, 0.6);
 
   /* Legacy compat aliases */
   --ivory: var(--ink);
-  --navy: #051530;
-  --navy-65: rgba(5, 21, 48, 0.65);
-  --navy-55: rgba(5, 21, 48, 0.55);
-  --navy-40: rgba(5, 21, 48, 0.40);
-  --navy-15: rgba(5, 21, 48, 0.15);
-  --navy-12: rgba(5, 21, 48, 0.12);
-  --navy-10: rgba(5, 21, 48, 0.10);
-  --navy-08: rgba(5, 21, 48, 0.08);
-  --blue-primary: var(--amber);
-  --orange-attention: var(--amber);
-  --consulting-teal: var(--sage);
-  --accent-scenario: var(--dusk);
-  --teal: #2A7A78;
-  --teal-dim: rgba(42, 122, 120, 0.10);
-  --green: var(--sage);
-  --green-dim: rgba(47, 107, 74, 0.10);
-  --purple: var(--dusk);
-  --purple-dim: rgba(107, 62, 153, 0.10);
+  --navy: #0B0D12;
+  --navy-65: rgba(11, 13, 18, 0.65);
+  --navy-55: rgba(11, 13, 18, 0.55);
+  --navy-40: rgba(11, 13, 18, 0.40);
+  --navy-15: rgba(11, 13, 18, 0.15);
+  --navy-12: rgba(11, 13, 18, 0.12);
+  --navy-10: rgba(11, 13, 18, 0.10);
+  --navy-08: rgba(11, 13, 18, 0.08);
+  --blue-primary: #5B8DEF;
+  --orange-attention: #FF8A3D;
+  --consulting-teal: #3DDC97;
+  --accent-scenario: #5B8DEF;
+  --teal: #3DDC97;
+  --teal-dim: rgba(61, 220, 151, 0.10);
+  --green: #3DDC97;
+  --green-dim: rgba(61, 220, 151, 0.10);
+  --purple: #5B8DEF;
+  --purple-dim: rgba(91, 141, 239, 0.10);
 
-  /* Elevation — lighter shadows for ivory backgrounds */
+  /* Elevation */
   --shadow-0: none;
-  --shadow-1: 0 1px 3px rgba(5,21,48,0.06), 0 1px 2px rgba(5,21,48,0.04);
-  --shadow-2: 0 4px 12px rgba(5,21,48,0.08), 0 2px 4px rgba(5,21,48,0.04);
-  --shadow-3: 0 8px 24px rgba(5,21,48,0.10), 0 4px 8px rgba(5,21,48,0.06);
-  --shadow-4: 0 20px 48px rgba(5,21,48,0.12), 0 8px 16px rgba(5,21,48,0.08);
+  --shadow-1: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-2: 0 4px 12px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.2);
+  --shadow-3: 0 8px 24px rgba(0,0,0,0.4), 0 4px 8px rgba(0,0,0,0.25);
+  --shadow-4: 0 20px 48px rgba(0,0,0,0.5), 0 8px 16px rgba(0,0,0,0.3);
 
-  color-scheme: light;
+  color-scheme: dark;
 }

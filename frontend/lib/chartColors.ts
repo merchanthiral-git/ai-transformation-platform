@@ -4,22 +4,22 @@
  * Colors resolve from CSS variables with SSR-safe fallbacks.
  */
 
-const DATA_FALLBACKS = ["#8B9DC3", "#C8A6DC", "#A8C8A4", "#E8B88F", "#7FB3C7", "#D4A574", "#B8A0C0", "#9FB8A0"];
+const DATA_FALLBACKS = ["#5B8DEF", "#3DDC97", "#FF8A3D", "#F5C451", "#7AA3F5", "#FF5A5F", "#9BA1B0", "#FFA15F"];
 
 const SEMANTIC_FALLBACKS: Record<string, string> = {
-  success: "#8ba87a",
-  warn: "#f4a83a",
-  risk: "#e87a5d",
-  info: "#f4a83a",
-  insight: "#a78bb8",
+  success: "#3DDC97",
+  warn: "#F5C451",
+  risk: "#FF5A5F",
+  info: "#5B8DEF",
+  insight: "#5B8DEF",
 };
 
 const TRACK_FALLBACKS: Record<string, string> = {
-  E: "#e87a5d",
-  M: "#f4a83a",
-  P: "#2563EB",
-  S: "#f4a83a",
-  T: "#a78bb8",
+  E: "#FF5A5F",
+  M: "#FF8A3D",
+  P: "#5B8DEF",
+  S: "#F5C451",
+  T: "#3DDC97",
 };
 
 function getCSSVar(varName: string, fallback: string): string {

@@ -364,12 +364,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   h1, h2, h3, h4, h5, h6, .font-heading { font-family: 'Fraunces', Georgia, serif; }
   .font-data, .font-mono, code, pre, [data-mono] { font-family: 'JetBrains Mono', ui-monospace, monospace; }
   body { min-height: 100vh; }
-  ::selection { background: rgba(214,97,26,0.18); color: var(--cr-text); }
+  ::selection { background: rgba(91,141,239,0.3); color: var(--cr-text); }
   ::-webkit-scrollbar { width: 4px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: rgba(5,21,48,0.12); border-radius: 99px; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(5,21,48,0.20); }
-  input, select, textarea { color-scheme: light; }
+  ::-webkit-scrollbar-thumb { background: rgba(232,234,237,0.12); border-radius: 99px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(232,234,237,0.22); }
+  input, select, textarea { color-scheme: dark; }
   @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
@@ -425,7 +425,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     inset: 0;
     border-radius: 16px;
     padding: 1px;
-    background: linear-gradient(135deg, rgba(214,97,26,0.15), rgba(107,62,153,0.08));
+    background: linear-gradient(135deg, rgba(91,141,239,0.2), rgba(61,220,151,0.08));
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
