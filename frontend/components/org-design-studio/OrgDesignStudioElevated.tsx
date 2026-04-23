@@ -44,7 +44,7 @@ const TAB_TO_VIEW: Record<TabId, string> = {
   methodology: 'methodology',
 };
 
-function TabPlaceholder({ tabId, tabLabel, profile }: { tabId: TabId; tabLabel: string; profile?: SandboxProfile | null }) {
+function TabPlaceholder({ tabId, tabLabel, profile, onNavigateToTab }: { tabId: TabId; tabLabel: string; profile?: SandboxProfile | null; onNavigateToTab?: (tab: TabId) => void }) {
   const descriptions: Record<string, { headline: React.ReactNode; sub: string; quote: string; attr: string }> = {
     strategy: {
       headline: <>Strategic <Em>intent</Em> drives every structural decision &mdash; <Gold>start here</Gold>.</>,
@@ -180,7 +180,7 @@ function TabPlaceholder({ tabId, tabLabel, profile }: { tabId: TabId; tabLabel: 
           borderRadius: 9,
         }}>
           <p style={{ fontSize: 13, color: tokens.color.inkSoft, margin: 0, lineHeight: 1.6 }}>
-            See the full capability map in the <span style={{ fontWeight: 600 }}>Methodology</span> tab
+            See the full capability map in the <button onClick={() => onNavigateToTab?.('methodology')} style={{ fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', color: tokens.color.orange, textDecoration: 'underline', textUnderlineOffset: 3, fontSize: 'inherit', fontFamily: 'inherit', padding: 0 }}>Methodology</button> tab
             for planned features and engagement progress across all six territories.
           </p>
         </div>
@@ -211,7 +211,7 @@ export function OrgDesignStudioElevated({ onBack, model, f, odsState, setOdsStat
       case 'principles':
         return <PrinciplesTab profile={profile} />;
       case 'methodology':
-        return <MethodologyTab />;
+        return <MethodologyTab onNavigateToTab={handleTabChange as (tab: string) => void} onBack={onBack} />;
       default:
         return (
           <TabPlaceholder
@@ -224,6 +224,7 @@ export function OrgDesignStudioElevated({ onBack, model, f, odsState, setOdsStat
               : 'Execution'
             }
             profile={profile}
+            onNavigateToTab={handleTabChange}
           />
         );
     }
@@ -236,6 +237,7 @@ export function OrgDesignStudioElevated({ onBack, model, f, odsState, setOdsStat
         onTabChange={handleTabChange}
         onBack={onBack}
         clientName={profile?.company}
+        profile={profile}
       >
         {renderTabContent()}
       </StudioShell>

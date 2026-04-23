@@ -1,6 +1,7 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { tokens, TABS, type TabId } from "./design-tokens";
+import type { SandboxProfile } from "@/data/org-design/sandbox-profiles";
 
 const PAPER_NOISE = `url("data:image/svg+xml;utf8,<svg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.02 0 0 0 0 0.08 0 0 0 0 0.19 0 0 0 0.09 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>")`;
 
@@ -11,6 +12,7 @@ export interface StudioShellProps {
   rightRail?: React.ReactNode;
   children: React.ReactNode;
   clientName?: string;
+  profile?: SandboxProfile | null;
   onBack?: () => void;
 }
 
@@ -71,35 +73,92 @@ function BrandMark() {
   );
 }
 
-function EngagementChip({ clientName }: { clientName: string }) {
+function EngagementChip({ profile, onSwitchSandbox }: { profile?: SandboxProfile | null; onSwitchSandbox?: () => void }) {
+  const [hovered, setHovered] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const clientName = profile?.company || 'No sandbox';
+
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        padding: '5px 12px',
-        borderRadius: 20,
-        border: `1px solid ${tokens.color.line}`,
-        background: tokens.color.ivoryCard,
-        fontSize: 12,
-        fontWeight: 500,
-        color: tokens.color.ink,
-      }}
-    >
-      <span
+    <div style={{ position: 'relative' }}>
+      <div
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => { setHovered(false); setDropdownOpen(false); }}
+        onClick={() => setDropdownOpen(!dropdownOpen)}
         style={{
-          width: 7,
-          height: 7,
-          borderRadius: '50%',
-          background: tokens.color.green,
-          boxShadow: `0 0 0 2px ${tokens.color.greenPale}`,
-          animation: 'studioPulse 2s ease-in-out infinite',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          padding: '5px 12px',
+          borderRadius: 20,
+          border: `1px solid ${tokens.color.line}`,
+          background: tokens.color.ivoryCard,
+          fontSize: 12,
+          fontWeight: 500,
+          color: tokens.color.ink,
+          cursor: 'pointer',
+          transition: `border-color ${tokens.motion.fast} ${tokens.motion.ease}`,
+          ...(hovered ? { borderColor: tokens.color.orange } : {}),
         }}
-      />
-      {clientName}
-      <span style={{ color: tokens.color.inkMute }}>&middot;</span>
-      <span style={{ color: tokens.color.green, fontSize: 11 }}>Active</span>
+      >
+        <span
+          style={{
+            width: 7,
+            height: 7,
+            borderRadius: '50%',
+            background: tokens.color.green,
+            boxShadow: `0 0 0 2px ${tokens.color.greenPale}`,
+            animation: 'studioPulse 2s ease-in-out infinite',
+          }}
+        />
+        {clientName}
+        <span style={{ color: tokens.color.inkMute }}>&middot;</span>
+        <span style={{ color: tokens.color.green, fontSize: 11 }}>Active</span>
+      </div>
+
+      {/* Hover popover */}
+      {hovered && !dropdownOpen && profile && (
+        <div style={{
+          position: 'absolute', top: '100%', right: 0, marginTop: 6,
+          padding: '10px 14px', borderRadius: 9,
+          background: tokens.color.ivoryCard, border: `1px solid ${tokens.color.line}`,
+          boxShadow: tokens.shadow.md, zIndex: 80, minWidth: 200,
+          pointerEvents: 'none',
+        }}>
+          <div style={{ fontFamily: tokens.font.display, fontSize: 14, fontWeight: 450, color: tokens.color.ink }}>{profile.company}</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 16px', marginTop: 6 }}>
+            {profile.ticker && <div><span style={{ fontFamily: tokens.font.mono, fontSize: 8.5, color: tokens.color.inkMute, letterSpacing: '0.08em' }}>TICKER</span><div style={{ fontFamily: tokens.font.mono, fontSize: 11, fontWeight: 600, color: tokens.color.ink }}>{profile.ticker}</div></div>}
+            <div><span style={{ fontFamily: tokens.font.mono, fontSize: 8.5, color: tokens.color.inkMute, letterSpacing: '0.08em' }}>INDUSTRY</span><div style={{ fontFamily: tokens.font.mono, fontSize: 11, fontWeight: 600, color: tokens.color.ink }}>{profile.industry}</div></div>
+            <div><span style={{ fontFamily: tokens.font.mono, fontSize: 8.5, color: tokens.color.inkMute, letterSpacing: '0.08em' }}>CAP</span><div style={{ fontFamily: tokens.font.mono, fontSize: 11, fontWeight: 600, color: tokens.color.ink }}>{profile.cap}</div></div>
+            <div><span style={{ fontFamily: tokens.font.mono, fontSize: 8.5, color: tokens.color.inkMute, letterSpacing: '0.08em' }}>HEADCOUNT</span><div style={{ fontFamily: tokens.font.mono, fontSize: 11, fontWeight: 600, color: tokens.color.ink }}>{profile.headcount.toLocaleString()}</div></div>
+          </div>
+        </div>
+      )}
+
+      {/* Dropdown */}
+      {dropdownOpen && (
+        <div
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => { setHovered(false); setDropdownOpen(false); }}
+          style={{
+            position: 'absolute', top: '100%', right: 0, marginTop: 6,
+            padding: 6, borderRadius: 9,
+            background: tokens.color.ivoryCard, border: `1px solid ${tokens.color.line}`,
+            boxShadow: tokens.shadow.md, zIndex: 80, minWidth: 180,
+          }}
+        >
+          <button
+            onClick={() => { setDropdownOpen(false); onSwitchSandbox?.(); }}
+            style={{
+              width: '100%', padding: '8px 10px', borderRadius: 6, border: 'none',
+              background: 'transparent', cursor: 'pointer', textAlign: 'left',
+              fontSize: 12, fontWeight: 500, color: tokens.color.ink,
+              fontFamily: tokens.font.body,
+            }}
+          >
+            Switch Sandbox
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -170,7 +229,8 @@ export function StudioShell({
   leftRail,
   rightRail,
   children,
-  clientName = 'Takara Tomy International',
+  clientName,
+  profile,
   onBack,
 }: StudioShellProps) {
   return (
@@ -268,7 +328,7 @@ export function StudioShell({
 
         {/* Right side */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <EngagementChip clientName={clientName} />
+          <EngagementChip profile={profile} onSwitchSandbox={onBack} />
         </div>
       </header>
 

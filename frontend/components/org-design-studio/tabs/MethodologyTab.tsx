@@ -349,7 +349,7 @@ function PreviewLinkedEvidence() {
 }
 
 /* ── Main Methodology Tab ──────────── */
-export function MethodologyTab() {
+export function MethodologyTab({ onNavigateToTab, onBack }: { onNavigateToTab?: (tab: string) => void; onBack?: () => void } = {}) {
   const [activeSection, setActiveSection] = useState(0);
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
   const stats = getCapabilityStats();
@@ -650,21 +650,21 @@ export function MethodologyTab() {
             Jump back into the work or switch context below.
           </p>
           <div style={{ display: 'flex', gap: 10, position: 'relative' }}>
-            <button style={{
+            <button onClick={() => onNavigateToTab?.('structure')} style={{
               padding: '8px 18px', borderRadius: 7, border: 'none', cursor: 'pointer',
               background: tokens.color.ivory, color: tokens.color.navy,
               fontSize: 13, fontWeight: 600, fontFamily: tokens.font.body,
             }}>
               Resume on Structure tab
             </button>
-            <button style={{
+            <button onClick={() => onNavigateToTab?.('work-talent')} style={{
               padding: '8px 18px', borderRadius: 7, border: `1px solid rgba(255,255,255,0.25)`, cursor: 'pointer',
               background: 'transparent', color: tokens.color.ivory,
               fontSize: 13, fontWeight: 500, fontFamily: tokens.font.body,
             }}>
               Open Role Profile Builder
             </button>
-            <button style={{
+            <button onClick={() => onBack?.()} style={{
               padding: '8px 18px', borderRadius: 7, border: `1px solid rgba(255,255,255,0.25)`, cursor: 'pointer',
               background: 'transparent', color: tokens.color.ivory,
               fontSize: 13, fontWeight: 500, fontFamily: tokens.font.body,
