@@ -7,6 +7,7 @@ import { PullQuote } from "./PullQuote";
 import { tokens, type TabId } from "./design-tokens";
 import { StructureTab } from "./tabs/StructureTab";
 import { PrinciplesTab } from "./tabs/PrinciplesTab";
+import { StrategyTab } from "./tabs/StrategyTab";
 import dynamic from "next/dynamic";
 const MethodologyTab = dynamic(() => import("./tabs/MethodologyTab").then(m => ({ default: m.MethodologyTab })), { ssr: false });
 import { TERRITORIES } from "@/data/methodology/capability-map";
@@ -206,6 +207,8 @@ export function OrgDesignStudioElevated({ onBack, model, f, odsState, setOdsStat
   const renderTabContent = () => {
     if (!profile) return null;
     switch (activeTab) {
+      case 'strategy':
+        return <StrategyTab profile={profile} onNavigateToTab={handleTabChange} />;
       case 'structure':
         return <StructureTab profile={profile} />;
       case 'principles':
