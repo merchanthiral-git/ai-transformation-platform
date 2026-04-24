@@ -90,7 +90,7 @@ function EngagementChip({ profile, onSwitchSandbox }: { profile?: SandboxProfile
           gap: 8,
           padding: '5px 12px',
           borderRadius: 20,
-          border: `1px solid ${tokens.color.line}`,
+          border: `0.5px solid rgba(255,255,255,0.06)`,
           background: tokens.color.ivoryCard,
           fontSize: 12,
           fontWeight: 500,
@@ -120,7 +120,7 @@ function EngagementChip({ profile, onSwitchSandbox }: { profile?: SandboxProfile
         <div style={{
           position: 'absolute', top: '100%', right: 0, marginTop: 6,
           padding: '10px 14px', borderRadius: 9,
-          background: tokens.color.ivoryCard, border: `1px solid ${tokens.color.line}`,
+          background: tokens.color.ivoryCard, border: `0.5px solid rgba(255,255,255,0.06)`,
           boxShadow: tokens.shadow.md, zIndex: 80, minWidth: 200,
           pointerEvents: 'none',
         }}>
@@ -142,7 +142,7 @@ function EngagementChip({ profile, onSwitchSandbox }: { profile?: SandboxProfile
           style={{
             position: 'absolute', top: '100%', right: 0, marginTop: 6,
             padding: 6, borderRadius: 9,
-            background: tokens.color.ivoryCard, border: `1px solid ${tokens.color.line}`,
+            background: tokens.color.ivoryCard, border: `0.5px solid rgba(255,255,255,0.06)`,
             boxShadow: tokens.shadow.md, zIndex: 80, minWidth: 180,
           }}
         >
@@ -194,7 +194,7 @@ export function StudioButton({
     default: {
       background: tokens.color.ivoryCard,
       color: tokens.color.ink,
-      border: `1px solid ${tokens.color.line}`,
+      border: `0.5px solid rgba(255,255,255,0.06)`,
     },
     primary: {
       background: tokens.color.navy,
@@ -204,7 +204,7 @@ export function StudioButton({
     ivory: {
       background: tokens.color.ivory,
       color: tokens.color.navy,
-      border: `1px solid ${tokens.color.line}`,
+      border: `0.5px solid rgba(255,255,255,0.06)`,
     },
     ghost: {
       background: 'transparent',
@@ -262,7 +262,7 @@ export function StudioShell({
           height: 52,
           minHeight: 52,
           background: tokens.color.ivoryPaper,
-          borderBottom: `1px solid ${tokens.color.line}`,
+          borderBottom: `0.5px solid rgba(255,255,255,0.06)`,
           display: 'flex',
           alignItems: 'center',
           padding: '0 20px',
@@ -307,7 +307,7 @@ export function StudioShell({
               onClick={() => onTabChange(t.id)}
               style={{
                 background: activeTab === t.id ? tokens.color.ivoryCard : 'transparent',
-                border: activeTab === t.id ? `1px solid ${tokens.color.lineSoft}` : '1px solid transparent',
+                border: activeTab === t.id ? `0.5px solid rgba(255,255,255,0.1)` : '1px solid transparent',
                 borderRadius: 6,
                 padding: '6px 10px',
                 fontSize: 12,
@@ -346,7 +346,7 @@ export function StudioShell({
             style={{
               width: 280,
               minWidth: 280,
-              borderRight: `1px solid ${tokens.color.lineSoft}`,
+              borderRight: `0.5px solid rgba(255,255,255,0.1)`,
               background: tokens.color.ivoryPaper,
               overflowY: 'auto',
               padding: 16,
@@ -367,7 +367,7 @@ export function StudioShell({
             style={{
               width: 340,
               minWidth: 340,
-              borderLeft: `1px solid ${tokens.color.lineSoft}`,
+              borderLeft: `0.5px solid rgba(255,255,255,0.1)`,
               background: tokens.color.ivoryPaper,
               overflowY: 'auto',
               padding: 16,
