@@ -48,18 +48,6 @@ const TAB_TO_VIEW: Record<TabId, string> = {
 
 function TabPlaceholder({ tabId, tabLabel, profile, onNavigateToTab }: { tabId: TabId; tabLabel: string; profile?: SandboxProfile | null; onNavigateToTab?: (tab: TabId) => void }) {
   const descriptions: Record<string, { headline: React.ReactNode; sub: string; quote: string; attr: string }> = {
-    strategy: {
-      headline: <>Strategic <Em>intent</Em> drives every structural decision &mdash; <Gold>start here</Gold>.</>,
-      sub: 'Define the CEO mandate, strategic context, and the organizing principles that constrain the design.',
-      quote: 'Strategy is the foundation of organization design. Without a clear strategy, structure becomes arbitrary.',
-      attr: '— Jay Galbraith, Designing Organizations',
-    },
-    'operating-model': {
-      headline: <>The <Em>operating model</Em> bridges strategy and structure &mdash; <Gold>how work flows</Gold>.</>,
-      sub: 'Map the core, enabling, and shared capabilities. Define what\'s global, regional, and local.',
-      quote: 'The operating model defines the bridge between strategy and structure — how work flows, where decisions are made, and what capabilities matter most.',
-      attr: '— Kates & Kesler, Bridging Organization Design and Performance',
-    },
     accountability: {
       headline: <>Clear <Em>accountability</Em> turns structure into action &mdash; <Gold>who decides what</Gold>.</>,
       sub: 'Map decision rights, governance forums, escalation paths, and role mandates across the enterprise.',
@@ -94,52 +82,10 @@ function TabPlaceholder({ tabId, tabLabel, profile, onNavigateToTab }: { tabId: 
         <PullQuote attribution={d.attr}>
           {d.quote}
         </PullQuote>
-        {/* Strategic context for Strategy tab */}
-        {tabId === 'strategy' && (
-          <div style={{
-            marginTop: 32, padding: 16,
-            background: tokens.color.ivoryCard,
-            border: `1px solid ${tokens.color.line}`,
-            borderLeft: `3px solid ${tokens.color.orange}`,
-            borderRadius: '0 9px 9px 0',
-          }}>
-            <div style={{
-              fontFamily: tokens.font.mono, fontWeight: 600, fontSize: 9.5,
-              letterSpacing: '0.18em', textTransform: 'uppercase',
-              color: tokens.color.orange, marginBottom: 8,
-            }}>
-              Strategic Context &middot; {profile?.company || 'No sandbox active'}
-            </div>
-            <h3 style={{
-              fontFamily: tokens.font.display, fontWeight: 400, fontSize: 17,
-              color: tokens.color.ink, margin: '0 0 12px', lineHeight: 1.3,
-            }}>
-              &ldquo;{profile?.strategicContext.ceoMandate || 'Select a sandbox to see the CEO mandate.'}&rdquo;
-            </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px 20px' }}>
-              {profile?.strategicContext && Object.entries(profile.strategicContext).filter(([k]) => k !== 'ceoMandate' && k !== 'transformationFrom' && k !== 'transformationTo').map(([k, v]) => (
-                <div key={k}>
-                  <div style={{ fontFamily: tokens.font.mono, fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', color: tokens.color.inkMute }}>{k}</div>
-                  <div style={{ fontFamily: tokens.font.mono, fontSize: 12, fontWeight: 600, color: tokens.color.ink }}>{v}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Planned features grid */}
         <div style={{ marginTop: 32 }}>
-          <div style={{
-            fontFamily: tokens.font.mono, fontWeight: 600, fontSize: 9.5,
-            letterSpacing: '0.18em', textTransform: 'uppercase',
-            color: tokens.color.inkMute, marginBottom: 12,
-          }}>
-            Planned for this territory
-          </div>
           {(() => {
             const territoryMap: Record<string, string> = {
-              strategy: 'strategy',
-              'operating-model': 'opmodel',
               accountability: 'accountability',
               'work-talent': 'worktalent',
               execution: 'execution',
@@ -175,17 +121,6 @@ function TabPlaceholder({ tabId, tabLabel, profile, onNavigateToTab }: { tabId: 
           })()}
         </div>
 
-        <div style={{
-          marginTop: 24, padding: '16px 20px',
-          background: tokens.color.ivoryCard,
-          border: `1px dashed ${tokens.color.lineSoft}`,
-          borderRadius: 9,
-        }}>
-          <p style={{ fontSize: 13, color: tokens.color.inkSoft, margin: 0, lineHeight: 1.6 }}>
-            See the full capability map in the <button onClick={() => onNavigateToTab?.('methodology')} style={{ fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', color: tokens.color.orange, textDecoration: 'underline', textUnderlineOffset: 3, fontSize: 'inherit', fontFamily: 'inherit', padding: 0 }}>Methodology</button> tab
-            for planned features and engagement progress across all six territories.
-          </p>
-        </div>
       </div>
     </CanvasSurface>
   );
@@ -223,9 +158,7 @@ export function OrgDesignStudioElevated({ onBack, model, f, odsState, setOdsStat
           <TabPlaceholder
             tabId={activeTab}
             tabLabel={
-              activeTab === 'strategy' ? 'Strategy'
-              : activeTab === 'operating-model' ? 'Operating Model'
-              : activeTab === 'accountability' ? 'Accountability'
+              activeTab === 'accountability' ? 'Accountability'
               : activeTab === 'work-talent' ? 'Work & Talent'
               : 'Execution'
             }
