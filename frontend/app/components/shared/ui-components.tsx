@@ -605,14 +605,15 @@ export function exportToCSV(data: Record<string, unknown>[], filename: string) {
   trackExportGenerated("csv");
 }
 
-export function PageHeader({ icon, title, subtitle, onBack, moduleId, onUpload, viewCtx, onViewChange }: { icon: React.ReactNode; title: string; subtitle: string; onBack: () => void; moduleId?: string; onUpload?: (files: FileList) => void; viewCtx?: ViewContext; onViewChange?: () => void }) {
+export function PageHeader({ icon, title, subtitle, onBack, moduleId, onUpload, viewCtx, onViewChange }: { icon: React.ReactNode; title: string; subtitle: string; onBack: (phaseId?: string) => void; moduleId?: string; onUpload?: (files: FileList) => void; viewCtx?: ViewContext; onViewChange?: () => void }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const MODULE_DATA_LABELS: Record<string, string> = { snapshot: "Workforce", jobs: "Job Catalog", scan: "Work Design", design: "Work Design", simulate: "Work Design", build: "Org Design", plan: "Change Mgmt", opmodel: "Operating Model" };
   const dataLabel = moduleId ? MODULE_DATA_LABELS[moduleId] : null;
   const noTemplate = moduleId === "opmodel"; // Op Model Lab is a sandbox, no upload needed
+  const parentPhase = moduleId ? PHASES.find(p => p.modules.includes(moduleId)) : null;
 
   return <div className="mb-6">
-    <button onClick={onBack} title="Go back (Escape)" className="text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mb-3 flex items-center gap-1 transition-colors">← {(() => { if (!moduleId) return "Back to Home"; const mod = MODULES.find(m => m.id === moduleId); if (!mod) return "Back to Home"; const phase = PHASES.find(p => p.modules.includes(moduleId)); return phase ? `Back to ${phase.label}` : "Back to Home"; })()}</button>
+    <button onClick={() => onBack(parentPhase?.id)} title="Go back (Escape)" className="text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mb-3 flex items-center gap-1 transition-colors">← {parentPhase ? `Back to ${parentPhase.label}` : "Back to Home"}</button>
     <div className="flex items-center justify-between flex-wrap gap-4">
       <div className="flex items-center gap-3">
         <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[var(--accent-primary)] to-[var(--teal)] flex items-center justify-center text-xl" style={{ boxShadow: "var(--shadow-1)" }}>{icon}</div>
