@@ -205,8 +205,8 @@ export function OrgDesignStudioLegacy({ onBack, model, f, odsState, setOdsState,
         ]} icon={<Network />} />
       </div>
       <FlowNav
-        previous={{ id: "impactsim", label: "Impact Simulator", icon: <Gauge /> }}
-        next={{ id: "orgrestructuring", label: "Org Restructuring", icon: <Network /> }}
+        previous={{ id: "simulate", label: "Impact Simulator", icon: <Gauge /> }}
+        next={{ id: "reorg", label: "Org Restructuring", icon: <Network /> }}
         onNavigate={onBack}
       />
     </div>;
@@ -1546,8 +1546,8 @@ export function OrgDesignStudioLegacy({ onBack, model, f, odsState, setOdsState,
     )}
 
     <FlowNav
-      previous={{ id: "impactsim", label: "Impact Simulator", icon: <Gauge /> }}
-      next={{ id: "orgrestructuring", label: "Org Restructuring", icon: <Network /> }}
+      previous={{ id: "simulate", label: "Impact Simulator", icon: <Gauge /> }}
+      next={{ id: "reorg", label: "Org Restructuring", icon: <Network /> }}
       onNavigate={onBack}
     />
   </div>;

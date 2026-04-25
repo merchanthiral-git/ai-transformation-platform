@@ -1,5 +1,12 @@
 import { CDN_BASE, cb } from "../../../lib/cdn";
 
+// TODO: Route Registry — introduce a single source-of-truth map from logical
+// module IDs to page values. Currently module IDs are hardcoded as strings
+// scattered across FlowNav props in 15+ component files (e.g., "orgdesign" vs
+// "build", "impactsim" vs "simulate"). A route registry at this level would
+// eliminate the class of bugs where legacy IDs silently break navigation.
+// See: fix(nav) commit for the 11 legacy IDs that were corrected manually.
+
 export const COLORS = ["#5B8DEF","#3DDC97","#FF8A3D","#F5C451","#7AA3F5","#FF5A5F","#9BA1B0","#FFA15F"];
 
 /** Track colors — canonical source of truth (Linear dark palette) */

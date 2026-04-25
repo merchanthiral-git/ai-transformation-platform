@@ -903,7 +903,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
         <div className="cursor-pointer" onClick={goHome}><div className="text-sm font-extrabold text-[var(--text-primary)]">AI Transformation</div><div className="text-[15px] font-semibold text-[var(--accent-primary)] uppercase tracking-[1.5px]">PLATFORM</div></div>
         <ThemeToggle theme={theme} onToggle={toggleTheme} />
       </div>
-      <button onClick={() => { if (page === "home" && viewMode) { setViewMode(""); } else { onBackToHub(); } }} className="w-full text-left text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mt-1 mb-1 flex items-center gap-1 transition-colors">{page === "home" && viewMode ? "← Back to Views" : page !== "home" ? "← Back to Home" : "← Back to Projects"}</button>
+      <button onClick={() => { if (page === "home" && viewMode) { setViewMode(""); } else if (page !== "home") { goHome(); } else { onBackToHub(); } }} className="w-full text-left text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mt-1 mb-1 flex items-center gap-1 transition-colors">{page === "home" && viewMode ? "← Back to Views" : page !== "home" ? "← Back to Home" : "← Back to Projects"}</button>
       <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.1 }} className="bg-[var(--surface-2)] rounded-lg px-3 py-2 mb-2 border border-[var(--border)]"><div className="text-[15px] font-bold text-[var(--accent-primary)] uppercase tracking-wider mb-0.5">Active Project</div><div className="text-[15px] font-semibold text-[var(--text-primary)] truncate">{projectName}</div>{projectMeta && <div className="text-[15px] text-[var(--text-muted)] truncate mt-0.5 italic">{projectMeta}</div>}</motion.div>
       {/* Journey progress bar */}
       <div className="flex items-center gap-1 mb-2 mt-1">
@@ -1054,7 +1054,8 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
         const mod = MODULES.find(m => m.id === page);
         const phase = PHASES.find(p => p.modules?.some((mid: string) => mid === page));
         const segments: { label: string; id?: string }[] = [{ label: "Home", id: "home" }];
-        if (phase) segments.push({ label: phase.label, id: phase.modules?.[0] || "" });
+        // TODO: phase breadcrumb currently routes to home — dedicated phase landing pages are the longer-term target
+        if (phase) segments.push({ label: phase.label, id: "home" });
         if (mod) segments.push({ label: mod.title });
         if (job && viewCtx.mode === "job") segments.push({ label: job });
         if (viewCtx.mode === "employee" && viewCtx.employee) segments.push({ label: viewCtx.employee });

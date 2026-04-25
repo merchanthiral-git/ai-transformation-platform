@@ -690,7 +690,7 @@ Rules:
         <EmptyState icon={<Layers3 size={24} />} headline="Handoff" explanation="Stakeholder sign-off, change plan, and implementation owner assignment. Coming in a future update." primaryAction={{ label: "Back to Org Link", onClick: () => setWdTab("orglink") }} />
       </div>}
 
-    <FlowNav previous={{ id: "jobarch", label: "Job Architecture" }} next={{ id: "orgdesign", label: "Org Design Studio" }} onNavigate={onBack} />
+    <FlowNav previous={{ id: "ja-design", label: "JA Design Tool" }} next={{ id: "build", label: "Org Design Studio" }} onNavigate={onBack} />
       </div>
     </div>
   </div>;

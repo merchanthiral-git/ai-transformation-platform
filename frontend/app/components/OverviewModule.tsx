@@ -503,7 +503,7 @@ export function TransformationExecDashboard({ model, f, onBack, onNavigate, deci
     if (!hasDesign) return {
       headline: `AI Readiness ${readiness}/5 · ${employees.toLocaleString()} employees`,
       subtitle: "Diagnosis complete. Move to Design to model scenarios, decompose roles, and plan the workforce transition.",
-      action: { label: "Open Org Design Studio", target: "orgdesign" },
+      action: { label: "Open Org Design Studio", target: "build" },
     };
     if (!hasMobilize) return {
       headline: "Design scenarios ready — commit before Mobilize",
@@ -539,7 +539,7 @@ export function TransformationExecDashboard({ model, f, onBack, onNavigate, deci
           <div><div className="text-[18px] font-extrabold text-[var(--text-primary)] font-data">{data?.org_readiness ? `${data.org_readiness}/5` : "—"}</div><div className="text-[12px] text-[var(--text-muted)]">AI Readiness</div></div>
         </div>
       </button>
-      <button onClick={() => nav("orgdesign")} className="text-left rounded-2xl p-5 border border-[var(--border)] bg-[var(--surface-1)] transition-all hover:translate-y-[-2px] hover:border-[var(--accent-primary)]/40">
+      <button onClick={() => nav("build")} className="text-left rounded-2xl p-5 border border-[var(--border)] bg-[var(--surface-1)] transition-all hover:translate-y-[-2px] hover:border-[var(--accent-primary)]/40">
         <div className="text-[12px] font-bold text-[var(--success)] uppercase tracking-wider mb-3">Where we are going</div>
         <div className="grid grid-cols-2 gap-3">
           <div><div className="text-[18px] font-extrabold text-[var(--text-primary)] font-data">{Number(bbba.build || 0) + Number(bbba.buy || 0) || "—"}</div><div className="text-[12px] text-[var(--text-muted)]">Roles changing</div></div>

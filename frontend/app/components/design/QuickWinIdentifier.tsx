@@ -109,6 +109,6 @@ export function QuickWinIdentifier({ model, f, onBack, onNavigate, jobStates }: 
 
     {scored.length === 0 && !loading && <EmptyState icon={<Sparkle />} headline="Quick Wins Require AI Scan Data" explanation="Run the AI Opportunity Scan first to identify high-impact, low-effort automation opportunities." primaryAction={{ label: "Go to Diagnose", onClick: () => onNavigate?.("diagnose") }} />}
 
-    <FlowNav previous={{ id: "headcount", label: "Headcount Planning" }} next={{ id: "oml", label: "Operating Model Lab" }} onNavigate={onNavigate || onBack} />
+    <FlowNav previous={{ id: "headcount", label: "Headcount Planning" }} next={{ id: "opmodel", label: "Operating Model Lab" }} onNavigate={onNavigate || onBack} />
   </div>;
 }

@@ -2251,8 +2251,8 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
       </div>
 
       <FlowNav
-        previous={{ id: "orgdesign", label: "Org Design Studio", icon: <Network size={15} /> }}
-        next={{ id: "reskilling", label: "Reskilling Pathways", icon: <Users size={15} /> }}
+        previous={{ id: "build", label: "Org Design Studio", icon: <Network size={15} /> }}
+        next={{ id: "reskill", label: "Reskilling Pathways", icon: <Users size={15} /> }}
         onNavigate={onNavigate || onBack}
       />
     </div>
