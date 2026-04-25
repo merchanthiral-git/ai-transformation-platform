@@ -88,8 +88,10 @@ const GuideViewer = dynamic(() => import("../../components/guides/GuideViewer"),
 const consultantGuideLoader = () => import("../../components/guides/consultantGuide").then(m => m.consultantGuide);
 const hrGuideLoader = () => import("../../components/guides/hrGuide").then(m => m.hrGuide);
 
-// Job Architecture, PlatformHub, supporting modules — loaded on demand
+// Job Architecture (split: Audit + Design Tool), PlatformHub, supporting modules — loaded on demand
 const JobArchitectureModule = dynamic(() => import("../../components/JobArchModule").then(m => ({ default: m.JobArchitectureModule })), { ssr: false, loading: ModuleLoadingSkeleton });
+const JAAuditModule = dynamic(() => import("../../components/JAAuditModule").then(m => ({ default: m.JAAuditModule })), { ssr: false, loading: ModuleLoadingSkeleton });
+const JADesignToolModule = dynamic(() => import("../../components/JADesignToolModule").then(m => ({ default: m.JADesignToolModule })), { ssr: false, loading: ModuleLoadingSkeleton });
 const PlatformHub = dynamic(() => import("../../components/PlatformHub").then(m => ({ default: m.PlatformHub })), { ssr: false });
 const AgentOrchestrator = dynamic(() => import("../../components/AgentPanel").then(m => ({ default: m.AgentOrchestrator })), { ssr: false });
 const NLQBar = dynamic(() => import("../../components/NLQBar").then(m => ({ default: m.NLQBar })), { ssr: false });
@@ -436,7 +438,8 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
   // Smart module completion with phase awareness
   if (hasData) {
     moduleStatus.snapshot = "in_progress";
-    moduleStatus.jobarch = "in_progress";
+    moduleStatus["ja-audit"] = "in_progress";
+    moduleStatus["ja-design"] = "in_progress";
     moduleStatus.scan = "in_progress";
   }
   if (Object.values(jobStates).some(s => s.deconRows.length > 0)) moduleStatus.design = "in_progress";
@@ -663,7 +666,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
   }, [accountMenuOpen]);
 
   // Presentation mode module sequence (must be before conditional returns)
-  const PRESENT_MODULES = ["snapshot", "scan", "heatmap", "jobarch", "design", "opmodel", "simulate", "plan", "export"];
+  const PRESENT_MODULES = ["snapshot", "scan", "heatmap", "ja-audit", "ja-design", "design", "opmodel", "simulate", "plan", "export"];
   const presentIdx = PRESENT_MODULES.indexOf(page);
   const presentPrev = useCallback(() => { if (presentIdx > 0) navigate(PRESENT_MODULES[presentIdx - 1]); }, [presentIdx, navigate]); // eslint-disable-line react-hooks/exhaustive-deps
   const presentNext = useCallback(() => { if (presentIdx < PRESENT_MODULES.length - 1) navigate(PRESENT_MODULES[presentIdx + 1]); else if (page === "home") navigate(PRESENT_MODULES[0]); }, [presentIdx, page, navigate]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -1065,6 +1068,8 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       <NLQBar projectId={projectId} modelId={model} currentModule={page} />
       {model && page !== "flightrecorder" && <AiObservationsPanel module={page} dataSummary={buildAiContext()} context={`Project: ${projectName}. Model: ${model}. Job: ${job || "All"}.`} filters={f} projectId={projectId} onNavigate={navigate} />}
       {page === "snapshot" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><WorkforceSnapshot model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
+      {page === "ja-audit" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><JAAuditModule model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
+      {page === "ja-design" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><JADesignToolModule model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {(page === "jobs" || page === "jobarch") && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><JobArchitectureModule model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "scan" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><AiOpportunityScan model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "mgrcap" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ManagerCapability model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
