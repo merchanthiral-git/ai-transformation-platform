@@ -288,6 +288,15 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
 
   // ── Track visited modules — scoped to project ──
   const [visited, setVisited] = usePersisted<Record<string, boolean>>(`${projectId}_visited`, {});
+
+  // ── Home navigation with optional phase targeting ──
+  const [pendingPhase, setPendingPhase] = useState<string | null>(null);
+  const goHome = useCallback((targetPhase?: string) => {
+    setPage("home");
+    setViewMode("");
+    if (targetPhase) setPendingPhase(targetPhase);
+  }, [setPage, setViewMode]);
+
   const navigate = useCallback((id: string) => {
     // Handle "home:phaseName" for phase breadcrumb navigation
     if (id.startsWith("home:")) {
@@ -458,13 +467,6 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
   }
   if (Object.values(jobStates).filter(s => s.finalized).length >= 3) moduleStatus.simulate = "complete";
   Object.entries(visited).forEach(([k, v]) => { if (v && !moduleStatus[k]) moduleStatus[k] = "in_progress"; });
-
-  const [pendingPhase, setPendingPhase] = useState<string | null>(null);
-  const goHome = useCallback((targetPhase?: string) => {
-    setPage("home");
-    setViewMode("");
-    if (targetPhase) setPendingPhase(targetPhase);
-  }, [setPage, setViewMode]);
 
   // Fetch overview data for TransformationDashboard
   const [overviewData] = useApiData(() => model ? api.getOverview(model, f) : Promise.resolve(null), [model, f.func, f.jf, f.sf, f.cl]);
