@@ -12,6 +12,8 @@ import {
 } from "./shared";
 import { Layers3, Network } from "@/lib/icons";
 import { FlowNav } from "@/app/ui";
+import { computeFindingsDigest, generateNarrative, putFinding } from "@/lib/ja-findings";
+import type { JAData, FindingsDigest, Finding as JAFinding, NarrativeOutput } from "@/lib/ja-findings";
 
 const CatalogueHealth = lazy(() => import("./ja/CatalogueHealth"));
 const FlagRules = lazy(() => import("./ja/FlagRules"));
@@ -44,6 +46,12 @@ export function JAAuditModule({ model, f, onBack, onNavigate, viewCtx }: { model
   const [data, setData] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
+  const [viewMode, setViewMode] = useState<'executive' | 'analyst'>(() => {
+    if (typeof window !== 'undefined') {
+      return (sessionStorage.getItem('ja_audit_view_mode') as 'executive' | 'analyst') || 'executive';
+    }
+    return 'executive';
+  });
   const [tab, setTab] = useState("catalogue");
   const [selectedPath, setSelectedPath] = useState<string[]>([]);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
@@ -69,6 +77,26 @@ export function JAAuditModule({ model, f, onBack, onNavigate, viewCtx }: { model
   const stats = (data?.stats || {}) as Record<string, unknown>;
   const flags = (data?.flags || []) as Flag[];
   const analytics = (data?.analytics || {}) as Record<string, unknown>;
+
+  // Findings digest — memoized on data identity (only recomputes when API responds)
+  const digest = useMemo(() => computeFindingsDigest(data as JAData | null, model), [data, model]);
+  const narrative = useMemo(() => generateNarrative(digest), [digest]);
+
+  const handleViewModeChange = useCallback((mode: 'executive' | 'analyst') => {
+    setViewMode(mode);
+    if (typeof window !== 'undefined') sessionStorage.setItem('ja_audit_view_mode', mode);
+  }, []);
+
+  const handleDrillToAnalyst = useCallback((finding: JAFinding) => {
+    handleViewModeChange('analyst');
+    setTab('findings');
+    setFlagFilter(finding.category);
+  }, [handleViewModeChange]);
+
+  const handleSendToBuilder = useCallback((finding: JAFinding) => {
+    putFinding(finding);
+    onNavigate?.('ja-design');
+  }, [onNavigate]);
 
   const debouncedSearch = useDebounce(searchQuery, 200);
 
@@ -99,19 +127,136 @@ export function JAAuditModule({ model, f, onBack, onNavigate, viewCtx }: { model
   const AUDIT_TABS = [
     { id: "catalogue", label: "Catalogue" },
     { id: "ja-health", label: "Health" },
-    { id: "validation", label: "Validation" },
+    { id: "findings", label: "Findings" },
     { id: "analytics", label: "Analytics" },
-    { id: "ja-flags", label: "Flags" },
     { id: "compare", label: "Compare" },
   ];
 
-  const healthVal = Number(analytics.health_score || 0);
+  const healthVal = digest.maturityScore;
   const healthCol = healthVal >= 70 ? "var(--success)" : healthVal >= 50 ? "var(--warning)" : "var(--risk)";
-  const healthVerdict = healthVal >= 90 ? "Excellent" : healthVal >= 70 ? "Solid — minor gaps" : healthVal >= 50 ? "Needs work" : "Critical";
 
   return <div>
-    <PageHeader icon={<Layers3 />} title="Job Architecture Audit" />
+    <div className="flex items-center justify-between mb-3">
+      <PageHeader icon={<Layers3 />} title="Job Architecture Audit" />
+      {/* Mode toggle */}
+      <div style={{ display: 'flex', background: 'var(--surface-1)', borderRadius: 8, padding: 2, border: '0.5px solid var(--border)' }}>
+        {(['executive', 'analyst'] as const).map(mode => (
+          <button key={mode} onClick={() => handleViewModeChange(mode)} style={{
+            padding: '5px 14px', borderRadius: 6, border: 'none', cursor: 'pointer',
+            fontSize: 12, fontWeight: 600, fontFamily: "'Inter Tight', sans-serif",
+            background: viewMode === mode ? 'var(--accent-primary)' : 'transparent',
+            color: viewMode === mode ? '#fff' : 'var(--text-muted)',
+            transition: 'all 150ms ease',
+          }}>
+            {mode === 'executive' ? 'Executive' : 'Analyst'}
+          </button>
+        ))}
+      </div>
+    </div>
     {showLoader && <LoadingBar />}
+
+    {/* ═══ EXECUTIVE VIEW ═══ */}
+    {viewMode === 'executive' && <div className="space-y-5">
+      {/* 1. Diagnosis card */}
+      <div style={{ background: 'var(--surface-1)', border: '0.5px solid var(--border)', borderRadius: 12, padding: '20px 24px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+          <div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 6 }}>Architecture Diagnosis</div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>{narrative.headlineSentence}</div>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 28, fontWeight: 700, color: healthCol }}>{digest.maturityScore}</div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: healthCol }}>{digest.maturityRating}</div>
+          </div>
+        </div>
+        <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, margin: 0 }}>{narrative.diagnosisSummary}</p>
+      </div>
+
+      {/* 2. Top findings strip */}
+      {narrative.topFindingCards.length > 0 && <div>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 10 }}>Top Findings by Executive Impact</div>
+        <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${Math.min(narrative.topFindingCards.length, 3)}, 1fr)` }}>
+          {digest.topFindings.slice(0, 5).map((finding, i) => {
+            const card = narrative.topFindingCards[i];
+            if (!card) return null;
+            const severityColor = finding.severity === 'critical' ? 'var(--risk)' : finding.severity === 'high' ? 'var(--warning)' : 'var(--accent-primary)';
+            return <div key={finding.id} style={{
+              background: 'var(--surface-1)', border: '0.5px solid var(--border)', borderRadius: 10,
+              borderLeft: `3px solid ${severityColor}`, padding: '14px 16px', cursor: 'pointer',
+            }} onClick={() => handleDrillToAnalyst(finding)}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>{card.headline}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 8 }}>{card.soWhat}</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: 'var(--text-muted)' }}>{card.exposureLabel}</div>
+            </div>;
+          })}
+        </div>
+      </div>}
+
+      {/* 3. Lens grid */}
+      <div>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 10 }}>Executive Lenses</div>
+        <div className="grid grid-cols-3 gap-4">
+          {/* Peer comparison lens */}
+          <div style={{ background: 'var(--surface-1)', border: '0.5px solid var(--border)', borderRadius: 10, padding: '16px 18px' }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>How do we compare to peers?</div>
+            <p style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 12 }}>{narrative.lensNarratives.peerComparison}</p>
+            <div className="space-y-2">
+              {digest.maturityDimensions.map(dim => (
+                <div key={dim.id} className="flex items-center gap-2">
+                  <span style={{ fontSize: 10, color: 'var(--text-muted)', width: 90, flexShrink: 0 }}>{dim.name}</span>
+                  <div style={{ flex: 1, height: 6, borderRadius: 3, background: 'var(--border-light)', position: 'relative' }}>
+                    {/* Peer range bar */}
+                    <div style={{ position: 'absolute', left: `${dim.peerP25}%`, width: `${dim.peerP75 - dim.peerP25}%`, height: '100%', borderRadius: 3, background: 'rgba(91,141,239,0.15)' }} />
+                    {/* Our score dot */}
+                    <div style={{ position: 'absolute', left: `${dim.score}%`, top: '50%', transform: 'translate(-50%,-50%)', width: 8, height: 8, borderRadius: '50%', background: dim.score >= dim.peerMedian ? 'var(--success)' : 'var(--warning)', border: '1.5px solid var(--surface-1)' }} />
+                  </div>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 600, color: 'var(--text-primary)', width: 24, textAlign: 'right' }}>{dim.score}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Structural risks lens */}
+          <div style={{ background: 'var(--surface-1)', border: '0.5px solid var(--border)', borderRadius: 10, padding: '16px 18px' }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>Where are the structural risks?</div>
+            <p style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 12 }}>{narrative.lensNarratives.structuralRisks}</p>
+            <div className="space-y-2">
+              {(['span', 'pay-equity', 'retention', 'succession', 'regulatory'] as const).map(risk => {
+                const findings = digest.byRiskCategory[risk] || [];
+                if (findings.length === 0) return null;
+                const people = findings.reduce((s, f) => s + f.peopleAffected, 0);
+                return <div key={risk} className="flex items-center gap-2">
+                  <span style={{ fontSize: 10, color: 'var(--text-muted)', width: 80, flexShrink: 0, textTransform: 'capitalize' }}>{risk.replace('-', ' ')}</span>
+                  <div style={{ flex: 1, height: 6, borderRadius: 3, background: 'var(--border-light)' }}>
+                    <div style={{ height: '100%', borderRadius: 3, background: findings[0]?.severity === 'critical' ? 'var(--risk)' : 'var(--warning)', width: `${Math.min((people / Math.max(digest.totals.totalPeopleExposed, 1)) * 100, 100)}%` }} />
+                  </div>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: 'var(--text-muted)', width: 32, textAlign: 'right' }}>{people}</span>
+                </div>;
+              })}
+            </div>
+          </div>
+
+          {/* Prioritized roadmap lens */}
+          <div style={{ background: 'var(--surface-1)', border: '0.5px solid var(--border)', borderRadius: 10, padding: '16px 18px' }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>What should we fix first?</div>
+            <p style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 12 }}>{narrative.lensNarratives.prioritizedRoadmap}</p>
+            <div className="space-y-2">
+              {digest.topFindings.slice(0, 4).map(f => {
+                const effortColor = f.remediation.estimatedEffort === 'low' ? 'var(--success)' : f.remediation.estimatedEffort === 'medium' ? 'var(--warning)' : 'var(--risk)';
+                return <div key={f.id} className="flex items-center gap-2" style={{ cursor: 'pointer' }} onClick={() => handleSendToBuilder(f)}>
+                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: effortColor, flexShrink: 0 }} />
+                  <span style={{ fontSize: 11, color: 'var(--text-secondary)', flex: 1 }}>{f.remediation.action}</span>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, textTransform: 'uppercase', color: effortColor }}>{f.remediation.estimatedEffort}</span>
+                </div>;
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>}
+
+    {/* ═══ ANALYST VIEW ═══ */}
+    {viewMode === 'analyst' && <>
     <ContextStrip items={[
       `Headcount: ${jobs.reduce((s, j) => s + j.headcount, 0).toLocaleString()}`,
       `Families: ${new Set(jobs.map(j => j.family).filter(Boolean)).size}`,
@@ -169,37 +314,40 @@ export function JAAuditModule({ model, f, onBack, onNavigate, viewCtx }: { model
     {/* Health */}
     {tab === "ja-health" && <Suspense fallback={<LoadingBar />}><CatalogueHealth model={model} projectId={projectId} /></Suspense>}
 
-    {/* Validation */}
-    {tab === "validation" && (() => {
-      const circumference = 2 * Math.PI * 55;
-      const dashOffset = circumference * (1 - healthVal / 100);
-      const passCount = flags.filter(fl => fl.severity === "info" || fl.severity === "pass").length;
-      const warnCount = flags.filter(fl => fl.severity === "warning").length;
-      const failCount = flags.filter(fl => fl.severity === "error" || fl.severity === "critical").length;
-      const filtered = flagFilter === "All" ? flags : flags.filter(fl => fl.category === flagFilter);
-      const categories = [...new Set(flags.map(fl => fl.category))];
-      return <div>
-        <div className="flex gap-4 mb-4">
-          <div className="flex items-center justify-center" style={{ width: 140 }}>
-            <svg width={130} height={130} viewBox="0 0 130 130"><circle cx={65} cy={65} r={55} fill="none" stroke="var(--border)" strokeWidth={8} /><circle cx={65} cy={65} r={55} fill="none" stroke={healthCol} strokeWidth={8} strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={dashOffset} transform="rotate(-90 65 65)" /><text x={65} y={62} textAnchor="middle" style={{ fontSize: 22, fontWeight: 700, fill: "var(--text-primary)", fontFamily: "'JetBrains Mono',monospace" }}>{healthVal}%</text><text x={65} y={80} textAnchor="middle" style={{ fontSize: 10, fill: "var(--text-muted)" }}>{healthVerdict}</text></svg>
-          </div>
-          <div className="flex gap-3">
-            <KpiCard label="Pass" value={passCount} /><KpiCard label="Warning" value={warnCount} /><KpiCard label="Fail" value={failCount} />
-          </div>
+    {/* Findings — merged from Validation + Flags */}
+    {tab === "findings" && <div>
+      <div className="flex gap-4 mb-4">
+        <div className="flex items-center justify-center" style={{ width: 140 }}>
+          {(() => { const circumference = 2 * Math.PI * 55; const dashOffset = circumference * (1 - healthVal / 100); return (
+            <svg width={130} height={130} viewBox="0 0 130 130"><circle cx={65} cy={65} r={55} fill="none" stroke="var(--border)" strokeWidth={8} /><circle cx={65} cy={65} r={55} fill="none" stroke={healthCol} strokeWidth={8} strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={dashOffset} transform="rotate(-90 65 65)" /><text x={65} y={62} textAnchor="middle" style={{ fontSize: 22, fontWeight: 700, fill: "var(--text-primary)", fontFamily: "'JetBrains Mono',monospace" }}>{healthVal}</text><text x={65} y={80} textAnchor="middle" style={{ fontSize: 10, fill: "var(--text-muted)" }}>{digest.maturityRating}</text></svg>
+          ); })()}
         </div>
-        <div className="flex gap-2 mb-3">
-          <button onClick={() => setFlagFilter("All")} className="px-3 py-1 rounded-lg text-[11px] font-semibold" style={{ background: flagFilter === "All" ? "var(--accent-light)" : "var(--surface-1)", color: flagFilter === "All" ? "var(--accent-primary)" : "var(--text-muted)", border: "1px solid var(--border)" }}>All</button>
-          {categories.map(c => <button key={c} onClick={() => setFlagFilter(c)} className="px-3 py-1 rounded-lg text-[11px]" style={{ background: flagFilter === c ? "var(--accent-light)" : "var(--surface-1)", color: flagFilter === c ? "var(--accent-primary)" : "var(--text-muted)", border: "1px solid var(--border)" }}>{c}</button>)}
+        <div className="flex gap-3">
+          <KpiCard label="Critical" value={digest.totals.critical} /><KpiCard label="High" value={digest.totals.high} /><KpiCard label="Medium" value={digest.totals.medium} /><KpiCard label="Low" value={digest.totals.low} />
         </div>
-        <div className="space-y-1">
-          {filtered.map((fl, i) => <div key={i} className="flex items-center gap-3 px-3 py-2 rounded-lg" style={{ background: "var(--surface-1)", border: "1px solid var(--border)" }}>
-            <Badge color={fl.severity === "error" || fl.severity === "critical" ? "var(--risk)" : fl.severity === "warning" ? "var(--warning)" : "var(--success)"}>{fl.severity}</Badge>
-            <span className="text-[12px] flex-1" style={{ color: "var(--text-secondary)" }}>{fl.message}</span>
-            <span className="text-[10px]" style={{ color: "var(--text-muted)" }}>{fl.category}</span>
-          </div>)}
-        </div>
-      </div>;
-    })()}
+      </div>
+      <div className="flex gap-2 mb-3">
+        <button onClick={() => setFlagFilter("All")} className="px-3 py-1 rounded-lg text-[11px] font-semibold" style={{ background: flagFilter === "All" ? "var(--accent-light)" : "var(--surface-1)", color: flagFilter === "All" ? "var(--accent-primary)" : "var(--text-muted)", border: "1px solid var(--border)" }}>All ({digest.findings.length})</button>
+        {Object.keys(digest.byCategory).map(c => <button key={c} onClick={() => setFlagFilter(c)} className="px-3 py-1 rounded-lg text-[11px]" style={{ background: flagFilter === c ? "var(--accent-light)" : "var(--surface-1)", color: flagFilter === c ? "var(--accent-primary)" : "var(--text-muted)", border: "1px solid var(--border)" }}>{c.replace(/-/g, ' ')}</button>)}
+      </div>
+      <div className="space-y-1">
+        {(flagFilter === "All" ? digest.findings : digest.findings.filter(f => f.category === flagFilter)).map(finding => {
+          const severityColor = finding.severity === 'critical' ? 'var(--risk)' : finding.severity === 'high' ? 'var(--warning)' : finding.severity === 'medium' ? 'var(--accent-primary)' : 'var(--text-muted)';
+          return <div key={finding.id} className="flex items-center gap-3 px-3 py-2.5 rounded-lg" style={{ background: "var(--surface-1)", border: "1px solid var(--border)" }}>
+            <Badge color={severityColor}>{finding.severity}</Badge>
+            <div className="flex-1 min-w-0">
+              <div className="text-[12px] font-semibold" style={{ color: "var(--text-primary)" }}>{finding.entityLabel}</div>
+              <div className="text-[11px]" style={{ color: "var(--text-secondary)" }}>{finding.ruleName}: {finding.measurement} (threshold: {finding.threshold})</div>
+            </div>
+            {finding.managerLabel && <span className="text-[10px]" style={{ color: "var(--text-muted)" }}>{finding.managerLabel}</span>}
+            <span className="text-[10px]" style={{ fontFamily: "'JetBrains Mono',monospace", color: "var(--text-muted)" }}>{finding.peopleAffected} roles</span>
+            <button onClick={() => handleSendToBuilder(finding)} className="text-[10px] px-2 py-1 rounded" style={{ background: "var(--accent-light)", color: "var(--accent-primary)", border: "none", cursor: "pointer", fontWeight: 600 }}>
+              Send to Builder →
+            </button>
+          </div>;
+        })}
+      </div>
+    </div>}
 
     {/* Analytics — computed from jobs[] directly to avoid array/record shape mismatch */}
     {tab === "analytics" && <div className="grid grid-cols-2 gap-4">
@@ -240,9 +388,6 @@ export function JAAuditModule({ model, f, onBack, onNavigate, viewCtx }: { model
       </Card>
     </div>}
 
-    {/* Flags */}
-    {tab === "ja-flags" && <Suspense fallback={<LoadingBar />}><FlagRules projectId={projectId} scenarioId="" /></Suspense>}
-
     {/* Compare */}
     {tab === "compare" && <div>
       <div className="flex gap-2 mb-4">
@@ -262,6 +407,7 @@ export function JAAuditModule({ model, f, onBack, onNavigate, viewCtx }: { model
       <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>Ready to design? </span>
       <button onClick={() => onNavigate?.("ja-design")} style={{ fontSize: 12, fontWeight: 600, color: "var(--accent-primary)", background: "none", border: "none", cursor: "pointer" }}>Open Job Architecture Design Tool &rarr;</button>
     </div>
+    </>}
 
     <FlowNav previous={{ id: "snapshot", label: "Workforce Snapshot" }} next={{ id: "ja-design", label: "JA Design Tool" }} onNavigate={onBack} />
   </div>;
