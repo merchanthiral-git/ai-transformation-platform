@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { ResponsiveContainer, PieChart, Pie, Cell, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Legend, Tooltip } from "recharts";
 import * as api from "../../lib/api";
 import type { Filters } from "../../lib/api";
@@ -120,16 +120,18 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
   const [highlightedPhase, setHighlightedPhase] = useState<string | null>(null);
 
   // Open phase detail view when triggered from breadcrumb navigation
+  const handleRef = useRef(onScrollToPhaseHandled);
+  handleRef.current = onScrollToPhaseHandled;
   useEffect(() => {
     if (!scrollToPhase) return;
     const timer = setTimeout(() => {
       setSelectedPhase(scrollToPhase);
       setHighlightedPhase(scrollToPhase);
       setTimeout(() => setHighlightedPhase(null), 2000);
-      onScrollToPhaseHandled?.();
+      handleRef.current?.();
     }, 100);
     return () => clearTimeout(timer);
-  }, [scrollToPhase, onScrollToPhaseHandled]);
+  }, [scrollToPhase]);
 
   // Escape key: go back to splash or deselect phase
   useEffect(() => {
