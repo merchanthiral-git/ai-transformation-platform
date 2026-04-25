@@ -941,6 +941,8 @@ function UploadIntelligencePanel({ insights, funcDist, onNavigate }: {
         </div>}
       </>}
     </div>}
+
+    <FlowNav previous={{ id: "home:discover", label: "Discover" }} next={{ id: "snapshot", label: "Workforce Snapshot" }} onNavigate={onNavigate || onBack} />
   </div>;
 }
 
