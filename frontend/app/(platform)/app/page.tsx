@@ -288,7 +288,16 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
 
   // ── Track visited modules — scoped to project ──
   const [visited, setVisited] = usePersisted<Record<string, boolean>>(`${projectId}_visited`, {});
-  const navigate = useCallback((id: string) => { setPage(id); setVisited(prev => ({ ...prev, [id]: true })); analytics.trackModuleVisited(id); analytics.startModuleSession(id); }, [setPage, setVisited]);
+  const navigate = useCallback((id: string) => {
+    // Handle "home:phaseName" for phase breadcrumb navigation
+    if (id.startsWith("home:")) {
+      const phaseId = id.split(":")[1];
+      goHome(phaseId);
+      return;
+    }
+    if (id === "home") { goHome(); return; }
+    setPage(id); setVisited(prev => ({ ...prev, [id]: true })); analytics.trackModuleVisited(id); analytics.startModuleSession(id);
+  }, [setPage, setVisited]);
   const funnelFiredRef = useRef(false);
   useEffect(() => {
     if (funnelFiredRef.current) return;
@@ -450,7 +459,12 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
   if (Object.values(jobStates).filter(s => s.finalized).length >= 3) moduleStatus.simulate = "complete";
   Object.entries(visited).forEach(([k, v]) => { if (v && !moduleStatus[k]) moduleStatus[k] = "in_progress"; });
 
-  const goHome = () => setPage("home");
+  const scrollToPhaseRef = useRef<string | null>(null);
+  const goHome = (targetPhase?: string) => {
+    setPage("home");
+    setViewMode("");
+    if (targetPhase) scrollToPhaseRef.current = targetPhase;
+  };
 
   // Fetch overview data for TransformationDashboard
   const [overviewData] = useApiData(() => model ? api.getOverview(model, f) : Promise.resolve(null), [model, f.func, f.jf, f.sf, f.cl]);
@@ -1054,8 +1068,8 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
         const mod = MODULES.find(m => m.id === page);
         const phase = PHASES.find(p => p.modules?.some((mid: string) => mid === page));
         const segments: { label: string; id?: string }[] = [{ label: "Home", id: "home" }];
-        // TODO: phase breadcrumb currently routes to home — dedicated phase landing pages are the longer-term target
-        if (phase) segments.push({ label: phase.label, id: "home" });
+        // TODO: phase breadcrumb currently routes to home with scroll — dedicated phase landing pages are the longer-term target
+        if (phase) segments.push({ label: phase.label, id: `home:${phase.id}` });
         if (mod) segments.push({ label: mod.title });
         if (job && viewCtx.mode === "job") segments.push({ label: job });
         if (viewCtx.mode === "employee" && viewCtx.employee) segments.push({ label: viewCtx.employee });
@@ -1064,7 +1078,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       <AnnotationLayer annotations={annotations} moduleId={page} annotateMode={annotateMode} onAdd={a => setAnnotations(prev => [...prev, a])} onUpdate={a => setAnnotations(prev => prev.map(x => x.id === a.id ? a : x))} onDelete={id => setAnnotations(prev => prev.filter(x => x.id !== id))}>
       <AnimatePresence mode="popLayout">
       <motion.div key={page} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15, ease: "easeOut" }} style={{ minHeight: "calc(100vh - 48px)" }}>
-      {page === "home" && <LandingPage onNavigate={navigate} moduleStatus={moduleStatus} hasData={hasData} viewMode={viewMode} projectName={projectName} onBackToHub={onBackToHub} onBackToSplash={() => { setShowSplash(true); try { sessionStorage.removeItem(`${projectId}_splashSeen`); } catch (e) { console.error("[Storage]", e); } }} cardBackgrounds={cardBgs} phaseBackgrounds={phaseBgs} />}
+      {page === "home" && <LandingPage onNavigate={navigate} moduleStatus={moduleStatus} hasData={hasData} viewMode={viewMode} projectName={projectName} onBackToHub={onBackToHub} onBackToSplash={() => { setShowSplash(true); try { sessionStorage.removeItem(`${projectId}_splashSeen`); } catch (e) { console.error("[Storage]", e); } }} cardBackgrounds={cardBgs} phaseBackgrounds={phaseBgs} scrollToPhase={scrollToPhaseRef.current} onScrollToPhaseHandled={() => { scrollToPhaseRef.current = null; }} />}
       {page !== "home" && <div className="module-enter" style={{ padding: "var(--space-6) var(--space-8)", paddingBottom: 80 }}>
       <NLQBar projectId={projectId} modelId={model} currentModule={page} />
       {model && page !== "flightrecorder" && <AiObservationsPanel module={page} dataSummary={buildAiContext()} context={`Project: ${projectName}. Model: ${model}. Job: ${job || "All"}.`} filters={f} projectId={projectId} onNavigate={navigate} />}

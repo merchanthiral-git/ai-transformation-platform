@@ -115,8 +115,21 @@ export function TransformationDashboard({ data, jobStates, simState, viewCtx }: 
   </div>;
 }
 
-export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, projectName, onBackToHub, onBackToSplash, cardBackgrounds, phaseBackgrounds }: { onNavigate: (id: string) => void; moduleStatus: Record<string, string>; hasData: boolean; viewMode?: string; projectName?: string; onBackToHub?: () => void; onBackToSplash?: () => void; cardBackgrounds?: Record<string, string>; phaseBackgrounds?: Record<string, string> }) {
+export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, projectName, onBackToHub, onBackToSplash, cardBackgrounds, phaseBackgrounds, scrollToPhase, onScrollToPhaseHandled }: { onNavigate: (id: string) => void; moduleStatus: Record<string, string>; hasData: boolean; viewMode?: string; projectName?: string; onBackToHub?: () => void; onBackToSplash?: () => void; cardBackgrounds?: Record<string, string>; phaseBackgrounds?: Record<string, string>; scrollToPhase?: string | null; onScrollToPhaseHandled?: () => void }) {
   const [selectedPhase, setSelectedPhase] = useState<string | null>(null);
+  const [highlightedPhase, setHighlightedPhase] = useState<string | null>(null);
+
+  // Open phase detail view when triggered from breadcrumb navigation
+  useEffect(() => {
+    if (!scrollToPhase) return;
+    const timer = setTimeout(() => {
+      setSelectedPhase(scrollToPhase);
+      setHighlightedPhase(scrollToPhase);
+      setTimeout(() => setHighlightedPhase(null), 2000);
+      onScrollToPhaseHandled?.();
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [scrollToPhase, onScrollToPhaseHandled]);
 
   // Escape key: go back to splash or deselect phase
   useEffect(() => {
@@ -171,7 +184,7 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
       {phaseBg && <div className="absolute inset-0 z-0" style={{ backgroundImage: `url(${phaseBg})`, backgroundSize: "cover", backgroundPosition: "center" }} />}
       <div className="absolute inset-0 z-0" style={{ background: phaseBg ? `linear-gradient(135deg, rgba(11,17,32,0.82) 0%, rgba(11,17,32,0.7) 50%, rgba(11,17,32,0.82) 100%)` : `radial-gradient(ellipse at 40% 30%, ${phase.color}08 0%, transparent 60%), radial-gradient(ellipse at 70% 80%, ${phase.color}04 0%, transparent 50%)` }} />
 
-      <div className="relative z-10 px-7 py-6">
+      <div className="relative z-10 px-7 py-6" style={{ transition: 'box-shadow 0.5s ease', boxShadow: highlightedPhase === phase.id ? `inset 0 0 0 2px ${phase.color}40, 0 0 30px ${phase.color}15` : 'none' }}>
         {/* Back button */}
         <button onClick={() => setSelectedPhase(null)} className="text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mb-5 flex items-center gap-1 transition-colors">← Back to Journey Map</button>
 
