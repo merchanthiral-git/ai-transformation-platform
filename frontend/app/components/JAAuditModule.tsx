@@ -113,9 +113,9 @@ export function JAAuditModule({ model, f, onBack, onNavigate, viewCtx }: { model
     <PageHeader icon={<Layers3 />} title="Job Architecture Audit" />
     {showLoader && <LoadingBar />}
     <ContextStrip items={[
-      `Headcount: ${stats.total_headcount || 0}`,
-      `Families: ${stats.families || 0}`,
-      `Roles: ${stats.total_roles || 0}`,
+      `Headcount: ${jobs.reduce((s, j) => s + j.headcount, 0).toLocaleString()}`,
+      `Families: ${new Set(jobs.map(j => j.family).filter(Boolean)).size}`,
+      `Roles: ${jobs.length}`,
       `Health: ${healthVal}%`,
     ]} />
 
@@ -201,23 +201,30 @@ export function JAAuditModule({ model, f, onBack, onNavigate, viewCtx }: { model
       </div>;
     })()}
 
-    {/* Analytics */}
+    {/* Analytics — computed from jobs[] directly to avoid array/record shape mismatch */}
     {tab === "analytics" && <div className="grid grid-cols-2 gap-4">
       <Card title="Track Composition">
         {(() => {
-          const trackData = Object.entries(analytics.track_distribution || {}).map(([k, v]) => ({ name: k, value: Number(v) }));
+          const trackNames: Record<string, string> = { S: "Support", P: "Professional", M: "Management", E: "Executive", T: "Technical" };
+          const trackCounts: Record<string, number> = {};
+          jobs.forEach(j => { const t = j.level?.[0] || j.track?.[0] || "P"; trackCounts[t] = (trackCounts[t] || 0) + j.headcount; });
+          const trackData = Object.entries(trackCounts).filter(([, v]) => v > 0).map(([k, v]) => ({ name: trackNames[k] || k, value: v }));
           return trackData.length > 0 ? <ResponsiveContainer width="100%" height={200}><PieChart><Pie data={trackData} cx="50%" cy="50%" innerRadius={40} outerRadius={70} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>{trackData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Pie><Tooltip contentStyle={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--text-primary)" }} /></PieChart></ResponsiveContainer> : <Empty text="No track data" />;
         })()}
       </Card>
       <Card title="Level Distribution">
         {(() => {
-          const levelData = Object.entries(analytics.level_distribution || {}).map(([k, v]) => ({ name: k, count: Number(v) }));
+          const levelCounts: Record<string, number> = {};
+          jobs.forEach(j => { if (j.level) levelCounts[j.level] = (levelCounts[j.level] || 0) + j.headcount; });
+          const levelData = Object.entries(levelCounts).map(([k, v]) => ({ name: k, count: v })).sort((a, b) => a.name.localeCompare(b.name));
           return levelData.length > 0 ? <ResponsiveContainer width="100%" height={200}><BarChart data={levelData}><CartesianGrid strokeDasharray="3 3" stroke="var(--border)" /><XAxis dataKey="name" tick={{ fontSize: 10, fill: "var(--text-muted)" }} /><YAxis tick={{ fontSize: 10, fill: "var(--text-muted)" }} /><Tooltip contentStyle={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--text-primary)" }} /><Bar dataKey="count" fill="var(--accent-primary)" radius={[4,4,0,0]} /></BarChart></ResponsiveContainer> : <Empty text="No level data" />;
         })()}
       </Card>
       <Card title="Family Size (Top 15)">
         {(() => {
-          const famData = Object.entries(analytics.family_sizes || {}).map(([k, v]) => ({ name: k, count: Number(v) })).sort((a, b) => b.count - a.count).slice(0, 15);
+          const famCounts: Record<string, number> = {};
+          jobs.forEach(j => { if (j.family) famCounts[j.family] = (famCounts[j.family] || 0) + j.headcount; });
+          const famData = Object.entries(famCounts).map(([k, v]) => ({ name: k, count: v })).sort((a, b) => b.count - a.count).slice(0, 15);
           return famData.length > 0 ? <div>{famData.map(f => <div key={f.name} className="flex items-center gap-2 mb-1"><span className="text-[11px] w-32 truncate" style={{ color: "var(--text-secondary)" }}>{f.name}</span><div className="flex-1 h-[6px] rounded" style={{ background: "var(--border-light)" }}><div className="h-full rounded" style={{ width: `${(f.count / (famData[0]?.count || 1)) * 100}%`, background: "var(--accent-primary)" }} /></div><span className="text-[10px] w-8 text-right" style={{ fontFamily: "'JetBrains Mono',monospace", color: "var(--text-muted)" }}>{f.count}</span></div>)}</div> : <Empty text="No family data" />;
         })()}
       </Card>
