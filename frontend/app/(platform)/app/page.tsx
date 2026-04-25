@@ -26,7 +26,9 @@ import {
   CommandPalette, CmdAction,
   AnnotationLayer, AnnotationPanel, Annotation,
   AiCoPilot, StoryEngine, Breadcrumb,
+  NavContext,
 } from "../../components/shared";
+import type { NavTarget } from "../../components/shared";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff } from "lucide-react";
 
@@ -289,24 +291,40 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
   // ── Track visited modules — scoped to project ──
   const [visited, setVisited] = usePersisted<Record<string, boolean>>(`${projectId}_visited`, {});
 
-  // ── Home navigation with optional phase targeting ──
+  // ── Central navigation — single source of truth ──
   const [pendingPhase, setPendingPhase] = useState<string | null>(null);
+
+  const goTo = useCallback((target: NavTarget) => {
+    switch (target.kind) {
+      case "home":
+        setPage("home");
+        setViewMode("");
+        setPendingPhase(null);
+        break;
+      case "phase":
+        setPage("home");
+        setViewMode("");
+        setPendingPhase(target.phaseId);
+        break;
+      case "module":
+        setPage(target.moduleId);
+        setVisited(prev => ({ ...prev, [target.moduleId]: true }));
+        analytics.trackModuleVisited(target.moduleId);
+        analytics.startModuleSession(target.moduleId);
+        break;
+    }
+  }, [setPage, setViewMode, setVisited]);
+
+  // Backward-compat wrappers — modules still receive onBack / onNavigate
   const goHome = useCallback((targetPhase?: string) => {
-    setPage("home");
-    setViewMode("");
-    if (targetPhase) setPendingPhase(targetPhase);
-  }, [setPage, setViewMode]);
+    goTo(targetPhase ? { kind: "phase", phaseId: targetPhase } : { kind: "home" });
+  }, [goTo]);
 
   const navigate = useCallback((id: string) => {
-    // Handle "home:phaseName" for phase breadcrumb navigation
-    if (id.startsWith("home:")) {
-      const phaseId = id.split(":")[1];
-      goHome(phaseId);
-      return;
-    }
-    if (id === "home") { goHome(); return; }
-    setPage(id); setVisited(prev => ({ ...prev, [id]: true })); analytics.trackModuleVisited(id); analytics.startModuleSession(id);
-  }, [setPage, setVisited, goHome]);
+    if (id.startsWith("home:")) { goTo({ kind: "phase", phaseId: id.split(":")[1] }); return; }
+    if (id === "home") { goTo({ kind: "home" }); return; }
+    goTo({ kind: "module", moduleId: id });
+  }, [goTo]);
   const funnelFiredRef = useRef(false);
   useEffect(() => {
     if (funnelFiredRef.current) return;
@@ -738,7 +756,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
     </div>;
   }
 
-  return <div className="flex min-h-screen w-full overflow-x-hidden">
+  return <NavContext.Provider value={goTo}><div className="flex min-h-screen w-full overflow-x-hidden">
     {/* ── COMMAND PALETTE ── */}
     <AnimatePresence>{showCmdPalette && <CommandPalette actions={cmdActions} recentIds={cmdRecentIds} onClose={() => setShowCmdPalette(false)} />}</AnimatePresence>
 
@@ -916,15 +934,14 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
 
     <aside className="min-h-screen flex flex-col px-4 py-5 shrink-0 overflow-y-auto sticky top-0 border-r border-[var(--border)] transition-all duration-300" style={{ width: "var(--sidebar-width)", height: "100vh", background: "var(--bg-deep)", ...(presentMode ? { marginLeft: "calc(var(--sidebar-width) * -1)", opacity: 0, pointerEvents: "none" } : {}) }}>
       <div className="flex items-center justify-between mb-1">
-        <div className="cursor-pointer" onClick={goHome}><div className="text-sm font-extrabold text-[var(--text-primary)]">AI Transformation</div><div className="text-[15px] font-semibold text-[var(--accent-primary)] uppercase tracking-[1.5px]">PLATFORM</div></div>
+        <div className="cursor-pointer" onClick={() => goTo({ kind: "home" })}><div className="text-sm font-extrabold text-[var(--text-primary)]">AI Transformation</div><div className="text-[15px] font-semibold text-[var(--accent-primary)] uppercase tracking-[1.5px]">PLATFORM</div></div>
         <ThemeToggle theme={theme} onToggle={toggleTheme} />
       </div>
       <button onClick={() => {
         if (page === "home" && viewMode) { setViewMode(""); }
         else if (page !== "home") {
-          // Navigate back to the parent phase, not the journey map
           const parentPhase = PHASES.find(p => p.modules?.some((mid: string) => mid === page));
-          goHome(parentPhase?.id);
+          goTo(parentPhase ? { kind: "phase", phaseId: parentPhase.id } : { kind: "home" });
         }
         else { onBackToHub(); }
       }} className="w-full text-left text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mt-1 mb-1 flex items-center gap-1 transition-colors">{
@@ -1081,13 +1098,12 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       {page !== "home" && !presentMode && (() => {
         const mod = MODULES.find(m => m.id === page);
         const phase = PHASES.find(p => p.modules?.some((mid: string) => mid === page));
-        const segments: { label: string; id?: string }[] = [{ label: "Home", id: "home" }];
-        // TODO: phase breadcrumb currently routes to home with scroll — dedicated phase landing pages are the longer-term target
-        if (phase) segments.push({ label: phase.label, id: `home:${phase.id}` });
+        const segments: { label: string; target?: NavTarget }[] = [{ label: "Home", target: { kind: "home" } }];
+        if (phase) segments.push({ label: phase.label, target: { kind: "phase", phaseId: phase.id } });
         if (mod) segments.push({ label: mod.title });
         if (job && viewCtx.mode === "job") segments.push({ label: job });
         if (viewCtx.mode === "employee" && viewCtx.employee) segments.push({ label: viewCtx.employee });
-        return <div className="px-7 pt-3"><Breadcrumb segments={segments} onNavigate={navigate} /></div>;
+        return <div className="px-7 pt-3"><Breadcrumb segments={segments} /></div>;
       })()}
       <AnnotationLayer annotations={annotations} moduleId={page} annotateMode={annotateMode} onAdd={a => setAnnotations(prev => [...prev, a])} onUpdate={a => setAnnotations(prev => prev.map(x => x.id === a.id ? a : x))} onDelete={id => setAnnotations(prev => prev.filter(x => x.id !== id))}>
       <AnimatePresence mode="popLayout">
@@ -1134,7 +1150,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       {page === "rolecompare" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><RoleComparison model={model} f={f} onBack={goHome} jobs={jobs} jobStates={jobStates} /></ErrorBoundary>}
       {page === "quickwins" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><QuickWinIdentifier model={model} f={f} onBack={goHome} onNavigate={navigate} jobStates={jobStates} /></ErrorBoundary>}
       {page === "flightrecorder" && <FlightRecorder projectId={projectId} projectName={projectName} onBack={goHome} />}
-      {!model && page !== "home" && page !== "flightrecorder" && <div className="text-center py-20"><div className="text-4xl mb-3 opacity-30">📂</div><h3 className="text-lg font-semibold mb-1">No workforce data loaded</h3><p className="text-[15px] text-[var(--text-secondary)] max-w-md mx-auto mb-4">This module needs workforce data to function. Upload your data using the Smart Import wizard or select a demo model from the sidebar to explore.</p><div className="flex gap-3 justify-center"><button onClick={goHome} className="px-4 py-2 rounded-xl text-[15px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/20 hover:bg-[var(--accent-primary)]/5 transition-all">← Back to Overview</button><button onClick={() => setShowImportWizard(true)} className="px-4 py-2 rounded-xl text-[15px] font-semibold text-white bg-[var(--accent-primary)] hover:brightness-110 transition-all">Import Data</button></div></div>}
+      {!model && page !== "home" && page !== "flightrecorder" && <div className="text-center py-20"><div className="text-4xl mb-3 opacity-30">📂</div><h3 className="text-lg font-semibold mb-1">No workforce data loaded</h3><p className="text-[15px] text-[var(--text-secondary)] max-w-md mx-auto mb-4">This module needs workforce data to function. Upload your data using the Smart Import wizard or select a demo model from the sidebar to explore.</p><div className="flex gap-3 justify-center"><button onClick={() => goTo({ kind: "home" })} className="px-4 py-2 rounded-xl text-[15px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/20 hover:bg-[var(--accent-primary)]/5 transition-all">← Back to Overview</button><button onClick={() => setShowImportWizard(true)} className="px-4 py-2 rounded-xl text-[15px] font-semibold text-white bg-[var(--accent-primary)] hover:brightness-110 transition-all">Import Data</button></div></div>}
       </div>}
       </motion.div>
       </AnimatePresence>
@@ -1236,7 +1252,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
 
     {sidebarGuide && loadedGuideData && <GuideViewer guide={loadedGuideData} onBack={() => setSidebarGuide(null)} onNavigate={(moduleId) => { setSidebarGuide(null); navigate(moduleId); }} />}
     <ToastContainer />
-  </div>;
+  </div></NavContext.Provider>;
 }
 
 function AuthGate({ onAuth }: { onAuth: (user: authApi.AuthUser) => void }) {

@@ -276,9 +276,8 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
     {sub === "dq" && (() => { const s = (data?.summary ?? { ready: 0, missing: 0, total_issues: 0, avg_completeness: 0 }) as DataQualitySummary; return <div><div className="grid grid-cols-4 gap-3 mb-5"><KpiCard label="Ready" value={`${s.ready ?? 0}/7`} accent /><KpiCard label="Missing" value={s.missing ?? 0} /><KpiCard label="Issues" value={s.total_issues ?? 0} /><KpiCard label="Completeness" value={`${s.avg_completeness ?? 0}%`} /></div><div className="grid grid-cols-2 gap-4"><Card title="Readiness"><DataTable data={((data?.readiness ?? []) as Record<string, unknown>[])} cols={["Dataset", "Status", "Rows", "Issues", "Completeness"]} /></Card><Card title="Upload Log"><DataTable data={((data?.upload_log ?? []) as Record<string, unknown>[])} /></Card></div></div>; })()}
     <AiInsightCard title="AI Diagnosis Summary" contextData={JSON.stringify({ summary: (data as Record<string,unknown>)?.summary, sub }).slice(0, 2000)} systemPrompt="You are an organizational diagnostics consultant. Provide 3 key findings and recommended focus areas. Use specific numbers. No markdown." />
     <FlowNav
-      previous={{ id: "snapshot", label: "Workforce Snapshot" }}
-      next={{ id: "heatmap", label: "AI Impact Heatmap" }}
-      onNavigate={onNavigate || onBack}
+      previous={{ target: { kind: "module", moduleId: "snapshot" }, label: "Workforce Snapshot" }}
+      next={{ target: { kind: "module", moduleId: "heatmap" }, label: "AI Impact Heatmap" }}
     />
   </div>;
 }
@@ -763,9 +762,8 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
     </div>}
 
     <FlowNav
-      previous={{ id: "mgrcap", label: "Manager Capability" }}
-      next={{ id: "skillshift", label: "Skill Shift Index" }}
-      onNavigate={onNavigate || onBack}
+      previous={{ target: { kind: "module", moduleId: "mgrcap" }, label: "Manager Capability" }}
+      next={{ target: { kind: "module", moduleId: "skillshift" }, label: "Skill Shift Index" }}
     />
   </div>;
 }
@@ -947,9 +945,8 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
       </Card>
 
       <FlowNav
-        previous={{ id: "clusters", label: "Role Clustering" }}
-        next={{ id: "mgrcap", label: "Manager Capability" }}
-        onNavigate={onNavigate || onBack}
+        previous={{ target: { kind: "module", moduleId: "clusters" }, label: "Role Clustering" }}
+        next={{ target: { kind: "module", moduleId: "mgrcap" }, label: "Manager Capability" }}
       />
     </>}
   </div>;
@@ -1080,9 +1077,8 @@ export function ManagerCapability({ model, f, onBack, onNavigate, viewCtx }: { m
     </>}
 
     <FlowNav
-      previous={{ id: "readiness", label: "AI Readiness" }}
-      next={{ id: "recommendations", label: "AI Recommendations" }}
-      onNavigate={onNavigate || onBack}
+      previous={{ target: { kind: "module", moduleId: "readiness" }, label: "AI Readiness" }}
+      next={{ target: { kind: "module", moduleId: "recommendations" }, label: "AI Recommendations" }}
     />
   </div>;
 }
@@ -1288,9 +1284,8 @@ export function ChangeReadiness({ model, f, onBack, onNavigate, viewCtx, simStat
     </div>}
 
     <FlowNav
-      previous={{ id: "skillshift", label: "Skill Shift Index" }}
-      next={{ id: "mgrdev", label: "Manager Development" }}
-      onNavigate={onNavigate || onBack}
+      previous={{ target: { kind: "module", moduleId: "skillshift" }, label: "Skill Shift Index" }}
+      next={{ target: { kind: "module", moduleId: "mgrdev" }, label: "Manager Development" }}
     />
   </div>;
 }
@@ -1396,9 +1391,8 @@ export function ManagerDevelopment({ model, f, onBack, onNavigate, viewCtx }: { 
     </Card>}
 
     <FlowNav
-      previous={{ id: "changeready", label: "Change Readiness" }}
-      next={{ id: "recommendations", label: "AI Recommendations" }}
-      onNavigate={onNavigate || onBack}
+      previous={{ target: { kind: "module", moduleId: "changeready" }, label: "Change Readiness" }}
+      next={{ target: { kind: "module", moduleId: "recommendations" }, label: "AI Recommendations" }}
     />
   </div>;
 }
@@ -1719,9 +1713,8 @@ ${ctx}`
     {generated && !result && !parseError && <EmptyState icon={<Sparkle />} headline="No recommendations generated" explanation="Upload more workforce data and try again." primaryAction={{ label: "Regenerate", onClick: generate }} />}
 
     <FlowNav
-      previous={{ id: "mgrdev", label: "Manager Development" }}
-      next={{ id: "skills", label: "Skills & Talent" }}
-      onNavigate={onNavigate || onBack}
+      previous={{ target: { kind: "module", moduleId: "mgrdev" }, label: "Manager Development" }}
+      next={{ target: { kind: "module", moduleId: "skills" }, label: "Skills & Talent" }}
     />
   </div>;
 }
@@ -1898,9 +1891,8 @@ export function OrgHealthScorecard({ model, f, onBack, onNavigate, viewCtx }: { 
     </div>
 
     <FlowNav
-      previous={{ id: "dashboard", label: "Transformation Dashboard" }}
-      next={{ id: "heatmap", label: "AI Impact Heatmap" }}
-      onNavigate={onNavigate || onBack}
+      previous={{ target: { kind: "module", moduleId: "dashboard" }, label: "Transformation Dashboard" }}
+      next={{ target: { kind: "module", moduleId: "heatmap" }, label: "AI Impact Heatmap" }}
     />
   </div>;
 }
@@ -1977,9 +1969,8 @@ export function AIImpactHeatmap({ model, f, onBack, onNavigate, viewCtx }: { mod
     </div>}
 
     <FlowNav
-      previous={{ id: "orghealth", label: "Org Health Scorecard" }}
-      next={{ id: "clusters", label: "Role Clustering" }}
-      onNavigate={onNavigate || onBack}
+      previous={{ target: { kind: "module", moduleId: "orghealth" }, label: "Org Health Scorecard" }}
+      next={{ target: { kind: "module", moduleId: "clusters" }, label: "Role Clustering" }}
     />
   </div>;
 }
@@ -2225,9 +2216,8 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
     </>}
 
     <FlowNav
-      previous={{ id: "heatmap", label: "AI Impact Heatmap" }}
-      next={{ id: "readiness", label: "AI Readiness" }}
-      onNavigate={onNavigate || onBack}
+      previous={{ target: { kind: "module", moduleId: "heatmap" }, label: "AI Impact Heatmap" }}
+      next={{ target: { kind: "module", moduleId: "readiness" }, label: "AI Readiness" }}
     />
   </div>;
 }

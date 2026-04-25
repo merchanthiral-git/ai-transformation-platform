@@ -1,4 +1,25 @@
+import React from "react";
 import { CDN_BASE, cb } from "../../../lib/cdn";
+
+// ── Navigation target — discriminated union for every in-app destination ──
+export type NavTarget =
+  | { kind: "home" }
+  | { kind: "phase"; phaseId: string }
+  | { kind: "module"; moduleId: string };
+
+/** Resolve a NavTarget to a human-readable back-button label. */
+export function navTargetLabel(t: NavTarget): string {
+  if (t.kind === "home") return "Home";
+  if (t.kind === "phase") {
+    const p = PHASES.find(ph => ph.id === t.phaseId);
+    return p ? p.label : "Home";
+  }
+  const m = MODULES.find(mod => mod.id === t.moduleId);
+  return m ? m.title : t.moduleId;
+}
+
+/** Context that provides the central goTo function to any component. */
+export const NavContext = React.createContext<(target: NavTarget) => void>(() => {});
 
 // TODO: Route Registry — introduce a single source-of-truth map from logical
 // module IDs to page values. Currently module IDs are hardcoded as strings

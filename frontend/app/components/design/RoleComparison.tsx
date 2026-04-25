@@ -99,6 +99,6 @@ export function RoleComparison({ model, f, onBack, jobs, jobStates }: { model: s
 
     {selectedJobs.length === 0 && <EmptyState icon={<Layers3 />} headline="Select roles to compare" explanation="Choose 2-4 roles from the Job Architecture to see a side-by-side comparison of levels, skills, and AI impact." primaryAction={{ label: "Select roles above", onClick: () => {} }} />}
 
-    <FlowNav previous={{ id: "opmodel", label: "Operating Model Lab" }} next={{ id: "bbba", label: "Talent Strategy" }} onNavigate={onBack} />
+    <FlowNav previous={{ target: { kind: "module", moduleId: "opmodel" }, label: "Operating Model Lab" }} next={{ target: { kind: "module", moduleId: "bbba" }, label: "Talent Strategy" }} />
   </div>;
 }

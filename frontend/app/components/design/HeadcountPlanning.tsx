@@ -284,6 +284,6 @@ export function HeadcountPlanning({ model, f, onBack, onNavigate, jobStates, vie
     {/* Populated view */}
     {hasData && renderPopulatedView(false)}
 
-    <FlowNav previous={{ id: "bbba", label: "Talent Strategy" }} next={{ id: "quickwins", label: "Quick Win Identifier" }} onNavigate={onNavigate || onBack} />
+    <FlowNav previous={{ target: { kind: "module", moduleId: "bbba" }, label: "Talent Strategy" }} next={{ target: { kind: "module", moduleId: "quickwins" }, label: "Quick Win Identifier" }} />
   </div>;
 }

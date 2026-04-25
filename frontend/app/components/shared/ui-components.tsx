@@ -9,12 +9,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import { AnimatedModal, AnimatedNumber, AnimatedBar } from "./animations";
 import { GlossaryTip } from "../GlossaryTip";
 import { Kbd, showToast, usePersisted } from "./hooks";
-import { COLORS, TT, MODULE_HELP, MODULES, PHASES, CAREER_FRAMEWORKS, MODULE_QUICK_PROMPTS, MODULE_AI_PROMPTS } from "./constants";
+import { COLORS, TT, MODULE_HELP, MODULES, PHASES, CAREER_FRAMEWORKS, MODULE_QUICK_PROMPTS, MODULE_AI_PROMPTS, NavContext, navTargetLabel } from "./constants";
+import type { NavTarget } from "./constants";
 
 export type ViewContext = { mode: string; employee: string; job: string; custom: Record<string, string> };
 
 // ── Breadcrumb Navigation ──
-export function Breadcrumb({ segments, onNavigate }: { segments: { label: string; id?: string }[]; onNavigate?: (id: string) => void }) {
+export type BreadcrumbSegment = { label: string; target?: NavTarget };
+
+export function Breadcrumb({ segments }: { segments: BreadcrumbSegment[] }) {
+  const goTo = React.useContext(NavContext);
   if (!segments.length) return null;
   return <nav className="flex items-center gap-1 text-[12px] text-[var(--text-muted)] mb-3 px-1" aria-label="Breadcrumb">
     {segments.map((seg, i) => {
@@ -23,7 +27,7 @@ export function Breadcrumb({ segments, onNavigate }: { segments: { label: string
         {i > 0 && <span className="mx-0.5 opacity-40">/</span>}
         {isLast
           ? <span className="font-semibold text-[var(--text-secondary)]">{seg.label}</span>
-          : <button onClick={() => seg.id && onNavigate?.(seg.id)} className="hover:text-[var(--accent-primary)] transition-colors">{seg.label}</button>
+          : <button onClick={() => seg.target && goTo(seg.target)} className="hover:text-[var(--accent-primary)] transition-colors">{seg.label}</button>
         }
       </React.Fragment>;
     })}
@@ -605,15 +609,17 @@ export function exportToCSV(data: Record<string, unknown>[], filename: string) {
   trackExportGenerated("csv");
 }
 
-export function PageHeader({ icon, title, subtitle, onBack, moduleId, onUpload, viewCtx, onViewChange }: { icon: React.ReactNode; title: string; subtitle: string; onBack: (phaseId?: string) => void; moduleId?: string; onUpload?: (files: FileList) => void; viewCtx?: ViewContext; onViewChange?: () => void }) {
+export function PageHeader({ icon, title, subtitle, onBack, moduleId, onUpload, viewCtx, onViewChange }: { icon: React.ReactNode; title: string; subtitle: string; onBack?: () => void; moduleId?: string; onUpload?: (files: FileList) => void; viewCtx?: ViewContext; onViewChange?: () => void }) {
+  const goTo = React.useContext(NavContext);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const MODULE_DATA_LABELS: Record<string, string> = { snapshot: "Workforce", jobs: "Job Catalog", scan: "Work Design", design: "Work Design", simulate: "Work Design", build: "Org Design", plan: "Change Mgmt", opmodel: "Operating Model" };
   const dataLabel = moduleId ? MODULE_DATA_LABELS[moduleId] : null;
   const noTemplate = moduleId === "opmodel"; // Op Model Lab is a sandbox, no upload needed
   const parentPhase = moduleId ? PHASES.find(p => p.modules.includes(moduleId)) : null;
+  const backTarget: NavTarget = parentPhase ? { kind: "phase", phaseId: parentPhase.id } : { kind: "home" };
 
   return <div className="mb-6">
-    <button onClick={() => onBack(parentPhase?.id)} title="Go back (Escape)" className="text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mb-3 flex items-center gap-1 transition-colors">← {parentPhase ? `Back to ${parentPhase.label}` : "Back to Home"}</button>
+    <button onClick={() => goTo(backTarget)} title="Go back (Escape)" className="text-[15px] text-[var(--text-muted)] hover:text-[var(--accent-primary)] mb-3 flex items-center gap-1 transition-colors">← Back to {navTargetLabel(backTarget)}</button>
     <div className="flex items-center justify-between flex-wrap gap-4">
       <div className="flex items-center gap-3">
         <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[var(--accent-primary)] to-[var(--teal)] flex items-center justify-center text-xl" style={{ boxShadow: "var(--shadow-1)" }}>{icon}</div>

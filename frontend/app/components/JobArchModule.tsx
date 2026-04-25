@@ -2812,7 +2812,7 @@ export function JobArchitectureModule({ model, f, onBack, onNavigate, viewCtx }:
 
     {tab === "content" && <Suspense fallback={<LoadingBar />}><div className="animate-tab-enter"><JobContentAuthoring model={model} f={f} /></div></Suspense>}
 
-    <FlowNav previous={{ id: "snapshot", label: "Workforce Snapshot" }} next={{ id: "design", label: "Work Design Lab" }} onNavigate={onNavigate || onBack} />
+    <FlowNav previous={{ target: { kind: "module", moduleId: "snapshot" }, label: "Workforce Snapshot" }} next={{ target: { kind: "module", moduleId: "design" }, label: "Work Design Lab" }} />
   </div>;
 }
 

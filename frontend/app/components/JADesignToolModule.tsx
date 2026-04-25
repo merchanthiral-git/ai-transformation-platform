@@ -147,6 +147,6 @@ export function JADesignToolModule({ model, f, onBack, onNavigate, viewCtx }: { 
     {/* Job Content Authoring / Role Templates */}
     {tab === "content" && <Suspense fallback={<LoadingBar />}><JobContentAuthoring projectId={projectId} model={model} /></Suspense>}
 
-    <FlowNav previous={{ id: "ja-audit", label: "JA Audit" }} next={{ id: "build", label: "Org Design Studio" }} onNavigate={onBack} />
+    <FlowNav previous={{ target: { kind: "module", moduleId: "ja-audit" }, label: "JA Audit" }} next={{ target: { kind: "module", moduleId: "build" }, label: "Org Design Studio" }} />
   </div>;
 }

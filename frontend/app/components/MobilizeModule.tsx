@@ -294,7 +294,7 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
       </div>
     </div>}
 
-    <FlowNav previous={{ id: "simulate", label: "Impact Simulator" }} next={{ id: "marketplace", label: "Talent Marketplace" }} onNavigate={onNavigate || onBack} />
+    <FlowNav previous={{ target: { kind: "module", moduleId: "simulate" }, label: "Impact Simulator" }} next={{ target: { kind: "module", moduleId: "marketplace" }, label: "Talent Marketplace" }} />
   </div>;
 }
 
@@ -381,7 +381,7 @@ export function TalentMarketplace({ model, f, onBack, onNavigate, viewCtx }: { m
       </div>
     </Card>}
 
-    <FlowNav previous={{ id: "reskill", label: "Reskilling Pathways" }} next={{ id: "plan", label: "Change Planner" }} onNavigate={onNavigate || onBack} />
+    <FlowNav previous={{ target: { kind: "module", moduleId: "reskill" }, label: "Reskilling Pathways" }} next={{ target: { kind: "module", moduleId: "plan" }, label: "Change Planner" }} />
   </div>;
 }
 
@@ -539,7 +539,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
     </div>; })() : (() => { const d = data as Record<string, unknown> | null; return <div>
       <Card title="Risks Affecting This Role"><DataTable data={((d?.high_risk_tasks ?? []) as Record<string, unknown>[]).filter(r => String(r["Job Title"] || r.Task || "").toLowerCase().includes((viewCtx.job || "").toLowerCase().split(" ")[0]))} /></Card>
     </div>; })()}
-    <FlowNav previous={{ id: "simulate", label: "Impact Simulator" }} next={{ id: "reskill", label: "Reskilling Pathways" }} onNavigate={onNavigate || onBack} />
+    <FlowNav previous={{ target: { kind: "module", moduleId: "simulate" }, label: "Impact Simulator" }} next={{ target: { kind: "module", moduleId: "reskill" }, label: "Reskilling Pathways" }} />
   </div>;
 
   // Employee view: personal change journey
@@ -557,7 +557,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
       </div>
     </Card>
     <InsightPanel title="Support Available" items={["Your manager will be your primary support during the transition.", "Change champions in each department can answer questions.", "Weekly office hours with the transformation team.", "Self-paced learning modules available on the company LMS."]} icon={<Users size={16} />} />
-    <FlowNav previous={{ id: "simulate", label: "Impact Simulator" }} next={{ id: "reskill", label: "Reskilling Pathways" }} onNavigate={onNavigate || onBack} />
+    <FlowNav previous={{ target: { kind: "module", moduleId: "simulate" }, label: "Impact Simulator" }} next={{ target: { kind: "module", moduleId: "reskill" }, label: "Reskilling Pathways" }} />
   </div>;
 
   return <div>
@@ -1224,7 +1224,7 @@ export function ChangePlanner({ model, f, onBack, onNavigate, jobStates, simStat
         </div>
       </Card>
     </div>}
-    <FlowNav previous={{ id: "simulate", label: "Impact Simulator" }} next={{ id: "reskill", label: "Reskilling Pathways" }} onNavigate={onNavigate || onBack} />
+    <FlowNav previous={{ target: { kind: "module", moduleId: "simulate" }, label: "Impact Simulator" }} next={{ target: { kind: "module", moduleId: "reskill" }, label: "Reskilling Pathways" }} />
   </div>;
 }
 
@@ -1297,7 +1297,7 @@ export function TransformationStoryBuilder({ model, f, onBack, onNavigate, viewC
       {edited && <div className="text-[15px] text-[var(--accent-primary)] mt-1">Edited — your changes will be preserved</div>}
     </Card>}
 
-    <FlowNav previous={{ id: "simulate", label: "Impact Simulator" }} next={{ id: "reskill", label: "Reskilling Pathways" }} onNavigate={onNavigate || onBack} />
+    <FlowNav previous={{ target: { kind: "module", moduleId: "simulate" }, label: "Impact Simulator" }} next={{ target: { kind: "module", moduleId: "reskill" }, label: "Reskilling Pathways" }} />
   </div>;
 }
 
@@ -1371,7 +1371,7 @@ export function ReadinessArchetypes({ model, f, onBack, onNavigate }: { model: s
       "Key lever: Manager capability — high-scoring managers accelerate archetype migration by 1.8x",
     ]} icon={<GitBranch size={16} />} />
 
-    <FlowNav previous={{ id: "plan", label: "Change Planner" }} next={{ id: "reskill", label: "Reskilling Pathways" }} onNavigate={onNavigate || onBack} /></>}
+    <FlowNav previous={{ target: { kind: "module", moduleId: "plan" }, label: "Change Planner" }} next={{ target: { kind: "module", moduleId: "reskill" }, label: "Reskilling Pathways" }} /></>}
   </div>;
 }
 
@@ -1650,7 +1650,7 @@ export function SkillsNetwork({ model, f, onBack, onNavigate }: { model: string;
 
     {!loading && !graph && <Card><Empty text="Upload workforce data with skills to build the adjacency network" /></Card>}
 
-    <FlowNav previous={{ id: "plan", label: "Change Planner" }} next={{ id: "marketplace", label: "Talent Marketplace" }} onNavigate={onNavigate || onBack} />
+    <FlowNav previous={{ target: { kind: "module", moduleId: "plan" }, label: "Change Planner" }} next={{ target: { kind: "module", moduleId: "marketplace" }, label: "Talent Marketplace" }} />
   </div>;
 }
 

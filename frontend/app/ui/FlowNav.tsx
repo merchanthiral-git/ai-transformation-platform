@@ -2,21 +2,23 @@
 
 import React from "react";
 import { ChevronLeft, ChevronRight } from "@/lib/icons";
+import { NavContext } from "@/app/components/shared/constants";
+import type { NavTarget } from "@/app/components/shared/constants";
 
-interface NavItem {
-  id: string;
+export interface FlowNavItem {
+  target: NavTarget;
   label: string;
   icon?: React.ReactNode;
 }
 
 interface FlowNavProps {
-  previous: NavItem | null;
-  next: NavItem | null;
-  onNavigate: (id: string) => void;
+  previous: FlowNavItem | null;
+  next: FlowNavItem | null;
   className?: string;
 }
 
-export function FlowNav({ previous, next, onNavigate, className = "" }: FlowNavProps) {
+export function FlowNav({ previous, next, className = "" }: FlowNavProps) {
+  const goTo = React.useContext(NavContext);
   return (
     <div
       className={className}
@@ -34,7 +36,7 @@ export function FlowNav({ previous, next, onNavigate, className = "" }: FlowNavP
       {previous ? (
         <button
           type="button"
-          onClick={() => onNavigate(previous.id)}
+          onClick={() => goTo(previous.target)}
           style={{
             display: "inline-flex",
             alignItems: "center",
@@ -73,7 +75,7 @@ export function FlowNav({ previous, next, onNavigate, className = "" }: FlowNavP
       {next ? (
         <button
           type="button"
-          onClick={() => onNavigate(next.id)}
+          onClick={() => goTo(next.target)}
           style={{
             display: "inline-flex",
             alignItems: "center",

@@ -153,6 +153,6 @@ export function BBBAFramework({ model, f, onBack, onNavigate, jobStates, viewCtx
       </Card>
     </div>}
 
-    <FlowNav previous={{ id: "rolecompare", label: "Role Comparison" }} next={{ id: "headcount", label: "Headcount Planning" }} onNavigate={onNavigate || onBack} />
+    <FlowNav previous={{ target: { kind: "module", moduleId: "rolecompare" }, label: "Role Comparison" }} next={{ target: { kind: "module", moduleId: "headcount" }, label: "Headcount Planning" }} />
   </div>;
 }

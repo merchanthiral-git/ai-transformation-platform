@@ -981,7 +981,7 @@ export function SkillsEngine({ model, f, onBack, onNavigate, viewCtx, jobStates 
         </div>
       )}
 
-      {onNavigate && <FlowNav previous={{ id: "jobarch", label: "Job Architecture" }} next={{ id: "design", label: "Work Design Lab" }} onNavigate={onNavigate} />}
+      {onNavigate && <FlowNav previous={{ target: { kind: "module", moduleId: "jobarch" }, label: "Job Architecture" }} next={{ target: { kind: "module", moduleId: "design" }, label: "Work Design Lab" }} />}
     </div>
   );
 }

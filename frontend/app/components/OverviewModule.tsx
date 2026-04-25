@@ -313,7 +313,7 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
         const isComplete = status === "complete";
         const isReached = isComplete || isCurrent || status === "in_progress";
         const n = nodes[pi];
-        return <button key={phase.id} onClick={() => setSelectedPhase(phase.id)} className="absolute milestone-btn" style={{
+        return <button key={phase.id} id={`phase-${phase.id}`} onClick={() => setSelectedPhase(phase.id)} className="absolute milestone-btn" style={{
           left: `${n.xPct}%`, top: `${n.yPct}%`, transform: "translate(-50%, -50%)",
           pointerEvents: "auto", cursor: "pointer",
         }}>
@@ -942,7 +942,7 @@ function UploadIntelligencePanel({ insights, funcDist, onNavigate }: {
       </>}
     </div>}
 
-    <FlowNav previous={{ id: "home:discover", label: "Discover" }} next={{ id: "snapshot", label: "Workforce Snapshot" }} onNavigate={onNavigate || onBack} />
+    <FlowNav previous={{ target: { kind: "phase", phaseId: "discover" }, label: "Discover" }} next={{ target: { kind: "module", moduleId: "snapshot" }, label: "Workforce Snapshot" }} />
   </div>;
 }
 
@@ -984,7 +984,7 @@ export function WorkforceSnapshot({ model, f, onBack, onNavigate, viewCtx }: { m
     {/* AI Insights */}
     <AiInsightCard title="✨ AI-Generated Workforce Insights" contextData={JSON.stringify({ kpis: (data as Record<string,unknown>)?.kpis, func_distribution: (data as Record<string,unknown>)?.func_distribution }).slice(0, 2000)} systemPrompt="You are a workforce analytics consultant. Generate exactly 3 concise, actionable insights from this workforce data. Each insight should be 1-2 sentences. Use specific numbers. No markdown." />
 
-    <FlowNav previous={{ id: "dashboard", label: "Dashboard" }} next={{ id: "jobarch", label: "Job Architecture" }} onNavigate={onNavigate || onBack} />
+    <FlowNav previous={{ target: { kind: "module", moduleId: "dashboard" }, label: "Dashboard" }} next={{ target: { kind: "module", moduleId: "jobarch" }, label: "Job Architecture" }} />
   </div>;
 
   // Job view: show job profile
@@ -994,7 +994,7 @@ export function WorkforceSnapshot({ model, f, onBack, onNavigate, viewCtx }: { m
       <KpiCard label="Incumbents" value={k.employees as number ?? 0} accent /><KpiCard label="AI Impact" value={`${k.high_ai_pct ?? 0}%`} accent /><KpiCard label="Tasks" value={k.tasks_mapped as number ?? 0} /><KpiCard label="Function" value={String(fd[0]?.name ?? "—")} /><KpiCard label="Readiness" value={`${k.readiness_score ?? 0}/100`} /><KpiCard label="Roles" value={k.roles as number ?? 0} />
     </div>
     <Card title="AI Impact Distribution">{ad.length ? <DonutViz data={ad.map(d => ({ name: String(d.name), value: Number(d.value) }))} /> : <Empty text="Complete Work Design to see AI impact" />}</Card>
-    <FlowNav previous={{ id: "dashboard", label: "Dashboard" }} next={{ id: "jobarch", label: "Job Architecture" }} onNavigate={onNavigate || onBack} />
+    <FlowNav previous={{ target: { kind: "module", moduleId: "dashboard" }, label: "Dashboard" }} next={{ target: { kind: "module", moduleId: "jobarch" }, label: "Job Architecture" }} />
   </div>;
 
   return <div>
@@ -1063,7 +1063,7 @@ export function WorkforceSnapshot({ model, f, onBack, onNavigate, viewCtx }: { m
       <Card title="AI Impact Distribution">{ad.length ? <DonutViz data={ad.map(d => ({ name: String(d.name), value: Number(d.value) }))} /> : <Empty text="Upload work design data" />}</Card>
       <Card title="Data Coverage">{Object.keys(cov).length ? Object.entries(cov).map(([n, v]) => <div key={n} className="flex items-center mb-2"><ReadinessDot ready={v.ready as boolean} /><span className="text-[15px] font-medium">{String(v.label)}</span><span className="ml-auto text-[15px] text-[var(--text-secondary)]">{v.ready ? `${v.rows} rows` : "missing"}</span></div>) : <Empty text="No coverage data yet" />}</Card>
     </div>
-    <FlowNav previous={{ id: "dashboard", label: "Dashboard" }} next={{ id: "jobarch", label: "Job Architecture" }} onNavigate={onNavigate || onBack} />
+    <FlowNav previous={{ target: { kind: "module", moduleId: "dashboard" }, label: "Dashboard" }} next={{ target: { kind: "module", moduleId: "jobarch" }, label: "Job Architecture" }} />
   </div>;
 }
 
@@ -1184,6 +1184,6 @@ export function SkillShiftIndex({ model, f, onBack, onNavigate }: { model: strin
       netNew.length > 0 ? `${netNew.length} entirely new skills needed — these require dedicated training programs or external hiring` : "No entirely new skills required",
     ]} icon={<GraduationCap size={16} />} />}
 
-    <FlowNav previous={{ id: "snapshot", label: "Workforce Snapshot" }} next={{ id: "jobarch", label: "Job Architecture" }} onNavigate={onNavigate || onBack} />
+    <FlowNav previous={{ target: { kind: "module", moduleId: "snapshot" }, label: "Workforce Snapshot" }} next={{ target: { kind: "module", moduleId: "jobarch" }, label: "Job Architecture" }} />
   </div>;
 }

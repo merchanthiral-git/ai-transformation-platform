@@ -398,7 +398,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
       })()}
     </Card>
 
-    <FlowNav previous={{ id: "jobarch", label: "Job Architecture" }} next={{ id: "plan", label: "Change Planner" }} onNavigate={onNavigate || onBack} />
+    <FlowNav previous={{ target: { kind: "module", moduleId: "jobarch" }, label: "Job Architecture" }} next={{ target: { kind: "module", moduleId: "plan" }, label: "Change Planner" }} />
     </div>;
   }
 
@@ -418,7 +418,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
         </div>)}
       </div>
     </Card>
-    <FlowNav previous={{ id: "jobarch", label: "Job Architecture" }} next={{ id: "plan", label: "Change Planner" }} onNavigate={onNavigate || onBack} />
+    <FlowNav previous={{ target: { kind: "module", moduleId: "jobarch" }, label: "Job Architecture" }} next={{ target: { kind: "module", moduleId: "plan" }, label: "Change Planner" }} />
   </div>;
 
   // Empty state when no data
@@ -1168,7 +1168,7 @@ export function ImpactSimulator({ onBack, onNavigate, model, f, jobStates, simSt
     {tab === "negotiate" && <NegotiateTab projectId={model} model={model} savedScenarios={savedScenarios} setSavedScenarios={setSavedScenarios} />}
     {tab === "stresstest" && <StressTestTab projectId={model} model={model} />}
 
-    <FlowNav previous={{ id: "jobarch", label: "Job Architecture" }} next={{ id: "plan", label: "Change Planner" }} onNavigate={onNavigate || onBack} />
+    <FlowNav previous={{ target: { kind: "module", moduleId: "jobarch" }, label: "Job Architecture" }} next={{ target: { kind: "module", moduleId: "plan" }, label: "Change Planner" }} />
   </div>;
 }
 

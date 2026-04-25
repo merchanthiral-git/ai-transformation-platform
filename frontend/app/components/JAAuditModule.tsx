@@ -409,6 +409,6 @@ export function JAAuditModule({ model, f, onBack, onNavigate, viewCtx }: { model
     </div>
     </>}
 
-    <FlowNav previous={{ id: "snapshot", label: "Workforce Snapshot" }} next={{ id: "ja-design", label: "JA Design Tool" }} onNavigate={onBack} />
+    <FlowNav previous={{ target: { kind: "module", moduleId: "snapshot" }, label: "Workforce Snapshot" }} next={{ target: { kind: "module", moduleId: "ja-design" }, label: "JA Design Tool" }} />
   </div>;
 }
