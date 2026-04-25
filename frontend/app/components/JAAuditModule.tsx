@@ -113,10 +113,10 @@ export function JAAuditModule({ model, f, onBack, onNavigate, viewCtx }: { model
     <PageHeader icon={<Layers3 />} title="Job Architecture Audit" />
     {showLoader && <LoadingBar />}
     <ContextStrip items={[
-      { label: "Headcount", value: String(stats.total_headcount || 0) },
-      { label: "Families", value: String(stats.families || 0) },
-      { label: "Roles", value: String(stats.total_roles || 0) },
-      { label: "Health", value: `${healthVal}%`, color: healthCol },
+      `Headcount: ${stats.total_headcount || 0}`,
+      `Families: ${stats.families || 0}`,
+      `Roles: ${stats.total_roles || 0}`,
+      `Health: ${healthVal}%`,
     ]} />
 
     <TabBar tabs={AUDIT_TABS} active={tab} onChange={setTab} />

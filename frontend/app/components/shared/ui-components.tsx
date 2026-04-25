@@ -635,7 +635,13 @@ export function ContextStrip({ items }: { items: string[] }) {
   if (!items.length) return null;
   return <div className="bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-4 py-2.5 mb-5 flex items-center gap-3 flex-wrap">
     <span className="text-[15px] font-bold text-[var(--accent-primary)]">From prior steps:</span>
-    {items.map((t, i) => <span key={i} className="text-[15px] text-[var(--text-secondary)]">{t}</span>)}
+    {items.map((t, i) => {
+      if (process.env.NODE_ENV === "development" && typeof t === "object" && t !== null) {
+        console.error(`[ContextStrip] item[${i}] is an object, not a string:`, t, "— render .label or .value instead of passing the raw object");
+      }
+      const text = typeof t === "string" ? t : typeof t === "object" && t !== null ? (t as Record<string, unknown>).label + ": " + (t as Record<string, unknown>).value : String(t);
+      return <span key={i} className="text-[15px] text-[var(--text-secondary)]">{text}</span>;
+    })}
   </div>;
 }
 
