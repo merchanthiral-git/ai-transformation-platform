@@ -159,6 +159,7 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
         totalSubSteps={subs.length}
         onMarkComplete={() => markScanSub(scanActivePath.sourceModuleId, scanStepIdx, tabId, true)}
         isComplete={!!subStep.completedAt}
+        variant="dark"
       />;
     }
     if (!isRequired) {
