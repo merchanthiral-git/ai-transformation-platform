@@ -132,6 +132,10 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
   const [spanView, setSpanView] = useState<"dist" | "level" | "outlier">("dist");
   const [leadershipReadiness, setLeadershipReadiness] = usePersisted<Record<string, string>>(`${model}_func_leadership`, {});
   const [excludedFuncs, setExcludedFuncs] = usePersisted<Record<string, boolean>>(`${model}_func_excluded`, {});
+  const [subStep3Judgment, setSubStep3Judgment] = usePersisted<string | null>(`${model}_scan_ss3_judgment`, null);
+  const [subStep3Rationale, setSubStep3Rationale] = usePersisted<string>(`${model}_scan_ss3_rationale`, "");
+  const [subStep4Judgment, setSubStep4Judgment] = usePersisted<string | null>(`${model}_scan_ss4_judgment`, null);
+  const [subStep4Rationale, setSubStep4Rationale] = usePersisted<string>(`${model}_scan_ss4_rationale`, "");
   const [overviewData] = useApiData(() => model ? api.getOverview(model, f) : Promise.resolve(null), [model, f.func, f.jf, f.sf, f.cl]);
   const funcHeadcounts = useMemo(() => {
     const map: Record<string, number> = {};
@@ -139,6 +143,9 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
     if (Array.isArray(fd)) for (const item of fd as { name: string; value: number }[]) { map[item.name] = item.value; }
     return map;
   }, [overviewData]);
+  const candidateFunctions = useMemo(() => {
+    return Object.keys(funcHeadcounts).filter(fn => !excludedFuncs[fn]).slice(0, 5);
+  }, [funcHeadcounts, excludedFuncs]);
   const [data, loading] = useApiData(() => { if (sub === "ai") return api.getAIPriority(model, f); if (sub === "skills") return api.getSkillAnalysis(model, f); if (sub === "org") return api.getOrgDiagnostics(model, f); return Promise.resolve(null); }, [sub, model, f.func, f.jf, f.sf, f.cl]);
 
   const scanTitle = viewCtx?.mode === "employee" ? "AI Impact on My Role" : viewCtx?.mode === "job" ? `AI Impact — ${viewCtx.job}` : "AI Opportunity Scan";
@@ -316,7 +323,35 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
         <div className="mt-3 pt-2 border-t border-[var(--border)] text-[15px] text-[var(--text-muted)]">Total automatable time: {quickWins.reduce((sum, t) => sum + Number(t["Current Time Spent %"] || t.time_pct || 0), 0)}% of combined role time → est. {Math.round(quickWins.reduce((sum, t) => sum + Number(t["Current Time Spent %"] || t.time_pct || 0), 0) * 0.6 * 40 / 100)} hrs/week freed</div>
       </div>}
       <div className="grid grid-cols-12 gap-4"><div className="col-span-7"><Card title="Top AI Priority Tasks"><DataTable data={top10} /></Card></div><div className="col-span-5"><Card title="Impact by Workstream"><BarViz data={((data?.workstream_impact ?? []) as Record<string, unknown>[])} labelKey="Workstream" valueKey="Time Impact" color="var(--accent-scenario)" /></Card></div></div></div>; })()}
-    {sub === "skills" && <div className="grid grid-cols-2 gap-4"><Card title="Current Skills"><BarViz data={((data?.current ?? []) as Record<string, unknown>[])} labelKey="Skill" valueKey="Weight" color="#8ba87a" /></Card><Card title="Skill Gap"><DataTable data={((data?.gap ?? []) as Record<string, unknown>[])} cols={["Skill", "Current", "Future", "Delta"]} /></Card></div>}
+    {sub === "skills" && <div>
+      {/* Candidate chips */}
+      <div className="mb-3">
+        <div className="text-[11px] font-semibold text-[var(--text-muted)] mb-2">Your candidates from sub-step 1:</div>
+        {candidateFunctions.length > 0 ? (
+          <div className="flex flex-wrap gap-2">{candidateFunctions.map(fn => <span key={fn} style={{ padding: "3px 10px", fontSize: 12, borderRadius: 6, background: "rgba(59,130,246,0.15)", color: "#93C5FD", border: "1px solid rgba(59,130,246,0.35)" }}>{fn}</span>)}</div>
+        ) : (
+          <div className="text-[12px] text-[var(--text-muted)] italic">Complete sub-step 1 first to see your candidate-relevant skill gaps.</div>
+        )}
+      </div>
+      <div className="grid grid-cols-2 gap-4"><Card title="Current Skills"><BarViz data={((data?.current ?? []) as Record<string, unknown>[])} labelKey="Skill" valueKey="Weight" color="#8ba87a" /></Card><Card title="Skill Gap"><DataTable data={((data?.gap ?? []) as Record<string, unknown>[])} cols={["Skill", "Current", "Future", "Delta"]} /></Card></div>
+      {/* Judgment + rationale */}
+      <div className="mt-4 p-4 rounded-xl" style={{ background: "rgba(28,43,58,0.65)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.08)", borderLeft: "3px solid rgba(59,130,246,0.35)" }}>
+        <div className="text-[12px] font-semibold mb-2" style={{ color: "#F7F5F0" }}>Your assessment:</div>
+        <div className="space-y-2 mb-3">{[
+          { val: "Critical gaps", desc: "Skill gaps for candidate functions are severe; significant reskilling needed." },
+          { val: "Moderate gaps", desc: "Manageable gaps; targeted upskilling will close them." },
+          { val: "Minor gaps", desc: "Workforce is largely ready for AI-augmented work in these functions." },
+        ].map(opt => (
+          <label key={opt.val} className="flex items-start gap-2 cursor-pointer" style={{ color: "rgba(247,245,240,0.82)" }}>
+            <input type="radio" name="ss3judgment" checked={subStep3Judgment === opt.val} onChange={() => setSubStep3Judgment(opt.val)} style={{ accentColor: "#3B82F6", marginTop: 3 }} />
+            <div><div className="text-[12px] font-semibold">{opt.val}</div><div className="text-[11px]" style={{ color: "rgba(247,245,240,0.55)" }}>{opt.desc}</div></div>
+          </label>
+        ))}</div>
+        <div className="text-[11px] mb-1" style={{ color: "rgba(247,245,240,0.55)" }}>Note your observation (optional):</div>
+        <input value={subStep3Rationale} onChange={e => setSubStep3Rationale(e.target.value.slice(0, 240))} maxLength={240} placeholder='e.g., "AI/ML Tools and Data Analysis are the binding constraints"' className="w-full px-3 py-2 rounded-lg text-[12px] mb-1" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "#F7F5F0", outline: "none" }} />
+        {subStep3Rationale.length > 0 && <div className="text-[10px] text-right" style={{ color: "rgba(247,245,240,0.4)" }}>{subStep3Rationale.length}/240</div>}
+      </div>
+    </div>}
     {sub === "org" && (() => {
       if (data && (data as Record<string, unknown>).empty) return <Empty text="Upload org or workforce data" icon={<Users size={20} />} />;
       const k = (data?.kpis ?? { total: 0, managers: 0, ics: 0, avg_span: 0, max_span: 0, layers: 0 }) as OrgDiagnosticsKpis;
@@ -505,6 +540,32 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
             </>}
           </Card>
         </div>
+      {/* Candidate chips */}
+      <div className="mt-4 mb-3">
+        <div className="text-[11px] font-semibold text-[var(--text-muted)] mb-2">Your candidates from sub-step 1:</div>
+        {candidateFunctions.length > 0 ? (
+          <div className="flex flex-wrap gap-2">{candidateFunctions.map(fn => <span key={fn} style={{ padding: "3px 10px", fontSize: 12, borderRadius: 6, background: "rgba(59,130,246,0.15)", color: "#93C5FD", border: "1px solid rgba(59,130,246,0.35)" }}>{fn}</span>)}</div>
+        ) : (
+          <div className="text-[12px] text-[var(--text-muted)] italic">Complete sub-step 1 first to focus this view on your candidate functions.</div>
+        )}
+      </div>
+      {/* Judgment + rationale */}
+      <div className="mt-4 p-4 rounded-xl" style={{ background: "rgba(28,43,58,0.65)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.08)", borderLeft: "3px solid rgba(59,130,246,0.35)" }}>
+        <div className="text-[12px] font-semibold mb-2" style={{ color: "#F7F5F0" }}>Your assessment:</div>
+        <div className="space-y-2 mb-3">{[
+          { val: "Sufficient", desc: "Candidate functions' structures can absorb redesign without major org work." },
+          { val: "Mixed", desc: "Some structural readiness, some friction (span anomalies, deep layers, unclear reporting)." },
+          { val: "Shaky", desc: "Structural issues will block redesign; org work needed before AI investment." },
+        ].map(opt => (
+          <label key={opt.val} className="flex items-start gap-2 cursor-pointer" style={{ color: "rgba(247,245,240,0.82)" }}>
+            <input type="radio" name="ss4judgment" checked={subStep4Judgment === opt.val} onChange={() => setSubStep4Judgment(opt.val)} style={{ accentColor: "#3B82F6", marginTop: 3 }} />
+            <div><div className="text-[12px] font-semibold">{opt.val}</div><div className="text-[11px]" style={{ color: "rgba(247,245,240,0.55)" }}>{opt.desc}</div></div>
+          </label>
+        ))}</div>
+        <div className="text-[11px] mb-1" style={{ color: "rgba(247,245,240,0.55)" }}>Note your observation (optional):</div>
+        <input value={subStep4Rationale} onChange={e => setSubStep4Rationale(e.target.value.slice(0, 240))} maxLength={240} placeholder='e.g., "Manufacturing has clean span of 6; Engineering has T-track anomalies"' className="w-full px-3 py-2 rounded-lg text-[12px] mb-1" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "#F7F5F0", outline: "none" }} />
+        {subStep4Rationale.length > 0 && <div className="text-[10px] text-right" style={{ color: "rgba(247,245,240,0.4)" }}>{subStep4Rationale.length}/240</div>}
+      </div>
       </div>;
     })()}
     {sub === "heatmap" && <HeatmapView model={model} f={f} />}
