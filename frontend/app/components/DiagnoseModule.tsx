@@ -184,7 +184,68 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
     {/* Sub-step panel for current tab */}
     {renderScanTabPanel(sub)}
 
-    {sub === "ai" && (() => { const s = (data?.summary ?? { tasks_scored: 0, quick_wins: 0, total_time_impact: 0, avg_risk: 0 }) as AIPrioritySummary; const top10 = (data?.top10 ?? []) as Record<string, unknown>[]; const quickWins = top10.filter(t => String(t["AI Impact"] || t.ai_impact || "").toLowerCase() === "high" && (Number(t["Current Time Spent %"] || t.time_pct || 0) >= 10) && String(t["Logic"] || t.logic || "").toLowerCase() === "deterministic"); return <div><div className="grid grid-cols-4 gap-3 mb-5"><KpiCard label="Tasks Scored" value={s.tasks_scored ?? 0} /><KpiCard label="Quick Wins" value={quickWins.length || (s.quick_wins ?? 0)} accent /><KpiCard label="Time Impact" value={`${s.total_time_impact ?? 0}h/wk`} /><KpiCard label="Avg Risk" value={s.avg_risk ?? 0} /></div>
+    {sub === "ai" && (() => { const s = (data?.summary ?? { tasks_scored: 0, quick_wins: 0, total_time_impact: 0, avg_risk: 0 }) as AIPrioritySummary; const top10 = (data?.top10 ?? []) as Record<string, unknown>[]; const quickWins = top10.filter(t => String(t["AI Impact"] || t.ai_impact || "").toLowerCase() === "high" && (Number(t["Current Time Spent %"] || t.time_pct || 0) >= 10) && String(t["Logic"] || t.logic || "").toLowerCase() === "deterministic");
+
+      // Function Prioritization — aggregate tasks by function
+      const funcMap = new Map<string, { tasks: number; autoHrs: number; impactSum: number; quickWins: number; roles: Set<string> }>();
+      for (const t of top10) {
+        const func = String(t["Function ID"] || t.function || t["Function"] || "Unknown");
+        if (!func || func === "Unknown") continue;
+        const entry = funcMap.get(func) || { tasks: 0, autoHrs: 0, impactSum: 0, quickWins: 0, roles: new Set() };
+        entry.tasks++;
+        const timePct = Number(t["Current Time Spent %"] || t.time_pct || 0);
+        const aiScore = Number(t["AI Score"] || t.ai_score || t["Time Saved %"] || 0);
+        entry.autoHrs += (timePct / 100) * (aiScore / 100) * 40; // approx weekly hrs
+        const impactVal = String(t["AI Impact"] || t.ai_impact || "").toLowerCase() === "high" ? 80 : String(t["AI Impact"] || t.ai_impact || "").toLowerCase() === "moderate" ? 50 : 20;
+        entry.impactSum += impactVal;
+        if (String(t["AI Impact"] || t.ai_impact || "").toLowerCase() === "high" && timePct >= 10 && String(t["Logic"] || t.logic || "").toLowerCase() === "deterministic") entry.quickWins++;
+        const role = String(t["Job Title"] || t.role || "");
+        if (role) entry.roles.add(role);
+        funcMap.set(func, entry);
+      }
+      const funcRows = Array.from(funcMap.entries()).map(([name, d]) => {
+        const avgImpact = d.tasks > 0 ? Math.round(d.impactSum / d.tasks) : 0;
+        const composite = Math.round((d.roles.size * avgImpact * 0.004) + (d.autoHrs * 4) + (d.quickWins * 10 * 0.2));
+        return { name, headcount: d.roles.size, tasks: d.tasks, autoHrs: Math.round(d.autoHrs * 10) / 10, avgImpact, quickWins: d.quickWins, composite: Math.min(composite, 100) };
+      }).filter(r => r.tasks > 0).sort((a, b) => b.composite - a.composite);
+
+      return <div><div className="grid grid-cols-4 gap-3 mb-5"><KpiCard label="Tasks Scored" value={s.tasks_scored ?? 0} /><KpiCard label="Quick Wins" value={quickWins.length || (s.quick_wins ?? 0)} accent /><KpiCard label="Time Impact" value={`${s.total_time_impact ?? 0}h/wk`} /><KpiCard label="Avg Risk" value={s.avg_risk ?? 0} /></div>
+
+      {/* Function Prioritization Table */}
+      {funcRows.length > 0 && <div className="mb-5">
+        <div className="flex items-baseline justify-between mb-3">
+          <div><div className="text-[14px] font-bold text-[var(--text-primary)]">Function Prioritization</div><div className="text-[12px] text-[var(--text-muted)]">Ranked candidates for AI investment, aggregated from task-level scores</div></div>
+        </div>
+        <div className="overflow-auto rounded-xl border border-[var(--border)]" style={{ maxHeight: 400 }}>
+          <table className="w-full text-[13px]" style={{ borderCollapse: "collapse" }}>
+            <thead><tr className="bg-[var(--surface-2)] sticky top-0 z-10">
+              <th className="px-3 py-2 text-center text-[var(--text-muted)] font-semibold border-b border-[var(--border)] w-12">Rank</th>
+              <th className="px-3 py-2 text-left text-[var(--text-muted)] font-semibold border-b border-[var(--border)]">Function</th>
+              <th className="px-3 py-2 text-center text-[var(--text-muted)] font-semibold border-b border-[var(--border)]">Roles</th>
+              <th className="px-3 py-2 text-center text-[var(--text-muted)] font-semibold border-b border-[var(--border)]">Tasks</th>
+              <th className="px-3 py-2 text-center text-[var(--text-muted)] font-semibold border-b border-[var(--border)]">Auto hrs/wk</th>
+              <th className="px-3 py-2 text-center text-[var(--text-muted)] font-semibold border-b border-[var(--border)]">Avg Impact</th>
+              <th className="px-3 py-2 text-center text-[var(--text-muted)] font-semibold border-b border-[var(--border)]">Quick Wins</th>
+              <th className="px-3 py-2 text-center text-[var(--text-muted)] font-semibold border-b border-[var(--border)]">Score</th>
+            </tr></thead>
+            <tbody>{funcRows.map((r, i) => {
+              const isTop5 = i < 5;
+              return <tr key={r.name} className="border-b border-[var(--border)] hover:bg-[rgba(59,130,246,0.06)] transition-colors" style={{ borderLeft: isTop5 ? "3px solid #3B82F6" : "3px solid transparent" }}>
+                <td className="px-3 py-2 text-center font-bold" style={{ color: isTop5 ? "#3B82F6" : "var(--text-muted)" }}>{i + 1}{isTop5 && <span className="ml-1 text-[9px] px-1.5 py-0.5 rounded-full bg-[rgba(59,130,246,0.12)] text-[#3B82F6] font-semibold">Top 5</span>}</td>
+                <td className="px-3 py-2 font-semibold text-[var(--text-primary)]">{r.name}</td>
+                <td className="px-3 py-2 text-center text-[var(--text-secondary)]">{r.headcount}</td>
+                <td className="px-3 py-2 text-center text-[var(--text-secondary)]">{r.tasks}</td>
+                <td className="px-3 py-2 text-center font-mono font-bold text-[var(--text-secondary)]">{r.autoHrs}</td>
+                <td className="px-3 py-2 text-center"><span className="font-bold" style={{ color: r.avgImpact >= 70 ? "#e87a5d" : r.avgImpact >= 40 ? "#f4a83a" : "#8ba87a" }}>{r.avgImpact}</span></td>
+                <td className="px-3 py-2 text-center font-bold" style={{ color: r.quickWins > 0 ? "#8ba87a" : "var(--text-muted)" }}>{r.quickWins}</td>
+                <td className="px-3 py-2 text-center font-mono font-extrabold" style={{ color: isTop5 ? "#3B82F6" : "var(--text-primary)" }}>{r.composite}</td>
+              </tr>;
+            })}</tbody>
+          </table>
+        </div>
+      </div>}
+      {funcRows.length === 0 && top10.length === 0 && <div className="mb-5 p-4 rounded-xl border border-[var(--border)] text-center text-[13px] text-[var(--text-muted)]">Score tasks in the <button onClick={() => setSub("heatmap")} className="text-[var(--accent-primary)] font-semibold">Impact Heatmap tab</button> to populate function rankings.</div>}
+
       {/* Quick Wins Panel */}
       {quickWins.length > 0 && <div className="bg-gradient-to-r from-[rgba(139,168,122,0.06)] to-transparent border border-[rgba(139,168,122,0.15)] rounded-xl p-5 mb-4">
         <div className="flex items-center gap-2 mb-3"><span className="text-lg">⚡</span><span className="text-[14px] font-bold text-[var(--success)]">Quick Wins — Automate Now</span><Badge color="green">{quickWins.length} tasks</Badge><ConfidenceBadge score={Math.min(1, (s.tasks_scored || 0) / Math.max(quickWins.length * 3, 1))} dataPoints={s.tasks_scored || 0} /></div>
