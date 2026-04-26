@@ -427,7 +427,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
   const filteredSkills = skillFilter ? skills.filter(s => s.toLowerCase().includes(skillFilter.toLowerCase())) : skills;
 
   return <div>
-    <PageHeader icon={<Sparkle />} title="Skills & Talent" subtitle="Inventory, gap analysis, and adjacency mapping" onBack={onBack} moduleId="skills" />
+    <PageHeader icon={<Sparkle />} title="Skills & Talent" subtitle="Inventory skills, identify gaps, map adjacencies" onBack={onBack} moduleId="skills" />
     {model && <div className="flex justify-end mb-2"><ModuleExportButton model={model} module="skills_inventory" label="Skills Data" /></div>}
     {loading && <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={5} /><SkeletonTable rows={6} cols={5} /></div></>}
     {!loading && employees.length === 0 && validationErrors.length === 0 && <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-2xl p-8 text-center"><div className="text-3xl mb-3 opacity-40 flex justify-center"><Sparkle size={32} /></div><h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">No Skills Data Yet</h3><p className="text-[15px] text-[var(--text-secondary)]">Upload workforce data to see skills inventory, or select Demo_Model.</p></div>}
@@ -444,8 +444,6 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
       { id: "inventory", label: "Skills Inventory" },
       { id: "gap", label: `Gap Analysis${!confirmed ? " (Locked)" : ""}` },
       { id: "adjacency", label: `Adjacency Map${!confirmed ? " (Locked)" : ""}` },
-      { id: "supply", label: "Supply & Demand" },
-      { id: "careers", label: "Career Paths" },
       { id: "maturity", label: "Maturity" },
       { id: "taxonomy", label: "Taxonomy" },
     ]} active={tab} onChange={setTab} />
@@ -531,9 +529,6 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
             <div className="flex justify-between text-[14px] mt-0.5"><span className="text-[var(--text-muted)]">Current: {g.current_avg}</span><span className="text-[14px]" style={{ color: "#8a7f6d" }}>Target: {g.target} ({g.target_source})</span></div>
           </div>
           <div className="text-center shrink-0 w-14"><div className="text-[15px] font-extrabold" style={{ color: g.severity === "Critical" ? "#e87a5d" : g.severity === "Moderate" ? "#f4a83a" : "#8ba87a" }}>-{g.delta}</div><div className="text-[15px]" style={{ color: g.severity === "Critical" ? "#e87a5d" : g.severity === "Moderate" ? "#f4a83a" : "#8ba87a" }}>{g.severity}</div></div>
-          <select value={gapDispositions[g.skill] || ""} onChange={e => setGapDispositions(prev => ({ ...prev, [g.skill]: e.target.value }))} className="bg-[var(--surface-1)] border border-[var(--border)] rounded-lg px-2 py-1 text-[15px] text-[var(--text-primary)] outline-none w-32 shrink-0">
-            <option value="">Disposition...</option>{dispOptions.map(d => <option key={d} value={d}>{d}</option>)}
-          </select>
         </div>)}</div>
       </Card></> : <Card title="Individual Employee Gaps">
         {gaps.filter(g => g.severity !== "Low").slice(0, 5).map(g => <div key={g.skill} className="mb-4">
@@ -546,10 +541,12 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
         </div>)}
       </Card>}
 
-      {/* Disposition summary */}
-      {Object.keys(gapDispositions).length > 0 && <Card title="Gap Disposition Summary">
-        <div className="grid grid-cols-4 gap-3">{dispOptions.map(d => { const count = Object.values(gapDispositions).filter(v => v === d).length; return <div key={d} className="bg-[var(--surface-2)] rounded-xl p-3 text-center border border-[var(--border)]"><div className="text-[20px] font-extrabold" style={{ color: dispColors[d] }}>{count}</div><div className="text-[15px] text-[var(--text-muted)]">{d}</div></div>; })}</div>
-      </Card>}
+      {/* Cross-link to Skills Architecture for disposition decisions */}
+      <div className="mt-4 p-4 rounded-xl border border-[var(--accent-primary)]/15 bg-[rgba(244,168,58,0.03)]">
+        <div className="text-[13px] font-semibold text-[var(--text-primary)] mb-1">Ready to make decisions about these gaps?</div>
+        <div className="text-[12px] text-[var(--text-muted)] mb-2">Use Skills Architecture to set dispositions, plan reskilling, and build the future capability model.</div>
+        {onNavigate && <button onClick={() => onNavigate("skills-arch")} className="text-[12px] font-semibold text-[var(--accent-primary)]">Open Skills Architecture →</button>}
+      </div>
       </>}
     </div>}
 
@@ -573,7 +570,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
           <Badge color="green">{a.strong_matches} strong</Badge><Badge color="amber">{a.reskillable} reskillable</Badge><Badge color="gray">{a.weak_matches} weak</Badge>
           {a.wdl_derived && <span className="text-[14px] text-[var(--success)]">Skills from Work Design Lab</span>}
         </div>
-        <div className="grid grid-cols-4 gap-2">{(a.top_candidates || []).filter(c => c.adjacency_pct >= adjThreshold).map(c => { const isShortlisted = (shortlisted[a.target_role] || []).includes(c.employee); return <div key={c.employee} className="bg-[var(--surface-2)] rounded-xl p-3 border transition-all" style={{ borderColor: isShortlisted ? "#8ba87a" : "var(--border)" }}>
+        <div className="grid grid-cols-4 gap-2">{(a.top_candidates || []).filter(c => c.adjacency_pct >= adjThreshold).map(c => <div key={c.employee} className="bg-[var(--surface-2)] rounded-xl p-3 border border-[var(--border)]">
           <div className="flex items-center justify-between mb-1">
             <span className="text-[15px] font-semibold text-[var(--text-primary)] truncate flex-1 mr-1">{c.employee}</span>
             <span className="text-[14px] font-extrabold shrink-0" style={{ color: c.adjacency_pct >= 70 ? "#8ba87a" : c.adjacency_pct >= 50 ? "#f4a83a" : "#e87a5d" }}>{c.adjacency_pct}%</span>
@@ -581,191 +578,11 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
           <div className="text-[14px] text-[var(--success)] mb-0.5 truncate">✓ {c.matching_skills.slice(0, 3).join(", ")}</div>
           {c.gap_skills.length > 0 && <div className="text-[14px] text-[var(--risk)] mb-1 truncate">✗ {c.gap_skills.slice(0, 3).join(", ")}</div>}
           {c.reskill_months > 0 && <div className="text-[15px] text-[var(--text-muted)]">~{c.reskill_months}mo reskilling</div>}
-          <button onClick={() => setShortlisted(prev => { const list = prev[a.target_role] || []; return { ...prev, [a.target_role]: isShortlisted ? list.filter(e => e !== c.employee) : [...list, c.employee] }; })} className="mt-1 text-[14px] font-semibold w-full py-1 rounded text-center" style={{ background: isShortlisted ? "rgba(139,168,122,0.1)" : "var(--surface-1)", color: isShortlisted ? "#8ba87a" : "#8a7f6d", border: `1px solid ${isShortlisted ? "#8ba87a" : "var(--border)"}` }}>{isShortlisted ? "★ Shortlisted" : "☆ Shortlist"}</button>
-        </div>; })}</div>
+        </div>)}</div>
         {(a.top_candidates || []).filter(c => c.adjacency_pct >= adjThreshold).length === 0 && <div className="text-[15px] text-[var(--text-muted)] py-4 text-center">No candidates above {adjThreshold}% — lower threshold or plan external hire</div>}
       </Card>)}
-
-      {/* Shortlist summary */}
-      {Object.values(shortlisted).some(l => l.length > 0) && <Card title="Shortlisted Candidates">
-        {Object.entries(shortlisted).filter(([, l]) => l.length > 0).map(([role, list]) => <div key={role} className="mb-2"><span className="text-[15px] font-bold text-[var(--text-primary)]">{role}:</span> <span className="text-[15px] text-[var(--text-secondary)]">{list.join(", ")}</span></div>)}
-      </Card>}
       </>}
     </div>}
-
-    {/* ═══ TAB: SKILLS SUPPLY & DEMAND ═══ */}
-    {tab === "supply" && <div>
-      {skills.length === 0 ? <Card title="Skills Supply vs. Demand"><Empty text="Complete Skills Inventory to see supply & demand analysis" icon={<BarChart3 size={20} />} /></Card> : (() => {
-        // Compute supply/demand as percentages with deterministic demand
-        const supplyDemand = skills.slice(0, 20).map(skill => {
-          const totalWithSkill = records.filter(r => r.skill === skill).length;
-          const proficient = records.filter(r => r.skill === skill && r.proficiency >= 3).length;
-          const supplyPct = employees.length > 0 ? Math.round((proficient / employees.length) * 100) : 0;
-          // Demand: estimate from gap data or derive from skill type
-          const gap = gaps.find(g => g.skill === skill);
-          const sl = skill.toLowerCase();
-          // AI/tech skills have high demand, traditional skills lower demand
-          const isAiSkill = ["ai", "ml", "automation", "cloud", "python", "data science", "machine learning", "digital"].some(kw => sl.includes(kw));
-          const isHumanSkill = ["leadership", "communication", "critical thinking", "stakeholder", "coaching", "mentoring"].some(kw => sl.includes(kw));
-          const isTraditionalSkill = ["regulatory", "compliance", "accounting", "financial modeling", "manual", "filing"].some(kw => sl.includes(kw));
-          const demandPct = gap ? Math.round(Math.min(gap.target / 5, 1) * 100) : isAiSkill ? Math.min(supplyPct + 35 + Math.round(sl.length % 10), 80) : isHumanSkill ? Math.min(supplyPct + 15 + Math.round(sl.length % 8), 75) : isTraditionalSkill ? Math.max(supplyPct - 10, 15) : Math.min(supplyPct + 10, 65);
-          const gapPct = demandPct - supplyPct;
-          const status = gapPct > 30 ? "critical" : gapPct > 15 ? "shortage" : gapPct > 5 ? "moderate" : gapPct > -5 ? "adequate" : "surplus";
-          return { skill, supplyPct, demandPct, gapPct, status, supplyCount: proficient, demandCount: Math.round(employees.length * demandPct / 100) };
-        }).sort((a, b) => b.gapPct - a.gapPct);
-
-        const statusColors: Record<string, string> = { critical: "#e87a5d", shortage: "#f4a83a", moderate: "#f4a83a", adequate: "#8ba87a", surplus: "#f4a83a" };
-        const statusLabels: Record<string, string> = { critical: "CRITICAL", shortage: "SHORTAGE", moderate: "MODERATE", adequate: "ADEQUATE", surplus: "SURPLUS" };
-        const criticals = supplyDemand.filter(s => s.status === "critical");
-        const shortages = supplyDemand.filter(s => s.status === "shortage");
-
-        return <div className="space-y-5">
-          {/* KPIs */}
-          <div className="grid grid-cols-5 gap-3">
-            <KpiCard label="Skills Tracked" value={supplyDemand.length} />
-            <KpiCard label="Critical Shortages" value={criticals.length} accent />
-            <KpiCard label="Shortages" value={shortages.length} />
-            <KpiCard label="Adequate/Surplus" value={supplyDemand.filter(s => s.status === "adequate" || s.status === "surplus").length} />
-            <KpiCard label="Biggest Gap" value={supplyDemand[0] ? `${supplyDemand[0].gapPct}%` : "—"} />
-          </div>
-
-          {/* Butterfly chart */}
-          <Card title="Supply vs. Demand — Butterfly Chart">
-            <div className="text-[14px] text-[var(--text-secondary)] mb-4">Supply (teal, left) = employees with proficiency ≥3. Demand (amber, right) = required proficiency for the future state. Sorted by gap severity.</div>
-            <div className="space-y-2">
-              {supplyDemand.map(sd => <div key={sd.skill} className="flex items-center gap-2 py-2">
-                {/* Supply bar (goes LEFT from center) */}
-                <div className="w-16 text-right text-[13px] font-data font-bold" style={{ color: "var(--amber)" }}>{sd.supplyPct}%</div>
-                <div className="w-24 flex justify-end"><div className="h-5 rounded-l-lg" style={{ width: `${Math.max(sd.supplyPct, 2)}%`, minWidth: 4, background: "var(--amber)" }} /></div>
-                {/* Center: skill name */}
-                <div className="w-36 text-center shrink-0"><span className="text-[14px] font-semibold text-[var(--text-primary)] truncate block">{sd.skill}</span></div>
-                {/* Demand bar (goes RIGHT from center) */}
-                <div className="w-24"><div className="h-5 rounded-r-lg" style={{ width: `${Math.max(sd.demandPct, 2)}%`, minWidth: 4, background: "#f4a83a" }} /></div>
-                <div className="w-16 text-[13px] font-data font-bold" style={{ color: "#f4a83a" }}>{sd.demandPct}%</div>
-                {/* Gap badge */}
-                <div className="w-24 text-right"><span className="px-2 py-0.5 rounded-full text-[12px] font-bold" style={{ background: `${statusColors[sd.status]}12`, color: statusColors[sd.status] }}>{sd.gapPct > 0 ? `-${sd.gapPct}%` : `+${Math.abs(sd.gapPct)}%`} {statusLabels[sd.status]}</span></div>
-              </div>)}
-            </div>
-            <div className="flex justify-between mt-3 text-[13px] text-[var(--text-muted)]">
-              <span className="flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ background: "var(--amber)" }} /> Supply (have the skill)</span>
-              <span className="flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ background: "#f4a83a" }} /> Demand (need the skill)</span>
-            </div>
-          </Card>
-
-          {/* Action panel */}
-          {(criticals.length > 0 || shortages.length > 0) && <Card title="Recommended Talent Strategy">
-            <div className="space-y-3">
-              {criticals.map((sd, i) => <div key={sd.skill} className="rounded-xl p-4 border-l-3" style={{ borderLeft: "3px solid var(--risk)", background: "rgba(232,122,93,0.04)" }}>
-                <div className="flex items-center gap-2 mb-1"><span className="text-[14px] font-bold text-[var(--risk)]">Priority {i + 1} (URGENT)</span><Badge color="red">{sd.gapPct}% gap</Badge></div>
-                <div className="text-[15px] text-[var(--text-primary)] font-semibold mb-1">Launch {sd.skill} upskilling for {sd.demandCount - sd.supplyCount} employees</div>
-                <div className="text-[14px] text-[var(--text-muted)] mb-2">Current: {sd.supplyPct}% ({sd.supplyCount} people) → Need: {sd.demandPct}% ({sd.demandCount} people)</div>
-                <div className="flex gap-2">{onNavigate && <button onClick={() => onNavigate("reskill")} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold text-white" style={{ background: "#e87a5d" }}>Create Reskilling Pathway</button>}</div>
-              </div>)}
-              {shortages.slice(0, 3).map((sd, i) => <div key={sd.skill} className="rounded-xl p-4 border-l-3" style={{ borderLeft: "3px solid var(--warning)", background: "rgba(244,168,58,0.04)" }}>
-                <div className="flex items-center gap-2 mb-1"><span className="text-[14px] font-bold text-[var(--warning)]">Priority {criticals.length + i + 1}</span><Badge color="amber">{sd.gapPct}% gap</Badge></div>
-                <div className="text-[15px] text-[var(--text-primary)] font-semibold">{sd.skill}: strengthen through development programs</div>
-                <div className="text-[14px] text-[var(--text-muted)]">{sd.demandCount - sd.supplyCount} employees need this skill</div>
-              </div>)}
-            </div>
-          </Card>}
-        </div>;
-      })()}
-    </div>}
-
-    {/* ═══ TAB: CAREER PATHS ═══ */}
-    {tab === "careers" && (() => {
-      const selectedRole = selectedCareerRole || (adjacencies[0]?.target_role || "");
-      const setSelectedRole = setSelectedCareerRole;
-      const selectedAdj = adjacencies.find(a => a.target_role === selectedRole);
-      const moveTypes = [
-        { type: "⬆️", label: "Promotion", color: "#8ba87a", desc: "Move up a level" },
-        { type: "➡️", label: "Lateral", color: "var(--amber)", desc: "Same level, different function" },
-        { type: "↗️", label: "Cross-track", color: "var(--purple)", desc: "IC to Manager or vice versa" },
-        { type: "🔄", label: "Pivot", color: "#f4a83a", desc: "New domain entirely" },
-      ];
-
-      return <div className="space-y-5">
-        <Card title="Career Explorer">
-          {adjacencies.length === 0 ? <div className="text-center py-12"><div className="text-[40px] mb-3 opacity-40">🧭</div><div className="text-[16px] font-bold text-[var(--text-primary)] mb-2">Complete Gap Analysis First</div><div className="text-[14px] text-[var(--text-muted)] mb-4">Career Explorer needs skills adjacency data. Confirm the Skills Inventory, then run Gap Analysis.</div>{onNavigate && <button onClick={() => setTab("inventory")} className="px-4 py-2 rounded-xl text-[14px] font-semibold text-[var(--accent-primary)] border border-[var(--accent-primary)]/30">Go to Skills Inventory</button>}</div> : <>
-            {/* Role selector */}
-            <div className="flex items-center gap-3 mb-5">
-              <span className="text-[14px] text-[var(--text-muted)]">Explore career moves from:</span>
-              <select value={selectedRole} onChange={e => setSelectedRole(e.target.value)} className="bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-2 text-[15px] text-[var(--text-primary)] outline-none font-semibold flex-1 max-w-md">
-                {adjacencies.map(a => <option key={a.target_role} value={a.target_role}>{a.target_role}</option>)}
-              </select>
-            </div>
-
-            {/* Career map — center node + connected moves */}
-            {selectedAdj && <div>
-              {/* Center node */}
-              <div className="flex justify-center mb-6">
-                <div className="rounded-2xl px-8 py-5 text-center" style={{ background: "rgba(244,168,58,0.1)", border: "2px solid var(--accent-primary)", boxShadow: "0 0 20px rgba(244,168,58,0.15)" }}>
-                  <div className="text-[20px] font-extrabold text-[var(--accent-primary)] font-heading">{selectedAdj.target_role}</div>
-                  <div className="flex gap-3 justify-center mt-2">
-                    <Badge color="green">{selectedAdj.strong_matches || 0} strong</Badge>
-                    <Badge color="amber">{selectedAdj.reskillable || 0} reskillable</Badge>
-                  </div>
-                </div>
-              </div>
-
-              {/* Connected roles — career move cards */}
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-5">
-                {(selectedAdj.top_candidates || []).slice(0, 9).map((c, ci) => {
-                  const moveType = c.adjacency_pct >= 80 ? moveTypes[0] : c.adjacency_pct >= 60 ? moveTypes[1] : c.adjacency_pct >= 40 ? moveTypes[2] : moveTypes[3];
-                  const lineColor = c.adjacency_pct >= 70 ? "#8ba87a" : c.adjacency_pct >= 50 ? "#f4a83a" : "#e87a5d";
-                  return <div key={c.employee || ci} className="rounded-xl border bg-[var(--surface-1)] p-4 transition-all hover:border-[var(--accent-primary)]/30" style={{ borderColor: "var(--border)", boxShadow: "var(--shadow-1)" }}>
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-[16px]">{moveType.type}</span>
-                      <span className="text-[15px] font-bold text-[var(--text-primary)]">{c.employee}</span>
-                    </div>
-                    <div className="flex items-center gap-3 mb-2">
-                      {/* Skill match ring */}
-                      <div className="relative w-12 h-12 shrink-0">
-                        <svg width="48" height="48" viewBox="0 0 48 48">
-                          <circle cx="24" cy="24" r="20" fill="none" stroke="#1e2030" strokeWidth="4" />
-                          <circle cx="24" cy="24" r="20" fill="none" stroke={lineColor} strokeWidth="4" strokeDasharray={`${c.adjacency_pct * 1.26} 126`} strokeLinecap="round" transform="rotate(-90 24 24)" />
-                        </svg>
-                        <div className="absolute inset-0 flex items-center justify-center text-[12px] font-bold font-data" style={{ color: lineColor }}>{c.adjacency_pct}%</div>
-                      </div>
-                      <div>
-                        <div className="text-[13px] text-[var(--text-muted)]">{moveType.label}</div>
-                        <div className="text-[14px] font-semibold text-[var(--text-secondary)]">{c.reskill_months || 6}mo to qualify</div>
-                      </div>
-                    </div>
-                    {/* Skills */}
-                    <div className="flex flex-wrap gap-1">
-                      {(c.matching_skills || []).slice(0, 3).map(s => <span key={s} className="px-1.5 py-0.5 rounded text-[11px] bg-[rgba(139,168,122,0.1)] text-[var(--success)]">{s}</span>)}
-                      {(c.gap_skills || []).slice(0, 2).map(s => <span key={s} className="px-1.5 py-0.5 rounded text-[11px] bg-[rgba(232,122,93,0.1)] text-[var(--risk)]">+{s}</span>)}
-                    </div>
-                  </div>;
-                })}
-              </div>
-
-              {/* No candidates message */}
-              {(selectedAdj.top_candidates || []).length === 0 && <div className="text-center py-8 text-[var(--text-muted)]">No career path candidates found for this role. Check skills data.</div>}
-            </div>}
-
-            {/* Move type legend */}
-            <div className="flex gap-4 text-[13px] text-[var(--text-muted)]">
-              {moveTypes.map(mt => <span key={mt.label} className="flex items-center gap-1"><span>{mt.type}</span> {mt.label} — {mt.desc}</span>)}
-            </div>
-          </>}
-        </Card>
-
-        {/* Career insights */}
-        {adjacencies.length > 0 && <Card title="Career Insights">
-          <div className="space-y-2">
-            {adjacencies.slice(0, 3).map(a => {
-              const topCandidate = (a.top_candidates || [])[0];
-              if (!topCandidate) return null;
-              return <div key={a.target_role} className="rounded-lg p-3 bg-[var(--surface-2)] border border-[var(--border)]">
-                <div className="text-[14px] text-[var(--text-secondary)]"><strong className="text-[var(--text-primary)]">{a.target_role}</strong>: {a.strong_matches || 0} employees have a strong skill match ({topCandidate.adjacency_pct}%+). {(topCandidate.gap_skills || []).length > 0 ? `Key gap: ${(topCandidate.gap_skills || []).slice(0, 2).join(", ")}.` : "No skill gaps — ready to move."}</div>
-              </div>;
-            })}
-          </div>
-        </Card>}
-      </div>;
-    })()}
 
     {/* ═══ TAB: SKILLS MATURITY ASSESSMENT ═══ */}
     {tab === "maturity" && (() => {
