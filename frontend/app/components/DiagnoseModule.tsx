@@ -940,6 +940,15 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
         <KpiCard label="Org Average" value={`${orgAvg || data?.org_average || "—"}/5`} accent /><KpiCard label="Ready Now" value={Number(bands.ready_now || 0)} /><KpiCard label="Coachable" value={Number(bands.coachable || 0)} /><KpiCard label="At Risk" value={Number(bands.at_risk || 0)} /><KpiCard label="Weakest" value={String(Object.entries(dimAvgs).sort((a,b) => Number(a[1]) - Number(b[1]))[0]?.[0] || data?.lowest_dimension || "—")} />
       </div>
 
+      {/* Prompt to take assessment when data exists but assessment not completed */}
+      {!assessComplete && <div className="rounded-xl border border-[var(--accent-primary)]/15 bg-[rgba(244,168,58,0.03)] p-5 mb-5 flex items-center justify-between gap-6">
+        <div>
+          <div className="text-[14px] font-bold text-[var(--text-primary)] mb-1">Add your team{"'"}s perspective</div>
+          <div className="text-[13px] text-[var(--text-muted)] leading-relaxed">You have {individuals.length} individuals from uploaded data, but no self-assessment responses yet. Take the 5-minute assessment to layer your organization{"'"}s perceived readiness on top of the data.</div>
+        </div>
+        <button onClick={() => { setAssessActive(true); setAssessQ(0); }} className="px-5 py-2.5 rounded-xl text-[13px] font-bold text-white shrink-0" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>Take the Assessment →</button>
+      </div>}
+
       <div className="flex gap-2 mb-4">{(["org","individual"] as const).map(v => <button key={v} onClick={() => setViewLevel(v)} className="px-3 py-1.5 rounded-lg text-[15px] font-semibold" style={{ background: viewLevel === v ? "#f4a83a" : "#1e2030", color: viewLevel === v ? "#fff" : "#8a7f6d" }}>{v === "org" ? "Organization View" : "Individual Scores"}</button>)}</div>
 
       {viewLevel === "org" ? <div className="grid grid-cols-2 gap-4">
