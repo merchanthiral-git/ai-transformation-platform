@@ -19,6 +19,7 @@ interface OrgNode {
   function: string; family: string; sub_family: string; geography: string;
   manager_name: string; direct_report_count: number;
   total_subtree_count: number; layers_below: number;
+  salary?: number; direct_reports_cost?: number; branch_cost?: number;
   children: OrgNode[]; has_children?: boolean; dimmed?: boolean;
   mapping_status?: string; flag_count?: number;
 }
@@ -188,6 +189,10 @@ function OrgDetailPanel({ node, allNodes, onClose, onDrill, onBack, canGoBack }:
               <div style={{ color: "var(--text-primary)", fontWeight: 500 }}>{node.track || "—"}</div>
               <div><span style={{ color: "var(--text-muted)" }}>Geography</span></div>
               <div style={{ color: "var(--text-primary)", fontWeight: 500 }}>{node.geography || "—"}</div>
+              {(node.salary != null && node.salary > 0) && <>
+                <div><span style={{ color: "var(--text-muted)" }}>Salary</span></div>
+                <div style={{ color: "var(--text-primary)", fontWeight: 500 }}>${node.salary.toLocaleString()}</div>
+              </>}
               <div><span style={{ color: "var(--text-muted)" }}>Direct span</span></div>
               <div style={{ color: "var(--text-primary)", fontWeight: 500 }}>{node.direct_report_count}</div>
               <div><span style={{ color: "var(--text-muted)" }}>Branch headcount</span></div>
@@ -214,6 +219,25 @@ function OrgDetailPanel({ node, allNodes, onClose, onDrill, onBack, canGoBack }:
                   {spanStatus.label}
                 </span>
               )}
+            </div>
+          )}
+
+          {/* Section: Branch Cost */}
+          {(node.salary != null && node.salary > 0) && (
+            <div style={{ padding: "14px 0", borderBottom: "1px solid var(--border)" }}>
+              <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-muted)", marginBottom: 10 }}>BRANCH COST</div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "6px 16px", fontSize: 12 }}>
+                <div style={{ color: "var(--text-muted)" }}>Incumbent salary</div>
+                <div style={{ color: "var(--text-primary)", fontWeight: 500, textAlign: "right" }}>${node.salary.toLocaleString()}</div>
+                {(node.direct_reports_cost != null && node.direct_reports_cost > 0) && <>
+                  <div style={{ color: "var(--text-muted)" }}>Direct reports total</div>
+                  <div style={{ color: "var(--text-primary)", fontWeight: 500, textAlign: "right" }}>${node.direct_reports_cost.toLocaleString()}</div>
+                </>}
+                {(node.branch_cost != null && node.branch_cost > 0) && <>
+                  <div style={{ color: "var(--text-muted)", fontWeight: 600, paddingTop: 4, borderTop: "1px solid var(--border)" }}>Total branch cost</div>
+                  <div style={{ color: "var(--text-primary)", fontWeight: 700, textAlign: "right", paddingTop: 4, borderTop: "1px solid var(--border)" }}>${node.branch_cost.toLocaleString()}</div>
+                </>}
+              </div>
             </div>
           )}
 
@@ -249,6 +273,9 @@ function OrgDetailPanel({ node, allNodes, onClose, onDrill, onBack, canGoBack }:
                       </div>
                     </div>
                     <div style={{ textAlign: "right", flexShrink: 0, marginLeft: 12 }}>
+                      {(child.salary != null && child.salary > 0) && (
+                        <div style={{ fontSize: 11, color: "var(--text-secondary)", fontWeight: 500 }}>${child.salary.toLocaleString()}</div>
+                      )}
                       {child.direct_report_count > 0 && (
                         <div style={{ fontSize: 11, color: "var(--text-muted)" }}>span {child.direct_report_count}</div>
                       )}

@@ -25,6 +25,13 @@ def _build_tree(wf, max_depth=3, root_id=None, functions=None):
         name = str(row.get("Employee Name", ""))
         if not eid or not name:
             continue
+        # Salary: try Base Pay, then Compensation, then Total Cash
+        raw_salary = row.get("Base Pay") or row.get("Compensation") or row.get("Total Cash") or 0
+        try:
+            salary = float(raw_salary)
+        except (ValueError, TypeError):
+            salary = 0
+
         nodes[name] = {
             "id": eid, "name": name,
             "title": str(row.get("Job Title", "")),
@@ -35,6 +42,7 @@ def _build_tree(wf, max_depth=3, root_id=None, functions=None):
             "sub_family": str(row.get("Sub-Family", "")),
             "geography": str(row.get("Geography", "")),
             "manager_name": str(row.get("Manager Name", "")),
+            "salary": salary,
             "children": [],
             "direct_report_count": 0,
             "total_subtree_count": 1,
@@ -51,18 +59,23 @@ def _build_tree(wf, max_depth=3, root_id=None, functions=None):
         else:
             roots.append(node)
 
-    # Compute subtree counts and layers
+    # Compute subtree counts, layers, and branch cost
     def compute_stats(n):
         count = 1
         max_layer = 0
+        branch_cost = n.get("salary", 0)
         n["direct_report_count"] = len(n["children"])
+        direct_cost = sum(c.get("salary", 0) for c in n["children"])
+        n["direct_reports_cost"] = direct_cost
         for c in n["children"]:
-            c_count, c_layers = compute_stats(c)
+            c_count, c_layers, c_cost = compute_stats(c)
             count += c_count
             max_layer = max(max_layer, c_layers + 1)
+            branch_cost += c_cost
         n["total_subtree_count"] = count
         n["layers_below"] = max_layer
-        return count, max_layer
+        n["branch_cost"] = branch_cost
+        return count, max_layer, branch_cost
 
     for r in roots:
         compute_stats(r)
