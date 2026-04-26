@@ -734,7 +734,7 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
   const overallScore = (() => { const vals = Object.values(assessScores).filter(v => v > 0); return vals.length ? Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 10) / 10 : 0; })();
 
   // Design Path generation
-  const { savePath: saveDesignPath, getPath: getDesignPath, updateStepTiming } = useDesignPaths(model);
+  const { savePath: saveDesignPath, getPath: getDesignPath, updateStepTiming, setLifecycleState, saveOrReplacePath, archivePath } = useDesignPaths(model);
   const readinessPath = getDesignPath("readiness");
   const generateDesignPath = useCallback(() => {
     if (!assessComplete || overallScore === 0) return;
@@ -990,6 +990,7 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
         moduleStatus={{}}
         onNavigateToModule={(id) => { setPathDrawerOpen(false); onNavigate?.(id); }}
         onEditTiming={(idx, t) => updateStepTiming("readiness", idx, t)}
+        onLifecycleChange={(state) => setLifecycleState("readiness", state)}
       />
     )}
   </div>;

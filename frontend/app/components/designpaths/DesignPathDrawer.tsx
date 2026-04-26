@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect } from "react";
 import { X } from "@/lib/icons";
-import type { DesignPath, StepTiming } from "../../lib/designpaths/types";
+import type { DesignPath, StepTiming, PathLifecycleState } from "../../lib/designpaths/types";
 import { DesignPathView } from "./DesignPathView";
 
 interface Props {
@@ -11,9 +11,10 @@ interface Props {
   moduleStatus: Record<string, string>;
   onNavigateToModule: (id: string) => void;
   onEditTiming: (stepIdx: number, timing: Partial<StepTiming>) => void;
+  onLifecycleChange?: (state: PathLifecycleState) => void;
 }
 
-export function DesignPathDrawer({ open, onClose, path, moduleStatus, onNavigateToModule, onEditTiming }: Props) {
+export function DesignPathDrawer({ open, onClose, path, moduleStatus, onNavigateToModule, onEditTiming, onLifecycleChange }: Props) {
   // Lock body scroll when open
   useEffect(() => {
     if (open) {
@@ -79,6 +80,19 @@ export function DesignPathDrawer({ open, onClose, path, moduleStatus, onNavigate
             <X size={16} />
           </button>
         </div>
+
+        {/* Lifecycle control bar */}
+        {onLifecycleChange && (
+          <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "8px 32px", borderBottom: "1px solid var(--border)", flexShrink: 0, fontSize: 12 }}>
+            <select value={path.lifecycleState || "active"} onChange={e => onLifecycleChange(e.target.value as PathLifecycleState)}
+              style={{ padding: "3px 8px", fontSize: 12, background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 6, color: "var(--text-primary)", outline: "none" }}>
+              <option value="active">Active</option>
+              <option value="paused">Paused</option>
+              <option value="off">Off</option>
+            </select>
+            <span style={{ color: "var(--text-muted)" }}>Last active: {path.lastActiveAt ? new Date(path.lastActiveAt).toLocaleDateString() : "—"}</span>
+          </div>
+        )}
 
         {/* Body — scrollable */}
         <div style={{ flex: 1, overflowY: "auto", padding: 32 }}>

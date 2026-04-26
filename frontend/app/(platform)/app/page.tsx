@@ -96,6 +96,8 @@ const FlightRecorder = dynamic(() => import("../../components/FlightRecorder").t
 const Tutorial = dynamic(() => import("../../components/Tutorial").then(m => ({ default: m.Tutorial })), { ssr: false });
 const BotWorkspace = dynamic(() => import("../../components/bot/BotWorkspace"), { ssr: false });
 import { VideoBackground } from "../../components/VideoBackground";
+import { PathProgressChip } from "../../components/designpaths/PathProgressChip";
+import { useDesignPaths } from "../../lib/designpaths/useDesignPaths";
 import { useAnimatedBg } from "../../../lib/animated-bg-context";
 import { CDN_BASE, cb } from "../../../lib/cdn";
 import { useCollaboration } from "../../../lib/collaboration";
@@ -138,6 +140,23 @@ import { ProjectHub, TutorialOverlay, TutorialBadge, buildTutorialSteps } from "
    All API calls include filters for server-side filtering.
    logDec() is globally available for cross-module decision tracking.
    ═══════════════════════════════════════════════════════════════ */
+function DesignPathChips({ model, onNavigate }: { model: string; onNavigate: (id: string) => void }) {
+  const { allPaths, setLifecycleState } = useDesignPaths(model || "_none");
+  const chips = allPaths
+    .filter(p => p.lifecycleState === "active" || p.lifecycleState === "paused")
+    .map(p => ({
+      pathId: p.pathId,
+      sourceModuleTitle: p.sourceModuleTitle,
+      completedSteps: p.steps.filter(s => s.completedAt).length,
+      totalSteps: p.steps.length,
+      lifecycleState: p.lifecycleState as "active" | "paused",
+      onClick: () => onNavigate(p.sourceModuleId),
+      onResume: p.lifecycleState === "paused" ? () => setLifecycleState(p.sourceModuleId, "active") : undefined,
+    }));
+  if (!model || chips.length === 0) return null;
+  return <PathProgressChip chips={chips} />;
+}
+
 function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowProfile, onShowPlatformHub }: { projectId: string; projectName: string; projectMeta: string; onBackToHub: () => void; user?: authApi.AuthUser; onShowProfile?: () => void; onShowPlatformHub?: () => void }) {
   const { theme, toggle: toggleTheme } = useTheme();
   const animatedBg = useAnimatedBg();
@@ -1161,6 +1180,9 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
     {/* ═══ COLLABORATION: Activity Feed + Remote Change Toast ═══ */}
     <AnimatePresence>{showActivityFeed && <ActivityFeedPanel activity={collab.activity} onClose={() => setShowActivityFeed(false)} />}</AnimatePresence>
     <RemoteChangeToast change={remoteChange} onDismiss={() => setRemoteChange(null)} />
+
+    {/* ═══ DESIGN PATH PROGRESS CHIPS ═══ */}
+    <DesignPathChips model={model} onNavigate={navigate} />
 
     {/* ═══ AGENT ORCHESTRATOR ═══ */}
     <AgentOrchestrator projectId={projectId} sessionData={{ jobs: jobs.slice(0, 20), headcount: jobs.length, tasks: [], skills: [], functions: Array.from(new Set(jobs)), model_id: model || "", current_module: page }} />
