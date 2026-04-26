@@ -56,6 +56,7 @@ import { SoftCompletionWarning } from "./designpaths/SoftCompletionWarning";
 import { usePathBanner } from "../lib/designpaths/usePathBanner";
 import { SubStepInstructionPanel } from "./designpaths/SubStepInstructionPanel";
 import { OptionalTabNotice } from "./designpaths/OptionalTabNotice";
+import { StepCompleteCard } from "./designpaths/StepCompleteCard";
 
 
 /* ═══════════════════════════════════════════════════════════════
@@ -155,8 +156,13 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
   // Sub-step awareness for AI Opportunity Scan
   const { getActivePathsForModule: getActiveScan, markSubStepComplete: markScanSub, getCurrentSubStep: getScanSub, isTabPathRequired: isScanTabReq, getOptionalTabNotice: getScanOptNotice } = useDesignPaths(model);
   const scanActivePaths = getActiveScan("scan");
-  const scanActivePath = scanActivePaths.find(p => { const c = p.steps.find(s => !s.completedAt); return c && c.moduleId === "scan"; });
-  const scanStepIdx = scanActivePath?.steps.findIndex(s => !s.completedAt) ?? -1;
+  // Find active step OR recently-completed step for this module
+  const scanActivePath = scanActivePaths.find(p => p.steps.some(s => s.moduleId === "scan"));
+  const scanStepIdx = scanActivePath?.steps.findIndex(s => s.moduleId === "scan") ?? -1;
+  const scanStep = scanActivePath?.steps[scanStepIdx];
+  const scanStepComplete = !!scanStep?.completedAt;
+  const scanAllSubsDone = (scanStep?.subSteps || []).length > 0 && (scanStep?.subSteps || []).every(ss => ss.completedAt);
+  const scanNextStep = scanActivePath?.steps[scanStepIdx + 1];
 
   const renderScanTabPanel = (tabId: string) => {
     if (!scanActivePath || scanStepIdx < 0) return null;
@@ -191,8 +197,20 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
   return <div>
     <ContextStrip items={[viewCtx?.mode === "employee" ? "Showing AI impact on tasks in your role." : viewCtx?.mode === "job" ? `Filtered to ${viewCtx?.job} tasks only.` : "Phase 1: Discover — Find where AI creates the most value. This unlocks Phase 2: Design."]} />
     <PageHeader icon={viewCtx?.mode === "employee" ? <Users /> : <Search />} title={scanTitle} subtitle={scanSubtitle} onBack={onBack} moduleId="scan" />
-    {pb_scan.bannerPaths.length > 0 && <PathStepBanner paths={pb_scan.bannerPaths} onMarkComplete={pb_scan.handleMarkComplete} onPause={pb_scan.handlePause} onOpenPathDrawer={(srcId) => onNavigate?.(srcId)} />}
+    {pb_scan.bannerPaths.length > 0 && !scanStepComplete && <PathStepBanner paths={pb_scan.bannerPaths} onMarkComplete={pb_scan.handleMarkComplete} onPause={pb_scan.handlePause} onOpenPathDrawer={(srcId) => onNavigate?.(srcId)} />}
     {pb_scan.completionWarning && <SoftCompletionWarning criterion={pb_scan.completionWarning.criterion} onConfirm={pb_scan.confirmComplete} onCancel={pb_scan.cancelComplete} />}
+    {/* Step Complete card — shows when all sub-steps are done */}
+    {(scanStepComplete || scanAllSubsDone) && scanActivePath && <StepCompleteCard
+      stepIdx={scanStepIdx} totalSteps={scanActivePath.steps.length} stepTitle={scanStep?.title || "AI Opportunity Scan"}
+      completedAt={scanStep?.completedAt}
+      candidateFunctions={candidateFunctions}
+      concentrationJudgment={null} skillGapJudgment={subStep3Judgment} orgReadinessJudgment={subStep4Judgment}
+      skillGapRationale={subStep3Rationale} orgReadinessRationale={subStep4Rationale}
+      nextStepTitle={scanNextStep?.title} nextStepModuleId={scanNextStep?.moduleId}
+      nextStepAvailable={!!scanNextStep?.moduleId}
+      onContinueToNext={scanNextStep ? () => onNavigate?.(scanNextStep.moduleId) : undefined}
+      onEditAssessment={() => { /* TODO: re-open sub-step 1 state */ }}
+    />}
     <TabBar tabs={[{ id: "ai", label: "AI Prioritization" }, { id: "heatmap", label: "Impact Heatmap" }, { id: "skills", label: "Skill Gaps" }, { id: "org", label: "Org Diagnostics" }]} active={sub} onChange={setSub} />
 
     {loading && !data && <div className="space-y-4 mt-4"><SkeletonKpiRow count={4} /><SkeletonChart height={200} /><SkeletonTable rows={5} cols={4} /></div>}

@@ -13,6 +13,8 @@ interface BannerPath {
   criterion: string;
   howToInModule?: string[];
   stepCount: number;
+  hasSubSteps?: boolean;
+  stepComplete?: boolean;
 }
 
 interface Props {
@@ -55,13 +57,19 @@ export function PathStepBanner({ paths, onMarkComplete, onPause, onOpenPathDrawe
             )}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
-            <button onClick={() => onMarkComplete(p.sourceModuleId, p.stepIdx)} style={{
-              display: "inline-flex", alignItems: "center", gap: 4,
-              padding: "5px 12px", fontSize: 12, fontWeight: 600,
-              background: PURPLE, color: "#fff", border: "none", borderRadius: 6, cursor: "pointer",
-            }}>
-              <Check size={12} /> Mark complete
-            </button>
+            {p.stepComplete ? (
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12, fontWeight: 600, color: "#10B981" }}>
+                <Check size={14} /> Step complete
+              </span>
+            ) : !p.hasSubSteps && (
+              <button onClick={() => onMarkComplete(p.sourceModuleId, p.stepIdx)} style={{
+                display: "inline-flex", alignItems: "center", gap: 4,
+                padding: "5px 12px", fontSize: 12, fontWeight: 600,
+                background: PURPLE, color: "#fff", border: "none", borderRadius: 6, cursor: "pointer",
+              }}>
+                <Check size={12} /> Mark complete
+              </button>
+            )}
             <button onClick={() => onPause(p.sourceModuleId)} style={{
               fontSize: 11, color: "var(--text-muted)", background: "none", border: "none", cursor: "pointer",
             }}>pause</button>

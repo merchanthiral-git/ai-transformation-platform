@@ -26,11 +26,14 @@ export function usePathBanner(model: string, moduleId: string) {
       criterion: current.completionCriterion.description,
       howToInModule: current.completionCriterion.howToInModule,
       stepCount: path.steps.length,
+      hasSubSteps: (current.subSteps || []).length > 0,
+      stepComplete: !!current.completedAt,
     };
   }).filter(Boolean) as Array<{
     pathId: string; sourceModuleId: string; sourceModuleTitle: string;
     stepIdx: number; stepTitle: string; criterion: string;
     howToInModule?: string[]; stepCount: number;
+    hasSubSteps?: boolean; stepComplete?: boolean;
   }>;
 
   const [completionWarning, setCompletionWarning] = useState<{
