@@ -19,7 +19,7 @@ export function HeadcountPlanning({ model, f, onBack, onNavigate, jobStates, vie
   const [loading, setLoading] = useState(false);
 
   const bbbaOverrides = usePersisted<Record<string, string>>(`${model}_bbba_overrides`, {})[0];
-  useEffect(() => { if (!model) return; setLoading(true); api.getHeadcountPlan(model, f).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false)); }, [model, f.func, f.jf, f.sf, f.cl, bbbaOverrides]);
+  useEffect(() => { if (!model) return; let cancelled = false; const slow = setTimeout(() => { if (!cancelled) setLoading(true); }, 150); api.getHeadcountPlan(model, f).then(d => { if (cancelled) return; clearTimeout(slow); setData(d); setLoading(false); }).catch(() => { if (cancelled) return; clearTimeout(slow); setLoading(false); }); return () => { cancelled = true; clearTimeout(slow); }; }, [model, f.func, f.jf, f.sf, f.cl, bbbaOverrides]);
 
   const wf = (data?.waterfall || {}) as Record<string, unknown>;
   const depts = (data?.departments || []) as { department: string; current_fte: number; eliminated: number; redeployed: number; new_hires: number; future_fte: number; pct_change: number }[];

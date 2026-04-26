@@ -92,12 +92,178 @@ const S = {
    CARD DIMENSIONS
    ═══════════════════════════════════════════════════════════════ */
 
-const CARD_W = 224;
-const CARD_H = 78;
-const CARD_W_SM = 200;
-const CARD_H_SM = 64;
+const CARD_W = 210;
+const CARD_H = 68;
+const CARD_W_SM = 190;
+const CARD_H_SM = 58;
 const LAYER_GAP = 100;
 const SIBLING_GAP = 14;
+
+/* ═══════════════════════════════════════════════════════════════
+   SPAN BENCHMARKS
+   ═══════════════════════════════════════════════════════════════ */
+
+const IDEAL_SPAN: Record<string, [number, number]> = {
+  E1: [4, 8], E2: [4, 8],
+  E3: [5, 9], E4: [5, 9],
+  M1: [6, 10], M2: [6, 10], M3: [6, 10],
+  M4: [4, 8], M5: [4, 8], M6: [4, 8],
+};
+
+function getSpanStatus(level: string, span: number): { label: string; color: string } | null {
+  const range = IDEAL_SPAN[level];
+  if (!range || span === 0) return null;
+  if (span >= range[0] && span <= range[1]) return { label: "In range", color: "var(--success, #22c55e)" };
+  if (span === range[0] - 1 || span === range[1] + 1) return { label: "At edge", color: "var(--warning, #eab308)" };
+  return { label: span < range[0] ? "Narrow" : "Wide", color: "var(--risk, #ef4444)" };
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   DETAIL PANEL
+   ═══════════════════════════════════════════════════════════════ */
+
+function OrgDetailPanel({ node, allNodes, onClose, onDrill, onBack, canGoBack }: {
+  node: OrgNode;
+  allNodes: Map<string, OrgNode>;
+  onClose: () => void;
+  onDrill: (node: OrgNode) => void;
+  onBack?: () => void;
+  canGoBack?: boolean;
+}) {
+  const spanStatus = getSpanStatus(node.level, node.direct_report_count);
+  const idealRange = IDEAL_SPAN[node.level];
+  const isIC = node.direct_report_count === 0 && !node.has_children;
+
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 500, display: "flex", justifyContent: "flex-end" }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      {/* Backdrop */}
+      <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.3)", animation: "fadeIn 0.15s ease-out" }} />
+
+      {/* Panel */}
+      <div style={{
+        position: "relative", width: "min(480px, 100vw)", height: "100%",
+        background: "var(--surface-1)", borderLeft: "1px solid var(--border)",
+        boxShadow: "var(--shadow-4, -4px 0 24px rgba(0,0,0,0.15))",
+        display: "flex", flexDirection: "column",
+        animation: "slideInRight 0.2s ease-out",
+      }}>
+        {/* Header */}
+        <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border)", flexShrink: 0 }}>
+          {canGoBack && onBack && (
+            <button onClick={onBack} style={{
+              display: "inline-flex", alignItems: "center", gap: 4, padding: 0, marginBottom: 6,
+              fontSize: 11, fontWeight: 500, background: "none", border: "none",
+              color: "var(--text-muted)", cursor: "pointer",
+            }}>
+              <ArrowLeft size={12} /> Back
+            </button>
+          )}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+            <div style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>{node.name}</div>
+            <button onClick={onClose}
+              style={{ width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center",
+                background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 6,
+                color: "var(--text-muted)", cursor: "pointer", fontSize: 14 }}>
+              <X size={14} />
+            </button>
+          </div>
+          <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 8 }}>{node.title}</div>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {node.level && <span style={{ padding: "2px 8px", fontSize: 11, fontWeight: 600, background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 4, color: "var(--text-secondary)" }}>{node.level}</span>}
+            {node.family && <span style={{ padding: "2px 8px", fontSize: 11, fontWeight: 500, background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 4, color: "var(--text-muted)" }}>{node.family}</span>}
+            {node.sub_family && <span style={{ padding: "2px 8px", fontSize: 11, fontWeight: 500, background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 4, color: "var(--text-muted)" }}>{node.sub_family}</span>}
+          </div>
+        </div>
+
+        {/* Body */}
+        <div style={{ flex: 1, overflowY: "auto", padding: "0 20px 20px" }}>
+          {/* Section: Incumbent */}
+          <div style={{ padding: "14px 0", borderBottom: "1px solid var(--border)" }}>
+            <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-muted)", marginBottom: 10 }}>INCUMBENT</div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px 16px", fontSize: 12 }}>
+              <div><span style={{ color: "var(--text-muted)" }}>Function</span></div>
+              <div style={{ color: "var(--text-primary)", fontWeight: 500 }}>{node.function || "—"}</div>
+              <div><span style={{ color: "var(--text-muted)" }}>Track</span></div>
+              <div style={{ color: "var(--text-primary)", fontWeight: 500 }}>{node.track || "—"}</div>
+              <div><span style={{ color: "var(--text-muted)" }}>Geography</span></div>
+              <div style={{ color: "var(--text-primary)", fontWeight: 500 }}>{node.geography || "—"}</div>
+              <div><span style={{ color: "var(--text-muted)" }}>Direct span</span></div>
+              <div style={{ color: "var(--text-primary)", fontWeight: 500 }}>{node.direct_report_count}</div>
+              <div><span style={{ color: "var(--text-muted)" }}>Branch headcount</span></div>
+              <div style={{ color: "var(--text-primary)", fontWeight: 500 }}>{node.total_subtree_count}</div>
+              <div><span style={{ color: "var(--text-muted)" }}>Layers below</span></div>
+              <div style={{ color: "var(--text-primary)", fontWeight: 500 }}>{node.layers_below}</div>
+            </div>
+          </div>
+
+          {/* Section: Span of Control */}
+          {!isIC && idealRange && (
+            <div style={{ padding: "14px 0", borderBottom: "1px solid var(--border)" }}>
+              <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-muted)", marginBottom: 10 }}>SPAN OF CONTROL</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                <span style={{ fontSize: 24, fontWeight: 700, color: "var(--text-primary)" }}>{node.direct_report_count}</span>
+                <span style={{ fontSize: 12, color: "var(--text-muted)" }}>direct reports</span>
+              </div>
+              <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 4 }}>
+                Ideal range for {node.level}: {idealRange[0]}–{idealRange[1]} direct reports
+              </div>
+              {spanStatus && (
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 600, color: spanStatus.color }}>
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: spanStatus.color }} />
+                  {spanStatus.label}
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Section: Direct Reports */}
+          <div style={{ padding: "14px 0" }}>
+            <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-muted)", marginBottom: 10 }}>
+              DIRECT REPORTS {node.children?.length > 0 && `(${node.children.length})`}
+            </div>
+            {(!node.children || node.children.length === 0) ? (
+              <div style={{ fontSize: 12, color: "var(--text-muted)", padding: "12px 0" }}>No direct reports</div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                {node.children.map(child => (
+                  <div key={child.id}
+                    onClick={() => onDrill(child)}
+                    tabIndex={0} role="button"
+                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onDrill(child); } }}
+                    style={{
+                      display: "flex", alignItems: "center", justifyContent: "space-between",
+                      padding: "10px 8px", borderBottom: "1px solid var(--border)",
+                      cursor: "pointer", borderRadius: 4,
+                      transition: "background 0.1s",
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.background = "var(--surface-2)")}
+                    onMouseLeave={e => (e.currentTarget.style.background = "")}
+                  >
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)" }}>{child.name}</div>
+                      <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>{child.title}</div>
+                      <div style={{ display: "flex", gap: 4, marginTop: 4 }}>
+                        {child.level && <span style={{ padding: "1px 6px", fontSize: 10, fontWeight: 600, background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 3, color: "var(--text-secondary)" }}>{child.level}</span>}
+                        {child.family && <span style={{ padding: "1px 6px", fontSize: 10, fontWeight: 500, background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 3, color: "var(--text-muted)" }}>{child.family}</span>}
+                      </div>
+                    </div>
+                    <div style={{ textAlign: "right", flexShrink: 0, marginLeft: 12 }}>
+                      {child.direct_report_count > 0 && (
+                        <div style={{ fontSize: 11, color: "var(--text-muted)" }}>span {child.direct_report_count}</div>
+                      )}
+                      <ChevronRight size={12} style={{ color: "var(--text-muted)", marginTop: 2 }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 /* ═══════════════════════════════════════════════════════════════
    COMPONENT
@@ -117,6 +283,10 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
   // Synced state
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+
+  // Detail panel
+  const [panelNode, setPanelNode] = useState<OrgNode | null>(null);
+  const [drillStack, setDrillStack] = useState<OrgNode[]>([]);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [rootId, setRootId] = useState("");
   const [funcFilter, setFuncFilter] = useState<Set<string>>(new Set());
@@ -291,6 +461,39 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
     return { nodes, links };
   }, [rootNode, expandedIds]);
 
+  // Build a flat node lookup for the detail panel
+  const nodeMap = useMemo(() => {
+    const map = new Map<string, OrgNode>();
+    if (!rootNode) return map;
+    function walk(n: OrgNode) { map.set(n.id, n); (n.children || []).forEach(walk); }
+    walk(rootNode);
+    return map;
+  }, [rootNode]);
+
+  // Panel helpers
+  const currentPanelNode = drillStack.length > 0 ? drillStack[drillStack.length - 1] : panelNode;
+  const openPanel = useCallback((node: OrgNode) => {
+    setPanelNode(node);
+    setDrillStack([]);
+    setSelectedId(node.id);
+  }, []);
+  const drillInto = useCallback((node: OrgNode) => {
+    setDrillStack(prev => [...prev, node]);
+    setSelectedId(node.id);
+  }, []);
+  const drillBack = useCallback(() => {
+    setDrillStack(prev => {
+      if (prev.length <= 1) { return []; }
+      const next = prev.slice(0, -1);
+      setSelectedId(next[next.length - 1]?.id ?? panelNode?.id ?? null);
+      return next;
+    });
+  }, [panelNode]);
+  const closePanel = useCallback(() => {
+    setPanelNode(null);
+    setDrillStack([]);
+  }, []);
+
   // ── Fit to viewport ──
   const fitToView = useCallback(() => {
     if (!canvasRef.current || layoutData.nodes.length === 0) return;
@@ -418,14 +621,17 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
           });
           break;
         case "Escape":
-          if (isFullscreen) { setIsFullscreen(false); saveModePreference("inline"); }
+          if (currentPanelNode) {
+            if (drillStack.length > 0) drillBack();
+            else closePanel();
+          } else if (isFullscreen) { setIsFullscreen(false); saveModePreference("inline"); }
           else { setSelectedId(null); setContextMenu(null); setShowSearch(false); }
           break;
       }
     };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, [fitToView, isFullscreen, openPopout, saveModePreference]);
+  }, [fitToView, isFullscreen, openPopout, saveModePreference, currentPanelNode, drillStack.length, drillBack, closePanel]);
 
   // Re-fit after entering/exiting fullscreen (canvas size changes)
   useEffect(() => { requestAnimationFrame(() => fitToView()); }, [isFullscreen]);
@@ -456,70 +662,73 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
     const hasChildren = (node.children?.length > 0) || node.has_children;
     const isExpanded = expandedIds.has(node.id);
     const opacity = isDimmed ? 0.2 : 1;
+    const truncName = w < CARD_W ? 16 : 20;
+    const truncTitle = w < CARD_W ? 20 : 24;
 
     return (
       <g key={node.id} transform={`translate(${node.x - w / 2},${node.y})`}
         opacity={opacity}
         onMouseEnter={() => setHoveredId(node.id)}
         onMouseLeave={() => setHoveredId(null)}
-        onClick={(e) => { e.stopPropagation(); setSelectedId(node.id); }}
+        onClick={(e) => { e.stopPropagation(); openPanel(node); }}
         onDoubleClick={() => setRootId(node.id)}
         onContextMenu={(e) => handleContextMenu(e, node)}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openPanel(node); } }}
         style={{ cursor: isDimmed ? "default" : "pointer" }}
-        role="treeitem" aria-expanded={isExpanded} aria-level={node.depth + 1}
-        aria-label={`${node.name}, ${node.title}, ${node.function}, level ${node.level}, ${node.direct_report_count} direct reports`}
+        role="button" aria-label={`${node.name}, ${node.title}, level ${node.level}, span ${node.direct_report_count}`}
         tabIndex={isDimmed ? -1 : 0}
       >
         {/* Card background */}
         <rect width={w} height={h} rx={8} ry={8}
           fill="#fff"
-          stroke={isSelected ? "var(--amber)" : isHovered ? "rgba(22,24,34,0.4)" : "rgba(22,24,34,0.18)"}
+          stroke={isSelected ? "var(--accent-primary, var(--amber))" : isHovered ? "rgba(22,24,34,0.4)" : "rgba(22,24,34,0.18)"}
           strokeWidth={isSelected ? 1.5 : 0.5}
+          style={{ filter: isHovered && !isSelected ? "drop-shadow(0 2px 6px rgba(0,0,0,0.08))" : "none" }}
         />
         {/* Function accent stripe */}
-        <rect x={0} y={0} width={4} height={h} rx={2} ry={0}
-          fill={isRoot ? "var(--paper-solid)" : fc.main}
-          clipPath={`inset(0 0 0 0 round 8px 0 0 8px)`}
-        />
-        {/* Clip for left radius */}
         <clipPath id={`clip-${node.id}`}>
           <rect width={4} height={h} rx={2} />
         </clipPath>
         <rect x={0} y={0} width={4} height={h} fill={isRoot ? "var(--paper-solid)" : fc.main} clipPath={`url(#clip-${node.id})`} />
 
-        {/* Avatar */}
-        <circle cx={24} cy={20} r={13} fill={fc.light} />
-        <text x={24} y={24} textAnchor="middle" fontSize={9} fontWeight={600} fill={fc.dark}>{initials(node.name)}</text>
-
         {/* Name */}
-        <text x={44} y={18} fontSize={13} fontWeight={500} fill="var(--paper-solid)">
-          {node.name.length > 18 ? node.name.slice(0, 17) + "…" : node.name}
+        <text x={14} y={17} fontSize={13} fontWeight={600} fill="var(--paper-solid)">
+          {node.name.length > truncName ? node.name.slice(0, truncName - 1) + "…" : node.name}
         </text>
 
         {/* Title */}
-        <text x={44} y={32} fontSize={11} fill="rgba(22,24,34,0.65)">
-          {node.title.length > 22 ? node.title.slice(0, 21) + "…" : node.title}
+        <text x={14} y={31} fontSize={11} fill="rgba(22,24,34,0.6)">
+          {node.title.length > truncTitle ? node.title.slice(0, truncTitle - 1) + "…" : node.title}
         </text>
 
-        {/* Function pill + Level pill */}
-        <rect x={44} y={38} width={Math.min(node.function.length * 5.5 + 12, 70)} height={14} rx={2} fill={fc.light} />
-        <text x={50} y={49} fontSize={9} fill={fc.dark}>{node.function.slice(0, 10)}</text>
+        {/* Level chip + Family chip + Span chip */}
         {node.level && (
           <>
-            <rect x={44 + Math.min(node.function.length * 5.5 + 12, 70) + 4} y={38} width={node.level.length * 6 + 10} height={14} rx={2} fill="var(--surface-2)" />
-            <text x={44 + Math.min(node.function.length * 5.5 + 12, 70) + 9} y={49} fontSize={9} fontWeight={500} fill="var(--ink-soft)">{node.level}</text>
+            <rect x={14} y={38} width={node.level.length * 6 + 10} height={14} rx={3} fill="var(--surface-2)" />
+            <text x={19} y={49} fontSize={9} fontWeight={600} fill="var(--ink-soft)">{node.level}</text>
           </>
         )}
-
-        {/* Separator */}
-        <line x1={12} y1={56} x2={w - 12} y2={56} stroke="rgba(244,235,217,0.08)" strokeWidth={0.5} />
-
-        {/* Metadata row */}
-        <text x={12} y={70} fontSize={10} fill="var(--ink-faint)">
-          {node.direct_report_count > 0
-            ? `${node.total_subtree_count} people · span ${node.direct_report_count}`
-            : node.geography || "IC"}
-        </text>
+        {node.family && (() => {
+          const levelW = node.level ? node.level.length * 6 + 10 + 4 : 0;
+          const famText = node.family.length > 10 ? node.family.slice(0, 9) + "…" : node.family;
+          const famW = Math.min(famText.length * 5.5 + 10, w - 14 - levelW - 4);
+          return (
+            <>
+              <rect x={14 + levelW} y={38} width={famW} height={14} rx={3} fill={fc.light} />
+              <text x={19 + levelW} y={49} fontSize={9} fill={fc.dark}>{famText}</text>
+            </>
+          );
+        })()}
+        {node.direct_report_count > 0 && (() => {
+          const spanText = `span ${node.direct_report_count}`;
+          const spanW = spanText.length * 5.5 + 10;
+          return (
+            <>
+              <rect x={w - spanW - 8} y={38} width={spanW} height={14} rx={3} fill="rgba(22,24,34,0.05)" />
+              <text x={w - spanW - 3} y={49} fontSize={9} fill="var(--ink-faint)">{spanText}</text>
+            </>
+          );
+        })()}
 
         {/* Expand/collapse indicator */}
         {hasChildren && (
@@ -533,9 +742,9 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
           </g>
         )}
 
-        {/* Focus ring for keyboard */}
+        {/* Selection ring */}
         {isSelected && (
-          <rect width={w} height={h} rx={8} fill="none" stroke="var(--amber)" strokeWidth={2} strokeDasharray="none" />
+          <rect width={w} height={h} rx={8} fill="none" stroke="var(--accent-primary, var(--amber))" strokeWidth={2} />
         )}
       </g>
     );
@@ -831,6 +1040,7 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
       {contextMenu && (
         <div style={{ ...S.contextMenu, left: contextMenu.x, top: contextMenu.y }}>
           {[
+            { label: "Open detail panel", icon: <Eye size={12} />, action: () => openPanel(contextMenu.node) },
             { label: "Open role detail", icon: <Eye size={12} />, action: () => onRoleClick?.(contextMenu.node.title) },
             { label: "Isolate subtree", icon: <Layers3 size={12} />, action: () => setRootId(contextMenu.node.id) },
             { label: "Expand subtree", icon: <ChevronDown size={12} />, action: () => expandNode(contextMenu.node.id) },
@@ -845,6 +1055,18 @@ export default function OrgChart({ model, onRoleClick, isPopout, onSyncStatus }:
             </div>
           ))}
         </div>
+      )}
+
+      {/* ── Detail panel ── */}
+      {currentPanelNode && (
+        <OrgDetailPanel
+          node={currentPanelNode}
+          allNodes={nodeMap}
+          onClose={closePanel}
+          onDrill={drillInto}
+          onBack={drillBack}
+          canGoBack={drillStack.length > 0}
+        />
       )}
     </div>
   );

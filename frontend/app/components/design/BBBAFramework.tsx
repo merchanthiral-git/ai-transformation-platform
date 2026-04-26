@@ -14,7 +14,7 @@ export function BBBAFramework({ model, f, onBack, onNavigate, jobStates, viewCtx
   const [loading, setLoading] = useState(false);
   const [overrides, setOverrides] = usePersisted<Record<string, string>>(`${model}_bbba_overrides`, {});
 
-  useEffect(() => { if (!model) return; setLoading(true); api.getBBBA(model, f).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false)); }, [model, f.func, f.jf, f.sf, f.cl]);
+  useEffect(() => { if (!model) return; let cancelled = false; const slow = setTimeout(() => { if (!cancelled) setLoading(true); }, 150); api.getBBBA(model, f).then(d => { if (cancelled) return; clearTimeout(slow); setData(d); setLoading(false); }).catch(() => { if (cancelled) return; clearTimeout(slow); setLoading(false); }); return () => { cancelled = true; clearTimeout(slow); }; }, [model, f.func, f.jf, f.sf, f.cl]);
 
   const rawRoles = (data?.roles || []) as { role: string; disposition: string; reason: string; strong_candidates: number; reskillable_candidates: number; cost_per_fte: number; fte_needed: number; total_cost: number; required_skills: string[]; timeline_months: number; skill_area?: string }[];
 

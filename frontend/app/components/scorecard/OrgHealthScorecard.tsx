@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import {
   Check, AlertTriangle, ArrowUpRight, ArrowDownRight, RefreshCw,
   ChevronRight, Download, Layers3, Users, BarChart3, Sparkles,
@@ -104,13 +104,15 @@ export default function OrgHealthScorecard({ model, projectId }: Props) {
   const [loading, setLoading] = useState(false);
   const [expandedDim, setExpandedDim] = useState<string | null>(null);
 
+  const computeRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const compute = useCallback(async () => {
-    setLoading(true);
+    computeRef.current = setTimeout(() => setLoading(true), 150);
     try {
       const res = await apiFetch(`/api/scorecard/compute?project_id=${projectId}&model_id=${model}&save=true`, { method: "POST" });
       const d = await res.json();
       setData(d);
     } catch { /* empty */ }
+    if (computeRef.current) clearTimeout(computeRef.current);
     setLoading(false);
   }, [projectId, model]);
 

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import React, { useState, useEffect, useLayoutEffect, useCallback, useMemo, useRef } from "react";
 import { ResponsiveContainer, PieChart, Pie, Cell, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Legend, Tooltip } from "recharts";
 import * as api from "../../lib/api";
 import type { Filters } from "../../lib/api";
@@ -122,14 +122,12 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
   // Open phase detail view when triggered from breadcrumb navigation
   const handleRef = useRef(onScrollToPhaseHandled);
   handleRef.current = onScrollToPhaseHandled;
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!scrollToPhase) return;
-    const timer = setTimeout(() => {
-      setSelectedPhase(scrollToPhase);
-      setHighlightedPhase(scrollToPhase);
-      setTimeout(() => setHighlightedPhase(null), 2000);
-      handleRef.current?.();
-    }, 100);
+    setSelectedPhase(scrollToPhase);
+    setHighlightedPhase(scrollToPhase);
+    handleRef.current?.();
+    const timer = setTimeout(() => setHighlightedPhase(null), 2000);
     return () => clearTimeout(timer);
   }, [scrollToPhase]);
 
@@ -361,11 +359,14 @@ export function EmployeeProfileCard({ employee, model, f }: { employee: string; 
 
   useEffect(() => {
     if (!employee || !model) return;
-    setLoading(true);
+    let cancelled = false;
+    const slow = setTimeout(() => { if (!cancelled) setLoading(true); }, 150);
     callAI("Return ONLY valid JSON.", `Based on the employee name "${employee}" in an organization, generate a plausible employee profile. Return JSON: {"name":"${employee}","title":"likely job title","department":"department","manager":"manager name","level":"Junior/Mid/Senior/Lead/Director","track":"IC/Manager","tenure":"e.g. 3 years","location":"city","skills":["3 skills"],"aiImpact":"High/Moderate/Low","summary":"1 sentence about their role"}`).then(raw => {
+      if (cancelled) return; clearTimeout(slow);
       try { setAiProfile(JSON.parse(raw.replace(/\`\`\`json\n?/g,"").replace(/\`\`\`\n?/g,"").trim())); } catch (e) { console.error("[OverviewModule] AI profile JSON parse error", e); }
       setLoading(false);
     });
+    return () => { cancelled = true; clearTimeout(slow); };
   }, [employee, model]);
 
   if (loading) return <Card><LoadingSkeleton rows={4} /></Card>;
@@ -402,16 +403,19 @@ export function EmployeeOrgChart({ employee, model, f }: { employee: string; mod
 
   useEffect(() => {
     if (!employee || !model) return;
-    setLoading(true);
+    let cancelled = false;
+    const slow = setTimeout(() => { if (!cancelled) setLoading(true); }, 150);
     // Try to get real org data first, fall back to AI-generated
     api.getOrgDiagnostics(model, f).then(orgData => {
       // If we have real span data, it means workforce is uploaded — use AI with context
       const orgContext = orgData ? `This organization has ${(orgData as Record<string, unknown>)?.kpis ? JSON.stringify((orgData as Record<string, unknown>).kpis) : "unknown structure"}.` : "";
       return callAI("Return ONLY valid JSON.", `Generate a plausible org chart for employee "${employee}" in this organization. ${orgContext} Return JSON: {"skip_level":{"name":"SVP name","title":"SVP title"},"manager":{"name":"Director name","title":"Director title"},"self":{"name":"${employee}","title":"their title"},"peers":[{"name":"peer1","title":"title"},{"name":"peer2","title":"title"}],"directs":[{"name":"report1","title":"title"}]}`);
     }).then(raw => {
+      if (cancelled) return; clearTimeout(slow);
       try { setChart(JSON.parse(raw.replace(/\`\`\`json\n?/g,"").replace(/\`\`\`\n?/g,"").trim())); } catch (e) { console.error("[OverviewModule] org chart JSON parse error", e); }
       setLoading(false);
     });
+    return () => { cancelled = true; clearTimeout(slow); };
   }, [employee, model]);
 
   if (loading) return <Card title="Org Chart"><LoadingSkeleton rows={5} /></Card>;
@@ -482,8 +486,10 @@ export function TransformationExecDashboard({ model, f, onBack, onNavigate, deci
 
   useEffect(() => {
     if (!model) return;
-    setLoading(true);
-    api.getExportSummary(model).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false));
+    let cancelled = false;
+    const slow = setTimeout(() => { if (!cancelled) setLoading(true); }, 150);
+    api.getExportSummary(model).then(d => { if (cancelled) return; clearTimeout(slow); setData(d); setLoading(false); }).catch(() => { if (cancelled) return; clearTimeout(slow); setLoading(false); });
+    return () => { cancelled = true; clearTimeout(slow); };
   }, [model]);
 
   const bbba = data?.bbba_summary ?? { build: 0, buy: 0, total_investment: 0 };

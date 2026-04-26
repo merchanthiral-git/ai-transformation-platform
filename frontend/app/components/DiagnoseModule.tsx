@@ -310,14 +310,17 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
 
   useEffect(() => {
     if (!model) return;
-    setLoading(true);
+    let cancelled = false;
+    const slow = setTimeout(() => { if (!cancelled) setLoading(true); }, 150);
     Promise.all([
       api.getSkillsInventory(model, { func: f.func, jf: f.jf }),
       api.getSkillsGap(model),
       api.getSkillsAdjacency(model),
     ]).then(([inv, gap, adj]) => {
+      if (cancelled) return; clearTimeout(slow);
       setInvData(inv); setGapData(gap); setAdjData(adj); setLoading(false);
-    }).catch(() => setLoading(false));
+    }).catch(() => { if (cancelled) return; clearTimeout(slow); setLoading(false); });
+    return () => { cancelled = true; clearTimeout(slow); };
   }, [model, f.func, f.jf]);
 
   const inv = invData as Record<string, unknown> | null;
@@ -827,7 +830,7 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
   }, [assessAnswers]); // eslint-disable-line react-hooks/exhaustive-deps
   const overallScore = (() => { const vals = Object.values(assessScores).filter(v => v > 0); return vals.length ? Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 10) / 10 : 0; })();
 
-  useEffect(() => { if (!model) return; setLoading(true); api.getReadinessAssessment(model).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false)); }, [model]);
+  useEffect(() => { if (!model) return; let cancelled = false; const slow = setTimeout(() => { if (!cancelled) setLoading(true); }, 150); api.getReadinessAssessment(model).then(d => { if (cancelled) return; clearTimeout(slow); setData(d); setLoading(false); }).catch(() => { if (cancelled) return; clearTimeout(slow); setLoading(false); }); return () => { cancelled = true; clearTimeout(slow); }; }, [model]);
 
   const individuals = (data?.individuals || []) as { employee: string; scores: Record<string, number>; average: number; band: string }[];
   const dimAvgs = assessComplete ? assessScores : (data?.dimension_averages || {}) as Record<string, number>;
@@ -961,7 +964,7 @@ export function ManagerCapability({ model, f, onBack, onNavigate, viewCtx }: { m
   const [loading, setLoading] = useState(false);
   const [tab, setTab] = useState<"scorecard"|"correlation">("scorecard");
 
-  useEffect(() => { if (!model) return; setLoading(true); api.getManagerCapability(model, f).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false)); }, [model, f.func, f.jf, f.sf, f.cl]);
+  useEffect(() => { if (!model) return; let cancelled = false; const slow = setTimeout(() => { if (!cancelled) setLoading(true); }, 150); api.getManagerCapability(model, f).then(d => { if (cancelled) return; clearTimeout(slow); setData(d); setLoading(false); }).catch(() => { if (cancelled) return; clearTimeout(slow); setLoading(false); }); return () => { cancelled = true; clearTimeout(slow); }; }, [model, f.func, f.jf, f.sf, f.cl]);
 
   const managers = data?.managers ?? [];
   const dims = data?.dimensions ?? [];
@@ -1092,7 +1095,7 @@ export function ChangeReadiness({ model, f, onBack, onNavigate, viewCtx, simStat
   const [loading, setLoading] = useState(false);
   const [crTab, setCrTab] = useState<"campaigns" | "activities" | "raci" | "messages" | "tracking">("campaigns");
 
-  useEffect(() => { if (!model) return; setLoading(true); api.getChangeReadiness(model, f).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false)); }, [model, f.func, f.jf, f.sf, f.cl]);
+  useEffect(() => { if (!model) return; let cancelled = false; const slow = setTimeout(() => { if (!cancelled) setLoading(true); }, 150); api.getChangeReadiness(model, f).then(d => { if (cancelled) return; clearTimeout(slow); setData(d); setLoading(false); }).catch(() => { if (cancelled) return; clearTimeout(slow); setLoading(false); }); return () => { cancelled = true; clearTimeout(slow); }; }, [model, f.func, f.jf, f.sf, f.cl]);
 
   const summary = data?.summary ?? { total_assessed: 0 };
   const total = Number(summary.total_assessed || 0);
@@ -1298,7 +1301,7 @@ export function ManagerDevelopment({ model, f, onBack, onNavigate, viewCtx }: { 
   const [data, setData] = useState<import("../../types/api").ManagerDevelopmentResponse | null>(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => { if (!model) return; setLoading(true); api.getManagerDevelopment(model, f).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false)); }, [model, f.func, f.jf, f.sf, f.cl]);
+  useEffect(() => { if (!model) return; let cancelled = false; const slow = setTimeout(() => { if (!cancelled) setLoading(true); }, 150); api.getManagerDevelopment(model, f).then(d => { if (cancelled) return; clearTimeout(slow); setData(d); setLoading(false); }).catch(() => { if (cancelled) return; clearTimeout(slow); setLoading(false); }); return () => { cancelled = true; clearTimeout(slow); }; }, [model, f.func, f.jf, f.sf, f.cl]);
 
   const tracks = data?.tracks ?? data?.plans ?? [];
   const summary = data?.summary ?? {};
@@ -1908,8 +1911,10 @@ export function AIImpactHeatmap({ model, f, onBack, onNavigate, viewCtx }: { mod
 
   useEffect(() => {
     if (!model) return;
-    setLoading(true);
-    api.getAIHeatmap(model, f).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false));
+    let cancelled = false;
+    const slow = setTimeout(() => { if (!cancelled) setLoading(true); }, 150);
+    api.getAIHeatmap(model, f).then(d => { if (cancelled) return; clearTimeout(slow); setData(d); setLoading(false); }).catch(() => { if (cancelled) return; clearTimeout(slow); setLoading(false); });
+    return () => { cancelled = true; clearTimeout(slow); };
   }, [model, f.func, f.jf, f.sf, f.cl]);
 
   const cells = data?.cells ?? [];
@@ -1991,8 +1996,10 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
 
   useEffect(() => {
     if (!model) return;
-    setLoading(true);
-    api.getRoleClusters(model, f).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false));
+    let cancelled = false;
+    const slow = setTimeout(() => { if (!cancelled) setLoading(true); }, 150);
+    api.getRoleClusters(model, f).then(d => { if (cancelled) return; clearTimeout(slow); setData(d); setLoading(false); }).catch(() => { if (cancelled) return; clearTimeout(slow); setLoading(false); });
+    return () => { cancelled = true; clearTimeout(slow); };
   }, [model, f.func, f.jf, f.sf, f.cl]);
 
   const clusters = data?.clusters ?? [];

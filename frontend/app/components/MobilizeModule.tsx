@@ -40,7 +40,7 @@ export function ReskillingPathways({ model, f, onBack, onNavigate, viewCtx, jobS
   const [fWave, setFWave] = useState<string[]>([]);
   const [fSearch, setFSearch] = useState("");
 
-  useEffect(() => { if (!model) return; setLoading(true); api.getReskillingPathways(model, f).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false)); }, [model, f.func, f.jf, f.sf, f.cl]);
+  useEffect(() => { if (!model) return; let cancelled = false; const slow = setTimeout(() => { if (!cancelled) setLoading(true); }, 150); api.getReskillingPathways(model, f).then(d => { if (cancelled) return; clearTimeout(slow); setData(d); setLoading(false); }).catch(() => { if (cancelled) return; clearTimeout(slow); setLoading(false); }); return () => { cancelled = true; clearTimeout(slow); }; }, [model, f.func, f.jf, f.sf, f.cl]);
 
   const allPathways = (data?.pathways || []) as Pathway[];
   const summary = data?.summary ?? {};
@@ -311,8 +311,11 @@ export function TalentMarketplace({ model, f, onBack, onNavigate, viewCtx }: { m
   // Read adjacency shortlists to pre-populate
   const [adjShortlists] = usePersisted<Record<string, string[]>>(`${model}_shortlisted`, {});
   useEffect(() => {
-    if (!model) return; setLoading(true);
+    if (!model) return;
+    let cancelled = false;
+    const slow = setTimeout(() => { if (!cancelled) setLoading(true); }, 150);
     api.getTalentMarketplace(model, f).then(d => {
+      if (cancelled) return; clearTimeout(slow);
       // Merge adjacency shortlists into marketplace shortlists
       if (Object.keys(adjShortlists).length > 0) {
         setShortlisted(prev => {
@@ -324,7 +327,8 @@ export function TalentMarketplace({ model, f, onBack, onNavigate, viewCtx }: { m
         });
       }
       setData(d); setLoading(false);
-    }).catch(() => setLoading(false));
+    }).catch(() => { if (cancelled) return; clearTimeout(slow); setLoading(false); });
+    return () => { cancelled = true; clearTimeout(slow); };
   }, [model, f.func, f.jf, f.sf, f.cl, adjShortlists]);
 
   const marketplace = (data?.marketplace || []) as { target_role: string; candidates: { employee: string; adjacency_pct: number; matching_skills: string[]; gap_skills: string[]; reskill_months: number; readiness_score: number; readiness_band: string; has_pathway: boolean; pathway_cost: number; composite_score: number }[]; fill_recommendation: string }[];
@@ -1455,15 +1459,18 @@ export function SkillsNetwork({ model, f, onBack, onNavigate }: { model: string;
   // Load graph
   useEffect(() => {
     if (!model) return;
-    setLoading(true);
+    let cancelled = false;
+    const slow = setTimeout(() => { if (!cancelled) setLoading(true); }, 150);
     fetch("/api/skills/graph", {
       method: "POST",
       headers: { "Content-Type": "application/json", ..._authHeaders() },
       body: JSON.stringify({ project_id: model, model_id: model }),
     }).then(r => r.json()).then(d => {
+      if (cancelled) return; clearTimeout(slow);
       if (!d.error) setGraph(d);
       setLoading(false);
-    }).catch(() => setLoading(false));
+    }).catch(() => { if (cancelled) return; clearTimeout(slow); setLoading(false); });
+    return () => { cancelled = true; clearTimeout(slow); };
   }, [model]);
 
   // Run force simulation when graph loads

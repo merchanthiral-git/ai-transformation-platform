@@ -21,7 +21,7 @@ export function ExportReport({ model, f, onBack, onNavigate, jobStates, simState
   const [generated, setGenerated] = useState(false);
 
   const [error, setError] = useState(false);
-  useEffect(() => { if (!model) return; setLoading(true); setError(false); api.getExportSummary(model, f).then(d => { setData(d); setLoading(false); }).catch(() => { setLoading(false); setError(true); }); }, [model, f.func, f.jf, f.sf, f.cl]);
+  useEffect(() => { if (!model) return; let cancelled = false; setError(false); const slow = setTimeout(() => { if (!cancelled) setLoading(true); }, 150); api.getExportSummary(model, f).then(d => { if (cancelled) return; clearTimeout(slow); setData(d); setLoading(false); }).catch(() => { if (cancelled) return; clearTimeout(slow); setLoading(false); setError(true); }); return () => { cancelled = true; clearTimeout(slow); }; }, [model, f.func, f.jf, f.sf, f.cl]);
 
   const generateDocx = async () => {
     setGenerating(true); setGenStatus("Preparing Word document...");
