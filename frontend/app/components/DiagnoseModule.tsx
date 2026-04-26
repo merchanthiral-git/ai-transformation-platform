@@ -50,7 +50,7 @@ import { PrescriptionView } from "./prescriptive/PrescriptionView";
 import { computeRoadmapProgress } from "../lib/prescriptive/roadmapProgress";
 import { AIReadinessPathEngine } from "../lib/designpaths/engines/AIReadinessPathEngine";
 import { useDesignPaths } from "../lib/designpaths/useDesignPaths";
-import { DesignPathView } from "./designpaths/DesignPathView";
+import { DesignPathDrawer } from "./designpaths/DesignPathDrawer";
 
 
 /* ═══════════════════════════════════════════════════════════════
@@ -709,6 +709,7 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
   const [assessQ, setAssessQ] = useState(0);
   const [showReview, setShowReview] = useState(false);
   const [showRetakeConfirm, setShowRetakeConfirm] = useState(false);
+  const [pathDrawerOpen, setPathDrawerOpen] = useState(false);
   const assessComplete = Object.keys(assessAnswers).length >= totalQuestions;
 
   const handleRetake = () => {
@@ -922,7 +923,13 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
         <div className="text-[14px] text-[var(--text-muted)] uppercase tracking-wider mb-1">Your AI Readiness Score</div>
         <div className="text-[48px] font-extrabold font-data" style={{ color: orgAvg >= 3.5 ? "#8ba87a" : orgAvg >= 2.5 ? "#f4a83a" : "#e87a5d" }}>{orgAvg}/5</div>
         <div className="text-[16px] font-semibold" style={{ color: orgAvg >= 3.5 ? "#8ba87a" : orgAvg >= 2.5 ? "#f4a83a" : "#e87a5d" }}>{orgAvg >= 4 ? "Exceptional" : orgAvg >= 3.5 ? "Strong" : orgAvg >= 2.5 ? "Moderate" : orgAvg >= 1.5 ? "Developing" : "Critical"}</div>
-        <button onClick={() => setShowReview(true)} className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[14px] font-semibold border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] hover:bg-[rgba(244,168,58,0.08)] transition-all">✎ Edit / Retake Assessment</button>
+        <div className="flex items-center justify-center gap-3 mt-4 flex-wrap">
+          <button onClick={() => setShowReview(true)} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[14px] font-semibold border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] hover:bg-[rgba(244,168,58,0.08)] transition-all">✎ Edit / Retake Assessment</button>
+          {readinessPath && <button onClick={() => setPathDrawerOpen(true)} className="inline-flex flex-col items-start px-5 py-3 rounded-xl text-left transition-all hover:brightness-110" style={{ background: "#534AB7", color: "#fff", border: "none", cursor: "pointer" }}>
+            <span className="text-[14px] font-semibold">See your design path →</span>
+            <span className="text-[11px] opacity-75 mt-0.5">{readinessPath.steps.length} steps · {(() => { const w = readinessPath.steps.reduce((a, s) => ({ min: a.min + s.timing.minWeeks, max: a.max + s.timing.maxWeeks }), { min: 0, max: 0 }); return w.min === w.max ? `${w.min}` : `${w.min}–${w.max}`; })()}wk · {readinessPath.headline.toLowerCase()}</span>
+          </button>}
+        </div>
       </div>}
 
       <div className="grid grid-cols-5 gap-3 mb-5">
@@ -965,21 +972,23 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
         })}</div>
       </Card>
 
-      {/* ═══ DESIGN PATH ═══ */}
-      {readinessPath && <div className="mt-8">
-        <DesignPathView
-          path={readinessPath}
-          moduleStatus={{}}
-          onNavigateToModule={(id) => onNavigate?.(id)}
-          onEditTiming={(idx, t) => updateStepTiming("readiness", idx, t)}
-        />
-      </div>}
-
       <FlowNav
         previous={{ target: { kind: "module", moduleId: "scan" }, label: "AI Opportunity Scan" }}
         next={{ target: { kind: "module", moduleId: "changeready" }, label: "Change & Manager Readiness" }}
       />
     </>}
+
+    {/* Design Path drawer */}
+    {readinessPath && (
+      <DesignPathDrawer
+        open={pathDrawerOpen}
+        onClose={() => setPathDrawerOpen(false)}
+        path={readinessPath}
+        moduleStatus={{}}
+        onNavigateToModule={(id) => { setPathDrawerOpen(false); onNavigate?.(id); }}
+        onEditTiming={(idx, t) => updateStepTiming("readiness", idx, t)}
+      />
+    )}
   </div>;
 }
 
