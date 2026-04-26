@@ -923,9 +923,12 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
         <div className="text-[14px] text-[var(--text-muted)] uppercase tracking-wider mb-1">Your AI Readiness Score</div>
         <div className="text-[48px] font-extrabold font-data" style={{ color: orgAvg >= 3.5 ? "#8ba87a" : orgAvg >= 2.5 ? "#f4a83a" : "#e87a5d" }}>{orgAvg}/5</div>
         <div className="text-[16px] font-semibold" style={{ color: orgAvg >= 3.5 ? "#8ba87a" : orgAvg >= 2.5 ? "#f4a83a" : "#e87a5d" }}>{orgAvg >= 4 ? "Exceptional" : orgAvg >= 3.5 ? "Strong" : orgAvg >= 2.5 ? "Moderate" : orgAvg >= 1.5 ? "Developing" : "Critical"}</div>
-        <div className="flex items-center justify-center gap-3 mt-4 flex-wrap">
-          <button onClick={() => setShowReview(true)} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[14px] font-semibold border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] hover:bg-[rgba(244,168,58,0.08)] transition-all">✎ Edit / Retake Assessment</button>
-          {readinessPath && <button onClick={() => setPathDrawerOpen(true)} className="inline-flex flex-col items-start px-5 py-3 rounded-xl text-left transition-all hover:brightness-110" style={{ background: "#534AB7", color: "#fff", border: "none", cursor: "pointer" }}>
+        <div className="flex items-stretch justify-center gap-3 mt-4 flex-wrap">
+          <button onClick={() => setShowReview(true)} className="inline-flex flex-col items-start px-5 py-3 rounded-xl text-left transition-all hover:bg-[rgba(244,168,58,0.08)]" style={{ border: "1.5px solid rgba(244,168,58,0.3)", background: "transparent", cursor: "pointer" }}>
+            <span className="text-[14px] font-semibold text-[var(--accent-primary)]">✎ Edit / Retake Assessment</span>
+            <span className="text-[11px] text-[var(--text-muted)] mt-0.5">Update your responses</span>
+          </button>
+          {readinessPath && <button onClick={() => setPathDrawerOpen(true)} className="inline-flex flex-col items-start px-5 py-3 rounded-xl text-left transition-all hover:brightness-110" style={{ background: "#534AB7", color: "#fff", border: "1.5px solid #534AB7", cursor: "pointer" }}>
             <span className="text-[14px] font-semibold">See your design path →</span>
             <span className="text-[11px] opacity-75 mt-0.5">{readinessPath.steps.length} steps · {(() => { const w = readinessPath.steps.reduce((a, s) => ({ min: a.min + s.timing.minWeeks, max: a.max + s.timing.maxWeeks }), { min: 0, max: 0 }); return w.min === w.max ? `${w.min}` : `${w.min}–${w.max}`; })()}wk · {readinessPath.headline.toLowerCase()}</span>
           </button>}
