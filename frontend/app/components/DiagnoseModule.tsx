@@ -656,17 +656,6 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
       </Card>
     </div>}
 
-    {/* ═══ DESIGN PATH ═══ */}
-    {readinessPath && <div className="mt-6">
-      <DesignPathView
-        path={readinessPath}
-        moduleStatus={{}}
-        onNavigateToModule={(id) => onNavigate?.(id)}
-        onEditTiming={(idx, t) => updateStepTiming("readiness", idx, t)}
-        onShowYourWork={() => {/* TODO: audit trail panel */}}
-      />
-    </div>}
-
     <FlowNav
       previous={{ target: { kind: "module", moduleId: "changeready" }, label: "Change & Manager Readiness" }}
       next={{ target: { kind: "module", moduleId: "skillshift" }, label: "Skill Shift Index" }}
@@ -975,6 +964,16 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
           </div>;
         })}</div>
       </Card>
+
+      {/* ═══ DESIGN PATH ═══ */}
+      {readinessPath && <div className="mt-8">
+        <DesignPathView
+          path={readinessPath}
+          moduleStatus={{}}
+          onNavigateToModule={(id) => onNavigate?.(id)}
+          onEditTiming={(idx, t) => updateStepTiming("readiness", idx, t)}
+        />
+      </div>}
 
       <FlowNav
         previous={{ target: { kind: "module", moduleId: "scan" }, label: "AI Opportunity Scan" }}
