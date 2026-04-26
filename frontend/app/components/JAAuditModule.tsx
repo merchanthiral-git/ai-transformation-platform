@@ -137,7 +137,7 @@ export function JAAuditModule({ model, f, onBack, onNavigate, viewCtx }: { model
 
   return <div>
     <div className="flex items-center justify-between mb-3">
-      <PageHeader icon={<Layers3 />} title="Job Architecture Audit" />
+      <PageHeader icon={<Layers3 />} title="Job Architecture Audit" moduleId="ja-audit" />
       {/* Mode toggle */}
       <div style={{ display: 'flex', background: 'var(--surface-1)', borderRadius: 8, padding: 2, border: '0.5px solid var(--border)' }}>
         {(['executive', 'analyst'] as const).map(mode => (

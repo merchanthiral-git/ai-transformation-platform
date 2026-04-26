@@ -76,7 +76,7 @@ export function JADesignToolModule({ model, f, onBack, onNavigate, viewCtx }: { 
   ];
 
   return <div>
-    <PageHeader icon={<Layers3 />} title="Job Architecture Design Tool" />
+    <PageHeader icon={<Layers3 />} title="Job Architecture Design Tool" moduleId="ja-design" />
     {showLoader && <LoadingBar />}
 
     {/* Import from Audit callout */}

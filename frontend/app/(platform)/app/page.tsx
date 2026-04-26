@@ -295,15 +295,24 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
   const [pendingPhase, setPendingPhase] = useState<string | null>(null);
 
   const goTo = useCallback((target: NavTarget) => {
+    // Dismiss splash for ANY explicit navigation — user is past the intro
+    if (showSplash) {
+      setShowSplash(false);
+      try { sessionStorage.setItem(`${projectId}_splashSeen`, "1"); } catch (e) { console.error("[Storage]", e); }
+    }
+    // Ensure viewMode is set so the ViewSelector early-return (line ~729) doesn't
+    // swallow the navigation. If viewMode is empty, default to "org" so the main
+    // render tree (sidebar + LandingPage/modules) actually mounts.
+    if (!viewMode) {
+      setViewMode("org");
+    }
     switch (target.kind) {
       case "home":
         setPage("home");
-        setViewMode("");
         setPendingPhase(null);
         break;
       case "phase":
         setPage("home");
-        setViewMode("");
         setPendingPhase(target.phaseId);
         break;
       case "module":
@@ -313,7 +322,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
         analytics.startModuleSession(target.moduleId);
         break;
     }
-  }, [setPage, setViewMode, setVisited]);
+  }, [setPage, setViewMode, setVisited, page, showSplash, viewMode, projectId]);
 
   // Backward-compat wrappers — modules still receive onBack / onNavigate
   const goHome = useCallback((targetPhase?: string) => {

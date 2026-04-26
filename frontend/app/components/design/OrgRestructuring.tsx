@@ -651,14 +651,14 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
   /* ── Conditional returns (after all hooks) ── */
   if (loading) return (
     <div style={{ padding: 32 }}>
-      <PageHeader icon={<Network size={20} />} title="Org Restructuring" subtitle="Loading workforce data..." onBack={onBack} />
+      <PageHeader icon={<Network size={20} />} title="Org Restructuring" subtitle="Loading workforce data..." onBack={onBack} moduleId="reorg" />
       <LoadingSkeleton rows={6} />
     </div>
   );
 
   if (!wfData || wfData.length === 0) return (
     <div style={{ padding: 32 }}>
-      <PageHeader icon={<Network size={20} />} title="Org Restructuring" subtitle="Reshape your organization" onBack={onBack} />
+      <PageHeader icon={<Network size={20} />} title="Org Restructuring" subtitle="Reshape your organization" onBack={onBack} moduleId="reorg" />
       <EmptyState
         icon={<Network size={28} />}
         headline="Workforce data required"
@@ -2101,6 +2101,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
           title="Org Restructuring"
           subtitle="Design, compare, and evaluate organizational restructuring scenarios"
           onBack={onBack}
+          moduleId="reorg"
           viewCtx={viewCtx}
         />
 
@@ -2207,6 +2208,7 @@ export function OrgRestructuring({ model, f, onBack, onNavigate, viewCtx, jobSta
         title="Org Restructuring"
         subtitle="Design, compare, and evaluate organizational restructuring scenarios"
         onBack={onBack}
+        moduleId="reorg"
         viewCtx={viewCtx}
       />
 
