@@ -76,7 +76,7 @@ export function BarViz({ data, labelKey = "name", valueKey = "value", color = "v
 export function DonutViz({ data, title }: { data: { name: string; value: number }[]; title?: string }) {
   if (!data?.length) return null;
   const content = <div className="flex items-center gap-6">
-    <ResponsiveContainer width={120} height={120}><PieChart><Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={30} outerRadius={52} strokeWidth={0} animationDuration={800} animationEasing="ease-out">{data.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Pie><Tooltip contentStyle={TT as object} /></PieChart></ResponsiveContainer>
+    <PieChart width={120} height={120}><Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={30} outerRadius={52} strokeWidth={0} animationDuration={800} animationEasing="ease-out">{data.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Pie><Tooltip contentStyle={TT as object} /></PieChart>
     <div className="space-y-1">{data.map((d, i) => <div key={i} className="flex items-center gap-2 text-[13px]"><span className="w-2.5 h-2.5 rounded-full" style={{ background: COLORS[i % COLORS.length] }} /><span className="text-[var(--text-secondary)]">{d.name}</span><span className="ml-auto" style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>{d.value.toLocaleString()}</span></div>)}</div>
   </div>;
   return <ExpandableChart title={title}>{content}</ExpandableChart>;
