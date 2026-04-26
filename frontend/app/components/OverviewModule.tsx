@@ -40,6 +40,8 @@ import type { ViewContext, JobDesignState } from "./shared";
 import { SkeletonKpiRow, SkeletonChart } from "./ui-primitives";
 import { LayoutDashboard, Users, Compass, TrendingUp, GraduationCap } from "@/lib/icons";
 import { FlowNav } from "@/app/ui";
+import { useDesignPaths } from "../lib/designpaths/useDesignPaths";
+import { PathSummaryCard } from "./designpaths/PathSummaryCard";
 
 export function TransformationDashboard({ data, jobStates, simState, viewCtx }: { data: OverviewResponse | null; jobStates: Record<string, JobDesignState>; simState: { scenario: string; custom: boolean; custAdopt: number; custTimeline: number; investment: number }; viewCtx?: ViewContext }) {
   const k = (data?.kpis ?? { employees: 0, roles: 0, tasks_mapped: 0, avg_span: 0, high_ai_pct: 0, readiness_score: 0, readiness_tier: "" }) as OverviewKpis;
@@ -113,6 +115,45 @@ export function TransformationDashboard({ data, jobStates, simState, viewCtx }: 
       </div>)}
     </div>
   </div>;
+}
+
+/* ═══ Design Paths — Home Page Section ═══ */
+function DesignPathsHomeSection({ onNavigate }: { onNavigate: (id: string) => void }) {
+  // Use a generic project key — LandingPage doesn't have projectId directly,
+  // but useDesignPaths reads from the model-scoped key the modules wrote to.
+  // We iterate over all localStorage keys matching *_designPaths to find paths.
+  const [paths, setPaths] = useState<import("../lib/designpaths/types").DesignPath[]>([]);
+  useEffect(() => {
+    try {
+      const all: import("../lib/designpaths/types").DesignPath[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.endsWith("_designPaths")) {
+          const val = JSON.parse(localStorage.getItem(key) || "{}");
+          for (const p of Object.values(val)) {
+            if (p && typeof p === "object" && "pathId" in (p as Record<string, unknown>)) all.push(p as import("../lib/designpaths/types").DesignPath);
+          }
+        }
+      }
+      setPaths(all);
+    } catch { /* ignore */ }
+  }, []);
+
+  if (paths.length === 0) return null;
+
+  return (
+    <div className="relative z-20 px-7 py-6" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.5))" }}>
+      <div style={{ maxWidth: 880, margin: "0 auto" }}>
+        <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)", marginBottom: 6 }}>YOUR DESIGN PATHS</div>
+        <div style={{ fontSize: 14, color: "rgba(255,255,255,0.55)", marginBottom: 14, lineHeight: 1.5 }}>Each diagnostic produced its own path. Pick where to focus, or work them in parallel.</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {paths.slice(0, 3).map(p => (
+            <PathSummaryCard key={p.sourceModuleId} path={p} moduleStatus={{}} onOpen={() => onNavigate(p.sourceModuleId)} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, projectName, onBackToHub, onBackToSplash, cardBackgrounds, phaseBackgrounds, scrollToPhase, onScrollToPhaseHandled }: { onNavigate: (id: string) => void; moduleStatus: Record<string, string>; hasData: boolean; viewMode?: string; projectName?: string; onBackToHub?: () => void; onBackToSplash?: () => void; cardBackgrounds?: Record<string, string>; phaseBackgrounds?: Record<string, string>; scrollToPhase?: string | null; onScrollToPhaseHandled?: () => void }) {
@@ -349,6 +390,9 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
       .milestone-btn:hover .milestone-icon { transform: scale(1.1); box-shadow: 0 0 20px rgba(212,168,67,0.4); filter: brightness(1.1) drop-shadow(0 0 16px rgba(212,168,67,0.4)) !important; }
       .milestone-btn:hover .milestone-label { filter: brightness(1.15); }
     `}</style>
+
+    {/* ── Design Paths section — shown when paths exist ── */}
+    <DesignPathsHomeSection onNavigate={onNavigate} />
   </div>;
 }
 

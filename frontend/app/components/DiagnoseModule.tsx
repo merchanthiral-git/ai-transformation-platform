@@ -48,6 +48,9 @@ import type { ManagerCapabilityResult } from "../lib/prescriptive/engines/Manage
 import { usePrescribedRoadmaps } from "../lib/prescriptive/usePrescribedRoadmaps";
 import { PrescriptionView } from "./prescriptive/PrescriptionView";
 import { computeRoadmapProgress } from "../lib/prescriptive/roadmapProgress";
+import { AIReadinessPathEngine } from "../lib/designpaths/engines/AIReadinessPathEngine";
+import { useDesignPaths } from "../lib/designpaths/useDesignPaths";
+import { DesignPathView } from "./designpaths/DesignPathView";
 
 
 /* ═══════════════════════════════════════════════════════════════
@@ -653,6 +656,17 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
       </Card>
     </div>}
 
+    {/* ═══ DESIGN PATH ═══ */}
+    {readinessPath && <div className="mt-6">
+      <DesignPathView
+        path={readinessPath}
+        moduleStatus={{}}
+        onNavigateToModule={(id) => onNavigate?.(id)}
+        onEditTiming={(idx, t) => updateStepTiming("readiness", idx, t)}
+        onShowYourWork={() => {/* TODO: audit trail panel */}}
+      />
+    </div>}
+
     <FlowNav
       previous={{ target: { kind: "module", moduleId: "changeready" }, label: "Change & Manager Readiness" }}
       next={{ target: { kind: "module", moduleId: "skillshift" }, label: "Skill Shift Index" }}
@@ -728,6 +742,16 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
     return scores;
   }, [assessAnswers]); // eslint-disable-line react-hooks/exhaustive-deps
   const overallScore = (() => { const vals = Object.values(assessScores).filter(v => v > 0); return vals.length ? Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 10) / 10 : 0; })();
+
+  // Design Path generation
+  const { savePath: saveDesignPath, getPath: getDesignPath, updateStepTiming } = useDesignPaths(model);
+  const readinessPath = getDesignPath("readiness");
+  const generateDesignPath = useCallback(() => {
+    if (!assessComplete || overallScore === 0) return;
+    const path = AIReadinessPathEngine.generate({ overallScore, dimensions: assessScores }, model);
+    saveDesignPath(path);
+  }, [assessComplete, overallScore, assessScores, model, saveDesignPath]);
+  useEffect(() => { if (assessComplete && !readinessPath) generateDesignPath(); }, [assessComplete, readinessPath, generateDesignPath]);
 
   useEffect(() => { if (!model) return; let cancelled = false; const slow = setTimeout(() => { if (!cancelled) setLoading(true); }, 150); api.getReadinessAssessment(model).then(d => { if (cancelled) return; clearTimeout(slow); setData(d); setLoading(false); }).catch(() => { if (cancelled) return; clearTimeout(slow); setLoading(false); }); return () => { cancelled = true; clearTimeout(slow); }; }, [model]);
 
