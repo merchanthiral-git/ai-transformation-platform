@@ -53,7 +53,6 @@ const ManagerCapability = dynamic(() => import("../../components/DiagnoseModule"
 const SkillsTalent = dynamic(() => import("../../components/SkillsEngine").then(m => ({ default: m.SkillsEngine })), { ssr: false, loading: ModuleLoadingSkeleton });
 const ChangeReadiness = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.ChangeReadiness })), { ssr: false, loading: ModuleLoadingSkeleton });
 const ManagerDevelopment = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.ManagerDevelopment })), { ssr: false, loading: ModuleLoadingSkeleton });
-const AiRecommendationsEngine = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.AiRecommendationsEngine })), { ssr: false, loading: ModuleLoadingSkeleton });
 const OrgHealthScorecard = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.OrgHealthScorecard })), { ssr: false, loading: ModuleLoadingSkeleton });
 const AIImpactHeatmap = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.AIImpactHeatmap })), { ssr: false, loading: ModuleLoadingSkeleton });
 const RoleClustering = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.RoleClustering })), { ssr: false, loading: ModuleLoadingSkeleton });
@@ -1130,7 +1129,6 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       {page === "mgrcap" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ManagerCapability model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "changeready" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ChangeReadiness model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} simState={simState} /></ErrorBoundary>}
       {page === "mgrdev" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ManagerDevelopment model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
-      {page === "recommendations" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><AiRecommendationsEngine model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "orghealth" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><OrgHealthScorecard model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "heatmap" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><AIImpactHeatmap model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "clusters" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><RoleClustering model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
