@@ -130,6 +130,7 @@ function HeatmapView({ model, f }: { model: string; f: Filters }) {
 export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext }) {
   const [sub, setSub] = useState("ai");
   const [spanView, setSpanView] = useState<"dist" | "level" | "outlier">("dist");
+  const [leadershipReadiness, setLeadershipReadiness] = usePersisted<Record<string, string>>(`${model}_func_leadership`, {});
   const [data, loading] = useApiData(() => { if (sub === "ai") return api.getAIPriority(model, f); if (sub === "skills") return api.getSkillAnalysis(model, f); if (sub === "org") return api.getOrgDiagnostics(model, f); return api.getDataQuality(model); }, [sub, model, f.func, f.jf, f.sf, f.cl]);
 
   const scanTitle = viewCtx?.mode === "employee" ? "AI Impact on My Role" : viewCtx?.mode === "job" ? `AI Impact — ${viewCtx.job}` : "AI Opportunity Scan";
@@ -205,8 +206,11 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
       }
       const funcRows = Array.from(funcMap.entries()).map(([name, d]) => {
         const avgImpact = d.tasks > 0 ? Math.round(d.impactSum / d.tasks) : 0;
-        const composite = Math.round((d.roles.size * avgImpact * 0.004) + (d.autoHrs * 4) + (d.quickWins * 10 * 0.2));
-        return { name, headcount: d.roles.size, tasks: d.tasks, autoHrs: Math.round(d.autoHrs * 10) / 10, avgImpact, quickWins: d.quickWins, composite: Math.min(composite, 100) };
+        const rawComposite = Math.round((d.roles.size * avgImpact * 0.004) + (d.autoHrs * 4) + (d.quickWins * 10 * 0.2));
+        const lr = leadershipReadiness[name] || "Unknown";
+        const penalty = lr === "Resistant" ? 0.5 : 1;
+        const composite = Math.min(Math.round(rawComposite * penalty), 100);
+        return { name, headcount: d.roles.size, tasks: d.tasks, autoHrs: Math.round(d.autoHrs * 10) / 10, avgImpact, quickWins: d.quickWins, composite, leadershipReadiness: lr, penalized: lr === "Resistant" };
       }).filter(r => r.tasks > 0).sort((a, b) => b.composite - a.composite);
 
       return <div><div className="grid grid-cols-4 gap-3 mb-5"><KpiCard label="Tasks Scored" value={s.tasks_scored ?? 0} /><KpiCard label="Quick Wins" value={quickWins.length || (s.quick_wins ?? 0)} accent /><KpiCard label="Time Impact" value={`${s.total_time_impact ?? 0}h/wk`} /><KpiCard label="Avg Risk" value={s.avg_risk ?? 0} /></div>
@@ -226,6 +230,7 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
               <th className="px-3 py-2 text-center text-[var(--text-muted)] font-semibold border-b border-[var(--border)]">Auto hrs/wk</th>
               <th className="px-3 py-2 text-center text-[var(--text-muted)] font-semibold border-b border-[var(--border)]">Avg Impact</th>
               <th className="px-3 py-2 text-center text-[var(--text-muted)] font-semibold border-b border-[var(--border)]">Quick Wins</th>
+              <th className="px-3 py-2 text-center text-[var(--text-muted)] font-semibold border-b border-[var(--border)]">Leadership</th>
               <th className="px-3 py-2 text-center text-[var(--text-muted)] font-semibold border-b border-[var(--border)]">Score</th>
             </tr></thead>
             <tbody>{funcRows.map((r, i) => {
@@ -238,7 +243,19 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
                 <td className="px-3 py-2 text-center font-mono font-bold text-[var(--text-secondary)]">{r.autoHrs}</td>
                 <td className="px-3 py-2 text-center"><span className="font-bold" style={{ color: r.avgImpact >= 70 ? "#e87a5d" : r.avgImpact >= 40 ? "#f4a83a" : "#8ba87a" }}>{r.avgImpact}</span></td>
                 <td className="px-3 py-2 text-center font-bold" style={{ color: r.quickWins > 0 ? "#8ba87a" : "var(--text-muted)" }}>{r.quickWins}</td>
-                <td className="px-3 py-2 text-center font-mono font-extrabold" style={{ color: isTop5 ? "#3B82F6" : "var(--text-primary)" }}>{r.composite}</td>
+                <td className="px-3 py-2 text-center">
+                  <select value={r.leadershipReadiness} onChange={e => setLeadershipReadiness(prev => ({ ...prev, [r.name]: e.target.value }))} style={{
+                    fontSize: 11, fontWeight: 600, padding: "2px 6px", borderRadius: 10, border: "none", cursor: "pointer", outline: "none",
+                    background: r.leadershipReadiness === "Willing" ? "rgba(16,185,129,0.15)" : r.leadershipReadiness === "Neutral" ? "rgba(245,158,11,0.15)" : r.leadershipReadiness === "Resistant" ? "rgba(239,68,68,0.15)" : "rgba(255,255,255,0.06)",
+                    color: r.leadershipReadiness === "Willing" ? "#10B981" : r.leadershipReadiness === "Neutral" ? "#F59E0B" : r.leadershipReadiness === "Resistant" ? "#EF4444" : "rgba(247,245,240,0.55)",
+                  }}>
+                    <option value="Unknown">Unknown</option>
+                    <option value="Willing">Willing</option>
+                    <option value="Neutral">Neutral</option>
+                    <option value="Resistant">Resistant</option>
+                  </select>
+                </td>
+                <td className="px-3 py-2 text-center font-mono font-extrabold" style={{ color: isTop5 ? "#3B82F6" : "var(--text-primary)" }}>{r.composite}{r.penalized && <span title="Deprioritized: Resistant leadership" style={{ marginLeft: 3, fontSize: 10, color: "#EF4444" }}>↓</span>}</td>
               </tr>;
             })}</tbody>
           </table>

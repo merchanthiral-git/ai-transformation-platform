@@ -90,20 +90,20 @@ function scanSubSteps(requiredTabs: string[], patternCtx: { emphasisPilot?: bool
       title: patternCtx.emphasisPilot ? "Identify candidate functions for pilot" : patternCtx.emphasisAmbitious ? "Identify high-ambition automation targets" : "Identify highest-leverage functions",
       criterion: patternCtx.emphasisPilot ? "Note 2-3 functions where AI impact is highest and readiness is concentrated" : patternCtx.emphasisBroad ? "Rank 3-5 functions by headcount × AI-impact for parallel work" : "Identify priority functions for transformation scope",
       howToDoIt: patternCtx.emphasisPilot ? [
-        "Look at the Quick Wins panel — tasks with highest impact and lowest risk.",
-        "Note which 2-3 functions appear most frequently in Quick Wins.",
-        "Pick the function with the cleanest readiness profile (willing leader, recent wins).",
-        "Click 'Mark sub-step complete' when you've identified your candidates.",
+        "Review the Function Prioritization table above. The top 5 functions are highlighted.",
+        "For your top 2-3 candidates, click the Leadership Readiness pill and set it based on what you know. Resistant functions deprioritize automatically.",
+        "Confirm your final 1-2 pilot functions by re-sorting after setting readiness.",
+        "Click 'Mark sub-step complete' when you have your shortlist.",
       ] : patternCtx.emphasisAmbitious ? [
-        "Look at the full top-10 task list, not just Quick Wins — include large-scale automation candidates.",
-        "Note which functions have the most high-impact tasks concentrated together.",
-        "For ambitious scope: include functions where AI could redesign entire job families, not just individual tasks.",
-        "Click 'Mark sub-step complete' when you've identified your targets.",
+        "Review the Function Prioritization table. For ambitious scope, look beyond the top 5 — include functions where AI could redesign entire job families.",
+        "For each candidate, click the Leadership Readiness pill and set it. Resistant functions deprioritize automatically.",
+        "Confirm your final 3-5 candidate functions by re-sorting Composite Score after setting readiness.",
+        "Click 'Mark sub-step complete' when you have your shortlist.",
       ] : [
-        "Open the AI Prioritization tab. Review the Quick Wins panel and top-10 task list.",
-        "Note which 3-5 functions appear most frequently in high-impact tasks.",
-        "Cross-check: do these functions have willing leadership and recent momentum?",
-        "Click 'Mark sub-step complete' when you've ranked your priority functions.",
+        "Review the Function Prioritization table above. The top 5 functions are highlighted.",
+        "For each of the top 5, click the Leadership Readiness pill and set it based on what you know about that function's leadership posture. Functions marked Resistant will deprioritize automatically.",
+        "Confirm your final 3-5 candidate functions by re-sorting Composite Score after setting readiness.",
+        "Click 'Mark sub-step complete' when you have your shortlist.",
       ],
     });
   }
