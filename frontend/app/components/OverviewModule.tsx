@@ -118,26 +118,20 @@ export function TransformationDashboard({ data, jobStates, simState, viewCtx }: 
 }
 
 /* ═══ Design Paths — Home Page Section ═══ */
-function DesignPathsHomeSection({ onNavigate }: { onNavigate: (id: string) => void }) {
-  // Use a generic project key — LandingPage doesn't have projectId directly,
-  // but useDesignPaths reads from the model-scoped key the modules wrote to.
-  // We iterate over all localStorage keys matching *_designPaths to find paths.
+function DesignPathsHomeSection({ model, onNavigate }: { model: string; onNavigate: (id: string) => void }) {
   const [paths, setPaths] = useState<import("../lib/designpaths/types").DesignPath[]>([]);
   useEffect(() => {
+    if (!model) { setPaths([]); return; }
     try {
+      const key = `${model}_designPaths`;
+      const val = JSON.parse(localStorage.getItem(key) || "{}");
       const all: import("../lib/designpaths/types").DesignPath[] = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.endsWith("_designPaths")) {
-          const val = JSON.parse(localStorage.getItem(key) || "{}");
-          for (const p of Object.values(val)) {
-            if (p && typeof p === "object" && "pathId" in (p as Record<string, unknown>)) all.push(p as import("../lib/designpaths/types").DesignPath);
-          }
-        }
+      for (const p of Object.values(val)) {
+        if (p && typeof p === "object" && "pathId" in (p as Record<string, unknown>)) all.push(p as import("../lib/designpaths/types").DesignPath);
       }
       setPaths(all);
     } catch { /* ignore */ }
-  }, []);
+  }, [model]);
 
   if (paths.length === 0) return null;
 
@@ -148,7 +142,7 @@ function DesignPathsHomeSection({ onNavigate }: { onNavigate: (id: string) => vo
         <div style={{ fontSize: 14, color: "rgba(255,255,255,0.55)", marginBottom: 14, lineHeight: 1.5 }}>Each diagnostic produced its own path. Pick where to focus, or work them in parallel.</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {paths.slice(0, 3).map(p => (
-            <PathSummaryCard key={p.sourceModuleId} path={p} moduleStatus={{}} onOpen={() => onNavigate(p.sourceModuleId)} />
+            <PathSummaryCard key={p.pathId} path={p} moduleStatus={{}} onOpen={() => onNavigate(p.sourceModuleId)} />
           ))}
         </div>
       </div>
@@ -156,7 +150,7 @@ function DesignPathsHomeSection({ onNavigate }: { onNavigate: (id: string) => vo
   );
 }
 
-export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, projectName, onBackToHub, onBackToSplash, cardBackgrounds, phaseBackgrounds, scrollToPhase, onScrollToPhaseHandled }: { onNavigate: (id: string) => void; moduleStatus: Record<string, string>; hasData: boolean; viewMode?: string; projectName?: string; onBackToHub?: () => void; onBackToSplash?: () => void; cardBackgrounds?: Record<string, string>; phaseBackgrounds?: Record<string, string>; scrollToPhase?: string | null; onScrollToPhaseHandled?: () => void }) {
+export function LandingPage({ model, onNavigate, moduleStatus, hasData, viewMode, projectName, onBackToHub, onBackToSplash, cardBackgrounds, phaseBackgrounds, scrollToPhase, onScrollToPhaseHandled }: { model?: string; onNavigate: (id: string) => void; moduleStatus: Record<string, string>; hasData: boolean; viewMode?: string; projectName?: string; onBackToHub?: () => void; onBackToSplash?: () => void; cardBackgrounds?: Record<string, string>; phaseBackgrounds?: Record<string, string>; scrollToPhase?: string | null; onScrollToPhaseHandled?: () => void }) {
   const [selectedPhase, setSelectedPhase] = useState<string | null>(null);
   const [highlightedPhase, setHighlightedPhase] = useState<string | null>(null);
 
@@ -392,7 +386,7 @@ export function LandingPage({ onNavigate, moduleStatus, hasData, viewMode, proje
     `}</style>
 
     {/* ── Design Paths section — shown when paths exist ── */}
-    <DesignPathsHomeSection onNavigate={onNavigate} />
+    <DesignPathsHomeSection model={model || ""} onNavigate={onNavigate} />
   </div>;
 }
 
