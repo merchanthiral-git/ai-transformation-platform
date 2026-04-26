@@ -16,6 +16,9 @@ import {
 } from "../shared";
 import { SlidersHorizontal, Network, Sparkle, BookOpen, ChevronLeft, ChevronRight, Gauge, Settings2, Layers3, Check, X, TriangleAlert, GitBranch } from "@/lib/icons";
 import { FlowNav, ExpertPanel } from "@/app/ui";
+import { PathStepBanner } from "../designpaths/PathStepBanner";
+import { SoftCompletionWarning } from "../designpaths/SoftCompletionWarning";
+import { usePathBanner } from "../../lib/designpaths/usePathBanner";
 
 export const OM_FUNCTIONS: Record<string, { label: string; icon: string; core: string[]; shared: string[]; enabling: string[]; interface_: string[] }> = {
   finance: { label: "Finance & Fund Ops", icon: "💰", core: ["Accounting & Close","Treasury & Cash Mgmt","Tax & Compliance","FP&A & Budgeting","Fund Administration","Financial Reporting","Internal Audit","Procurement","Accounts Payable","Accounts Receivable","Revenue Recognition","Cost Management"], shared: ["Financial Systems","Shared Reporting Pool","Data Governance"], enabling: ["ERP Platform","BI & Analytics Tools","Automation Layer"], interface_: ["Investor Reporting Portal","Management Dashboard","Regulatory Filing"] },
@@ -121,6 +124,7 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
   const [omSearch, setOmSearch] = useState("");
   const [omSearchResults, setOmSearchResults] = useState<Record<string,unknown>[]>([]);
   const [omExpandedFuncs, setOmExpandedFuncs] = useState<Record<string,boolean>>({});
+  const pb = usePathBanner(model || "", "opmodel");
   const [omAddingCustom, setOmAddingCustom] = useState(false);
   const [omCustomName, setOmCustomName] = useState("");
   const [omCustomFunc, setOmCustomFunc] = useState("");
@@ -708,6 +712,8 @@ export const OperatingModelLab = React.memo(function OperatingModelLab({ onBack,
 
   return <div>
     <PageHeader icon={<SlidersHorizontal />} title="Operating Model Lab" subtitle="Build a complete Target Operating Model — guided step by step" onBack={onBack} moduleId="opmodel" />
+    {pb.bannerPaths.length > 0 && <PathStepBanner paths={pb.bannerPaths} onMarkComplete={pb.handleMarkComplete} onPause={pb.handlePause} onOpenPathDrawer={(srcId) => onBack()} />}
+    {pb.completionWarning && <SoftCompletionWarning criterion={pb.completionWarning.criterion} onConfirm={pb.confirmComplete} onCancel={pb.cancelComplete} />}
 
     {showWelcome && <div style={{ display: "flex", gap: 12, alignItems: "flex-start", padding: "12px 16px", marginBottom: 16, background: "rgba(244,168,58,0.06)", border: "1px solid rgba(244,168,58,0.15)", borderLeft: "3px solid var(--amber)", borderRadius: 12 }}>
       <span style={{ fontSize: 20, flexShrink: 0, marginTop: 2 }}>💡</span>

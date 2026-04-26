@@ -25,6 +25,9 @@ import {
 } from "@/app/ui";
 export { TASK_DICTIONARY, findTaskDictEntries } from "../shared/taskDictionary";
 import { TASK_DICTIONARY, findTaskDictEntries } from "../shared/taskDictionary";
+import { PathStepBanner } from "../designpaths/PathStepBanner";
+import { SoftCompletionWarning } from "../designpaths/SoftCompletionWarning";
+import { usePathBanner } from "../../lib/designpaths/usePathBanner";
 
 /* ─── Change Playbook Dictionary — pre-built wave plans for common transformations ─── */
 const CHANGE_PLAYBOOKS: { name: string; desc: string; industry: string; waves: { wave: string; time: string; initiatives: { name: string; owner: string; priority: string; risk: string }[] }[] }[] = [
@@ -136,6 +139,7 @@ export function WorkDesignLab({
   // Reset to Context tab when job changes
   useEffect(() => { if (job) setWdTab("ctx"); }, [job]);
   const js = jobStates[job] || { deconRows: [], redeployRows: [], scenario: "Balanced", deconSubmitted: false, redeploySubmitted: false, finalized: false, recon: null, initialized: false };
+  const pb = usePathBanner(model, "design");
 
   const [ctx, ctxLoading] = useApiData(() => job ? api.getJobContext(model, job, f) : Promise.resolve(null), [model, job, f.func, f.jf, f.sf, f.cl]);
   const [decon, deconLoading] = useApiData(() => job ? api.getDeconstruction(model, job, f) : Promise.resolve(null), [model, job, f.func, f.jf, f.sf, f.cl]);
@@ -381,6 +385,8 @@ Rules:
   // ── QUEUE MODE: queue landing view ──
   if (!job && viewMode === "queue") return <div style={{ minHeight: "calc(100vh - 48px)" }}>
     <PageHeader icon={<PenLine size={20} />} title="Work Design Lab" subtitle="Mercer Work Design methodology — queue-based redesign workflow" onBack={onBack} moduleId="design" />
+    {pb.bannerPaths.length > 0 && <PathStepBanner paths={pb.bannerPaths} onMarkComplete={pb.handleMarkComplete} onPause={pb.handlePause} onOpenPathDrawer={(srcId) => onBack()} />}
+    {pb.completionWarning && <SoftCompletionWarning criterion={pb.completionWarning.criterion} onConfirm={pb.confirmComplete} onCancel={pb.cancelComplete} />}
     <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px" }}>
       <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
         <button onClick={() => setViewMode("classic")} style={{ fontSize: 11, color: "var(--text-muted)", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}>Switch to Classic View</button>
@@ -392,6 +398,8 @@ Rules:
   // ── STEP 0: Job Selector — classic view (no job selected) ──
   if (!job) return <div style={{ background: "radial-gradient(ellipse at 50% 30%, rgba(244,168,58,0.04) 0%, transparent 60%)", minHeight: "calc(100vh - 48px)" }}>
     <PageHeader icon={<PenLine size={20} />} title="Work Design Lab" subtitle="Mercer Work Design methodology — select a job to begin analysis" onBack={onBack} moduleId="design" />
+    {pb.bannerPaths.length > 0 && <PathStepBanner paths={pb.bannerPaths} onMarkComplete={pb.handleMarkComplete} onPause={pb.handlePause} onOpenPathDrawer={(srcId) => onBack()} />}
+    {pb.completionWarning && <SoftCompletionWarning criterion={pb.completionWarning.criterion} onConfirm={pb.confirmComplete} onCancel={pb.cancelComplete} />}
     <div style={{ maxWidth: 768, margin: "0 auto", padding: "0 24px" }}>
       <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
         <button onClick={() => setViewMode("queue")} style={{ fontSize: 11, color: "var(--amber)", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}>Switch to Queue View</button>

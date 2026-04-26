@@ -10,6 +10,9 @@ import type { JobSkillBundle } from "../../../types/skills";
 import { SEED_SKILLS } from "./skills-seed-taxonomy";
 import { InheritUpstreamTab } from "./InheritUpstreamTab";
 import { DeriveSkillsTab } from "./DeriveSkillsTab";
+import { PathStepBanner } from "../designpaths/PathStepBanner";
+import { SoftCompletionWarning } from "../designpaths/SoftCompletionWarning";
+import { usePathBanner } from "../../lib/designpaths/usePathBanner";
 
 /* ═══════════════════════════════════════════════════════════════
    TAB NAV
@@ -59,6 +62,7 @@ interface Props {
 export function SkillsArchitecture({ model, f, onBack, onNavigate, viewCtx, jobStates }: Props) {
   const [step, setStep] = usePersisted<number>(`${model}_skills_arch_step`, 1);
   const [bundles, setBundles] = usePersisted<Record<string, JobSkillBundle>>(`${model}_skill_bundles`, {});
+  const pb = usePathBanner(model, "skills-arch");
 
   return (
     <div>
@@ -70,6 +74,8 @@ export function SkillsArchitecture({ model, f, onBack, onNavigate, viewCtx, jobS
         moduleId="skills-arch"
         viewCtx={viewCtx}
       />
+      {pb.bannerPaths.length > 0 && <PathStepBanner paths={pb.bannerPaths} onMarkComplete={pb.handleMarkComplete} onPause={pb.handlePause} onOpenPathDrawer={(srcId) => onNavigate?.(srcId)} />}
+      {pb.completionWarning && <SoftCompletionWarning criterion={pb.completionWarning.criterion} onConfirm={pb.confirmComplete} onCancel={pb.cancelComplete} />}
 
       <SkillsArchTabs activeStep={step} onStepChange={setStep} />
 

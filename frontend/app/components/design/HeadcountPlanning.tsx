@@ -10,6 +10,9 @@ import { TrendingUp } from "@/lib/icons";
 import { EmptyState, FlowNav } from "@/app/ui";
 import { computeFinancialImpact, computeCompositionShift } from "@/lib/computed/headcountPlan";
 import { getSemanticColor, getTrackColor } from "@/lib/chartColors";
+import { PathStepBanner } from "../designpaths/PathStepBanner";
+import { SoftCompletionWarning } from "../designpaths/SoftCompletionWarning";
+import { usePathBanner } from "../../lib/designpaths/usePathBanner";
 
 // Synthetic demo data for preview ghost
 const DEMO_WF = { starting_headcount: 8000, eliminations: 147, natural_attrition: 320, redeployments: 89, new_hires: 74, contractors: 12, target_headcount: 7946, net_change: -54, net_change_pct: -0.7 };
@@ -17,6 +20,7 @@ const DEMO_WF = { starting_headcount: 8000, eliminations: 147, natural_attrition
 export function HeadcountPlanning({ model, f, onBack, onNavigate, jobStates, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; jobStates?: Record<string, import("./shared").JobDesignState>; viewCtx?: import("./shared").ViewContext }) {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(false);
+  const pb = usePathBanner(model, "headcount");
 
   const bbbaOverrides = usePersisted<Record<string, string>>(`${model}_bbba_overrides`, {})[0];
   useEffect(() => { if (!model) return; let cancelled = false; const slow = setTimeout(() => { if (!cancelled) setLoading(true); }, 150); api.getHeadcountPlan(model, f).then(d => { if (cancelled) return; clearTimeout(slow); setData(d); setLoading(false); }).catch(() => { if (cancelled) return; clearTimeout(slow); setLoading(false); }); return () => { cancelled = true; clearTimeout(slow); }; }, [model, f.func, f.jf, f.sf, f.cl, bbbaOverrides]);
@@ -258,6 +262,8 @@ export function HeadcountPlanning({ model, f, onBack, onNavigate, jobStates, vie
 
   return <div>
     <PageHeader icon={<TrendingUp />} title="Headcount Planning" subtitle="Current to future workforce evolution" onBack={onBack} moduleId="headcount" />
+    {pb.bannerPaths.length > 0 && <PathStepBanner paths={pb.bannerPaths} onMarkComplete={pb.handleMarkComplete} onPause={pb.handlePause} onOpenPathDrawer={(srcId) => onNavigate?.(srcId)} />}
+    {pb.completionWarning && <SoftCompletionWarning criterion={pb.completionWarning.criterion} onConfirm={pb.confirmComplete} onCancel={pb.cancelComplete} />}
     {model && <div className="flex justify-end mb-2"><ModuleExportButton model={model} module="headcount" label="Headcount Plan" /></div>}
     {loading && <LoadingBar />}
 

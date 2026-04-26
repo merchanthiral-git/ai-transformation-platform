@@ -8,11 +8,15 @@ import {
 } from "../shared";
 import { Shuffle, Check } from "@/lib/icons";
 import { EmptyState, FlowNav } from "@/app/ui";
+import { PathStepBanner } from "../designpaths/PathStepBanner";
+import { SoftCompletionWarning } from "../designpaths/SoftCompletionWarning";
+import { usePathBanner } from "../../lib/designpaths/usePathBanner";
 
 export function BBBAFramework({ model, f, onBack, onNavigate, jobStates, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; jobStates?: Record<string, import("./shared").JobDesignState>; viewCtx?: import("./shared").ViewContext }) {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(false);
   const [overrides, setOverrides] = usePersisted<Record<string, string>>(`${model}_bbba_overrides`, {});
+  const pb = usePathBanner(model, "bbba");
 
   useEffect(() => { if (!model) return; let cancelled = false; const slow = setTimeout(() => { if (!cancelled) setLoading(true); }, 150); api.getBBBA(model, f).then(d => { if (cancelled) return; clearTimeout(slow); setData(d); setLoading(false); }).catch(() => { if (cancelled) return; clearTimeout(slow); setLoading(false); }); return () => { cancelled = true; clearTimeout(slow); }; }, [model, f.func, f.jf, f.sf, f.cl]);
 
@@ -51,6 +55,8 @@ export function BBBAFramework({ model, f, onBack, onNavigate, jobStates, viewCtx
 
   return <div>
     <PageHeader icon={<Shuffle />} title="Talent Strategy" subtitle="For each capability gap, decide the smartest way to close it" onBack={onBack} moduleId="bbba" />
+    {pb.bannerPaths.length > 0 && <PathStepBanner paths={pb.bannerPaths} onMarkComplete={pb.handleMarkComplete} onPause={pb.handlePause} onOpenPathDrawer={(srcId) => onNavigate?.(srcId)} />}
+    {pb.completionWarning && <SoftCompletionWarning criterion={pb.completionWarning.criterion} onConfirm={pb.confirmComplete} onCancel={pb.cancelComplete} />}
     {model && <div className="flex justify-end mb-2"><ModuleExportButton model={model} module="bbba" label="Talent Strategy" /></div>}
     {loading && <LoadingBar />}
     {!loading && roles.length === 0 && <EmptyState icon={<Shuffle />} headline="Complete Skills Gap Analysis First" explanation="Every gap has four options — each with different costs, timelines, and risks. This tool helps you choose." primaryAction={onNavigate ? { label: "Go to Work Design Lab", onClick: () => onNavigate("design") } : undefined} secondaryAction={onNavigate ? { label: "Go to AI Scan", onClick: () => onNavigate("scan") } : undefined} />}

@@ -51,6 +51,9 @@ import { computeRoadmapProgress } from "../lib/prescriptive/roadmapProgress";
 import { AIReadinessPathEngine } from "../lib/designpaths/engines/AIReadinessPathEngine";
 import { useDesignPaths } from "../lib/designpaths/useDesignPaths";
 import { DesignPathDrawer } from "./designpaths/DesignPathDrawer";
+import { PathStepBanner } from "./designpaths/PathStepBanner";
+import { SoftCompletionWarning } from "./designpaths/SoftCompletionWarning";
+import { usePathBanner } from "../lib/designpaths/usePathBanner";
 
 
 /* ═══════════════════════════════════════════════════════════════
@@ -129,9 +132,12 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
 
   const scanTitle = viewCtx?.mode === "employee" ? "AI Impact on My Role" : viewCtx?.mode === "job" ? `AI Impact — ${viewCtx.job}` : "AI Opportunity Scan";
   const scanSubtitle = viewCtx?.mode === "employee" ? `How AI will change ${viewCtx?.employee}'s tasks` : viewCtx?.mode === "job" ? `Tasks and AI scores for ${viewCtx.job}` : `Find where AI creates the most value${loading ? " · Loading..." : ""}`;
+  const pb_scan = usePathBanner(model, "scan");
   return <div>
     <ContextStrip items={[viewCtx?.mode === "employee" ? "Showing AI impact on tasks in your role." : viewCtx?.mode === "job" ? `Filtered to ${viewCtx?.job} tasks only.` : "Phase 1: Discover — Find where AI creates the most value. This unlocks Phase 2: Design."]} />
     <PageHeader icon={viewCtx?.mode === "employee" ? <Users /> : <Search />} title={scanTitle} subtitle={scanSubtitle} onBack={onBack} moduleId="scan" />
+    {pb_scan.bannerPaths.length > 0 && <PathStepBanner paths={pb_scan.bannerPaths} onMarkComplete={pb_scan.handleMarkComplete} onPause={pb_scan.handlePause} onOpenPathDrawer={(srcId) => onNavigate?.(srcId)} />}
+    {pb_scan.completionWarning && <SoftCompletionWarning criterion={pb_scan.completionWarning.criterion} onConfirm={pb_scan.confirmComplete} onCancel={pb_scan.cancelComplete} />}
     <TabBar tabs={[{ id: "ai", label: "AI Prioritization" }, { id: "heatmap", label: "Impact Heatmap" }, { id: "skills", label: "Skill Gaps" }, { id: "org", label: "Org Diagnostics" }, { id: "dq", label: "Data Quality" }]} active={sub} onChange={setSub} />
 
     {loading && !data && <div className="space-y-4 mt-4"><SkeletonKpiRow count={4} /><SkeletonChart height={200} /><SkeletonTable rows={5} cols={4} /></div>}
@@ -428,9 +434,12 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
   const dispOptions = ["Close Internally", "Hire Externally", "Accept Risk", "Automate"];
 
   const filteredSkills = skillFilter ? skills.filter(s => s.toLowerCase().includes(skillFilter.toLowerCase())) : skills;
+  const pb_skills = usePathBanner(model, "skills");
 
   return <div>
     <PageHeader icon={<Sparkle />} title="Skills & Talent" subtitle="Inventory skills, identify gaps, map adjacencies" onBack={onBack} moduleId="skills" />
+    {pb_skills.bannerPaths.length > 0 && <PathStepBanner paths={pb_skills.bannerPaths} onMarkComplete={pb_skills.handleMarkComplete} onPause={pb_skills.handlePause} onOpenPathDrawer={(srcId) => onNavigate?.(srcId)} />}
+    {pb_skills.completionWarning && <SoftCompletionWarning criterion={pb_skills.completionWarning.criterion} onConfirm={pb_skills.confirmComplete} onCancel={pb_skills.cancelComplete} />}
     {model && <div className="flex justify-end mb-2"><ModuleExportButton model={model} module="skills_inventory" label="Skills Data" /></div>}
     {loading && <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={5} /><SkeletonTable rows={6} cols={5} /></div></>}
     {!loading && employees.length === 0 && validationErrors.length === 0 && <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-2xl p-8 text-center"><div className="text-3xl mb-3 opacity-40 flex justify-center"><Sparkle size={32} /></div><h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">No Skills Data Yet</h3><p className="text-[15px] text-[var(--text-secondary)]">Upload workforce data to see skills inventory, or select Demo_Model.</p></div>}
@@ -1224,10 +1233,13 @@ export function ChangeReadiness({ model, f, onBack, onNavigate, viewCtx, simStat
   const [issues, setIssues] = usePersisted<{ id: string; desc: string; severity: string; owner: string; status: string }[]>(`${model}_issues`, []);
 
   const statusColors: Record<string, string> = { "Not Started": "#8a7f6d", "In Planning": "#f4a83a", "Ready for Review": "#f4a83a", "Approved": "#8ba87a", "In Progress": "#f4a83a", "Completed": "#8ba87a", "Deferred": "#8a7f6d", "Active": "#8ba87a", "Draft": "#8a7f6d", "Paused": "#f4a83a", "Complete": "#8ba87a" };
+  const pb_cr = usePathBanner(model, "changeready");
 
   return <div>
     <ContextStrip items={["Plan, coordinate, and track change management campaigns across your transformation."]} />
     <PageHeader icon={<Compass />} title="Change & Manager Readiness" subtitle="Adoption planning, manager readiness, and change campaigns" onBack={onBack} moduleId="changeready" />
+    {pb_cr.bannerPaths.length > 0 && <PathStepBanner paths={pb_cr.bannerPaths} onMarkComplete={pb_cr.handleMarkComplete} onPause={pb_cr.handlePause} onOpenPathDrawer={(srcId) => onNavigate?.(srcId)} />}
+    {pb_cr.completionWarning && <SoftCompletionWarning criterion={pb_cr.completionWarning.criterion} onConfirm={pb_cr.confirmComplete} onCancel={pb_cr.cancelComplete} />}
     {loading && <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={4} /><SkeletonTable rows={5} cols={5} /></div></>}
 
     <TabBar tabs={[

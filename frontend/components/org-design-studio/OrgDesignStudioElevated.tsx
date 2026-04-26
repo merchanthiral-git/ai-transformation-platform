@@ -16,6 +16,9 @@ import { useActiveSandbox } from "@/hooks/useActiveSandbox";
 import { SandboxGate } from "./SandboxGate";
 import { seedTakaraTomyActivity } from "@/lib/feature-activity";
 import type { SandboxProfile } from "@/data/org-design/sandbox-profiles";
+import { PathStepBanner } from "@/app/components/designpaths/PathStepBanner";
+import { SoftCompletionWarning } from "@/app/components/designpaths/SoftCompletionWarning";
+import { usePathBanner } from "@/app/lib/designpaths/usePathBanner";
 
 interface ElevatedProps {
   onBack: () => void;
@@ -130,6 +133,7 @@ export function OrgDesignStudioElevated({ onBack, model, f, odsState, setOdsStat
   const initialTab = VIEW_TO_TAB[odsState.view] || 'structure';
   const [activeTab, setActiveTab] = useState<TabId>(initialTab);
   const { profile } = useActiveSandbox(model);
+  const pb = usePathBanner(model, "build");
 
   // Seed engagement activity on first mount
   useEffect(() => { seedTakaraTomyActivity(); }, []);
@@ -178,6 +182,8 @@ export function OrgDesignStudioElevated({ onBack, model, f, odsState, setOdsStat
         clientName={profile?.company}
         profile={profile}
       >
+        {pb.bannerPaths.length > 0 && <PathStepBanner paths={pb.bannerPaths} onMarkComplete={pb.handleMarkComplete} onPause={pb.handlePause} onOpenPathDrawer={(srcId) => onBack()} />}
+        {pb.completionWarning && <SoftCompletionWarning criterion={pb.completionWarning.criterion} onConfirm={pb.confirmComplete} onCancel={pb.cancelComplete} />}
         {renderTabContent()}
       </StudioShell>
     </SandboxGate>
