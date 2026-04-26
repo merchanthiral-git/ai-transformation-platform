@@ -139,7 +139,7 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
     if (Array.isArray(fd)) for (const item of fd as { name: string; value: number }[]) { map[item.name] = item.value; }
     return map;
   }, [overviewData]);
-  const [data, loading] = useApiData(() => { if (sub === "ai") return api.getAIPriority(model, f); if (sub === "skills") return api.getSkillAnalysis(model, f); if (sub === "org") return api.getOrgDiagnostics(model, f); return api.getDataQuality(model); }, [sub, model, f.func, f.jf, f.sf, f.cl]);
+  const [data, loading] = useApiData(() => { if (sub === "ai") return api.getAIPriority(model, f); if (sub === "skills") return api.getSkillAnalysis(model, f); if (sub === "org") return api.getOrgDiagnostics(model, f); return Promise.resolve(null); }, [sub, model, f.func, f.jf, f.sf, f.cl]);
 
   const scanTitle = viewCtx?.mode === "employee" ? "AI Impact on My Role" : viewCtx?.mode === "job" ? `AI Impact — ${viewCtx.job}` : "AI Opportunity Scan";
   const scanSubtitle = viewCtx?.mode === "employee" ? `How AI will change ${viewCtx?.employee}'s tasks` : viewCtx?.mode === "job" ? `Tasks and AI scores for ${viewCtx.job}` : `Find where AI creates the most value${loading ? " · Loading..." : ""}`;
@@ -186,7 +186,7 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
     <PageHeader icon={viewCtx?.mode === "employee" ? <Users /> : <Search />} title={scanTitle} subtitle={scanSubtitle} onBack={onBack} moduleId="scan" />
     {pb_scan.bannerPaths.length > 0 && <PathStepBanner paths={pb_scan.bannerPaths} onMarkComplete={pb_scan.handleMarkComplete} onPause={pb_scan.handlePause} onOpenPathDrawer={(srcId) => onNavigate?.(srcId)} />}
     {pb_scan.completionWarning && <SoftCompletionWarning criterion={pb_scan.completionWarning.criterion} onConfirm={pb_scan.confirmComplete} onCancel={pb_scan.cancelComplete} />}
-    <TabBar tabs={[{ id: "ai", label: "AI Prioritization" }, { id: "heatmap", label: "Impact Heatmap" }, { id: "skills", label: "Skill Gaps" }, { id: "org", label: "Org Diagnostics" }, { id: "dq", label: "Data Quality" }]} active={sub} onChange={setSub} />
+    <TabBar tabs={[{ id: "ai", label: "AI Prioritization" }, { id: "heatmap", label: "Impact Heatmap" }, { id: "skills", label: "Skill Gaps" }, { id: "org", label: "Org Diagnostics" }]} active={sub} onChange={setSub} />
 
     {loading && !data && <div className="space-y-4 mt-4"><SkeletonKpiRow count={4} /><SkeletonChart height={200} /><SkeletonTable rows={5} cols={4} /></div>}
 
@@ -507,8 +507,10 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
         </div>
       </div>;
     })()}
-    {sub === "dq" && (() => { const s = (data?.summary ?? { ready: 0, missing: 0, total_issues: 0, avg_completeness: 0 }) as DataQualitySummary; return <div><div className="grid grid-cols-4 gap-3 mb-5"><KpiCard label="Ready" value={`${s.ready ?? 0}/7`} accent /><KpiCard label="Missing" value={s.missing ?? 0} /><KpiCard label="Issues" value={s.total_issues ?? 0} /><KpiCard label="Completeness" value={`${s.avg_completeness ?? 0}%`} /></div><div className="grid grid-cols-2 gap-4"><Card title="Readiness"><DataTable data={((data?.readiness ?? []) as Record<string, unknown>[])} cols={["Dataset", "Status", "Rows", "Issues", "Completeness"]} /></Card><Card title="Upload Log"><DataTable data={((data?.upload_log ?? []) as Record<string, unknown>[])} /></Card></div></div>; })()}
     {sub === "heatmap" && <HeatmapView model={model} f={f} />}
+    {/* TODO: synthesize from aiReadinessAssessment.subStep1-4 judgments + rationales
+       once Work Design tool replacement is locked in. Until then, summary generation
+       continues to use raw diagnostic data only. */}
     <AiInsightCard title="AI Diagnosis Summary" contextData={JSON.stringify({ summary: (data as Record<string,unknown>)?.summary, sub }).slice(0, 2000)} systemPrompt="You are an organizational diagnostics consultant. Provide 3 key findings and recommended focus areas. Use specific numbers. No markdown." />
     <FlowNav
       previous={{ target: { kind: "module", moduleId: "snapshot" }, label: "Workforce Snapshot" }}

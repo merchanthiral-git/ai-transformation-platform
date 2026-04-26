@@ -76,7 +76,6 @@ function step(key: string, whyNow: string, watchPoint: string, criterion?: strin
 const SCAN_OPTIONAL: Record<string, { label: string; whatItDoes: string }> = {
   skills: { label: "Skill Gaps", whatItDoes: "Shows the gap between current skills and what your future-state work will require. Not part of your current path step — your Skills & Talent diagnostic handles capability gaps separately. Explore here if you want to preview what's coming." },
   org: { label: "Org Diagnostics", whatItDoes: "Surfaces structural risk signals — span anomalies, layer health, manager-to-IC ratios. Not in scope for this step — your Org Health Scorecard handles structural diagnosis separately. Useful background if your stakeholders ask structural questions." },
-  dq: { label: "Data Quality", whatItDoes: "Verifies the underlying task and skills data is reliable enough to trust. Always available; not a path step. Glance here if any results feel off." },
   heatmap: { label: "Impact Heatmap", whatItDoes: "Visual cross-tab of AI impact by function and family. Same data as the AI Prioritization tab, displayed as a heat grid. Useful for board-style presentations." },
 };
 
@@ -152,7 +151,7 @@ function scanSubSteps(requiredTabs: string[], patternCtx: { emphasisPilot?: bool
   }
 
   const optionalNotices: Record<string, { label: string; whatItDoes: string }> = {};
-  for (const tabId of ["ai", "heatmap", "skills", "org", "dq"]) {
+  for (const tabId of ["ai", "heatmap", "skills", "org"]) {
     if (!requiredTabs.includes(tabId) && SCAN_OPTIONAL[tabId]) {
       optionalNotices[tabId] = SCAN_OPTIONAL[tabId];
     }
