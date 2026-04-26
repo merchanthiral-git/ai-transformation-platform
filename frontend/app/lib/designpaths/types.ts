@@ -18,6 +18,7 @@ export type StepTiming = {
 export type StepCompletionCriterion = {
   description: string;
   autoDetectFn?: string;
+  howToInModule?: string[];
 };
 
 export type DesignPathStep = {

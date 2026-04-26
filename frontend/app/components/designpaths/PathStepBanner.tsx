@@ -11,6 +11,7 @@ interface BannerPath {
   stepIdx: number;
   stepTitle: string;
   criterion: string;
+  howToInModule?: string[];
   stepCount: number;
 }
 
@@ -42,6 +43,16 @@ export function PathStepBanner({ paths, onMarkComplete, onPause, onOpenPathDrawe
             <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>
               To complete: {p.criterion}
             </div>
+            {p.howToInModule && p.howToInModule.length > 0 && (
+              <div style={{ marginTop: 6, paddingLeft: 2 }}>
+                <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: PURPLE, marginBottom: 3 }}>HOW TO DO THIS</div>
+                <ol style={{ margin: 0, paddingLeft: 16, listStyleType: "decimal" }}>
+                  {p.howToInModule.map((line, li) => (
+                    <li key={li} style={{ fontSize: 11, color: "var(--text-secondary)", lineHeight: 1.5, marginBottom: 2 }}>{line}</li>
+                  ))}
+                </ol>
+              </div>
+            )}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
             <button onClick={() => onMarkComplete(p.sourceModuleId, p.stepIdx)} style={{
