@@ -43,6 +43,11 @@ import {
   AI_READINESS_HIGH, AI_READINESS_MEDIUM,
   IMPACT_SCORE_HIGH, IMPACT_SCORE_MEDIUM,
 } from "../../lib/constants/scoring";
+import { ManagerCapabilityEngine } from "../lib/prescriptive/engines/ManagerCapabilityEngine";
+import type { ManagerCapabilityResult } from "../lib/prescriptive/engines/ManagerCapabilityEngine";
+import { usePrescribedRoadmaps } from "../lib/prescriptive/usePrescribedRoadmaps";
+import { PrescriptionView } from "./prescriptive/PrescriptionView";
+import { computeRoadmapProgress } from "../lib/prescriptive/roadmapProgress";
 
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1095,6 +1100,36 @@ export function ManagerCapability({ model, f, onBack, onNavigate, viewCtx }: { m
   const riskCount = managers.filter(m => m.category === "Flight Risk").length;
   const adeqCount = managers.length - champCount - devCount - riskCount;
 
+  // Prescriptive roadmap
+  const { saveRoadmap, getRoadmap } = usePrescribedRoadmaps(model);
+  const mgrcapRoadmap = getRoadmap("mgrcap");
+
+  // Generate/regenerate prescription when data is available
+  const generatePrescription = useCallback(() => {
+    if (!managers.length) return;
+    const multStr = String(summary.correlation_multiplier || "2.1x");
+    const mult = parseFloat(multStr.replace(/[^0-9.]/g, "")) || 2.1;
+    const capResult: ManagerCapabilityResult = {
+      totalManagers: managers.length,
+      championCount: champCount,
+      needsDevCount: devCount,
+      flightRiskCount: riskCount,
+      adequateCount: adeqCount,
+      weakestDimension: String(summary.weakest_dimension || (dims.length ? dims[0] : "")),
+      correlationMultiplier: mult,
+      highMgrTeamReadiness: Number(summary.high_mgr_team_readiness || 3.8),
+      lowMgrTeamReadiness: Number(summary.low_mgr_team_readiness || 2.1),
+      dimensions: dims,
+    };
+    const roadmap = ManagerCapabilityEngine.generate(capResult);
+    saveRoadmap(roadmap);
+  }, [managers.length, champCount, devCount, riskCount, adeqCount, summary, dims, saveRoadmap]);
+
+  // Auto-generate on first data load if no roadmap exists
+  useEffect(() => {
+    if (managers.length > 0 && !mgrcapRoadmap) generatePrescription();
+  }, [managers.length, mgrcapRoadmap, generatePrescription]);
+
   if (!loading && (!managers || managers.length === 0)) return <div>
     <PageHeader icon={<Users />} title="Manager Capability" subtitle="Assess managers and identify transformation champions" onBack={onBack} moduleId="mgrcap" />
     <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-2xl p-8 text-center"><div className="text-3xl mb-3 opacity-40"><Users /></div><h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">No Manager Data</h3><p className="text-[15px] text-[var(--text-secondary)]">Upload workforce data with org structure.</p></div>
@@ -1193,6 +1228,20 @@ export function ManagerCapability({ model, f, onBack, onNavigate, viewCtx }: { m
           <div className="text-center shrink-0 w-14"><div className="text-[11px] text-[var(--text-muted)]">Team</div><div className="text-[14px] font-extrabold" style={{ color: m.team_readiness_avg >= 3.5 ? "#8ba87a" : m.team_readiness_avg >= 2.5 ? "#f4a83a" : "#e87a5d" }}>{m.team_readiness_avg || "—"}</div></div>
         </div>)}</div>
       </Card>
+    </>}
+
+    {/* ═══ PRESCRIBED ROADMAP ═══ */}
+    {mgrcapRoadmap && <>
+      <div className="mt-6 mb-2 flex items-center justify-between">
+        <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">YOUR PRESCRIBED PATH</div>
+        {(() => { const p = computeRoadmapProgress(mgrcapRoadmap, {}); return <span className="text-[12px] text-[var(--text-muted)]">{p.completedSteps} of {p.totalSteps} modules complete · {p.percentComplete}%</span>; })()}
+      </div>
+      <PrescriptionView
+        roadmap={mgrcapRoadmap}
+        moduleStatus={{}}
+        onNavigateToModule={(id) => onNavigate?.(id)}
+        onRegenerate={generatePrescription}
+      />
     </>}
 
     <FlowNav
