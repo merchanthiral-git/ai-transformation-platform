@@ -21,6 +21,23 @@ export type StepCompletionCriterion = {
   howToInModule?: string[];
 };
 
+export type SubStep = {
+  tabId: string;
+  tabLabel: string;
+  title: string;
+  criterion: string;
+  howToDoIt: string[];
+  completedAt?: string;
+  completedManually?: boolean;
+  suggestedOrder: number;
+};
+
+export type ModuleTabContext = {
+  moduleId: string;
+  pathRequiredTabs: string[];
+  optionalTabNotices: Record<string, { label: string; whatItDoes: string }>;
+};
+
 export type DesignPathStep = {
   moduleId: string;
   title: string;
@@ -35,6 +52,9 @@ export type DesignPathStep = {
   completionCriterion: StepCompletionCriterion;
   completedAt?: string;
   completedManually?: boolean;
+
+  subSteps: SubStep[];
+  moduleTabContext?: ModuleTabContext;
 };
 
 export type Alternative = {

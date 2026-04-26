@@ -11,6 +11,7 @@
 import type { PathEngine } from "../PathEngine";
 import type {
   DesignPath, DesignPathStep, Alternative, PivotalFinding, StepTiming,
+  SubStep, ModuleTabContext,
 } from "../types";
 
 /* ── Input type ── */
@@ -56,7 +57,7 @@ function t(min: number, max: number): StepTiming {
   return { minWeeks: min, maxWeeks: max, edited: false };
 }
 
-function step(key: string, whyNow: string, watchPoint: string, criterion?: string, howTo?: string[]): DesignPathStep {
+function step(key: string, whyNow: string, watchPoint: string, criterion?: string, howTo?: string[], subSteps?: SubStep[], tabContext?: ModuleTabContext): DesignPathStep {
   const def = STEP_DEFS[key];
   if (!def) throw new Error(`Unknown step key: ${key}`);
   return {
@@ -65,6 +66,101 @@ function step(key: string, whyNow: string, watchPoint: string, criterion?: strin
       description: criterion || `Complete the ${def.title} module for the relevant scope`,
       howToInModule: howTo,
     },
+    subSteps: subSteps || [],
+    moduleTabContext: tabContext,
+  };
+}
+
+/* ── Scan sub-step builders ── */
+
+const SCAN_OPTIONAL: Record<string, { label: string; whatItDoes: string }> = {
+  skills: { label: "Skill Gaps", whatItDoes: "Shows the gap between current skills and what your future-state work will require. Not part of your current path step — your Skills & Talent diagnostic handles capability gaps separately. Explore here if you want to preview what's coming." },
+  org: { label: "Org Diagnostics", whatItDoes: "Surfaces structural risk signals — span anomalies, layer health, manager-to-IC ratios. Not in scope for this step — your Org Health Scorecard handles structural diagnosis separately. Useful background if your stakeholders ask structural questions." },
+  dq: { label: "Data Quality", whatItDoes: "Verifies the underlying task and skills data is reliable enough to trust. Always available; not a path step. Glance here if any results feel off." },
+  heatmap: { label: "Impact Heatmap", whatItDoes: "Visual cross-tab of AI impact by function and family. Same data as the AI Prioritization tab, displayed as a heat grid. Useful for board-style presentations." },
+};
+
+function scanSubSteps(requiredTabs: string[], patternCtx: { emphasisPilot?: boolean; emphasisBroad?: boolean; emphasisAmbitious?: boolean }): { subSteps: SubStep[]; tabContext: ModuleTabContext } {
+  const subSteps: SubStep[] = [];
+  let order = 1;
+
+  if (requiredTabs.includes("ai")) {
+    subSteps.push({
+      tabId: "ai", tabLabel: "AI Prioritization", suggestedOrder: order++,
+      title: patternCtx.emphasisPilot ? "Identify candidate functions for pilot" : patternCtx.emphasisAmbitious ? "Identify high-ambition automation targets" : "Identify highest-leverage functions",
+      criterion: patternCtx.emphasisPilot ? "Note 2-3 functions where AI impact is highest and readiness is concentrated" : patternCtx.emphasisBroad ? "Rank 3-5 functions by headcount × AI-impact for parallel work" : "Identify priority functions for transformation scope",
+      howToDoIt: patternCtx.emphasisPilot ? [
+        "Look at the Quick Wins panel — tasks with highest impact and lowest risk.",
+        "Note which 2-3 functions appear most frequently in Quick Wins.",
+        "Pick the function with the cleanest readiness profile (willing leader, recent wins).",
+        "Click 'Mark sub-step complete' when you've identified your candidates.",
+      ] : patternCtx.emphasisAmbitious ? [
+        "Look at the full top-10 task list, not just Quick Wins — include large-scale automation candidates.",
+        "Note which functions have the most high-impact tasks concentrated together.",
+        "For ambitious scope: include functions where AI could redesign entire job families, not just individual tasks.",
+        "Click 'Mark sub-step complete' when you've identified your targets.",
+      ] : [
+        "Open the AI Prioritization tab. Review the Quick Wins panel and top-10 task list.",
+        "Note which 3-5 functions appear most frequently in high-impact tasks.",
+        "Cross-check: do these functions have willing leadership and recent momentum?",
+        "Click 'Mark sub-step complete' when you've ranked your priority functions.",
+      ],
+    });
+  }
+
+  if (requiredTabs.includes("heatmap")) {
+    subSteps.push({
+      tabId: "heatmap", tabLabel: "Impact Heatmap", suggestedOrder: order++,
+      title: "Validate impact concentration",
+      criterion: "Confirm candidate functions show concentrated high-impact zones, not scattered ones",
+      howToDoIt: [
+        "Open the Impact Heatmap tab. The grid shows AI impact by function and family.",
+        "Find your candidate functions on the grid.",
+        "Are the high-impact cells concentrated in a few job families, or scattered?",
+        "Concentrated = better scope. Scattered = harder to redesign as a coherent unit.",
+        "Click 'Mark sub-step complete' when confirmed.",
+      ],
+    });
+  }
+
+  if (requiredTabs.includes("skills")) {
+    subSteps.push({
+      tabId: "skills", tabLabel: "Skill Gaps", suggestedOrder: order++,
+      title: "Review skill gap landscape",
+      criterion: "Note the top skill gaps relevant to your candidate functions",
+      howToDoIt: [
+        "Open the Skill Gaps tab. Review gap severity across assessed skills.",
+        "Focus on skills relevant to your candidate functions from step 1.",
+        "Note which gaps are critical vs. moderate — critical gaps may affect scope decisions.",
+        "Click 'Mark sub-step complete' when reviewed.",
+      ],
+    });
+  }
+
+  if (requiredTabs.includes("org")) {
+    subSteps.push({
+      tabId: "org", tabLabel: "Org Diagnostics", suggestedOrder: order++,
+      title: "Verify structural readiness",
+      criterion: "Confirm candidate functions' structures can absorb redesign",
+      howToDoIt: [
+        "Open the Org Diagnostics tab. Review your candidate functions' structural profile.",
+        "Look for warning signs: span anomalies, too many layers, unclear reporting.",
+        "If structure is shaky in a candidate function, redesign will get blocked by org issues.",
+        "Click 'Mark sub-step complete' when structural readiness is confirmed or flags noted.",
+      ],
+    });
+  }
+
+  const optionalNotices: Record<string, { label: string; whatItDoes: string }> = {};
+  for (const tabId of ["ai", "heatmap", "skills", "org", "dq"]) {
+    if (!requiredTabs.includes(tabId) && SCAN_OPTIONAL[tabId]) {
+      optionalNotices[tabId] = SCAN_OPTIONAL[tabId];
+    }
+  }
+
+  return {
+    subSteps,
+    tabContext: { moduleId: "scan", pathRequiredTabs: requiredTabs, optionalTabNotices: optionalNotices },
   };
 }
 
@@ -407,6 +503,31 @@ export const AIReadinessPathEngine: PathEngine<AIReadinessResult> = {
     const pattern = detectPattern(result.dimensions, band);
     const content = getPatternContent(pattern, result.dimensions, band);
 
+    // Enrich scan steps with sub-steps based on pattern
+    const PATTERN_SCAN_TABS: Record<number, { required: string[]; ctx: { emphasisPilot?: boolean; emphasisBroad?: boolean; emphasisAmbitious?: boolean } }> = {
+      1:  { required: ["ai", "heatmap"], ctx: { emphasisPilot: true } },
+      2:  { required: ["ai", "heatmap"], ctx: { emphasisPilot: true } },
+      3:  { required: ["ai", "heatmap", "skills"], ctx: {} },
+      4:  { required: ["ai", "heatmap", "org"], ctx: {} },
+      5:  { required: ["ai", "heatmap"], ctx: {} },
+      6:  { required: ["ai", "heatmap", "skills", "org"], ctx: { emphasisBroad: true } },
+      7:  { required: ["ai", "heatmap", "org"], ctx: {} },
+      8:  { required: ["ai", "heatmap", "skills", "org"], ctx: { emphasisAmbitious: true } },
+      9:  { required: ["ai"], ctx: {} },
+      10: { required: ["ai", "heatmap"], ctx: {} },
+      11: { required: ["ai", "heatmap", "skills"], ctx: { emphasisBroad: true } },
+      12: { required: ["ai", "heatmap"], ctx: {} },
+      13: { required: ["ai", "heatmap", "org"], ctx: {} },
+    };
+    const scanConfig = PATTERN_SCAN_TABS[pattern] || PATTERN_SCAN_TABS[6];
+    const enrichedSteps = content.steps.map(s => {
+      if (s.moduleId === "scan" && s.subSteps.length === 0) {
+        const { subSteps, tabContext } = scanSubSteps(scanConfig.required, scanConfig.ctx);
+        return { ...s, subSteps, moduleTabContext: tabContext };
+      }
+      return s;
+    });
+
     return {
       pathId: `readiness-${projectId}`,
       sourceModuleId: "readiness",
@@ -418,7 +539,7 @@ export const AIReadinessPathEngine: PathEngine<AIReadinessResult> = {
       overallScore: result.overallScore,
       findings: buildFindings(result.dimensions, content.pivotalDims),
       alternatives: content.alternatives,
-      steps: content.steps,
+      steps: enrichedSteps,
       sensitivityNote: content.sensitivityNote,
       lifecycleState: "active",
       lastActiveAt: new Date().toISOString(),

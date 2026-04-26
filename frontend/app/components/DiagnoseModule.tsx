@@ -54,6 +54,8 @@ import { DesignPathDrawer } from "./designpaths/DesignPathDrawer";
 import { PathStepBanner } from "./designpaths/PathStepBanner";
 import { SoftCompletionWarning } from "./designpaths/SoftCompletionWarning";
 import { usePathBanner } from "../lib/designpaths/usePathBanner";
+import { SubStepInstructionPanel } from "./designpaths/SubStepInstructionPanel";
+import { OptionalTabNotice } from "./designpaths/OptionalTabNotice";
 
 
 /* ═══════════════════════════════════════════════════════════════
@@ -133,6 +135,41 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
   const scanTitle = viewCtx?.mode === "employee" ? "AI Impact on My Role" : viewCtx?.mode === "job" ? `AI Impact — ${viewCtx.job}` : "AI Opportunity Scan";
   const scanSubtitle = viewCtx?.mode === "employee" ? `How AI will change ${viewCtx?.employee}'s tasks` : viewCtx?.mode === "job" ? `Tasks and AI scores for ${viewCtx.job}` : `Find where AI creates the most value${loading ? " · Loading..." : ""}`;
   const pb_scan = usePathBanner(model, "scan");
+
+  // Sub-step awareness for AI Opportunity Scan
+  const { getActivePathsForModule: getActiveScan, markSubStepComplete: markScanSub, getCurrentSubStep: getScanSub, isTabPathRequired: isScanTabReq, getOptionalTabNotice: getScanOptNotice } = useDesignPaths(model);
+  const scanActivePaths = getActiveScan("scan");
+  const scanActivePath = scanActivePaths.find(p => { const c = p.steps.find(s => !s.completedAt); return c && c.moduleId === "scan"; });
+  const scanStepIdx = scanActivePath?.steps.findIndex(s => !s.completedAt) ?? -1;
+
+  const renderScanTabPanel = (tabId: string) => {
+    if (!scanActivePath || scanStepIdx < 0) return null;
+    const subStep = getScanSub(scanActivePath.sourceModuleId, scanStepIdx, tabId);
+    const isRequired = isScanTabReq(scanActivePath.sourceModuleId, scanStepIdx, tabId);
+    if (subStep) {
+      const parentStep = scanActivePath.steps[scanStepIdx];
+      const subIdx = parentStep.subSteps.findIndex(ss => ss.tabId === tabId);
+      return <SubStepInstructionPanel
+        sourceModuleTitle={scanActivePath.sourceModuleTitle}
+        parentStepIdx={scanStepIdx}
+        parentStepCount={scanActivePath.steps.length}
+        subStep={subStep}
+        subStepIdx={subIdx + 1}
+        totalSubSteps={parentStep.subSteps.length}
+        onMarkComplete={() => markScanSub(scanActivePath.sourceModuleId, scanStepIdx, tabId, true)}
+        isComplete={!!subStep.completedAt}
+      />;
+    }
+    if (!isRequired) {
+      const notice = getScanOptNotice(scanActivePath.sourceModuleId, scanStepIdx, tabId);
+      if (notice) {
+        const firstRequired = scanActivePath.steps[scanStepIdx].subSteps.find(ss => !ss.completedAt);
+        return <OptionalTabNotice label={notice.label} whatItDoes={notice.whatItDoes} onBackToActive={() => setSub(firstRequired?.tabId || "ai")} />;
+      }
+    }
+    return null;
+  };
+
   return <div>
     <ContextStrip items={[viewCtx?.mode === "employee" ? "Showing AI impact on tasks in your role." : viewCtx?.mode === "job" ? `Filtered to ${viewCtx?.job} tasks only.` : "Phase 1: Discover — Find where AI creates the most value. This unlocks Phase 2: Design."]} />
     <PageHeader icon={viewCtx?.mode === "employee" ? <Users /> : <Search />} title={scanTitle} subtitle={scanSubtitle} onBack={onBack} moduleId="scan" />
@@ -141,6 +178,9 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
     <TabBar tabs={[{ id: "ai", label: "AI Prioritization" }, { id: "heatmap", label: "Impact Heatmap" }, { id: "skills", label: "Skill Gaps" }, { id: "org", label: "Org Diagnostics" }, { id: "dq", label: "Data Quality" }]} active={sub} onChange={setSub} />
 
     {loading && !data && <div className="space-y-4 mt-4"><SkeletonKpiRow count={4} /><SkeletonChart height={200} /><SkeletonTable rows={5} cols={4} /></div>}
+
+    {/* Sub-step panel for current tab */}
+    {renderScanTabPanel(sub)}
 
     {sub === "ai" && (() => { const s = (data?.summary ?? { tasks_scored: 0, quick_wins: 0, total_time_impact: 0, avg_risk: 0 }) as AIPrioritySummary; const top10 = (data?.top10 ?? []) as Record<string, unknown>[]; const quickWins = top10.filter(t => String(t["AI Impact"] || t.ai_impact || "").toLowerCase() === "high" && (Number(t["Current Time Spent %"] || t.time_pct || 0) >= 10) && String(t["Logic"] || t.logic || "").toLowerCase() === "deterministic"); return <div><div className="grid grid-cols-4 gap-3 mb-5"><KpiCard label="Tasks Scored" value={s.tasks_scored ?? 0} /><KpiCard label="Quick Wins" value={quickWins.length || (s.quick_wins ?? 0)} accent /><KpiCard label="Time Impact" value={`${s.total_time_impact ?? 0}h/wk`} /><KpiCard label="Avg Risk" value={s.avg_risk ?? 0} /></div>
       {/* Quick Wins Panel */}

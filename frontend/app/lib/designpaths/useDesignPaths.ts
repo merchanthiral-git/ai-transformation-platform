@@ -141,6 +141,67 @@ export function useDesignPaths(projectId: string) {
     return path.steps.find(s => !s.completedAt) ?? null;
   }, [paths]);
 
+  // Sub-step completion
+  const markSubStepComplete = useCallback((sourceModuleId: string, stepIdx: number, tabId: string, manuallyMarked: boolean) => {
+    setPaths(prev => {
+      const path = prev[sourceModuleId];
+      if (!path) return prev;
+      const newSteps = [...path.steps];
+      const step = { ...newSteps[stepIdx] };
+      const newSubSteps = step.subSteps.map(ss =>
+        ss.tabId === tabId ? { ...ss, completedAt: new Date().toISOString(), completedManually: manuallyMarked } : ss
+      );
+      step.subSteps = newSubSteps;
+      // Auto-complete parent if all sub-steps done
+      if (newSubSteps.length > 0 && newSubSteps.every(ss => ss.completedAt)) {
+        step.completedAt = new Date().toISOString();
+        step.completedManually = false; // auto-completed via sub-steps
+      }
+      newSteps[stepIdx] = step;
+      return { ...prev, [sourceModuleId]: { ...path, steps: newSteps, lastActiveAt: new Date().toISOString() } };
+    });
+  }, [setPaths]);
+
+  const unmarkSubStepComplete = useCallback((sourceModuleId: string, stepIdx: number, tabId: string) => {
+    setPaths(prev => {
+      const path = prev[sourceModuleId];
+      if (!path) return prev;
+      const newSteps = [...path.steps];
+      const step = { ...newSteps[stepIdx] };
+      step.subSteps = step.subSteps.map(ss =>
+        ss.tabId === tabId ? { ...ss, completedAt: undefined, completedManually: undefined } : ss
+      );
+      // Un-complete parent if it was auto-completed
+      if (step.completedAt && !step.completedManually) {
+        step.completedAt = undefined;
+      }
+      newSteps[stepIdx] = step;
+      return { ...prev, [sourceModuleId]: { ...path, steps: newSteps } };
+    });
+  }, [setPaths]);
+
+  const getCurrentSubStep = useCallback((sourceModuleId: string, stepIdx: number, tabId: string) => {
+    const path = paths[sourceModuleId];
+    if (!path || stepIdx < 0 || stepIdx >= path.steps.length) return null;
+    return path.steps[stepIdx].subSteps.find(ss => ss.tabId === tabId) ?? null;
+  }, [paths]);
+
+  const isTabPathRequired = useCallback((sourceModuleId: string, stepIdx: number, tabId: string): boolean => {
+    const path = paths[sourceModuleId];
+    if (!path || stepIdx < 0) return false;
+    const ctx = path.steps[stepIdx].moduleTabContext;
+    if (!ctx) return false;
+    return ctx.pathRequiredTabs.includes(tabId);
+  }, [paths]);
+
+  const getOptionalTabNotice = useCallback((sourceModuleId: string, stepIdx: number, tabId: string) => {
+    const path = paths[sourceModuleId];
+    if (!path || stepIdx < 0) return null;
+    const ctx = path.steps[stepIdx].moduleTabContext;
+    if (!ctx) return null;
+    return ctx.optionalTabNotices[tabId] ?? null;
+  }, [paths]);
+
   const allPaths = Object.values(paths);
 
   return {
@@ -148,5 +209,7 @@ export function useDesignPaths(projectId: string) {
     savePath, getPath, updateStepTiming, clearPath,
     setLifecycleState, markStepComplete, unmarkStepComplete,
     archivePath, saveOrReplacePath, getActivePathsForModule, getCurrentStep,
+    markSubStepComplete, unmarkSubStepComplete, getCurrentSubStep,
+    isTabPathRequired, getOptionalTabNotice,
   };
 }
