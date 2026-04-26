@@ -42,6 +42,104 @@ function aiDot(impact: string): string {
 }
 
 /* ═══ JOB ARCHITECTURE AUDIT MODULE ═══ */
+/* ═══ CLUSTERING VIEW — folded from DiagnoseModule.RoleClustering ═══ */
+function ClusteringView({ model, f, onNavigate }: { model: string; f: Filters; onNavigate?: (id: string) => void }) {
+  const [clData, setClData] = useState<Record<string, unknown> | null>(null);
+  const [clLoading, setClLoading] = useState(false);
+  const [expandedCluster, setExpandedCluster] = useState<number | null>(null);
+  const [deptFilter, setDeptFilter] = useState("All");
+  const [reviewed, setReviewed] = useState<Set<number>>(new Set());
+
+  useEffect(() => {
+    if (!model) return;
+    let cancelled = false;
+    const slow = setTimeout(() => { if (!cancelled) setClLoading(true); }, 150);
+    api.getRoleClusters(model, f).then(d => { if (cancelled) return; clearTimeout(slow); setClData(d as Record<string, unknown>); setClLoading(false); }).catch(() => { if (cancelled) return; clearTimeout(slow); setClLoading(false); });
+    return () => { cancelled = true; clearTimeout(slow); };
+  }, [model, f]);
+
+  if (clLoading) return <div className="space-y-4 mt-4"><LoadingSkeleton rows={5} /><LoadingSkeleton rows={5} /></div>;
+
+  const clusters = (clData?.clusters ?? []) as Array<{ name: string; roles: string[]; headcount: number; avg_overlap: number; function: string; shared_skills: string[]; highest_pair?: [string, string, number] }>;
+  const opportunities = (clData?.opportunities ?? []) as Array<{ role_a: string; role_b: string; similarity: number; estimated_savings: number; headcount_affected: number; risk: string }>;
+  const summary = (clData?.summary ?? {}) as Record<string, unknown>;
+  const pairs = (clData?.pairs ?? []) as Array<{ role_a: string; role_b: string; similarity: number }>;
+
+  if (clusters.length === 0) return <Empty text="No consolidation opportunities detected — your job architecture has minimal redundancy." icon={<Layers3 size={20} />} />;
+
+  const departments = Array.from(new Set(clusters.map(c => c.function).filter(Boolean))).sort();
+  const filtered = deptFilter === "All" ? clusters : clusters.filter(c => c.function === deptFilter);
+  const totalSavings = opportunities.reduce((s, o) => s + (o.estimated_savings || 0), 0);
+  const overlapColor = (pct: number) => pct >= 70 ? "#8ba87a" : pct >= 50 ? "#f4a83a" : "#8a7f6d";
+  const MONO = "'JetBrains Mono', monospace";
+
+  return <div>
+    <div className="grid grid-cols-4 gap-3 mb-4">
+      <KpiCard label="Clusters" value={Number(summary.total_clusters || clusters.length)} />
+      <KpiCard label="Consolidation Opps" value={opportunities.length} accent />
+      <KpiCard label="Potential Savings" value={`$${Math.round(totalSavings / 1000)}K`} />
+      <KpiCard label="Roles Affected" value={`${Number(summary.roles_affected || 0)}/${Number(summary.total_roles || 0)}`} />
+    </div>
+
+    <div style={{ display: "flex", gap: 8, marginBottom: 12, alignItems: "center" }}>
+      <select value={deptFilter} onChange={e => setDeptFilter(e.target.value)} style={{ background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 8, padding: "5px 12px", fontSize: 12, color: "var(--text-primary)", outline: "none" }}>
+        <option value="All">All Departments</option>
+        {departments.map(d => <option key={d} value={d}>{d}</option>)}
+      </select>
+      <span style={{ fontSize: 11, color: "var(--text-muted)" }}>{filtered.length} of {clusters.length} clusters</span>
+    </div>
+
+    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      {filtered.map((c, idx) => {
+        const isExpanded = expandedCluster === idx;
+        const opp = opportunities.find(o => c.roles.includes(o.role_a) && c.roles.includes(o.role_b));
+        const isReviewed = reviewed.has(idx);
+        return <div key={idx} style={{ background: "var(--surface-1)", border: `1px solid ${isReviewed ? "rgba(139,168,122,0.2)" : "var(--border)"}`, borderRadius: 10, overflow: "hidden" }}>
+          <button onClick={() => setExpandedCluster(isExpanded ? null : idx)} style={{ width: "100%", padding: "12px 16px", textAlign: "left", display: "flex", alignItems: "center", gap: 12, background: "transparent", border: "none", cursor: "pointer" }}>
+            <div style={{ width: 36, height: 36, borderRadius: 8, background: "var(--accent-primary)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: MONO, fontWeight: 700, fontSize: 15, color: "#fff", flexShrink: 0 }}>{c.roles.length}</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.name}</div>
+              <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 1 }}>{c.headcount} employees · {c.roles.length} roles · {c.function}</div>
+            </div>
+            <span style={{ padding: "3px 10px", borderRadius: 6, fontSize: 12, fontWeight: 700, fontFamily: MONO, background: `${overlapColor(c.avg_overlap)}15`, color: overlapColor(c.avg_overlap) }}>Overlap: {c.avg_overlap.toFixed(1)}%</span>
+            {isReviewed && <span style={{ padding: "2px 8px", borderRadius: 6, fontSize: 10, fontWeight: 600, background: "rgba(139,168,122,0.1)", color: "#8ba87a" }}>Reviewed</span>}
+            <span style={{ fontSize: 14, color: "var(--text-muted)", transition: "transform 0.2s", transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)" }}>▾</span>
+          </button>
+          {isExpanded && <div style={{ padding: "0 16px 16px", borderTop: "1px solid var(--border)" }}>
+            <div style={{ marginTop: 12, marginBottom: 12 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-muted)", marginBottom: 6 }}>ROLES IN THIS CLUSTER</div>
+              {c.roles.map((r, ri) => {
+                const pairData = pairs.find(p => (p.role_a === r || p.role_b === r) && c.roles.includes(p.role_a) && c.roles.includes(p.role_b));
+                return <div key={r} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: ri < c.roles.length - 1 ? "1px solid var(--border)" : "none" }}>
+                  <span style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)" }}>{r}</span>
+                  <span style={{ fontFamily: MONO, fontSize: 12, fontWeight: 700, color: overlapColor(pairData?.similarity || c.avg_overlap) }}>{(pairData?.similarity || c.avg_overlap).toFixed(1)}%</span>
+                </div>;
+              })}
+            </div>
+            {opp && <div style={{ background: "rgba(244,168,58,0.04)", border: "1px solid rgba(244,168,58,0.15)", borderRadius: 10, padding: 14, marginBottom: 12 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--accent-primary)", marginBottom: 6 }}>RECOMMENDED ACTION</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)", marginBottom: 6 }}>Consolidate {opp.role_a} and {opp.role_b}</div>
+              <div style={{ display: "flex", gap: 12, fontSize: 12, color: "var(--text-muted)", marginBottom: 10 }}>
+                <span>Savings: <strong style={{ color: "#8ba87a" }}>${Math.round(opp.estimated_savings / 1000)}K</strong></span>
+                <span>Affects: <strong>{opp.headcount_affected}</strong></span>
+                <span>Risk: <strong style={{ color: opp.risk === "Low" ? "#8ba87a" : opp.risk === "High" ? "#e87a5d" : "#f4a83a" }}>{opp.risk}</strong></span>
+              </div>
+              <div style={{ display: "flex", gap: 8 }}>
+                {onNavigate && <button onClick={() => onNavigate("build")} style={{ padding: "6px 14px", borderRadius: 6, fontSize: 12, fontWeight: 600, background: "var(--accent-primary)", color: "#fff", border: "none", cursor: "pointer" }}>Add to Design</button>}
+                <button onClick={() => setReviewed(prev => { const s = new Set(prev); s.add(idx); return s; })} style={{ padding: "6px 14px", borderRadius: 6, fontSize: 12, fontWeight: 500, background: "transparent", color: isReviewed ? "#8ba87a" : "var(--text-muted)", border: "1px solid var(--border)", cursor: "pointer" }}>{isReviewed ? "Reviewed" : "Mark Reviewed"}</button>
+              </div>
+            </div>}
+            {c.shared_skills.length > 0 && <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+              <span style={{ fontSize: 10, color: "var(--text-muted)", alignSelf: "center" }}>Shared:</span>
+              {c.shared_skills.map(s => <span key={s} style={{ padding: "2px 6px", borderRadius: 4, fontSize: 11, background: "var(--surface-2)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>{s}</span>)}
+            </div>}
+          </div>}
+        </div>;
+      })}
+    </div>
+  </div>;
+}
+
 export function JAAuditModule({ model, f, onBack, onNavigate, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext }) {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(false);
@@ -130,6 +228,7 @@ export function JAAuditModule({ model, f, onBack, onNavigate, viewCtx }: { model
     { id: "findings", label: "Findings" },
     { id: "analytics", label: "Analytics" },
     { id: "compare", label: "Compare" },
+    { id: "consolidation", label: "Consolidation" },
   ];
 
   const healthVal = digest.maturityScore;
@@ -402,6 +501,8 @@ export function JAAuditModule({ model, f, onBack, onNavigate, viewCtx }: { model
         <tbody>{["level", "track", "family", "headcount", "ai_impact", "ai_score", "function", "tasks_mapped"].map(attr => <tr key={attr}><td style={{ padding: "6px 12px", borderBottom: "1px solid var(--border)", color: "var(--text-muted)", fontWeight: 500 }}>{attr}</td>{compareJobs.map((j, i) => <td key={i} style={{ padding: "6px 12px", borderBottom: "1px solid var(--border)", color: "var(--text-primary)" }}>{String((j as any)[attr] ?? "—")}</td>)}</tr>)}</tbody>
       </table></div> : <Empty text="Select at least 2 roles to compare." />}
     </div>}
+
+    {tab === "consolidation" && <ClusteringView model={model} f={f} onNavigate={onNavigate} />}
 
     <div style={{ marginTop: 16, padding: "12px 16px", background: "var(--sem-info-bg)", border: "1px solid var(--sem-info-border)", borderRadius: 10 }}>
       <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>Ready to design? </span>

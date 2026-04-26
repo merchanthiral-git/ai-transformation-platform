@@ -720,7 +720,7 @@ export const consultantGuide: GuideData = {
 <div class="callout-title">Pro Tip</div>
 <p>When presenting cluster analysis to clients, use their actual job titles as examples for each cluster. Generic archetypes like "Data Processors" are abstract — but when you say "your 45 Claims Processors, 30 Data Entry Specialists, and 22 Reconciliation Analysts all fall into the same cluster because they share 70% task similarity," it becomes concrete and actionable. The platform's clustering visualization lets you drill from archetype to specific roles to individual tasks.</p>
 </div>
-<a class="try-it" data-navigate="clusters">Try it now →</a>
+<a class="try-it" data-navigate="ja-audit">Try it now →</a>
 `
         },
         {

@@ -54,7 +54,6 @@ const SkillsTalent = dynamic(() => import("../../components/SkillsEngine").then(
 const ChangeReadiness = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.ChangeReadiness })), { ssr: false, loading: ModuleLoadingSkeleton });
 const ManagerDevelopment = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.ManagerDevelopment })), { ssr: false, loading: ModuleLoadingSkeleton });
 const OrgHealthScorecard = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.OrgHealthScorecard })), { ssr: false, loading: ModuleLoadingSkeleton });
-const RoleClustering = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.RoleClustering })), { ssr: false, loading: ModuleLoadingSkeleton });
 
 // Design — heaviest module (~5500 lines), loaded on demand
 const WorkDesignLab = dynamic(() => import("../../components/DesignModule").then(m => ({ default: m.WorkDesignLab })), { ssr: false, loading: ModuleLoadingSkeleton });
@@ -1128,7 +1127,6 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       {page === "changeready" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ChangeReadiness model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} simState={simState} /></ErrorBoundary>}
       {page === "mgrdev" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ManagerDevelopment model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "orghealth" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><OrgHealthScorecard model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
-      {page === "clusters" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><RoleClustering model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "skillshift" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><SkillShiftIndex model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "story" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><TransformationStoryBuilder model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} jobStates={jobStates} simState={simState} decisionLog={decisionLog} riskRegister={riskRegister} /></ErrorBoundary>}
       {page === "archetypes" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ReadinessArchetypes model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
