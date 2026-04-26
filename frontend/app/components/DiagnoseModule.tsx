@@ -815,6 +815,7 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
   const [assessAnswers, setAssessAnswers] = usePersisted<Record<string, number>>(`${model}_readiness_assess`, {});
   const [assessActive, setAssessActive] = useState(false);
   const [assessQ, setAssessQ] = useState(0);
+  const [showReview, setShowReview] = useState(false);
   const [showRetakeConfirm, setShowRetakeConfirm] = useState(false);
   const assessComplete = Object.keys(assessAnswers).length >= totalQuestions;
 
@@ -823,6 +824,7 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
     setAssessQ(0);
     setAssessActive(true);
     setShowRetakeConfirm(false);
+    setShowReview(false);
   };
 
   // Compute scores from answers
@@ -897,6 +899,103 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
     </div>;
   }
 
+  // ─── REVIEW / EDIT RESPONSES VIEW ───
+  if (showReview && assessComplete) {
+    let globalIdx = 0;
+    return <div>
+      <PageHeader icon={<Activity />} title="Review Your Responses" subtitle="Edit any response, or restart the whole assessment" onBack={() => setShowReview(false)} moduleId="readiness" />
+
+      {/* Live score banner */}
+      <div className="rounded-xl bg-[var(--surface-1)] border border-[var(--border)] p-4 mb-5 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="text-[28px] font-extrabold font-data" style={{ color: overallScore >= 3.5 ? "#8ba87a" : overallScore >= 2.5 ? "#f4a83a" : "#e87a5d" }}>{overallScore}/5</div>
+          <div className="text-[13px] text-[var(--text-muted)]">Score updates live as you edit</div>
+        </div>
+        <div className="flex items-center gap-3">
+          {Object.entries(assessScores).map(([dim, score]) => (
+            <div key={dim} className="text-center">
+              <div className="text-[11px] text-[var(--text-muted)]">{dim.split(" ").slice(-1)}</div>
+              <div className="text-[13px] font-bold font-data" style={{ color: score >= 3.5 ? "#8ba87a" : score >= 2.5 ? "#f4a83a" : "#e87a5d" }}>{score}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Questions grouped by dimension */}
+      <div className="space-y-6 mb-6" style={{ maxHeight: "calc(100vh - 320px)", overflowY: "auto" }}>
+        {ASSESS_DIMS.map(dim => {
+          const dimStartIdx = globalIdx;
+          const dimQuestions = dim.questions.map((question, qi) => {
+            const qKey = `q${dimStartIdx + qi}`;
+            const currentAnswer = assessAnswers[qKey];
+            return { question, qKey, currentAnswer, qIdx: dimStartIdx + qi };
+          });
+          globalIdx += dim.questions.length;
+          return (
+            <div key={dim.id} className="rounded-xl border border-[var(--border)] overflow-hidden">
+              <div className="px-5 py-3 bg-[var(--surface-2)] border-b border-[var(--border)] flex items-center gap-2">
+                <span className="text-[14px]">{dim.icon}</span>
+                <span className="text-[13px] font-bold text-[var(--text-primary)]">{dim.id}</span>
+                <span className="text-[11px] text-[var(--text-muted)] ml-auto">{dim.questions.length} questions · avg {assessScores[dim.id] || "—"}/5</span>
+              </div>
+              <div className="divide-y divide-[var(--border)]">
+                {dimQuestions.map(({ question, qKey, currentAnswer }) => (
+                  <div key={qKey} className="px-5 py-4">
+                    <div className="text-[14px] font-semibold text-[var(--text-primary)] mb-3 leading-snug">{question.q}</div>
+                    <div className="space-y-2">
+                      {question.opts.map((opt, oi) => {
+                        const isSelected = currentAnswer === oi;
+                        return (
+                          <button key={oi} onClick={() => setAssessAnswers(prev => ({ ...prev, [qKey]: oi }))}
+                            className="w-full text-left px-4 py-3 rounded-lg transition-all"
+                            style={{
+                              background: isSelected ? "rgba(244,168,58,0.1)" : "var(--surface-1)",
+                              border: isSelected ? "2px solid var(--accent-primary)" : "1px solid var(--border)",
+                            }}>
+                            <div className="flex items-center gap-3">
+                              <div className="w-6 h-6 rounded-full flex items-center justify-center text-[12px] font-bold shrink-0"
+                                style={{ background: isSelected ? "#f4a83a" : "var(--surface-2)", color: isSelected ? "white" : "var(--text-muted)" }}>
+                                {isSelected ? "✓" : oi + 1}
+                              </div>
+                              <span className="text-[13px]" style={{ color: isSelected ? "var(--accent-primary)" : "var(--text-secondary)" }}>{opt}</span>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Sticky footer */}
+      <div className="sticky bottom-0 bg-[var(--bg)] border-t border-[var(--border)] py-4 flex items-center justify-between -mx-[var(--space-8)] px-[var(--space-8)]">
+        <button onClick={() => setShowReview(false)} className="px-4 py-2 rounded-xl text-[13px] font-medium text-[var(--text-muted)] border border-[var(--border)] hover:border-[var(--text-secondary)] transition-colors">← Back to results</button>
+        <div className="flex gap-3">
+          <button onClick={() => setShowRetakeConfirm(true)} className="px-4 py-2 rounded-xl text-[13px] font-medium text-[var(--risk,#ef4444)] border border-[var(--risk,#ef4444)]/30 hover:bg-[rgba(239,68,68,0.05)] transition-colors">Restart from scratch</button>
+          <button onClick={() => setShowReview(false)} className="px-5 py-2 rounded-xl text-[13px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>Save changes</button>
+        </div>
+      </div>
+
+      {/* Restart confirmation dialog */}
+      {showRetakeConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }}>
+          <div className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl p-6 max-w-sm mx-4 shadow-xl">
+            <div className="text-[15px] font-bold text-[var(--text-primary)] mb-2">Restart from scratch?</div>
+            <div className="text-[13px] text-[var(--text-muted)] mb-5">This will clear all your current answers and start the assessment from Question 1.</div>
+            <div className="flex gap-3 justify-end">
+              <button onClick={() => setShowRetakeConfirm(false)} className="px-4 py-2 rounded-lg text-[13px] font-medium text-[var(--text-muted)] border border-[var(--border)]">Cancel</button>
+              <button onClick={handleRetake} className="px-4 py-2 rounded-lg text-[13px] font-semibold text-white bg-[var(--accent-primary)]">Restart</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>;
+  }
+
   return <div>
     <PageHeader icon={<Activity />} title={viewCtx?.mode === "employee" ? "My AI Readiness" : "AI Readiness Assessment"} subtitle="Individual and team readiness for transformation" onBack={onBack} moduleId="readiness" />
     {model && <div className="flex justify-end mb-2"><ModuleExportButton model={model} module="readiness" label="Readiness Scores" /></div>}
@@ -921,19 +1020,7 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
         <div className="text-[14px] text-[var(--text-muted)] uppercase tracking-wider mb-1">Your AI Readiness Score</div>
         <div className="text-[48px] font-extrabold font-data" style={{ color: orgAvg >= 3.5 ? "#8ba87a" : orgAvg >= 2.5 ? "#f4a83a" : "#e87a5d" }}>{orgAvg}/5</div>
         <div className="text-[16px] font-semibold" style={{ color: orgAvg >= 3.5 ? "#8ba87a" : orgAvg >= 2.5 ? "#f4a83a" : "#e87a5d" }}>{orgAvg >= 4 ? "Exceptional" : orgAvg >= 3.5 ? "Strong" : orgAvg >= 2.5 ? "Moderate" : orgAvg >= 1.5 ? "Developing" : "Critical"}</div>
-        <button onClick={() => setShowRetakeConfirm(true)} className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[14px] font-semibold border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] hover:bg-[rgba(244,168,58,0.08)] transition-all">↻ Retake Assessment</button>
-        {showRetakeConfirm && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }}>
-            <div className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl p-6 max-w-sm mx-4 shadow-xl">
-              <div className="text-[15px] font-bold text-[var(--text-primary)] mb-2">Retake assessment?</div>
-              <div className="text-[13px] text-[var(--text-muted)] mb-5">This will clear your current answers. You can retake the assessment from the beginning.</div>
-              <div className="flex gap-3 justify-end">
-                <button onClick={() => setShowRetakeConfirm(false)} className="px-4 py-2 rounded-lg text-[13px] font-medium text-[var(--text-muted)] border border-[var(--border)]">Cancel</button>
-                <button onClick={handleRetake} className="px-4 py-2 rounded-lg text-[13px] font-semibold text-white bg-[var(--accent-primary)]">Retake</button>
-              </div>
-            </div>
-          </div>
-        )}
+        <button onClick={() => setShowReview(true)} className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[14px] font-semibold border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] hover:bg-[rgba(244,168,58,0.08)] transition-all">✎ Edit / Retake Assessment</button>
       </div>}
 
       <div className="grid grid-cols-5 gap-3 mb-5">
