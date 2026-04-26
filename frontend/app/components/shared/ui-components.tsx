@@ -612,7 +612,7 @@ export function exportToCSV(data: Record<string, unknown>[], filename: string) {
 export function PageHeader({ icon, title, subtitle, onBack, moduleId, onUpload, viewCtx, onViewChange }: { icon: React.ReactNode; title: string; subtitle: string; onBack?: () => void; moduleId?: string; onUpload?: (files: FileList) => void; viewCtx?: ViewContext; onViewChange?: () => void }) {
   const goTo = React.useContext(NavContext);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const MODULE_DATA_LABELS: Record<string, string> = { snapshot: "Workforce", jobs: "Job Catalog", scan: "Work Design", design: "Work Design", simulate: "Work Design", build: "Org Design", plan: "Change Mgmt", opmodel: "Operating Model" };
+  const MODULE_DATA_LABELS: Record<string, string> = { snapshot: "Workforce", jobs: "Job Catalog", scan: "Work Design", design: "Work Design", simulate: "Work Design", build: "Org Design", plan: "Change Mgmt", opmodel: "Operating Model", "skills-arch": "Capability" };
   const dataLabel = moduleId ? MODULE_DATA_LABELS[moduleId] : null;
   const noTemplate = moduleId === "opmodel"; // Op Model Lab is a sandbox, no upload needed
   const parentPhase = moduleId ? PHASES.find(p => p.modules.includes(moduleId)) : null;

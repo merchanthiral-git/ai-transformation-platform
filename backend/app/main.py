@@ -1016,6 +1016,7 @@ MODULE_TAB_MAP = {
     "build": "4. Org Design",
     "plan": "6. Change Management",
     "opmodel": "3. Operating Model",
+    "skills-arch": "7. Skills",
 }
 
 @app.get("/api/template/{module_id}")
@@ -1053,6 +1054,7 @@ def download_module_template(module_id: str):
         "4. Org Design": {"desc":"Org hierarchy for span of control, layer analysis.","color":GREEN,"columns":[("Model ID",True,"Same Model ID"),("Employee ID",True,"Unique ID"),("Employee Name",True,"Full name"),("Manager ID",False,"Manager's Employee ID"),("Manager Name",False,"Manager name"),("Function ID",False,"Function"),("Job Family",False,"Family"),("Sub-Family",False,"Sub-function"),("Geography",False,"Region"),("Career Track",False,"Track"),("Career Level",False,"Level"),("Job Title",False,"Title"),("Job Description",False,"Description"),("Department",False,"Department"),("Org Unit",False,"Org unit")],"example":["Acme_Corp","E001","Jane Smith","","","Finance","Corporate Functions","Leadership","US","Executive","L10","Chief Financial Officer","Leads all finance","Finance","Enterprise"]},
         "5. Job Catalog": {"desc":"Standardized job architecture — families, levels, career paths.","color":"8B5CF6","columns":[("Model ID",True,"Same Model ID"),("Job Code",False,"Internal code"),("Job Title",True,"Standardized title"),("Standard Title",False,"Benchmark title"),("Function ID",False,"Function"),("Job Family",False,"Family"),("Sub-Family",False,"Sub-function"),("Geography",False,"Region"),("Career Track",False,"Track"),("Career Level",False,"Level"),("Manager or IC",False,"Manager/IC"),("Job Description",False,"Description"),("Skills",False,"Semicolon-separated skills"),("Role Purpose",False,"One-line purpose")],"example":["Acme_Corp","FIN-ANL-L2","Financial Analyst","Financial Analyst","Finance","Corporate Functions","FP&A","US","Analyst","L2","IC","Supports budgeting","Excel;Analysis;Reporting","Provide financial insight."]},
         "6. Change Management": {"desc":"Transformation initiatives, RACI, roadmap milestones. Powers: Change Planner.","color":"E11D48","columns":[("Model ID",True,"Same Model ID"),("Function ID",False,"Function"),("Job Family",False,"Family"),("Sub-Family",False,"Sub-function"),("Geography",False,"Region"),("Career Track",False,"Track"),("Career Level",False,"Level"),("Job Title",False,"Affected title"),("Task Name",False,"Task being changed"),("Initiative",False,"Initiative name"),("Owner",False,"Initiative owner"),("Priority",False,"High/Medium/Low"),("Status",False,"Planned/In Progress/Complete"),("Wave",False,"Wave 1/Wave 2/etc"),("Start",False,"YYYY-MM-DD"),("End",False,"YYYY-MM-DD"),("Risk",False,"Risk description"),("Notes",False,"Additional notes")],"example":["Acme_Corp","Finance","Corporate Functions","FP&A","US","Analyst","L2","Financial Analyst","Reporting Automation","Reporting Automation","CFO","High","Planned","Wave 1","2026-01-01","2026-03-31","Resistance to change","Phase 1 pilot"]},
+        "7. Skills": {"desc":"Skills taxonomy, job-skill assignments, and employee skill records. Powers: Skills Architecture module.","color":"8B5CF6","columns":[("Skill ID",True,"Unique skill identifier"),("Skill Name",True,"Skill display name"),("Category",True,"technical / behavioral / domain"),("Description",False,"What this skill entails"),("AI Impact",False,"augmentable / substitutable / resistant / emerging"),("Lifecycle",False,"active / emerging / deprecated / obsolete"),("Aliases",False,"Alternate names (semicolon-separated)"),("Adjacent Skill IDs",False,"Related skills (semicolon-separated)")],"example":["sk-fin-modeling","Financial Modeling","technical","Building and maintaining financial models","augmentable","active","Financial analysis modeling","sk-excel-modeling;sk-cashflow;sk-cap-structure"]},
     }
 
     td = TABS.get(tab_name)
@@ -1100,6 +1102,8 @@ def download_module_template(module_id: str):
         elif cn == "Status": dv = DataValidation(type="list", formula1='"Planned,In Progress,Complete,On Hold"', allow_blank=True)
         elif cn == "Wave": dv = DataValidation(type="list", formula1='"Wave 1,Wave 2,Wave 3,Wave 4"', allow_blank=True)
         elif cn == "Layer": dv = DataValidation(type="list", formula1='"Governance,Core Components,Shared Services,Enabling,Interface"', allow_blank=True)
+        elif cn == "Category" and tab_name == "7. Skills": dv = DataValidation(type="list", formula1='"technical,behavioral,domain"', allow_blank=True)
+        elif cn == "Lifecycle": dv = DataValidation(type="list", formula1='"active,emerging,deprecated,obsolete"', allow_blank=True)
         if dv:
             dv.error = "Please select from the dropdown"; ws.add_data_validation(dv); dv.add(f"{cl}6:{cl}500")
 

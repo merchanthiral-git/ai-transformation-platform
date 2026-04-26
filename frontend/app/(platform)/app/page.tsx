@@ -94,6 +94,7 @@ const hrGuideLoader = () => import("../../components/guides/hrGuide").then(m => 
 const JobArchitectureModule = dynamic(() => import("../../components/JobArchModule").then(m => ({ default: m.JobArchitectureModule })), { ssr: false, loading: ModuleLoadingSkeleton });
 const JAAuditModule = dynamic(() => import("../../components/JAAuditModule").then(m => ({ default: m.JAAuditModule })), { ssr: false, loading: ModuleLoadingSkeleton });
 const JADesignToolModule = dynamic(() => import("../../components/JADesignToolModule").then(m => ({ default: m.JADesignToolModule })), { ssr: false, loading: ModuleLoadingSkeleton });
+const SkillsArchitecture = dynamic(() => import("../../components/design/SkillsArchitecture").then(m => ({ default: m.SkillsArchitecture })), { ssr: false, loading: ModuleLoadingSkeleton });
 const PlatformHub = dynamic(() => import("../../components/PlatformHub").then(m => ({ default: m.PlatformHub })), { ssr: false });
 const AgentOrchestrator = dynamic(() => import("../../components/AgentPanel").then(m => ({ default: m.AgentOrchestrator })), { ssr: false });
 const NLQBar = dynamic(() => import("../../components/NLQBar").then(m => ({ default: m.NLQBar })), { ssr: false });
@@ -1124,6 +1125,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       {page === "snapshot" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><WorkforceSnapshot model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "ja-audit" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><JAAuditModule model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "ja-design" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><JADesignToolModule model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
+      {page === "skills-arch" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><SkillsArchitecture model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} jobStates={jobStates} /></ErrorBoundary>}
       {(page === "jobs" || page === "jobarch") && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><JobArchitectureModule model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "scan" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><AiOpportunityScan model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "mgrcap" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ManagerCapability model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}

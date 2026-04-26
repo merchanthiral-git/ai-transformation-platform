@@ -161,7 +161,7 @@ export const MODULE_HELP: Record<string, { title: string; summary: string; pages
 export const PHASES = [
   { id: "discover", label: "Discover", icon: "🔍", color: "#5B8DEF", desc: "Understand where you are", guidance: "Start by understanding your organization's workforce structure, job architecture, and AI readiness.", modules: ["dashboard", "snapshot", "skillshift", "ja-audit"] },
   { id: "diagnose", label: "Diagnose", icon: "🩺", color: "#FF8A3D", desc: "Find what matters most", guidance: "Now that you understand the landscape, let's identify the highest-impact opportunities and biggest risks.", modules: ["orghealth", "scan", "heatmap", "readiness", "changeready", "clusters", "recommendations", "mgrcap", "skills", "skillsmap"] },
-  { id: "design", label: "Design", icon: "✏️", color: "#3DDC97", desc: "Architect the future state", guidance: "Design your future state — redesign roles, restructure the operating model, and plan your workforce.", modules: ["design", "opmodel", "build", "ja-design", "bbba", "headcount", "quickwins", "rolecompare", "reorg"] },
+  { id: "design", label: "Design", icon: "✏️", color: "#3DDC97", desc: "Architect the future state", guidance: "Design your future state — redesign roles, restructure the operating model, and plan your workforce.", modules: ["design", "opmodel", "build", "ja-design", "skills-arch", "bbba", "headcount", "quickwins", "rolecompare", "reorg"] },
   { id: "simulate", label: "Simulate", icon: "⚡", color: "#F5C451", desc: "Model the impact before you commit", guidance: "Model different futures before committing. Adjust assumptions, compare scenarios, and build the business case.", modules: ["simulate"] },
   { id: "mobilize", label: "Mobilize", icon: "🚀", color: "#7AA3F5", desc: "Make it happen", guidance: "Build your transformation roadmap, engage stakeholders, and generate the deliverables.", modules: ["plan", "story", "archetypes", "mgrdev", "reskill", "marketplace", "export"] },
 ];
@@ -199,6 +199,7 @@ export const MODULES = [
   // om_canvas is accessed from within OperatingModelLab, not as a standalone module
   { id: "rolecompare", icon: "⚖️", title: "Role Comparison", desc: "Side-by-side current vs. redesigned role analysis", color: "#FF8A3D", phase: "design", views: ["org","job","custom"] },
   { id: "quickwins", icon: "⚡", title: "Quick-Win Identifier", desc: "Find highest ROI, lowest effort AI opportunities", color: "#3DDC97", phase: "design", views: ["org","custom"] },
+  { id: "skills-arch", icon: "✨", title: "Skills Architecture", desc: "Translate redesigned work into the capability model that powers it", color: "#3DDC97", phase: "design", views: ["org","job","custom"], jobTitle: "Role Capabilities", jobDesc: "Skills required for this redesigned role" },
 ];
 
 export const PHASE_BACKGROUNDS: Record<string, string> = {
