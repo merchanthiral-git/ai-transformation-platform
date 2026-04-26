@@ -837,7 +837,7 @@ export function SkillsTalent({ model, f, onBack, onNavigate, viewCtx, jobStates 
     </div>}
 
     <FlowNav
-      previous={{ target: { kind: "module", moduleId: "mgrcap" }, label: "Manager Capability" }}
+      previous={{ target: { kind: "module", moduleId: "changeready" }, label: "Change & Manager Readiness" }}
       next={{ target: { kind: "module", moduleId: "skillshift" }, label: "Skill Shift Index" }}
     />
   </div>;
@@ -1137,187 +1137,160 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
 
       <FlowNav
         previous={{ target: { kind: "module", moduleId: "scan" }, label: "AI Opportunity Scan" }}
-        next={{ target: { kind: "module", moduleId: "mgrcap" }, label: "Manager Capability" }}
+        next={{ target: { kind: "module", moduleId: "changeready" }, label: "Change & Manager Readiness" }}
       />
     </>}
   </div>;
 }
 
 
-/* ═══════════════════════════════════════════════════════════════
-   MODULE: MANAGER CAPABILITY
-   ═══════════════════════════════════════════════════════════════ */
-export function ManagerCapability({ model, f, onBack, onNavigate, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext }) {
-  const [data, setData] = useState<import("../../types/api").ManagerCapabilityResponse | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [tab, setTab] = useState<"scorecard"|"correlation">("scorecard");
 
-  useEffect(() => { if (!model) return; let cancelled = false; const slow = setTimeout(() => { if (!cancelled) setLoading(true); }, 150); api.getManagerCapability(model, f).then(d => { if (cancelled) return; clearTimeout(slow); setData(d); setLoading(false); }).catch(() => { if (cancelled) return; clearTimeout(slow); setLoading(false); }); return () => { cancelled = true; clearTimeout(slow); }; }, [model, f.func, f.jf, f.sf, f.cl]);
 
-  const managers = data?.managers ?? [];
-  const dims = data?.dimensions ?? [];
-  const summary = data?.summary ?? {};
-  const catColors: Record<string, string> = { "Transformation Champion": "#8ba87a", "Needs Development": "#f4a83a", "Flight Risk": "#e87a5d", "Adequate": "#8a7f6d" };
-  const catIcons: Record<string, string> = { "Transformation Champion": "Champion", "Needs Development": "Dev", "Flight Risk": "Risk", "Adequate": "OK" };
+/* ═══ Manager Capability View — rendered inside ChangeReadiness "managers" tab ═══ */
+function ManagerCapabilityView({ managers, dims, summary, loading, champCount, devCount, riskCount, onNavigate, mgrcapRoadmap, generatePrescription }: {
+  managers: Array<{ manager: string; category: string; scores: Record<string, number>; average: number; direct_reports: number; team_readiness_avg: number }>;
+  dims: string[]; summary: Record<string, unknown>; loading: boolean;
+  champCount: number; devCount: number; riskCount: number;
+  onNavigate?: (id: string) => void;
+  mgrcapRoadmap: import("../lib/prescriptive/types").PrescribedRoadmap | null;
+  generatePrescription: () => void;
+}) {
+  const [mgrTab, setMgrTab] = useState<"scorecard"|"correlation">("scorecard");
   const [expandedCat, setExpandedCat] = useState<string | null>(null);
   const [expandedMgr, setExpandedMgr] = useState<string | null>(null);
+  const catColors: Record<string, string> = { "Transformation Champion": "#8ba87a", "Needs Development": "#f4a83a", "Flight Risk": "#e87a5d", "Adequate": "#8a7f6d" };
+  const catIcons: Record<string, string> = { "Transformation Champion": "Champion", "Needs Development": "Dev", "Flight Risk": "Risk", "Adequate": "OK" };
 
-  const champCount = managers.filter(m => m.category === "Transformation Champion").length;
-  const devCount = managers.filter(m => m.category === "Needs Development").length;
-  const riskCount = managers.filter(m => m.category === "Flight Risk").length;
-  const adeqCount = managers.length - champCount - devCount - riskCount;
+  if (loading) return <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={6} /><SkeletonTable rows={5} cols={4} /></div></>;
+  if (!managers.length) return <Empty text="Upload workforce data with org structure to assess managers." icon={<Users size={20} />} />;
 
-  // Prescriptive roadmap
-  const { saveRoadmap, getRoadmap } = usePrescribedRoadmaps(model);
-  const mgrcapRoadmap = getRoadmap("mgrcap");
-
-  // Generate/regenerate prescription when data is available
-  const generatePrescription = useCallback(() => {
-    if (!managers.length) return;
-    const multStr = String(summary.correlation_multiplier || "2.1x");
-    const mult = parseFloat(multStr.replace(/[^0-9.]/g, "")) || 2.1;
-    const capResult: ManagerCapabilityResult = {
-      totalManagers: managers.length,
-      championCount: champCount,
-      needsDevCount: devCount,
-      flightRiskCount: riskCount,
-      adequateCount: adeqCount,
-      weakestDimension: String(summary.weakest_dimension || (dims.length ? dims[0] : "")),
-      correlationMultiplier: mult,
-      highMgrTeamReadiness: Number(summary.high_mgr_team_readiness || 3.8),
-      lowMgrTeamReadiness: Number(summary.low_mgr_team_readiness || 2.1),
-      dimensions: dims,
-    };
-    const roadmap = ManagerCapabilityEngine.generate(capResult);
-    saveRoadmap(roadmap);
-  }, [managers.length, champCount, devCount, riskCount, adeqCount, summary, dims, saveRoadmap]);
-
-  // Auto-generate on first data load if no roadmap exists
-  useEffect(() => {
-    if (managers.length > 0 && !mgrcapRoadmap) generatePrescription();
-  }, [managers.length, mgrcapRoadmap, generatePrescription]);
-
-  if (!loading && (!managers || managers.length === 0)) return <div>
-    <PageHeader icon={<Users />} title="Manager Capability" subtitle="Assess managers and identify transformation champions" onBack={onBack} moduleId="mgrcap" />
-    <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-2xl p-8 text-center"><div className="text-3xl mb-3 opacity-40"><Users /></div><h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">No Manager Data</h3><p className="text-[15px] text-[var(--text-secondary)]">Upload workforce data with org structure.</p></div>
-  </div>;
-
-  return <div>
-    <ContextStrip items={["Assess managers who will lead teams through transformation. Every insight has an action path."]} />
-    <PageHeader icon={<Users />} title="Manager Capability" subtitle="Assess, act, and align managers for transformation" onBack={onBack} moduleId="mgrcap" />
-    {loading && <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={6} /><SkeletonTable rows={5} cols={4} /></div></>}
-
+  return <>
     <div className="grid grid-cols-6 gap-3 mb-5">
       <KpiCard label="Managers" value={managers.length} /><KpiCard label="Champions" value={champCount} accent /><KpiCard label="Needs Dev" value={devCount} /><KpiCard label="Flight Risk" value={riskCount} /><KpiCard label="Weakest Dim" value={String(summary.weakest_dimension || (dims.length ? dims[0] : "—"))} /><KpiCard label="Multiplier" value={String(summary.correlation_multiplier || "2.1x")} accent />
     </div>
 
-    <TabBar tabs={[{ id: "scorecard", label: "Manager Scorecard" }, { id: "correlation", label: "Team Correlation" }]} active={tab} onChange={t => setTab(t as "scorecard"|"correlation")} />
+    <TabBar tabs={[{ id: "scorecard", label: "Scorecard" }, { id: "correlation", label: "Team Correlation" }]} active={mgrTab} onChange={t => setMgrTab(t as "scorecard"|"correlation")} />
 
-    {tab === "scorecard" ? <>
-      {/* ═══ ACTIONABLE CATEGORY PANELS ═══ */}
-      <div className="space-y-4 mb-5">
-        {[
-          { cat: "Transformation Champion", count: champCount, actions: [
-            { title: "Assign as Change Champions", desc: "Pair each Champion with 2-3 At-Risk managers for peer coaching", btn: "✨ Auto-Generate Pairings", link: "plan" },
-            { title: "Create Champion Network", desc: "Form a formal network with regular meetings and communication channel", btn: "Add to Comms Plan", link: "plan" },
-            { title: "Recognize & Retain", desc: "Champions are high performers — ensure engagement and retention", btn: "Flag for Retention", link: "plan" },
-          ]},
-          { cat: "Needs Development", count: devCount, actions: [
-            { title: "Build Development Program", desc: "Create targeted capability building — top gaps across this group", btn: "✨ Generate Training Plan", link: "reskill" },
-            { title: "Assign Coaching", desc: "Pair each with a Transformation Champion for 1:1 coaching", btn: "Auto-Pair with Champions", link: "plan" },
-            { title: "Set Development Timeline", desc: "These managers must be ready before their teams are affected", btn: "Add Milestones to Gantt", link: "plan" },
-          ]},
-          { cat: "Flight Risk", count: riskCount, actions: [
-            { title: "Immediate Engagement Plan", desc: "Sorted by impact — managers with most reports are highest priority", btn: "Generate 1:1 Talking Points", link: "plan" },
-            { title: "Stakeholder Alignment", desc: "Assign a senior sponsor to each high-risk manager", btn: "Sync to Stakeholder Map", link: "plan" },
-            { title: "Exit Risk Assessment", desc: "Impact analysis if these managers leave during transformation", btn: "Create Contingency Plan", link: "plan" },
-          ]},
-        ].map(panel => {
-          const isExpanded = expandedCat === panel.cat;
-          const catMgrs = managers.filter(m => m.category === panel.cat).sort((a, b) => b.direct_reports - a.direct_reports);
-          return <div key={panel.cat} className="rounded-2xl border overflow-hidden" style={{ borderColor: `${catColors[panel.cat]}30`, boxShadow: "var(--shadow-1)" }}>
-            <button onClick={() => setExpandedCat(isExpanded ? null : panel.cat)} className="w-full px-5 py-4 text-left flex items-center justify-between transition-all hover:bg-[var(--hover)]" style={{ background: `${catColors[panel.cat]}06`, borderLeft: `4px solid ${catColors[panel.cat]}` }}>
-              <div className="flex items-center gap-3">
-                <span className="text-[22px]">{catIcons[panel.cat]}</span>
-                <div><div className="text-[16px] font-bold text-[var(--text-primary)] font-heading">{panel.cat} — {panel.count} managers</div><div className="text-[13px] text-[var(--text-muted)]">{panel.actions[0].desc}</div></div>
-              </div>
-              <div className="flex items-center gap-3"><span className="text-[24px] font-extrabold font-data" style={{ color: catColors[panel.cat] }}>{panel.count}</span><span className="text-[var(--text-muted)]">{isExpanded ? "▾" : "▸"}</span></div>
-            </button>
-            {isExpanded && <div className="px-5 py-4 border-t border-[var(--border)] space-y-4" style={{ background: "var(--surface-1)" }}>
-              {/* Action cards */}
-              <div className="grid grid-cols-3 gap-3">
-                {panel.actions.map(act => <div key={act.title} className="rounded-xl p-4 border border-[var(--border)] bg-[var(--surface-2)]">
-                  <div className="text-[14px] font-bold text-[var(--text-primary)] mb-1">{act.title}</div>
-                  <div className="text-[13px] text-[var(--text-muted)] mb-3">{act.desc}</div>
-                  <button onClick={() => { showToast(`${act.title} — added to ${act.link === "reskill" ? "Reskilling Pathways" : "Change Planner"}`); if (onNavigate) onNavigate(act.link); }} className="px-3 py-1.5 rounded-lg text-[13px] font-semibold text-white" style={{ background: catColors[panel.cat] }}>{act.btn}</button>
-                  <div className="text-[11px] text-[var(--text-muted)] mt-2">Feeds into: {act.link === "reskill" ? "Reskilling Pathways" : "Change Planner, Stakeholder Map"}</div>
-                </div>)}
-              </div>
-              {/* Top managers in this category */}
-              <div className="text-[13px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Top {Math.min(catMgrs.length, 8)} by team size</div>
-              <div className="space-y-1">{catMgrs.slice(0, 8).map(m => <div key={m.manager} className="flex items-center gap-3 p-2 rounded-lg bg-[var(--surface-2)] cursor-pointer hover:border-[var(--accent-primary)]/30 border border-transparent transition-all" onClick={() => setExpandedMgr(expandedMgr === m.manager ? null : m.manager)}>
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[12px] font-bold text-white shrink-0" style={{ background: catColors[panel.cat] }}>{m.manager.split(" ").map(w => w[0]).join("").slice(0,2)}</div>
-                <div className="flex-1 min-w-0"><div className="text-[14px] font-semibold text-[var(--text-primary)] truncate">{m.manager}</div><div className="text-[12px] text-[var(--text-muted)]">{m.direct_reports} reports · Avg: {m.average}/5</div></div>
-                {panel.cat === "Flight Risk" && m.direct_reports > 5 && <span className="text-[11px] px-2 py-0.5 rounded-full bg-[rgba(232,122,93,0.1)] text-[var(--risk)] font-bold">High Impact</span>}
-                {expandedMgr === m.manager && <span className="text-[var(--text-muted)]">▾</span>}
-              </div>)}
-              </div>
-            </div>}
-          </div>;
-        })}
-      </div>
+    {mgrTab === "scorecard" && <div className="space-y-4 mb-5">
+      {[
+        { cat: "Transformation Champion", count: champCount, desc: "Deploy as change agents — pair each with 2-3 Needs Dev managers" },
+        { cat: "Needs Development", count: devCount, desc: "Build capability before rollout begins" },
+        { cat: "Flight Risk", count: riskCount, desc: "Engage immediately — assess retention risk" },
+      ].map(panel => {
+        const isExpanded = expandedCat === panel.cat;
+        const catMgrs = managers.filter(m => m.category === panel.cat).sort((a, b) => b.direct_reports - a.direct_reports);
+        return <div key={panel.cat} className="rounded-xl border overflow-hidden" style={{ borderColor: `${catColors[panel.cat]}30` }}>
+          <button onClick={() => setExpandedCat(isExpanded ? null : panel.cat)} className="w-full px-4 py-3 text-left flex items-center justify-between transition-all hover:bg-[var(--hover)]" style={{ background: `${catColors[panel.cat]}06`, borderLeft: `4px solid ${catColors[panel.cat]}` }}>
+            <div className="flex items-center gap-3">
+              <span className="text-lg">{catIcons[panel.cat]}</span>
+              <div><div className="text-[14px] font-bold text-[var(--text-primary)]">{panel.cat} — {panel.count}</div><div className="text-[12px] text-[var(--text-muted)]">{panel.desc}</div></div>
+            </div>
+            <span className="text-[20px] font-extrabold" style={{ color: catColors[panel.cat] }}>{panel.count}</span>
+          </button>
+          {isExpanded && <div className="px-4 py-3 border-t border-[var(--border)] space-y-1">
+            {catMgrs.slice(0, 8).map(m => <div key={m.manager} className="flex items-center gap-3 p-2 rounded-lg bg-[var(--surface-2)]">
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center text-[11px] font-bold text-white shrink-0" style={{ background: catColors[panel.cat] }}>{m.manager.split(" ").map(w => w[0]).join("").slice(0,2)}</div>
+              <div className="flex-1 min-w-0"><div className="text-[13px] font-semibold text-[var(--text-primary)] truncate">{m.manager}</div><div className="text-[11px] text-[var(--text-muted)]">{m.direct_reports} reports · Avg: {m.average}/5</div></div>
+            </div>)}
+          </div>}
+        </div>;
+      })}
 
-      {/* ═══ SCORECARD TABLE ═══ */}
       <Card title="Detailed Scores">
-        <div className="overflow-auto rounded-lg border border-[var(--border)]" style={{ maxHeight: 400 }}><table className="w-full text-[14px]"><thead><tr className="bg-[var(--surface-2)] sticky top-0 z-10"><th className="px-3 py-2 text-left font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Manager</th><th className="px-2 py-2 text-center border-b border-[var(--border)] text-[var(--text-muted)]">Reports</th>{dims.map(d => <th key={d} className="px-2 py-2 text-center font-semibold text-[var(--text-muted)] border-b border-[var(--border)]" style={{maxWidth:70,fontSize: 13}}>{d.length > 10 ? d.slice(0,8) + ".." : d}</th>)}<th className="px-2 py-2 text-center border-b border-[var(--border)]">Avg</th><th className="px-2 py-2 text-center border-b border-[var(--border)]">Category</th></tr></thead>
-        <tbody>{managers.slice(0, 30).map(m => <tr key={m.manager} className="border-b border-[var(--border)] hover:bg-[var(--hover)] cursor-pointer transition-colors" onClick={() => setExpandedMgr(expandedMgr === m.manager ? null : m.manager)}>
+        <div className="overflow-auto rounded-lg border border-[var(--border)]" style={{ maxHeight: 400 }}><table className="w-full text-[13px]"><thead><tr className="bg-[var(--surface-2)] sticky top-0 z-10"><th className="px-3 py-2 text-left font-semibold text-[var(--text-muted)] border-b border-[var(--border)]">Manager</th><th className="px-2 py-2 text-center border-b border-[var(--border)] text-[var(--text-muted)]">Reports</th>{dims.map(d => <th key={d} className="px-2 py-2 text-center font-semibold text-[var(--text-muted)] border-b border-[var(--border)]" style={{maxWidth:70,fontSize:12}}>{d.length > 10 ? d.slice(0,8) + ".." : d}</th>)}<th className="px-2 py-2 text-center border-b border-[var(--border)]">Avg</th><th className="px-2 py-2 text-center border-b border-[var(--border)]">Category</th></tr></thead>
+        <tbody>{managers.slice(0, 30).map(m => <tr key={m.manager} className="border-b border-[var(--border)] hover:bg-[var(--hover)]">
           <td className="px-3 py-2 font-semibold text-[var(--text-primary)]">{m.manager}</td>
           <td className="px-2 py-2 text-center text-[var(--text-muted)]">{m.direct_reports}</td>
-          {dims.map(d => { const v = m.scores[d] || 0; return <td key={d} className="px-2 py-2 text-center"><span className="inline-flex w-7 h-7 rounded-lg items-center justify-center text-[14px] font-bold" style={{ background: `${v >= 4 ? "#8ba87a" : v >= 3 ? "#f4a83a" : v >= 2 ? "#f4a83a" : "#e87a5d"}15`, color: v >= 4 ? "#8ba87a" : v >= 3 ? "#f4a83a" : v >= 2 ? "#f4a83a" : "#e87a5d" }}>{v || "—"}</span></td>; })}
+          {dims.map(d => { const v = m.scores[d] || 0; return <td key={d} className="px-2 py-2 text-center"><span className="inline-flex w-7 h-7 rounded-lg items-center justify-center text-[13px] font-bold" style={{ background: `${v >= 4 ? "#8ba87a" : v >= 3 ? "#f4a83a" : "#e87a5d"}15`, color: v >= 4 ? "#8ba87a" : v >= 3 ? "#f4a83a" : "#e87a5d" }}>{v || "—"}</span></td>; })}
           <td className="px-2 py-2 text-center font-extrabold text-[var(--text-primary)]">{m.average || "—"}</td>
           <td className="px-2 py-2 text-center"><Badge color={m.category === "Transformation Champion" ? "green" : m.category === "Needs Development" ? "amber" : m.category === "Flight Risk" ? "red" : "gray"}>{catIcons[m.category] || "✓"}</Badge></td>
         </tr>)}</tbody></table></div>
       </Card>
-    </> : <>
-      {/* Correlation view — unchanged but with better KPIs */}
-      <Card title="Manager Capability → Team Readiness">
-        <div className="grid grid-cols-3 gap-4 mb-4">
-          <div className="rounded-xl p-5 text-center border" style={{ background: "rgba(139,168,122,0.06)", borderColor: "rgba(139,168,122,0.2)" }}><div className="text-[14px] text-[var(--text-muted)] mb-1">Champion Teams</div><div className="text-[28px] font-extrabold text-[var(--success)]">{Number(summary.high_mgr_team_readiness || 3.8)}<span className="text-[14px]">/5</span></div></div>
-          <div className="rounded-xl p-5 text-center border" style={{ background: "rgba(232,122,93,0.06)", borderColor: "rgba(232,122,93,0.2)" }}><div className="text-[14px] text-[var(--text-muted)] mb-1">At-Risk Teams</div><div className="text-[28px] font-extrabold text-[var(--risk)]">{Number(summary.low_mgr_team_readiness || 2.1)}<span className="text-[14px]">/5</span></div></div>
-          <div className="rounded-xl p-5 text-center border" style={{ background: "rgba(244,168,58,0.06)", borderColor: "rgba(244,168,58,0.2)" }}><div className="text-[14px] text-[var(--text-muted)] mb-1">Multiplier Effect</div><div className="text-[28px] font-extrabold text-[var(--accent-primary)]">{String(summary.correlation_multiplier || "2.1x")}</div></div>
-        </div>
-        <div className="text-[14px] text-[var(--text-secondary)] mb-4 p-3 rounded-lg border-l-3" style={{ borderLeft: "3px solid var(--accent-primary)", background: "rgba(244,168,58,0.04)" }}>Manager capability has a <strong>{String(summary.correlation_multiplier || "2.1x")}</strong> multiplier effect on team readiness. Investing in manager development is the highest-leverage intervention.</div>
-        <div className="space-y-2">{managers.slice(0, 15).map(m => <div key={m.manager} className="flex items-center gap-3 p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)]">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[12px] font-bold text-white shrink-0" style={{ background: catColors[m.category] || "#888" }}>{m.manager.split(" ").map(w => w[0]).join("").slice(0,2)}</div>
-          <div className="flex-1"><div className="text-[14px] font-semibold text-[var(--text-primary)]">{m.manager}</div><div className="text-[12px] text-[var(--text-muted)]">{m.direct_reports} reports</div></div>
-          <div className="text-center shrink-0 w-14"><div className="text-[11px] text-[var(--text-muted)]">Mgr</div><div className="text-[14px] font-extrabold" style={{ color: catColors[m.category] || "#888" }}>{m.average || "—"}</div></div>
-          <span className="text-[var(--text-muted)]">→</span>
-          <div className="text-center shrink-0 w-14"><div className="text-[11px] text-[var(--text-muted)]">Team</div><div className="text-[14px] font-extrabold" style={{ color: m.team_readiness_avg >= 3.5 ? "#8ba87a" : m.team_readiness_avg >= 2.5 ? "#f4a83a" : "#e87a5d" }}>{m.team_readiness_avg || "—"}</div></div>
-        </div>)}</div>
-      </Card>
-    </>}
+    </div>}
 
-    {/* ═══ PRESCRIBED ROADMAP ═══ */}
-    {mgrcapRoadmap && <>
-      <div className="mt-6 mb-2 flex items-center justify-between">
-        <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">YOUR PRESCRIBED PATH</div>
-        {(() => { const p = computeRoadmapProgress(mgrcapRoadmap, {}); return <span className="text-[12px] text-[var(--text-muted)]">{p.completedSteps} of {p.totalSteps} modules complete · {p.percentComplete}%</span>; })()}
+    {mgrTab === "correlation" && <Card title="Manager Capability → Team Readiness">
+      <div className="grid grid-cols-3 gap-4 mb-4">
+        <div className="rounded-xl p-5 text-center border" style={{ background: "rgba(139,168,122,0.06)", borderColor: "rgba(139,168,122,0.2)" }}><div className="text-[13px] text-[var(--text-muted)] mb-1">Champion Teams</div><div className="text-[24px] font-extrabold text-[var(--success)]">{Number(summary.high_mgr_team_readiness || 3.8)}<span className="text-[13px]">/5</span></div></div>
+        <div className="rounded-xl p-5 text-center border" style={{ background: "rgba(232,122,93,0.06)", borderColor: "rgba(232,122,93,0.2)" }}><div className="text-[13px] text-[var(--text-muted)] mb-1">At-Risk Teams</div><div className="text-[24px] font-extrabold text-[var(--risk)]">{Number(summary.low_mgr_team_readiness || 2.1)}<span className="text-[13px]">/5</span></div></div>
+        <div className="rounded-xl p-5 text-center border" style={{ background: "rgba(244,168,58,0.06)", borderColor: "rgba(244,168,58,0.2)" }}><div className="text-[13px] text-[var(--text-muted)] mb-1">Multiplier</div><div className="text-[24px] font-extrabold text-[var(--accent-primary)]">{String(summary.correlation_multiplier || "2.1x")}</div></div>
       </div>
-      <PrescriptionView
-        roadmap={mgrcapRoadmap}
-        moduleStatus={{}}
-        onNavigateToModule={(id) => onNavigate?.(id)}
-        onRegenerate={generatePrescription}
-      />
-    </>}
+      <div className="text-[13px] text-[var(--text-secondary)] mb-3 p-3 rounded-lg" style={{ borderLeft: "3px solid var(--accent-primary)", background: "rgba(244,168,58,0.04)" }}>Manager capability has a <strong>{String(summary.correlation_multiplier || "2.1x")}</strong> multiplier effect on team readiness.</div>
+      <div className="space-y-2">{managers.slice(0, 12).map(m => <div key={m.manager} className="flex items-center gap-3 p-2 rounded-lg bg-[var(--surface-2)] border border-[var(--border)]">
+        <div className="w-7 h-7 rounded-lg flex items-center justify-center text-[11px] font-bold text-white shrink-0" style={{ background: catColors[m.category] || "#888" }}>{m.manager.split(" ").map(w => w[0]).join("").slice(0,2)}</div>
+        <div className="flex-1"><div className="text-[13px] font-semibold text-[var(--text-primary)]">{m.manager}</div><div className="text-[11px] text-[var(--text-muted)]">{m.direct_reports} reports</div></div>
+        <div className="text-center shrink-0 w-12"><div className="text-[10px] text-[var(--text-muted)]">Mgr</div><div className="text-[13px] font-extrabold" style={{ color: catColors[m.category] || "#888" }}>{m.average || "—"}</div></div>
+        <span className="text-[var(--text-muted)]">→</span>
+        <div className="text-center shrink-0 w-12"><div className="text-[10px] text-[var(--text-muted)]">Team</div><div className="text-[13px] font-extrabold" style={{ color: m.team_readiness_avg >= 3.5 ? "#8ba87a" : m.team_readiness_avg >= 2.5 ? "#f4a83a" : "#e87a5d" }}>{m.team_readiness_avg || "—"}</div></div>
+      </div>)}</div>
+    </Card>}
 
-    <FlowNav
-      previous={{ target: { kind: "module", moduleId: "readiness" }, label: "AI Readiness" }}
-      next={{ target: { kind: "module", moduleId: "orghealth" }, label: "Org Health Scorecard" }}
-    />
-  </div>;
+    {/* Prescription */}
+    {mgrcapRoadmap && <div className="mt-4">
+      <PrescriptionView roadmap={mgrcapRoadmap} moduleStatus={{}} onNavigateToModule={(id) => onNavigate?.(id)} onRegenerate={generatePrescription} />
+    </div>}
+  </>;
 }
 
+/* ═══ Manager Development View — rendered inside ChangeReadiness "mgr-dev" tab ═══ */
+function ManagerDevelopmentView({ data, loading, onNavigate }: {
+  data: import("../../types/api").ManagerDevelopmentResponse | null; loading: boolean;
+  onNavigate?: (id: string) => void;
+}) {
+  const tracks = data?.tracks ?? data?.plans ?? [];
+  const summary = data?.summary ?? {};
+  const catColors: Record<string, string> = { "Transformation Champion": "#8ba87a", "Needs Development": "#f4a83a", "Flight Risk": "#e87a5d" };
+  const catIcons: Record<string, string> = { "Transformation Champion": "Champion", "Needs Development": "Dev", "Flight Risk": "Risk" };
+
+  if (loading) return <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={5} /><SkeletonTable rows={5} cols={4} /></div></>;
+  if (!tracks.length) return <Empty text="Complete Manager Capability assessment first. Development plans are generated from capability scores." icon={<GraduationCap size={20} />} />;
+
+  return <>
+    <div className="grid grid-cols-5 gap-3 mb-5">
+      <KpiCard label="Managers" value={Number(summary.total_managers || 0)} /><KpiCard label="Change Agents" value={Number(summary.change_agents || 0)} accent /><KpiCard label="Need Dev" value={Number(summary.need_development || 0)} /><KpiCard label="Avg Duration" value={`${Number(summary.avg_duration_weeks || 0)}wk`} /><KpiCard label="Investment" value={fmtNum(Number(summary.total_investment || 0))} />
+    </div>
+
+    <div className="grid grid-cols-3 gap-4 mb-4">
+      {(["Transformation Champion", "Needs Development", "Flight Risk"] as const).map(cat => {
+        const group = tracks.filter(t => t.category === cat);
+        return <div key={cat} className="rounded-xl p-4 border-l-4" style={{ background: `${catColors[cat]}08`, borderColor: catColors[cat] }}>
+          <div className="flex items-center gap-2 mb-2"><span className="text-lg">{catIcons[cat]}</span><span className="text-[13px] font-bold" style={{ color: catColors[cat] }}>{cat}</span></div>
+          <div className="text-[20px] font-extrabold mb-1" style={{ color: catColors[cat] }}>{group.length}</div>
+          <div className="text-[12px] text-[var(--text-secondary)]">{cat === "Transformation Champion" ? "Deploy as change agents" : cat === "Needs Development" ? "Build capability before rollout" : "Engage immediately"}</div>
+        </div>;
+      })}
+    </div>
+
+    {tracks.map(t => <Card key={t.manager} title={`${catIcons[t.category]} ${t.manager}`}>
+      <div className="flex items-center gap-3 mb-3 flex-wrap">
+        <Badge color={t.category === "Transformation Champion" ? "green" : t.category === "Needs Development" ? "amber" : "red"}>{t.category}</Badge>
+        <span className="text-[12px] text-[var(--text-muted)]">Score: {t.average_score}/5 · {t.direct_reports} reports</span>
+        <span className="text-[12px] font-semibold" style={{ color: catColors[t.category] }}>{t.total_weeks}wk · {fmtNum(t.total_cost)}</span>
+      </div>
+      <div className="bg-[var(--surface-2)] rounded-xl p-3 mb-3 border border-[var(--border)]">
+        <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Transformation Role</div>
+        <div className="text-[13px] font-semibold" style={{ color: catColors[t.category] }}>{t.role_in_change}</div>
+      </div>
+      {(t.interventions || []).length > 0 && <div className="space-y-2">{(t.interventions || []).map((int: { dimension: string; intervention: string; format: string; duration_weeks: number; cost: number }, i: number) => <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)]">
+        <div className="flex-1"><div className="text-[13px] font-semibold text-[var(--text-primary)]">{int.dimension}</div><div className="text-[12px] text-[var(--text-secondary)]">{int.intervention}</div></div>
+        <Badge color={int.format.includes("1:1") ? "purple" : "gray"}>{int.format}</Badge>
+        <span className="text-[12px] text-[var(--text-muted)]">{int.duration_weeks}wk</span>
+        <span className="text-[12px] font-bold" style={{ color: "#f4a83a" }}>{fmtNum(int.cost)}</span>
+      </div>)}</div>}
+    </Card>)}
+
+    <Card title="30/60/90 Day Plan">
+      <div className="grid grid-cols-3 gap-4">{[
+        {day:"30",title:"Foundation",items:["Complete initial assessment","Assign executive coach","Begin first development module","Set personal goals"],color:"#f4a83a"},
+        {day:"60",title:"Building",items:["Complete 2 of 4 modules","Lead one team workshop","Receive 360 feedback","Adopt 1 new AI tool"],color:"#8ba87a"},
+        {day:"90",title:"Demonstrating",items:["Complete all modules","Lead transformation initiative","Re-assess all dimensions","Present journey to peers"],color:"var(--purple)"},
+      ].map(m => <div key={m.day} className="rounded-xl p-4 border-l-4 bg-[var(--surface-2)]" style={{borderColor:m.color}}>
+        <div className="text-[16px] font-extrabold mb-1" style={{color:m.color}}>Day {m.day}</div>
+        <div className="text-[13px] font-bold text-[var(--text-primary)] mb-2">{m.title}</div>
+        <div className="space-y-1">{m.items.map((it,i) => <div key={i} className="flex items-start gap-2 text-[12px] text-[var(--text-secondary)]"><span className="text-[var(--text-muted)] shrink-0">○</span>{it}</div>)}</div>
+      </div>)}</div>
+    </Card>
+  </>;
+}
 
 /* ═══════════════════════════════════════════════════════════════
    MODULE: CHANGE READINESS & ADOPTION
@@ -1325,7 +1298,42 @@ export function ManagerCapability({ model, f, onBack, onNavigate, viewCtx }: { m
 export function ChangeReadiness({ model, f, onBack, onNavigate, viewCtx, simState }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext; simState?: { scenario: string; custom: boolean; custAdopt: number; custTimeline: number; investment: number } }) {
   const [data, setData] = useState<ChangeReadinessResponse | null>(null);
   const [loading, setLoading] = useState(false);
-  const [crTab, setCrTab] = useState<"campaigns" | "activities" | "raci" | "messages" | "tracking">("campaigns");
+  const [crTab, setCrTab] = useState<"campaigns" | "managers" | "mgr-dev" | "activities" | "raci" | "messages" | "tracking">("campaigns");
+
+  // Manager Capability data + prescription (moved from standalone ManagerCapability)
+  const [mgrData, setMgrData] = useState<import("../../types/api").ManagerCapabilityResponse | null>(null);
+  const [mgrLoading, setMgrLoading] = useState(false);
+  useEffect(() => { if (!model) return; let cancelled = false; const slow = setTimeout(() => { if (!cancelled) setMgrLoading(true); }, 150); api.getManagerCapability(model, f).then(d => { if (cancelled) return; clearTimeout(slow); setMgrData(d); setMgrLoading(false); }).catch(() => { if (cancelled) return; clearTimeout(slow); setMgrLoading(false); }); return () => { cancelled = true; clearTimeout(slow); }; }, [model, f.func, f.jf, f.sf, f.cl]);
+  const mgrManagers = mgrData?.managers ?? [];
+  const mgrDims = mgrData?.dimensions ?? [];
+  const mgrSummary = mgrData?.summary ?? {};
+  const mgrChampCount = mgrManagers.filter(m => m.category === "Transformation Champion").length;
+  const mgrDevCount = mgrManagers.filter(m => m.category === "Needs Development").length;
+  const mgrRiskCount = mgrManagers.filter(m => m.category === "Flight Risk").length;
+  const mgrAdeqCount = mgrManagers.length - mgrChampCount - mgrDevCount - mgrRiskCount;
+
+  // Prescription wiring (preserved from ManagerCapability)
+  const { saveRoadmap, getRoadmap } = usePrescribedRoadmaps(model);
+  const mgrcapRoadmap = getRoadmap("mgrcap");
+  const generatePrescription = useCallback(() => {
+    if (!mgrManagers.length) return;
+    const multStr = String(mgrSummary.correlation_multiplier || "2.1x");
+    const mult = parseFloat(multStr.replace(/[^0-9.]/g, "")) || 2.1;
+    const capResult: ManagerCapabilityResult = {
+      totalManagers: mgrManagers.length, championCount: mgrChampCount, needsDevCount: mgrDevCount,
+      flightRiskCount: mgrRiskCount, adequateCount: mgrAdeqCount,
+      weakestDimension: String(mgrSummary.weakest_dimension || (mgrDims.length ? mgrDims[0] : "")),
+      correlationMultiplier: mult, highMgrTeamReadiness: Number(mgrSummary.high_mgr_team_readiness || 3.8),
+      lowMgrTeamReadiness: Number(mgrSummary.low_mgr_team_readiness || 2.1), dimensions: mgrDims,
+    };
+    saveRoadmap(ManagerCapabilityEngine.generate(capResult));
+  }, [mgrManagers.length, mgrChampCount, mgrDevCount, mgrRiskCount, mgrAdeqCount, mgrSummary, mgrDims, saveRoadmap]);
+  useEffect(() => { if (mgrManagers.length > 0 && !mgrcapRoadmap) generatePrescription(); }, [mgrManagers.length, mgrcapRoadmap, generatePrescription]);
+
+  // Manager Development data
+  const [mgrDevData, setMgrDevData] = useState<import("../../types/api").ManagerDevelopmentResponse | null>(null);
+  const [mgrDevLoading, setMgrDevLoading] = useState(false);
+  useEffect(() => { if (!model) return; let cancelled = false; const slow = setTimeout(() => { if (!cancelled) setMgrDevLoading(true); }, 150); api.getManagerDevelopment(model, f).then(d => { if (cancelled) return; clearTimeout(slow); setMgrDevData(d); setMgrDevLoading(false); }).catch(() => { if (cancelled) return; clearTimeout(slow); setMgrDevLoading(false); }); return () => { cancelled = true; clearTimeout(slow); }; }, [model, f.func, f.jf, f.sf, f.cl]);
 
   useEffect(() => { if (!model) return; let cancelled = false; const slow = setTimeout(() => { if (!cancelled) setLoading(true); }, 150); api.getChangeReadiness(model, f).then(d => { if (cancelled) return; clearTimeout(slow); setData(d); setLoading(false); }).catch(() => { if (cancelled) return; clearTimeout(slow); setLoading(false); }); return () => { cancelled = true; clearTimeout(slow); }; }, [model, f.func, f.jf, f.sf, f.cl]);
 
@@ -1366,11 +1374,13 @@ export function ChangeReadiness({ model, f, onBack, onNavigate, viewCtx, simStat
 
   return <div>
     <ContextStrip items={["Plan, coordinate, and track change management campaigns across your transformation."]} />
-    <PageHeader icon={<Compass />} title="Change Campaign Planner" subtitle="Plan activities, assign responsibilities, and track sentiment" onBack={onBack} moduleId="changeready" />
+    <PageHeader icon={<Compass />} title="Change & Manager Readiness" subtitle="Adoption planning, manager readiness, and change campaigns" onBack={onBack} moduleId="changeready" />
     {loading && <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={4} /><SkeletonTable rows={5} cols={5} /></div></>}
 
     <TabBar tabs={[
       { id: "campaigns", label: "Campaigns" },
+      { id: "managers", label: "Manager Capability" },
+      { id: "mgr-dev", label: "Manager Development" },
       { id: "activities", label: "Activities" },
       { id: "raci", label: "RACI" },
       { id: "messages", label: "Messages" },
@@ -1518,119 +1528,20 @@ export function ChangeReadiness({ model, f, onBack, onNavigate, viewCtx, simStat
       </Card>
     </div>}
 
-    <FlowNav
-      previous={{ target: { kind: "module", moduleId: "skillshift" }, label: "Skill Shift Index" }}
-      next={{ target: { kind: "module", moduleId: "mgrdev" }, label: "Manager Development" }}
-    />
-  </div>;
-}
+    {/* ═══ MANAGER CAPABILITY TAB ═══ */}
+    {crTab === "managers" && <ManagerCapabilityView managers={mgrManagers} dims={mgrDims} summary={mgrSummary} loading={mgrLoading} champCount={mgrChampCount} devCount={mgrDevCount} riskCount={mgrRiskCount} onNavigate={onNavigate} mgrcapRoadmap={mgrcapRoadmap} generatePrescription={generatePrescription} />}
 
-
-/* ═══════════════════════════════════════════════════════════════
-   MODULE: MANAGER DEVELOPMENT TRACK
-   ═══════════════════════════════════════════════════════════════ */
-export function ManagerDevelopment({ model, f, onBack, onNavigate, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext }) {
-  const [data, setData] = useState<import("../../types/api").ManagerDevelopmentResponse | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => { if (!model) return; let cancelled = false; const slow = setTimeout(() => { if (!cancelled) setLoading(true); }, 150); api.getManagerDevelopment(model, f).then(d => { if (cancelled) return; clearTimeout(slow); setData(d); setLoading(false); }).catch(() => { if (cancelled) return; clearTimeout(slow); setLoading(false); }); return () => { cancelled = true; clearTimeout(slow); }; }, [model, f.func, f.jf, f.sf, f.cl]);
-
-  const tracks = data?.tracks ?? data?.plans ?? [];
-  const summary = data?.summary ?? {};
-  const catColors: Record<string, string> = { "Transformation Champion": "#8ba87a", "Needs Development": "#f4a83a", "Flight Risk": "#e87a5d" };
-  const catIcons: Record<string, string> = { "Transformation Champion": "Champion", "Needs Development": "Dev", "Flight Risk": "Risk" };
-
-  if (!loading && tracks.length === 0) return <div>
-    <PageHeader icon={<GraduationCap />} title="Manager Development" subtitle="Targeted plans for people managers" onBack={onBack} moduleId="mgrdev" />
-    {model && <div className="flex justify-end mb-2"><ModuleExportButton model={model} module="manager_development" label="Manager Dev Plans" /></div>}
-    <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-2xl p-8 text-center"><div className="text-3xl mb-3 opacity-40"><GraduationCap /></div><h3 className="text-[16px] font-bold font-heading text-[var(--text-primary)] mb-2">Complete Manager Capability Assessment First</h3><p className="text-[15px] text-[var(--text-secondary)]">Manager development plans are generated from capability scores.</p></div>
-  </div>;
-
-  return <div>
-    <ContextStrip items={["Phase 3: Deliver — Targeted development for managers. Champions lead change, Flight Risks need immediate engagement."]} />
-    <PageHeader icon={<GraduationCap />} title="Manager Development Track" subtitle="Development plans and transformation roles" onBack={onBack} moduleId="mgrdev" />
-    {loading && <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={5} /><SkeletonTable rows={5} cols={4} /></div></>}
-
-    <div className="grid grid-cols-5 gap-3 mb-5">
-      <KpiCard label="Managers" value={Number(summary.total_managers || 0)} /><KpiCard label="Change Agents" value={Number(summary.change_agents || 0)} accent /><KpiCard label="Need Dev" value={Number(summary.need_development || 0)} /><KpiCard label="Avg Duration" value={`${Number(summary.avg_duration_weeks || 0)}wk`} /><KpiCard label="Investment" value={fmtNum(Number(summary.total_investment || 0))} />
-    </div>
-
-    {/* Category summary */}
-    <div className="grid grid-cols-3 gap-4 mb-4">
-      {(["Transformation Champion", "Needs Development", "Flight Risk"] as const).map(cat => {
-        const group = tracks.filter(t => t.category === cat);
-        return <div key={cat} className="rounded-xl p-4 border-l-4 transition-all hover:translate-y-[-2px]" style={{ background: `${catColors[cat]}08`, borderColor: catColors[cat] }}>
-          <div className="flex items-center gap-2 mb-2"><span className="text-lg">{catIcons[cat]}</span><span className="text-[14px] font-bold" style={{ color: catColors[cat] }}>{cat}</span></div>
-          <div className="text-[22px] font-extrabold mb-1" style={{ color: catColors[cat] }}>{group.length}</div>
-          <div className="text-[15px] text-[var(--text-secondary)]">{cat === "Transformation Champion" ? "Deploy as change agents" : cat === "Needs Development" ? "Build capability before rollout" : "Engage immediately, assess retention"}</div>
-        </div>;
-      })}
-    </div>
-
-    {/* Individual development cards */}
-    {tracks.map(t => <Card key={t.manager} title={`${catIcons[t.category]} ${t.manager}`}>
-      <div className="flex items-center gap-3 mb-3 flex-wrap">
-        <Badge color={t.category === "Transformation Champion" ? "green" : t.category === "Needs Development" ? "amber" : "red"}>{t.category}</Badge>
-        <span className="text-[15px] text-[var(--text-muted)]">Score: {t.average_score}/5 · {t.direct_reports} reports</span>
-        <span className="text-[15px] font-semibold" style={{ color: catColors[t.category] }}>{t.total_weeks}wk · {fmtNum(t.total_cost)}</span>
-      </div>
-
-      {/* Role in transformation */}
-      <div className="bg-[var(--surface-2)] rounded-xl p-3 mb-3 border border-[var(--border)]">
-        <div className="text-[15px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Transformation Role</div>
-        <div className="text-[15px] font-semibold" style={{ color: catColors[t.category] }}>{t.role_in_change}</div>
-      </div>
-
-      {/* Interventions */}
-      {(t.interventions || []).length > 0 && <div className="space-y-2">{(t.interventions || []).map((int, i) => <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] transition-all hover:border-[var(--accent-primary)]/30">
-        <div className="flex-1">
-          <div className="text-[15px] font-semibold text-[var(--text-primary)]">{int.dimension}</div>
-          <div className="text-[15px] text-[var(--text-secondary)]">{int.intervention}</div>
-        </div>
-        <Badge color={int.format.includes("1:1") ? "purple" : int.format.includes("Group") ? "indigo" : "gray"}>{int.format}</Badge>
-        <span className="text-[15px] text-[var(--text-muted)] shrink-0">{int.duration_weeks}wk</span>
-        <span className="text-[15px] font-bold shrink-0" style={{ color: "#f4a83a" }}>{fmtNum(int.cost)}</span>
-      </div>)}</div>}
-    </Card>)}
-
-    <InsightPanel title="Investment Summary" items={[
-      `Total manager development investment: ${fmtNum(Number(summary.total_investment || 0))}`,
-      `${Number(summary.change_agents || 0)} managers ready to deploy as change agents immediately`,
-      `${Number(summary.need_development || 0)} managers need ${Number(summary.avg_duration_weeks || 0)} weeks average development before they can lead transformation`,
-      `Flight Risk managers should be engaged within 2 weeks — delay increases attrition probability`,
-    ]} icon={<GraduationCap size={15} />} />
-
-    {/* 30/60/90 Day Milestones */}
-    <Card title="Development Milestones — 30/60/90 Day Plan">
-      <div className="grid grid-cols-3 gap-4">{[
-        {day:"30",title:"Foundation",items:["Complete initial assessment","Assign executive coach/mentor","Begin first development module","Set personal development goals"],color:"#f4a83a"},
-        {day:"60",title:"Building",items:["Complete 2 of 4 development modules","Lead one team workshop on AI readiness","Receive 360 feedback mid-check","Demonstrate 1 new AI tool adoption"],color:"#8ba87a"},
-        {day:"90",title:"Demonstrating",items:["Complete all development modules","Lead transformation initiative in function","Re-assess on all 4 dimensions","Present development journey to peers"],color:"var(--purple)"},
-      ].map(m => <div key={m.day} className="rounded-xl p-4 border-l-4 bg-[var(--surface-2)]" style={{borderColor:m.color}}>
-        <div className="text-[18px] font-extrabold mb-1" style={{color:m.color}}>Day {m.day}</div>
-        <div className="text-[15px] font-bold text-[var(--text-primary)] mb-2">{m.title}</div>
-        <div className="space-y-1">{m.items.map((it,i) => <div key={i} className="flex items-start gap-2 text-[15px] text-[var(--text-secondary)]"><span className="text-[var(--text-muted)] shrink-0">○</span>{it}</div>)}</div>
-      </div>)}</div>
-    </Card>
-
-    {/* Mentorship Pairing */}
-    {tracks.filter(t => t.category === "Transformation Champion").length > 0 && tracks.filter(t => t.category !== "Transformation Champion").length > 0 && <Card title="Mentorship Pairing — Champions → Developing Managers">
-      <div className="space-y-2">{tracks.filter(t => t.category === "Transformation Champion").map(champion => {
-        const mentees = tracks.filter(t => t.category !== "Transformation Champion").slice(0, 2);
-        return <div key={champion.manager} className="flex items-center gap-3 p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)]">
-          <div className="flex-1"><div className="text-[15px] font-bold text-[var(--success)]">{champion.manager}</div><div className="text-[14px] text-[var(--text-muted)]">Champion (Score: {champion.average_score})</div></div>
-          <div className="text-[var(--text-muted)]">→</div>
-          <div className="flex-1 space-y-1">{mentees.map(m => <div key={m.manager} className="text-[15px]"><span className="font-semibold" style={{color: m.category === "Flight Risk" ? "#e87a5d" : "#f4a83a"}}>{m.manager}</span> <span className="text-[var(--text-muted)]">({m.category}, {m.average_score})</span></div>)}</div>
-        </div>;
-      })}</div>
-    </Card>}
+    {/* ═══ MANAGER DEVELOPMENT TAB ═══ */}
+    {crTab === "mgr-dev" && <ManagerDevelopmentView data={mgrDevData} loading={mgrDevLoading} onNavigate={onNavigate} />}
 
     <FlowNav
-      previous={{ target: { kind: "module", moduleId: "changeready" }, label: "Change Readiness" }}
+      previous={{ target: { kind: "module", moduleId: "scan" }, label: "AI Opportunity Scan" }}
       next={{ target: { kind: "module", moduleId: "orghealth" }, label: "Org Health Scorecard" }}
     />
   </div>;
 }
+
+
 
 /* RETIRED: AiRecommendationsEngine — replaced by distributed prescriptive layer
    Function deleted. See git history for original implementation. */

@@ -160,10 +160,10 @@ export const MODULE_HELP: Record<string, { title: string; summary: string; pages
 
 export const PHASES = [
   { id: "discover", label: "Discover", icon: "🔍", color: "#5B8DEF", desc: "Understand where you are", guidance: "Start by understanding your organization's workforce structure, job architecture, and AI readiness.", modules: ["dashboard", "snapshot", "skillshift", "ja-audit"] },
-  { id: "diagnose", label: "Diagnose", icon: "🩺", color: "#FF8A3D", desc: "Find what matters most", guidance: "Now that you understand the landscape, let's identify the highest-impact opportunities and biggest risks.", modules: ["orghealth", "scan", "readiness", "changeready", "mgrcap", "skills"] },
+  { id: "diagnose", label: "Diagnose", icon: "🩺", color: "#FF8A3D", desc: "Find what matters most", guidance: "Now that you understand the landscape, let's identify the highest-impact opportunities and biggest risks.", modules: ["orghealth", "scan", "readiness", "changeready", "skills"] },
   { id: "design", label: "Design", icon: "✏️", color: "#3DDC97", desc: "Architect the future state", guidance: "Design your future state — redesign roles, restructure the operating model, and plan your workforce.", modules: ["design", "opmodel", "build", "ja-design", "skills-arch", "bbba", "headcount", "quickwins", "rolecompare", "reorg"] },
   { id: "simulate", label: "Simulate", icon: "⚡", color: "#F5C451", desc: "Model the impact before you commit", guidance: "Model different futures before committing. Adjust assumptions, compare scenarios, and build the business case.", modules: ["simulate"] },
-  { id: "mobilize", label: "Mobilize", icon: "🚀", color: "#7AA3F5", desc: "Make it happen", guidance: "Build your transformation roadmap, engage stakeholders, and generate the deliverables.", modules: ["plan", "story", "archetypes", "mgrdev", "reskill", "marketplace", "export"] },
+  { id: "mobilize", label: "Mobilize", icon: "🚀", color: "#7AA3F5", desc: "Make it happen", guidance: "Build your transformation roadmap, engage stakeholders, and generate the deliverables.", modules: ["plan", "story", "archetypes", "reskill", "marketplace", "export"] },
 ];
 
 export const MODULES = [
@@ -174,7 +174,6 @@ export const MODULES = [
   { id: "orghealth", icon: "🏥", title: "Org Health Scorecard", desc: "Auto-calculated metrics with industry benchmarks", color: "#5B8DEF", phase: "diagnose", views: ["org","custom"] },
   { id: "scan", icon: "🔬", title: "AI Opportunity Scan", desc: "Find where AI creates the most value", color: "#5B8DEF", phase: "diagnose", views: ["org","job","employee","custom"], empTitle: "AI Impact on My Role", jobTitle: "AI Impact on This Job" },
   { id: "readiness", icon: "🎯", title: "AI Readiness", desc: "Individual and team readiness for AI transformation", color: "#FF8A3D", phase: "diagnose", views: ["org","job","employee","custom"], empTitle: "My Readiness", empDesc: "Your personal AI readiness scores" },
-  { id: "mgrcap", icon: "👔", title: "Manager Capability", desc: "Assess manager readiness and identify champions", color: "#F5C451", phase: "diagnose", views: ["org","custom"] },
   { id: "skills", icon: "🧠", title: "Skills & Talent", desc: "Inventory, gap analysis, and adjacency mapping", color: "#F5C451", phase: "diagnose", views: ["org","job","employee","custom"], empTitle: "My Skills", jobTitle: "Role Skills", empDesc: "Your skill profile and development gaps", jobDesc: "Skills required for this role" },
   { id: "bbba", icon: "🔀", title: "Build/Buy/Borrow/Auto", desc: "Talent sourcing strategy per redesigned role", color: "#F5C451", phase: "design", views: ["org","custom"] },
   { id: "headcount", icon: "👥", title: "Headcount Planning", desc: "Current to future workforce waterfall", color: "#F5C451", phase: "design", views: ["org","custom"] },
@@ -188,7 +187,6 @@ export const MODULES = [
   { id: "changeready", icon: "📈", title: "Change Readiness", desc: "4-quadrant segmentation and intervention mapping", color: "#FF5A5F", phase: "diagnose", views: ["org","custom"] },
   { id: "archetypes", icon: "🎭", title: "Readiness Archetypes", desc: "Consultant-grade workforce archetypes with engagement playbooks", color: "#FF8A3D", phase: "mobilize", views: ["org","custom"] },
   { id: "story", icon: "📖", title: "Transformation Story", desc: "AI-generated executive narrative for board presentations", color: "#5B8DEF", phase: "mobilize", views: ["org","custom"] },
-  { id: "mgrdev", icon: "🎓", title: "Manager Development", desc: "Targeted development plans for people managers", color: "#F5C451", phase: "mobilize", views: ["org","custom"] },
   { id: "plan", icon: "🚀", title: "Change Planner", desc: "Sequence initiatives and manage transformation risk", color: "#FF5A5F", phase: "mobilize", views: ["org","job","employee","custom"], empTitle: "My Change Journey", jobTitle: "Role Change Plan", empDesc: "Your personal transformation timeline", jobDesc: "Change initiatives affecting this role" },
   { id: "export", icon: "📋", title: "Export & Report", desc: "Generate your board-ready transformation report", color: "#FF5A5F", phase: "mobilize", views: ["org","job","employee","custom"] },
   { id: "opmodel", icon: "🧬", title: "Operating Model Lab", desc: "Explore architecture patterns across functions", color: "#5B8DEF", phase: "design", views: ["org","custom"] },

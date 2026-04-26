@@ -49,10 +49,8 @@ const ModuleLoadingSkeleton = () => <div style={{ minHeight: "calc(100vh - 120px
 // Diagnose — loaded on demand
 const AiOpportunityScan = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.AiOpportunityScan })), { ssr: false, loading: ModuleLoadingSkeleton });
 const AIReadiness = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.AIReadiness })), { ssr: false, loading: ModuleLoadingSkeleton });
-const ManagerCapability = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.ManagerCapability })), { ssr: false, loading: ModuleLoadingSkeleton });
 const SkillsTalent = dynamic(() => import("../../components/SkillsEngine").then(m => ({ default: m.SkillsEngine })), { ssr: false, loading: ModuleLoadingSkeleton });
 const ChangeReadiness = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.ChangeReadiness })), { ssr: false, loading: ModuleLoadingSkeleton });
-const ManagerDevelopment = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.ManagerDevelopment })), { ssr: false, loading: ModuleLoadingSkeleton });
 const OrgHealthScorecard = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.OrgHealthScorecard })), { ssr: false, loading: ModuleLoadingSkeleton });
 
 // Design — heaviest module (~5500 lines), loaded on demand
@@ -1123,9 +1121,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       {page === "skills-arch" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><SkillsArchitecture model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} jobStates={jobStates} /></ErrorBoundary>}
       {(page === "jobs" || page === "jobarch") && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><JobArchitectureModule model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "scan" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><AiOpportunityScan model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
-      {page === "mgrcap" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ManagerCapability model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "changeready" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ChangeReadiness model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} simState={simState} /></ErrorBoundary>}
-      {page === "mgrdev" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ManagerDevelopment model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "orghealth" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><OrgHealthScorecard model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "skillshift" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><SkillShiftIndex model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "story" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><TransformationStoryBuilder model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} jobStates={jobStates} simState={simState} decisionLog={decisionLog} riskRegister={riskRegister} /></ErrorBoundary>}

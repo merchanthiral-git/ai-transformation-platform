@@ -54,14 +54,14 @@ const BAND_DESCRIPTIONS: Record<Band, string> = {
 
 const BAND_MODULES: Record<Band, Array<{ moduleId: string; rationale: string; emphasis?: string; effort?: "low" | "medium" | "high" }>> = {
   Critical: [
-    { moduleId: "mgrdev", rationale: "Your manager population needs foundational development before they can lead anything new. Start here — everything else depends on it.", emphasis: "Focus on the Flight Risk cohort first: stabilize before you develop.", effort: "high" },
+    { moduleId: "changeready", rationale: "Your manager population needs foundational development before they can lead anything new. Start here — everything else depends on it.", emphasis: "Focus on the Flight Risk cohort first: stabilize before you develop.", effort: "high" },
     { moduleId: "changeready", rationale: "Change Readiness diagnoses where organizational fragility will surface first — with a Critical manager population, expect early resistance.", effort: "medium" },
     { moduleId: "plan", rationale: "You need a change plan that accounts for manager capability gaps. A standard transformation playbook will break against this profile.", emphasis: "Build the governance and communication structures first; delay the initiative roadmap.", effort: "high" },
     { moduleId: "readiness", rationale: "If you haven't assessed AI readiness across the broader org, do it now — the manager layer compounds whatever the org-level readiness score says.", effort: "low" },
     { moduleId: "skills", rationale: "Map the skill gaps your managers will need to close. This feeds directly into targeted development programs.", effort: "medium" },
   ],
   Fragile: [
-    { moduleId: "mgrdev", rationale: "Build the manager bench in parallel with low-risk design work. Your Champions can carry the design; your Needs Development cohort needs structured growth.", effort: "high" },
+    { moduleId: "changeready", rationale: "Build the manager bench in parallel with low-risk design work. Your Champions can carry the design; your Needs Development cohort needs structured growth.", effort: "high" },
     { moduleId: "plan", rationale: "Your change plan needs explicit manager-readiness gates — don't launch workstreams until the managers who own them are ready.", effort: "medium" },
     { moduleId: "scan", rationale: "Identify which AI opportunities your current manager population can realistically deliver, and which require capability they don't yet have.", effort: "medium" },
     { moduleId: "skills", rationale: "Skills mapping reveals which manager capability gaps are coachable (weeks) vs. structural (months). Plan accordingly.", effort: "medium" },
@@ -70,7 +70,7 @@ const BAND_MODULES: Record<Band, Array<{ moduleId: string; rationale: string; em
   Developing: [
     { moduleId: "scan", rationale: "Your managers are ready for a standard transformation arc. Start with the opportunity scan to identify where AI creates the most value.", effort: "medium" },
     { moduleId: "skills", rationale: "Map the skills your redesigned roles will require. Your managers will own the reskilling conversation with their teams.", effort: "medium" },
-    { moduleId: "mgrdev", rationale: "Invest in manager development alongside the design work — not before it, not after it.", emphasis: "Focus on coaching capability and change communication.", effort: "medium" },
+    { moduleId: "changeready", rationale: "Invest in manager development alongside the design work — not before it, not after it.", emphasis: "Focus on coaching capability and change communication.", effort: "medium" },
     { moduleId: "design", rationale: "Your manager population can handle work redesign. Pair each design workstream with a Champion sponsor.", effort: "high" },
     { moduleId: "plan", rationale: "Build the change plan with manager milestone gates. Your Developing profile means timeline discipline matters more than ambition.", effort: "medium" },
   ],
@@ -117,7 +117,7 @@ function getDimensionRules(dim: string, r: ManagerCapabilityResult): {
   if (d.includes("coach") || d.includes("mentoring") || d.includes("development")) {
     return {
       modules: [
-        { moduleId: "mgrdev", rationale: "When AI changes how work happens, the manager's job changes from supervisor to coach. If your managers can't coach, they will manage by surveillance instead." },
+        { moduleId: "changeready", rationale: "When AI changes how work happens, the manager's job changes from supervisor to coach. If your managers can't coach, they will manage by surveillance instead." },
         { moduleId: "plan", rationale: "Your change plan needs explicit coaching-capability gates before each phase goes live.", emphasis: "Focus on the governance committee structure and decision rights." },
       ],
       diagnosis: { title: "Coaching capability deficit", finding: `${r.weakestDimension} is the weakest manager dimension.`, whyItMatters: "Surveillance kills adoption. When AI changes task composition, employees need coaching through the transition — not monitoring. Managers who default to surveillance will drive adoption underground or out entirely.", cost: "Organizations with weak coaching capability see 40-60% lower AI tool adoption rates 12 months post-deployment, even with identical tooling and training budgets.", whatGoodLooksLike: "Best-in-class organizations train managers as coaches first, change agents second. Target: every Needs Development manager paired with a Champion for structured peer coaching.", severity: "critical", confidence: "high" },
@@ -169,7 +169,7 @@ function getDimensionRules(dim: string, r: ManagerCapabilityResult): {
   // Generic catch-all
   return {
     modules: [
-      { moduleId: "mgrdev", rationale: `Your managers' weakest dimension is ${r.weakestDimension}. Targeted development here has the highest return.` },
+      { moduleId: "changeready", rationale: `Your managers' weakest dimension is ${r.weakestDimension}. Targeted development here has the highest return.` },
     ],
     diagnosis: { title: `Weak dimension: ${r.weakestDimension}`, finding: `${r.weakestDimension} scored lowest across your manager population.`, whyItMatters: "The weakest dimension sets the ceiling for transformation complexity your managers can sustain. Address it explicitly rather than hoping general development programs will cover it.", cost: "Unaddressed dimension weaknesses surface as execution failures 3-6 months into transformation programs.", whatGoodLooksLike: "All manager dimensions above 3.0/5 average, with no single dimension more than 1.0 points below the overall average.", severity: "important", confidence: "inferred" },
     questions: [],
