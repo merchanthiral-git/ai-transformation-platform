@@ -2,7 +2,7 @@
    Design Paths — Persistence Hook
    ═══════════════════════════════════════════════════════════════ */
 
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { usePersisted } from "../../components/shared/hooks";
 import type { DesignPath, StepTiming, PathLifecycleState, PathHistoryEntry } from "./types";
 
@@ -13,6 +13,35 @@ export function useDesignPaths(projectId: string) {
   const [pathHistory, setPathHistory] = usePersisted<PathHistoryEntry[]>(
     `${projectId}_designPathHistory`, []
   );
+
+  // Migrate old paths: ensure subSteps arrays exist on every step
+  useEffect(() => {
+    let needsMigration = false;
+    for (const path of Object.values(paths)) {
+      for (const step of path.steps) {
+        if (!Array.isArray(step.subSteps)) { needsMigration = true; break; }
+      }
+      if (!path.lifecycleState) needsMigration = true;
+      if (needsMigration) break;
+    }
+    if (needsMigration) {
+      setPaths(prev => {
+        const next: Record<string, DesignPath> = {};
+        for (const [k, p] of Object.entries(prev)) {
+          next[k] = {
+            ...p,
+            lifecycleState: p.lifecycleState || "active",
+            lastActiveAt: p.lastActiveAt || p.generatedAt,
+            steps: p.steps.map(s => ({
+              ...s,
+              subSteps: Array.isArray(s.subSteps) ? s.subSteps : [],
+            })),
+          };
+        }
+        return next;
+      });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const savePath = useCallback((path: DesignPath) => {
     setPaths(prev => ({ ...prev, [path.sourceModuleId]: path }));
@@ -148,7 +177,7 @@ export function useDesignPaths(projectId: string) {
       if (!path) return prev;
       const newSteps = [...path.steps];
       const step = { ...newSteps[stepIdx] };
-      const newSubSteps = step.subSteps.map(ss =>
+      const newSubSteps = (step.subSteps || []).map(ss =>
         ss.tabId === tabId ? { ...ss, completedAt: new Date().toISOString(), completedManually: manuallyMarked } : ss
       );
       step.subSteps = newSubSteps;
@@ -168,7 +197,7 @@ export function useDesignPaths(projectId: string) {
       if (!path) return prev;
       const newSteps = [...path.steps];
       const step = { ...newSteps[stepIdx] };
-      step.subSteps = step.subSteps.map(ss =>
+      step.subSteps = (step.subSteps || []).map(ss =>
         ss.tabId === tabId ? { ...ss, completedAt: undefined, completedManually: undefined } : ss
       );
       // Un-complete parent if it was auto-completed
@@ -183,7 +212,7 @@ export function useDesignPaths(projectId: string) {
   const getCurrentSubStep = useCallback((sourceModuleId: string, stepIdx: number, tabId: string) => {
     const path = paths[sourceModuleId];
     if (!path || stepIdx < 0 || stepIdx >= path.steps.length) return null;
-    return path.steps[stepIdx].subSteps.find(ss => ss.tabId === tabId) ?? null;
+    return (path.steps[stepIdx].subSteps || []).find(ss => ss.tabId === tabId) ?? null;
   }, [paths]);
 
   const isTabPathRequired = useCallback((sourceModuleId: string, stepIdx: number, tabId: string): boolean => {

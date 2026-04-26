@@ -521,7 +521,7 @@ export const AIReadinessPathEngine: PathEngine<AIReadinessResult> = {
     };
     const scanConfig = PATTERN_SCAN_TABS[pattern] || PATTERN_SCAN_TABS[6];
     const enrichedSteps = content.steps.map(s => {
-      if (s.moduleId === "scan" && s.subSteps.length === 0) {
+      if (s.moduleId === "scan" && (!s.subSteps || s.subSteps.length === 0)) {
         const { subSteps, tabContext } = scanSubSteps(scanConfig.required, scanConfig.ctx);
         return { ...s, subSteps, moduleTabContext: tabContext };
       }

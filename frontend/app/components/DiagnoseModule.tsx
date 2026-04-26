@@ -148,14 +148,15 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
     const isRequired = isScanTabReq(scanActivePath.sourceModuleId, scanStepIdx, tabId);
     if (subStep) {
       const parentStep = scanActivePath.steps[scanStepIdx];
-      const subIdx = parentStep.subSteps.findIndex(ss => ss.tabId === tabId);
+      const subs = parentStep.subSteps || [];
+      const subIdx = subs.findIndex(ss => ss.tabId === tabId);
       return <SubStepInstructionPanel
         sourceModuleTitle={scanActivePath.sourceModuleTitle}
         parentStepIdx={scanStepIdx}
         parentStepCount={scanActivePath.steps.length}
         subStep={subStep}
         subStepIdx={subIdx + 1}
-        totalSubSteps={parentStep.subSteps.length}
+        totalSubSteps={subs.length}
         onMarkComplete={() => markScanSub(scanActivePath.sourceModuleId, scanStepIdx, tabId, true)}
         isComplete={!!subStep.completedAt}
       />;
@@ -163,7 +164,7 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
     if (!isRequired) {
       const notice = getScanOptNotice(scanActivePath.sourceModuleId, scanStepIdx, tabId);
       if (notice) {
-        const firstRequired = scanActivePath.steps[scanStepIdx].subSteps.find(ss => !ss.completedAt);
+        const firstRequired = (scanActivePath.steps[scanStepIdx].subSteps || []).find(ss => !ss.completedAt);
         return <OptionalTabNotice label={notice.label} whatItDoes={notice.whatItDoes} onBackToActive={() => setSub(firstRequired?.tabId || "ai")} />;
       }
     }
@@ -791,6 +792,8 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
     saveDesignPath(path);
   }, [assessComplete, overallScore, assessScores, model, saveDesignPath]);
   useEffect(() => { if (assessComplete && !readinessPath) generateDesignPath(); }, [assessComplete, readinessPath, generateDesignPath]);
+  // Auto-regenerate old paths missing sub-steps
+  useEffect(() => { if (assessComplete && readinessPath && (!readinessPath.steps[0]?.subSteps || readinessPath.steps[0].subSteps.length === 0)) { generateDesignPath(); } }, [assessComplete, readinessPath, generateDesignPath]);
 
   useEffect(() => { if (!model) return; let cancelled = false; const slow = setTimeout(() => { if (!cancelled) setLoading(true); }, 150); api.getReadinessAssessment(model).then(d => { if (cancelled) return; clearTimeout(slow); setData(d); setLoading(false); }).catch(() => { if (cancelled) return; clearTimeout(slow); setLoading(false); }); return () => { cancelled = true; clearTimeout(slow); }; }, [model]);
 
