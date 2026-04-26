@@ -815,7 +815,15 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
   const [assessAnswers, setAssessAnswers] = usePersisted<Record<string, number>>(`${model}_readiness_assess`, {});
   const [assessActive, setAssessActive] = useState(false);
   const [assessQ, setAssessQ] = useState(0);
+  const [showRetakeConfirm, setShowRetakeConfirm] = useState(false);
   const assessComplete = Object.keys(assessAnswers).length >= totalQuestions;
+
+  const handleRetake = () => {
+    setAssessAnswers({});
+    setAssessQ(0);
+    setAssessActive(true);
+    setShowRetakeConfirm(false);
+  };
 
   // Compute scores from answers
   const assessScores = useMemo(() => {
@@ -913,7 +921,19 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
         <div className="text-[14px] text-[var(--text-muted)] uppercase tracking-wider mb-1">Your AI Readiness Score</div>
         <div className="text-[48px] font-extrabold font-data" style={{ color: orgAvg >= 3.5 ? "#8ba87a" : orgAvg >= 2.5 ? "#f4a83a" : "#e87a5d" }}>{orgAvg}/5</div>
         <div className="text-[16px] font-semibold" style={{ color: orgAvg >= 3.5 ? "#8ba87a" : orgAvg >= 2.5 ? "#f4a83a" : "#e87a5d" }}>{orgAvg >= 4 ? "Exceptional" : orgAvg >= 3.5 ? "Strong" : orgAvg >= 2.5 ? "Moderate" : orgAvg >= 1.5 ? "Developing" : "Critical"}</div>
-        <button onClick={() => { setAssessActive(true); setAssessQ(0); }} className="mt-3 text-[13px] text-[var(--text-muted)] hover:text-[var(--accent-primary)]">Retake Assessment</button>
+        <button onClick={() => setShowRetakeConfirm(true)} className="mt-3 text-[13px] text-[var(--text-muted)] hover:text-[var(--accent-primary)]">Retake Assessment</button>
+        {showRetakeConfirm && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }}>
+            <div className="bg-[var(--surface-1)] border border-[var(--border)] rounded-xl p-6 max-w-sm mx-4 shadow-xl">
+              <div className="text-[15px] font-bold text-[var(--text-primary)] mb-2">Retake assessment?</div>
+              <div className="text-[13px] text-[var(--text-muted)] mb-5">This will clear your current answers. You can retake the assessment from the beginning.</div>
+              <div className="flex gap-3 justify-end">
+                <button onClick={() => setShowRetakeConfirm(false)} className="px-4 py-2 rounded-lg text-[13px] font-medium text-[var(--text-muted)] border border-[var(--border)]">Cancel</button>
+                <button onClick={handleRetake} className="px-4 py-2 rounded-lg text-[13px] font-semibold text-white bg-[var(--accent-primary)]">Retake</button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>}
 
       <div className="grid grid-cols-5 gap-3 mb-5">
