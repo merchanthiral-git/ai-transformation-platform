@@ -22,12 +22,13 @@ export function computePathProgress(
   let nextStepIdx = -1;
 
   for (let i = 0; i < path.steps.length; i++) {
-    const step = path.steps[i];
-    const ms = moduleStatus[step.moduleId] || "not_started";
-    if (ms === "complete") {
+    const s = path.steps[i];
+    // Step is complete if it has a completedAt timestamp OR if moduleStatus says complete
+    const isComplete = !!s.completedAt || moduleStatus[s.moduleId] === "complete";
+    if (isComplete) {
       completedSteps++;
     } else if (nextStep === null) {
-      nextStep = step;
+      nextStep = s;
       nextStepIdx = i;
     }
   }
@@ -36,9 +37,9 @@ export function computePathProgress(
   const percentComplete = totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0;
 
   const totalWeeks = path.steps.reduce(
-    (acc, step) => ({
-      min: acc.min + step.timing.minWeeks,
-      max: acc.max + step.timing.maxWeeks,
+    (acc, s) => ({
+      min: acc.min + s.timing.minWeeks,
+      max: acc.max + s.timing.maxWeeks,
     }),
     { min: 0, max: 0 }
   );

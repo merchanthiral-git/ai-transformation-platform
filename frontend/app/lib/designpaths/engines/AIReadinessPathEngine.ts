@@ -34,7 +34,7 @@ function determineBand(score: number): Band {
 
 /* ── Step builder helpers ── */
 
-const STEP_DEFS: Record<string, Omit<DesignPathStep, "whyNow" | "watchPoint">> = {
+const STEP_DEFS: Record<string, Omit<DesignPathStep, "whyNow" | "watchPoint" | "completionCriterion" | "completedAt" | "completedManually">> = {
   changeready: { moduleId: "changeready", title: "Change Readiness", description: "Diagnose adoption barriers and build the change infrastructure.", framework: "Prosci ADKAR", timing: t(2, 3), scope: "Affected population", stakeholders: ["CHRO sponsor", "Change lead"] },
   changeready_r2: { moduleId: "changeready", title: "Change Readiness R2", description: "Second-round adoption check after design work.", framework: "Prosci ADKAR", timing: t(4, 6), scope: "Full affected population", stakeholders: ["CHRO sponsor", "Change lead", "Function heads"] },
   changeready_r3: { moduleId: "changeready", title: "Change Readiness R3", description: "Final readiness gate before mobilization.", framework: "Prosci ADKAR", timing: t(2, 3), scope: "All affected employees", stakeholders: ["Full leadership"] },
@@ -56,10 +56,13 @@ function t(min: number, max: number): StepTiming {
   return { minWeeks: min, maxWeeks: max, edited: false };
 }
 
-function step(key: string, whyNow: string, watchPoint: string): DesignPathStep {
+function step(key: string, whyNow: string, watchPoint: string, criterion?: string): DesignPathStep {
   const def = STEP_DEFS[key];
   if (!def) throw new Error(`Unknown step key: ${key}`);
-  return { ...def, whyNow, watchPoint };
+  return {
+    ...def, whyNow, watchPoint,
+    completionCriterion: { description: criterion || `Complete the ${def.title} module for the relevant scope` },
+  };
 }
 
 /* ── Pattern definitions ── */
@@ -113,9 +116,9 @@ function getPatternContent(pattern: PatternId, dims: Record<string, number>, ban
       outcomeStatement: "Every dimension scores below the threshold for sustained AI adoption. This isn't a design problem yet — it's a readiness problem. Attempting to design new work against this profile produces plans that can't be executed, which is worse than no plan at all.",
       pivotalDims: Object.keys(dims),
       steps: [
-        step("scan", "Even in a Critical band, understanding where AI has the highest potential helps focus the stabilization effort. Don't scan everything — pick the 2-3 functions where AI impact is clearest and pilot readiness is highest.", "Scanning broadly when everything is weak creates paralysis. Narrow the aperture to 2-3 functions maximum."),
-        step("design_pilot", "A small-scope pilot proves the concept without requiring organizational readiness that doesn't exist yet. 3-5 roles, one function, visible results.", "The pilot sponsor must be a true believer with positional authority. A skeptical sponsor kills pilots slowly."),
-        step("changeready", "After the pilot, measure what changed in the pilot population. This becomes the evidence base for expanding — or the honest signal that more stabilization is needed.", "Don't conflate pilot completion with readiness to scale. The pilot succeeded in controlled conditions; scaling is uncontrolled."),
+        step("scan", "Even in a Critical band, understanding where AI has the highest potential helps focus the stabilization effort. Don't scan everything — pick the 2-3 functions where AI impact is clearest and pilot readiness is highest.", "Scanning broadly when everything is weak creates paralysis. Narrow the aperture to 2-3 functions maximum.", "Identify 2-3 pilot functions where AI impact is highest and pilot readiness is greatest"),
+        step("design_pilot", "A small-scope pilot proves the concept without requiring organizational readiness that doesn't exist yet. 3-5 roles, one function, visible results.", "The pilot sponsor must be a true believer with positional authority. A skeptical sponsor kills pilots slowly.", "Decompose and reconstruct 3-5 roles in the chosen pilot function"),
+        step("changeready", "After the pilot, measure what changed in the pilot population. This becomes the evidence base for expanding — or the honest signal that more stabilization is needed.", "Don't conflate pilot completion with readiness to scale. The pilot succeeded in controlled conditions; scaling is uncontrolled.", "Identify adoption barriers for the pilot population and draft change campaigns"),
       ],
       alternatives: [
         { label: "Small-scope pilot sequence", blurb: "Best fit when all dimensions are below threshold. Build evidence before investing.", selected: true },
@@ -167,11 +170,11 @@ function getPatternContent(pattern: PatternId, dims: Record<string, number>, ban
       outcomeStatement: `Your organization scores in the Foundational band with critically weak Change Openness (${(dims["Change Openness"] ?? 0).toFixed(1)}) and AI Collaboration (${(dims["AI Collaboration"] ?? 0).toFixed(1)}). The instinct will be to invest in tools; the discipline is to invest in scaffolding first. Organizations that skip the change-muscle phase have a 70% pilot failure rate at 18 months.`,
       pivotalDims: ["Change Openness", "AI Collaboration"],
       steps: [
-        step("changeready", "Before any design work, establish baseline change readiness and build the communication infrastructure. Without this, design outputs have no landing zone.", "Sponsors underestimate the time it takes to publicly commit. The first town hall usually slips by 2-3 weeks while leadership rewords its message."),
-        step("design", "Tasks are the atomic unit of work; jobs are bundles. Decomposing first lets you see what AI actually changes, then reconstruct around the changed substrate. Skipping this treats jobs as fixed — which guarantees you redesign back to where you started.", "Defaulting to 'the function with the loudest leader' is the most common mistake. Start with the function whose redesign creates the cleanest reference for others."),
-        step("bbba", "With redesigned work in hand, determine which capability gaps to build internally, buy from vendors, borrow via contractors, or automate entirely. This is where the investment thesis crystallizes.", "'Buy' gets over-allocated when the org doesn't have credible internal capacity to 'build.' Honest capacity assessment up front beats pretending."),
-        step("headcount", "Model the workforce transition. How many roles change, how many are new, how many are eliminated. This step turns design into numbers that Finance and Legal need.", "Legal counsel arrives late and changes the timeline. Bring them in at the start of the step, not at the approval gate."),
-        step("changeready_r2", "Circle back to change readiness with the design in hand. The conversation shifts from 'are we ready for change' to 'are we ready for this specific change.' Different question, different answers.", "Reusing campaign assets verbatim is the most common shortcut and the most common failure. The audience has changed; the message must change too."),
+        step("changeready", "Before any design work, establish baseline change readiness and build the communication infrastructure. Without this, design outputs have no landing zone.", "Sponsors underestimate the time it takes to publicly commit. The first town hall usually slips by 2-3 weeks while leadership rewords its message.", "Build initial change campaign structure for affected populations across the org"),
+        step("design", "Tasks are the atomic unit of work; jobs are bundles. Decomposing first lets you see what AI actually changes, then reconstruct around the changed substrate. Skipping this treats jobs as fixed — which guarantees you redesign back to where you started.", "Defaulting to 'the function with the loudest leader' is the most common mistake. Start with the function whose redesign creates the cleanest reference for others.", "Decompose roles into tasks for 1 function, identify what AI changes, reconstruct future-state work"),
+        step("bbba", "With redesigned work in hand, determine which capability gaps to build internally, buy from vendors, borrow via contractors, or automate entirely. This is where the investment thesis crystallizes.", "'Buy' gets over-allocated when the org doesn't have credible internal capacity to 'build.' Honest capacity assessment up front beats pretending.", "Complete build/buy/borrow/automate assessment for all redesigned roles"),
+        step("headcount", "Model the workforce transition. How many roles change, how many are new, how many are eliminated. This step turns design into numbers that Finance and Legal need.", "Legal counsel arrives late and changes the timeline. Bring them in at the start of the step, not at the approval gate.", "Produce a headcount waterfall showing current → future state transition"),
+        step("changeready_r2", "Circle back to change readiness with the design in hand. The conversation shifts from 'are we ready for change' to 'are we ready for this specific change.' Different question, different answers.", "Reusing campaign assets verbatim is the most common shortcut and the most common failure. The audience has changed; the message must change too.", "Run second-round change readiness assessment against the specific design outputs"),
       ],
       alternatives: [
         { label: "Change-first sequence", blurb: "Best fit when Change Openness and AI Collaboration score critically low.", selected: true },
@@ -414,6 +417,8 @@ export const AIReadinessPathEngine: PathEngine<AIReadinessResult> = {
       alternatives: content.alternatives,
       steps: content.steps,
       sensitivityNote: content.sensitivityNote,
+      lifecycleState: "active",
+      lastActiveAt: new Date().toISOString(),
     };
   },
 };
