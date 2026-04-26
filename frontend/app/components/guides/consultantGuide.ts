@@ -681,7 +681,7 @@ export const consultantGuide: GuideData = {
 <div class="callout-title">Pro Tip</div>
 <p>Present quick wins and strategic plays as a unified portfolio, not competing priorities. Use a "transformation wave" visual that shows quick wins in Wave 1 (0-3 months), tactical improvements in Wave 2 (3-9 months), and strategic redesign in Wave 3 (9-18 months). Each wave funds and enables the next. This framing prevents the common trap of organizations harvesting quick wins and then declaring the transformation "done."</p>
 </div>
-<a class="try-it" data-navigate="heatmap">Try it now →</a>
+<a class="try-it" data-navigate="scan">Try it now →</a>
 `
         },
         {

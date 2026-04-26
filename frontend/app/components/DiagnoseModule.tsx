@@ -51,6 +51,72 @@ import { computeRoadmapProgress } from "../lib/prescriptive/roadmapProgress";
 
 
 /* ═══════════════════════════════════════════════════════════════
+   HEATMAP VIEW — inlined into AI Opportunity Scan as a tab
+   ═══════════════════════════════════════════════════════════════ */
+function HeatmapView({ model, f }: { model: string; f: Filters }) {
+  const [hmData, setHmData] = useState<AIHeatmapResponse | null>(null);
+  const [hmLoading, setHmLoading] = useState(false);
+  const [selectedCell, setSelectedCell] = useState<{function: string; family: string; score: number; impact: string; tasks: number; roles: string[]} | null>(null);
+
+  useEffect(() => {
+    if (!model) return;
+    let cancelled = false;
+    const slow = setTimeout(() => { if (!cancelled) setHmLoading(true); }, 150);
+    api.getAIHeatmap(model, f).then(d => { if (cancelled) return; clearTimeout(slow); setHmData(d); setHmLoading(false); }).catch(() => { if (cancelled) return; clearTimeout(slow); setHmLoading(false); });
+    return () => { cancelled = true; clearTimeout(slow); };
+  }, [model, f.func, f.jf, f.sf, f.cl]);
+
+  const cells = hmData?.cells ?? [];
+  const functions = hmData?.functions ?? [];
+  const families = hmData?.families ?? [];
+  const cellColor = (score: number) => score >= IMPACT_SCORE_HIGH ? "rgba(232,122,93,0.7)" : score >= IMPACT_SCORE_MEDIUM ? "rgba(244,168,58,0.6)" : "rgba(139,168,122,0.5)";
+  const getCell = (func: string, fam: string) => cells.find(c => c.function === func && c.family === fam);
+
+  if (hmLoading) return <div className="space-y-4 mt-4"><SkeletonKpiRow count={4} /><SkeletonTable rows={6} cols={6} /></div>;
+  if (cells.length === 0) return <Empty text="Upload work design data with Function and Job Family columns to generate the heatmap" icon={<BarChart3 size={20} />} />;
+
+  return <div className="flex gap-4">
+    <div className="flex-1 overflow-x-auto">
+      <Card title="Impact Matrix">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead><tr>
+              <th className="px-2 py-2 text-left text-[15px] text-[var(--text-muted)] font-bold uppercase sticky left-0 bg-[var(--surface-1)]">Function</th>
+              {families.map(fam => <th key={fam} className="px-2 py-2 text-center text-[13px] text-[var(--text-muted)] font-bold" style={{ minWidth: 70, height: 80 }}><div title={fam} style={{ display: "inline-block", transform: "rotate(-30deg)", transformOrigin: "left bottom", whiteSpace: "nowrap", fontSize: 13, lineHeight: 1, paddingLeft: 4 }}>{fam}</div></th>)}
+            </tr></thead>
+            <tbody>{functions.map(func => <tr key={func}>
+              <td className="px-2 py-1.5 text-[15px] text-[var(--text-secondary)] font-semibold whitespace-nowrap sticky left-0 bg-[var(--surface-1)]">{func}</td>
+              {families.map(fam => {
+                const cell = getCell(func, fam);
+                return <td key={fam} className="p-0.5"><div onClick={() => cell && setSelectedCell(cell)} className="w-8 h-8 rounded-md flex items-center justify-center text-[15px] font-bold cursor-pointer transition-all hover:scale-110" style={{ background: cell ? cellColor(cell.score) : "#1e2030", color: cell ? "#fff" : "#8a7f6d" }}>{cell ? cell.score.toFixed(0) : ""}</div></td>;
+              })}
+            </tr>)}</tbody>
+          </table>
+        </div>
+        <div className="flex items-center gap-4 mt-3 text-[15px] text-[var(--text-muted)]">
+          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ background: "rgba(139,168,122,0.5)" }} /> Low (0-3.5)</span>
+          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ background: "rgba(244,168,58,0.6)" }} /> Moderate (3.5-6)</span>
+          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ background: "rgba(232,122,93,0.7)" }} /> High (6-10)</span>
+        </div>
+      </Card>
+    </div>
+    {selectedCell && <div className="w-72 shrink-0 bg-[var(--surface-1)] rounded-xl border border-[var(--border)] p-4 animate-slide-right">
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="text-[15px] font-bold text-[var(--text-primary)] font-heading">Cell Detail</h4>
+        <button onClick={() => setSelectedCell(null)} className="text-[var(--text-muted)] text-sm">✕</button>
+      </div>
+      <div className="text-[15px] text-[var(--accent-primary)] font-semibold mb-1">{selectedCell.function} × {selectedCell.family}</div>
+      <div className="grid grid-cols-2 gap-2 mb-3">
+        <div className="bg-[var(--surface-2)] rounded-lg p-2 text-center"><div className="text-[16px] font-bold font-data" style={{ color: cellColor(selectedCell.score) }}>{selectedCell.score}</div><div className="text-[15px] text-[var(--text-muted)] uppercase">AI Score</div></div>
+        <div className="bg-[var(--surface-2)] rounded-lg p-2 text-center"><div className="text-[16px] font-bold font-data text-[var(--text-primary)]">{selectedCell.tasks}</div><div className="text-[15px] text-[var(--text-muted)] uppercase">Tasks</div></div>
+      </div>
+      <Badge color={selectedCell.impact === "High" ? "red" : selectedCell.impact === "Moderate" ? "amber" : "green"}>{selectedCell.impact} Impact</Badge>
+      {selectedCell.roles.length > 0 && <div className="mt-3"><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-1">Roles</div><div className="space-y-1">{selectedCell.roles.map(r => <div key={r} className="text-[15px] text-[var(--text-secondary)] bg-[var(--surface-2)] rounded px-2 py-1">{r}</div>)}</div></div>}
+    </div>}
+  </div>;
+}
+
+/* ═══════════════════════════════════════════════════════════════
    MODULE: AI OPPORTUNITY SCAN
    ═══════════════════════════════════════════════════════════════ */
 export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext }) {
@@ -63,7 +129,7 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
   return <div>
     <ContextStrip items={[viewCtx?.mode === "employee" ? "Showing AI impact on tasks in your role." : viewCtx?.mode === "job" ? `Filtered to ${viewCtx?.job} tasks only.` : "Phase 1: Discover — Find where AI creates the most value. This unlocks Phase 2: Design."]} />
     <PageHeader icon={viewCtx?.mode === "employee" ? <Users /> : <Search />} title={scanTitle} subtitle={scanSubtitle} onBack={onBack} moduleId="scan" />
-    <TabBar tabs={[{ id: "ai", label: "AI Prioritization" }, { id: "skills", label: "Skill Gaps" }, { id: "org", label: "Org Diagnostics" }, { id: "dq", label: "Data Quality" }]} active={sub} onChange={setSub} />
+    <TabBar tabs={[{ id: "ai", label: "AI Prioritization" }, { id: "heatmap", label: "Impact Heatmap" }, { id: "skills", label: "Skill Gaps" }, { id: "org", label: "Org Diagnostics" }, { id: "dq", label: "Data Quality" }]} active={sub} onChange={setSub} />
 
     {loading && !data && <div className="space-y-4 mt-4"><SkeletonKpiRow count={4} /><SkeletonChart height={200} /><SkeletonTable rows={5} cols={4} /></div>}
 
@@ -279,10 +345,11 @@ export function AiOpportunityScan({ model, f, onBack, onNavigate, viewCtx }: { m
       </div>;
     })()}
     {sub === "dq" && (() => { const s = (data?.summary ?? { ready: 0, missing: 0, total_issues: 0, avg_completeness: 0 }) as DataQualitySummary; return <div><div className="grid grid-cols-4 gap-3 mb-5"><KpiCard label="Ready" value={`${s.ready ?? 0}/7`} accent /><KpiCard label="Missing" value={s.missing ?? 0} /><KpiCard label="Issues" value={s.total_issues ?? 0} /><KpiCard label="Completeness" value={`${s.avg_completeness ?? 0}%`} /></div><div className="grid grid-cols-2 gap-4"><Card title="Readiness"><DataTable data={((data?.readiness ?? []) as Record<string, unknown>[])} cols={["Dataset", "Status", "Rows", "Issues", "Completeness"]} /></Card><Card title="Upload Log"><DataTable data={((data?.upload_log ?? []) as Record<string, unknown>[])} /></Card></div></div>; })()}
+    {sub === "heatmap" && <HeatmapView model={model} f={f} />}
     <AiInsightCard title="AI Diagnosis Summary" contextData={JSON.stringify({ summary: (data as Record<string,unknown>)?.summary, sub }).slice(0, 2000)} systemPrompt="You are an organizational diagnostics consultant. Provide 3 key findings and recommended focus areas. Use specific numbers. No markdown." />
     <FlowNav
       previous={{ target: { kind: "module", moduleId: "snapshot" }, label: "Workforce Snapshot" }}
-      next={{ target: { kind: "module", moduleId: "heatmap" }, label: "AI Impact Heatmap" }}
+      next={{ target: { kind: "module", moduleId: "readiness" }, label: "AI Readiness" }}
     />
   </div>;
 }
@@ -1741,91 +1808,10 @@ export function OrgHealthScorecard({ model, f, onBack, onNavigate, viewCtx }: { 
 
     <FlowNav
       previous={{ target: { kind: "module", moduleId: "dashboard" }, label: "Transformation Dashboard" }}
-      next={{ target: { kind: "module", moduleId: "heatmap" }, label: "AI Impact Heatmap" }}
+      next={{ target: { kind: "module", moduleId: "scan" }, label: "AI Opportunity Scan" }}
     />
   </div>;
 }
-
-/* ═══════════════════════════════════════════════════════════════
-   AI IMPACT HEATMAP — function × family matrix
-   ═══════════════════════════════════════════════════════════════ */
-
-export function AIImpactHeatmap({ model, f, onBack, onNavigate, viewCtx }: { model: string; f: Filters; onBack: () => void; onNavigate?: (id: string) => void; viewCtx?: ViewContext }) {
-  const [data, setData] = useState<AIHeatmapResponse | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [selectedCell, setSelectedCell] = useState<{function: string; family: string; score: number; impact: string; tasks: number; roles: string[]} | null>(null);
-
-  useEffect(() => {
-    if (!model) return;
-    let cancelled = false;
-    const slow = setTimeout(() => { if (!cancelled) setLoading(true); }, 150);
-    api.getAIHeatmap(model, f).then(d => { if (cancelled) return; clearTimeout(slow); setData(d); setLoading(false); }).catch(() => { if (cancelled) return; clearTimeout(slow); setLoading(false); });
-    return () => { cancelled = true; clearTimeout(slow); };
-  }, [model, f.func, f.jf, f.sf, f.cl]);
-
-  const cells = data?.cells ?? [];
-  const functions = data?.functions ?? [];
-  const families = data?.families ?? [];
-
-  const cellColor = (score: number) => score >= IMPACT_SCORE_HIGH ? "rgba(232,122,93,0.7)" : score >= IMPACT_SCORE_MEDIUM ? "rgba(244,168,58,0.6)" : "rgba(139,168,122,0.5)";
-  const getCell = (func: string, fam: string) => cells.find(c => c.function === func && c.family === fam);
-
-  return <div>
-    <ContextStrip items={[`${cells.length} intersections analyzed · ${cells.filter(c => c.impact === "High").length} high-impact zones`]} />
-    <PageHeader icon={<BarChart3 />} title="AI Impact Heatmap" subtitle="Automation potential by function and job family" onBack={onBack} moduleId="heatmap" viewCtx={viewCtx} />
-    {loading && <><LoadingBar /><div className="mt-4 space-y-4"><SkeletonKpiRow count={4} /><SkeletonTable rows={6} cols={6} /></div></>}
-
-    {cells.length === 0 && !loading && <Empty text="Upload work design data with Function and Job Family columns to generate the heatmap" icon={<BarChart3 size={20} />} />}
-
-    {cells.length > 0 && <div className="flex gap-4">
-      <div className="flex-1 overflow-x-auto">
-        <Card title="Impact Matrix">
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead><tr>
-                <th className="px-2 py-2 text-left text-[15px] text-[var(--text-muted)] font-bold uppercase sticky left-0 bg-[var(--surface-1)]">Function</th>
-                {families.map(fam => <th key={fam} className="px-2 py-2 text-center text-[13px] text-[var(--text-muted)] font-bold" style={{ minWidth: 70, height: 80 }}><div title={fam} style={{ display: "inline-block", transform: "rotate(-30deg)", transformOrigin: "left bottom", whiteSpace: "nowrap", fontSize: 13, lineHeight: 1, paddingLeft: 4 }}>{fam}</div></th>)}
-              </tr></thead>
-              <tbody>{functions.map(func => <tr key={func}>
-                <td className="px-2 py-1.5 text-[15px] text-[var(--text-secondary)] font-semibold whitespace-nowrap sticky left-0 bg-[var(--surface-1)]">{func}</td>
-                {families.map(fam => {
-                  const cell = getCell(func, fam);
-                  return <td key={fam} className="p-0.5"><div onClick={() => cell && setSelectedCell(cell)} className="w-8 h-8 rounded-md flex items-center justify-center text-[15px] font-bold cursor-pointer transition-all hover:scale-110" style={{ background: cell ? cellColor(cell.score) : "#1e2030", color: cell ? "#fff" : "#8a7f6d" }}>{cell ? cell.score.toFixed(0) : ""}</div></td>;
-                })}
-              </tr>)}</tbody>
-            </table>
-          </div>
-          <div className="flex items-center gap-4 mt-3 text-[15px] text-[var(--text-muted)]">
-            <span className="flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ background: "rgba(139,168,122,0.5)" }} /> Low (0-3.5)</span>
-            <span className="flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ background: "rgba(244,168,58,0.6)" }} /> Moderate (3.5-6)</span>
-            <span className="flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ background: "rgba(232,122,93,0.7)" }} /> High (6-10)</span>
-          </div>
-        </Card>
-      </div>
-
-      {/* Detail panel */}
-      {selectedCell && <div className="w-72 shrink-0 bg-[var(--surface-1)] rounded-xl border border-[var(--border)] p-4 animate-slide-right">
-        <div className="flex items-center justify-between mb-3">
-          <h4 className="text-[15px] font-bold text-[var(--text-primary)] font-heading">Cell Detail</h4>
-          <button onClick={() => setSelectedCell(null)} className="text-[var(--text-muted)] text-sm">✕</button>
-        </div>
-        <div className="text-[15px] text-[var(--accent-primary)] font-semibold mb-1">{selectedCell.function} × {selectedCell.family}</div>
-        <div className="grid grid-cols-2 gap-2 mb-3">
-          <div className="bg-[var(--surface-2)] rounded-lg p-2 text-center"><div className="text-[16px] font-bold font-data" style={{ color: cellColor(selectedCell.score) }}>{selectedCell.score}</div><div className="text-[15px] text-[var(--text-muted)] uppercase">AI Score</div></div>
-          <div className="bg-[var(--surface-2)] rounded-lg p-2 text-center"><div className="text-[16px] font-bold font-data text-[var(--text-primary)]">{selectedCell.tasks}</div><div className="text-[15px] text-[var(--text-muted)] uppercase">Tasks</div></div>
-        </div>
-        <Badge color={selectedCell.impact === "High" ? "red" : selectedCell.impact === "Moderate" ? "amber" : "green"}>{selectedCell.impact} Impact</Badge>
-        {selectedCell.roles.length > 0 && <div className="mt-3"><div className="text-[15px] font-bold text-[var(--text-muted)] uppercase mb-1">Roles</div><div className="space-y-1">{selectedCell.roles.map(r => <div key={r} className="text-[15px] text-[var(--text-secondary)] bg-[var(--surface-2)] rounded px-2 py-1">{r}</div>)}</div></div>}
-      </div>}
-    </div>}
-
-    <FlowNav
-      previous={{ target: { kind: "module", moduleId: "orghealth" }, label: "Org Health Scorecard" }}
-      next={{ target: { kind: "module", moduleId: "clusters" }, label: "Role Clustering" }}
-    />
-  </div>;
-}
-
 /* ═══════════════════════════════════════════════════════════════
    ROLE CLUSTERING — group similar roles by task overlap
    ═══════════════════════════════════════════════════════════════ */
@@ -2069,7 +2055,7 @@ export function RoleClustering({ model, f, onBack, onNavigate, viewCtx }: { mode
     </>}
 
     <FlowNav
-      previous={{ target: { kind: "module", moduleId: "heatmap" }, label: "AI Impact Heatmap" }}
+      previous={{ target: { kind: "module", moduleId: "scan" }, label: "AI Opportunity Scan" }}
       next={{ target: { kind: "module", moduleId: "readiness" }, label: "AI Readiness" }}
     />
   </div>;

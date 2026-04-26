@@ -54,7 +54,6 @@ const SkillsTalent = dynamic(() => import("../../components/SkillsEngine").then(
 const ChangeReadiness = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.ChangeReadiness })), { ssr: false, loading: ModuleLoadingSkeleton });
 const ManagerDevelopment = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.ManagerDevelopment })), { ssr: false, loading: ModuleLoadingSkeleton });
 const OrgHealthScorecard = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.OrgHealthScorecard })), { ssr: false, loading: ModuleLoadingSkeleton });
-const AIImpactHeatmap = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.AIImpactHeatmap })), { ssr: false, loading: ModuleLoadingSkeleton });
 const RoleClustering = dynamic(() => import("../../components/DiagnoseModule").then(m => ({ default: m.RoleClustering })), { ssr: false, loading: ModuleLoadingSkeleton });
 
 // Design — heaviest module (~5500 lines), loaded on demand
@@ -674,7 +673,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       navAction("home", "Home", "\u2302", "Go to the landing page", "Cmd+H"),
       // Phase shortcuts
       { id: "phase_discover", icon: "\u2315", label: "Discover Phase", desc: "Workforce snapshot, job architecture, skill shift", category: "Navigation", shortcut: "Cmd+1", action: () => navigate("snapshot"), keywords: "discover phase 1" },
-      { id: "phase_diagnose", icon: "\u2695", label: "Diagnose Phase", desc: "AI scan, heatmap, org health, readiness", category: "Navigation", shortcut: "Cmd+2", action: () => navigate("scan"), keywords: "diagnose phase 2" },
+      { id: "phase_diagnose", icon: "\u2695", label: "Diagnose Phase", desc: "AI scan, org health, readiness, change readiness", category: "Navigation", shortcut: "Cmd+2", action: () => navigate("scan"), keywords: "diagnose phase 2" },
       { id: "phase_design", icon: "\u270E", label: "Design Phase", desc: "Work design, operating model, BBBA, headcount", category: "Navigation", shortcut: "Cmd+3", action: () => navigate("design"), keywords: "design phase 3" },
       { id: "phase_simulate", icon: "\u26A1", label: "Simulate Phase", desc: "Impact modeling, scenarios, ROI", category: "Navigation", shortcut: "Cmd+4", action: () => navigate("simulate"), keywords: "simulate phase 4" },
       { id: "phase_mobilize", icon: "\u2192", label: "Mobilize Phase", desc: "Change planner, reskilling, talent marketplace", category: "Navigation", shortcut: "Cmd+5", action: () => navigate("plan"), keywords: "mobilize phase 5" },
@@ -708,7 +707,7 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
   }, [accountMenuOpen]);
 
   // Presentation mode module sequence (must be before conditional returns)
-  const PRESENT_MODULES = ["snapshot", "scan", "heatmap", "ja-audit", "ja-design", "design", "opmodel", "simulate", "plan", "export"];
+  const PRESENT_MODULES = ["snapshot", "scan", "ja-audit", "ja-design", "design", "opmodel", "simulate", "plan", "export"];
   const presentIdx = PRESENT_MODULES.indexOf(page);
   const presentPrev = useCallback(() => { if (presentIdx > 0) navigate(PRESENT_MODULES[presentIdx - 1]); }, [presentIdx, navigate]); // eslint-disable-line react-hooks/exhaustive-deps
   const presentNext = useCallback(() => { if (presentIdx < PRESENT_MODULES.length - 1) navigate(PRESENT_MODULES[presentIdx + 1]); else if (page === "home") navigate(PRESENT_MODULES[0]); }, [presentIdx, page, navigate]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -934,7 +933,6 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
          page === "simulate" ? "Compare Conservative vs. Balanced vs. Aggressive. Highlight the risk-adjusted returns." :
          page === "plan" ? "Show the Gantt timeline. Walk through the ADKAR assessment results for leadership buy-in." :
          page === "opmodel" ? "Start with strategic priorities, then walk through the capability maturity gaps." :
-         page === "heatmap" ? "The heatmap shows AI impact by function × job family. Red cells = highest transformation priority." :
          page === "export" ? "Offer to generate the deliverable pack: executive summary, detailed report, and transformation roadmap." :
          "Talking points for this module — press N to toggle notes."}
       </div>
@@ -1130,7 +1128,6 @@ function Home({ projectId, projectName, projectMeta, onBackToHub, user, onShowPr
       {page === "changeready" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ChangeReadiness model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} simState={simState} /></ErrorBoundary>}
       {page === "mgrdev" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><ManagerDevelopment model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "orghealth" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><OrgHealthScorecard model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
-      {page === "heatmap" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><AIImpactHeatmap model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "clusters" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><RoleClustering model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "skillshift" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><SkillShiftIndex model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} /></ErrorBoundary>}
       {page === "story" && model && <ErrorBoundary onBack={goHome} onNavigate={navigate} onExitProject={onBackToHub}><TransformationStoryBuilder model={model} f={f} onBack={goHome} onNavigate={navigate} viewCtx={viewCtx} jobStates={jobStates} simState={simState} decisionLog={decisionLog} riskRegister={riskRegister} /></ErrorBoundary>}
