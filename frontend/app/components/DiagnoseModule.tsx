@@ -875,7 +875,7 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
         <div className="space-y-3">
           {question.opts.map((opt, oi) => {
             const isSelected = answered === oi;
-            return <button key={oi} onClick={() => { setAssessAnswers(prev => ({ ...prev, [`q${assessQ}`]: oi })); setTimeout(() => { if (assessQ < totalQuestions - 1) setAssessQ(assessQ + 1); else setAssessActive(false); }, 400); }} className="w-full text-left px-5 py-4 rounded-xl transition-all" style={{
+            return <button key={oi} onClick={() => setAssessAnswers(prev => ({ ...prev, [`q${assessQ}`]: oi }))} className="w-full text-left px-5 py-4 rounded-xl transition-all" style={{
               background: isSelected ? "rgba(244,168,58,0.1)" : "var(--surface-1)",
               border: isSelected ? "2px solid var(--accent-primary)" : "1px solid var(--border)",
               boxShadow: isSelected ? "0 0 12px rgba(244,168,58,0.15)" : "0 1px 4px rgba(0,0,0,0.06)",
@@ -891,7 +891,7 @@ export function AIReadiness({ model, f, onBack, onNavigate, viewCtx, jobStates }
         <div className="flex justify-between mt-6">
           <button onClick={() => { if (assessQ > 0) setAssessQ(assessQ - 1); }} disabled={assessQ === 0} className="px-4 py-2 rounded-xl text-[14px] font-semibold text-[var(--text-muted)] border border-[var(--border)] disabled:opacity-30">← Back</button>
           <button onClick={() => setAssessActive(false)} className="px-4 py-2 rounded-xl text-[14px] text-[var(--text-muted)]">Save & Exit</button>
-          {answered !== undefined && <button onClick={() => { if (assessQ < totalQuestions - 1) setAssessQ(assessQ + 1); else setAssessActive(false); }} className="px-6 py-2 rounded-xl text-[14px] font-semibold text-white" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>Next →</button>}
+          <button disabled={answered === undefined} onClick={() => { if (assessQ < totalQuestions - 1) setAssessQ(assessQ + 1); else setAssessActive(false); }} className="px-6 py-2 rounded-xl text-[14px] font-semibold text-white disabled:opacity-30 disabled:cursor-not-allowed" style={{ background: "linear-gradient(135deg, var(--accent-primary), var(--teal))" }}>{assessQ < totalQuestions - 1 ? "Next →" : "See Results"}</button>
         </div>
       </div>
     </div>;
