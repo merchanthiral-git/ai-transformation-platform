@@ -163,6 +163,31 @@ function scanSubSteps(requiredTabs: string[], patternCtx: { emphasisPilot?: bool
   };
 }
 
+/* ── Work Design Lab sub-step builder ── */
+
+function designSubSteps(isPilot: boolean): { subSteps: SubStep[]; tabContext: ModuleTabContext } {
+  // TODO: refine copy — these are placeholder instructions
+  const stages: SubStep[] = [
+    { tabId: "ctx", tabLabel: "Context", suggestedOrder: 1, title: "Define the redesign business case", criterion: "Specify why this job is being redesigned and what success looks like", howToDoIt: ["Select a job from the queue — pick one representative role from your candidate functions.", "Review the role metadata: title, function, headcount, current task profile.", "Note the redesign rationale. Click 'Mark sub-step complete' when ready."] },
+    // TODO: validate judgment categories with Hiral
+    { tabId: "decon", tabLabel: "Deconstruction", suggestedOrder: 2, title: "Decompose the job into tasks", criterion: "Break the job into discrete tasks with time allocation summing to 100%", howToDoIt: ["Open the Deconstruction tab. Review the AI-suggested task breakdown.", "For each task, verify the time allocation and AI impact classification.", "Ensure tasks sum to 100% of work time. Submit when complete.", "Click 'Mark sub-step complete' when decomposition is submitted."] },
+    { tabId: "redeploy", tabLabel: "Redeployment", suggestedOrder: 3, title: "Identify task redeployment paths", criterion: "For each task, decide: Retain / Augment / Automate / Redesign / Transfer", howToDoIt: ["Open the Redeployment tab. Each task from Deconstruction appears as a row.", "Set the disposition for each task using the dropdown.", "Focus on automatable tasks first — these drive the most impact.", "Submit when all tasks have a disposition. Click 'Mark sub-step complete'."] },
+    { tabId: "recon", tabLabel: "Reconstruction", suggestedOrder: 4, title: "Reconstruct the role", criterion: "Reassemble remaining tasks into a coherent reconstructed role", howToDoIt: ["Open the Reconstruction tab. Review the auto-generated reconstruction.", "Confirm the reconstructed role is coherent — not just leftover tasks.", "Check: does this role make sense as a real job someone would do?", "Click 'Mark sub-step complete' when reconstruction looks right."] },
+    { tabId: "impact", tabLabel: "Impact Summary", suggestedOrder: 5, title: "Quantify the redesign impact", criterion: "Review hours freed, capability uplift, and risks introduced", howToDoIt: ["Open the Impact Summary tab. Review the transformation metrics.", "Note hours freed and the capacity redeployment plan.", "Flag any risks the redesign introduces.", "Finalize the impact assessment. Click 'Mark sub-step complete'."] },
+    { tabId: "orglink", tabLabel: "Org Link", suggestedOrder: 6, title: "Link to org structure", criterion: "Confirm the redesigned role fits the org: reporting line, span, level", howToDoIt: ["Open the Org Link tab.", "Verify the redesigned role fits the existing org structure.", isPilot ? "For pilot scope, this is a lightweight check." : "Check reporting line, span of control, and peer role alignment.", "Click 'Mark sub-step complete' when confirmed."] },
+    { tabId: "handoff", tabLabel: "Handoff", suggestedOrder: 7, title: "Prepare for handoff", criterion: "Confirm the redesign is ready for the next step", howToDoIt: ["Open the Handoff tab.", "Review the full redesign summary for this role.", "Note any open issues or dependencies.", "Click 'Mark sub-step complete' to finalize this job's redesign."] },
+  ];
+
+  return {
+    subSteps: stages,
+    tabContext: {
+      moduleId: "design",
+      pathRequiredTabs: ["ctx", "decon", "redeploy", "recon", "impact", "orglink", "handoff"],
+      optionalTabNotices: {},
+    },
+  };
+}
+
 /* ── Pattern definitions ── */
 
 type PatternId = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13;
@@ -519,9 +544,14 @@ export const AIReadinessPathEngine: PathEngine<AIReadinessResult> = {
       13: { required: ["ai", "heatmap", "org"], ctx: {} },
     };
     const scanConfig = PATTERN_SCAN_TABS[pattern] || PATTERN_SCAN_TABS[6];
+    const isPilot = pattern === 1 || pattern === 2;
     const enrichedSteps = content.steps.map(s => {
       if (s.moduleId === "scan" && (!s.subSteps || s.subSteps.length === 0)) {
         const { subSteps, tabContext } = scanSubSteps(scanConfig.required, scanConfig.ctx);
+        return { ...s, subSteps, moduleTabContext: tabContext };
+      }
+      if (s.moduleId === "design" && (!s.subSteps || s.subSteps.length === 0)) {
+        const { subSteps, tabContext } = designSubSteps(isPilot);
         return { ...s, subSteps, moduleTabContext: tabContext };
       }
       return s;

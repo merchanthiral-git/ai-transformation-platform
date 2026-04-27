@@ -27,6 +27,9 @@ export { TASK_DICTIONARY, findTaskDictEntries } from "../shared/taskDictionary";
 import { TASK_DICTIONARY, findTaskDictEntries } from "../shared/taskDictionary";
 import { PathStepBanner } from "../designpaths/PathStepBanner";
 import { SoftCompletionWarning } from "../designpaths/SoftCompletionWarning";
+import { SubStepInstructionPanel } from "../designpaths/SubStepInstructionPanel";
+import { StepCompleteCard } from "../designpaths/StepCompleteCard";
+import { useDesignPaths } from "../../lib/designpaths/useDesignPaths";
 import { usePathBanner } from "../../lib/designpaths/usePathBanner";
 
 /* ─── Change Playbook Dictionary — pre-built wave plans for common transformations ─── */
@@ -140,6 +143,31 @@ export function WorkDesignLab({
   useEffect(() => { if (job) setWdTab("ctx"); }, [job]);
   const js = jobStates[job] || { deconRows: [], redeployRows: [], scenario: "Balanced", deconSubmitted: false, redeploySubmitted: false, finalized: false, recon: null, initialized: false };
   const pb = usePathBanner(model, "design");
+
+  // WD Lab sub-step awareness
+  const { getActivePathsForModule: getActiveWD, markSubStepComplete: markWDSub, getCurrentSubStep: getWDSub } = useDesignPaths(model);
+  const wdActivePaths = getActiveWD("design");
+  const wdActivePath = wdActivePaths.find(p => p.steps.some(s => s.moduleId === "design"));
+  const wdStepIdx = wdActivePath?.steps.findIndex(s => s.moduleId === "design") ?? -1;
+  const wdStep = wdActivePath?.steps[wdStepIdx];
+
+  const renderWDStagePanel = (stageId: string) => {
+    if (!wdActivePath || wdStepIdx < 0 || !wdStep) return null;
+    const subStep = getWDSub(wdActivePath.sourceModuleId, wdStepIdx, stageId);
+    if (!subStep) return null;
+    const subs = wdStep.subSteps || [];
+    const subIdx = subs.findIndex(ss => ss.tabId === stageId);
+    return <SubStepInstructionPanel
+      sourceModuleTitle={wdActivePath.sourceModuleTitle}
+      parentStepIdx={wdStepIdx}
+      parentStepCount={wdActivePath.steps.length}
+      subStep={subStep}
+      subStepIdx={subIdx + 1}
+      totalSubSteps={subs.length}
+      onMarkComplete={() => markWDSub(wdActivePath.sourceModuleId, wdStepIdx, stageId, true)}
+      isComplete={!!subStep.completedAt}
+    />;
+  };
 
   const [ctx, ctxLoading] = useApiData(() => job ? api.getJobContext(model, job, f) : Promise.resolve(null), [model, job, f.func, f.jf, f.sf, f.cl]);
   const [decon, deconLoading] = useApiData(() => job ? api.getDeconstruction(model, job, f) : Promise.resolve(null), [model, job, f.func, f.jf, f.sf, f.cl]);
@@ -501,6 +529,9 @@ Rules:
           <span className="text-[15px] text-[var(--text-secondary)]">{js.deconRows.length} tasks · {String(k.hours_week ?? 0)}h/wk · Scenario: {js.scenario}</span>
           <div className="ml-auto flex items-center gap-2"><Badge color={js.deconSubmitted ? "green" : "gray"}>Decon {js.deconSubmitted ? <Check size={12} className="inline" /> : <span className="inline-block w-2 h-2 rounded-full border border-current" />}</Badge><Badge color={js.redeploySubmitted ? "green" : "gray"}>Redeploy {js.redeploySubmitted ? <Check size={12} className="inline" /> : <span className="inline-block w-2 h-2 rounded-full border border-current" />}</Badge><Badge color={js.finalized ? "green" : "gray"}>Final {js.finalized ? <Check size={12} className="inline" /> : <span className="inline-block w-2 h-2 rounded-full border border-current" />}</Badge></div>
         </div>
+
+      {/* Path sub-step panel for current stage */}
+      {renderWDStagePanel(wdTab)}
 
       {wdTab === "ctx" && <div>
         {js.deconRows.length === 0 && <div className="bg-[var(--surface-1)] border border-[var(--accent-primary)]/20 rounded-xl px-5 py-3 mb-4 flex items-center justify-between">
